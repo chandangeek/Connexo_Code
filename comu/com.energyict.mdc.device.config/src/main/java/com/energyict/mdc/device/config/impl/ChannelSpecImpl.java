@@ -3,7 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Provider;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -11,7 +11,6 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.Phenomenon;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
@@ -19,7 +18,6 @@ import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigu
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceConfigurationReferenceException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLoadProfileSpecOfChannelSpec;
 import com.energyict.mdc.device.config.exceptions.CannotChangeRegisterMappingOfChannelSpecException;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.DuplicateRegisterMappingException;
@@ -40,6 +38,7 @@ import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.math.BigDecimal;
 
 /**
@@ -87,7 +86,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public ObisCode getDeviceObisCode() {
-        if (!"".equals(this.overruledObisCodeString) && this.overruledObisCodeString != null) {
+        if (!Checks.is(this.overruledObisCodeString).empty()) {
             this.overruledObisCode = ObisCode.fromString(this.overruledObisCodeString);
             return overruledObisCode;
         }
@@ -140,7 +139,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     @Override
-    public DeviceConfiguration getDeviceConfig() {
+    public DeviceConfiguration getDeviceConfiguration() {
         return this.deviceConfiguration;
     }
 
@@ -258,21 +257,21 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
                 throw RegisterMappingIsNotConfiguredException.forChannelInLoadProfileSpec(thesaurus, getLoadProfileSpec(), getRegisterMapping(), this);
             }
         } else { // then the RegisterMapping should be included in the DeviceType
-            if (!getDeviceConfig().getDeviceType().getRegisterMappings().contains(getRegisterMapping())) {
-                throw RegisterMappingIsNotConfiguredException.forChannelInDeviceType(thesaurus, this, getRegisterMapping(), getDeviceConfig().getDeviceType());
+            if (!getDeviceConfiguration().getDeviceType().getRegisterMappings().contains(getRegisterMapping())) {
+                throw RegisterMappingIsNotConfiguredException.forChannelInDeviceType(thesaurus, this, getRegisterMapping(), getDeviceConfiguration().getDeviceType());
             }
         }
     }
 
     private void validateActiveConfig() {
-        if (getDeviceConfig().getActive()) {
+        if (getDeviceConfiguration().getActive()) {
             throw CannotAddToActiveDeviceConfigurationException.aNewChannelSpec(this.thesaurus);
         }
     }
 
     private void validateDeviceConfigurationContainsLoadProfileSpec() {
         if (getLoadProfileSpec() != null) {
-            if (!getDeviceConfig().getLoadProfileSpecs().contains(getLoadProfileSpec())) {
+            if (!getDeviceConfiguration().getLoadProfileSpecs().contains(getLoadProfileSpec())) {
                 throw new LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException(this.thesaurus, getLoadProfileSpec());
             }
         }
@@ -297,7 +296,12 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     protected void doDelete() {
-        this.getDataMapper().remove(this);
+        getDeviceConfiguration().deleteChannelSpec(this);
+    }
+
+    @Override
+    public void delete() {
+        getDeviceConfiguration().deleteChannelSpec(this);
     }
 
     @Override
@@ -306,11 +310,11 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     protected void validateUniqueName(String name) {
-        if (this.deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfig(), name) != null) {
+        if (this.deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfiguration(), name) != null) {
             throw DuplicateNameException.channelSpecAlreadyExists(this.getThesaurus(), name);
         }
         if (name.length() > 27) {
-            if (this.deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfig(), name.substring(0, 27)) != null) {
+            if (this.deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfiguration(), name.substring(0, 27)) != null) {
                 throw DuplicateNameException.channelSpecAlreadyExistsFirstChars(this.getThesaurus(), name.substring(0, 27));
             }
         }
@@ -319,7 +323,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public String toString() {
-        return getDeviceConfig().getDeviceType() + "/" + getDeviceConfig() + "/" + getName();
+        return getDeviceConfiguration().getDeviceType() + "/" + getDeviceConfiguration() + "/" + getName();
     }
 
     protected String getInvalidCharacters() {
@@ -350,7 +354,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private void validateRegisterMappingForUpdate(RegisterMapping registerMapping) {
-        if (getDeviceConfig() != null && getDeviceConfig().getActive() && this.registerMapping != null && !this.registerMapping.equals(registerMapping)) {
+        if (getDeviceConfiguration() != null && getDeviceConfiguration().getActive() && this.registerMapping != null && !this.registerMapping.equals(registerMapping)) {
             throw new CannotChangeRegisterMappingOfChannelSpecException(this.thesaurus);
         }
     }
@@ -406,7 +410,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private void validateLoadProfileSpecForUpdate(LoadProfileSpec loadProfileSpec) {
-        if (getDeviceConfig() != null && getDeviceConfig().getActive() && !this.loadProfileSpec.equals(loadProfileSpec)) {
+        if (getDeviceConfiguration() != null && getDeviceConfiguration().getActive() && !this.loadProfileSpec.equals(loadProfileSpec)) {
             throw new CannotChangeLoadProfileSpecOfChannelSpec(this.thesaurus);
         }
     }

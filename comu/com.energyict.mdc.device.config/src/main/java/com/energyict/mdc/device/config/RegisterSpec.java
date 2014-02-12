@@ -130,4 +130,8 @@ public interface RegisterSpec {
     ChannelSpecLinkType getChannelSpecLinkType();
 
     void setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType);
+
+    void delete();
+
+    void validateDelete();
 }

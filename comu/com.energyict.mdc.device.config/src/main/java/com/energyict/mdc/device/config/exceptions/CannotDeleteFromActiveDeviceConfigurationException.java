@@ -8,6 +8,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationImpl;
 import com.energyict.mdc.device.config.impl.RegisterSpecImpl;
 
 /**
@@ -92,4 +93,5 @@ public class CannotDeleteFromActiveDeviceConfigurationException extends Localize
         cannotDeleteFromActiveDeviceConfigurationException.set("deviceConfiguration", deviceConfiguration);
         return cannotDeleteFromActiveDeviceConfigurationException;
     }
+
 }

@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Provider;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -30,6 +29,7 @@ import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.protocol.api.device.Device;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -189,7 +189,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 //            throw new BusinessException("deleteRegisterSpecsFromActiveDeviceConfigIsNotAllowed",
 //                    "It's not allowed to delete register specifications of an active device configuration");
 //        }
+        if (getActive()) {
+            throw CannotDeleteFromActiveDeviceConfigurationException.canNotDeleteRegisterSpec(this.thesaurus, this, registerSpec);
+        }
+        registerSpec.validateDelete();
         this.registerSpecs.remove(registerSpec);
+        this.eventService.postEvent(EventType.DELETED.topic(),registerSpec);
     }
 
     public List<ChannelSpec> getChannelSpecs() {
@@ -236,6 +241,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
         channelSpec.validateDelete();
         this.channelSpecs.remove(channelSpec);
+        this.eventService.postEvent(EventType.DELETED.topic(),channelSpec);
     }
 
     public List<LoadProfileSpec> getLoadProfileSpecs() {
@@ -285,6 +291,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
         loadProfileSpec.validateDelete();
         this.loadProfileSpecs.remove(loadProfileSpec);
+        this.eventService.postEvent(EventType.DELETED.topic(),loadProfileSpec);
     }
 
     @Override
@@ -335,6 +342,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
         logBookSpec.validateDelete();
         this.logBookSpecs.remove(logBookSpec);
+        this.eventService.postEvent(EventType.DELETED.topic(),logBookSpec);
     }
 
     public boolean getActive() {

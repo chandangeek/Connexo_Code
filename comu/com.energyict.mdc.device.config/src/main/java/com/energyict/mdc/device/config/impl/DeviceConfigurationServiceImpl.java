@@ -47,9 +47,6 @@ import java.util.List;
 @Component(name="com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, InstallService.class})
 public class DeviceConfigurationServiceImpl implements DeviceConfigurationService, InstallService {
 
-    private Provider<LoadProfileTypeImpl> loadProfileTypeProvider;
-    private Provider<PhenomenonImpl> phenomenonProvider;
-    private Provider<DeviceConfigurationImpl> deviceConfigurationProvider;
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -59,14 +56,8 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService,
-                                          Provider<LoadProfileTypeImpl> loadProfileTypeProvider,
-                                          Provider<PhenomenonImpl> phenomenonProvider,
-                                          Provider<DeviceConfigurationImpl> deviceConfigurationProvider) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService) {
         this();
-        this.loadProfileTypeProvider = loadProfileTypeProvider;
-        this.phenomenonProvider = phenomenonProvider;
-        this.deviceConfigurationProvider = deviceConfigurationProvider;
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
@@ -276,7 +267,7 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
 
     @Override
     public Phenomenon newPhenomenon(String name, Unit unit) {
-        return this.phenomenonProvider.get().initialize(name, unit);
+        return this.getDataModel().getInstance(PhenomenonImpl.class).initialize(name, unit);
     }
 
     @Override
@@ -311,7 +302,7 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
 
     @Override
     public DeviceConfiguration newDeviceConfiguration(DeviceType deviceType, String name) {
-        return this.deviceConfigurationProvider.get().initialize(deviceType, name);
+        return this.getDataModel().getInstance(DeviceConfigurationImpl.class).initialize(deviceType, name);
     }
 
     @Override

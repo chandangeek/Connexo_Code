@@ -16,7 +16,7 @@ public interface LogBookSpec {
      */
     public long getId();
 
-    public DeviceConfiguration getDeviceConfig();
+    public DeviceConfiguration getDeviceConfiguration();
 
     public LogBookType getLogBookType();
 
@@ -44,4 +44,6 @@ public interface LogBookSpec {
     void setOverruledObisCode(ObisCode overruledObisCode);
 
     void validateDelete();
+
+    void delete();
 }

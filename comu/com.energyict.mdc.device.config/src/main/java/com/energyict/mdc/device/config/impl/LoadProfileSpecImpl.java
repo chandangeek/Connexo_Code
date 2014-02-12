@@ -3,7 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Provider;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -20,6 +20,7 @@ import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfigured
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsRequiredException;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 /**
  * Copyrights EnergyICT
@@ -52,13 +53,13 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     }
 
     @Override
-    public DeviceConfiguration getDeviceConfig() {
+    public DeviceConfiguration getDeviceConfiguration() {
         return this.deviceConfiguration;
     }
 
     @Override
     public ObisCode getDeviceObisCode() {
-        if (!"".equals(this.overruledObisCodeString) && this.overruledObisCodeString != null) {
+        if (!Checks.is(this.overruledObisCodeString).empty()) {
             this.overruledObisCode = ObisCode.fromString(this.overruledObisCodeString);
             return overruledObisCode;
         }
@@ -83,7 +84,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     }
 
     private void validateDeviceTypeContainsLoadProfileType() {
-        DeviceType deviceType = getDeviceConfig().getDeviceType();
+        DeviceType deviceType = getDeviceConfiguration().getDeviceType();
         if (!deviceType.getLoadProfileTypes().contains(getLoadProfileType())) {
             throw new LoadProfileTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, getLoadProfileType());
         }
@@ -95,7 +96,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     }
 
     private void validateActiveConfig() {
-        if (getDeviceConfig().getActive()) {
+        if (getDeviceConfiguration().getActive()) {
             throw CannotAddToActiveDeviceConfigurationException.aNewLoadProfileSpec(this.thesaurus);
         }
     }
@@ -107,8 +108,12 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     @Override
     protected void doDelete() {
-        validateDelete();
-        this.getDataMapper().remove(this);
+        this.getDeviceConfiguration().deleteLoadProfileSpec(this);
+    }
+
+    @Override
+    public void delete() {
+        getDeviceConfiguration().deleteLoadProfileSpec(this);
     }
 
     @Override
@@ -120,7 +125,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     @Override
     public String toString() {
-        return getDeviceConfig().getName() + "/" + getLoadProfileType().getName();
+        return getDeviceConfiguration().getName() + "/" + getLoadProfileType().getName();
     }
 
     @Override

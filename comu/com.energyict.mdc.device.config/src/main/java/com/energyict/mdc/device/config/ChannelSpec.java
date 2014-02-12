@@ -55,7 +55,7 @@ public interface ChannelSpec {
 
     TimeDuration getInterval();
 
-    DeviceConfiguration getDeviceConfig();
+    DeviceConfiguration getDeviceConfiguration();
 
     void setDeviceConfiguration(DeviceConfiguration deviceConfiguration);
 
@@ -86,4 +86,6 @@ public interface ChannelSpec {
     ProductSpec getProductSpec();
 
     void validateDelete();
+
+    void delete();
 }

@@ -3,7 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Provider;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -14,7 +14,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.DuplicatePrimeRegisterSpecException;
 import com.energyict.mdc.device.config.exceptions.InCorrectDeviceConfigOfChannelSpecException;
@@ -25,6 +24,7 @@ import com.energyict.mdc.device.config.exceptions.RegisterMappingIsRequiredExcep
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Date;
@@ -94,7 +94,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     @Override
     public ObisCode getDeviceObisCode() {
-        if (!"".equals(this.overruledObisCodeString) && this.overruledObisCodeString != null) {
+        if (!Checks.is(this.overruledObisCodeString).empty()) {
             this.overruledObisCode = ObisCode.fromString(this.overruledObisCodeString);
             return overruledObisCode;
         }
@@ -142,15 +142,18 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     @Override
     protected void doDelete() {
         // TODO Check that the EISRTUREGISTERREADINGS and EISRTUREGISTERS get deleted via cascading ...
-        this.getDataMapper().remove(this);
+        this.getDeviceConfiguration().deleteRegisterSpec(this);
     }
 
     @Override
-    protected void validateDelete() {
-        // we should rely on the 'Activation' state of the Configuration. If the Configuration is not active, then we must be able to delete them.
-        if (getDeviceConfiguration().getActive()) {
-            throw CannotDeleteFromActiveDeviceConfigurationException.canNotDeleteRegisterSpec(this.thesaurus, getDeviceConfiguration(), this);
-        }
+    public void validateDelete() {
+        // the configuration must validate the 'active' state
+    }
+
+    @Override
+    public void delete() {
+        // TODO Check that the EISRTUREGISTERREADINGS and EISRTUREGISTERS get deleted via cascading ...
+        this.getDeviceConfiguration().deleteRegisterSpec(this);
     }
 
     @Override
@@ -208,8 +211,8 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     private void validateLinkedChannelSpec() {
         if (this.linkedChannelSpec != null) {
-            if (getDeviceConfiguration() != null && !linkedChannelSpec.getDeviceConfig().equals(getDeviceConfiguration())) {
-                throw new InCorrectDeviceConfigOfChannelSpecException(this.thesaurus, linkedChannelSpec, linkedChannelSpec.getDeviceConfig(), getDeviceConfiguration());
+            if (getDeviceConfiguration() != null && !linkedChannelSpec.getDeviceConfiguration().equals(getDeviceConfiguration())) {
+                throw new InCorrectDeviceConfigOfChannelSpecException(this.thesaurus, linkedChannelSpec, linkedChannelSpec.getDeviceConfiguration(), getDeviceConfiguration());
             }
         }
     }

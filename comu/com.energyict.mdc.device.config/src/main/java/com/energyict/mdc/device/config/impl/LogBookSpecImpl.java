@@ -3,8 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Provider;
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -13,12 +12,12 @@ import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceConfigurationReferenceException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLogbookTypeOfLogbookSpecException;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogbookTypeIsRequiredException;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 /**
  * Copyrights EnergyICT
@@ -44,7 +43,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     @Override
-    public DeviceConfiguration getDeviceConfig() {
+    public DeviceConfiguration getDeviceConfiguration() {
         return this.deviceConfiguration;
     }
 
@@ -55,7 +54,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
 
     @Override
     public ObisCode getDeviceObisCode() {
-        if (!"".equals(this.overruledObisCodeString) && this.overruledObisCodeString != null) {
+        if (!Checks.is(this.overruledObisCodeString).empty()) {
             this.overruledObisCode = ObisCode.fromString(this.overruledObisCodeString);
             return overruledObisCode;
         }
@@ -81,7 +80,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     private void validateDeviceTypeContainsLogbookType() {
-        DeviceType deviceType = getDeviceConfig().getDeviceType();
+        DeviceType deviceType = getDeviceConfiguration().getDeviceType();
         if (!deviceType.getLogBookTypes().contains(getLogBookType())) {
             throw new LogbookTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, getLogBookType());
         }
@@ -100,7 +99,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     private void validateActiveConfig() {
-        if (getDeviceConfig().getActive()) {
+        if (getDeviceConfiguration().getActive()) {
             throw CannotAddToActiveDeviceConfigurationException.aNewLoadProfileSpec(this.thesaurus);
         }
     }
@@ -117,7 +116,12 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
 
     @Override
     protected void doDelete() {
-        this.getDataMapper().remove(this);
+        this.getDeviceConfiguration().deleteLogBookSpec(this);
+    }
+
+    @Override
+    public void delete() {
+        getDeviceConfiguration().deleteLogBookSpec(this);
     }
 
     @Override
