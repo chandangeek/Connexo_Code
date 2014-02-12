@@ -3,10 +3,11 @@ package com.energyict.mdc.device.config.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
- * to delete an object from an <i>active</i> {@link com.energyict.mdc.device.config.DeviceConfiguration}
+ * to delete an active DeviceConfiguration
  *
  * Copyrights EnergyICT
  * Date: 03/02/14
@@ -14,20 +15,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
  */
 public class DeviceConfigurationIsActiveException extends LocalizedException {
 
-    /**
-     * Creates a new DeviceConfigurationIsActiveException that models the
-     * exceptional situation that occurs when an attempt is made
-     * to delete a {@link com.energyict.mdc.device.config.RegisterSpec} from an
-     * <i>active</i> {@link com.energyict.mdc.device.config.DeviceConfiguration}
-     *
-     * @param thesaurus The Thesaurus
-     * @return The ObisCodeIsRequiredException
-     */
-    public static DeviceConfigurationIsActiveException canNotDeleteRegisterSpec(Thesaurus thesaurus){
-        return new DeviceConfigurationIsActiveException(thesaurus, MessageSeeds.REGISTER_SPEC_PRIME_CHANNEL_SPEC_ALREADY_EXISTS);
-    }
-
-    private DeviceConfigurationIsActiveException(Thesaurus thesaurus, MessageSeed messageSeed) {
-        super(thesaurus, messageSeed);
+    public DeviceConfigurationIsActiveException(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration) {
+        super(thesaurus, MessageSeeds.DEVICE_CONFIGURATION_IS_ACTIVE_CAN_NOT_DELETE);
+        set("deviceConfiguration", deviceConfiguration);
     }
 }

@@ -168,15 +168,6 @@ public interface DeviceConfigurationService {
     public DeviceConfiguration findDeviceConfiguration(long deviceConfigId);
 
     /**
-     * Creates a new {@link RegisterSpec} based on the given parameters
-     *
-     * @param deviceConfiguration the DeviceConfiguration which will own the new RegisterSpec
-     * @param registerMapping     the RegisterMapping which serves as a model for the RegisterSpec
-     * @return the newly created RegisterSpec
-     */
-    public RegisterSpec newRegisterSpec(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping);
-
-    /**
      * Finds a {@link ChannelSpec} which is uniquely identified by the given ID
      *
      * @param channelSpecId the id of the ChannelSpec
@@ -184,7 +175,7 @@ public interface DeviceConfigurationService {
      */
     public ChannelSpec findChannelSpec(long channelSpecId);
 
-    /**
+    /**R
      * Finds a {@link RegisterSpec} which is uniquely identified by the given ID
      *
      * @param id the id of the RegisterSpec
@@ -270,15 +261,6 @@ public interface DeviceConfigurationService {
     public LoadProfileType findLoadProfileType(long loadProfileTypeId);
 
     /**
-     * Creates a new {@link LoadProfileSpec} based on the given parameters
-     *
-     * @param deviceConfiguration the DeviceConfiguration
-     * @param loadProfileType     the LoadProfileType that will model the specification
-     * @return the newly created LoadProfileSpec
-     */
-    public LoadProfileSpec newLoadProfileSpec(DeviceConfiguration deviceConfiguration, LoadProfileType loadProfileType);
-
-    /**
      * Find the {@link LoadProfileSpec} with the given ID
      *
      * @param loadProfileSpecId the ID of the LoadProfileSpec
@@ -312,15 +294,6 @@ public interface DeviceConfigurationService {
      * @return the LogBookType or <code>null</code> if there is no such LogBookType
      */
     public LogBookType findLogBookType(long logBookTypeId);
-
-    /**
-     * Creates a new {@link LogBookSpec} based on the given parameters
-     *
-     * @param deviceConfiguration the DeviceConfiguration
-     * @param logBookType         the {@link LogBookType} which models the LogBookSpec
-     * @return the newly created LogBookSpec
-     */
-    public LogBookSpec newLogBookSpec(DeviceConfiguration deviceConfiguration, LogBookType logBookType);
 
     /**
      * Find a {@link LogBookSpec} with the given ID
@@ -368,10 +341,15 @@ public interface DeviceConfigurationService {
 
     public ChannelSpec findChannelSpecByDeviceConfigurationAndName(DeviceConfiguration deviceConfig, String name);
 
-    public ChannelSpec newChannelSpec(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
-
     public List<ChannelSpec> findChannelSpecsByDeviceConfiguration(DeviceConfiguration deviceConfig);
 
     public List<ChannelSpec> findChannelSpecsByDeviceConfigurationAndRegisterMapping(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping);
 
+    public DeviceConfiguration newDeviceConfiguration(DeviceType deviceType, String name);
+
+    public DeviceConfiguration findDeviceConfigurationByNameAndDeviceType(String name, DeviceType deviceType);
+
+    public List<DeviceConfiguration> findActiveDeviceConfigurationsByDeviceType(DeviceType deviceType);
+
+    public List<DeviceConfiguration> findDeviceConfigurationsByDeviceType(DeviceType deviceType);
 }

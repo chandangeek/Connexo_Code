@@ -109,10 +109,6 @@ public interface RegisterSpec {
      */
     public BigDecimal getOverflowValue();
 
-    public void save ();
-
-    public void delete ();
-
     void setDeviceConfig(DeviceConfiguration deviceConfig);
 
     void setRegisterMapping(RegisterMapping registerMapping);
@@ -134,4 +130,8 @@ public interface RegisterSpec {
     ChannelSpecLinkType getChannelSpecLinkType();
 
     void setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType);
+
+    void delete();
+
+    void validateDelete();
 }

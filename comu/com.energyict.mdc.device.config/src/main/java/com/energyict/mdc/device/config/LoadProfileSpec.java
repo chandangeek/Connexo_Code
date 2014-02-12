@@ -16,7 +16,7 @@ public interface LoadProfileSpec {
 
     public LoadProfileType getLoadProfileType();
 
-    public DeviceConfiguration getDeviceConfig();
+    public DeviceConfiguration getDeviceConfiguration();
 
     public ObisCode getDeviceObisCode();
 
@@ -30,8 +30,7 @@ public interface LoadProfileSpec {
 
     public void setDeviceConfiguration(DeviceConfiguration deviceConfiguration);
 
-    public void save ();
+    void validateDelete();
 
-    public void delete ();
-
+    void delete();
 }
