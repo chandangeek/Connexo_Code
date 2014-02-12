@@ -41,6 +41,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             xtype: 'textfield',
                             name: 'name',
                             vtype: 'nonemptystring',
+                            allowBlank: false,
                             msgTarget: 'under',
                             fieldLabel: 'Name *',
                             labelAlign: 'right',
@@ -49,7 +50,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                         {
                             xtype: 'textarea',
                             name: 'description',
-                            fieldLabel: 'Description:',
+                            fieldLabel: 'Description',
                             labelWidth:	150
                         },
                         {
@@ -72,6 +73,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                                 },
                                 {
                                     xtype: 'component',
+                                    padding: '3 0 0 0',
                                     html: '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation">Cancel</a>',
                                     margin: '0 0 0 20',
                                     width: 100
