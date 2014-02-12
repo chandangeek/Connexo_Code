@@ -35,9 +35,24 @@ Ext.define('Uni.view.toolbar.PagingTop', {
     xtype: 'pagingtoolbartop',
 
     displayInfo: false,
+
+    /**
+     * @cfg {String}
+     *
+     *
+     */
     displayMsg: '{0} - {1} of {2} items',
+
+    /**
+     * @cfg {String}
+     */
     displayMoreMsg: '{0} - {1} of more than {2} items',
+
+    /**
+     * @cfg {String}
+     */
     emptyMsg: 'There are no items to display',
+
     isFullTotalCount: false,
     totalCount: -1,
 
