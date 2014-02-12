@@ -12,7 +12,7 @@ public class AggregateAdapter extends MapBasedXmlAdapter<Aggregate> {
         register("Excess", Aggregate.EXCESS);
         register("High", Aggregate.HIGH);
         register("Low", Aggregate.LOW);
-        register("High Threshold", Aggregate.HIGHTHRESHOLD);
+        register("High threshold", Aggregate.HIGHTHRESHOLD);
         register("Low threshold", Aggregate.LOWTHRESHOLD);
         register("Maximum", Aggregate.MAXIMUM);
         register("Minimum", Aggregate.MINIMUM);
