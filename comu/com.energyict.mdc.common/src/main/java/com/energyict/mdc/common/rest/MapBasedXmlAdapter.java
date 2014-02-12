@@ -1,12 +1,12 @@
 package com.energyict.mdc.common.rest;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import static java.lang.Integer.parseInt;
 
@@ -19,6 +19,9 @@ public class MapBasedXmlAdapter<V> extends XmlAdapter<String, V>{
     private final Map<String, V> map = new HashMap<>();
 
     protected final void register(String jsonValue, V serverValue) {
+        if (map.containsKey(jsonValue)) {
+            throw new IllegalArgumentException("Already contains key "+jsonValue);
+        }
         map.put(jsonValue, serverValue);
     }
 
@@ -45,7 +48,7 @@ public class MapBasedXmlAdapter<V> extends XmlAdapter<String, V>{
                 }
             }
         }
-        throw new IllegalStateException(value+" is not a known server value ");
+        throw new IllegalStateException(value+" is not a known server value in "+this.getClass().getSimpleName());
     }
 
     private class SmartComparator implements Comparator<String> {
