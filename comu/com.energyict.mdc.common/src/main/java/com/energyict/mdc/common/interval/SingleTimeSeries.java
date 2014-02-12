@@ -46,6 +46,13 @@ public interface SingleTimeSeries extends TimeSeries {
     public Quantity getConsumption(Date from, Date to, Integer codeval);
 
     /**
+     * Returns the receiver's phenomenon
+     *
+     * @return the phenomenon
+     */
+    public Phenomenon getPhenomenon();
+
+    /**
      * Returns the database column name this timeseries uses
      * Not part of the API
      *
