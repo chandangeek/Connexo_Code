@@ -8,10 +8,26 @@ Ext.define('Uni.view.form.field.Vtypes', {
     hexstringRegex: /^[a-f_A-F_0-9]*$/,
 
     init: function () {
+        this.validateNonEmptyString();
         this.validateHexString();
         this.validateEan13String();
         this.validateEan18String();
     },
+
+    validateNonEmptyString: function () {
+        var me = this;
+        Ext.apply(Ext.form.field.VTypes, {
+            nonemptystring: function (val) {
+                //check value
+                if ((val==null || val==undefined || val=='')) {
+                    return false;
+                }
+                return val.trim().length > 0;
+            },
+            nonemptystringText: 'This field is required'
+        });
+    },
+
     validateHexString: function () {
         var me = this;
         Ext.apply(Ext.form.field.VTypes, {
