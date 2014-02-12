@@ -40,6 +40,11 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
 
                 items: [
                     {
+                        xtype: 'breadcrumbTrail',
+                        region: 'north',
+                        padding: 6
+                    },
+                    {
                         xtype: 'container',
                         layout: {
                             type: 'column'

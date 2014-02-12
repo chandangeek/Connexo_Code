@@ -24,7 +24,11 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
             },
 
             items: [
-
+                {
+                    xtype: 'breadcrumbTrail',
+                    region: 'north',
+                    padding: 6
+                },
                 {
                     xtype: 'form',
                     border: false,
