@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.Phenomenon;
+import com.energyict.mdc.common.interval.Phenomenon;
 
 /**
  * Models the exceptional case where an attempt is made to link two different components,

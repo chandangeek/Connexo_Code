@@ -8,7 +8,7 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.Phenomenon;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
@@ -223,7 +223,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
             if (notFirst) {
                 builder.append(", ");
             }
-            builder.append(logBookSpec.getDeviceConfig().getName());
+            builder.append(logBookSpec.getDeviceConfiguration().getName());
             builder.append(":");
             builder.append(logBookSpec.getDeviceObisCode().toString());
             notFirst = true;

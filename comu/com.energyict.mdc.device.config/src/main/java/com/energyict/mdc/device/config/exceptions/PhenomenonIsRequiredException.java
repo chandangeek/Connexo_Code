@@ -8,7 +8,7 @@ import com.energyict.mdc.device.config.ChannelSpec;
 /**
  * Models the exceptional situation that occurs when an attempt is made
  * to create a new entity within this bundle without
- * specifying an {@link com.energyict.mdc.device.config.Phenomenon}.
+ * specifying an {@link com.energyict.mdc.common.interval.Phenomenon}.
  * <p/> *
  * Copyrights EnergyICT
  * Date: 07/02/14
@@ -24,7 +24,7 @@ public class PhenomenonIsRequiredException extends LocalizedException {
      * Creates a new PhenomenonIsRequiredException that models the
      * exceptional situation that occurs when an attempt is made to create
      * a {@link com.energyict.mdc.device.config.ChannelSpec} without a
-     * {@link com.energyict.mdc.device.config.Phenomenon}
+     * {@link com.energyict.mdc.common.interval.Phenomenon}
      *
      * @param thesaurus   The Thesaurus
      * @param channelSpec The ChannelSpec which doesn't have a Phenomenon

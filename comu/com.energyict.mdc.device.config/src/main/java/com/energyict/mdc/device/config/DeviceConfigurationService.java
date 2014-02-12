@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import java.util.List;
