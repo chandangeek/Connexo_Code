@@ -27,7 +27,7 @@ public class TransactionModule extends AbstractModule  {
         requireBinding(BootstrapService.class);
         requireBinding(ThreadPrincipalService.class);
         requireBinding(Publisher.class);
-        bindConstant().annotatedWith(Names.named("printSql")).to(false);
+        bindConstant().annotatedWith(Names.named("printSql")).to(printSql);
         bind(TransactionService.class).to(TransactionServiceImpl.class).in(Scopes.SINGLETON);
         bind(DataSource.class).to(TransactionalDataSource.class).in(Scopes.SINGLETON);
     }
