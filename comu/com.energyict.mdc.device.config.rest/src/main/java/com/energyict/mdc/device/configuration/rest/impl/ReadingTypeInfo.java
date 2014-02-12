@@ -40,7 +40,7 @@ public class ReadingTypeInfo {
     @JsonProperty("commodity")
     @XmlJavaTypeAdapter(CommodityAdapter.class)
     public Commodity commodity;
-    @JsonProperty("kind")
+    @JsonProperty("measurementKind")
     @XmlJavaTypeAdapter(MeasurementKindAdapter.class)
     public MeasurementKind measurementKind;
     @JsonProperty("interharmonics")
