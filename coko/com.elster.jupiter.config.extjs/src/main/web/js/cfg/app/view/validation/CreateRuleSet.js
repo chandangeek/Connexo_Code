@@ -23,7 +23,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                 },
                 {
                     xtype: 'component',
-                    html: '<h1>Create new rule set</h1>',
+                    html: '<h1>Create rule set</h1>',
                     margins: '10 10 10 10'
                 },
                 {
