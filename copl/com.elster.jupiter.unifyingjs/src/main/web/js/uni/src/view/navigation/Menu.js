@@ -55,7 +55,6 @@ Ext.define('Uni.view.navigation.Menu', {
         this.items.items.forEach(function (item) {
             if (itemId === item.data.id) {
                 item.toggle(true, false);
-                return;
             }
         });
     }
