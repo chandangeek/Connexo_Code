@@ -1,7 +1,6 @@
 package com.energyict.mdc.common.interval;
 
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.Phenomenon;
 import com.energyict.mdc.common.Quantity;
 
 import java.util.Date;
@@ -45,13 +44,6 @@ public interface SingleTimeSeries extends TimeSeries {
      * @return the consumption
      */
     public Quantity getConsumption(Date from, Date to, Integer codeval);
-
-    /**
-     * Returns the receiver's phenomenon
-     *
-     * @return the phenomenon
-     */
-    public Phenomenon getPhenomenon();
 
     /**
      * Returns the database column name this timeseries uses
