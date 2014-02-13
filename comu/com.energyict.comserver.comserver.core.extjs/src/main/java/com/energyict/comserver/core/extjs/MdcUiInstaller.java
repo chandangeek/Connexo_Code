@@ -86,6 +86,7 @@ public class MdcUiInstaller implements InstallService {
             for (Map.Entry<Object, Object> translationProp : prop.entrySet()) {
                 SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENTNAME, Layer.REST, (String)translationProp.getKey()).defaultMessage((String)translationProp.getValue());
                 translations.add(toTranslation(nlsKey, Locale.ENGLISH,(String)translationProp.getValue()));
+                translations.add(toTranslation(nlsKey, new Locale("stars"),"**********************************************************************************************************************************".substring(0,translationProp.getValue().toString().length())));
             }
             thesaurus.addTranslations(translations);
 
