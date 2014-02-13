@@ -200,7 +200,13 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public List<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClass(String className) {
+    public DeviceProtocolPluggableClass findDeviceProtocolPluggableClassByName(String name) {
+        PluggableClass pluggableClass = this.pluggableService.findByTypeAndName(PluggableClassType.DeviceProtocol, name);
+        return DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass);
+    }
+
+    @Override
+    public List<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClassesByClassName(String className) {
         List<PluggableClass> pluggableClasses = this.pluggableService.findByTypeAndClassName(PluggableClassType.DeviceProtocol, className);
         List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = new ArrayList<>(pluggableClasses.size());
         for (PluggableClass pluggableClass : pluggableClasses) {

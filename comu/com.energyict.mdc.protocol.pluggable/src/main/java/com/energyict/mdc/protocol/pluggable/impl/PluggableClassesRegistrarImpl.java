@@ -141,7 +141,7 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
     }
 
     private boolean deviceProtocolDoesNotExist(LicensedProtocol licensedProtocolRule) {
-        return this.protocolPluggableService.findDeviceProtocolPluggableClass(licensedProtocolRule.getClassName()).isEmpty();
+        return this.protocolPluggableService.findDeviceProtocolPluggableClassesByClassName(licensedProtocolRule.getClassName()).isEmpty();
     }
 
     private DeviceProtocolPluggableClass createDeviceProtocol(final LicensedProtocol licensedProtocolRule) {

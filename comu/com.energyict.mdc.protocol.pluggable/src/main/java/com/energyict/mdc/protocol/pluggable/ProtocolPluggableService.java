@@ -69,7 +69,9 @@ public interface ProtocolPluggableService {
 
     public DeviceProtocolPluggableClass findDeviceProtocolPluggableClass(long id);
 
-    public List<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClass(String className);
+    public DeviceProtocolPluggableClass findDeviceProtocolPluggableClassByName(String name);
+
+    public List<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClassesByClassName(String className);
 
     /**
      * Deletes the {@link DeviceProtocolPluggableClass} that is uniquely
