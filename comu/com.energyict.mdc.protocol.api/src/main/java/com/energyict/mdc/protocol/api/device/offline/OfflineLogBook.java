@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.device.offline;
 
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Offline;
 
 import java.util.Date;
@@ -18,13 +19,6 @@ public interface OfflineLogBook extends Offline {
      * @return the ID of the LogBook
      */
     public int getLogBookId();
-
-    /**
-     * Returns the {@link OfflineLogBookSpec} for the LogBookType.
-     *
-     * @return the {@link OfflineLogBookSpec}
-     */
-    OfflineLogBookSpec getOfflineLogBookSpec();
 
     /**
      * Returns the Id of the Device which owns this LogBookType.
@@ -46,5 +40,19 @@ public interface OfflineLogBook extends Offline {
      * @return the {@link OfflineDevice}
      */
     Date getLastLogBook();
+
+    /**
+     * Returns the database ID of the LoadProfileType of this LoadProfile
+     *
+     * @return the ID of the LoadProfileType
+     */
+    public int getLogBookTypeId();
+
+    /**
+     * Returns the ObisCode for the LogBookSpec.
+     *
+     * @return the ObisCode
+     */
+    public ObisCode getObisCode();
 
 }
