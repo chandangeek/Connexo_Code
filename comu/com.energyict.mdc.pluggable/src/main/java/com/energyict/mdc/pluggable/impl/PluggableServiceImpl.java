@@ -40,6 +40,14 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
     }
 
     @Override
+    public PluggableClass findByTypeAndName(PluggableClassType type, String name) {
+        return this.dataModel.mapper(PluggableClass.class).
+                getUnique("pluggableType", PersistentPluggableClassType.forActualType(type),
+                          "name", name).
+                orNull();
+    }
+
+    @Override
     public List<PluggableClass> findByTypeAndClassName(PluggableClassType type, String javaClassName) {
         return this.dataModel.mapper(PluggableClass.class).
                 find("pluggableType", PersistentPluggableClassType.forActualType(type),

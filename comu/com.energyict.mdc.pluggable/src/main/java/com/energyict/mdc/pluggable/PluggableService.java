@@ -1,6 +1,5 @@
 package com.energyict.mdc.pluggable;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.dynamic.PropertySpec;
 
 import java.util.List;
@@ -31,6 +30,8 @@ public interface PluggableService {
     public PluggableClass newPluggableClass (PluggableClassType type,  String name, String javaClassName);
 
     public List<PluggableClass> findByTypeAndClassName (PluggableClassType type, String javaClassName);
+
+    public PluggableClass findByTypeAndName (PluggableClassType type, String name);
 
     public PluggableClass findByTypeAndId (PluggableClassType type, long id);
 
