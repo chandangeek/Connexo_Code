@@ -6,6 +6,7 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.impl.RegisterMappingImpl;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import java.util.List;
@@ -42,7 +43,7 @@ public interface DeviceConfigurationService {
      * @param name The name
      * @return the DeviceType or <code>null</code> if there is no such DeviceType
      */
-    public DeviceType findDeviceType(String name);
+    public DeviceType findDeviceTypeByName(String name);
 
     /**
      * Finds the {@link ProductSpec} that is uniquely identified by the specified number.
@@ -362,5 +363,14 @@ public interface DeviceConfigurationService {
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLogBookType(LogBookType logBookType);
 
     public List<DeviceConfiguration> findDeviceConfigurationsUsingRegisterMapping(RegisterMapping registerMapping);
+
+
+    public List<DeviceType> findDeviceTypeWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
+
+    public List<LoadProfileType> findLoadProfileTypesByName(String name);
+
+    public List<LogBookType> findLogBookTypeByName(String name);
+
+    public List<LogBookType> findLogBookTypeByObisCode(ObisCode obisCode);
 
 }

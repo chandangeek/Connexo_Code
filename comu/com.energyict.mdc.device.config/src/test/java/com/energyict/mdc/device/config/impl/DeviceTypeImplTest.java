@@ -153,7 +153,7 @@ public class DeviceTypeImplTest {
         }
 
         // Business method
-        DeviceType deviceType = this.inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceTypeName);
+        DeviceType deviceType = this.inMemoryPersistence.getDeviceConfigurationService().findDeviceTypeByName(deviceTypeName);
 
         // Asserts
         assertThat(deviceType).isNotNull();

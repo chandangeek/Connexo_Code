@@ -24,7 +24,7 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.Phenomenon;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
@@ -97,7 +97,7 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
-    public DeviceType findDeviceType(String name) {
+    public DeviceType findDeviceTypeByName(String name) {
         return this.getDataModel().mapper((DeviceType.class)).getUnique("name", name).orNull();
     }
 
@@ -337,6 +337,26 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     @Override
     public List<DeviceConfiguration> findDeviceConfigurationsByDeviceType(DeviceType deviceType) {
         return this.getDataModel().mapper(DeviceConfiguration.class).find("deviceType", deviceType);
+    }
+
+    @Override
+    public List<DeviceType> findDeviceTypeWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+        return this.getDataModel().mapper(DeviceType.class).find("deviceProtocolPluggableClass", deviceProtocolPluggableClass);
+    }
+
+    @Override
+    public List<LoadProfileType> findLoadProfileTypesByName(String name) {
+        return this.getDataModel().mapper(LoadProfileType.class).find("name", name);
+    }
+
+    @Override
+    public List<LogBookType> findLogBookTypeByName(String name) {
+        return this.getDataModel().mapper(LogBookType.class).find("name", name);
+    }
+
+    @Override
+    public List<LogBookType> findLogBookTypeByObisCode(ObisCode obisCode) {
+        return this.getDataModel().mapper(LogBookType.class).find("obisCodeString", obisCode.toString());
     }
 
     @Override

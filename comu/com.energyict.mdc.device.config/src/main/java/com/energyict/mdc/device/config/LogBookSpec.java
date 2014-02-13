@@ -7,7 +7,7 @@ import com.energyict.mdc.common.ObisCode;
  * Date: 12/11/12
  * Time: 13:19
  */
-public interface LogBookSpec {
+public interface LogBookSpec extends HasId{
 
     /**
      * Returns the object's unique id

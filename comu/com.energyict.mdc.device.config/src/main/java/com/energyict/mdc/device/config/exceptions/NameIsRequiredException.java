@@ -75,7 +75,7 @@ public class NameIsRequiredException extends LocalizedException {
     /**
      * Creates a new NameIsRequiredException that models the exceptional
      * situation that occurs when an attempt is made to create
-     * a {@link com.energyict.mdc.device.config.Phenomenon} without a name.
+     * a {@link com.energyict.mdc.common.interval.Phenomenon} without a name.
      *
      * @param thesaurus The Thesaurus
      * @return The NameIsRequiredException

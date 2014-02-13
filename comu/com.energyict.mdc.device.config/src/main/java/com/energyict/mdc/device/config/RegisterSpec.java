@@ -12,7 +12,7 @@ import java.util.Date;
  *
  * @author Geert
  */
-public interface RegisterSpec {
+public interface RegisterSpec extends HasId {
 
     public long getId();
 

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.impl.ChannelSpecImpl;
 import com.energyict.mdc.device.config.impl.LoadProfileSpecImpl;
 import com.energyict.mdc.device.config.impl.LogBookSpecImpl;
