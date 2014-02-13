@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.rest.QueryParameters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +52,13 @@ public class DefaultFinder<T> implements Finder<T> {
         } else {
             return query.select(condition, asStrings(sortingColumns), true, new String[0], this.start + 1, this.start + this.pageSize);
         }
+    }
+
+    @Override
+    public Finder<T> from(QueryParameters queryParameters) {
+        this.paged(queryParameters.getStart(), queryParameters.getLimit());
+        // TODO sorting ignored so far
+        return this;
     }
 
     private String[] asStrings(List<Pair<String, SortOrder>> sortings) {

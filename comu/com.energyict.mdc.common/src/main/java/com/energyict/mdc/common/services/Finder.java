@@ -1,5 +1,6 @@
 package com.energyict.mdc.common.services;
 
+import com.energyict.mdc.common.rest.QueryParameters;
 import java.util.List;
 
 /**
@@ -8,6 +9,6 @@ import java.util.List;
 public interface Finder<T> {
     public Finder<T> paged(Integer start, Integer pageSize);
     public Finder<T> sorted(String sortColumn, SortOrder sortOrder);
-
     public List<T> find();
+    public Finder<T> from(QueryParameters uriInfo);
 }

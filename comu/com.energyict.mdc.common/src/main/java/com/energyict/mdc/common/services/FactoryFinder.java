@@ -1,5 +1,6 @@
 package com.energyict.mdc.common.services;
 
+import com.energyict.mdc.common.rest.QueryParameters;
 import java.util.List;
 
 /**
@@ -30,6 +31,11 @@ public class FactoryFinder<T> implements Finder<T> {
     @Override
     public List<T> find() {
         return callback.getDataFromFactory();
+    }
+
+    @Override
+    public Finder<T> from(QueryParameters queryParameters) {
+        return this;
     }
 
     public interface Callback<T> {
