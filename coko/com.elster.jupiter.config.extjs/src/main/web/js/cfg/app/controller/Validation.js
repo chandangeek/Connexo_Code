@@ -187,6 +187,8 @@ Ext.define('Cfg.controller.Validation', {
                         xtype: 'textfield',
                         fieldLabel: label,
                         vtype: 'nonemptystring',
+                        allowBlank: false,
+                        required: true,
                         msgTarget: 'under',
                         labelAlign: 'right',
                         itemId: itemIdValue,
@@ -209,6 +211,8 @@ Ext.define('Cfg.controller.Validation', {
                 fieldLabel: '&nbsp',
                 labelAlign: 'right',
                 vtype: 'nonemptystring',
+                allowBlank: false,
+                required: true,
                 msgTarget: 'under',
                 labelWidth:	250,
                 itemId: 'readingTypeTextField' + me.readingTypeIndex

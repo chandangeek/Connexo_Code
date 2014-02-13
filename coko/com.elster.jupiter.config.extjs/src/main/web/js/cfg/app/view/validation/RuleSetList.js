@@ -86,7 +86,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
                         flex: 1
                     },
                     {
-                        text: 'Create new rule set',
+                        text: 'Create rule set',
                         itemId: 'newRuleset',
                         xtype: 'button',
                         href: '#/validation/createset',

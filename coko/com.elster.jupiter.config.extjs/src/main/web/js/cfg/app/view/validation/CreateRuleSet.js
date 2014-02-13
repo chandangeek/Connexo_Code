@@ -42,8 +42,9 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             name: 'name',
                             vtype: 'nonemptystring',
                             allowBlank: false,
+                            required: true,
                             msgTarget: 'under',
-                            fieldLabel: 'Name *',
+                            fieldLabel: 'Name',
                             labelAlign: 'right',
                             labelWidth:	150
                         },

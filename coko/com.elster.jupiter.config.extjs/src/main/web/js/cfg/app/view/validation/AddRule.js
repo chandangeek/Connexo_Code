@@ -54,6 +54,8 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     fieldLabel: 'Name:',
                                     labelAlign: 'right',
                                     vtype: 'nonemptystring',
+                                    allowBlank: false,
+                                    required: true,
                                     msgTarget: 'under',
                                     labelWidth:	250,
                                     name: 'name'
@@ -62,6 +64,8 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     xtype: 'combobox',
                                     itemId: 'validatorCombo',
                                     vtype: 'nonemptystring',
+                                    allowBlank: false,
+                                    required: true,
                                     msgTarget: 'under',
                                     editable: 'false',
                                     name: 'implementation',
@@ -90,6 +94,8 @@ Ext.define('Cfg.view.validation.AddRule', {
                                             labelAlign: 'right',
                                             itemId: 'readingTypeTextField1',
                                             vtype: 'nonemptystring',
+                                            allowBlank: false,
+                                            required: true,
                                             msgTarget: 'under',
                                             labelWidth:	250
                                         }
