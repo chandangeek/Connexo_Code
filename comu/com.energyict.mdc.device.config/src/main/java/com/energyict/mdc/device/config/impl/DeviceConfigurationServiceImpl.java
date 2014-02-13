@@ -10,10 +10,11 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.services.DefaultFinder;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -29,6 +30,7 @@ import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -38,7 +40,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.List;
 
-import static com.elster.jupiter.util.conditions.Where.*;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link DeviceConfigurationService} interface.
@@ -49,6 +51,8 @@ import static com.elster.jupiter.util.conditions.Where.*;
 @Component(name="com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, InstallService.class})
 public class DeviceConfigurationServiceImpl implements DeviceConfigurationService, InstallService {
 
+    private volatile ProtocolPluggableService protocolPluggableService;
+
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -58,11 +62,12 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
+        this.setProtocolPluggableService(protocolPluggableService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install();
@@ -70,8 +75,15 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
-    public List<DeviceType> findAllDeviceTypes() {
-        return this.getDataModel().mapper(DeviceType.class).find();
+    public Finder<DeviceType> findAllDeviceTypes() {
+        return DefaultFinder.of(DeviceType.class, this.getDataModel());
+    }
+
+    @Override
+    public DeviceType newDeviceType(String name, String deviceProtocolPluggableClassName) {
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass =
+                this.getProtocolPluggableService().findDeviceProtocolPluggableClassByName(deviceProtocolPluggableClassName);
+        return newDeviceType(name, deviceProtocolPluggableClass);
     }
 
     @Override
@@ -383,6 +395,15 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    public ProtocolPluggableService getProtocolPluggableService() {
+        return protocolPluggableService;
+    }
+
+    @Reference
+    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
+        this.protocolPluggableService = protocolPluggableService;
     }
 
     private Module getModule() {

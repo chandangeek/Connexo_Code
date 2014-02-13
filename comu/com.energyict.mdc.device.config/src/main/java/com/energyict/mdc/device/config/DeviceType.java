@@ -77,6 +77,8 @@ public interface DeviceType {
      */
     public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass();
 
+    public void setDeviceProtocolPluggableClass(String deviceProtocolPluggableClassName);
+
     public void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
     public List<LogBookType> getLogBookTypes();

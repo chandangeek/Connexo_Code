@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.impl.RegisterMappingImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
@@ -21,7 +22,9 @@ public interface DeviceConfigurationService {
 
     public static String COMPONENTNAME = "DTC";
 
-    public List<DeviceType> findAllDeviceTypes();
+    public Finder<DeviceType> findAllDeviceTypes();
+
+    public DeviceType newDeviceType (String name, String deviceProtocolPluggableClassName);
 
     public DeviceType newDeviceType (String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
