@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
         var me = this;
         this.columns = [
             {
-                header: 'Name',
+                header: I18n.translate('registerMappings.name','MDC','Name'),
                 dataIndex: 'name',
                 sortable: false,
                 hideable: false,
@@ -28,18 +28,18 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 flex: 1
             },
             {
-                header: 'Reading type',
-                dataIndex: 'readingType',
+                header: I18n.translate('registerMappings.readingType','MDC','Reading type'),
+                dataIndex: 'mrid',
                 flex: 1
             },
             {
-                header: 'OBIS code',
+                header: I18n.translate('registerMappings.obisCode','MDC','OBIS code'),
                 dataIndex: 'obisCode',
                 flex: 1
             },
             {
-                header: 'Type',
-                dataIndex: 'type',
+                header: I18n.translate('registerMappings.type','MDC','Type'),
+                dataIndex: 'measurementKind',
                 flex: 1
             },
             {
@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                                 items: [
                                     {
                                         xtype: 'menuitem',
-                                        text: 'Remove',
+                                        text: I18n.translate('registerMappings.remove','MDC','Remove'),
                                         listeners: {
                                             click: {
                                                 element: 'el',
@@ -80,9 +80,9 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: '{0} - {1} of {2} register types',
-                displayMoreMsg: '{0} - {1} of more than {2} register types',
-                emptyMsg: 'There are no register types to display'
+                displayMsg: I18n.translate('registerMappings.pagingtoolbartop.displayMsg','MDC','{0} - {1} of {2} register types'),
+                displayMoreMsg: I18n.translate('registerMappings.pagingtoolbartop.displayMoreMsg','MDC','{0} - {1} of more than {2} register types'),
+                emptyMsg: I18n.translate('registerMappings.pagingtoolbartop.emptyMsg','MDC','There are no register types to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
