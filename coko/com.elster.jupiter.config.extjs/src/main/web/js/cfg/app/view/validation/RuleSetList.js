@@ -79,6 +79,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
             {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
+                displayMsg: '{0} - {1} of {2} rule sets',
                 dock: 'top',
                 items: [
                     {
@@ -102,6 +103,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
+                itemsPerPageMsg: 'Rule sets per page',
                 dock: 'bottom'
             }];
 

@@ -81,6 +81,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
+                displayMsg: '{0} - {1} of {2} rules',
                 items: [
                     {
                         xtype: 'component',
@@ -104,6 +105,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
                 dock: 'bottom',
+                itemsPerPageMsg: 'Rules per page',
                 itemId: 'rulesListBottomPagingToolbar',
                 params: {id: this.ruleSetId}
             }];
