@@ -93,7 +93,7 @@ public class InMemoryPersistence {
     }
 
     private DataModel createNewDeviceConfigurationService() {
-        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService);
+        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.protocolPluggableService);
         return this.deviceConfigurationService.getDataModel();
     }
 

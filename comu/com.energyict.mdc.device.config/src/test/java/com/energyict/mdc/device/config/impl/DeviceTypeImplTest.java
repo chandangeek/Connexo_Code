@@ -4,12 +4,11 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.Phenomenon;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceProtocolWithActiveConfigurationsException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
@@ -408,7 +407,6 @@ public class DeviceTypeImplTest {
         DeviceConfigurationServiceImpl deviceConfigurationService = this.inMemoryPersistence.getDeviceConfigurationService();
         String deviceTypeName = "testRemoveLoadProfileTypeThatIsStillInUse";
         DeviceType deviceType;
-        LoadProfileSpec loadProfileSpec;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
             // Setup the device type
             deviceType = deviceConfigurationService.newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
