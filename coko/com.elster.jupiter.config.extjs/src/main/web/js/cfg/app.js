@@ -12,6 +12,7 @@ Ext.require('Uni.Loader');
 Ext.onReady(function () {
 
     var loader = Ext.create('Uni.Loader');
+    loader.initI18n(['CFG']);
     loader.onReady(function () {
         Ext.Loader.setConfig({
             enabled: true,

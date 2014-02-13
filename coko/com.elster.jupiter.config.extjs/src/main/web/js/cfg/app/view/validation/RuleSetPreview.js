@@ -15,17 +15,17 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
     tbar: [
         {
             xtype: 'component',
-            html: '<h4>Validation rule sets</h4>',
+            html: '<h4>' + I18n.translate('validation.validationRuleSets', 'CFG', 'Validation rule sets')  + '</h4>',
             itemId: 'rulesetPreviewTitle'
         },
         '->',
         {
             icon: 'resources/images/gear-16x16.png',
-            text: 'Actions',
+            text: I18n.translate('validation.actions', 'CFG', 'Actions'),
             menu:{
                 items:[
                     {
-                        text: 'Edit',
+                        text: I18n.translate('general.edit', 'CFG', 'Edit'),
                         itemId: 'editRuleset',
                         action: 'editRuleset'
 
@@ -34,7 +34,7 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
                         xtype: 'menuseparator'
                     },
                     {
-                        text: 'Delete',
+                        text: I18n.translate('general.delete', 'CFG', 'Delete'),
                         itemId: 'deleteRuleset',
                         action: 'deleteRuleset'
 
@@ -57,28 +57,28 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
                 {
                     xtype: 'displayfield',
                     name: 'name',
-                    fieldLabel: 'Name:',
+                    fieldLabel: I18n.translate('validation.name', 'CFG', 'Name') + ':',
                     //labelAlign: 'right',
                     labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'description',
-                    fieldLabel: 'Description:',
+                    fieldLabel: I18n.translate('validation.description', 'CFG', 'Description') + ':',
                     //labelAlign: 'right',
                     labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'numberOfRules',
-                    fieldLabel: 'Number of rules:' ,
+                    fieldLabel: I18n.translate('validation.numberOfRules', 'CFG', 'Number of rules') + ':',
                     //labelAlign: 'right',
                     labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'numberOfInactiveRules',
-                    fieldLabel: 'Number of inactive rules:',
+                    fieldLabel:  I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules') + ':',
                     //labelAlign: 'right',
                     labelWidth:	250
                 },

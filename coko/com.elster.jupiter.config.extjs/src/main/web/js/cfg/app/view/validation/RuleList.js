@@ -20,30 +20,30 @@ Ext.define('Cfg.view.validation.RuleList', {
     columns: {
 
         items: [
-            { header: 'Name', dataIndex: 'name', flex: 1},
-            { header: 'Rule', dataIndex: 'displayName', flex: 1},
-            { header: 'Active', dataIndex: 'active', flex: 1,
+            { header: I18n.translate('validation.name', 'CFG', 'Name'), dataIndex: 'name', flex: 1},
+            { header: I18n.translate('validation.rule', 'CFG', 'Rule'), dataIndex: 'displayName', flex: 1},
+            { header: I18n.translate('validation.active', 'CFG', 'Active'), dataIndex: 'active', flex: 1,
                 renderer:function(value){
                     if (value) {
-                        return 'Yes'
+                        return I18n.translate('general.yes', 'CFG', 'Yes')
                     } else {
-                        return 'No'
+                        return I18n.translate('general.no', 'CFG', 'Yes')
                     }
                 }
             },
             {
                 xtype:'actioncolumn',
-                header: 'Actions',
+                header: I18n.translate('validation.actions', 'CFG', 'Actions'),
                 align: 'center',
                 width:150,
                 items: [{
                     icon: 'resources/images/gear-16x16.png',
-                    tooltip: 'View',
+                    tooltip: I18n.translate('general.view', 'CFG', 'View'),
                     handler: function(grid, rowIndex, colIndex,item,e) {
                         var menu = Ext.widget('menu', {
                             items: [{
                                 xtype: 'menuitem',
-                                text: 'Edit',
+                                text: I18n.translate('general.edit', 'CFG', 'Edit'),
                                 listeners: {
                                     click: {
                                         element: 'el',
@@ -55,7 +55,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                                 }
                             }, {
                                 xtype: 'menuitem',
-                                text: 'Delete',
+                                text: I18n.translate('general.delete', 'CFG', 'Delete'),
                                 listeners: {
                                     click: {
                                         element: 'el',
@@ -88,13 +88,13 @@ Ext.define('Cfg.view.validation.RuleList', {
                     },
                     {
                         xtype: 'button',
-                        text: 'Add rule',
+                        text:  I18n.translate('validation.addRule', 'CFG', 'Add rule'),
                         itemId: 'addRuleLink',
                         href: '#/validation/addRule',
                         hrefTarget: '_self'
                     },
                     {
-                        text: 'Bulk action',
+                        text: I18n.translate('general.bulkAction', 'CFG', 'Bulk action'),
                         itemId: 'ruleBulkAction',
                         action: 'ruleBulkAction'
                     }

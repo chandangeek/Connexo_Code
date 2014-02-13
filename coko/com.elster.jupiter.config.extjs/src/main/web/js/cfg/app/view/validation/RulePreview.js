@@ -15,17 +15,17 @@ Ext.define('Cfg.view.validation.RulePreview', {
     tbar: [
         {
             xtype: 'component',
-            html: '<h4>Validation rule</h4>',
+            html: '<h4>' + I18n.translate('validation.validationRule', 'CFG', 'Validation rule') + '</h4>',
             itemId: 'rulePreviewTitle'
         },
         '->',
         {
             icon: 'resources/images/gear-16x16.png',
-            text: 'Actions',
+            text: I18n.translate('validation.actions', 'CFG', 'Actions'),
             menu:{
                 items:[
                     {
-                        text: 'Edit',
+                        text: I18n.translate('general.edit', 'CFG', 'Edit'),
                         itemId: 'editRule',
                         action: 'editRule'
 
@@ -34,7 +34,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
                         xtype: 'menuseparator'
                     },
                     {
-                        text: 'Delete',
+                        text: I18n.translate('general.delete', 'CFG', 'Delete'),
                         itemId: 'deleteRule',
                         action: 'deleteRule'
 
@@ -62,27 +62,27 @@ Ext.define('Cfg.view.validation.RulePreview', {
                 {
                     xtype: 'displayfield',
                     name: 'displayName',
-                    fieldLabel: 'Rule:',
+                    fieldLabel: I18n.translate('validation.Rule', 'CFG', 'Rule') + ':',
                     labelAlign: 'right',
                     labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'active',
-                    fieldLabel: 'Active:',
+                    fieldLabel: I18n.translate('validation.active', 'CFG', 'Active') + ':',
                     labelAlign: 'right',
                     labelWidth:	250,
                     renderer:function(value){
                         if (value) {
-                            return 'Yes'
+                            return I18n.translate('general.yes', 'CFG', 'Yes')
                         } else {
-                            return 'No'
+                            return I18n.translate('general.no', 'CFG', 'no')
                         }
                     }
                 },
                 {
                     xtype: 'fieldcontainer',
-                    fieldLabel: 'Reading value(s):',
+                    fieldLabel:  I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)') + ':',
                     labelAlign: 'right',
                     labelWidth:	250,
                     layout: 'vbox',

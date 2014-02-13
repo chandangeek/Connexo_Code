@@ -25,7 +25,6 @@ Ext.define('Cfg.controller.Validation', {
         'validation.RuleBrowse',
         'validation.RuleList',
         'validation.RulePreview',
-        'validation.RuleSetEdit',
         'validation.RulesContainer',
         'validation.RuleSetOverview'
     ],

@@ -1,4 +1,5 @@
 -classpath: target/classes
-Bundle-Activator: com.elster.jupiter.config.extjs.Activator
+-dsannotations: *
 Private-Package: com.elster.jupiter.config.extjs
-Include-Resource: src/main/web 
+Include-Resource: src/main/web;src/main/resources
+
