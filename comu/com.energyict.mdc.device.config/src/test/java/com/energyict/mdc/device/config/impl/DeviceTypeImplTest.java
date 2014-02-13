@@ -178,7 +178,15 @@ public class DeviceTypeImplTest {
     @Test(expected = DeviceProtocolIsRequiredException.class)
     public void testDeviceTypeCreationWithoutProtocol() {
         // Business method
-        this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType("testDeviceTypeCreationWithoutProtocol", null);
+        this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType("testDeviceTypeCreationWithoutProtocol", (DeviceProtocolPluggableClass) null);
+
+        // Asserts: Should be getting a DeviceProtocolIsRequiredException
+    }
+
+    @Test(expected = DeviceProtocolIsRequiredException.class)
+    public void testDeviceTypeCreationWithNonExistingProtocol() {
+        // Business method
+        this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType("testDeviceTypeCreationWithNonExistingProtocol", "testDeviceTypeCreationWithNonExistingProtocol");
 
         // Asserts: Should be getting a DeviceProtocolIsRequiredException
     }
