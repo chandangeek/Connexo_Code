@@ -30,37 +30,37 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-            	<groupId>javax.ws.rs</groupId>
-            	<artifactId>javax.ws.rs-api</artifactId>
-            	<version>2.0</version>
-        	</dependency>     
-			<dependency>
-				<groupId>javax.validation</groupId>
-        		<artifactId>validation-api</artifactId>
-        		<version>1.1.0.Final</version>
-        	</dependency>  
-        	<dependency>
-            	<groupId>com.google.guava</groupId>
-            	<artifactId>guava</artifactId>
-            	<version>14.0.1</version>
-        	</dependency>
-        	<dependency>
-            	<groupId>joda-time</groupId>
-            	<artifactId>joda-time</artifactId>
-            	<version>2.1</version>
-        	</dependency>
-        	<dependency>
-            	<groupId>javax.annotation</groupId>
-            	<artifactId>javax.annotation-api</artifactId>
-            	<version>1.2</version>
-            	<scope>provided</scope>
-        	</dependency>         
-        	<dependency>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>javax.ws.rs-api</artifactId>
+                <version>2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>1.1.0.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>14.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>1.2</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>net.jcip</groupId>
                 <artifactId>jcip-annotations</artifactId>
                 <version>1.0</version>
                 <scope>provided</scope>
-            </dependency>        	
+            </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -97,7 +97,7 @@
                 <version>1.2.4</version>
                 <scope>test</scope>
             </dependency>
-    	</dependencies>
+        </dependencies>
     </dependencyManagement>
 
     <dependencies>
@@ -311,50 +311,63 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <profiles>
-    	<profile>
-			<id>all</id>
-    		<modules>
+        <profile>
+            <id>all</id>
+            <modules>
                 <module>../com.elster.jupiter.appserver</module>
                 <module>../com.elster.jupiter.bootstrap</module>
                 <module>../com.elster.jupiter.bootstrap.oracle</module>
-        		<module>../com.elster.jupiter.cbo</module>
-		        <module>../com.elster.jupiter.domain.util</module>
-		        <module>../com.elster.jupiter.events</module>
+                <module>../com.elster.jupiter.cbo</module>
+                <module>../com.elster.jupiter.domain.util</module>
+                <module>../com.elster.jupiter.events</module>
                 <module>../com.elster.jupiter.events.rest</module>
                 <module>../com.elster.jupiter.config.extjs</module>
-		        <module>../com.elster.jupiter.fileimport</module>
-		        <module>../com.elster.jupiter.http.whiteboard</module>
-		        <module>../com.elster.jupiter.ids</module>
-		        <module>../com.elster.jupiter.install</module>
-		        <module>../com.elster.jupiter.messaging</module>
+                <module>../com.elster.jupiter.fileimport</module>
+                <module>../com.elster.jupiter.http.whiteboard</module>
+                <module>../com.elster.jupiter.ids</module>
+                <module>../com.elster.jupiter.install</module>
+                <module>../com.elster.jupiter.messaging</module>
                 <module>../com.elster.jupiter.messaging.oracle</module>
-		        <module>../com.elster.jupiter.metering</module>
-		        <module>../com.elster.jupiter.extjs</module>
-		        <module>../com.elster.jupiter.unifyingjs</module>
-		        <module>../com.elster.jupiter.metering.extjs</module>
-		        <module>../com.elster.jupiter.metering.rest</module>
+                <module>../com.elster.jupiter.metering</module>
+                <module>../com.elster.jupiter.extjs</module>
+                <module>../com.elster.jupiter.unifyingjs</module>
+                <module>../com.elster.jupiter.metering.extjs</module>
+                <module>../com.elster.jupiter.metering.rest</module>
                 <module>../com.elster.jupiter.nls.rest</module>
-		        <module>../com.elster.jupiter.orm</module>
-		        <module>../com.elster.jupiter.osgi.goodies</module>
-		        <module>../com.elster.jupiter.parties</module>
-		        <module>../com.elster.jupiter.parties.rest</module>
+                <module>../com.elster.jupiter.orm</module>
+                <module>../com.elster.jupiter.osgi.goodies</module>
+                <module>../com.elster.jupiter.parties</module>
+                <module>../com.elster.jupiter.parties.rest</module>
                 <module>../com.elster.jupiter.playground</module>
-		        <module>../com.elster.jupiter.pubsub</module>
-		        <module>../com.elster.jupiter.rest.util</module>
-		        <module>../com.elster.jupiter.rest.whiteboard</module>
-		        <module>../com.elster.jupiter.soap.whiteboard</module>
-		        <module>../com.elster.jupiter.security.thread</module>
-		        <module>../com.elster.jupiter.tasks</module>
-		        <module>../com.elster.jupiter.transaction</module>
-		        <module>../com.elster.jupiter.users</module>
-		        <module>../com.elster.jupiter.users.rest</module>
-		        <module>../com.elster.jupiter.util</module>
+                <module>../com.elster.jupiter.pubsub</module>
+                <module>../com.elster.jupiter.rest.util</module>
+                <module>../com.elster.jupiter.rest.whiteboard</module>
+                <module>../com.elster.jupiter.soap.whiteboard</module>
+                <module>../com.elster.jupiter.security.thread</module>
+                <module>../com.elster.jupiter.tasks</module>
+                <module>../com.elster.jupiter.transaction</module>
+                <module>../com.elster.jupiter.users</module>
+                <module>../com.elster.jupiter.users.rest</module>
+                <module>../com.elster.jupiter.util</module>
                 <module>../com.elster.jupiter.validation</module>
                 <module>../com.elster.jupiter.validators</module>
-    		</modules>
-    	</profile>
+            </modules>
+        </profile>
+        <profile>
+            <id>sencha-dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/web</directory>
+                    </resource>
+                </resources>
+            </build>
+        </profile>
         <profile>
             <id>copy</id>
             <build>
@@ -387,39 +400,39 @@
                 </plugins>
             </build>
         </profile>
-    	<profile>
-    		<id>copy-dep</id>
-    		<build>
-	    		<plugins>
-		    		<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-dependency-plugin</artifactId>
-						<version>2.8</version>
-						<executions>
-							<execution>
-								<id>copy</id>
-								<phase>package</phase>
-								<goals>									
-									<goal>copy-dependencies</goal>
-								</goals>
-								<configuration>
-									<artifactItems>
-		               					<artifactItem>
-		               						<groupId>${project.groupId}</groupId>
-		                 					<artifactId>${project.artifactId}</artifactId>
-		                  					<version>${project.version}</version>
-		                  					<type>${project.packaging}</type>
-		                				</artifactItem>
-		              				</artifactItems>
-		              				<includeScope>runtime</includeScope>
-		              				<excludeGroupIds>xmlpull,net.sf.kxml,javax.annotation,org.easymock</excludeGroupIds>													
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>		
-    	</profile>
-    </profiles>	
-    	
+        <profile>
+            <id>copy-dep</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>2.8</version>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>${project.groupId}</groupId>
+                                            <artifactId>${project.artifactId}</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>${project.packaging}</type>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <includeScope>runtime</includeScope>
+                                    <excludeGroupIds>xmlpull,net.sf.kxml,javax.annotation,org.easymock</excludeGroupIds>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>
