@@ -1,5 +1,5 @@
 Ext.define('ViewDataCollectionIssues.controller.DataCollectionIssues', {
-    extend: 'Ext.app.Controller',
+     extend: 'Ext.app.Controller',
 
     init: function () {
         this.control({
@@ -11,27 +11,41 @@ Ext.define('ViewDataCollectionIssues.controller.DataCollectionIssues', {
 															change: this.setGroup 					},
 						'grid[name=groupgrid]' : 		{ 	itemclick : this.getIssuesForGroup 		},
 						'button[name=clearsortbtn]' : 	{ 	click : this.clearSort					},
-						'panel[name=sortrulepanel]' : 			{ 	close : this.deleteSortItem				}
+						'panel[name=sortrulepanel]' : 	{ 	close : this.deleteSortItem				},
+						'header[name=sortrulepanel]':	{	click : this.changeSortOrder}
 							
 			});	
 		
 		
 
-		this.groupStore = this.getStore('ViewDataCollectionIssues.store.GroupStore');	
-		this.store = this.getStore('ViewDataCollectionIssues.store.DataCollectionIssuesList');
+		this.groupStore = this.getStore('Mtr.store.GroupStore');	
+		this.store = this.getStore('Mtr.store.DataCollectionIssuesList');
+		this.groupParams = {};
+		this.sortParams = {};
+
     },
+
+	updateIssueList : function(){
+			var extraParams = {};
+			if (this.sortParams != undefined || this.groupParams != undefined){
+					Ext.merge(extraParams, this.groupParams);
+					Ext.merge(extraParams, this.sortParams);
+				}
+			this.store.proxy.extraParams = extraParams;
+			this.store.load();
+		},
+	
 	
 //====  SORT  ===============================================================================================================================	
 	
 	applySort : function(view){
-			var me = this,
-			extraParams = {};
+			var me = this;
+			this.sortParams = {};
 			view.items.each(function(item){
 					if (item.name == 'sortrulepanel')
-						extraParams.sort = item.sortValue;
+						me.sortParams.sort = item.sortValue;
 				})
-			me.store.proxy.extraParams = extraParams;
-			me.store.load();
+			me.updateIssueList();
 		},
 		
 	addSortItem : function( menu, item, e, eOpts){
@@ -47,6 +61,7 @@ Ext.define('ViewDataCollectionIssues.controller.DataCollectionIssues', {
 							header: { 	
 										cls: 'x-btn',
 										title: item.text,
+										name: 'sortrulepanel',
 										style: {
 											'border-radius': '5px',
 											padding: '2px 3px 4px 6px'
@@ -121,11 +136,18 @@ Ext.define('ViewDataCollectionIssues.controller.DataCollectionIssues', {
 						this.sortBtnsDDTarget = new Ext.dd.DDTarget(panel.getId() + '-innerCt', 'buttonsDDGroup');	
 	*/			
 				},
+	
+	changeSortOrder : function(header, e, eOpts){
+			if (header.sortOrder == 'asc'){
+				header.sortOrder = 'desc';
+			}else{
+				header.sortOrder = 'asc';
+			};
+		},
 
 	setAddSortMenu : function(btn){
 			var pan = btn.up('panel');
-			console.log(this.store);
-			var model =  Ext.ModelManager.getModel('ViewDataCollectionIssues.model.DataCollectionIssue'),
+			var model =  Ext.ModelManager.getModel('Mtr.model.DataCollectionIssue'),
 			fields = model.getFields();
 			if (btn.menu.items.getCount() < 1){
 					var menu = [];
@@ -144,7 +166,6 @@ Ext.define('ViewDataCollectionIssues.controller.DataCollectionIssues', {
 	clearSort : function( btn, e, eOpts){
 			var pan = btn.up('panel').up('panel').down('panel[name=sortitemspanel]');			
 			pan.items.each(function(item){
-						console.log(item);
 						if (item.name == 'sortrulepanel'){
 								pan.remove(item, true);
 							}	
@@ -172,24 +193,40 @@ Ext.define('ViewDataCollectionIssues.controller.DataCollectionIssues', {
 	onFilterReset : function(params){
 			
 		},
-		
-//===============================================================================================================================================
+	
+	applyFilter : function(params){
+			
+		},
+	
+	resetFilter: function(params){
+			
+		},
+	
+	removeFilterItem : function(params){
+			
+		},
+//=======================================================================================================================================
 
 //=====  GROUP  =========================================================================================================================	
 	
 		
 	setGroupFields : function(view){
-				var mod = Ext.ModelManager.getModel('ViewDataCollectionIssues.model.DataCollectionIssue'),
-				fields = mod.getFields();
+	
+				var model = Ext.ModelManager.getModel('Mtr.model.DataCollectionIssue'),
+				fields = model.getFields();
+		
 				var data = [{ Value: 'none', display: '(none)'}];
+				
 				Ext.Array.each(fields, function(field){
 						var rec = { Value: field.name, display: field.displayValue };
 						data.push(rec);
-					});						
+					});	
+					
 				groupStore = Ext.create('Ext.data.Store', {
 								fields: ['Value', 'display'],
 								data : data,
 							});
+							
 				view.store = groupStore;
 			},
 	// combobox : change		
@@ -216,6 +253,8 @@ Ext.define('ViewDataCollectionIssues.controller.DataCollectionIssues', {
 						label.show();
 						issuesFor.hide();
 						lineLabel.hide();
+						me.groupParams = {};
+						this.updateIssueList();
 				};
 		},
 		
@@ -231,10 +270,8 @@ Ext.define('ViewDataCollectionIssues.controller.DataCollectionIssues', {
 			issuesFor.show();
 			lineLabel.show();
 			
-			console.log(issuesFor);	
-			extraParams[this.group] = record.data.reason;
-			me.store.proxy.extraParams = extraParams;
-			me.store.load();						
+			me.groupParams[this.group] = record.data.reason;
+			me.updateIssueList();					
 		},
 
 //===============================================================================================================================================
