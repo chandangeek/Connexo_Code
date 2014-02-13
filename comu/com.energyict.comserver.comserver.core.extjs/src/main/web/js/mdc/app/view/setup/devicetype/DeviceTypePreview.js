@@ -106,11 +106,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'deviceFunction',
-                                    fieldLabel: I18n.translate('devicetype.deviceFunction', 'MDC', 'Device function')
-                                },
-                                {
-                                    xtype: 'displayfield',
                                     name: 'canBeGateway',
                                     fieldLabel: I18n.translate('devicetype.canBeGateway', 'MDC', 'Device can be a gateway'),
                                     renderer: function (item) {
@@ -155,7 +150,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                             autoEl: {
                                                 tag: 'a',
                                                 href: '#',
-                                                html: 'Registers'
+                                                html: I18n.translate('devicetype.registers', 'MDC', 'Registers')
                                             },
                                             itemId: 'deviceTypeRegistersLink'
                                         },
@@ -167,7 +162,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                             autoEl: {
                                                 tag: 'a',
                                                 href: '#',
-                                                html: 'loadprofiles'
+                                                html: I18n.translate('devicetype.loadprofiles', 'MDC', 'loadprofiles')
                                             },
                                             itemId: 'deviceTypeLoadProfilesLink'
 
@@ -178,7 +173,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                             autoEl: {
                                                 tag: 'a',
                                                 href: '#',
-                                                html: 'logbooks'
+                                                html: I18n.translate('devicetype.logbooks', 'MDC', 'logbooks')
                                             },
                                             itemId: 'deviceTypeLogBooksLink'
                                         }
@@ -186,14 +181,37 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 },
 
                                 {
-                                    xtype: 'displayfield',
-                                    name: 'deviceConfigurationCount',
-                                    fieldLabel: I18n.translate('devicetype.deviceConfigurationCount', 'MDC', 'Device configuration count'),
-                                    renderer: function (item, b) {
-                                        return '<a href="#' + item + '">' + item + ' ' + I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations')
-                                        + '</a>';
-                                    }
+                                    xtype: 'fieldcontainer',
+                                    columnWidth: 0.5,
+                                    fieldLabel:  I18n.translate('devicetype.deviceConfigurationCount', 'MDC', 'Device configuration count'),
+                                    layout: {
+                                        type: 'vbox',
+                                        align: 'stretch'
+                                    },
+                                    items: [
+                                        {
+                                            xtype: 'component',
+                                            name: 'deviceConfigurationCount',
+                                            autoEl: {
+                                                tag: 'a',
+                                                href: '#',
+                                                html: I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations')
+                                            },
+                                            itemId: 'deviceConfigurationsLink'
+                                        }
+                                    ]
                                 }
+
+
+//                                {
+//                                    xtype: 'displayfield',
+//                                    name: 'deviceConfigurationCount',
+//                                    fieldLabel: I18n.translate('devicetype.deviceConfigurationCount', 'MDC', 'Device configuration count'),
+//                                    renderer: function (item, b) {
+//                                        return '<a href="#' + item + '">' + item + ' ' + I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations')
+//                                        + '</a>';
+//                                    }
+//                                }
                             ]
                         }
 
