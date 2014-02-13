@@ -3,22 +3,13 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.services.DeviceConfigurationService;
-import com.energyict.mdw.amr.RegisterMapping;
-import com.energyict.mdw.amr.RegisterMappingFactory;
-import com.energyict.mdw.core.DeviceConfiguration;
-import com.energyict.mdw.core.DeviceType;
-import com.energyict.mdw.core.LoadProfileType;
-import com.energyict.mdw.core.LogBookType;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.shadow.DeviceTypeShadow;
-import com.energyict.mdw.shadow.amr.RegisterMappingShadow;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileType;
+import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.device.config.RegisterMapping;
+
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -32,24 +23,27 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
 
     private final DeviceConfigurationService deviceConfigurationService;
-    private final RegisterMappingFactory registerMappingFactory;
 
     @Inject
-    public DeviceTypeResource(DeviceConfigurationService deviceConfigurationService, RegisterMappingFactory registerMappingFactory) {
+    public DeviceTypeResource(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
-        this.registerMappingFactory = registerMappingFactory;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getAllDeviceTypes(@BeanParam QueryParameters queryParameters) {
         List<DeviceTypeInfo> deviceTypeInfos = new ArrayList<>();
-        Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.allDeviceTypes();
+        Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.findAllDeviceTypes();
         List<DeviceType> allDeviceTypes = deviceTypeFinder.paged(queryParameters.getStart(), queryParameters.getLimit()).find();
         for (DeviceType deviceType : allDeviceTypes) {
             deviceTypeInfos.add(new DeviceTypeInfo(deviceType));
@@ -72,7 +66,9 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
-        return new DeviceTypeInfo(deviceConfigurationService.createDeviceType(deviceTypeInfo.name, deviceTypeInfo.deviceProtocolInfo.name));
+        DeviceType deviceType = this.deviceConfigurationService.newDeviceType(deviceTypeInfo.name, deviceTypeInfo.deviceProtocolInfo.name);
+        deviceType.save();
+        return new DeviceTypeInfo(deviceType);
     }
 
     @PUT
@@ -81,16 +77,10 @@ public class DeviceTypeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public DeviceTypeInfo updateDeviceType(@PathParam("id") long id, DeviceTypeInfo deviceTypeInfo) {
         DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
-        DeviceTypeShadow shadow = deviceType.getShadow();
-        shadow.setName(deviceTypeInfo.name);
-        List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = MeteringWarehouse.getCurrent().getProtocolPluggableService().findAllDeviceProtocolPluggableClasses();
-        for (DeviceProtocolPluggableClass deviceProtocolPluggableClass : deviceProtocolPluggableClasses) {
-            if (deviceProtocolPluggableClass.getName().equals(deviceTypeInfo.deviceProtocolInfo.name)) {
-                shadow.setDeviceProtocolPluggableClassId(deviceProtocolPluggableClass.getId());
-            }
-        }
+        deviceType.setName(deviceTypeInfo.name);
         try {
-            deviceType.update(shadow);
+            deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.deviceProtocolInfo.name);
+            deviceType.save();
             return new DeviceTypeInfo(deviceType);
         } catch (Exception e) {
             throw new WebApplicationException("failed to update device type "+deviceTypeInfo.id, e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build());
@@ -159,9 +149,8 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<RegisterMappingInfo> updateRegistersForDeviceType(@PathParam("id") long id, List<RegisterMappingInfo> registerMappingInfos) {
         DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
-
         updateRegisterMappings(deviceType, registerMappingInfos);
-
+        deviceType.save();
         return getRegistersForDeviceType(id);
     }
 
@@ -171,9 +160,8 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<RegisterMappingInfo> createRegistersForDeviceType(@PathParam("id") long id, RegisterMappingInfo registerMappingInfo) {
         DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
-
-        addRegisterMappingToDeviceType(deviceType.getShadow(), registerMappingInfo);
-
+        addRegisterMappingToDeviceType(deviceType, registerMappingInfo);
+        deviceType.save();
         return getRegistersForDeviceType(id);
     }
 
@@ -183,48 +171,46 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterMappingInfo deleteRegistersForDeviceType(@PathParam("id") long id, RegisterMappingInfo registerMappingInfo) {
         DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
-
-        removeRegisterMappingFromDeviceType(deviceType.getShadow(), registerMappingInfo.id);
-
+        removeRegisterMappingFromDeviceType(deviceType, registerMappingInfo.id);
+        deviceType.save();
         return registerMappingInfo;
     }
 
 
     private void updateRegisterMappings(DeviceType deviceType, List<RegisterMappingInfo> newRegisterMappings) {
-        DeviceTypeShadow deviceTypeShadow = deviceType.getShadow();
         Map<Long, RegisterMappingInfo> newRegisterMappingsIdMap = asIdz(newRegisterMappings);
         for (RegisterMapping existingRegisterMapping : deviceType.getRegisterMappings()) {
             if (newRegisterMappingsIdMap.containsKey(Long.valueOf(existingRegisterMapping.getId()))) {
                 // We don't update anything about RegisterMapping in the resource
                 newRegisterMappingsIdMap.remove(Long.valueOf(existingRegisterMapping.getId()));
             } else {
-                removeRegisterMappingFromDeviceType(deviceTypeShadow, existingRegisterMapping.getId());
+                removeRegisterMappingFromDeviceType(deviceType, existingRegisterMapping.getId());
             }
         }
 
         for (RegisterMappingInfo registerMappingInfo : newRegisterMappingsIdMap.values()) {
-            addRegisterMappingToDeviceType(deviceTypeShadow, registerMappingInfo);
+            addRegisterMappingToDeviceType(deviceType, registerMappingInfo);
         }
     }
 
-    private void removeRegisterMappingFromDeviceType(DeviceTypeShadow deviceTypeShadow, long existingRegisterMappingId) {
-        deviceTypeShadow.getRegisterMappingShadows().remove(getRegisterMappingById(deviceTypeShadow.getRegisterMappingShadows(), (int)existingRegisterMappingId));
+    private void removeRegisterMappingFromDeviceType(DeviceType deviceType, long existingRegisterMappingId) {
+        deviceType.removeRegisterMapping(getRegisterMappingById(deviceType, existingRegisterMappingId));
     }
 
-    private void addRegisterMappingToDeviceType(DeviceTypeShadow deviceTypeShadow, RegisterMappingInfo registerMappingInfo) {
-        RegisterMapping registerMapping = registerMappingFactory.find((int) registerMappingInfo.id);
+    private void addRegisterMappingToDeviceType(DeviceType deviceType, RegisterMappingInfo registerMappingInfo) {
+        RegisterMapping registerMapping = this.deviceConfigurationService.findRegisterMapping(registerMappingInfo.id);
         if (registerMapping==null) {
             throw new WebApplicationException("No register mapping with id " + registerMappingInfo.id,
                     Response.status(Response.Status.BAD_REQUEST).build());
 
         }
-        deviceTypeShadow.getRegisterMappingShadows().add(registerMapping.getShadow());
+        deviceType.addRegisterMapping(registerMapping);
     }
 
-    private RegisterMappingShadow getRegisterMappingById(List<RegisterMappingShadow> registerMappingShadows, int id) {
-        for (RegisterMappingShadow registerMappingShadow : registerMappingShadows) {
-            if (registerMappingShadow.getId()==id) {
-                return registerMappingShadow;
+    private RegisterMapping getRegisterMappingById(DeviceType deviceType, long id) {
+        for (RegisterMapping registerMapping : deviceType.getRegisterMappings()) {
+            if (registerMapping.getId() == id) {
+                return registerMapping;
             }
         }
         throw new WebApplicationException("This situation should never have happened: error looking up shadow in internal list: " + id,
@@ -238,8 +224,6 @@ public class DeviceTypeResource {
         }
         return registerMappingIdMap;
     }
-    
-    
 
     private DeviceType findDeviceTypeByNameOrThrowException(long id) {
         DeviceType deviceType = deviceConfigurationService.findDeviceType(id);
@@ -249,6 +233,5 @@ public class DeviceTypeResource {
         }
         return deviceType;
     }
-
 
 }

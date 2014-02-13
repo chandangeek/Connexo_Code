@@ -2,7 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdw.core.LoadProfileType;
+import com.energyict.mdc.device.config.LoadProfileType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -27,5 +27,5 @@ public class LoadProfileTypeInfo {
         timeDuration=loadProfileType.getInterval();
         inUse = loadProfileType.isInUse();
     }
-    
+
 }

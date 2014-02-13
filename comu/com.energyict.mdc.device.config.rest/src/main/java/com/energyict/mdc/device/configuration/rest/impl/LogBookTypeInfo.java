@@ -1,12 +1,11 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdw.core.LoadProfileType;
-import com.energyict.mdw.core.LogBookType;
+import com.energyict.mdc.device.config.LogBookType;
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 @XmlRootElement
 public class LogBookTypeInfo {
@@ -21,5 +20,5 @@ public class LogBookTypeInfo {
         name = logBookType.getName();
         obisCode = logBookType.getObisCode();
     }
-    
+
 }

@@ -1,11 +1,9 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdw.core.DeviceConfiguration;
-import com.energyict.mdw.core.LogBookType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import org.codehaus.jackson.annotate.JsonProperty;
+
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class DeviceConfigurationInfo {
@@ -16,5 +14,5 @@ public class DeviceConfigurationInfo {
     public DeviceConfigurationInfo(DeviceConfiguration deviceConfiguration) {
         name = deviceConfiguration.getName();
     }
-    
+
 }
