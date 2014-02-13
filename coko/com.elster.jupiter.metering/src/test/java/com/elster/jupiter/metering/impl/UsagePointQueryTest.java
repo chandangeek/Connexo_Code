@@ -35,6 +35,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.units.Unit;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -178,6 +179,7 @@ public class UsagePointQueryTest {
         party = partyService.getParty("Electrabel").get();
         usagePoint.addAccountability(role, party, new Date());
         assertThat(query.select(meteringService.hasAccountability())).isNotEmpty();
+        assertThat(query.select(Condition.TRUE, Order.descending("mRID"),Order.ascending("id")).get(0).getMRID()).isEqualTo("mrID9");
      }
 
 }
