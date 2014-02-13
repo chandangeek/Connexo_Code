@@ -10,7 +10,7 @@ import com.energyict.mdc.common.TimeDuration;
  * Date: 9/11/12
  * Time: 10:06
  */
-public interface LoadProfileSpec {
+public interface LoadProfileSpec extends HasId {
 
     public long getId();
 

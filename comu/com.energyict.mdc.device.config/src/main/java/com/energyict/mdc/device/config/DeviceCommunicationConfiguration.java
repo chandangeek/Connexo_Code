@@ -8,6 +8,8 @@ package com.energyict.mdc.device.config;
  */
 public interface DeviceCommunicationConfiguration {
 
+    public int getId();
+
     public DeviceConfiguration getDeviceConfiguration();
 
 

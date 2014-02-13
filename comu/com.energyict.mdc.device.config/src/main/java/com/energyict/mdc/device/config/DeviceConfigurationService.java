@@ -39,7 +39,7 @@ public interface DeviceConfigurationService {
      * @param name The name
      * @return the DeviceType or <code>null</code> if there is no such DeviceType
      */
-    public DeviceType findDeviceType(String name);
+    public DeviceType findDeviceTypeByName(String name);
 
     /**
      * Finds the {@link ProductSpec} that is uniquely identified by the specified number.
@@ -353,4 +353,13 @@ public interface DeviceConfigurationService {
     public List<DeviceConfiguration> findActiveDeviceConfigurationsByDeviceType(DeviceType deviceType);
 
     public List<DeviceConfiguration> findDeviceConfigurationsByDeviceType(DeviceType deviceType);
+
+    public List<DeviceType> findDeviceTypeWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
+
+    public List<LoadProfileType> findLoadProfileTypesByName(String name);
+
+    public List<LogBookType> findLogBookTypeByName(String name);
+
+    public List<LogBookType> findLogBookTypeByObisCode(ObisCode obisCode);
+
 }

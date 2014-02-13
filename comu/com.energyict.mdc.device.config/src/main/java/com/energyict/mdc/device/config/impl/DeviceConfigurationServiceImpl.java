@@ -83,7 +83,7 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
-    public DeviceType findDeviceType(String name) {
+    public DeviceType findDeviceTypeByName(String name) {
         return this.getDataModel().mapper((DeviceType.class)).getUnique("name", name).orNull();
     }
 
@@ -328,6 +328,26 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     @Override
     public List<DeviceConfiguration> findDeviceConfigurationsByDeviceType(DeviceType deviceType) {
         return this.getDataModel().mapper(DeviceConfiguration.class).find("deviceType", deviceType);
+    }
+
+    @Override
+    public List<DeviceType> findDeviceTypeWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+        return this.getDataModel().mapper(DeviceType.class).find("deviceProtocolPluggableClass", deviceProtocolPluggableClass);
+    }
+
+    @Override
+    public List<LoadProfileType> findLoadProfileTypesByName(String name) {
+        return this.getDataModel().mapper(LoadProfileType.class).find("name", name);
+    }
+
+    @Override
+    public List<LogBookType> findLogBookTypeByName(String name) {
+        return this.getDataModel().mapper(LogBookType.class).find("name", name);
+    }
+
+    @Override
+    public List<LogBookType> findLogBookTypeByObisCode(ObisCode obisCode) {
+        return this.getDataModel().mapper(LogBookType.class).find("obisCodeString", obisCode.toString());
     }
 
     @Reference

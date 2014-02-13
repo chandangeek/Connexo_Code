@@ -14,7 +14,7 @@ import java.math.BigDecimal;
  * Date: 7/11/12
  * Time: 13:16
  */
-public interface ChannelSpec {
+public interface ChannelSpec extends HasId {
 
     /**
      * Returns the object's unique id
