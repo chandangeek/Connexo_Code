@@ -39,7 +39,7 @@ public class ParentDataMapper<T> extends JoinDataMapper<T> {
 	
 	@Override
 	boolean appendFromClause(SqlBuilder builder, String parentAlias, boolean marked, boolean forceOuterJoin) {
-		boolean outerJoin = forceOuterJoin || (!constraint.isNotNull() && !marked);
+		boolean outerJoin = forceOuterJoin || !constraint.isNotNull();
 		if (outerJoin) {
 			builder.append(" LEFT");
 		}
