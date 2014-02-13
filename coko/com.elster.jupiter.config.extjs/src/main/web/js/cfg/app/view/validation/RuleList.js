@@ -105,7 +105,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                 store: this.store,
                 dock: 'bottom',
                 itemId: 'rulesListBottomPagingToolbar',
-                param: this.ruleSetId
+                params: {id: this.ruleSetId}
             }];
         this.callParent(arguments);
     }

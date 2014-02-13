@@ -29,7 +29,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                 },
                 {
                     xtype: 'component',
-                    html: '<h1>Add Rule</h1>',
+                    html: '<h1>Add rule</h1>',
                     margins: '10 10 10 10'
                 },
                 {
