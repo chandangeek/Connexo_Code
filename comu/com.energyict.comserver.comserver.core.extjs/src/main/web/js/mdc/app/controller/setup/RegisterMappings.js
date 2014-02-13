@@ -86,32 +86,28 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
     createBreadCrumbs: function (deviceTypeId, deviceTypeName) {
         var me = this;
 
-        var breadcrumbs = me.getBreadCrumbs();
         var breadcrumbRegisterTypes = Ext.create('Uni.model.BreadcrumbItem', {
             text: I18n.translate('registerMapping.registerTypes','MDC','Register types'),
-            href: '#registermappings'
+            href: 'registermappings'
         });
 
         var breadcrumbDevicetype = Ext.create('Uni.model.BreadcrumbItem', {
             text: deviceTypeName,
-            href: '#setup/devicetypes/' + deviceTypeId
+            href: deviceTypeId
         });
 
         var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
             text: I18n.translate('registerMapping.deviceTypes','MDC','Device types'),
-            href: '#setup/devicetypes'
+            href: 'devicetypes'
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: I18n.translate('general.administration','MDC','Administration'),
             href: '#setup'
         });
-        breadcrumbDevicetype.setChild(breadcrumbRegisterTypes);
-        breadcrumbDeviceTypes.setChild(breadcrumbDevicetype);
-        breadcrumbParent.setChild(breadcrumbDeviceTypes);
 
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
+        breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbRegisterTypes);
 
-
+        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
     }
 
 });
