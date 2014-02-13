@@ -1,8 +1,7 @@
 package com.energyict.mdc.rest.impl;
 
+import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.rest.impl.properties.MdcResourceProperty;
-import com.energyict.mdw.core.LoadProfileType;
-import com.energyict.mdw.coreimpl.LoadProfileTypeFactoryImpl;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
@@ -22,12 +21,8 @@ public class LoadProfileTypeInfo implements MdcResourceProperty {
     }
 
     public LoadProfileTypeInfo(LoadProfileType loadProfileType) {
-        loadProfileTypeId = loadProfileType.getId();
+        loadProfileTypeId = (int)loadProfileType.getId();
         name = loadProfileType.getName();
     }
 
-    @Override
-    public Object fromInfoObject() {
-        return new LoadProfileTypeFactoryImpl().find(loadProfileTypeId);
-    }
 }

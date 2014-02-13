@@ -4,6 +4,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
@@ -31,6 +32,7 @@ public class MdcApplication extends Application {
     private volatile EngineModelService engineModelService;
     private volatile PropertySpecService propertySpecService;
     private volatile TransactionService transactionService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -83,6 +85,11 @@ public class MdcApplication extends Application {
         this.transactionService = transactionService;
     }
 
+
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -93,6 +100,7 @@ public class MdcApplication extends Application {
             bind(propertySpecService).to(PropertySpecService.class);
             bind(engineModelService).to(EngineModelService.class);
             bind(transactionService).to(TransactionService.class);
+            bind(deviceConfigurationService).to(DeviceConfigurationService.class);
         }
     }
 

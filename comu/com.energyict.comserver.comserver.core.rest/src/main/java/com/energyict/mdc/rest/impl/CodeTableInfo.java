@@ -2,7 +2,6 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.rest.impl.properties.MdcResourceProperty;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdw.coreimpl.CodeFactoryImpl;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
@@ -33,8 +32,4 @@ public class CodeTableInfo implements MdcResourceProperty {
         name = codeTable.getName();
     }
 
-    @Override
-    public Object fromInfoObject() {
-        return new CodeFactoryImpl().find(codeTableId);
-    }
 }

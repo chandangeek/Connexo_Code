@@ -2,7 +2,6 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.rest.impl.properties.MdcResourceProperty;
-import com.energyict.mdw.coreimpl.UserFileFactoryImpl;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
@@ -33,8 +32,4 @@ public class UserFileReferenceInfo implements MdcResourceProperty {
         name = userFile.getName();
     }
 
-    @Override
-    public Object fromInfoObject() {
-        return new UserFileFactoryImpl().find(userFileReferenceId);
-    }
 }
