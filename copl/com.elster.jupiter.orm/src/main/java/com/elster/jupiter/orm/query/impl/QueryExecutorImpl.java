@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
@@ -43,12 +44,19 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	@Override
 	public List<T> select(Condition condition, String[] orderBy , boolean eager , String[] exceptions , int from , int to) {
 		try {
-			return new JoinExecutor<>(root.copy(), getEffectiveDate() , from,to).select(restriction.and(condition),orderBy , eager, exceptions);
+			return new JoinExecutor<>(root.copy(), getEffectiveDate() , from,to).select(restriction.and(condition), Order.from(orderBy) , eager, exceptions);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 	
+	public List<T> select(Condition condition, Order[] ordering , boolean eager , String[] exceptions , int from , int to) {
+		try {
+			return new JoinExecutor<>(root.copy(), getEffectiveDate() , from,to).select(restriction.and(condition),ordering , eager, exceptions);
+		} catch (SQLException ex) {
+			throw new UnderlyingSQLFailedException(ex);
+		}
+	}
 
 	@Override
 	public boolean hasField(String fieldName) {
@@ -85,7 +93,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 			String fieldName  = column.getFieldName() == null ? column.getName() : column.getFieldName();
 			condition = condition.and(Operator.EQUAL.compare(fieldName,key[i++]));
 		}
-		List<T> result = this.select(condition, null , eager , exceptions);
+		List<T> result = this.select(condition, new Order[] {} , eager , exceptions);
 		if (result.size() > 1) {
 			throw new NotUniqueException(Arrays.toString(key));
 		}
@@ -128,6 +136,16 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	@Override
 	public void setEffectiveDate(Date date) {
 		this.effectiveInstant = new UtcInstant(date);
+	}
+
+	@Override
+	public List<T> select(Condition condition, Order ordering, Order... orderings) {
+		return select(condition, Order.from(ordering,orderings), true, new String[0]);
+	}
+
+	@Override
+	public List<T> select(Condition condition, Order[] orderBy, boolean eager,String[] exceptions) {		
+		return select(condition,orderBy,eager,exceptions,0,0);
 	}
 }
 

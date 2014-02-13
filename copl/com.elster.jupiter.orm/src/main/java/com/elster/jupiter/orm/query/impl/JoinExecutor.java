@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 final class JoinExecutor<T> {
@@ -45,7 +46,7 @@ final class JoinExecutor<T> {
 		return from == 0 ? builder : builder.asPageBuilder(from, to);
 	}
 	
-	private void appendSql(Condition condition , String[] orderBy) {
+	private void appendSql(Condition condition , Order[] orderBy) {
 		appendSelectClause();
 		appendWhereClause(builder, condition , " where ");
 		appendOrderByClause(builder,orderBy);
@@ -87,15 +88,17 @@ final class JoinExecutor<T> {
 		}
 	}
 	
-	private void appendOrderByClause(SqlBuilder builder, String[] orderBy) {
+	private void appendOrderByClause(SqlBuilder builder, Order[] orderBy) {
 		if (orderBy == null || orderBy.length == 0) {
             return;
         }
 		builder.append(" order by ");
 		String separator = "";
-		for (String each : orderBy) {
+		for (Order each : orderBy) {
 			builder.append(separator);
-			builder.append(getOrderBy(each));
+			builder.append(getOrderBy(each.getName()));
+			builder.space();
+			builder.append(each.ordering());
 			separator = ", ";
 		}				
 	}
@@ -105,7 +108,7 @@ final class JoinExecutor<T> {
 		return columnAndAlias == null ? fieldName : columnAndAlias.toString();		
 	}
 
-    List<T> select(Condition condition,String[] orderBy , boolean eager, String[] exceptions) throws SQLException {
+    List<T> select(Condition condition,Order[] orderBy , boolean eager, String[] exceptions) throws SQLException {
 		builder = new SqlBuilder();
 		boolean initialMarkDone = false;
 		if (eager) {

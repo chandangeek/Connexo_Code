@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.google.common.base.Optional;
 
 import java.sql.ResultSet;
@@ -416,6 +417,10 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	
 	public List<T> select(Condition condition, String ... orderBy) {
 		return with().select(condition, orderBy);
+	}
+	
+	public List<T> select(Condition condition, Order firstOrder, Order ... orders) {
+		return with().select(condition, firstOrder, orders);
 	}
 	
 	DataMapperType <? super T> getMapperType() {

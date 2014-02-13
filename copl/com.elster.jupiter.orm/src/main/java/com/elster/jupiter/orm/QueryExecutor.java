@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm;
 
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.google.common.base.Optional;
 
@@ -23,6 +24,8 @@ public interface QueryExecutor<T> extends BasicQuery<T> {
 	// domain util query support
     List<T> select(Condition condition, String[] orderBy, boolean eager , String[] exceptions);
     List<T> select(Condition condition, String[] orderBy , boolean eager , String[] exceptions , int from , int to);
+    List<T> select(Condition condition, Order[] orderBy, boolean eager , String[] exceptions);
+    List<T> select(Condition condition, Order[] orderBy , boolean eager , String[] exceptions , int from , int to);
     Object convert(String fieldName , String value);
     SqlFragment asFragment(Condition condition, String[] fieldNames);
     Optional<T> get(Object[] key, boolean eager , String[] exceptions);
