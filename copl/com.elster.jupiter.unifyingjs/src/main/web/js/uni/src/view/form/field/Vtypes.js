@@ -16,13 +16,17 @@ Ext.define('Uni.view.form.field.Vtypes', {
 
     validateNonEmptyString: function () {
         var me = this;
+        var message = null;
         Ext.apply(Ext.form.field.VTypes, {
             nonemptystring: function (val) {
+                message = null;
                 //check value
                 if ((val==null || val==undefined || val=='')) {
                     return false;
                 }
-                return val.trim().length > 0;
+                if (val.trim().length == 0) {
+                    return false;
+                }
             },
             nonemptystringText: 'This field is required'
         });
