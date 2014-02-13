@@ -1,6 +1,7 @@
 package com.elster.jupiter.domain.util;
 
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.google.common.base.Optional;
 
@@ -33,10 +34,12 @@ public interface Query<T> {
 	 * @return list of objects matching the condition
 	 */
     List<T> select(Condition condition, String ... orderBy);
+    List<T> select(Condition condition, Order order , Order ... orders);
     /** 
      * paginated query
      */
     List<T> select(Condition condition,int from , int to , String ... orderBy);
+    List<T> select(Condition condition, int from , int to, Order order , Order ... orders);
     /**
      * get by primary key. This differs from DataMapper.get that it 
      * will retrieve associated objects in a single query

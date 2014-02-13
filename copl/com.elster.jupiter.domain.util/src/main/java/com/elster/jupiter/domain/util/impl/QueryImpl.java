@@ -3,6 +3,7 @@ package com.elster.jupiter.domain.util.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.google.common.base.Optional;
 
@@ -86,5 +87,16 @@ class QueryImpl<T> implements Query<T> {
     public void setEffectiveDate(Date date) {
     	queryExecutor.setEffectiveDate(date);
     }
+
+	@Override
+	public List<T> select(Condition condition, Order order, Order... orders) {
+		return queryExecutor.select(condition, Order.from(order,orders), isEager(), exceptions);
+	}
+
+	@Override
+	public List<T> select(Condition condition, int from, int to, Order order, Order... orders) {
+		return  queryExecutor.select(condition, Order.from(order,orders), isEager(), exceptions, from, to);
+	}
+	
 
 }
