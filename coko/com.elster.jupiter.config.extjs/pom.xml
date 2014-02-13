@@ -35,4 +35,61 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>sencha-build</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <id>sencha-compile</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target unless="skipSencha">
+                                        <echo>Sencha build</echo>
+                                        <echo>Using Sencha CMD in ${sencha.cmd.dir}</echo>
+                                        <echo>Using Ext lib in ${sencha.ext.dir}</echo>
+                                        <property name="build.dir" value="${project.build.directory}/web"/>
+                                        <property name="build.temp.dir" value="${project.build.directory}/webtemp"/>
+                                        <property name="cmd.dir" value="${sencha.cmd.dir}"/>
+                                        <property name="ext.dir" value="${sencha.ext.dir}"/>
+                                        <ant antfile="build.xml" target="build" dir="./src/main/web/js/cfg/"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.felix</groupId>
+                        <artifactId>maven-bundle-plugin</artifactId>
+                        <configuration>
+                            <instructions>
+                                <Include-Resource>{maven-resources}</Include-Resource>
+                            </instructions>
+                        </configuration>
+                    </plugin>
+                </plugins>
+                <resources>
+                    <resource>
+                        <directory>${basedir}/target/web</directory>
+                        <targetPath>js/cfg</targetPath>
+                        <includes>
+                            <!--  WATCH OUT : our build is case sensitive !!!! -->
+                            <include>*.html</include>
+                            <include>*.js</include>
+                            <include>resources/**/*</include>
+                        </includes>
+                    </resource>
+                </resources>
+            </build>
+        </profile>
+    </profiles>
 </project>
