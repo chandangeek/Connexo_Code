@@ -18,7 +18,11 @@ public class DefaultFinder<T> implements Finder<T> {
     private Integer pageSize;
     private List<Pair<String, SortOrder>> sortingColumns = new ArrayList<>();
 
-    public static <T> Finder<T>  of(Class<T> clazz, Condition condition, DataModel dataModel) {
+    public static <T> Finder<T> of(Class<T> clazz, DataModel dataModel) {
+        return of(clazz, Condition.TRUE, dataModel);
+    }
+
+    public static <T> Finder<T> of(Class<T> clazz, Condition condition, DataModel dataModel) {
         return new DefaultFinder<>(clazz, condition, dataModel);
     }
 
