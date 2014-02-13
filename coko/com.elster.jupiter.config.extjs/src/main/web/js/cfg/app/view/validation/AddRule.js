@@ -33,20 +33,13 @@ Ext.define('Cfg.view.validation.AddRule', {
                     margins: '10 10 10 10'
                 },
                 {
-                    xtype: 'container',
-                    cls: 'content-container',
-                    layout: {
-                        type: 'hbox'
-                    },
-                    items: [
-                        {
-                            xtype: 'form',
+                    xtype: 'form',
                             itemId: 'addRuleForm',
                             padding: '10 10 0 10',
                             width: 700,
                             layout: {
-                                type: 'vbox',
-                                align: 'stretch'
+                                type: 'vbox'//,
+                                //align: 'stretch'
                             },
                             items:[
                                 {
@@ -64,7 +57,8 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     maxLength: 80,
                                     enforceMaxLength: true,
                                     labelWidth:	250,
-                                    name: 'name'
+                                    name: 'name',
+                                    width: 600
                                 },
                                 {
                                     xtype: 'combobox',
@@ -87,7 +81,8 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     labelAlign: 'right',
                                     forceSelection: false,
                                     emptyText: I18n.translate('validation.selectARule', 'CFG', 'Select a rule') + '...',
-                                    labelWidth:	250
+                                    labelWidth:	250,
+                                    width: 600
                                 },
                                 {
                                     xtype: 'container',
@@ -96,29 +91,43 @@ Ext.define('Cfg.view.validation.AddRule', {
                                         type: 'vbox',
                                         align: 'stretch'
                                     },
-
                                     items: [
                                         {
-                                            xtype: 'textfield',
-                                            fieldLabel: I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
-                                            labelAlign: 'right',
-                                            itemId: 'readingTypeTextField1',
-                                            validator:function(text){
-                                                if(Ext.util.Format.trim(text).length==0)
-                                                    return I18n.translate('validation.requiredField', 'CFG', 'This field is required');
-                                                else
-                                                    return true;
+                                            xtype: 'container',
+                                            //itemId: 'readingValuesTextFieldsContainer',
+                                            layout: {
+                                                type: 'hbox'//,
+                                                //align: 'stretch'
                                             },
-                                            required: true,
-                                            msgTarget: 'under',
-                                            labelWidth:	250,
-                                            maxLength: 80,
-                                            enforceMaxLength: true
+                                            items: [
+                                                {
+                                                    xtype: 'textfield',
+                                                    fieldLabel: I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
+                                                    labelAlign: 'right',
+                                                    itemId: 'readingTypeTextField1',
+                                                    validator:function(text){
+                                                        if(Ext.util.Format.trim(text).length==0)
+                                                            return I18n.translate('validation.requiredField', 'CFG', 'This field is required');
+                                                        else
+                                                            return true;
+                                                    },
+                                                    required: true,
+                                                    msgTarget: 'under',
+                                                    labelWidth:	250,
+                                                    maxLength: 80,
+                                                    enforceMaxLength: true ,
+                                                    width: 600,
+                                                    margin:'0 0 5 0'
+                                                }
+                                            ]
                                         }
+
                                     ]
+
                                 },
                                 {
                                     xtype: 'fieldcontainer',
+                                    margin:'5 0 0 0',
                                     fieldLabel: '&nbsp',
                                     labelAlign: 'right',
                                     labelWidth:	250,
@@ -171,31 +180,9 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     ]
                                 }
                             ]
-                        }, {
-                            xtype: 'container',
-                            itemId: 'removeReadingTypesButtonsContainer',
-                            layout: {
-                                type: 'vbox',
-                                pack: 'center'
-                            },
-                            padding: '16 0 10 0',
-                            items: [
-                                {
-                                    xtype: 'component',
-                                    margin:'0 0 10 0',
-                                    html: '&nbsp'
-                                },
-                                {
-                                    xtype: 'component',
-                                    margin:'0 0 10 0',
-                                    html: '&nbsp'
-                                }
-                            ]
                         }
                     ]
-                }]
-            }
-        ],
+                }],
 
     initComponent: function () {
         this.callParent(arguments);

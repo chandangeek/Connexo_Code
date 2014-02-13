@@ -129,7 +129,8 @@ Ext.define('Cfg.controller.Validation', {
 
             for (var i = 0; i < readingTypes.items.length; i++) {
                 var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
-                readingTypeRecord.set('mRID', readingTypes.items[i].value);
+                var readingType = readingTypes.items[i].items.items[0].value;
+                readingTypeRecord.set('mRID',readingType );
                 record.readingTypes().add(readingTypeRecord);
             }
 
@@ -149,7 +150,7 @@ Ext.define('Cfg.controller.Validation', {
                     me.getValidationRuleSetsStore().reload(
                         {
                             callback: function(){
-                                location.href = '#validation/rules/' + ruleSetId;
+                                location.href = '#/validation/rules/' + ruleSetId;
                             }
                         });
                 }
@@ -208,39 +209,48 @@ Ext.define('Cfg.controller.Validation', {
     addReadingType: function() {
         var me = this;
         var indexToRemove = me.readingTypeIndex;
+
         this.getReadingValuesTextFieldsContainer().add(
+
             {
-                xtype: 'textfield',
-                fieldLabel: '&nbsp',
-                labelAlign: 'right',
-                validator:function(text){
-                    if(Ext.util.Format.trim(text).length==0)
-                        return 'This field is required';
-                    else
-                        return true;
+                xtype: 'container',
+                itemId: 'readingTypeTextField' + me.readingTypeIndex,
+                layout: {
+                    type: 'hbox'
                 },
-                required: true,
-                msgTarget: 'under',
-                labelWidth:	250,
-                maxLength: 80,
-                enforceMaxLength: true,
-                itemId: 'readingTypeTextField' + me.readingTypeIndex
+                items: [
+                    {
+                        xtype: 'textfield',
+                        fieldLabel: '&nbsp',
+                        labelAlign: 'right',
+                        validator:function(text){
+                            if(Ext.util.Format.trim(text).length==0)
+                                return I18n.translate('validation.requiredField', 'CFG', 'This field is required');
+                            else
+                                return true;
+                        },
+                        required: true,
+                        msgTarget: 'under',
+                        labelWidth:	250,
+                        maxLength: 80,
+                        enforceMaxLength: true ,
+                        width: 600
+                    },
+                    {
+                        text: '-',
+                        xtype: 'button',
+                        action: 'removeReadingTypeAction',
+                        pack: 'center',
+                        margin:'0 0 5 5',
+                        width: 30,
+                        itemId: 'readingTypeRemoveButton'  + me.readingTypeIndex,
+                        handler: function() {
+                            me.getReadingValuesTextFieldsContainer().remove(Ext.fly('#readingTypeTextField'  + indexToRemove)[0]);
+                        }
+                    }
+                ]
             }
-        );
-        this.getRemoveReadingTypesButtonsContainer().add(
-            {
-                text: '-',
-                xtype: 'button',
-                action: 'removeReadingTypeAction',
-                pack: 'center',
-                margin:'0 0 5 0',
-                width: 30,
-                itemId: 'readingTypeRemoveButton'  + me.readingTypeIndex,
-                handler: function() {
-                    me.getReadingValuesTextFieldsContainer().remove(Ext.ComponentQuery.query('#readingTypeTextField'  + indexToRemove)[0]);
-                    me.getRemoveReadingTypesButtonsContainer().remove(Ext.ComponentQuery.query('#readingTypeRemoveButton'  + indexToRemove)[0]);
-                }
-            }
+
         );
         me.readingTypeIndex = me.readingTypeIndex + 1;
     },
