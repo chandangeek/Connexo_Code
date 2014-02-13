@@ -72,9 +72,14 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+        this.initialize(deviceConfiguration, registerMapping, phenomenon);
+        setLoadProfileSpec(loadProfileSpec);
+        return this;
+    }
+
+    private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon) {
         setDeviceConfiguration(deviceConfiguration);
         setRegisterMapping(registerMapping);
-        setLoadProfileSpec(loadProfileSpec);
         setPhenomenon(phenomenon);
         return this;
     }
@@ -430,12 +435,22 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         return productSpec;
     }
 
-    public static class ChannelSpecBuilder {
+    public static class ChannelSpecBuilder implements LoadProfileSpec.BuildingCompletionListener {
 
         final ChannelSpecImpl channelSpec;
 
         public ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
             this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, registerMapping, phenomenon, loadProfileSpec);
+        }
+
+        public ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpecImpl.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+            this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, registerMapping, phenomenon);
+            loadProfileSpecBuilder.notifyOnAdd(this);
+        }
+
+        @Override
+        public void loadProfileSpecBuildingProcessCompleted(LoadProfileSpec loadProfileSpec) {
+            this.channelSpec.setLoadProfileSpec(loadProfileSpec);
         }
 
         public ChannelSpecBuilder setOverruledObisCode(ObisCode overruledObisCode) {

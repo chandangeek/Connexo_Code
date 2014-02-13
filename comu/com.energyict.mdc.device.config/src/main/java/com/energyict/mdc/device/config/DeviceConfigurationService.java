@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.impl.RegisterMappingImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import java.util.List;
@@ -345,11 +346,18 @@ public interface DeviceConfigurationService {
 
     public List<ChannelSpec> findChannelSpecsByDeviceConfigurationAndRegisterMapping(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping);
 
-    public DeviceConfiguration newDeviceConfiguration(DeviceType deviceType, String name);
-
     public DeviceConfiguration findDeviceConfigurationByNameAndDeviceType(String name, DeviceType deviceType);
 
     public List<DeviceConfiguration> findActiveDeviceConfigurationsByDeviceType(DeviceType deviceType);
 
     public List<DeviceConfiguration> findDeviceConfigurationsByDeviceType(DeviceType deviceType);
+
+    public List<DeviceConfiguration> findDeviceConfigurationsUsingLoadProfileType(LoadProfileType loadProfileType);
+
+    public List<ChannelSpec> findChannelSpecsForRegisterMappingInLoadProfileType (RegisterMapping registerMapping, LoadProfileType loadProfileType);
+
+    public List<DeviceConfiguration> findDeviceConfigurationsUsingLogBookType(LogBookType logBookType);
+
+    public List<DeviceConfiguration> findDeviceConfigurationsUsingRegisterMapping(RegisterMapping registerMapping);
+
 }

@@ -21,6 +21,8 @@ import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsRequiredExcep
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -176,10 +178,15 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     public static class LoadProfileSpecBuilder {
 
-        final LoadProfileSpecImpl loadProfileSpec;
+        private final LoadProfileSpecImpl loadProfileSpec;
+        private final List<BuildingCompletionListener> buildingCompletionListeners = new ArrayList<>();
 
         LoadProfileSpecBuilder(Provider<LoadProfileSpecImpl> loadProfileSpecProvider, DeviceConfiguration deviceConfiguration, LoadProfileType loadProfileType) {
             this.loadProfileSpec = loadProfileSpecProvider.get().initialize(deviceConfiguration, loadProfileType);
+        }
+
+        public void notifyOnAdd (BuildingCompletionListener buildingCompletionListener) {
+            this.buildingCompletionListeners.add(buildingCompletionListener);
         }
 
         public LoadProfileSpecBuilder setOverruledObisCode(ObisCode overruledObisCode){
@@ -189,7 +196,16 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
         public LoadProfileSpec add(){
             this.loadProfileSpec.validateRequiredFields();
+            this.notifyListeners();
             return this.loadProfileSpec;
         }
+
+        private void notifyListeners() {
+            for (BuildingCompletionListener buildingCompletionListener : this.buildingCompletionListeners) {
+                buildingCompletionListener.loadProfileSpecBuildingProcessCompleted(this.loadProfileSpec);
+            }
+        }
+
     }
+
 }

@@ -4,12 +4,16 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLogBookTypeIsInUseException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
 
 import javax.inject.Inject;
+
+import java.util.List;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -20,13 +24,15 @@ import static com.elster.jupiter.util.Checks.is;
  */
 public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implements LogBookType {
 
+    private DeviceConfigurationService deviceConfigurationService;
     private String obisCodeString;
     private ObisCode obisCode;
     private String description;
 
     @Inject
-    public LogBookTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    public LogBookTypeImpl(DataModel dataModel, EventService eventService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus) {
         super(LogBookType.class, dataModel, eventService, thesaurus);
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     LogBookTypeImpl initialize(String name, ObisCode obisCode) {
@@ -55,9 +61,10 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
     }
 
     private void validateDeviceConfigurations() {
-        /* Todo: find all DeviceConfigurations that use this mapping via LogBookSpec
-         *       and validate that the changes applied to this LogBookType
-         *       do not violate any device configuration business constraints. */
+        for (DeviceConfiguration each : this.deviceConfigurationService.findDeviceConfigurationsUsingLogBookType(this)) {
+            ServerDeviceConfiguration deviceConfiguration = (ServerDeviceConfiguration) each;
+            deviceConfiguration.validateUpdateLogBookType(this);
+        }
     }
 
     @Override
@@ -97,8 +104,8 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
     }
 
     private boolean canChangeObisCode() {
-        // Todo: Check that no LogBookSpec is using this LogBookType
-        return true;
+        List<LogBookSpecImpl> logBookTypes = this.dataModel.mapper(LogBookSpecImpl.class).find("logBookType", this);
+        return logBookTypes.isEmpty();
     }
 
     @Override

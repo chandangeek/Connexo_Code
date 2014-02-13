@@ -8,6 +8,8 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.ProductSpec;
@@ -31,6 +33,7 @@ import java.util.Set;
 
 public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> implements RegisterMapping {
 
+    private DeviceConfigurationService deviceConfigurationService;
     private String obisCodeString;
     private ObisCode obisCode;
     private ProductSpec productSpec;
@@ -42,9 +45,10 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     private Clock clock;
 
     @Inject
-    public RegisterMappingImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock) {
+    public RegisterMappingImpl(DataModel dataModel, EventService eventService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, Clock clock) {
         super(RegisterMapping.class, dataModel, eventService, thesaurus);
         this.clock = clock;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     RegisterMappingImpl initialize(String name, ObisCode obisCode, ProductSpec productSpec) {
@@ -80,9 +84,11 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     }
 
     private void validateDeviceConfigurations() {
-        /* Todo: find all DeviceConfigurations that use this mapping via ChannelSpec or RegisterSpec
-         *       and validate that the changes applied to this RegisterMapping
-         *       do not violate any device configuration business constraints. */
+        List<DeviceConfiguration> deviceConfigurations = this.deviceConfigurationService.findDeviceConfigurationsUsingRegisterMapping(this);
+        for (DeviceConfiguration each : deviceConfigurations) {
+            ServerDeviceConfiguration deviceConfiguration = (ServerDeviceConfiguration) each;
+            deviceConfiguration.validateUpdateRegisterMapping(this);
+        }
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceCommunicationConfigurationFactory;
@@ -31,9 +32,14 @@ import com.energyict.mdc.protocol.api.device.Device;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * User: gde
@@ -83,12 +89,11 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         return this;
     }
 
-
     @Override
     public DeviceCommunicationConfiguration getCommunicationConfiguration() {
         if (this.communicationConfiguration == null) {
             List<DeviceCommunicationConfigurationFactory> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceCommunicationConfigurationFactory.class);
-            if (modulesImplementing.size() > 0) {
+            if (!modulesImplementing.isEmpty()) {
                 this.communicationConfiguration = modulesImplementing.get(0).findFor(this);
             }
         }
@@ -115,6 +120,101 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public void notifyDelete() {
         //TODO
+    }
+
+    @Override
+    public void validateUpdateLoadProfileType(LoadProfileType loadProfileType) {
+        this.validateAllLoadProfileSpecsHaveUniqueObisCodes(loadProfileType);
+    }
+
+    private void validateAllLoadProfileSpecsHaveUniqueObisCodes(LoadProfileType loadProfileType) {
+        Set<String> loadProfileObisCodes = new HashSet<>();
+        for (LoadProfileSpec each : this.getLoadProfileSpecs()) {
+            String obisCodeValue = each.getObisCode().toString();
+            if (!loadProfileObisCodes.contains(obisCodeValue)) {
+                loadProfileObisCodes.add(obisCodeValue);
+            }
+            else {
+                throw new DuplicateLoadProfileTypeException(this.thesaurus, this, loadProfileType, each);
+            }
+        }
+    }
+
+    @Override
+    public void validateUpdateLogBookType(LogBookType logBookType) {
+        this.validateAllLogBookTypesHaveUniqueObisCodes();
+    }
+
+    private void validateAllLogBookTypesHaveUniqueObisCodes() {
+        Map<String, String> obisCodeAndNameMap = new HashMap<>();
+        for (LogBookSpec each : this.getLogBookSpecs()) {
+            LogBookType eachLogBookType = each.getLogBookType();
+            String obisCodeValue = this.findNextAvailableObisCode(eachLogBookType.getObisCode().getValue(), obisCodeAndNameMap.keySet());
+            String logBookSpecName = eachLogBookType.getName();
+            if (!obisCodeAndNameMap.containsKey(obisCodeValue)) {
+                obisCodeAndNameMap.put(obisCodeValue, logBookSpecName);
+            }
+            else {
+                throw DuplicateObisCodeException.forLogBookSpec(this.thesaurus, this, each.getDeviceObisCode(), each);
+            }
+        }
+    }
+
+    @Override
+    public void validateUpdateRegisterMapping(RegisterMapping registerMapping) {
+        this.validateAllChannelSpecsHaveUniqueObisCodes();
+        this.validateAllRegisterSpecsHaveUniqueObisCodes();
+    }
+
+    private void validateAllChannelSpecsHaveUniqueObisCodes() {
+        Map<Long, Set<String>> loadProfileTypeObisCodes = new HashMap<>();
+        for (ChannelSpec each : this.getChannelSpecs()) {
+            ObisCode obisCode = each.getRegisterMapping().getObisCode();
+            String obisCodeValue = obisCode.getValue();
+            long loadProfileTypeId = each.getLoadProfileSpec().getLoadProfileType().getId();
+            Set<String> obisCodesForLoadProfileType = loadProfileTypeObisCodes.get(loadProfileTypeId);
+            if (obisCodesForLoadProfileType == null) {
+                obisCodesForLoadProfileType = new HashSet<>();
+                loadProfileTypeObisCodes.put(loadProfileTypeId, obisCodesForLoadProfileType);
+            }
+            if (!obisCodesForLoadProfileType.contains(obisCodeValue)) {
+                obisCodesForLoadProfileType.add(obisCodeValue);
+            }
+            else {
+                if (!obisCode.anyChannel()) {
+                    throw DuplicateObisCodeException.forChannelSpecInLoadProfileSpec(this.thesaurus, this, each.getDeviceObisCode(), each, each.getLoadProfileSpec());
+                }
+            }
+        }
+    }
+
+    private void validateAllRegisterSpecsHaveUniqueObisCodes() {
+        Set<String> obisCodeSet = new HashSet<>();
+        for (RegisterSpec registerSpec : this.getRegisterSpecs()) {
+            String obisCodeValue = this.findNextAvailableObisCode(registerSpec.getDeviceObisCode().toString(), obisCodeSet);
+            if (!obisCodeSet.contains(obisCodeValue)) {
+                obisCodeSet.add(obisCodeValue);
+            }
+            else {
+                throw DuplicateObisCodeException.forRegisterSpec(this.thesaurus, this, registerSpec.getDeviceObisCode(), registerSpec);
+            }
+        }
+    }
+
+    /**
+     * Looks for the next available Obiscode with different B-field.
+     *
+     * @param obisCodeValue
+     * @param obisCodeKeys
+     * @return
+     */
+    private String findNextAvailableObisCode(String obisCodeValue, Collection<String> obisCodeKeys) {
+        String availableObisCode = obisCodeValue;
+        while (obisCodeKeys.contains(availableObisCode)) {
+            ObisCode obisCode = ObisCode.fromString(availableObisCode).nextB();
+            availableObisCode = obisCode.toString();
+        }
+        return availableObisCode;
     }
 
     //TODO the creation of the CommunicationConfiguration is currently skipped ...
@@ -183,7 +283,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     public void deleteRegisterSpec(RegisterSpec registerSpec) {
-        // TODO COmplete!!!
+        // TODO Complete!!!
 
 //        if (getActive() && !shadow.getRegisterSpecShadows().getDeletedShadows().isEmpty()) {
 //            throw new BusinessException("deleteRegisterSpecsFromActiveDeviceConfigIsNotAllowed",
@@ -206,10 +306,19 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         return new ChannelSpecBuilderForConfig(channelSpecProvider, this, registerMapping, phenomenon, loadProfileSpec);
     }
 
+    @Override
+    public ChannelSpecImpl.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpecImpl.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+        return new ChannelSpecBuilderForConfig(channelSpecProvider, this, registerMapping, phenomenon, loadProfileSpecBuilder);
+    }
+
     class ChannelSpecBuilderForConfig extends ChannelSpecImpl.ChannelSpecBuilder {
 
-        public ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
             super(channelSpecProvider, deviceConfiguration, registerMapping, phenomenon, loadProfileSpec);
+        }
+
+        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpecImpl.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+            super(channelSpecProvider, deviceConfiguration, registerMapping, phenomenon, loadProfileSpecBuilder);
         }
 
         @Override
