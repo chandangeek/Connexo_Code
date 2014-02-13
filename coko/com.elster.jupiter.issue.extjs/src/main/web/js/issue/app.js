@@ -1,20 +1,13 @@
+/*
+    This file is generated and updated by Sencha Cmd. You can edit this file as
+    needed for your application, but these edits will have to be merged by
+    Sencha Cmd when upgrading.
+*/
+
 Ext.application({
-    requires: ['Ext.container.Viewport'],
-    name: 'Issue Management',
+    name: 'ViewDataCollectionIssues',
 
-    appFolder: 'app',
-
-    launch: function() {
-        Ext.create('Ext.container.Viewport', {
-            layout: 'fit',
-            items: [
-                {
-                    xtype: 'panel',
-                    title: 'Issue Management',
-                    html : 'Issue Management ...'
-                }
-            ]
-        });
-    }
+    extend: 'ViewDataCollectionIssues.Application',
+    
+    autoCreateViewport: true
 });
-
