@@ -90,7 +90,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 dock: 'bottom',
                 params: [
                     {deviceType: me.deviceTypeId}
-                ]
+                ],
+                itemsPerPageMsg: I18n.translate('registerMappings.pagingtoolbarbottom.itemsPerPAgeMsg','MDC','Register types per page')
             }
         ];
 
