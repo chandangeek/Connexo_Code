@@ -5,8 +5,10 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Order;
 
 import javax.ws.rs.core.MultivaluedMap;
+
 import java.util.List;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -32,6 +34,18 @@ class RestQueryImpl<T> implements RestQuery<T> {
             return query.select(condition, start + 1, start + limit,orderBy);
         } else {
             return query.select(condition,orderBy);
+        }
+    }
+    
+    @Override
+    public List<T> select(QueryParameters map, Order order , Order... orders) {
+        int start = map.getStart();
+        int limit = map.getLimit();
+        Condition condition = convert(map);
+        if (limit >= 0) {
+            return query.select(condition, start + 1, start + limit,order,orders);
+        } else {
+            return query.select(condition, order, orders);
         }
     }
     
