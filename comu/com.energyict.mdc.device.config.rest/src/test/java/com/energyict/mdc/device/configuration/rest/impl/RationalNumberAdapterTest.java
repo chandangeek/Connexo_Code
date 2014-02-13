@@ -1,0 +1,43 @@
+package com.energyict.mdc.device.configuration.rest.impl;
+
+import com.elster.jupiter.cbo.RationalNumber;
+import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+
+public class RationalNumberAdapterTest {
+
+    @Test
+    public void testRationalNumberMarshal() throws Exception {
+        RationalNumberAdapter adapter = new RationalNumberAdapter();
+        String marshal = adapter.marshal(new RationalNumber(10L, 100L));
+        assertThat(marshal).isEqualTo("10/100");
+    }
+
+    @Test
+    public void testRationalNumberUnmarshal() throws Exception {
+        RationalNumberAdapter adapter = new RationalNumberAdapter();
+        RationalNumber rationalNumber = adapter.unmarshal("10/99");
+        assertThat(rationalNumber).isEqualTo(new RationalNumber(10,99));
+    }
+
+    @Test
+    public void testRationalNumberUnmarshalLong() throws Exception {
+        RationalNumberAdapter adapter = new RationalNumberAdapter();
+        RationalNumber rationalNumber = adapter.unmarshal("12345678987654321/999999999999999999");
+        assertThat(rationalNumber).isEqualTo(new RationalNumber(12345678987654321L,999999999999999999L));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRationalNumberUnmarshalInvalidLong() throws Exception {
+        RationalNumberAdapter adapter = new RationalNumberAdapter();
+        RationalNumber rationalNumber = adapter.unmarshal("1234111111115678987654321/999999999999999999");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRationalNumberUnmarshalInvalidRational() throws Exception {
+        RationalNumberAdapter adapter = new RationalNumberAdapter();
+        RationalNumber rationalNumber = adapter.unmarshal("123|9");
+    }
+}

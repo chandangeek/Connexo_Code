@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
-import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.services.DeviceConfigurationService;
 import com.energyict.mdw.amr.RegisterMappingFactory;
@@ -29,7 +28,6 @@ public class DeviceConfigurationApplication extends Application {
         return ImmutableSet.of(
                 AutoCloseDatabaseConnection.class,
 //                TransactionWrapper.class,
-                ExceptionLogger.class,
                 DeviceTypeResource.class,
                 DeviceProtocolResource.class
         );

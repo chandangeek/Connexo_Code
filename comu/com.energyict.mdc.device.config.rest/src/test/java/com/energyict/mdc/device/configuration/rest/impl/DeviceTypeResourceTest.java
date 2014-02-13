@@ -93,6 +93,12 @@ public class DeviceTypeResourceTest extends JerseyTest {
     }
 
     @Test
+    public void testGetNonExistingDeviceType() throws Exception {
+        Response response = target("/devicetypes/12345").request().get(Response.class);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
+
+    @Test
     public void testGetAllDeviceTypesWithoutPaging() throws Exception {
         Finder<DeviceType> finder = mockFinder(Arrays.asList(mockDeviceType("device type 1", 66), mockDeviceType("device type 2", 66), mockDeviceType("device type 3", 66), mockDeviceType("device type 4", 66)));
         when(deviceConfigurationService.allDeviceTypes()).thenReturn(finder);

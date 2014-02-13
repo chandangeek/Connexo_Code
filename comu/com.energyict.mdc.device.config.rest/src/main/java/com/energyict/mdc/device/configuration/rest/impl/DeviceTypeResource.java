@@ -245,7 +245,7 @@ public class DeviceTypeResource {
         DeviceType deviceType = deviceConfigurationService.findDeviceType(id);
         if (deviceType == null) {
             throw new WebApplicationException("No device type with id " + id,
-                    Response.status(Response.Status.NOT_FOUND).build());
+                    Response.Status.NOT_FOUND);
         }
         return deviceType;
     }
