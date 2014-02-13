@@ -29,7 +29,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                 },
                 {
                     xtype: 'component',
-                    html: '<h1>Add Rule</h1>',
+                    html: '<h1>Add rule</h1>',
                     margins: '10 10 10 10'
                 },
                 {
@@ -51,17 +51,31 @@ Ext.define('Cfg.view.validation.AddRule', {
                             items:[
                                 {
                                     xtype: 'textfield',
-                                    fieldLabel: 'Name:',
+                                    fieldLabel: 'Name',
                                     labelAlign: 'right',
-                                    vtype: 'nonemptystring',
+                                    validator:function(text){
+                                        if(Ext.util.Format.trim(text).length==0)
+                                            return 'This field is required';
+                                        else
+                                            return true;
+                                    },
+                                    required: true,
                                     msgTarget: 'under',
+                                    maxLength: 80,
+                                    enforceMaxLength: true,
                                     labelWidth:	250,
                                     name: 'name'
                                 },
                                 {
                                     xtype: 'combobox',
                                     itemId: 'validatorCombo',
-                                    vtype: 'nonemptystring',
+                                    validator:function(text){
+                                        if(Ext.util.Format.trim(text).length==0)
+                                            return 'This field is required';
+                                        else
+                                            return true;
+                                    },
+                                    required: true,
                                     msgTarget: 'under',
                                     editable: 'false',
                                     name: 'implementation',
@@ -69,7 +83,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     valueField: 'implementation',
                                     displayField: 'displayName',
                                     queryMode: 'local',
-                                    fieldLabel: 'Rule:',
+                                    fieldLabel: 'Rule',
                                     labelAlign: 'right',
                                     forceSelection: false,
                                     emptyText: 'Select a rule...',
@@ -89,9 +103,17 @@ Ext.define('Cfg.view.validation.AddRule', {
                                             fieldLabel: 'Reading value(s)',
                                             labelAlign: 'right',
                                             itemId: 'readingTypeTextField1',
-                                            vtype: 'nonemptystring',
+                                            validator:function(text){
+                                                if(Ext.util.Format.trim(text).length==0)
+                                                    return 'This field is required';
+                                                else
+                                                    return true;
+                                            },
+                                            required: true,
                                             msgTarget: 'under',
-                                            labelWidth:	250
+                                            labelWidth:	250,
+                                            maxLength: 80,
+                                            enforceMaxLength: true
                                         }
                                     ]
                                 },
@@ -142,6 +164,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                         {
                                             xtype: 'component',
                                             html: '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation">Cancel</a>',
+                                            padding: '3 0 0 0',
                                             margin: '0 0 0 20',
                                             width: 100
                                         }

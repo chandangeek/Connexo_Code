@@ -40,18 +40,27 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                         {
                             xtype: 'textfield',
                             name: 'name',
-                            vtype: 'nonemptystring',
-                            allowBlank: false,
+                            validator:function(text){
+                                if(Ext.util.Format.trim(text).length==0)
+                                    return 'This field is required';
+                                else
+                                    return true;
+                            },
+                            required: true,
                             msgTarget: 'under',
-                            fieldLabel: 'Name *',
+                            fieldLabel: 'Name',
                             labelAlign: 'right',
-                            labelWidth:	150
+                            labelWidth:	150,
+                            maxLength: 80,
+                            enforceMaxLength: true
                         },
                         {
                             xtype: 'textarea',
                             name: 'description',
                             fieldLabel: 'Description',
-                            labelWidth:	150
+                            labelWidth:	150,
+                            maxLength: 256,
+                            enforceMaxLength: true
                         },
                         {
                             xtype: 'fieldcontainer',

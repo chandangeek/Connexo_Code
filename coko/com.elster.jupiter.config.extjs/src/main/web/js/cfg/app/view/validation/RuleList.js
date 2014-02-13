@@ -88,7 +88,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                     },
                     {
                         xtype: 'button',
-                        text: 'Add Rule',
+                        text: 'Add rule',
                         itemId: 'addRuleLink',
                         href: '#/validation/addRule',
                         hrefTarget: '_self'
@@ -105,7 +105,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                 store: this.store,
                 dock: 'bottom',
                 itemId: 'rulesListBottomPagingToolbar',
-                param: this.ruleSetId
+                params: {id: this.ruleSetId}
             }];
         this.callParent(arguments);
     }

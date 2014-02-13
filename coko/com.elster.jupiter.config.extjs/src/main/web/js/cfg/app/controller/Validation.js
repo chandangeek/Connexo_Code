@@ -184,9 +184,15 @@ Ext.define('Cfg.controller.Validation', {
             } else{
                 this.getPropertiesContainer().add(
                     {
-                        xtype: 'textfield',
+                        xtype: 'numberfield',
                         fieldLabel: label,
-                        vtype: 'nonemptystring',
+                        validator:function(text){
+                            if(Ext.util.Format.trim(text).length==0)
+                                return 'This field is required';
+                            else
+                                return true;
+                        },
+                        required: true,
                         msgTarget: 'under',
                         labelAlign: 'right',
                         itemId: itemIdValue,
@@ -208,9 +214,17 @@ Ext.define('Cfg.controller.Validation', {
                 xtype: 'textfield',
                 fieldLabel: '&nbsp',
                 labelAlign: 'right',
-                vtype: 'nonemptystring',
+                validator:function(text){
+                    if(Ext.util.Format.trim(text).length==0)
+                        return 'This field is required';
+                    else
+                        return true;
+                },
+                required: true,
                 msgTarget: 'under',
                 labelWidth:	250,
+                maxLength: 80,
+                enforceMaxLength: true,
                 itemId: 'readingTypeTextField' + me.readingTypeIndex
             }
         );
@@ -259,16 +273,19 @@ Ext.define('Cfg.controller.Validation', {
 
         var breadcrumbRuleSet = Ext.create('Uni.model.BreadcrumbItem', {
             text: ruleSetName,
-            href: '#validation/overview/' + ruleSetId
+            href: '#/validation/overview/' + ruleSetId,
+            relative:false
         });
 
         var breadcrumbRuleSets = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Validation rule sets',
-            href: '#validation'
+            href: '#/validation',
+            relative:false
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Administration',
-            href: '#administration'
+            href: '#/administration',
+            relative:false
         });
         breadcrumbRuleSet.setChild(breadcrumbRules);
         breadcrumbRuleSets.setChild(breadcrumbRuleSet);
@@ -328,11 +345,13 @@ Ext.define('Cfg.controller.Validation', {
 
         var breadcrumbRuleSets = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Validation rule sets',
-            href: '#validation'
+            href: '#/validation',
+            relative:false
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Administration',
-            href: '#administration'
+            href: '#/administration',
+            relative:false
         });
         breadcrumbRuleSets.setChild(breadcrumbNewRuleSet);
         breadcrumbParent.setChild(breadcrumbRuleSets);
@@ -357,7 +376,8 @@ Ext.define('Cfg.controller.Validation', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Administration',
-            href: '#administration'
+            href: '#/administration',
+            relative:false
         });
         breadcrumbParent.setChild(breadcrumbRulesets);
 
@@ -405,16 +425,19 @@ Ext.define('Cfg.controller.Validation', {
 
         var breadcrumbRuleSet = Ext.create('Uni.model.BreadcrumbItem', {
             text: ruleSetName,
-            href: '#validation/overview/' + ruleSetId
+            href: '#/validation/overview/' + ruleSetId,
+            relative:false
         });
 
         var breadcrumbRuleSets = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Validation rule sets',
-            href: '#validation'
+            href: '#/validation',
+            relative:false
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Administration',
-            href: '#administration'
+            href: '#/administration',
+            relative:false
         });
         breadcrumbRuleSet.setChild(breadcrumbRules);
         breadcrumbRuleSets.setChild(breadcrumbRuleSet);
@@ -434,16 +457,19 @@ Ext.define('Cfg.controller.Validation', {
 
         var breadcrumbRuleSet = Ext.create('Uni.model.BreadcrumbItem', {
             text: ruleSetName,
-            href: '#validation/overview/' + ruleSetId
+            href: '#/validation/overview/' + ruleSetId,
+            relative:false
         });
 
         var breadcrumbRuleSets = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Validation rule sets',
-            href: '#validation'
+            href: '#/validation',
+            relative:false
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Administration',
-            href: '#administration'
+            href: '#/administration',
+            relative:false
         });
         breadcrumbRuleSet.setChild(breadcrumbRulesOverview);
         breadcrumbRuleSets.setChild(breadcrumbRuleSet);

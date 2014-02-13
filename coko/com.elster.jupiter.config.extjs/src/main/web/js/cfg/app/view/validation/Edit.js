@@ -144,7 +144,8 @@ Ext.define('Cfg.view.validation.Edit', {
                             })},
                         { header: 'Value', dataIndex: 'value', editor: {
                             xtype: 'numberfield',
-                            allowBlank: false
+                            allowBlank: false,
+                            required: true
                         }}
                     ]
                 },
