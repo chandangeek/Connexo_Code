@@ -61,6 +61,6 @@ public class ConsecutiveZerosValidator implements Validator {
 
     @Override
     public String getDisplayName() {
-        return "Consecutive zero's";
+        return "Consecutive zeros";
     }
 }
