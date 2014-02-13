@@ -33,12 +33,12 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                 },
                 {
                     xtype: 'component',
-                    html: 'Device type',
+                    html: I18n.translate('registerMapping.deviceType','MDC','Device type'),
                     margins: '10 10 0 20'
                 },
                 {
                     xtype: 'component',
-                    html: '<h1>Register types</h1>',
+                    html: '<h1>' + I18n.translate('registerMapping.registerTypes','MDC','Register types') + '</h1>',
                     margins: '10 10 10 10',
                     itemId: 'registerTypeTitle'
                 },
@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                     tbar: [
                         '->',
                         {
-                            text: 'Add register types',
+                            text: I18n.translate('registerMapping.addRegisterMapping','MDC','Add register types'),
                             itemId: 'addRegisterMappingBtn',
                             xtype: 'button',
                             href: '',
@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                             action: 'addRegisterMapping'
                         },
                         {
-                            text: 'Bulk action',
+                            text: I18n.translate('general.bulkAction','MDC','Bulk action'),
                             itemId: 'registerMappingsBulkAction',
                             xtype: 'button'
                         }]
