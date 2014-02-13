@@ -83,7 +83,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     valueField: 'implementation',
                                     displayField: 'displayName',
                                     queryMode: 'local',
-                                    fieldLabel: 'Rule:',
+                                    fieldLabel: 'Rule',
                                     labelAlign: 'right',
                                     forceSelection: false,
                                     emptyText: 'Select a rule...',
