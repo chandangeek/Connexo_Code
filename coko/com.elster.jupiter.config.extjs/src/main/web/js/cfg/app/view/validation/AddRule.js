@@ -51,20 +51,30 @@ Ext.define('Cfg.view.validation.AddRule', {
                             items:[
                                 {
                                     xtype: 'textfield',
-                                    fieldLabel: 'Name:',
+                                    fieldLabel: 'Name',
                                     labelAlign: 'right',
-                                    vtype: 'nonemptystring',
-                                    allowBlank: false,
+                                    validator:function(text){
+                                        if(Ext.util.Format.trim(text).length==0)
+                                            return 'This field is required';
+                                        else
+                                            return true;
+                                    },
                                     required: true,
                                     msgTarget: 'under',
+                                    maxLength: 80,
+                                    enforceMaxLength: true,
                                     labelWidth:	250,
                                     name: 'name'
                                 },
                                 {
                                     xtype: 'combobox',
                                     itemId: 'validatorCombo',
-                                    vtype: 'nonemptystring',
-                                    allowBlank: false,
+                                    validator:function(text){
+                                        if(Ext.util.Format.trim(text).length==0)
+                                            return 'This field is required';
+                                        else
+                                            return true;
+                                    },
                                     required: true,
                                     msgTarget: 'under',
                                     editable: 'false',
@@ -93,11 +103,17 @@ Ext.define('Cfg.view.validation.AddRule', {
                                             fieldLabel: 'Reading value(s)',
                                             labelAlign: 'right',
                                             itemId: 'readingTypeTextField1',
-                                            vtype: 'nonemptystring',
-                                            allowBlank: false,
+                                            validator:function(text){
+                                                if(Ext.util.Format.trim(text).length==0)
+                                                    return 'This field is required';
+                                                else
+                                                    return true;
+                                            },
                                             required: true,
                                             msgTarget: 'under',
-                                            labelWidth:	250
+                                            labelWidth:	250,
+                                            maxLength: 80,
+                                            enforceMaxLength: true
                                         }
                                     ]
                                 },

@@ -184,10 +184,14 @@ Ext.define('Cfg.controller.Validation', {
             } else{
                 this.getPropertiesContainer().add(
                     {
-                        xtype: 'textfield',
+                        xtype: 'numberfield',
                         fieldLabel: label,
-                        vtype: 'nonemptystring',
-                        allowBlank: false,
+                        validator:function(text){
+                            if(Ext.util.Format.trim(text).length==0)
+                                return 'This field is required';
+                            else
+                                return true;
+                        },
                         required: true,
                         msgTarget: 'under',
                         labelAlign: 'right',
@@ -210,11 +214,17 @@ Ext.define('Cfg.controller.Validation', {
                 xtype: 'textfield',
                 fieldLabel: '&nbsp',
                 labelAlign: 'right',
-                vtype: 'nonemptystring',
-                allowBlank: false,
+                validator:function(text){
+                    if(Ext.util.Format.trim(text).length==0)
+                        return 'This field is required';
+                    else
+                        return true;
+                },
                 required: true,
                 msgTarget: 'under',
                 labelWidth:	250,
+                maxLength: 80,
+                enforceMaxLength: true,
                 itemId: 'readingTypeTextField' + me.readingTypeIndex
             }
         );
