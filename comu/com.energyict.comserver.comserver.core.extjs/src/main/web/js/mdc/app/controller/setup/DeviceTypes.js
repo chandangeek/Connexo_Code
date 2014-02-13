@@ -263,11 +263,11 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         });
         var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
             text: I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
-            href: '#setup/devicetypes'
+            href: 'devicetypes'
         });
         var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
             text: deviceTypeName,
-            href: '#setup/devicetypes/'+deviceTypeId
+            href: deviceTypeId
         });
         breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3);
         this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
