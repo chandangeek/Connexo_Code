@@ -7,6 +7,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
@@ -35,6 +38,7 @@ import static com.elster.jupiter.util.Checks.is;
  */
 public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> implements LoadProfileType {
 
+    private DeviceConfigurationService deviceConfigurationService;
     private String obisCodeString;
     private ObisCode obisCode;
     private TimeDuration interval;
@@ -45,8 +49,9 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     private Clock clock;
 
     @Inject
-    public LoadProfileTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock) {
+    public LoadProfileTypeImpl(DataModel dataModel, EventService eventService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, Clock clock) {
         super(LoadProfileType.class, dataModel, eventService, thesaurus);
+        this.deviceConfigurationService = deviceConfigurationService;
         this.clock = clock;
     }
 
@@ -82,11 +87,12 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         this.getDataMapper().update(this);
     }
 
-
     private void validateDeviceConfigurations() {
-        /* Todo: find all DeviceConfigurations that use this mapping via LoadProfileSpec
-         *       and validate that the changes applied to this LoadProfileType
-         *       do not violate any device configuration business constraints. */
+        List<DeviceConfiguration> deviceConfigurations = this.deviceConfigurationService.findDeviceConfigurationsUsingLoadProfileType(this);
+        for (DeviceConfiguration each : deviceConfigurations) {
+            ServerDeviceConfiguration deviceConfiguration = (ServerDeviceConfiguration) each;
+            deviceConfiguration.validateUpdateLoadProfileType(this);
+        }
     }
 
     @Override
@@ -182,13 +188,19 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         while (iterator.hasNext()) {
             LoadProfileTypeRegisterMappingUsage registerMappingUsage = iterator.next();
             if (registerMappingUsage.registerMapping.getId() == registerMapping.getId()) {
-                /* Legacy code validated that there were no Channels that used the mapping
+                /* Todo: Legacy code validated that there were no Channels that used the mapping
                  * by calling ChannelFactory#hasChannelsForLoadProfileTypeAndMapping(this, registerMapping).
                  * This will now have to be dealt with via events. */
-                /* Todo: Check that no ChannelSpec is using the RegisterMapping.
-                 *  see: ChannelSpecFactory#hasAnyForLoadProfileTypeAndRegisterMapping(this, registerMapping). */
-                 iterator.remove();
+                this.validateNoChannelSpecForReqisterMapping(registerMapping);
+                iterator.remove();
             }
+        }
+    }
+
+    private void validateNoChannelSpecForReqisterMapping(RegisterMapping registerMapping) {
+        List<ChannelSpec> channelSpecs = this.deviceConfigurationService.findChannelSpecsForRegisterMappingInLoadProfileType(registerMapping, this);
+        if (!channelSpecs.isEmpty()) {
+            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByChannelSpecs(this.thesaurus, registerMapping, channelSpecs);
         }
     }
 

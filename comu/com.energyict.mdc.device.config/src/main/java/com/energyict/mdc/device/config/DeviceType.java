@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.config;
 
+import com.energyict.mdc.device.config.impl.ChannelSpecImpl;
+import com.energyict.mdc.device.config.impl.LoadProfileSpecImpl;
+import com.energyict.mdc.device.config.impl.LogBookSpecImpl;
+import com.energyict.mdc.device.config.impl.RegisterSpecImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
@@ -73,6 +77,8 @@ public interface DeviceType {
      */
     public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass();
 
+    public void setDeviceProtocolPluggableClass(String deviceProtocolPluggableClassName);
+
     public void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
     public List<LogBookType> getLogBookTypes();
@@ -103,8 +109,103 @@ public interface DeviceType {
 
     public void removeCommunicationFunction(DeviceCommunicationFunction function);
 
+    public List<DeviceConfiguration> getConfigurations();
+
+    /**
+     * Returns a DeviceConfigurationBuilder that allows the caller
+     * to start building a new {@link DeviceConfiguration} that will be
+     * added to this DeviceType once the building process is complete.
+     *
+     * @param name The name for the new DeviceConfiguration
+     * @return The DeviceConfigurationBuilder
+     */
+    public DeviceConfigurationBuilder newConfiguration (String name);
+
     public void save ();
 
     public void delete ();
+
+    public interface DeviceConfigurationBuilder {
+
+        /**
+         * Returns a builder for a new {@link ChannelSpec} in the
+         * {@link DeviceConfiguration} that is being built by this DeviceConfigurationBuilder.
+         * Note that there is no need to call the add method as that
+         * will be done by the {@link DeviceConfigurationBuilder#add()} method.
+         *
+         * @param registerMapping The RegisterMapping
+         * @param phenomenon The Phenomenon
+         * @param loadProfileSpec The LoadProfileSpec
+         * @return The builder
+         * @see DeviceConfiguration#createChannelSpec(RegisterMapping, Phenomenon, LoadProfileSpec)
+         * @see #add()
+         */
+        public ChannelSpecImpl.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
+
+        /**
+         * Returns a builder for a new {@link ChannelSpec} whose {@link LoadProfileSpec}
+         * is also under construction in the {@link DeviceConfiguration}
+         * that is being built by this DeviceConfigurationBuilder.
+         * Note that there is no need to call the add method as that
+         * will be done by the {@link DeviceConfigurationBuilder#add()} method.
+         *
+         * @param registerMapping The RegisterMapping
+         * @param phenomenon The Phenomenon
+         * @param loadProfileSpecBuilder The LoadProfileSpecBuilder
+         * @return The builder
+         * @see DeviceConfiguration#createChannelSpec(RegisterMapping, Phenomenon, LoadProfileSpec)
+         * @see #add()
+         */
+        public ChannelSpecImpl.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpecImpl.LoadProfileSpecBuilder loadProfileSpecBuilder);
+
+        /**
+         * Returns a builder for a new {@link RegisterSpec} in the
+         * {@link DeviceConfiguration} that is being built by this DeviceConfigurationBuilder.
+         * Note that there is no need to call the add method as that
+         * will be done by the {@link DeviceConfigurationBuilder#add()} method.
+         *
+         * @param registerMapping The RegisterMapping
+         * @return The builder
+         * @see DeviceConfiguration#createRegisterSpec(RegisterMapping)
+         * @see #add()
+         */
+        public RegisterSpecImpl.RegisterSpecBuilder newRegisterSpec(RegisterMapping registerMapping);
+
+        /**
+         * Returns a builder for a new {@link LoadProfileSpec} in the
+         * {@link DeviceConfiguration} that is being built by this DeviceConfigurationBuilder.
+         * Note that there is no need to call the add method as that
+         * will be done by the {@link DeviceConfigurationBuilder#add()} method.
+         *
+         * @param loadProfileType The LoadProfileType
+         * @return The builder
+         * @see DeviceConfiguration#createLoadProfileSpec(LoadProfileType)
+         * @see #add()
+         */
+        public LoadProfileSpecImpl.LoadProfileSpecBuilder newLoadProfileSpec(LoadProfileType loadProfileType);
+
+        /**
+         * Returns a builder for a new {@link LogBookSpec} in the
+         * {@link DeviceConfiguration} that is being built by this DeviceConfigurationBuilder.
+         * Note that there is no need to call the add method as that
+         * will be done by the {@link DeviceConfigurationBuilder#add()} method.
+         *
+         * @param logBookType The LogBookType
+         * @return The builder
+         * @see DeviceConfiguration#createLogBookSpec(LogBookType)
+         */
+        public LogBookSpecImpl.LogBookSpecBuilder newLogBookSpec(LogBookType logBookType);
+
+        /**
+         * Completes the building process, returning the {@link DeviceConfiguration}
+         * after it was added to the DeviceType.
+         * Note that any additional calls to this builder after this call
+         * will throw an IllegalStateException.
+         *
+         * @return The DeviceConfiguration
+         */
+        public DeviceConfiguration add ();
+
+    }
 
 }

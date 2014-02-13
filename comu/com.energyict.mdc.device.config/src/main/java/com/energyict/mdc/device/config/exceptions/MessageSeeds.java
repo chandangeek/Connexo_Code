@@ -6,8 +6,7 @@ import com.energyict.mdc.pluggable.PluggableService;
 import java.util.logging.Level;
 
 /**
- * Insert your comments here.
- * TODO create test that checks if all numbers and keys are unique (to prevent coding exceptions)
+ * Defines all the {@link MessageSeed}s of the device config module.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-29 (16:04)

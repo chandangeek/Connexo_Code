@@ -5,11 +5,14 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceUsageType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.device.config.Phenomenon;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceProtocolWithActiveConfigurationsException;
@@ -23,6 +26,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -48,15 +52,18 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private long deviceProtocolPluggableClassId;
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private ProtocolPluggableService protocolPluggableService;
+    private DeviceConfigurationService deviceConfigurationService;
+
     /**
      * The DeviceProtocol of this DeviceType, only for local usage
      */
     private DeviceProtocol localDeviceProtocol;
 
     @Inject
-    public DeviceTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService) {
+    public DeviceTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService) {
         super(DeviceType.class, dataModel, eventService, thesaurus);
         this.protocolPluggableService = protocolPluggableService;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     DeviceTypeImpl initialize(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
@@ -180,6 +187,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
+    public void setDeviceProtocolPluggableClass(String deviceProtocolPluggableClassName) {
+        this.setDeviceProtocolPluggableClass(this.protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceProtocolPluggableClassName));
+    }
+
+    @Override
     public void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         if (deviceProtocolPluggableClass == null) {
             throw new DeviceProtocolIsRequiredException(this.getThesaurus());
@@ -242,7 +254,42 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         while (loadProfileTypeUsageIterator.hasNext()) {
             DeviceTypeLoadProfileTypeUsage loadProfileTypeUsage = loadProfileTypeUsageIterator.next();
             if (loadProfileTypeUsage.loadProfileType.getId() == loadProfileType.getId()) {
+                this.validateLoadProfileTypeNotUsedByLoadProfileSpec(loadProfileType);
                 loadProfileTypeUsageIterator.remove();
+            }
+        }
+    }
+
+    private void validateLoadProfileTypeNotUsedByLoadProfileSpec(LoadProfileType loadProfileType) {
+        List<LoadProfileSpec> loadProfileSpecs = this.getLoadProfileSpecsForLoadProfileType(loadProfileType);
+        if (!loadProfileSpecs.isEmpty()) {
+            throw CannotDeleteBecauseStillInUseException.loadProfileTypeIsStillInUseByLoadProfileSpec(this.thesaurus, loadProfileType, loadProfileSpecs);
+        }
+    }
+
+    /**
+     * Finds all {@link LoadProfileSpec}s from all {@link DeviceConfiguration}s
+     * that are using the specified {@link LoadProfileType}.
+     *
+     * @param loadProfileType The LoadProfileType
+     * @return The List of LoadProfileSpec
+     */
+    private List<LoadProfileSpec> getLoadProfileSpecsForLoadProfileType(LoadProfileType loadProfileType) {
+        List<LoadProfileSpec> loadProfileSpecs = new ArrayList<>(0);
+        this.collectLoadProfileSpecsForLoadProfileType(loadProfileType, loadProfileSpecs);
+        return loadProfileSpecs;
+    }
+
+    private void collectLoadProfileSpecsForLoadProfileType(LoadProfileType loadProfileType, List<LoadProfileSpec> loadProfileSpecs) {
+        for (DeviceConfiguration deviceConfiguration : this.getConfigurations()) {
+            this.collectLoadProfileSpecsForLoadProfileType(loadProfileType, deviceConfiguration, loadProfileSpecs);
+        }
+    }
+
+    private void collectLoadProfileSpecsForLoadProfileType(LoadProfileType loadProfileType, DeviceConfiguration deviceConfiguration, List<LoadProfileSpec> loadProfileSpecs) {
+        for (LoadProfileSpec loadProfileSpec : deviceConfiguration.getLoadProfileSpecs()) {
+            if (loadProfileSpec.getLoadProfileType().getId() == loadProfileType.getId()) {
+                loadProfileSpecs.add(loadProfileSpec);
             }
         }
     }
@@ -273,7 +320,35 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         while (iterator.hasNext()) {
             DeviceTypeRegisterMappingUsage registerMappingUsage = iterator.next();
             if (registerMappingUsage.registerMapping.getId() == registerMapping.getId()) {
+                this.validateRegisterMappingNotUsedByRegisterSpec(registerMapping);
                 iterator.remove();
+            }
+        }
+    }
+
+    private void validateRegisterMappingNotUsedByRegisterSpec(RegisterMapping registerMapping) {
+        List<RegisterSpec> registerSpecs = this.getRegisterSpecsForRegisterMapping(registerMapping);
+        if (!registerSpecs.isEmpty()) {
+            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByRegisterSpec(this.thesaurus, registerMapping, registerSpecs);
+        }
+    }
+
+    private List<RegisterSpec> getRegisterSpecsForRegisterMapping(RegisterMapping registerMapping) {
+        List<RegisterSpec> registerSpecs = new ArrayList<>();
+        this.collectRegisterSpecsForRegisterMapping(registerMapping, registerSpecs);
+        return registerSpecs;
+    }
+
+    private void collectRegisterSpecsForRegisterMapping(RegisterMapping registerMapping, List<RegisterSpec> registerSpecs) {
+        for (DeviceConfiguration deviceConfiguration : this.getConfigurations()) {
+            this.collectRegisterSpecsForRegisterMapping(registerMapping, deviceConfiguration, registerSpecs);
+        }
+    }
+
+    private void collectRegisterSpecsForRegisterMapping(RegisterMapping registerMapping, DeviceConfiguration deviceConfiguration, List<RegisterSpec> registerSpecs) {
+        for (RegisterSpec registerSpec : deviceConfiguration.getRegisterSpecs()) {
+            if (registerSpec.getRegisterMapping().getId() == registerMapping.getId()) {
+                registerSpecs.add(registerSpec);
             }
         }
     }
@@ -291,8 +366,37 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private void validateLogBookTypeNotUsedByLogBookSpec(LogBookType logBookType) {
-        // Todo: wait for DeviceConfiguration implementation to be completed
-        throw CannotDeleteBecauseStillInUseException.logBookTypeIsStillInUseByLogBookSpec(this.thesaurus, logBookType, new ArrayList<LogBookSpec>(0));
+        List<LogBookSpec> logBookSpecs = this.getLogBookSpecsForLogBookType(logBookType);
+        if (!logBookSpecs.isEmpty()) {
+            throw CannotDeleteBecauseStillInUseException.logBookTypeIsStillInUseByLogBookSpec(this.thesaurus, logBookType, logBookSpecs);
+        }
+    }
+
+    /**
+     * Finds all {@link LogBookSpec}s from all {@link DeviceConfiguration}s
+     * that are using the specified {@link LogBookType}.
+     *
+     * @param logBookType The LogBookType
+     * @return The List of LogBookSpec
+     */
+    private List<LogBookSpec> getLogBookSpecsForLogBookType(LogBookType logBookType) {
+        List<LogBookSpec> logBookSpecs = new ArrayList<>(0);
+        this.collectLogBookSpecsForLogBookType(logBookType, logBookSpecs);
+        return logBookSpecs;
+    }
+
+    private void collectLogBookSpecsForLogBookType(LogBookType logBookType, List<LogBookSpec> logBookSpecs) {
+        for (DeviceConfiguration deviceConfiguration : this.getConfigurations()) {
+            this.collectLogBookSpecsForLogBookType(logBookType, deviceConfiguration, logBookSpecs);
+        }
+    }
+
+    private void collectLogBookSpecsForLogBookType(LogBookType logBookType, DeviceConfiguration deviceConfiguration, List<LogBookSpec> logBookSpecs) {
+        for (LogBookSpec logBookSpec : deviceConfiguration.getLogBookSpecs()) {
+            if (logBookSpec.getLogBookType().getId() == logBookType.getId()) {
+                logBookSpecs.add(logBookSpec);
+            }
+        }
     }
 
     public boolean supportsMessaging() {
@@ -319,8 +423,157 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         return communicationFunctionMask;
     }
 
+    @Override
     public List<DeviceConfiguration> getConfigurations() {
-        return this.deviceConfigurations;
+        return ImmutableList.copyOf(this.deviceConfigurations);
+    }
+
+    private void addConfiguration (DeviceConfiguration deviceConfiguration) {
+        this.deviceConfigurations.add(deviceConfiguration);
+    }
+
+    @Override
+    public DeviceConfigurationBuilder newConfiguration(String name) {
+        return new ConfigurationBuilder(this.dataModel.getInstance(DeviceConfigurationImpl.class).initialize(this, name));
+    }
+
+    private enum BuildingMode {
+        UNDERCONSTRUCTION {
+            @Override
+            protected void verify() {
+                // All calls are fine as long as we are under construction
+            }
+        },
+        COMPLETE {
+            @Override
+            protected void verify() {
+                throw new IllegalStateException("The device configuration building process is already complete");
+            }
+        };
+
+        protected abstract void verify ();
+    }
+
+    private interface NestedBuilder {
+        public void add ();
+    }
+
+    private class ChannelSpecBuilder implements NestedBuilder {
+        private final ChannelSpecImpl.ChannelSpecBuilder builder;
+
+        private ChannelSpecBuilder(ChannelSpecImpl.ChannelSpecBuilder builder) {
+            super();
+            this.builder = builder;
+        }
+
+        @Override
+        public void add() {
+            this.builder.add();
+        }
+    }
+
+    private class RegisterSpecBuilder implements NestedBuilder {
+        private final RegisterSpecImpl.RegisterSpecBuilder builder;
+
+        private RegisterSpecBuilder(RegisterSpecImpl.RegisterSpecBuilder builder) {
+            super();
+            this.builder = builder;
+        }
+
+        @Override
+        public void add() {
+            this.builder.add();
+        }
+    }
+
+    private class LoadProfileSpecBuilder implements NestedBuilder {
+        private final LoadProfileSpecImpl.LoadProfileSpecBuilder builder;
+
+        private LoadProfileSpecBuilder(LoadProfileSpecImpl.LoadProfileSpecBuilder builder) {
+            super();
+            this.builder = builder;
+        }
+
+        @Override
+        public void add() {
+            this.builder.add();
+        }
+    }
+
+    private class LogBookSpecBuilder implements NestedBuilder {
+        private final LogBookSpecImpl.LogBookSpecBuilder builder;
+
+        private LogBookSpecBuilder(LogBookSpecImpl.LogBookSpecBuilder builder) {
+            super();
+            this.builder = builder;
+        }
+
+        @Override
+        public void add() {
+            this.builder.add();
+        }
+    }
+
+    private class ConfigurationBuilder implements DeviceConfigurationBuilder {
+        private BuildingMode mode;
+        private final DeviceConfiguration underConstruction;
+        private final List<NestedBuilder> nestedBuilders = new ArrayList<>();
+
+        private ConfigurationBuilder(DeviceConfiguration underConstruction) {
+            super();
+            this.mode = BuildingMode.UNDERCONSTRUCTION;
+            this.underConstruction = underConstruction;
+        }
+
+        @Override
+        public ChannelSpecImpl.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+            ChannelSpecImpl.ChannelSpecBuilder builder = this.underConstruction.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+            this.nestedBuilders.add(new ChannelSpecBuilder(builder));
+            return builder;
+        }
+
+        @Override
+        public ChannelSpecImpl.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpecImpl.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+            ChannelSpecImpl.ChannelSpecBuilder builder = this.underConstruction.newChannelSpec(registerMapping, phenomenon, loadProfileSpecBuilder);
+            this.nestedBuilders.add(new ChannelSpecBuilder(builder));
+            return builder;
+        }
+
+        @Override
+        public RegisterSpecImpl.RegisterSpecBuilder newRegisterSpec(RegisterMapping registerMapping) {
+            RegisterSpecImpl.RegisterSpecBuilder builder = this.underConstruction.createRegisterSpec(registerMapping);
+            this.nestedBuilders.add(new RegisterSpecBuilder(builder));
+            return builder;
+        }
+
+        @Override
+        public LoadProfileSpecImpl.LoadProfileSpecBuilder newLoadProfileSpec(LoadProfileType loadProfileType) {
+            LoadProfileSpecImpl.LoadProfileSpecBuilder builder = this.underConstruction.createLoadProfileSpec(loadProfileType);
+            this.nestedBuilders.add(new LoadProfileSpecBuilder(builder));
+            return builder;
+        }
+
+        @Override
+        public LogBookSpecImpl.LogBookSpecBuilder newLogBookSpec(LogBookType logBookType) {
+            LogBookSpecImpl.LogBookSpecBuilder builder = this.underConstruction.createLogBookSpec(logBookType);
+            this.nestedBuilders.add(new LogBookSpecBuilder(builder));
+            return builder;
+        }
+
+        @Override
+        public DeviceConfiguration add() {
+            this.mode.verify();
+            this.doNestedBuilders();
+            addConfiguration(this.underConstruction);
+            this.mode = BuildingMode.COMPLETE;
+            return this.underConstruction;
+        }
+
+        private void doNestedBuilders() {
+            for (NestedBuilder nestedBuilder : this.nestedBuilders) {
+                nestedBuilder.add();
+            }
+        }
     }
 
 }

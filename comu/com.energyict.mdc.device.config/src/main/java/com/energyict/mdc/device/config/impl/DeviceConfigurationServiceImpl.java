@@ -10,10 +10,11 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.services.DefaultFinder;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -29,6 +30,7 @@ import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -37,6 +39,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.List;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link DeviceConfigurationService} interface.
@@ -47,6 +51,8 @@ import java.util.List;
 @Component(name="com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, InstallService.class})
 public class DeviceConfigurationServiceImpl implements DeviceConfigurationService, InstallService {
 
+    private volatile ProtocolPluggableService protocolPluggableService;
+
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -56,11 +62,12 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
+        this.setProtocolPluggableService(protocolPluggableService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install();
@@ -68,8 +75,15 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
-    public List<DeviceType> findAllDeviceTypes() {
-        return this.getDataModel().mapper(DeviceType.class).find();
+    public Finder<DeviceType> findAllDeviceTypes() {
+        return DefaultFinder.of(DeviceType.class, this.getDataModel());
+    }
+
+    @Override
+    public DeviceType newDeviceType(String name, String deviceProtocolPluggableClassName) {
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass =
+                this.getProtocolPluggableService().findDeviceProtocolPluggableClassByName(deviceProtocolPluggableClassName);
+        return newDeviceType(name, deviceProtocolPluggableClass);
     }
 
     @Override
@@ -179,7 +193,7 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
 
     @Override
     public List<RegisterMapping> findRegisterMappingByDeviceType(int deviceTypeId) {
-        Condition condition = Where.where("deviceType").isEqualTo(findDeviceType(deviceTypeId));
+        Condition condition = where("deviceType").isEqualTo(findDeviceType(deviceTypeId));
         return this.getDataModel().query(RegisterMapping.class, DeviceTypeRegisterMappingUsage.class).select(condition);
     }
 
@@ -191,7 +205,7 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
 
     @Override
     public List<RegisterSpec> findRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
-        Condition condition = Where.where("deviceType").isEqualTo(deviceType).and(Where.where("registerMapping").isEqualTo(registerMapping));
+        Condition condition = where("deviceType").isEqualTo(deviceType).and(where("registerMapping").isEqualTo(registerMapping));
         return this.getDataModel().query(RegisterSpec.class, RegisterMapping.class, DeviceTypeRegisterMappingUsage.class).select(condition);
     }
 
@@ -208,7 +222,7 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
 
     @Override
     public List<RegisterSpec> findRegisterSpecsByChannelSpecAndLinkType(ChannelSpec channelSpec, ChannelSpecLinkType linkType) {
-        Condition condition = Where.where("linkedChannelSpec").isEqualTo(channelSpec).and(Where.where("channelSpecLinkType").isEqualTo(linkType));
+        Condition condition = where("linkedChannelSpec").isEqualTo(channelSpec).and(where("channelSpecLinkType").isEqualTo(linkType));
         return this.getDataModel().query(RegisterSpec.class, ChannelSpec.class).select(condition);
     }
 
@@ -216,7 +230,7 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     public List<RegisterSpec> findRegisterSpecsByDeviceConfigurationAndRegisterMapping(long deviceConfigId, long registerMappingId) {
         DeviceConfiguration deviceConfiguration = findDeviceConfiguration(deviceConfigId);
         RegisterMapping registerMapping = findRegisterMapping(registerMappingId);
-        Condition condition = Where.where("deviceConfig").isEqualTo(deviceConfiguration).and(Where.where("registerMapping").isEqualTo(registerMapping));
+        Condition condition = where("deviceConfig").isEqualTo(deviceConfiguration).and(where("registerMapping").isEqualTo(registerMapping));
         return this.getDataModel().query(RegisterSpec.class, DeviceConfiguration.class, RegisterMapping.class).select(condition);
     }
 
@@ -311,11 +325,6 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
-    public DeviceConfiguration newDeviceConfiguration(DeviceType deviceType, String name) {
-        return this.getDataModel().getInstance(DeviceConfigurationImpl.class).initialize(deviceType, name);
-    }
-
-    @Override
     public DeviceConfiguration findDeviceConfigurationByNameAndDeviceType(String name, DeviceType deviceType) {
         return this.getDataModel().mapper(DeviceConfiguration.class).getUnique("name", name, "deviceType", deviceType).orNull();
     }
@@ -350,6 +359,37 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
         return this.getDataModel().mapper(LogBookType.class).find("obisCodeString", obisCode.toString());
     }
 
+    @Override
+    public List<DeviceConfiguration> findDeviceConfigurationsUsingLoadProfileType(LoadProfileType loadProfileType) {
+        return this.getDataModel().
+                    query(DeviceConfiguration.class, LoadProfileSpec.class).
+                    select(where("loadProfileSpecs.loadProfileType").isEqualTo(loadProfileType));
+    }
+
+    @Override
+    public List<ChannelSpec> findChannelSpecsForRegisterMappingInLoadProfileType(RegisterMapping registerMapping, LoadProfileType loadProfileType) {
+        return this.getDataModel().
+                query(ChannelSpec.class, LoadProfileSpec.class).
+                select(
+                        where("registerMapping").isEqualTo(registerMapping).
+                    and(where("loadProfileSpec.loadProfileType").isEqualTo(loadProfileType)));
+    }
+
+    @Override
+    public List<DeviceConfiguration> findDeviceConfigurationsUsingLogBookType(LogBookType logBookType) {
+        return this.getDataModel().
+                query(DeviceConfiguration.class, LogBookSpec.class).
+                select(where("logBookSpecs.logBookType").isEqualTo(logBookType));
+    }
+
+    @Override
+    public List<DeviceConfiguration> findDeviceConfigurationsUsingRegisterMapping(RegisterMapping registerMapping) {
+        return this.getDataModel().
+                query(DeviceConfiguration.class, ChannelSpec.class, RegisterSpec.class).
+                select(   where("channelSpecs.registerMapping").isEqualTo(registerMapping).
+                       or(where("registerSpecs.registerMapping").isEqualTo(registerMapping)));
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "DeviceType and configurations");
@@ -377,10 +417,20 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
+    public ProtocolPluggableService getProtocolPluggableService() {
+        return protocolPluggableService;
+    }
+
+    @Reference
+    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
+        this.protocolPluggableService = protocolPluggableService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
             public void configure() {
+                bind(DeviceConfigurationService.class).toInstance(DeviceConfigurationServiceImpl.this);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(Thesaurus.class).toInstance(thesaurus);

@@ -70,6 +70,8 @@ public interface DeviceConfiguration {
 
     ChannelSpecImpl.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
 
+    ChannelSpecImpl.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpecImpl.LoadProfileSpecBuilder loadProfileSpecBuilder);
+
     void deleteChannelSpec(ChannelSpec channelSpec);
 
     List<LoadProfileSpec> getLoadProfileSpecs();

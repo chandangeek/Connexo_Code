@@ -6,14 +6,17 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.device.config.Phenomenon;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceProtocolWithActiveConfigurationsException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DeviceProtocolIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingAlreadyInDeviceTypeException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -53,9 +56,12 @@ public class DeviceTypeImplTest {
     private static final long LOAD_PROFILE_TYPE_ID_2 = 137;
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID_2 = 149;
+    private static final long PHENOMENON_ID = 151;
 
     private InMemoryPersistence inMemoryPersistence = new InMemoryPersistence();
 
+    @Mock
+    private Phenomenon phenomenon;
     @Mock
     private LogBookType logBookType;
     @Mock
@@ -90,6 +96,8 @@ public class DeviceTypeImplTest {
         when(this.deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         when(this.deviceProtocolPluggableClass2.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID_2);
+
+        when(this.phenomenon.getId()).thenReturn(PHENOMENON_ID);
 
         when(logBookType.getId()).thenReturn(LOGBOOKTYPE_ID);
         when(logBookType2.getId()).thenReturn(LOGBOOKTYPE_ID_2);
@@ -271,15 +279,29 @@ public class DeviceTypeImplTest {
         String deviceTypeName = "testRemoveLogBookTypeThatIsStillInUse";
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Setup device type
             deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
             deviceType.addLogBookType(this.logBookType);
+
+            // Setup DeviceConfiguration that uses the LogBookType
+            DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Config for " + deviceTypeName);
+            deviceConfigurationBuilder.newLogBookSpec(this.logBookType);
+            deviceConfigurationBuilder.add();
+
             deviceType.save();
             ctx.commit();
         }
 
-        // Business method
-        deviceType.removeLogBookType(this.logBookType);
+        try {
+            // Business method
+            deviceType.removeLogBookType(this.logBookType);
+        }
+        catch (CannotDeleteBecauseStillInUseException e) {
+            // Asserts
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS);
+            throw e;
+        }
     }
 
     @Test
@@ -375,18 +397,33 @@ public class DeviceTypeImplTest {
 
     @Test(expected = CannotDeleteBecauseStillInUseException.class)
     public void testRemoveLoadProfileTypeThatIsStillInUse () {
+        DeviceConfigurationServiceImpl deviceConfigurationService = this.inMemoryPersistence.getDeviceConfigurationService();
         String deviceTypeName = "testRemoveLoadProfileTypeThatIsStillInUse";
         DeviceType deviceType;
+        LoadProfileSpec loadProfileSpec;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+            // Setup the device type
+            deviceType = deviceConfigurationService.newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
             deviceType.addLoadProfileType(this.loadProfileType);
             deviceType.save();
+
+            // Add device configuration with a LoadProfileSpec that uses the LoadProfileType
+            DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Conf 1 for " + deviceTypeName);
+            deviceConfigurationBuilder.newLoadProfileSpec(this.loadProfileType);
+            deviceConfigurationBuilder.add();
             ctx.commit();
         }
 
-        // Business method
-        deviceType.removeLoadProfileType(this.loadProfileType);
+        try {
+            // Business method
+            deviceType.removeLoadProfileType(this.loadProfileType);
+        }
+        catch (CannotDeleteBecauseStillInUseException e) {
+            // Asserts
+            assertThat(e.getMessageSeed().getNumber()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS);
+            throw e;
+        }
     }
 
     @Test
@@ -481,19 +518,64 @@ public class DeviceTypeImplTest {
     }
 
     @Test(expected = CannotDeleteBecauseStillInUseException.class)
-    public void testRemoveRegisterMappingThatIsStillInUse () {
-        String deviceTypeName = "testRemoveRegisterMappingThatIsStillInUse";
+    public void testRemoveRegisterMappingThatIsStillInUseByRegisterSpec () {
+        DeviceConfigurationServiceImpl deviceConfigurationService = this.inMemoryPersistence.getDeviceConfigurationService();
+        String deviceTypeName = "testRemoveRegisterMappingThatIsStillInUseByRegisterSpec";
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+            // Setup the device type
+            deviceType = deviceConfigurationService.newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
             deviceType.addRegisterMapping(this.registerMapping);
             deviceType.save();
+
+            // Add DeviceConfiguration with a RegisterSpec that uses the RegisterMapping
+            DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Conf 1 for " + deviceTypeName);
+            deviceConfigurationBuilder.newRegisterSpec(this.registerMapping);
+            deviceConfigurationBuilder.add();
             ctx.commit();
         }
 
-        // Business method
-        deviceType.removeRegisterMapping(this.registerMapping);
+        try {
+            // Business method
+            deviceType.removeRegisterMapping(this.registerMapping);
+        }
+        catch (CannotDeleteBecauseStillInUseException e) {
+            // Asserts
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_REGISTER_SPEC);
+            throw e;
+        }
+    }
+
+    @Test(expected = CannotDeleteBecauseStillInUseException.class)
+    public void testRemoveRegisterMappingThatIsStillInUseByChannelSpec () {
+        DeviceConfigurationServiceImpl deviceConfigurationService = this.inMemoryPersistence.getDeviceConfigurationService();
+        String deviceTypeName = "testRemoveRegisterMappingThatIsStillInUseByChannelSpec";
+        DeviceType deviceType;
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Setup the device type
+            deviceType = deviceConfigurationService.newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+            deviceType.setDescription("For testing purposes only");
+            deviceType.addRegisterMapping(this.registerMapping);
+            deviceType.save();
+
+            // Add DeviceConfiguration with a ChannelSpec that uses the ChannelMapping
+            DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Conf 1 for " + deviceTypeName);
+            LoadProfileSpecImpl.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(this.loadProfileType);
+            deviceConfigurationBuilder.newChannelSpec(this.registerMapping, this.phenomenon, loadProfileSpecBuilder);
+            deviceConfigurationBuilder.add();
+            ctx.commit();
+        }
+
+        try {
+            // Business method
+            deviceType.removeRegisterMapping(this.registerMapping);
+        }
+        catch (CannotDeleteBecauseStillInUseException e) {
+            // Asserts
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_CHANNEL_SPEC);
+            throw e;
+        }
     }
 
     @Test(expected = CannotChangeDeviceProtocolWithActiveConfigurationsException.class)
