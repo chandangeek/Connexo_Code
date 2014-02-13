@@ -57,9 +57,22 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-server</artifactId>
+    </dependency>
+    <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
     </dependency>
+    <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>rest.util</artifactId>
+        <version>${jupiter.version}</version>
+    </dependency>
+      <dependency>
+          <groupId>javax.ws.rs</groupId>
+          <artifactId>javax.ws.rs-api</artifactId>
+      </dependency>
 
     <!-- Testing -->
     <dependency>

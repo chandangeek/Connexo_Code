@@ -1,7 +1,8 @@
 package com.energyict.mdc.common;
 
-import com.energyict.mdc.common.impl.ObisCodeAnalyzer;import java.io.Serializable;
-import java.text.ParseException;
+import com.energyict.mdc.common.impl.ObisCodeAnalyzer;
+
+import java.io.Serializable;
 import java.util.StringTokenizer;
 
 public class ObisCode implements Serializable {
@@ -349,16 +350,8 @@ public class ObisCode implements Serializable {
         return toString();
     }
 
-
-    public void setValue(String value) throws ParseException {
-        ObisCode obisCode = ObisCode.fromString(value);
-        this.a = obisCode.getA();
-        this.b = obisCode.getB();
-        this.c = obisCode.getC();
-        this.d = obisCode.getD();
-        this.e = obisCode.getE();
-        this.f = obisCode.getF();
-        this.relativeBillingPeriod = obisCode.useRelativeBillingPeriod();
+    public ObisCode nextB () {
+        return new ObisCode(this.a, this.b + 1, this.c, this.d, this.e, this.f);
     }
 
 }
