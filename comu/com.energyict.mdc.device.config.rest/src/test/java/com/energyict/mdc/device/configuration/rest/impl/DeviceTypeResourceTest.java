@@ -4,7 +4,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.ShadowList;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.SortOrder;
-import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -14,13 +13,6 @@ import com.energyict.mdw.amr.RegisterMappingFactory;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
 import com.energyict.mdw.shadow.amr.RegisterMappingShadow;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -31,6 +23,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -151,7 +151,6 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(deviceProtocol.getDeviceFunction()).thenReturn(DeviceFunction.GATEWAY);
         return deviceType;
     }
 
@@ -177,7 +176,6 @@ public class DeviceTypeResourceTest extends JerseyTest {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER, DeviceProtocolCapabilities.PROTOCOL_SESSION));
-        when(deviceProtocol.getDeviceFunction()).thenReturn(DeviceFunction.GATEWAY);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol name");
         when(deviceType.getConfigurations()).thenReturn(configsList);
@@ -202,8 +200,6 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(jsonDeviceType.get("canBeGateway")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("canBeDirectlyAddressed")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("communicationProtocolName")).isEqualTo("device protocol name").describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonDeviceType.get("serviceCategory")).isNotNull().describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonDeviceType.get("deviceFunction")).isNotNull().describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 
     @Test

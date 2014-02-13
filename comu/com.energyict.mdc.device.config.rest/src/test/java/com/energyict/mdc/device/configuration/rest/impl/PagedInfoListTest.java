@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.metering.ServiceKind;
 import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.protocol.api.DeviceFunction;
-import java.util.Arrays;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -25,8 +24,6 @@ public class PagedInfoListTest {
         deviceTypeInfo1.registerCount=7;
         deviceTypeInfo1.deviceProtocolInfo=new DeviceProtocolInfo();
         deviceTypeInfo1.deviceProtocolInfo.name="protocol name";
-        deviceTypeInfo1.deviceProtocolInfo.serviceKind= ServiceKind.ELECTRICITY;
-        deviceTypeInfo1.deviceProtocolInfo.deviceFunction= DeviceFunction.METER;
         DeviceTypeInfo deviceTypeInfo2 = new DeviceTypeInfo();
         deviceTypeInfo2.name="new 2";
         deviceTypeInfo2.canBeDirectlyAddressed =true;
@@ -37,8 +34,6 @@ public class PagedInfoListTest {
         deviceTypeInfo2.registerCount=7;
         deviceTypeInfo2.deviceProtocolInfo=new DeviceProtocolInfo();
         deviceTypeInfo2.deviceProtocolInfo.name="protocol name";
-        deviceTypeInfo2.deviceProtocolInfo.serviceKind= ServiceKind.ELECTRICITY;
-        deviceTypeInfo2.deviceProtocolInfo.deviceFunction= DeviceFunction.METER;
         ObjectMapper objectMapper = new ObjectMapper();
         QueryParameters queryParameters = mock(QueryParameters.class);
         when(queryParameters.getLimit()).thenReturn(2);
