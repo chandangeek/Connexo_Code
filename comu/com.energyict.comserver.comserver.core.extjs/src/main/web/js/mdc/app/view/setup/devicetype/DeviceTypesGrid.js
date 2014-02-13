@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                         var menu = Ext.widget('menu', {
                             items: [{
                                 xtype: 'menuitem',
-                                text: 'Edit',
+                                text: I18n.translate('general.edit', 'MDC', 'Edit'),
                                 listeners: {
                                     click: {
                                         element: 'el',
@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                                 }
                             }, {
                                 xtype: 'menuitem',
-                                text: 'Delete',
+                                text: I18n.translate('general.delete', 'MDC', 'Delete'),
                                 listeners: {
                                     click: {
                                         element: 'el',
@@ -86,7 +86,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                         flex: 1
                     },
                     {
-                        text: 'Create device type',
+                        text: I18n.translate('devicetype.createDeviceType', 'MDC', 'Create device type'),
                         itemId: 'createDeviceType',
                         xtype: 'button',
                         action: 'createDeviceType'

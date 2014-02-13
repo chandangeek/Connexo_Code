@@ -28,6 +28,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         {ref: 'deviceTypeEditForm', selector: '#deviceTypeEditForm'},
         {ref: 'deviceTypeRegisterLink', selector: '#deviceTypeRegistersLink'},
         {ref: 'deviceTypeLogBookLink', selector: '#deviceTypeLogBooksLink'},
+        {ref: 'deviceConfigurationsLink', selector: '#deviceConfigurationsLink'},
         {ref: 'deviceTypeLoadProfilesLink', selector: '#deviceTypeLoadProfilesLink'},
         {ref: 'deviceTypeDetailForm',selector:'#deviceTypeDetailForm'},
         {ref: 'editDeviceTypeNameField',selector:'#editDeviceTypeNameField'},
@@ -86,10 +87,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             this.getDeviceTypeLogBookLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/logbooks'});
             this.getDeviceTypeLogBookLink().getEl().setHTML(deviceTypes[0].get('logBookCount') + ' '+ I18n.translate('devicetype.logbooks', 'MDC', 'logbooks'));
             this.getDeviceTypeLoadProfilesLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/loadprofiles'});
-            this.getDeviceTypeLoadProfilesLink().getEl().setHTML(deviceTypes[0].get('loadProfileCount') + ' ' + I18n.translate('devicetype.loadProfiles', 'MDC', 'loadprofiles'));
+            this.getDeviceTypeLoadProfilesLink().getEl().setHTML(deviceTypes[0].get('loadProfileCount') + ' ' + I18n.translate('devicetype.loadprofiles', 'MDC', 'loadprofiles'));
             this.getDeviceTypePreviewForm().loadRecord(deviceTypes[0]);
             this.getDeviceTypePreview().getLayout().setActiveItem(1);
             this.getDeviceTypeDetailsLink().update('<a href="#/setup/devicetypes/' + deviceTypeId + '">'+ I18n.translate('general.viewDetails', 'MDC', 'View details')+'</a>');
+            this.getDeviceConfigurationsLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/configurations'});
+            this.getDeviceConfigurationsLink().getEl().setHTML(deviceTypes[0].get('deviceConfigurationCount') + ' ' + I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations'));
             this.getDeviceTypePreviewTitle().update('<h4>' + deviceTypes[0].get('name') + '</h4>');
         } else {
             this.getDeviceTypePreview().getLayout().setActiveItem(0);
