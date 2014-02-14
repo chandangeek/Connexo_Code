@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
 
@@ -10,8 +12,8 @@ import com.energyict.mdc.device.config.RegisterMapping;
  * @since 2014-01-30 (08:25)
  */
 class DeviceTypeRegisterMappingUsage {
-    DeviceType deviceType;
-    RegisterMapping registerMapping;
+    private Reference<DeviceType> deviceType = ValueReference.absent();
+    private Reference<RegisterMapping> registerMapping = ValueReference.absent();
 
     // For orm service only
     DeviceTypeRegisterMappingUsage() {
@@ -20,8 +22,20 @@ class DeviceTypeRegisterMappingUsage {
 
     DeviceTypeRegisterMappingUsage(DeviceType deviceType, RegisterMapping registerMapping) {
         this();
-        this.deviceType = deviceType;
-        this.registerMapping = registerMapping;
+        this.deviceType.set(deviceType);
+        this.registerMapping.set(registerMapping);
+    }
+
+    public DeviceType getDeviceType() {
+        return deviceType.get();
+    }
+
+    public RegisterMapping getRegisterMapping() {
+        return registerMapping.get();
+    }
+
+    public boolean sameRegisterMapping (RegisterMapping registerMapping) {
+        return this.getRegisterMapping().getId() == registerMapping.getId();
     }
 
 }

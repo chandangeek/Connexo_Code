@@ -180,8 +180,15 @@ public class DeviceTypeImplTest {
     @Test(expected = DeviceProtocolIsRequiredException.class)
     public void testDeviceTypeCreationWithoutProtocol() {
         // Business method
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = null;
-        this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType("testDeviceTypeCreationWithoutProtocol", deviceProtocolPluggableClass);
+        this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType("testDeviceTypeCreationWithoutProtocol", (DeviceProtocolPluggableClass) null);
+
+        // Asserts: Should be getting a DeviceProtocolIsRequiredException
+    }
+
+    @Test(expected = DeviceProtocolIsRequiredException.class)
+    public void testDeviceTypeCreationWithNonExistingProtocol() {
+        // Business method
+        this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType("testDeviceTypeCreationWithNonExistingProtocol", "testDeviceTypeCreationWithNonExistingProtocol");
 
         // Asserts: Should be getting a DeviceProtocolIsRequiredException
     }
@@ -403,7 +410,6 @@ public class DeviceTypeImplTest {
         DeviceConfigurationServiceImpl deviceConfigurationService = this.inMemoryPersistence.getDeviceConfigurationService();
         String deviceTypeName = "testRemoveLoadProfileTypeThatIsStillInUse";
         DeviceType deviceType;
-        LoadProfileSpec loadProfileSpec;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
             // Setup the device type
             deviceType = deviceConfigurationService.newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);

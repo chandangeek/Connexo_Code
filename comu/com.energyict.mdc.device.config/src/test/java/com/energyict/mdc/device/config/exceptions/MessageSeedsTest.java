@@ -25,4 +25,22 @@ public class MessageSeedsTest {
         }
     }
 
+    @Test
+    public void testAllMessageSeedsHaveUniqueKeys () {
+        Set<String> uniqueKeys = new HashSet<>();
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+            assertThat(uniqueKeys).as(messageSeed.name() + " does not have a unique key").
+                    doesNotContain(messageSeed.getKey());
+            uniqueKeys.add(messageSeed.getKey());
+        }
+    }
+
+    @Test
+    public void testAllMessageSeedKeysAreWithinLengthLimit () {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+            assertThat(messageSeed.getKey().length()).as(messageSeed.name() + " key is longer than max of 256").
+                    isLessThanOrEqualTo(256);
+        }
+    }
+
 }

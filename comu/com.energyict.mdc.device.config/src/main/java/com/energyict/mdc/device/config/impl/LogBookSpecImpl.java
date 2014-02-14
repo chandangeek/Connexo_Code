@@ -3,6 +3,8 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -26,8 +28,8 @@ import javax.inject.Provider;
  */
 public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements LogBookSpec {
 
-    private DeviceConfiguration deviceConfiguration;
-    private LogBookType logBookType;
+    private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
+    private final Reference<LogBookType> logBookType = ValueReference.absent();
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
 
@@ -44,12 +46,12 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
 
     @Override
     public DeviceConfiguration getDeviceConfiguration() {
-        return this.deviceConfiguration;
+        return this.deviceConfiguration.get();
     }
 
     @Override
     public LogBookType getLogBookType() {
-        return this.logBookType;
+        return this.logBookType.get();
     }
 
     @Override
@@ -137,18 +139,18 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     @Override
     public void setDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
         validateDeviceConfigurationForUpdate(deviceConfiguration);
-        this.deviceConfiguration = deviceConfiguration;
+        this.deviceConfiguration.set(deviceConfiguration);
     }
 
 
     @Override
     public void setLogBookType(LogBookType logBookType) {
         validateLogbookTypeForUpdate(logBookType);
-        this.logBookType = logBookType;
+        this.logBookType.set(logBookType);
     }
 
     private void validateLogbookTypeForUpdate(LogBookType loadProfileType) {
-        if (this.logBookType != null && this.logBookType.getId() != loadProfileType.getId()) {
+        if (this.getLogBookType()!= null && this.getLogBookType().getId() != loadProfileType.getId()) {
             throw new CannotChangeLogbookTypeOfLogbookSpecException(this.thesaurus);
         }
     }
@@ -164,7 +166,8 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     private void validateDeviceConfigurationForUpdate(DeviceConfiguration deviceConfiguration) {
-        if(this.deviceConfiguration != null && this.deviceConfiguration.getId() != deviceConfiguration.getId()){
+        DeviceConfiguration myDeviceConfiguration = this.getDeviceConfiguration();
+        if(myDeviceConfiguration != null && myDeviceConfiguration.getId() != deviceConfiguration.getId()){
             throw CannotChangeDeviceConfigurationReferenceException.forLogbookSpec(this.thesaurus, this);
         }
     }

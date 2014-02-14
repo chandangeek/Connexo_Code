@@ -3,6 +3,8 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
@@ -32,10 +34,10 @@ import java.util.List;
 public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements LoadProfileSpec {
 
     private final DeviceConfigurationService deviceConfigurationService;
-    private LoadProfileType loadProfileType;
+    private final Reference<LoadProfileType> loadProfileType = ValueReference.absent();
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
-    private DeviceConfiguration deviceConfiguration;
+    private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
 
     @Inject
     public LoadProfileSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {
@@ -51,12 +53,12 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     @Override
     public LoadProfileType getLoadProfileType() {
-        return this.loadProfileType;
+        return this.loadProfileType.get();
     }
 
     @Override
     public DeviceConfiguration getDeviceConfiguration() {
-        return this.deviceConfiguration;
+        return this.deviceConfiguration.get();
     }
 
     @Override
@@ -133,11 +135,12 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     @Override
     public void setLoadProfileType(LoadProfileType loadProfileType) {
         validateLoadProfileTypeForUpdate(loadProfileType);
-        this.loadProfileType = loadProfileType;
+        this.loadProfileType.set(loadProfileType);
     }
 
     private void validateLoadProfileTypeForUpdate(LoadProfileType loadProfileType) {
-        if (this.loadProfileType != null && this.loadProfileType.getId() != loadProfileType.getId()) {
+        LoadProfileType myLoadProfileType = this.getLoadProfileType();
+        if (myLoadProfileType != null && myLoadProfileType.getId() != loadProfileType.getId()) {
             throw new CannotChangeLoadProfileTypeOfLoadProfileSpecException(this.thesaurus);
         }
     }
@@ -161,11 +164,12 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     @Override
     public void setDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
         validateDeviceConfigurationForUpdate(deviceConfiguration);
-        this.deviceConfiguration = deviceConfiguration;
+        this.deviceConfiguration.set(deviceConfiguration);
     }
 
     private void validateDeviceConfigurationForUpdate(DeviceConfiguration deviceConfiguration) {
-        if (this.deviceConfiguration != null && this.deviceConfiguration.getId() != deviceConfiguration.getId()) {
+        DeviceConfiguration myDeviceConfiguration = this.getDeviceConfiguration();
+        if (myDeviceConfiguration != null && myDeviceConfiguration.getId() != deviceConfiguration.getId()) {
             throw CannotChangeDeviceConfigurationReferenceException.forLoadProfileSpec(this.thesaurus, this);
         }
     }

@@ -4,6 +4,8 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -36,9 +38,9 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     private DeviceConfigurationService deviceConfigurationService;
     private String obisCodeString;
     private ObisCode obisCode;
-    private ProductSpec productSpec;
+    private Reference<ProductSpec> productSpec = ValueReference.absent();
     private boolean cumulative;
-    private RegisterGroup registerGroup;
+    private Reference<RegisterGroup> registerGroup = ValueReference.absent();
     private String description;
     private Date modificationDate;
 
@@ -132,17 +134,17 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
 
     @Override
     public RegisterGroup getRegisterGroup() {
-        return this.registerGroup;
+        return this.registerGroup.get();
     }
 
     @Override
     public void setRegisterGroup(RegisterGroup registerGroup) {
-        this.registerGroup = registerGroup;
+        this.registerGroup.set(registerGroup);
     }
 
     @Override
     public ProductSpec getProductSpec() {
-        return this.productSpec;
+        return this.productSpec.get();
     }
 
     @Override
@@ -150,11 +152,11 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         if (productSpec == null) {
             throw new ProductSpecIsRequiredException(this.getThesaurus());
         }
-        if (this.productSpec.getId() != productSpec.getId()) {
+        if (this.getProductSpec().getId() != productSpec.getId()) {
             if (this.isInUse()) {
                 throw new CannotUpdateProductSpecWhenRegisterMappingIsInUseException(this.getThesaurus(), this);
             }
-            this.productSpec = productSpec;
+            this.productSpec.set(productSpec);
         }
     }
 
@@ -199,7 +201,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         if (!loadProfileTypeUsages.isEmpty()) {
             Set<LoadProfileType> loadProfileTypes = new HashSet<>();
             for (LoadProfileTypeRegisterMappingUsage loadProfileTypeUsage : loadProfileTypeUsages) {
-                loadProfileTypes.add(loadProfileTypeUsage.loadProfileType);
+                loadProfileTypes.add(loadProfileTypeUsage.getLoadProfileType());
             }
             throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByLoadprofileTypes(this.getThesaurus(), this, new ArrayList<>(loadProfileTypes));
         }
@@ -210,7 +212,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         if (!deviceTypeUsages.isEmpty()) {
             Set<DeviceType> deviceTypes = new HashSet<>();
             for (DeviceTypeRegisterMappingUsage deviceTypeUsage : deviceTypeUsages) {
-                deviceTypes.add(deviceTypeUsage.deviceType);
+                deviceTypes.add(deviceTypeUsage.getDeviceType());
             }
             throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByDeviceTypes(this.getThesaurus(), this, new ArrayList<>(deviceTypes));
         }

@@ -36,10 +36,9 @@ public enum TableSpecs {
             Column name = table.column("NAME").varChar(80).notNull().map("name").add();
             table.column("CHANNELCOUNT").number().conversion(ColumnConversion.NUMBER2INT).notNull().map("channelCount").add();
             table.column("DESCRIPTION").varChar(4000).map("description").add();
-            table.column("PROTOTYPEID").number().conversion(ColumnConversion.NUMBER2INT).map("prototypeId").add();
+            table.column("PROTOTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).map("prototypeId").add();
             table.column("USECHANNELJOURNAL").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("useChannelJournal").add();
-            table.column("NEEDSPROXY").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("needsproxy").add();
-            table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2INT).map("deviceProtocolPluggableClassId").add();
+            table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2LONG).map("deviceProtocolPluggableClassId").add();
             table.column("DEVICEUSAGETYPE").number().conversion(ColumnConversion.NUMBER2INT).map("deviceUsageTypeId").add();
             table.column("COMMUNICATIONFUNCTIONMASK").number().conversion(ColumnConversion.NUMBER2INT).map("communicationFunctionMask").add();
             table.unique("UK_SYSRTUTYPE").on(name).add();
@@ -55,7 +54,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(80).notNull().map("name").add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
-            table.column("OBISCODE").varChar(80).notNull().map("obiscode").add();
+            table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
             table.unique("UK_EISLOGBOOKTYPE").on(name).add();
             table.primaryKey("PK_EISLOGBOOKTYPE").on(id).add();
         }
@@ -69,33 +68,12 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(80).notNull().map("name").add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
-            table.column("OBISCODE").varChar(80).notNull().map("obiscode").add();
+            table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
             table.column("INTERVALCOUNT").number().notNull().map("interval.count").add();
             table.column("INTERVALUNIT").number().notNull().map("interval.timeUnitCode").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.unique("UK_LOADPROFILETYPE").on(name).add();
             table.primaryKey("PK_LOADPROFILETYPE").on(id).add();
-        }
-    },
-
-    EISRTUREGISTERMAPPING {
-        @Override
-        public void addTo(DataModel dataModel) {
-            Table<RegisterMapping> table = dataModel.addTable(this.name(), RegisterMapping.class);
-            table.map(RegisterMappingImpl.class);
-            Column id = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar(80).notNull().map("name").add();
-            Column obiscode = table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
-            Column productSpec = table.column("PRODUCTSPECID").number().notNull().add();
-            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
-            table.column("CUMULATIVE").number().notNull().map("cumulative").add();
-            Column registerGroup = table.column("REGISTERGROUPID").number().add();
-            table.column("DESCRIPTION").varChar(255).map("description").add();
-            table.foreignKey("FK_EISREGMAPREGGROUP").on(registerGroup).references(EISRTUREGISTERGROUP.name()).map("registerGroup").add();
-            table.foreignKey("FK_EISREGMAPPRODSPEC").on(productSpec).references(EISPRODUCTSPEC.name()).map("productSpec").add();
-            table.unique("UK_RTUREGMAPPINGNAME").on(name).add();
-            table.unique("UK_RTUREGMAPPINGOBISPROD").on(obiscode,productSpec).add();
-            table.primaryKey("PK_RTUREGISTERMAPPING").on(id).add();
         }
     },
 
@@ -107,7 +85,6 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(256).notNull().map("name").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
-            table.column("USEABLEINMMR").number().map("useableinmmr").add();
             table.unique("UK_RTUREGISTERGROUP").on(name).add();
             table.primaryKey("PK_RTUREGISTERGROUP").on(id).add();
         }
@@ -120,8 +97,29 @@ public enum TableSpecs {
             table.map(ProductSpecImpl.class);
             Column id = table.addAutoIdColumn();
             table.column("READINGTYPE").varChar(100).map("readingType").add();
-            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modDate").add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.primaryKey("PK_PRODUCTSPEC").on(id).add();
+        }
+    },
+
+    EISRTUREGISTERMAPPING {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<RegisterMapping> table = dataModel.addTable(this.name(), RegisterMapping.class);
+            table.map(RegisterMappingImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column name = table.column("NAME").varChar(80).notNull().map("name").add();
+            Column obisCode = table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
+            Column productSpec = table.column("PRODUCTSPECID").number().notNull().add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
+            table.column("CUMULATIVE").number().notNull().map("cumulative").add();
+            Column registerGroup = table.column("REGISTERGROUPID").number().add();
+            table.column("DESCRIPTION").varChar(255).map("description").add();
+            table.foreignKey("FK_EISREGMAPREGGROUP").on(registerGroup).references(EISRTUREGISTERGROUP.name()).map("registerGroup").add();
+            table.foreignKey("FK_EISREGMAPPRODSPEC").on(productSpec).references(EISPRODUCTSPEC.name()).map("productSpec").add();
+            table.unique("UK_RTUREGMAPPINGNAME").on(name).add();
+            table.unique("UK_RTUREGMAPPINGOBISPROD").on(obisCode, productSpec).add();
+            table.primaryKey("PK_RTUREGISTERMAPPING").on(id).add();
         }
     },
 
@@ -132,6 +130,7 @@ public enum TableSpecs {
             table.map(DeviceTypeLoadProfileTypeUsage.class);
             Column loadProfileType = table.column("LOADPROFILETYPEID").number().notNull().add();
             Column deviceType = table.column("RTUTYPEID").number().notNull().add();
+            table.primaryKey("PK_LOADPRFTYPEFORRTUTYPE").on(loadProfileType, deviceType).add();
             table.foreignKey("FK_RTUTYPEID_LPT_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("loadProfileTypeUsages").composition().add();
             table.foreignKey("FK_LPTID_LPT_RTUTYPE_JOIN").on(loadProfileType).references(EISLOADPROFILETYPE.name()).map("loadProfileType").add();
         }
@@ -144,6 +143,7 @@ public enum TableSpecs {
             table.map(DeviceTypeRegisterMappingUsage.class);
             Column registermapping = table.column("REGISTERMAPPINGID").number().notNull().add();
             Column deviceType = table.column("RTUTYPEID").number().notNull().add();
+            table.primaryKey("PK_REGMAPFORRTUTYPE").on(registermapping, deviceType).add();
             table.foreignKey("FK_RTUTPID_REGMAP_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("registerMappingUsages").composition().add();
             table.foreignKey("FK_MAPID_REGMAP_RTUTYPE_JOIN").on(registermapping).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
         }
@@ -156,6 +156,7 @@ public enum TableSpecs {
             table.map(DeviceTypeLogBookTypeUsage.class);
             Column logBookType = table.column("LOGBOOKTYPEID").number().notNull().add();
             Column deviceType = table.column("RTUTYPEID").number().notNull().add();
+            table.primaryKey("PK_LOGBOOKTYPEFORRTUTYPE").on(logBookType, deviceType).add();
             table.foreignKey("FK_RTUTYPEID_LBT_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("logBookTypeUsages").composition().add();
             table.foreignKey("FK_LBTYPEID_LBTT_RTUTYPE_JOIN").on(logBookType).references(EISLOGBOOKTYPE.name()).map("logBookType").add();
         }
@@ -168,6 +169,7 @@ public enum TableSpecs {
             table.map(LoadProfileTypeRegisterMappingUsage.class);
             Column loadProfileType = table.column("LOADPROFILETYPEID").number().notNull().add();
             Column registerMapping = table.column("REGMAPPINGID").number().notNull().add();
+            table.primaryKey("PK_REGMAPPINGINLOADPROFILETYPE").on(loadProfileType, registerMapping).add();
             table.foreignKey("FK_REGMAPLPT_LOADPROFILETYPEID").on(loadProfileType).references(EISLOADPROFILETYPE.name()).map("loadProfileType").reverseMap("registerMappingUsages").composition().add();
             table.foreignKey("FK_REGMAPLPT_REGMAPPINGID").on(registerMapping).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
         }
@@ -200,9 +202,24 @@ public enum TableSpecs {
             Column unit = table.column("UNIT").type("CHAR(7)").notNull().map("unit").add();
             table.column("MEASUREMENTCODE").varChar(80).map("measurementCode").add();
             table.column("EDICODE").varChar(80).map("ediCode").add();
-            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modDate").add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
             table.primaryKey("PK_PHENOMENON").on(id).add();
-            table.unique("UK_EISPHENOMENON").on(name,unit).add();
+            table.unique("UK_EISPHENOMENON").on(name, unit).add();
+        }
+    },
+
+    EISLOADPROFILESPEC {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<LoadProfileSpec> table = dataModel.addTable(name(), LoadProfileSpec.class);
+            table.map(LoadProfileSpecImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column deviceconfigid = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            Column loadprofiletypeid = table.column("LOADPROFILETYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
+            table.primaryKey("PK_EISLOADPROFILESPECID").on(id).add();
+            table.foreignKey("FK_EISLPRFSPEC_LOADPROFTYPE").on(loadprofiletypeid).references(EISLOADPROFILETYPE.name()).map("loadProfileType").add();
+            table.foreignKey("FK_EISLPRFSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("loadProfileSpecs").composition().onDelete(DeleteRule.CASCADE).add();
         }
     },
 
@@ -255,21 +272,6 @@ public enum TableSpecs {
             table.foreignKey("FK_EISRTUREGSPEC_REGMAP").on(registerMapping).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
             table.foreignKey("FK_EISRTUREGSPEC_DEVCFG").on(deviceConfiguration).references(EISDEVICECONFIG.name()).map("deviceConfig").reverseMap("registerSpecs").composition().onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("FK_REGSPEC_CHANNELSPEC").on(channelSpec).references(EISCHANNELSPEC.name()).map("linkedChannelSpec").add();
-        }
-    },
-
-    EISLOADPROFILESPEC {
-        @Override
-        public void addTo(DataModel dataModel) {
-            Table<LoadProfileSpec> table = dataModel.addTable(name(), LoadProfileSpec.class);
-            table.map(LoadProfileSpecImpl.class);
-            Column id = table.addAutoIdColumn();
-            Column deviceconfigid = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            Column loadprofiletypeid = table.column("LOADPROFILETYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
-            table.primaryKey("PK_EISLOADPROFILESPECID").on(id).add();
-            table.foreignKey("FK_EISLPRFSPEC_LOADPROFTYPE").on(loadprofiletypeid).references(EISLOADPROFILETYPE.name()).map("loadProfileType").add();
-            table.foreignKey("FK_EISLPRFSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("loadProfileSpecs").composition().onDelete(DeleteRule.CASCADE).add();
         }
     },
 
