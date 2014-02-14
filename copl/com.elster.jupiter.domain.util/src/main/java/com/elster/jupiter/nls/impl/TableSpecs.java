@@ -18,7 +18,7 @@ enum TableSpecs {
             table.map(NlsKeyImpl.class);
             Column componentColumn = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
             Column layerColumn = table.column("LAYER").type("varchar2(10)").notNull().conversion(ColumnConversion.CHAR2ENUM).map("layer").add();
-            Column keyColumn = table.column("KEY").type("varchar2(64)").notNull().map("key").add();
+            Column keyColumn = table.column("KEY").type("varchar2(256)").notNull().map("key").add();
             table.column("defaultMessage").type("varchar2(256)").map("defaultMessage").add();
             table.primaryKey("NLS_PK_NLSKEY").on(componentColumn, layerColumn, keyColumn).add();
         }
@@ -30,7 +30,7 @@ enum TableSpecs {
             table.map(NlsEntry.class);
             Column componentColumn = table.column("COMPONENT").type("varchar2(3)").notNull().add();
             Column layerColumn = table.column("LAYER").type("varchar2(10)").notNull().conversion(ColumnConversion.CHAR2ENUM).add();
-            Column keyColumn = table.column("KEY").type("varchar2(64)").notNull().add();
+            Column keyColumn = table.column("KEY").type("varchar2(256)").notNull().add();
             Column languageTag = table.column("LANGUAGETAG").type("varchar2(20)").notNull().map("languageTag").add();
             table.column("TRANSLATION").type("varchar2(256)").map("translation").add();
             table.primaryKey("NLS_PK_NLSENTRY").on(componentColumn, layerColumn, keyColumn, languageTag).add();
