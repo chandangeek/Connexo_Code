@@ -182,7 +182,7 @@ public class OrmClientImpl implements OrmClient {
                 with(this.getConstraintMemberFactory()).
                 select(
                     where("attributeTypeId").isEqualTo(relationAttributeType.getId()),
-                    null, false, null);
+                    new String[]{}, false, null);
     }
 
 }
