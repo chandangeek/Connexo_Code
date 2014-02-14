@@ -5,6 +5,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
@@ -27,7 +29,7 @@ public class ProductSpecImpl implements ProductSpec {
 
     private long id;
     private String readingTypeString;
-    private ReadingType readingType;
+    private final Reference<ReadingType> readingType = ValueReference.absent();
     private Date modificationDate;
 
     private DataModel dataModel;
@@ -152,14 +154,14 @@ public class ProductSpecImpl implements ProductSpec {
 
     @Override
     public ReadingType getReadingType() {
-        return this.readingType;
+        return this.readingType.get();
     }
 
     @Override
     public void setReadingType(ReadingType readingType) {
         this.validateReadingType(readingType);
         this.validateUniqueReadingType(readingType);
-        this.readingType = readingType;
+        this.readingType.set(readingType);
         this.readingTypeString = readingType.toString();
     }
 

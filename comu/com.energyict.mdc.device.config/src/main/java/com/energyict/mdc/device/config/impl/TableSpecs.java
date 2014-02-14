@@ -1,13 +1,14 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
@@ -96,9 +97,10 @@ public enum TableSpecs {
             Table<ProductSpec> table = dataModel.addTable(this.name(), ProductSpec.class);
             table.map(ProductSpecImpl.class);
             Column id = table.addAutoIdColumn();
-            table.column("READINGTYPE").varChar(100).map("readingType").add();
+            Column readingType = table.column("READINGTYPE").varChar(100).map("readingType").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.primaryKey("PK_PRODUCTSPEC").on(id).add();
+            table.foreignKey("FK_PRODUCTSPEC_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").add();
         }
     },
 

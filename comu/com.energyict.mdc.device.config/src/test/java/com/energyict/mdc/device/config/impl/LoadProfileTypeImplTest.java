@@ -6,8 +6,10 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
@@ -46,13 +48,11 @@ public class LoadProfileTypeImplTest {
     private static final long PHENOMENON_ID = 151;
 
     @Mock
-    private Phenomenon phenomenon;
-    @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     private ReadingType readingType;
-
     private InMemoryPersistence inMemoryPersistence = new InMemoryPersistence();
+    private Phenomenon phenomenon;
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -62,7 +62,6 @@ public class LoadProfileTypeImplTest {
     }
 
     private void initializeMocks() {
-        when(this.phenomenon.getId()).thenReturn(PHENOMENON_ID);
         when(this.deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
     }
 
@@ -442,6 +441,8 @@ public class LoadProfileTypeImplTest {
         RegisterMapping registerMapping;
         LoadProfileType loadProfileType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            this.setupPhenomenaInExistingTransaction();
+
             // Setup ProductSpec
             ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
             productSpec.save();
@@ -459,7 +460,7 @@ public class LoadProfileTypeImplTest {
             // Setup DeviceType with a DeviceConfiguration and LoadProfileSpec and ChannelSpec that uses the LoadProfileType
             DeviceType deviceType = deviceConfigurationService.newDeviceType("testUpdateIntervalWhileInUse", this.deviceProtocolPluggableClass);
             DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
-            LoadProfileSpecImpl.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(loadProfileType);
+            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(loadProfileType);
             configurationBuilder.newChannelSpec(registerMapping, this.phenomenon, loadProfileSpecBuilder);
             configurationBuilder.add();
             deviceType.save();
@@ -546,6 +547,8 @@ public class LoadProfileTypeImplTest {
 
         LoadProfileType loadProfileType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            this.setupPhenomenaInExistingTransaction();
+
             // Setup LoadProfileType
             loadProfileType = deviceConfigurationService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
             loadProfileType.setDescription("For testing purposes only");
@@ -562,7 +565,7 @@ public class LoadProfileTypeImplTest {
             // Setup DeviceType with a DeviceConfiguration and LoadProfileSpec and ChannelSpec that uses the LoadProfileType
             DeviceType deviceType = deviceConfigurationService.newDeviceType("testUpdateIntervalWhileInUse", this.deviceProtocolPluggableClass);
             DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
-            LoadProfileSpecImpl.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(loadProfileType);
+            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(loadProfileType);
             configurationBuilder.newChannelSpec(registerMapping, this.phenomenon, loadProfileSpecBuilder);
             configurationBuilder.add();
             deviceType.save();
@@ -602,6 +605,11 @@ public class LoadProfileTypeImplTest {
                 assertThat(resultSet.next()).as("Was not expecting to find register mappings for LoadProfileType " + loadProfileType.getName() + " after deletion").isFalse();
             }
         }
+    }
+
+    private void setupPhenomenaInExistingTransaction () {
+        this.phenomenon = this.inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(DeviceTypeImplTest.class.getSimpleName(), Unit.get("kWh"));
+        this.phenomenon.save();
     }
 
 }
