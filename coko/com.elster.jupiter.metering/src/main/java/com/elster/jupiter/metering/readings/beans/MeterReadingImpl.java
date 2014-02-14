@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.impl.test;
+package com.elster.jupiter.metering.readings.beans;
 
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.IntervalBlock;
@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Our default implementation of a MeterReading
+ * <p/>
+ * Copyrights EnergyICT
+ * Date: 25/11/13
+ * Time: 15:13
+ */
 public class MeterReadingImpl implements MeterReading {
 
     private List<EndDeviceEvent> endDeviceEvents = new ArrayList<>();
@@ -20,7 +27,7 @@ public class MeterReadingImpl implements MeterReading {
 
     @Override
     public List<Reading> getReadings() {
-        if (this.readings != null && !this.readings.isEmpty()) {
+        if (this.readings != null && this.readings.size() > 0) {
             return Collections.unmodifiableList(this.readings);
         } else {
             return Collections.emptyList();
@@ -29,7 +36,7 @@ public class MeterReadingImpl implements MeterReading {
 
     @Override
     public List<IntervalBlock> getIntervalBlocks() {
-        if(this.intervalBlocks != null && !this.intervalBlocks.isEmpty()){
+        if(this.intervalBlocks != null && this.intervalBlocks.size() > 0){
             return Collections.unmodifiableList(this.intervalBlocks);
         } else {
             return Collections.emptyList();
@@ -38,20 +45,28 @@ public class MeterReadingImpl implements MeterReading {
 
     @Override
     public List<EndDeviceEvent> getEvents() {
-        if (this.endDeviceEvents != null && !this.endDeviceEvents.isEmpty()) {
+        if (this.endDeviceEvents != null && this.endDeviceEvents.size() > 0) {
             return Collections.unmodifiableList(this.endDeviceEvents);
         } else {
             return Collections.emptyList();
         }
     }
 
-    public void addReading(final Reading reading){
-        this.readings.add(reading);
-    }
-
     public void addAllIntervalBlocks(List<IntervalBlock> intervalBlocks){
         this.intervalBlocks.addAll(intervalBlocks);
 
+    }
+
+    public void addAllEndDeviceEvents(List<EndDeviceEvent> endDeviceEvents) {
+        this.endDeviceEvents.addAll(endDeviceEvents);
+    }
+
+    public void addAllReadings(List<Reading> readings){
+        this.readings.addAll(readings);
+    }
+
+    public void addReading(final Reading reading){
+        this.readings.add(reading);
     }
 
     public void addIntervalBlock(IntervalBlock intervalBlock){

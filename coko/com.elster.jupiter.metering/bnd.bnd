@@ -4,5 +4,6 @@ Private-Package: com.elster.jupiter.metering.impl
 Export-Package: com.elster.jupiter.metering,\
 	com.elster.jupiter.metering.security,\
 	com.elster.jupiter.metering.readings,\
+	com.elster.jupiter.metering.readings.beans,\
 	com.elster.jupiter.metering.events
 

@@ -1,6 +1,12 @@
 package com.elster.jupiter.metering;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.elster.jupiter.cbo.Status;
+import com.elster.jupiter.devtools.test.analysis.MethodInvocationChecker;
+import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
+import com.elster.jupiter.util.time.impl.DefaultClock;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.reflect.ClassPath;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,14 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Test;
-
-import com.elster.jupiter.cbo.Status;
-import com.elster.jupiter.devtools.test.analysis.MethodInvocationChecker;
-import com.elster.jupiter.metering.impl.test.BaseReadingImpl;
-import com.elster.jupiter.util.time.impl.DefaultClock;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.reflect.ClassPath;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NewDateCheckTest {
 
