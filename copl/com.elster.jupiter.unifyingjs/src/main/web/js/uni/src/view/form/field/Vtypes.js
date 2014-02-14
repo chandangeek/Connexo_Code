@@ -21,7 +21,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
         var message = null;
         Ext.apply(Ext.form.field.VTypes, {
             readingtype:  function(v) {
-                return /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(v);
+                return /^\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+$/.test(v);
             },
             readingtypeText: 'Invalid reading type syntax',
             readingtypeMask: /[\d\.]/i
