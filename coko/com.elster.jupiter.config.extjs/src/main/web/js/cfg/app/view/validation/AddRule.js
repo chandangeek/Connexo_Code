@@ -105,7 +105,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                                     fieldLabel: I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
                                                     labelAlign: 'right',
                                                     itemId: 'readingTypeTextField1',
-                                                    vtype: 'readingtype',
+                                                    //vtype: 'readingtype',
                                                     validator:function(text){
                                                         if(Ext.util.Format.trim(text).length==0)
                                                             return I18n.translate('validation.requiredField', 'CFG', 'This field is required');
