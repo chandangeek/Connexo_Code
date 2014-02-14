@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.config.impl.LogBookSpecImpl;
 
 /**
  * Copyrights EnergyICT
@@ -46,4 +47,19 @@ public interface LogBookSpec extends HasId{
     void validateDelete();
 
     void delete();
+
+    /**
+     * Defines a Builder interface to construct a {@link LogBookSpec}
+     */
+    interface LogBookSpecBuilder {
+
+        LogBookSpecBuilder setOverruledObisCode(ObisCode overruledObisCode);
+
+        /**
+         * Does final validation and <i>creates</i> the {@link LogBookSpec}
+         *
+         * @return the LogBookSpec
+         */
+        LogBookSpec add();
+    }
 }

@@ -89,4 +89,36 @@ public interface ChannelSpec extends HasId {
     void validateDelete();
 
     void delete();
+
+    /**
+     * Defines a Builder interface to construct a {@link ChannelSpec}
+     */
+    interface ChannelSpecBuilder extends LoadProfileSpec.BuildingCompletionListener {
+
+        ChannelSpecBuilder setOverruledObisCode(ObisCode overruledObisCode);
+
+        ChannelSpecBuilder setNbrOfFractionDigits(int nbrOfFractionDigits);
+
+        ChannelSpecBuilder setOverflow(BigDecimal overflow);
+
+        ChannelSpecBuilder setPhenomenon(Phenomenon phenomenon);
+
+        ChannelSpecBuilder setReadingMethod(ReadingMethod readingMethod);
+
+        ChannelSpecBuilder setMultiplierMode(MultiplierMode multiplierMode);
+
+        ChannelSpecBuilder setMultiplier(BigDecimal multiplier);
+
+        ChannelSpecBuilder setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
+
+        ChannelSpecBuilder setInterval(TimeDuration interval);
+
+        ChannelSpecBuilder setProductSpec(ProductSpec productSpec);
+
+        /**
+         * Does final validation and <i>creates</i> the {@link ChannelSpec}
+         * @return the ChannelSpec
+         */
+        ChannelSpec add();
+    }
 }

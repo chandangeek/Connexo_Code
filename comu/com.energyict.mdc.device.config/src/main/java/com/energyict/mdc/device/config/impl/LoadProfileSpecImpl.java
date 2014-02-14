@@ -137,7 +137,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     }
 
     private void validateLoadProfileTypeForUpdate(LoadProfileType loadProfileType) {
-        if (this.loadProfileType != null && !this.loadProfileType.equals(loadProfileType)) {
+        if (this.loadProfileType != null && this.loadProfileType.getId() != loadProfileType.getId()) {
             throw new CannotChangeLoadProfileTypeOfLoadProfileSpecException(this.thesaurus);
         }
     }
@@ -165,7 +165,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     }
 
     private void validateDeviceConfigurationForUpdate(DeviceConfiguration deviceConfiguration) {
-        if (this.deviceConfiguration != null && !this.deviceConfiguration.equals(deviceConfiguration)) {
+        if (this.deviceConfiguration != null && this.deviceConfiguration.getId() != deviceConfiguration.getId()) {
             throw CannotChangeDeviceConfigurationReferenceException.forLoadProfileSpec(this.thesaurus, this);
         }
     }
@@ -176,7 +176,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         }
     }
 
-    public static class LoadProfileSpecBuilder {
+    public static class LoadProfileSpecBuilder implements LoadProfileSpec.LoadProfileSpecBuilder {
 
         private final LoadProfileSpecImpl loadProfileSpec;
         private final List<BuildingCompletionListener> buildingCompletionListeners = new ArrayList<>();
@@ -185,15 +185,18 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
             this.loadProfileSpec = loadProfileSpecProvider.get().initialize(deviceConfiguration, loadProfileType);
         }
 
-        public void notifyOnAdd (BuildingCompletionListener buildingCompletionListener) {
+        @Override
+        public void notifyOnAdd(BuildingCompletionListener buildingCompletionListener) {
             this.buildingCompletionListeners.add(buildingCompletionListener);
         }
 
-        public LoadProfileSpecBuilder setOverruledObisCode(ObisCode overruledObisCode){
+        @Override
+        public LoadProfileSpec.LoadProfileSpecBuilder setOverruledObisCode(ObisCode overruledObisCode){
             this.loadProfileSpec.setOverruledObisCode(overruledObisCode);
             return this;
         }
 
+        @Override
         public LoadProfileSpec add(){
             this.loadProfileSpec.validateRequiredFields();
             this.notifyListeners();

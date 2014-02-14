@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -459,9 +460,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private class ChannelSpecBuilder implements NestedBuilder {
-        private final ChannelSpecImpl.ChannelSpecBuilder builder;
+        private final ChannelSpec.ChannelSpecBuilder builder;
 
-        private ChannelSpecBuilder(ChannelSpecImpl.ChannelSpecBuilder builder) {
+        private ChannelSpecBuilder(ChannelSpec.ChannelSpecBuilder builder) {
             super();
             this.builder = builder;
         }
@@ -473,9 +474,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private class RegisterSpecBuilder implements NestedBuilder {
-        private final RegisterSpecImpl.RegisterSpecBuilder builder;
+        private final RegisterSpec.RegisterSpecBuilder builder;
 
-        private RegisterSpecBuilder(RegisterSpecImpl.RegisterSpecBuilder builder) {
+        private RegisterSpecBuilder(RegisterSpec.RegisterSpecBuilder builder) {
             super();
             this.builder = builder;
         }
@@ -487,9 +488,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private class LoadProfileSpecBuilder implements NestedBuilder {
-        private final LoadProfileSpecImpl.LoadProfileSpecBuilder builder;
+        private final LoadProfileSpec.LoadProfileSpecBuilder builder;
 
-        private LoadProfileSpecBuilder(LoadProfileSpecImpl.LoadProfileSpecBuilder builder) {
+        private LoadProfileSpecBuilder(LoadProfileSpec.LoadProfileSpecBuilder builder) {
             super();
             this.builder = builder;
         }
@@ -501,9 +502,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private class LogBookSpecBuilder implements NestedBuilder {
-        private final LogBookSpecImpl.LogBookSpecBuilder builder;
+        private final LogBookSpec.LogBookSpecBuilder builder;
 
-        private LogBookSpecBuilder(LogBookSpecImpl.LogBookSpecBuilder builder) {
+        private LogBookSpecBuilder(LogBookSpec.LogBookSpecBuilder builder) {
             super();
             this.builder = builder;
         }
@@ -526,36 +527,36 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         }
 
         @Override
-        public ChannelSpecImpl.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
-            ChannelSpecImpl.ChannelSpecBuilder builder = this.underConstruction.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        public ChannelSpec.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+            ChannelSpec.ChannelSpecBuilder builder = this.underConstruction.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
             this.nestedBuilders.add(new ChannelSpecBuilder(builder));
             return builder;
         }
 
         @Override
-        public ChannelSpecImpl.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpecImpl.LoadProfileSpecBuilder loadProfileSpecBuilder) {
-            ChannelSpecImpl.ChannelSpecBuilder builder = this.underConstruction.newChannelSpec(registerMapping, phenomenon, loadProfileSpecBuilder);
+        public ChannelSpec.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+            ChannelSpec.ChannelSpecBuilder builder = this.underConstruction.newChannelSpec(registerMapping, phenomenon, loadProfileSpecBuilder);
             this.nestedBuilders.add(new ChannelSpecBuilder(builder));
             return builder;
         }
 
         @Override
-        public RegisterSpecImpl.RegisterSpecBuilder newRegisterSpec(RegisterMapping registerMapping) {
-            RegisterSpecImpl.RegisterSpecBuilder builder = this.underConstruction.createRegisterSpec(registerMapping);
+        public RegisterSpec.RegisterSpecBuilder newRegisterSpec(RegisterMapping registerMapping) {
+            RegisterSpec.RegisterSpecBuilder builder = this.underConstruction.createRegisterSpec(registerMapping);
             this.nestedBuilders.add(new RegisterSpecBuilder(builder));
             return builder;
         }
 
         @Override
-        public LoadProfileSpecImpl.LoadProfileSpecBuilder newLoadProfileSpec(LoadProfileType loadProfileType) {
-            LoadProfileSpecImpl.LoadProfileSpecBuilder builder = this.underConstruction.createLoadProfileSpec(loadProfileType);
+        public LoadProfileSpec.LoadProfileSpecBuilder newLoadProfileSpec(LoadProfileType loadProfileType) {
+            LoadProfileSpec.LoadProfileSpecBuilder builder = this.underConstruction.createLoadProfileSpec(loadProfileType);
             this.nestedBuilders.add(new LoadProfileSpecBuilder(builder));
             return builder;
         }
 
         @Override
-        public LogBookSpecImpl.LogBookSpecBuilder newLogBookSpec(LogBookType logBookType) {
-            LogBookSpecImpl.LogBookSpecBuilder builder = this.underConstruction.createLogBookSpec(logBookType);
+        public LogBookSpec.LogBookSpecBuilder newLogBookSpec(LogBookType logBookType) {
+            LogBookSpec.LogBookSpecBuilder builder = this.underConstruction.createLogBookSpec(logBookType);
             this.nestedBuilders.add(new LogBookSpecBuilder(builder));
             return builder;
         }

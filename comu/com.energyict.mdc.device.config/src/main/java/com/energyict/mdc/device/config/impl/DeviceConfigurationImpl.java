@@ -255,7 +255,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public RegisterSpecImpl.RegisterSpecBuilder createRegisterSpec(RegisterMapping registerMapping) {
+    public RegisterSpec.RegisterSpecBuilder createRegisterSpec(RegisterMapping registerMapping) {
         return new RegisterSpecBuilderForConfig(registerSpecProvider, this, registerMapping);
     }
 
@@ -302,12 +302,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public ChannelSpecImpl.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+    public ChannelSpec.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
         return new ChannelSpecBuilderForConfig(channelSpecProvider, this, registerMapping, phenomenon, loadProfileSpec);
     }
 
     @Override
-    public ChannelSpecImpl.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpecImpl.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+    public ChannelSpec.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
         return new ChannelSpecBuilderForConfig(channelSpecProvider, this, registerMapping, phenomenon, loadProfileSpecBuilder);
     }
 
@@ -317,7 +317,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             super(channelSpecProvider, deviceConfiguration, registerMapping, phenomenon, loadProfileSpec);
         }
 
-        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpecImpl.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
             super(channelSpecProvider, deviceConfiguration, registerMapping, phenomenon, loadProfileSpecBuilder);
         }
 
@@ -336,7 +336,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 if (spec.getLoadProfileSpec() == null && channelSpec.getDeviceObisCode().equals(spec.getDeviceObisCode())) {
                     throw DuplicateObisCodeException.forChannelSpecConfigWithoutLoadProfileSpec(thesaurus, this, channelSpec.getDeviceObisCode(), channelSpec);
                 }
-            } else if (channelSpec.getLoadProfileSpec().equals(spec.getLoadProfileSpec())) {
+            } else if (channelSpec.getLoadProfileSpec().getId() == spec.getLoadProfileSpec().getId()) {
                 if (channelSpec.getDeviceObisCode().equals(spec.getDeviceObisCode())) {
                     throw DuplicateObisCodeException.forChannelSpecInLoadProfileSpec(thesaurus, this, channelSpec.getDeviceObisCode(), channelSpec, channelSpec.getLoadProfileSpec());
                 }
@@ -358,7 +358,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public LoadProfileSpecImpl.LoadProfileSpecBuilder createLoadProfileSpec(LoadProfileType loadProfileType) {
+    public LoadProfileSpec.LoadProfileSpecBuilder createLoadProfileSpec(LoadProfileType loadProfileType) {
         return new LoadProfileSpecBuilderForConfig(loadProfileSpecProvider, this, loadProfileType);
     }
 
@@ -387,7 +387,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     private void validateUniqueLoadProfileType(LoadProfileSpec loadProfileSpec) {
         for (LoadProfileSpec profileSpec : loadProfileSpecs) {
-            if (profileSpec.getLoadProfileType().equals(loadProfileSpec.getLoadProfileType())) {
+            if (profileSpec.getLoadProfileType().getId() == loadProfileSpec.getLoadProfileType().getId()) {
                 throw new DuplicateLoadProfileTypeException(thesaurus, this, loadProfileSpec.getLoadProfileType(), loadProfileSpec);
             }
         }
@@ -409,7 +409,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public LogBookSpecImpl.LogBookSpecBuilder createLogBookSpec(LogBookType logBookType) {
+    public LogBookSpec.LogBookSpecBuilder createLogBookSpec(LogBookType logBookType) {
         return new LogBookSpecBuilderForConfig(logBookSpecProvider, this, logBookType);
     }
 
@@ -431,7 +431,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     private void validateUniqueLogBookType(LogBookSpecImpl logBookSpec) {
         for (LogBookSpec spec : logBookSpecs) {
-            if (spec.getLogBookType().equals(logBookSpec.getLogBookType())) {
+            if (spec.getLogBookType().getId() == logBookSpec.getLogBookType().getId()) {
                 throw new DuplicateLogBookTypeException(thesaurus, this, logBookSpec.getLogBookType(), logBookSpec);
             }
         }

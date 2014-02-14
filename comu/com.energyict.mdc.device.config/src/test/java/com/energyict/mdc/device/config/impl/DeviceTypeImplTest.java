@@ -4,12 +4,12 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.Phenomenon;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceProtocolWithActiveConfigurationsException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
@@ -22,8 +22,10 @@ import com.energyict.mdc.device.config.exceptions.RegisterMappingAlreadyInDevice
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -178,7 +180,8 @@ public class DeviceTypeImplTest {
     @Test(expected = DeviceProtocolIsRequiredException.class)
     public void testDeviceTypeCreationWithoutProtocol() {
         // Business method
-        this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType("testDeviceTypeCreationWithoutProtocol", null);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = null;
+        this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType("testDeviceTypeCreationWithoutProtocol", deviceProtocolPluggableClass);
 
         // Asserts: Should be getting a DeviceProtocolIsRequiredException
     }
@@ -561,7 +564,7 @@ public class DeviceTypeImplTest {
 
             // Add DeviceConfiguration with a ChannelSpec that uses the ChannelMapping
             DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Conf 1 for " + deviceTypeName);
-            LoadProfileSpecImpl.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(this.loadProfileType);
+            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(this.loadProfileType);
             deviceConfigurationBuilder.newChannelSpec(this.registerMapping, this.phenomenon, loadProfileSpecBuilder);
             deviceConfigurationBuilder.add();
             ctx.commit();

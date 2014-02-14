@@ -1,10 +1,6 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.impl.ChannelSpecImpl;
-import com.energyict.mdc.device.config.impl.LoadProfileSpecImpl;
-import com.energyict.mdc.device.config.impl.LogBookSpecImpl;
-import com.energyict.mdc.device.config.impl.RegisterSpecImpl;
 import com.energyict.mdc.protocol.api.device.Device;
 
 import java.util.List;
@@ -62,27 +58,27 @@ public interface DeviceConfiguration {
 
     List<RegisterSpec> getRegisterSpecs();
 
-    RegisterSpecImpl.RegisterSpecBuilder createRegisterSpec(RegisterMapping registerMapping);
+    RegisterSpec.RegisterSpecBuilder createRegisterSpec(RegisterMapping registerMapping);
 
     void deleteRegisterSpec(RegisterSpec registerSpec);
 
     List<ChannelSpec> getChannelSpecs();
 
-    ChannelSpecImpl.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
+    ChannelSpec.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
 
-    ChannelSpecImpl.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpecImpl.LoadProfileSpecBuilder loadProfileSpecBuilder);
+    ChannelSpec.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder);
 
     void deleteChannelSpec(ChannelSpec channelSpec);
 
     List<LoadProfileSpec> getLoadProfileSpecs();
 
-    LoadProfileSpecImpl.LoadProfileSpecBuilder createLoadProfileSpec(LoadProfileType loadProfileType);
+    LoadProfileSpec.LoadProfileSpecBuilder createLoadProfileSpec(LoadProfileType loadProfileType);
 
     void deleteLoadProfileSpec(LoadProfileSpec loadProfileSpec);
 
     List<LogBookSpec> getLogBookSpecs();
 
-    LogBookSpecImpl.LogBookSpecBuilder createLogBookSpec(LogBookType logBookType);
+    LogBookSpec.LogBookSpecBuilder createLogBookSpec(LogBookType logBookType);
 
     void deleteLogBookSpec(LogBookSpec logBookSpec);
 
