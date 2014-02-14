@@ -136,36 +136,69 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                     },
                                     items: [
                                         {
-                                            xtype: 'displayfield',
-                                            name: 'registerCount',
+                                            xtype: 'fieldcontainer',
+                                            columnWidth: 0.5,
                                             fieldLabel: I18n.translate('devicetype.dataSources', 'MDC', 'Data sources'),
-                                            renderer: function (item) {
-                                                return '<a href="#' + item + '">' + item + ' ' + I18n.translate('devicetype.registers', 'MDC', 'registers') + '</a>';
-                                            }
+                                            layout: {
+                                                type: 'vbox',
+                                                align: 'stretch'
+                                            },
+                                            items: [
+                                                {
+                                                    xtype: 'component',
+                                                    name: 'registerCount',
+                                                    autoEl: {
+                                                        tag: 'a',
+                                                        href: '#',
+                                                        html: I18n.translate('devicetype.registers', 'MDC', 'Registers')
+                                                    },
+                                                    itemId: 'deviceTypeDetailRegistersLink'
+                                                },
+
+
+                                                {
+                                                    xtype: 'component',
+                                                    name: 'loadProfileCount',
+                                                    autoEl: {
+                                                        tag: 'a',
+                                                        href: '#',
+                                                        html: I18n.translate('devicetype.loadprofiles', 'MDC', 'loadprofiles')
+                                                    },
+                                                    itemId: 'deviceTypeDetailLoadProfilesLink'
+
+                                                },
+                                                {
+                                                    xtype: 'component',
+                                                    name: 'logBookCount',
+                                                    autoEl: {
+                                                        tag: 'a',
+                                                        href: '#',
+                                                        html: I18n.translate('devicetype.logbooks', 'MDC', 'logbooks')
+                                                    },
+                                                    itemId: 'deviceTypeDetailLogBooksLink'
+                                                }
+                                            ]
                                         },
                                         {
-                                            xtype: 'displayfield',
-                                            name: 'loadProfileCount',
-                                            fieldLabel: ' ',
-                                            renderer: function (item) {
-                                                return '<a href="#' + item + '">' + item + ' ' + I18n.translate('devicetype.loadprofiles', 'MDC', 'load profiles') + '</a>';
-                                            }
-                                        },
-                                        {
-                                            xtype: 'displayfield',
-                                            name: 'logBookCount',
-                                            fieldLabel: ' ',
-                                            renderer: function (item) {
-                                                return '<a href="#' + item + '">' + item + ' ' + I18n.translate('devicetype.logbooks', 'MDC', 'logbooks') + '</a>';
-                                            }
-                                        },
-                                        {
-                                            xtype: 'displayfield',
-                                            name: 'deviceConfigurationCount',
+                                            xtype: 'fieldcontainer',
+                                            columnWidth: 0.5,
                                             fieldLabel: I18n.translate('devicetype.deviceConfigurationCount', 'MDC', 'Device configuration count'),
-                                            renderer: function (item) {
-                                                return '<a href="#' + item + '">' + item + ' ' + I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations') + '</a>';
-                                            }
+                                            layout: {
+                                                type: 'vbox',
+                                                align: 'stretch'
+                                            },
+                                            items: [
+                                                {
+                                                    xtype: 'component',
+                                                    name: 'deviceConfigurationCount',
+                                                    autoEl: {
+                                                        tag: 'a',
+                                                        href: '#',
+                                                        html: I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations')
+                                                    },
+                                                    itemId: 'deviceConfigurationsDetailLink'
+                                                }
+                                            ]
                                         }
                                     ]
                                 }
@@ -182,6 +215,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
     initComponent: function () {
         this.callParent(arguments);
     }
-});
+})
+;
 
 
