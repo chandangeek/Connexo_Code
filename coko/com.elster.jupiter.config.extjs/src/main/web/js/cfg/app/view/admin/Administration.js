@@ -12,7 +12,7 @@ Ext.define('Cfg.view.admin.Administration', {
     items: [
         {
             xtype: 'component',
-            html: '<h3><a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation">Validation Rule sets</a></h3>',
+            html: '<h3><a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation">Validation rule sets</a></h3>',
             margin: '30 30 30 30'
         }
     ],

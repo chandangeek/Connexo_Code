@@ -62,14 +62,14 @@ Ext.define('Cfg.view.validation.RulePreview', {
                 {
                     xtype: 'displayfield',
                     name: 'displayName',
-                    fieldLabel: I18n.translate('validation.Rule', 'CFG', 'Rule') + ':',
+                    fieldLabel: I18n.translate('validation.Rule', 'CFG', 'Rule'),
                     labelAlign: 'right',
                     labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'active',
-                    fieldLabel: I18n.translate('validation.active', 'CFG', 'Active') + ':',
+                    fieldLabel: I18n.translate('validation.active', 'CFG', 'Active'),
                     labelAlign: 'right',
                     labelWidth:	250,
                     renderer:function(value){
@@ -82,7 +82,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
                 },
                 {
                     xtype: 'fieldcontainer',
-                    fieldLabel:  I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)') + ':',
+                    fieldLabel:  I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
                     labelAlign: 'right',
                     labelWidth:	250,
                     layout: 'vbox',

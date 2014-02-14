@@ -245,7 +245,7 @@ Ext.define('Cfg.controller.Validation', {
                         width: 30,
                         itemId: 'readingTypeRemoveButton'  + me.readingTypeIndex,
                         handler: function() {
-                            me.getReadingValuesTextFieldsContainer().remove(Ext.fly('#readingTypeTextField'  + indexToRemove)[0]);
+                            me.getReadingValuesTextFieldsContainer().remove(Ext.ComponentQuery.query('#readingTypeTextField'  + indexToRemove)[0]);
                         }
                     }
                 ]
@@ -461,7 +461,7 @@ Ext.define('Cfg.controller.Validation', {
 
         var breadcrumbs = me.getBreadCrumbs();
         var breadcrumbRulesOverview = Ext.create('Uni.model.BreadcrumbItem', {
-            text: 'Rules'
+            text: 'Overview'
         });
 
         var breadcrumbRuleSet = Ext.create('Uni.model.BreadcrumbItem', {
@@ -585,7 +585,7 @@ Ext.define('Cfg.controller.Validation', {
             var required = property.required;
             var label = propertyName;
             if (!required) {
-                label = label + ' (optional):';
+                label = label + ' (optional)';
             }
             this.getPropertiesArea().add(
                 {

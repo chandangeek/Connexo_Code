@@ -40,11 +40,11 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
                     xtype: 'component',
                     height : 50
                 },
-                {
+                /*{
                     xtype: 'component',
                     html: '<h3>' + I18n.translate('validation.selectedRulePreview', 'CFG', 'Selected rule preview') + '</h3>',
                     margins:  '0 0 0 10'
-                },
+                },*/
                 {
                     xtype: 'rulePreview'
                 }
