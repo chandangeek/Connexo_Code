@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.identifiers;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdw.core.LogBook;
+import com.energyict.mdw.core.LogBookFactory;
 import com.energyict.mdw.core.LogBookFactoryProvider;
 import com.energyict.obis.ObisCode;
 
@@ -27,7 +28,7 @@ public class LogBookIdentifierById implements LogBookIdentifier {
 
     @Override
     public LogBook getLogBook() {
-        LogBook logBook = LogBookFactoryProvider.instance.get().getLogBookFactory().find(this.logBookId);
+        LogBook logBook = getLogBookFactory().find(this.logBookId);
         if (logBook == null) {
             throw new NotFoundException("LogBook with id " + this.logBookId + " not found");
         } else {
@@ -74,4 +75,7 @@ public class LogBookIdentifierById implements LogBookIdentifier {
         return String.valueOf(this.logBookId);
     }
 
+    private LogBookFactory getLogBookFactory() {
+        return LogBookFactoryProvider.instance.get().getLogBookFactory();
+    }
 }

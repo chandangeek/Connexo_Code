@@ -8,7 +8,7 @@ import com.energyict.mdc.channels.ip.CTRInboundDialHomeIdConnectionType;
 import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
 
@@ -54,8 +54,7 @@ public class CTRDialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
     }
 
     private void fetchAllDevices() {
-        DeviceFactory deviceFactory = MeteringWarehouse.getCurrent().getDeviceFactory();
-        this.allDevices = deviceFactory.findByConnectionTypeProperty(CTRInboundDialHomeIdConnectionType.class, CALL_HOME_ID_PROPERTY_NAME, callHomeID);
+        this.allDevices = getDeviceFactory().findByConnectionTypeProperty(CTRInboundDialHomeIdConnectionType.class, CALL_HOME_ID_PROPERTY_NAME, callHomeID);
     }
 
     @Override
@@ -79,5 +78,9 @@ public class CTRDialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
             allOfflineDevices.add(deviceToGoOffline.goOffline(offlineDeviceContext));
         }
         return allOfflineDevices;
+    }
+
+    private DeviceFactory getDeviceFactory() {
+        return DeviceFactoryProvider.instance.get().getDeviceFactory();
     }
 }

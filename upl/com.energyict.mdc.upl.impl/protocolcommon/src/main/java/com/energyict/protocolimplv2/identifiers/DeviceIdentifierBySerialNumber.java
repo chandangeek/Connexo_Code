@@ -6,7 +6,8 @@ import com.energyict.cpo.OfflineDeviceContext;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.DeviceFactory;
+import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
 
@@ -56,7 +57,7 @@ public class DeviceIdentifierBySerialNumber implements ServerDeviceIdentifier {
     }
 
     private void fetchAllDevices() {
-        this.allDevices = MeteringWarehouse.getCurrent().getDeviceFactory().findBySerialNumber(this.serialNumber);
+        this.allDevices = getDeviceFactory().findBySerialNumber(this.serialNumber);
     }
 
     @Override
@@ -97,5 +98,9 @@ public class DeviceIdentifierBySerialNumber implements ServerDeviceIdentifier {
             allOfflineDevices.add(deviceToGoOffline.goOffline(offlineDeviceContext));
         }
         return allOfflineDevices;
+    }
+
+    private DeviceFactory getDeviceFactory() {
+        return DeviceFactoryProvider.instance.get().getDeviceFactory();
     }
 }

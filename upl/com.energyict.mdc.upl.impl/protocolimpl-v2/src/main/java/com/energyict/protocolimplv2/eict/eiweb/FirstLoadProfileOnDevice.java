@@ -37,4 +37,9 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
         }
     }
 
+    @Override
+    public String toString() {
+        return "fist load profile on device having deviceIdentifier = " + deviceIdentifier;
+    }
+
 }

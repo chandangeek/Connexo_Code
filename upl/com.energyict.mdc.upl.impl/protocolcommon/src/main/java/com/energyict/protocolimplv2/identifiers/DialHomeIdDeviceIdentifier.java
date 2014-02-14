@@ -8,7 +8,7 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
 
@@ -54,8 +54,7 @@ public class DialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
     }
 
     private void fetchAllDevices() {
-        DeviceFactory deviceFactory = MeteringWarehouse.getCurrent().getDeviceFactory();
-        this.allDevices = deviceFactory.findByNotInheritedProtocolProperty(CALL_HOME_ID_PROPERTY_SPEC, callHomeID);
+        this.allDevices = getDeviceFactory().findByNotInheritedProtocolProperty(CALL_HOME_ID_PROPERTY_SPEC, callHomeID);
     }
 
     @Override
@@ -79,5 +78,9 @@ public class DialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
             allOfflineDevices.add(deviceToGoOffline.goOffline(offlineDeviceContext));
         }
         return allOfflineDevices;
+    }
+
+    private DeviceFactory getDeviceFactory() {
+        return DeviceFactoryProvider.instance.get().getDeviceFactory();
     }
 }

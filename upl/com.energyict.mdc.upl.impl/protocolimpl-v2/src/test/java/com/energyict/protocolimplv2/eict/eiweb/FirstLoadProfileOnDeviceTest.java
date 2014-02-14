@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
+import static junit.framework.Assert.assertEquals;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -42,6 +43,22 @@ public class FirstLoadProfileOnDeviceTest {
         // Business method
         LoadProfile loadProfile = loadProfileIdentifier.getLoadProfile();
     }
+
+    @Test
+    public void testIdentifierToString() {
+        LoadProfile expectedLoadProfile = mock(LoadProfile.class);
+        Device device = mock(Device.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        when(deviceIdentifier.toString()).thenReturn("id 1");
+        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
+
+        // Business method
+        String toStringMessage = loadProfileIdentifier.toString();
+
+        // Asserts
+        assertEquals("fist load profile on device having deviceIdentifier = id 1", toStringMessage);
+    }
+
 
     @Test
     public void testWithDeviceWithOneLoadProfile () {

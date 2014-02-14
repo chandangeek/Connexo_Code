@@ -4,7 +4,8 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.core.LoadProfile;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.LoadProfileFactory;
+import com.energyict.mdw.core.LoadProfileFactoryProvider;
 import com.energyict.obis.ObisCode;
 
 import java.util.List;
@@ -35,9 +36,9 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
     @Override
     public LoadProfile getLoadProfile() {
         if(loadProfile == null){
-            final List<LoadProfile> loadProfiles = MeteringWarehouse.getCurrent().getLoadProfileFactory().findByRtu(deviceIdentifier.findDevice());
+            final List<LoadProfile> loadProfiles = getLoadProfileFactory().findByRtu(deviceIdentifier.findDevice());
             for (LoadProfile profile : loadProfiles) {
-                if (profile.getLoadProfileSpec().getDeviceObisCode().equals(this.loadProfileObisCode)) {
+                if (profile.getDeviceObisCode().equals(this.loadProfileObisCode)) {
                     this.loadProfile = profile;
                     break;
                 }
@@ -52,5 +53,9 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
     @Override
     public String toString() {
         return "deviceIdentifier = " + deviceIdentifier + " and ObisCode = " + loadProfileObisCode;
+    }
+
+    private LoadProfileFactory getLoadProfileFactory() {
+        return LoadProfileFactoryProvider.instance.get().getLoadProfileFactory();
     }
 }

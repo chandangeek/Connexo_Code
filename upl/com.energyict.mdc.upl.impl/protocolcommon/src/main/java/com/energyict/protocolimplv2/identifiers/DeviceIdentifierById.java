@@ -10,7 +10,8 @@ package com.energyict.protocolimplv2.identifiers;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.DeviceFactory;
+import com.energyict.mdw.core.DeviceFactoryProvider;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.protocol.inbound.DeviceIdentifier} interface
@@ -36,7 +37,7 @@ public class DeviceIdentifierById implements DeviceIdentifier {
 
     @Override
     public Device findDevice () {
-        Device device = MeteringWarehouse.getCurrent().getDeviceFactory().find(this.id);
+        Device device = getDeviceFactory().find(this.id);
         if (device == null) {
             throw new NotFoundException("Device with id " + this.id + " not found");
         }
@@ -53,5 +54,9 @@ public class DeviceIdentifierById implements DeviceIdentifier {
     @Override
     public String getIdentifier() {
         return Integer.toString(id);
+    }
+
+    private DeviceFactory getDeviceFactory() {
+        return DeviceFactoryProvider.instance.get().getDeviceFactory();
     }
 }

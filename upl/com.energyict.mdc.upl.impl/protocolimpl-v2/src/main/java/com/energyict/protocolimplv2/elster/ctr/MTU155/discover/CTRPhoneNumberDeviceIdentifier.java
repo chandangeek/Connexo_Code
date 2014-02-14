@@ -8,7 +8,7 @@ import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
 
@@ -54,10 +54,9 @@ public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
     }
 
     private void fetchAllDevices() {
-        DeviceFactory deviceFactory = MeteringWarehouse.getCurrent().getDeviceFactory();
-        this.allDevices = deviceFactory.findByConnectionTypeProperty(InboundProximusSmsConnectionType.class, PHONE_NUMBER_PROPERTY_NAME, phoneNumber);
+        this.allDevices = getDeviceFactory().findByConnectionTypeProperty(InboundProximusSmsConnectionType.class, PHONE_NUMBER_PROPERTY_NAME, phoneNumber);
         if (this.allDevices.isEmpty()) {   // Do try with a different phone number format
-            this.allDevices = deviceFactory.findByConnectionTypeProperty(InboundProximusSmsConnectionType.class, PHONE_NUMBER_PROPERTY_NAME, alterPhoneNumberFormat(phoneNumber));
+            this.allDevices = getDeviceFactory().findByConnectionTypeProperty(InboundProximusSmsConnectionType.class, PHONE_NUMBER_PROPERTY_NAME, alterPhoneNumberFormat(phoneNumber));
         }
     }
 
@@ -97,5 +96,9 @@ public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
             allOfflineDevices.add(deviceToGoOffline.goOffline(offlineDeviceContext));
         }
         return allOfflineDevices;
+    }
+
+    private DeviceFactory getDeviceFactory() {
+        return DeviceFactoryProvider.instance.get().getDeviceFactory();
     }
 }

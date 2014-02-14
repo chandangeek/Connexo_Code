@@ -5,6 +5,7 @@ import com.energyict.comserver.exceptions.DuplicateException;
 import com.energyict.cpo.OfflineDeviceContext;
 import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
 import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
@@ -52,7 +53,7 @@ public class DeviceIdentifierBySerialNumberPlaceHolder implements ServerDeviceId
     }
 
     private void fetchAllDevices() {
-        this.allDevices = DeviceFactoryProvider.instance.get().getDeviceFactory().findBySerialNumber(serialNumberPlaceHolder.getSerialNumber());
+        this.allDevices = getDeviceFactory().findBySerialNumber(serialNumberPlaceHolder.getSerialNumber());
     }
 
     @Override
@@ -94,5 +95,9 @@ public class DeviceIdentifierBySerialNumberPlaceHolder implements ServerDeviceId
             allOfflineDevices.add(deviceToGoOffline.goOffline(offlineDeviceContext));
         }
         return allOfflineDevices;
+    }
+
+    private DeviceFactory getDeviceFactory() {
+        return DeviceFactoryProvider.instance.get().getDeviceFactory();
     }
 }

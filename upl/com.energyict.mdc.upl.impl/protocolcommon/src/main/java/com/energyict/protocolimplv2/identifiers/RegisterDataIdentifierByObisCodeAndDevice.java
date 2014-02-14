@@ -4,7 +4,8 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.amr.RegisterFactory;
+import com.energyict.mdw.core.RegisterFactoryProvider;
 import com.energyict.obis.ObisCode;
 
 import java.util.List;
@@ -34,13 +35,9 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     @Override
     public Register findRegister () {
         if(this.register == null){
-            final List<Register> registers = MeteringWarehouse.getCurrent().getRegisterFactory().findByRtu(deviceIdentifier.findDevice());
+            final List<Register> registers = getRegisterFactory().findByRtu(deviceIdentifier.findDevice());
             for (Register register : registers) {
-                // first need to check the DeviceObisCde
-                if (register.getRegisterSpec().getDeviceObisCode() != null && register.getRegisterSpec().getDeviceObisCode().equals(registerObisCode)){
-                    this.register = register;
-                    return this.register;
-                } else if(register.getRegisterMapping().getObisCode().equals(registerObisCode)){
+                if (register.getDeviceObisCode().equals(registerObisCode)){
                     this.register = register;
                     return this.register;
                 }
@@ -60,5 +57,9 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
 
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
+    }
+
+    private RegisterFactory getRegisterFactory() {
+        return RegisterFactoryProvider.instance.get().getRegisterFactory();
     }
 }
