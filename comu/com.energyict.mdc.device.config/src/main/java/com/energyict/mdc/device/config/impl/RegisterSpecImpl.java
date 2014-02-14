@@ -212,9 +212,8 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     private void validateLinkedChannelSpec() {
-        ChannelSpec linkedChannelSpec = this.getLinkedChannelSpec();
-        if (linkedChannelSpec != null) {
-            if (getDeviceConfiguration() != null && !getLinkedChannelSpec().getDeviceConfiguration().equals(getDeviceConfiguration())) {
+        if (this.linkedChannelSpec != null) {
+            if (getDeviceConfiguration() != null && linkedChannelSpec.getDeviceConfiguration().getId() != getDeviceConfiguration().getId()) {
                 throw new InCorrectDeviceConfigOfChannelSpecException(this.thesaurus, linkedChannelSpec, linkedChannelSpec.getDeviceConfiguration(), getDeviceConfiguration());
             }
         }
@@ -309,7 +308,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         }
     }
 
-    public static class RegisterSpecBuilder {
+    public static class RegisterSpecBuilder implements RegisterSpec.RegisterSpecBuilder {
 
         final RegisterSpecImpl registerSpec;
 
@@ -317,51 +316,61 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
             registerSpec = registerSpecProvider.get().initialize(deviceConfiguration, registerMapping);
         }
 
-        public RegisterSpecBuilder setRegisterMapping(RegisterMapping registerMapping) {
+        @Override
+        public RegisterSpec.RegisterSpecBuilder setRegisterMapping(RegisterMapping registerMapping) {
             this.registerSpec.setRegisterMapping(registerMapping);
             return this;
         }
 
-        public RegisterSpecBuilder setLinkedChannelSpec(ChannelSpec linkedChannelSpec) {
+        @Override
+        public RegisterSpec.RegisterSpecBuilder setLinkedChannelSpec(ChannelSpec linkedChannelSpec) {
             this.registerSpec.setLinkedChannelSpec(linkedChannelSpec);
             return this;
         }
 
-        public RegisterSpecBuilder setNumberOfDigits(int numberOfDigits) {
+        @Override
+        public RegisterSpec.RegisterSpecBuilder setNumberOfDigits(int numberOfDigits) {
             this.registerSpec.setNumberOfDigits(numberOfDigits);
             return this;
         }
 
-        public RegisterSpecBuilder setNumberOfFractionDigits(int numberOfFractionDigits) {
+        @Override
+        public RegisterSpec.RegisterSpecBuilder setNumberOfFractionDigits(int numberOfFractionDigits) {
             this.registerSpec.setNumberOfFractionDigits(numberOfFractionDigits);
             return this;
         }
 
-        public RegisterSpecBuilder setOverruledObisCode(ObisCode overruledObisCode) {
+        @Override
+        public RegisterSpec.RegisterSpecBuilder setOverruledObisCode(ObisCode overruledObisCode) {
             this.registerSpec.setOverruledObisCode(overruledObisCode);
             return this;
         }
 
-        public RegisterSpecBuilder setOverflow(BigDecimal overflow) {
+        @Override
+        public RegisterSpec.RegisterSpecBuilder setOverflow(BigDecimal overflow) {
             this.registerSpec.setOverflow(overflow);
             return this;
         }
 
-        public RegisterSpecBuilder setMultiplier(BigDecimal multiplier) {
+        @Override
+        public RegisterSpec.RegisterSpecBuilder setMultiplier(BigDecimal multiplier) {
             this.registerSpec.setMultiplier(multiplier);
             return this;
         }
 
-        public RegisterSpecBuilder setMultiplierMode(MultiplierMode multiplierMode) {
+        @Override
+        public RegisterSpec.RegisterSpecBuilder setMultiplierMode(MultiplierMode multiplierMode) {
             this.registerSpec.setMultiplierMode(multiplierMode);
             return this;
         }
 
-        public RegisterSpecBuilder setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType) {
+        @Override
+        public RegisterSpec.RegisterSpecBuilder setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType) {
             this.registerSpec.setChannelSpecLinkType(channelSpecLinkType);
             return this;
         }
 
+        @Override
         public RegisterSpec add() {
             this.registerSpec.validateRequired();
             return this.registerSpec;

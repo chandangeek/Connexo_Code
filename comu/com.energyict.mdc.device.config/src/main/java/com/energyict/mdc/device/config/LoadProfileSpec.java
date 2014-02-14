@@ -49,4 +49,19 @@ public interface LoadProfileSpec extends HasId {
 
     }
 
+    /**
+     * Defines a Builder interface to construct a {@link LoadProfileSpec}
+     */
+    interface LoadProfileSpecBuilder {
+
+        void notifyOnAdd(BuildingCompletionListener buildingCompletionListener);
+
+        LoadProfileSpecBuilder setOverruledObisCode(ObisCode overruledObisCode);
+
+        /**
+         * Does final validation and <i>creates</i> the {@link LoadProfileSpec}
+         * @return the LoadProfileSpec
+         */
+        LoadProfileSpec add();
+    }
 }

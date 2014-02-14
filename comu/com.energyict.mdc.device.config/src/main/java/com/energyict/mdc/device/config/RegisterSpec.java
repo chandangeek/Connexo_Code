@@ -134,4 +134,34 @@ public interface RegisterSpec extends HasId {
     void delete();
 
     void validateDelete();
+
+    /**
+     * Defines a Builder interface to construct a {@link RegisterSpec}
+     */
+    interface RegisterSpecBuilder {
+
+        RegisterSpecBuilder setRegisterMapping(RegisterMapping registerMapping);
+
+        RegisterSpecBuilder setLinkedChannelSpec(ChannelSpec linkedChannelSpec);
+
+        RegisterSpecBuilder setNumberOfDigits(int numberOfDigits);
+
+        RegisterSpecBuilder setNumberOfFractionDigits(int numberOfFractionDigits);
+
+        RegisterSpecBuilder setOverruledObisCode(ObisCode overruledObisCode);
+
+        RegisterSpecBuilder setOverflow(BigDecimal overflow);
+
+        RegisterSpecBuilder setMultiplier(BigDecimal multiplier);
+
+        RegisterSpecBuilder setMultiplierMode(MultiplierMode multiplierMode);
+
+        RegisterSpecBuilder setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType);
+
+        /**
+         * Does final validation and <i>creates</i> the {@link RegisterSpec}
+         * @return the RegisterSpec
+         */
+        RegisterSpec add();
+    }
 }

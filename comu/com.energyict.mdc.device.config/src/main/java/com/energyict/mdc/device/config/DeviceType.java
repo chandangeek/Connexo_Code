@@ -1,10 +1,6 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.impl.ChannelSpecImpl;
-import com.energyict.mdc.device.config.impl.LoadProfileSpecImpl;
-import com.energyict.mdc.device.config.impl.LogBookSpecImpl;
-import com.energyict.mdc.device.config.impl.RegisterSpecImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
@@ -141,7 +137,7 @@ public interface DeviceType {
          * @see DeviceConfiguration#createChannelSpec(RegisterMapping, Phenomenon, LoadProfileSpec)
          * @see #add()
          */
-        public ChannelSpecImpl.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
+        public ChannelSpec.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
 
         /**
          * Returns a builder for a new {@link ChannelSpec} whose {@link LoadProfileSpec}
@@ -157,7 +153,7 @@ public interface DeviceType {
          * @see DeviceConfiguration#createChannelSpec(RegisterMapping, Phenomenon, LoadProfileSpec)
          * @see #add()
          */
-        public ChannelSpecImpl.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpecImpl.LoadProfileSpecBuilder loadProfileSpecBuilder);
+        public ChannelSpec.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder);
 
         /**
          * Returns a builder for a new {@link RegisterSpec} in the
@@ -170,7 +166,7 @@ public interface DeviceType {
          * @see DeviceConfiguration#createRegisterSpec(RegisterMapping)
          * @see #add()
          */
-        public RegisterSpecImpl.RegisterSpecBuilder newRegisterSpec(RegisterMapping registerMapping);
+        public RegisterSpec.RegisterSpecBuilder newRegisterSpec(RegisterMapping registerMapping);
 
         /**
          * Returns a builder for a new {@link LoadProfileSpec} in the
@@ -183,7 +179,7 @@ public interface DeviceType {
          * @see DeviceConfiguration#createLoadProfileSpec(LoadProfileType)
          * @see #add()
          */
-        public LoadProfileSpecImpl.LoadProfileSpecBuilder newLoadProfileSpec(LoadProfileType loadProfileType);
+        public LoadProfileSpec.LoadProfileSpecBuilder newLoadProfileSpec(LoadProfileType loadProfileType);
 
         /**
          * Returns a builder for a new {@link LogBookSpec} in the
@@ -195,7 +191,7 @@ public interface DeviceType {
          * @return The builder
          * @see DeviceConfiguration#createLogBookSpec(LogBookType)
          */
-        public LogBookSpecImpl.LogBookSpecBuilder newLogBookSpec(LogBookType logBookType);
+        public LogBookSpec.LogBookSpecBuilder newLogBookSpec(LogBookType logBookType);
 
         /**
          * Completes the building process, returning the {@link DeviceConfiguration}

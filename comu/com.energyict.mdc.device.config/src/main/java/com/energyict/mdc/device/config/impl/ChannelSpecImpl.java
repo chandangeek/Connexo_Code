@@ -350,7 +350,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private void validateDeviceConfigurationForUpdate(DeviceConfiguration deviceConfiguration) {
-        if (this.deviceConfiguration != null && !this.deviceConfiguration.equals(deviceConfiguration)) {
+        if (this.deviceConfiguration != null && this.deviceConfiguration.getId() != deviceConfiguration.getId()) {
             throw CannotChangeDeviceConfigurationReferenceException.forChannelSpec(this.thesaurus, this);
         }
     }
@@ -362,7 +362,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private void validateRegisterMappingForUpdate(RegisterMapping registerMapping) {
-        if (getDeviceConfiguration() != null && getDeviceConfiguration().getActive() && this.registerMapping != null && !this.registerMapping.equals(registerMapping)) {
+        if (getDeviceConfiguration() != null && getDeviceConfiguration().getActive() && this.registerMapping != null && this.registerMapping.getId() != registerMapping.getId()) {
             throw new CannotChangeRegisterMappingOfChannelSpecException(this.thesaurus);
         }
     }
@@ -418,7 +418,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private void validateLoadProfileSpecForUpdate(LoadProfileSpec loadProfileSpec) {
-        if (getDeviceConfiguration() != null && getDeviceConfiguration().getActive() && !this.loadProfileSpec.equals(loadProfileSpec)) {
+        if (getDeviceConfiguration() != null && getDeviceConfiguration().getActive() && this.loadProfileSpec.getId() != loadProfileSpec.getId()) {
             throw new CannotChangeLoadProfileSpecOfChannelSpec(this.thesaurus);
         }
     }
@@ -438,7 +438,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         return productSpec.get();
     }
 
-    public static class ChannelSpecBuilder implements LoadProfileSpec.BuildingCompletionListener {
+    public static class ChannelSpecBuilder implements ChannelSpec.ChannelSpecBuilder {
 
         final ChannelSpecImpl channelSpec;
 
@@ -446,7 +446,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
             this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, registerMapping, phenomenon, loadProfileSpec);
         }
 
-        public ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpecImpl.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+        public ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
             this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, registerMapping, phenomenon);
             loadProfileSpecBuilder.notifyOnAdd(this);
         }
@@ -456,56 +456,67 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
             this.channelSpec.setLoadProfileSpec(loadProfileSpec);
         }
 
-        public ChannelSpecBuilder setOverruledObisCode(ObisCode overruledObisCode) {
+        @Override
+        public ChannelSpec.ChannelSpecBuilder setOverruledObisCode(ObisCode overruledObisCode) {
             this.channelSpec.setOverruledObisCode(overruledObisCode);
             return this;
         }
 
-        public ChannelSpecBuilder setNbrOfFractionDigits(int nbrOfFractionDigits) {
+        @Override
+        public ChannelSpec.ChannelSpecBuilder setNbrOfFractionDigits(int nbrOfFractionDigits) {
             this.channelSpec.setNbrOfFractionDigits(nbrOfFractionDigits);
             return this;
         }
 
-        public ChannelSpecBuilder setOverflow(BigDecimal overflow) {
+        @Override
+        public ChannelSpec.ChannelSpecBuilder setOverflow(BigDecimal overflow) {
             this.channelSpec.setOverflow(overflow);
             return this;
         }
 
-        public ChannelSpecBuilder setPhenomenon(Phenomenon phenomenon) {
+        @Override
+        public ChannelSpec.ChannelSpecBuilder setPhenomenon(Phenomenon phenomenon) {
             this.channelSpec.setPhenomenon(phenomenon);
             return this;
         }
 
-        public ChannelSpecBuilder setReadingMethod(ReadingMethod readingMethod) {
+        @Override
+        public ChannelSpec.ChannelSpecBuilder setReadingMethod(ReadingMethod readingMethod) {
             this.channelSpec.setReadingMethod(readingMethod);
             return this;
         }
 
-        public ChannelSpecBuilder setMultiplierMode(MultiplierMode multiplierMode) {
+        @Override
+        public ChannelSpec.ChannelSpecBuilder setMultiplierMode(MultiplierMode multiplierMode) {
             this.channelSpec.setMultiplierMode(multiplierMode);
             return this;
         }
 
-        public ChannelSpecBuilder setMultiplier(BigDecimal multiplier) {
+        @Override
+        public ChannelSpec.ChannelSpecBuilder setMultiplier(BigDecimal multiplier) {
             this.channelSpec.setMultiplier(multiplier);
             return this;
         }
 
-        public ChannelSpecBuilder setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod) {
+        @Override
+        public ChannelSpec.ChannelSpecBuilder setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod) {
             this.channelSpec.setValueCalculationMethod(valueCalculationMethod);
             return this;
         }
 
-        public ChannelSpecBuilder setInterval(TimeDuration interval) {
+        @Override
+        public ChannelSpec.ChannelSpecBuilder setInterval(TimeDuration interval) {
             this.channelSpec.setInterval(interval);
             return this;
         }
 
-        public ChannelSpecBuilder setProductSpec(ProductSpec productSpec) {
+        @Override
+        public ChannelSpec.ChannelSpecBuilder setProductSpec(ProductSpec productSpec) {
             this.channelSpec.setProductSpec(productSpec);
             return this;
         }
 
+        @Override
         public ChannelSpec add(){
             this.channelSpec.validateRequiredFields();
             return this.channelSpec;

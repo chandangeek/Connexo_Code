@@ -150,7 +150,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     private void validateLogbookTypeForUpdate(LogBookType loadProfileType) {
-        if (this.logBookType != null && !this.logBookType.equals(loadProfileType)) {
+        if (this.logBookType != null && this.logBookType.getId() != loadProfileType.getId()) {
             throw new CannotChangeLogbookTypeOfLogbookSpecException(this.thesaurus);
         }
     }
@@ -166,12 +166,12 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     private void validateDeviceConfigurationForUpdate(DeviceConfiguration deviceConfiguration) {
-        if(this.deviceConfiguration != null && !this.deviceConfiguration.equals(deviceConfiguration)){
+        if(this.deviceConfiguration != null && this.deviceConfiguration.getId() != deviceConfiguration.getId()){
             throw CannotChangeDeviceConfigurationReferenceException.forLogbookSpec(this.thesaurus, this);
         }
     }
 
-    public static class LogBookSpecBuilder {
+    public static class LogBookSpecBuilder implements LogBookSpec.LogBookSpecBuilder {
 
         final LogBookSpecImpl logBookSpec;
 
@@ -179,11 +179,13 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
             this.logBookSpec = logBookSpecProvider.get().initialize(deviceConfiguration, logBookType);
         }
 
-        public LogBookSpecBuilder setOverruledObisCode(ObisCode overruledObisCode){
+        @Override
+        public LogBookSpec.LogBookSpecBuilder setOverruledObisCode(ObisCode overruledObisCode){
             this.logBookSpec.setOverruledObisCode(overruledObisCode);
             return this;
         }
 
+        @Override
         public LogBookSpecImpl add(){
             this.logBookSpec.validateRequiredFields();
             return this.logBookSpec;
