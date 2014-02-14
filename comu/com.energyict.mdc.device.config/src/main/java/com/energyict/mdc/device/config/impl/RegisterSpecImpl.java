@@ -3,6 +3,8 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.Environment;
@@ -34,9 +36,9 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     private final DeviceConfigurationService deviceConfigurationService;
 
-    private DeviceConfiguration deviceConfig;
-    private RegisterMapping registerMapping;
-    private ChannelSpec linkedChannelSpec;
+    private final Reference<DeviceConfiguration> deviceConfig = ValueReference.absent();
+    private final Reference<RegisterMapping> registerMapping = ValueReference.absent();
+    private final Reference<ChannelSpec> linkedChannelSpec = ValueReference.absent();
     private int numberOfDigits;
     private int numberOfFractionDigits;
     private String overruledObisCodeString;
@@ -64,12 +66,12 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     @Override
     public DeviceConfiguration getDeviceConfiguration() {
-        return deviceConfig;
+        return deviceConfig.get();
     }
 
     @Override
     public RegisterMapping getRegisterMapping() {
-        return registerMapping;
+        return registerMapping.get();
     }
 
     @Override
@@ -79,7 +81,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     @Override
     public ChannelSpec getLinkedChannelSpec() {
-        return linkedChannelSpec;
+        return linkedChannelSpec.get();
     }
 
     @Override
@@ -183,7 +185,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     @Override
     public void setDeviceConfig(DeviceConfiguration deviceConfig) {
         validateDeviceConfiguration(deviceConfig);
-        this.deviceConfig = deviceConfig;
+        this.deviceConfig.set(deviceConfig);
     }
 
     private void validateDeviceConfiguration(DeviceConfiguration deviceConfig) {
@@ -195,7 +197,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     @Override
     public void setRegisterMapping(RegisterMapping registerMapping) {
         validateRegisterMapping(registerMapping);
-        this.registerMapping = registerMapping;
+        this.registerMapping.set(registerMapping);
     }
 
     private void validateRegisterMapping(RegisterMapping registerMapping) {
@@ -206,12 +208,13 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     @Override
     public void setLinkedChannelSpec(ChannelSpec linkedChannelSpec) {
-        this.linkedChannelSpec = linkedChannelSpec;
+        this.linkedChannelSpec.set(linkedChannelSpec);
     }
 
     private void validateLinkedChannelSpec() {
-        if (this.linkedChannelSpec != null) {
-            if (getDeviceConfiguration() != null && !linkedChannelSpec.getDeviceConfiguration().equals(getDeviceConfiguration())) {
+        ChannelSpec linkedChannelSpec = this.getLinkedChannelSpec();
+        if (linkedChannelSpec != null) {
+            if (getDeviceConfiguration() != null && !getLinkedChannelSpec().getDeviceConfiguration().equals(getDeviceConfiguration())) {
                 throw new InCorrectDeviceConfigOfChannelSpecException(this.thesaurus, linkedChannelSpec, linkedChannelSpec.getDeviceConfiguration(), getDeviceConfiguration());
             }
         }
@@ -297,7 +300,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     private void validateChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType, ChannelSpec channelSpec) {
         if (channelSpec != null && channelSpecLinkType != null) {
             List<RegisterSpec> registerSpecs = this.deviceConfigurationService.findRegisterSpecsByChannelSpecAndLinkType(channelSpec, channelSpecLinkType);
-            if (registerSpecs.size() > 0) {
+            if (!registerSpecs.isEmpty()) {
                 RegisterSpec currentPrimeRegisterSpec = registerSpecs.get(0);
                 if (currentPrimeRegisterSpec != null && channelSpecLinkType == ChannelSpecLinkType.PRIME) {
                     throw new DuplicatePrimeRegisterSpecException(this.thesaurus, channelSpec, currentPrimeRegisterSpec);

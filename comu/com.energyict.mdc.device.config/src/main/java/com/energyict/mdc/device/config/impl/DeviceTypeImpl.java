@@ -39,7 +39,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     private int channelCount;
     private String description;
-    private boolean channelJournalUsed;
+    private boolean useChannelJournal;
     private int deviceUsageTypeId;
     private DeviceUsageType deviceUsageType;
     private int communicationFunctionMask;
@@ -48,6 +48,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private List<DeviceTypeLogBookTypeUsage> logBookTypeUsages = new ArrayList<>();
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterMappingUsage> registerMappingUsages = new ArrayList<>();
+    private long prototypeId;
 
     private long deviceProtocolPluggableClassId;
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -215,7 +216,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public List<LogBookType> getLogBookTypes() {
         List<LogBookType> logBookTypes = new ArrayList<>(this.logBookTypeUsages.size());
         for (DeviceTypeLogBookTypeUsage logBookTypeUsage : this.logBookTypeUsages) {
-            logBookTypes.add(logBookTypeUsage.logBookType);
+            logBookTypes.add(logBookTypeUsage.getLogBookType());
         }
         return logBookTypes;
     }
@@ -224,7 +225,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public List<RegisterMapping> getRegisterMappings() {
         List<RegisterMapping> registerMappings = new ArrayList<>(this.registerMappingUsages.size());
         for (DeviceTypeRegisterMappingUsage registerMappingUsage : this.registerMappingUsages) {
-            registerMappings.add(registerMappingUsage.registerMapping);
+            registerMappings.add(registerMappingUsage.getRegisterMapping());
         }
         return registerMappings;
     }
@@ -233,7 +234,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public List<LoadProfileType> getLoadProfileTypes() {
         List<LoadProfileType> loadProfileTypes = new ArrayList<>(this.loadProfileTypeUsages.size());
         for (DeviceTypeLoadProfileTypeUsage loadProfileTypeUsage : this.loadProfileTypeUsages) {
-            loadProfileTypes.add(loadProfileTypeUsage.loadProfileType);
+            loadProfileTypes.add(loadProfileTypeUsage.getLoadProfileType());
         }
         return loadProfileTypes;
     }
@@ -241,7 +242,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public void addLoadProfileType(LoadProfileType loadProfileType) {
         for (DeviceTypeLoadProfileTypeUsage loadProfileTypeUsage : this.loadProfileTypeUsages) {
-            if (loadProfileTypeUsage.loadProfileType.getId() == loadProfileType.getId()) {
+            if (loadProfileTypeUsage.sameLoadProfileType(loadProfileType)) {
                 throw new LoadProfileTypeAlreadyInDeviceTypeException(this.getThesaurus(), this, loadProfileType);
             }
         }
@@ -253,7 +254,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         Iterator<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsageIterator = this.loadProfileTypeUsages.iterator();
         while (loadProfileTypeUsageIterator.hasNext()) {
             DeviceTypeLoadProfileTypeUsage loadProfileTypeUsage = loadProfileTypeUsageIterator.next();
-            if (loadProfileTypeUsage.loadProfileType.getId() == loadProfileType.getId()) {
+            if (loadProfileTypeUsage.sameLoadProfileType(loadProfileType)) {
                 this.validateLoadProfileTypeNotUsedByLoadProfileSpec(loadProfileType);
                 loadProfileTypeUsageIterator.remove();
             }
@@ -297,7 +298,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public void addLogBookType(LogBookType logBookType) {
         for (DeviceTypeLogBookTypeUsage logBookTypeUsage : this.logBookTypeUsages) {
-            if (logBookTypeUsage.logBookType.getId() == logBookType.getId()) {
+            if (logBookTypeUsage.sameLogBookType(logBookType)) {
                 throw new LogBookTypeAlreadyInDeviceTypeException(this.thesaurus, this, logBookType);
             }
         }
@@ -307,7 +308,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public void addRegisterMapping(RegisterMapping registerMapping) {
         for (DeviceTypeRegisterMappingUsage registerMappingUsage : this.registerMappingUsages) {
-            if (registerMappingUsage.registerMapping.getId() == registerMapping.getId()) {
+            if (registerMappingUsage.sameRegisterMapping(registerMapping)) {
                 throw new RegisterMappingAlreadyInDeviceTypeException(this.getThesaurus(), this, registerMapping);
             }
         }
@@ -319,7 +320,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         Iterator<DeviceTypeRegisterMappingUsage> iterator = this.registerMappingUsages.iterator();
         while (iterator.hasNext()) {
             DeviceTypeRegisterMappingUsage registerMappingUsage = iterator.next();
-            if (registerMappingUsage.registerMapping.getId() == registerMapping.getId()) {
+            if (registerMappingUsage.sameRegisterMapping(registerMapping)) {
                 this.validateRegisterMappingNotUsedByRegisterSpec(registerMapping);
                 iterator.remove();
             }
@@ -358,7 +359,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         Iterator<DeviceTypeLogBookTypeUsage> logBookTypeUsageIterator = this.logBookTypeUsages.iterator();
         while (logBookTypeUsageIterator.hasNext()) {
             DeviceTypeLogBookTypeUsage logBookTypeUsage = logBookTypeUsageIterator.next();
-            if (logBookTypeUsage.logBookType.getId() == logBookType.getId()) {
+            if (logBookTypeUsage.sameLogBookType(logBookType)) {
                 this.validateLogBookTypeNotUsedByLogBookSpec(logBookType);
                 logBookTypeUsageIterator.remove();
             }
@@ -404,7 +405,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     public boolean isChannelJournalUsed() {
-        return this.channelJournalUsed;
+        return this.useChannelJournal;
     }
 
     public boolean isLogicalSlave() {

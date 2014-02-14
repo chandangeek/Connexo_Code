@@ -167,7 +167,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     public List<RegisterMapping> getRegisterMappings() {
         List<RegisterMapping> registerMappings = new ArrayList<>(this.registerMappingUsages.size());
         for (LoadProfileTypeRegisterMappingUsage registerMappingUsage : this.registerMappingUsages) {
-            registerMappings.add(registerMappingUsage.registerMapping);
+            registerMappings.add(registerMappingUsage.getRegisterMapping());
         }
         return registerMappings;
     }
@@ -175,7 +175,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     @Override
     public void addRegisterMapping(RegisterMapping registerMapping) {
         for (LoadProfileTypeRegisterMappingUsage registerMappingUsage : this.registerMappingUsages) {
-            if (registerMappingUsage.registerMapping.getId() == registerMapping.getId()) {
+            if (registerMappingUsage.sameRegisterMapping(registerMapping)) {
                 throw new RegisterMappingAlreadyInLoadProfileTypeException(this.getThesaurus(), this, registerMapping);
             }
         }
@@ -187,7 +187,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         Iterator<LoadProfileTypeRegisterMappingUsage> iterator = this.registerMappingUsages.iterator();
         while (iterator.hasNext()) {
             LoadProfileTypeRegisterMappingUsage registerMappingUsage = iterator.next();
-            if (registerMappingUsage.registerMapping.getId() == registerMapping.getId()) {
+            if (registerMappingUsage.sameRegisterMapping(registerMapping)) {
                 /* Todo: Legacy code validated that there were no Channels that used the mapping
                  * by calling ChannelFactory#hasChannelsForLoadProfileTypeAndMapping(this, registerMapping).
                  * This will now have to be dealt with via events. */
@@ -210,7 +210,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         if (!loadProfileTypeUsages.isEmpty()) {
             List<DeviceType> deviceTypes = new ArrayList<>(loadProfileTypeUsages.size());
             for (DeviceTypeLoadProfileTypeUsage loadProfileTypeUsage : loadProfileTypeUsages) {
-                deviceTypes.add(loadProfileTypeUsage.deviceType);
+                deviceTypes.add(loadProfileTypeUsage.getDeviceType());
             }
             throw CannotDeleteBecauseStillInUseException.loadProfileTypeIsStillInUseByDeviceType(this.getThesaurus(), this, deviceTypes);
         }

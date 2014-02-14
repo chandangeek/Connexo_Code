@@ -3,15 +3,17 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
@@ -50,20 +52,20 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     private final DeviceConfigurationService deviceConfigurationService;
 
-    private DeviceConfiguration deviceConfiguration;
-    private RegisterMapping registerMapping;
+    private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
+    private final Reference<RegisterMapping> registerMapping = ValueReference.absent();
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
     private int nbrOfFractionDigits;
     private BigDecimal overflow;
-    private Phenomenon phenomenon;
+    private final Reference<Phenomenon> phenomenon = ValueReference.absent();
     private ReadingMethod readingMethod;
     private MultiplierMode multiplierMode;
     private BigDecimal multiplier;
     private ValueCalculationMethod valueCalculationMethod;
-    private LoadProfileSpec loadProfileSpec;
+    private final Reference<LoadProfileSpec> loadProfileSpec = ValueReference.absent();
     private TimeDuration interval;
-    private ProductSpec productSpec;
+    private final Reference<ProductSpec> productSpec = ValueReference.absent();
 
     @Inject
     public ChannelSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {
@@ -86,7 +88,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public RegisterMapping getRegisterMapping() {
-        return registerMapping;
+        return registerMapping.get();
     }
 
     @Override
@@ -115,7 +117,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public Phenomenon getPhenomenon() {
-        return this.phenomenon;
+        return this.phenomenon.get();
     }
 
     @Override
@@ -140,12 +142,12 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public LoadProfileSpec getLoadProfileSpec() {
-        return this.loadProfileSpec;
+        return this.loadProfileSpec.get();
     }
 
     @Override
     public DeviceConfiguration getDeviceConfiguration() {
-        return this.deviceConfiguration;
+        return this.deviceConfiguration.get();
     }
 
     @Override
@@ -208,7 +210,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     private void validateChannelSpecsForDuplicateRegisterMappings() {
         ChannelSpec channelSpec = this.deviceConfigurationService.findChannelSpecForLoadProfileSpecAndRegisterMapping(getLoadProfileSpec(), getRegisterMapping());
         if (channelSpec != null) {
-            throw DuplicateRegisterMappingException.forChannelSpecInLoadProfileSpec(thesaurus, channelSpec, getRegisterMapping(), loadProfileSpec);
+            throw DuplicateRegisterMappingException.forChannelSpecInLoadProfileSpec(thesaurus, channelSpec, getRegisterMapping(), this.getLoadProfileSpec());
         }
     }
 
@@ -237,6 +239,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     private void validatePhenomenonAndRegisterMappingUnitCompatibility() {
         Unit registerMappingUnit = getRegisterMapping().getUnit();
+        Phenomenon phenomenon = this.getPhenomenon();
         if (!phenomenon.isUndefined() && !registerMappingUnit.isUndefined()) {
             if (!phenomenon.getUnit().equalBaseUnit(registerMappingUnit)) {
                 throw UnitsNotCompatibleException.forChannelSpecPhenomenonAndRegisterMappingUnit(thesaurus, phenomenon, registerMappingUnit);
@@ -343,7 +346,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     @Override
     public void setDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
         validateDeviceConfigurationForUpdate(deviceConfiguration);
-        this.deviceConfiguration = deviceConfiguration;
+        this.deviceConfiguration.set(deviceConfiguration);
     }
 
     private void validateDeviceConfigurationForUpdate(DeviceConfiguration deviceConfiguration) {
@@ -355,7 +358,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     @Override
     public void setRegisterMapping(RegisterMapping registerMapping) {
         validateRegisterMappingForUpdate(registerMapping);
-        this.registerMapping = registerMapping;
+        this.registerMapping.set(registerMapping);
     }
 
     private void validateRegisterMappingForUpdate(RegisterMapping registerMapping) {
@@ -385,7 +388,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public void setPhenomenon(Phenomenon phenomenon) {
-        this.phenomenon = phenomenon;
+        this.phenomenon.set(phenomenon);
     }
 
     @Override
@@ -411,7 +414,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     @Override
     public void setLoadProfileSpec(LoadProfileSpec loadProfileSpec) {
         validateLoadProfileSpecForUpdate(loadProfileSpec);
-        this.loadProfileSpec = loadProfileSpec;
+        this.loadProfileSpec.set(loadProfileSpec);
     }
 
     private void validateLoadProfileSpecForUpdate(LoadProfileSpec loadProfileSpec) {
@@ -427,12 +430,12 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public void setProductSpec(ProductSpec productSpec) {
-        this.productSpec = productSpec;
+        this.productSpec.set(productSpec);
     }
 
     @Override
     public ProductSpec getProductSpec() {
-        return productSpec;
+        return productSpec.get();
     }
 
     public static class ChannelSpecBuilder implements LoadProfileSpec.BuildingCompletionListener {

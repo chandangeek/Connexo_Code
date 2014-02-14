@@ -14,6 +14,7 @@ import com.energyict.mdc.device.config.exceptions.DuplicateReadingTypeException;
 import com.energyict.mdc.device.config.exceptions.ReadingTypeIsRequiredException;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,6 +28,7 @@ public class ProductSpecImpl implements ProductSpec {
     private long id;
     private String readingTypeString;
     private ReadingType readingType;
+    private Date modificationDate;
 
     private DataModel dataModel;
     private EventService eventService;

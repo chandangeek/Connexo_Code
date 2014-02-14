@@ -3,6 +3,8 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -52,7 +54,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private boolean active;
     private Device prototype;
 
-    private DeviceType deviceType;
+    private final Reference<DeviceType> deviceType = ValueReference.absent();
     private List<RegisterSpec> registerSpecs = new ArrayList<>();
     private List<ChannelSpec> channelSpecs = new ArrayList<>();
     private List<LoadProfileSpec> loadProfileSpecs = new ArrayList<>();
@@ -84,7 +86,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     DeviceConfigurationImpl initialize(DeviceType deviceType, String name){
-        this.deviceType = deviceType;
+        this.deviceType.set(deviceType);
         setName(name);
         return this;
     }
@@ -240,14 +242,14 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     protected void validateName(String newName) {
         super.validateName(newName);
-        DeviceConfiguration deviceConfiguration = this.deviceConfigurationService.findDeviceConfigurationByNameAndDeviceType(newName, deviceType);
+        DeviceConfiguration deviceConfiguration = this.deviceConfigurationService.findDeviceConfigurationByNameAndDeviceType(newName, this.getDeviceType());
         if (deviceConfiguration != null) {
             throw DuplicateNameException.deviceConfigurationExists(thesaurus, newName);
         }
     }
 
     public DeviceType getDeviceType() {
-        return this.deviceType;
+        return this.deviceType.get();
     }
 
     public List<RegisterSpec> getRegisterSpecs() {
@@ -261,7 +263,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     class RegisterSpecBuilderForConfig extends RegisterSpecImpl.RegisterSpecBuilder {
 
-        public RegisterSpecBuilderForConfig(Provider<RegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping) {
+        RegisterSpecBuilderForConfig(Provider<RegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping) {
             super(registerSpecProvider, deviceConfiguration, registerMapping);
         }
 

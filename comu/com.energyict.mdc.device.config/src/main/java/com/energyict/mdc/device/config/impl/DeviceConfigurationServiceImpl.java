@@ -431,6 +431,7 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
             @Override
             public void configure() {
                 bind(DeviceConfigurationService.class).toInstance(DeviceConfigurationServiceImpl.this);
+                bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(Thesaurus.class).toInstance(thesaurus);
