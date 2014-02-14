@@ -139,7 +139,8 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     }
 
     private void validateLoadProfileTypeForUpdate(LoadProfileType loadProfileType) {
-        if (this.loadProfileType != null && this.loadProfileType.getId() != loadProfileType.getId()) {
+        LoadProfileType myLoadProfileType = this.getLoadProfileType();
+        if (myLoadProfileType != null && myLoadProfileType.getId() != loadProfileType.getId()) {
             throw new CannotChangeLoadProfileTypeOfLoadProfileSpecException(this.thesaurus);
         }
     }
@@ -167,7 +168,8 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     }
 
     private void validateDeviceConfigurationForUpdate(DeviceConfiguration deviceConfiguration) {
-        if (this.deviceConfiguration != null && this.deviceConfiguration.getId() != deviceConfiguration.getId()) {
+        DeviceConfiguration myDeviceConfiguration = this.getDeviceConfiguration();
+        if (myDeviceConfiguration != null && myDeviceConfiguration.getId() != deviceConfiguration.getId()) {
             throw CannotChangeDeviceConfigurationReferenceException.forLoadProfileSpec(this.thesaurus, this);
         }
     }

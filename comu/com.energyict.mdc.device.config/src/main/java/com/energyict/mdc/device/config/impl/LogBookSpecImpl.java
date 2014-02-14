@@ -150,7 +150,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     private void validateLogbookTypeForUpdate(LogBookType loadProfileType) {
-        if (this.logBookType != null && this.logBookType.getId() != loadProfileType.getId()) {
+        if (this.getLogBookType()!= null && this.getLogBookType().getId() != loadProfileType.getId()) {
             throw new CannotChangeLogbookTypeOfLogbookSpecException(this.thesaurus);
         }
     }
@@ -166,7 +166,8 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     private void validateDeviceConfigurationForUpdate(DeviceConfiguration deviceConfiguration) {
-        if(this.deviceConfiguration != null && this.deviceConfiguration.getId() != deviceConfiguration.getId()){
+        DeviceConfiguration myDeviceConfiguration = this.getDeviceConfiguration();
+        if(myDeviceConfiguration != null && myDeviceConfiguration.getId() != deviceConfiguration.getId()){
             throw CannotChangeDeviceConfigurationReferenceException.forLogbookSpec(this.thesaurus, this);
         }
     }

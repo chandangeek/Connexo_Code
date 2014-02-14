@@ -350,7 +350,8 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private void validateDeviceConfigurationForUpdate(DeviceConfiguration deviceConfiguration) {
-        if (this.deviceConfiguration != null && this.deviceConfiguration.getId() != deviceConfiguration.getId()) {
+        DeviceConfiguration myDeviceConfiguration = this.getDeviceConfiguration();
+        if (myDeviceConfiguration != null && myDeviceConfiguration.getId() != deviceConfiguration.getId()) {
             throw CannotChangeDeviceConfigurationReferenceException.forChannelSpec(this.thesaurus, this);
         }
     }
@@ -362,7 +363,9 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private void validateRegisterMappingForUpdate(RegisterMapping registerMapping) {
-        if (getDeviceConfiguration() != null && getDeviceConfiguration().getActive() && this.registerMapping != null && this.registerMapping.getId() != registerMapping.getId()) {
+        DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
+        RegisterMapping myRegisterMapping = this.getRegisterMapping();
+        if (deviceConfiguration != null && deviceConfiguration.getActive() && myRegisterMapping != null && myRegisterMapping.getId() != registerMapping.getId()) {
             throw new CannotChangeRegisterMappingOfChannelSpecException(this.thesaurus);
         }
     }
@@ -418,7 +421,8 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private void validateLoadProfileSpecForUpdate(LoadProfileSpec loadProfileSpec) {
-        if (getDeviceConfiguration() != null && getDeviceConfiguration().getActive() && this.loadProfileSpec.getId() != loadProfileSpec.getId()) {
+        DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
+        if (deviceConfiguration != null && deviceConfiguration.getActive() && this.getLoadProfileSpec().getId() != loadProfileSpec.getId()) {
             throw new CannotChangeLoadProfileSpecOfChannelSpec(this.thesaurus);
         }
     }
