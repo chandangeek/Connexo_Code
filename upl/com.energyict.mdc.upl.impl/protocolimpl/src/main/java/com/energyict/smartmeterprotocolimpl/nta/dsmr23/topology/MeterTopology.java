@@ -1,14 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Utils;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceType;
+import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
@@ -19,7 +22,8 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedM
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -244,7 +248,7 @@ public class MeterTopology implements MasterMeter {
      * @throws BusinessException when a business related error occurs
      */
     private Device findOrCreateMbusDevice(String serialNumber) throws SQLException, BusinessException {
-        List<Device> mbusList = ProtocolTools.mw().getDeviceFactory().findBySerialNumber(serialNumber);
+        List<Device> mbusList = DeviceFactoryProvider.instance.get().getDeviceFactory().findBySerialNumber(serialNumber);
         if (mbusList.size() == 1) {
             Device mbusRtu = mbusList.get(0);
             // Check if gateway has changed, and update if it has
@@ -256,15 +260,16 @@ public class MeterTopology implements MasterMeter {
             log(Level.SEVERE, "Multiple meters where found with serial: " + serialNumber + ". Meter will not be handled.");
             return null;
         }
-
-        DeviceType rtuType = getRtuType();
-        if (rtuType == null) {
-            return null;
-        } else {
-            // we don't create any meters anymore!
-            return null;
-//            return createMeter(rtuType, serialNumber);
-        }
+//
+//        DeviceType rtuType = getRtuType();
+//        if (rtuType == null) {
+//            return null;
+//        } else {
+//            // we don't create any meters anymore!
+//            return null;
+////            return createMeter(rtuType, serialNumber);
+//        }
+        return null;
     }
 
     /**
@@ -298,29 +303,29 @@ public class MeterTopology implements MasterMeter {
 //        shadow.setGatewayId(getRtuFromDatabaseBySerialNumber().getId());
 //        return ProtocolTools.mw().getDeviceFactory().create(shadow);
 //    }
-
-    /**
-     * Create an DeviceType based on the custom property DeviceType
-     *
-     * @return the requested DeviceType
-     */
-    private DeviceType getRtuType() {
-        String type = (String) this.protocol.getProperties().getProtocolProperties().get("DeviceType");
-        if (Utils.isNull(type)) {
-            log(Level.WARNING, "No automatic meter creation: no property DeviceType defined.");
-            return null;
-        } else {
-            DeviceType rtuType = ProtocolTools.mw().getDeviceTypeFactory().find(type);
-            if (rtuType == null) {
-                log(Level.INFO, "No rtutype defined with name '" + type + "'");
-                return null;
-            } else if (rtuType.getConfigurations().get(0).getPrototypeDevice() == null) {
-                log(Level.INFO, "Rtutype '" + type + "' has not prototype rtu");
-                return null;
-            }
-            return rtuType;
-        }
-    }
+//
+//    /**
+//     * Create an DeviceType based on the custom property DeviceType
+//     *
+//     * @return the requested DeviceType
+//     */
+//    private DeviceType getRtuType() {
+//        String type = (String) this.protocol.getProperties().getProtocolProperties().get("DeviceType");
+//        if (Utils.isNull(type)) {
+//            log(Level.WARNING, "No automatic meter creation: no property DeviceType defined.");
+//            return null;
+//        } else {
+//            DeviceType rtuType = ProtocolTools.mw().getDeviceTypeFactory().find(type);
+//            if (rtuType == null) {
+//                log(Level.INFO, "No rtutype defined with name '" + type + "'");
+//                return null;
+//            } else if (rtuType.getConfigurations().get(0).getPrototypeDevice() == null) {
+//                log(Level.INFO, "Rtutype '" + type + "' has not prototype rtu");
+//                return null;
+//            }
+//            return rtuType;
+//        }
+//    }
 
     /**
      * Get the Device from the Database based on his SerialNumber
@@ -330,7 +335,7 @@ public class MeterTopology implements MasterMeter {
     protected Device getRtuFromDatabaseBySerialNumber() {
         if (rtu == null) {
             String serial = this.protocol.getSerialNumber();
-            this.rtu = ProtocolTools.mw().getDeviceFactory().findBySerialNumber(serial).get(0);
+            this.rtu = DeviceFactoryProvider.instance.get().getDeviceFactory().findBySerialNumber(serial).get(0);
         }
         return rtu;
     }

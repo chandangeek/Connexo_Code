@@ -242,7 +242,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
     }
 
     private String getDeviceSerialNumber() {
-        OfflineDevice device = getContext().getInboundDAO().findDevice(getDeviceIdentifier());
+        OfflineDevice device = getContext().getInboundDAO().findOfflineDevice(getDeviceIdentifier());
         if (device != null) {
             return device.getSerialNumber();
         } else {
