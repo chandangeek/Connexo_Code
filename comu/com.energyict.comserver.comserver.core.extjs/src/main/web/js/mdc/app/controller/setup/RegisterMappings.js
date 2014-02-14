@@ -6,7 +6,8 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         'setup.register.RegisterMappingsGrid',
         'setup.register.RegisterMappingPreview',
         'setup.register.RegisterMappingAdd',
-        'setup.register.RegisterMappingAddGrid'
+        'setup.register.RegisterMappingAddGrid',
+        'setup.register.ReadingTypeDetails'
     ],
 
     requires: [
@@ -25,7 +26,8 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         {ref: 'registerMappingPreview', selector: '#registerMappingPreview'},
         {ref: 'registerMappingPreviewTitle', selector: '#registerMappingPreviewTitle'},
         {ref: 'addRegisterMappingBtn', selector: '#addRegisterMappingBtn'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
+        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
+        {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'}
     ],
 
     init: function () {
@@ -36,6 +38,9 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             },
             '#registerMappingSetup button[action = addRegisterMapping]': {
                 click: this.addRegisterMappingHistory
+            },
+            '#registermappinggrid actioncolumn': {
+                showReadingTypeInfo: this.showReadingTypeInfo
             }
         });
     },
@@ -49,6 +54,9 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
     },
 
     previewRegisterMapping: function (grid, record) {
+        console.log('preview register mapping');
+        console.log(record);
+        console.log(grid);
         var registerMappings = this.getRegisterMappingGrid().getSelectionModel().getSelection();
         if (registerMappings.length == 1) {
             this.getRegisterMappingPreviewForm().loadRecord(registerMappings[0]);
@@ -65,12 +73,11 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         var me = this;
         this.getRegisterMappingsStore().getProxy().setExtraParam('deviceType', id);
         var widget = Ext.widget('registerMappingsSetup', {deviceTypeId: id});
-        //this.getRegisterMappingGrid().setDeviceType(id);
         this.getAddRegisterMappingBtn().href = '#/setup/devicetypes/' + id + '/registermappings/add';
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
             success: function (deviceType) {
                 var deviceTypeName = deviceType.get('name');
-                widget.down('#registerTypeTitle').html = '<h1>' + deviceTypeName + ' > ' + I18n.translate('registerMapping.registerTypes','MDC','Register types') + '</h1>';
+                widget.down('#registerTypeTitle').html = '<h1>' + deviceTypeName + ' > ' + I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types') + '</h1>';
                 Mdc.getApplication().getMainController().showContent(widget);
                 me.createBreadCrumbs(id, deviceTypeName);
             }
@@ -87,7 +94,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         var me = this;
 
         var breadcrumbRegisterTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: I18n.translate('registerMapping.registerTypes','MDC','Register types'),
+            text: I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
             href: 'registermappings'
         });
 
@@ -97,17 +104,23 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         });
 
         var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: I18n.translate('registerMapping.deviceTypes','MDC','Device types'),
+            text: I18n.translate('registerMapping.deviceTypes', 'MDC', 'Device types'),
             href: 'devicetypes'
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: I18n.translate('general.administration','MDC','Administration'),
+            text: I18n.translate('general.administration', 'MDC', 'Administration'),
             href: '#setup'
         });
 
         breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbRegisterTypes);
 
         me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
+    },
+
+    showReadingTypeInfo: function (record) {
+        var widget = Ext.widget('readingTypeDetails');
+        this.getReadingTypeDetailsForm().loadRecord(record);
+        widget.show();
     }
 
 });
