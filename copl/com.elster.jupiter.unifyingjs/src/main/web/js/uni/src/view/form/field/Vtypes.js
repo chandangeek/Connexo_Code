@@ -12,7 +12,22 @@ Ext.define('Uni.view.form.field.Vtypes', {
         this.validateHexString();
         this.validateEan13String();
         this.validateEan18String();
+        this.validateReadingtype();
     },
+
+
+    validateReadingtype: function () {
+        var me = this;
+        var message = null;
+        Ext.apply(Ext.form.field.VTypes, {
+            readingtype:  function(v) {
+                return /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(v);
+            },
+            readingtypeText: 'Invalid reading type syntax',
+            readingtypeMask: /[\d\.]/i
+        });
+    },
+
 
     validateNonEmptyString: function () {
         var me = this;
