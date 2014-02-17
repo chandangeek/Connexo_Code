@@ -1,12 +1,16 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.common.services.SortOrder;
+import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -15,15 +19,9 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Path("/comservers")
 public class ComServerResource {
@@ -37,12 +35,9 @@ public class ComServerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServersInfo getComServers(@QueryParam("start") Integer start,@QueryParam("limit") Integer limit,@QueryParam("sort") String sort,@QueryParam("dir") String dir) {
+    public ComServersInfo getComServers(@BeanParam QueryParameters queryParameters) {
         ComServersInfo comServers = new ComServersInfo();
-        List<ComServer> allComServers = engineModelService.findAllComServers()
-                .paged(start, limit)
-                .sorted(sort, "asc".equalsIgnoreCase(dir)?SortOrder.ASCENDING:SortOrder.DESCENDING)
-                .find();
+        List<ComServer> allComServers = engineModelService.findAllComServers().from(queryParameters).find();
 
         for (ComServer comServer : allComServers) {
             comServers.comServers.add(ComServerInfoFactory.asInfo(comServer));

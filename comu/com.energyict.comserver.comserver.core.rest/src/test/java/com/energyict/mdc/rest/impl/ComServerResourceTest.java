@@ -1,8 +1,8 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.common.services.SortOrder;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -20,7 +20,14 @@ import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.RemoteComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
 import org.assertj.core.data.MapEntry;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -34,19 +41,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -117,7 +116,8 @@ public class ComServerResourceTest extends JerseyTest {
         comServers.add(mock);
         Finder<ComServer> finder = mock(Finder.class);
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), any(SortOrder.class))).thenReturn(finder);
+        when(finder.sorted(anyString(), anyBoolean())).thenReturn(finder);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
         when(finder.find()).thenReturn(comServers);
         when(engineModelService.findAllComServers()).thenReturn(finder);
         when(mock.getName()).thenReturn("Test");
@@ -539,7 +539,8 @@ public class ComServerResourceTest extends JerseyTest {
         Finder<ComServer> finder = mock(Finder.class);
         when(engineModelService.findAllComServers()).thenReturn(finder);
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), any(SortOrder.class))).thenReturn(finder);
+        when(finder.sorted(anyString(), anyBoolean())).thenReturn(finder);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
         when(finder.find()).thenReturn(Collections.<ComServer>emptyList());
 
         final Response response = target("/comservers/").queryParam("start", 10).queryParam("limit", 20).queryParam("sort", "name").queryParam("dir", "ASC").request().get();
@@ -548,7 +549,7 @@ public class ComServerResourceTest extends JerseyTest {
         ArgumentCaptor<Integer> limitArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(finder).paged(startArgumentCaptor.capture(), limitArgumentCaptor.capture());
         ArgumentCaptor<String> sortColumnArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        verify(finder).sorted(sortColumnArgumentCaptor.capture(), any(SortOrder.class));
+        verify(finder).sorted(sortColumnArgumentCaptor.capture(), anyBoolean());
         assertThat(startArgumentCaptor.getValue()).isEqualTo(10);
         assertThat(limitArgumentCaptor.getValue()).isEqualTo(20);
         assertThat(sortColumnArgumentCaptor.getValue()).isEqualTo("name");
