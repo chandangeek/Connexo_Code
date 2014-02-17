@@ -45,15 +45,18 @@
       <version>${jupiter.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>rest.util</artifactId>
+      <version>${jupiter.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
-      <version>4.3.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.compendium</artifactId>
-      <version>4.3.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -65,14 +68,13 @@
       <artifactId>joda-time</artifactId>
     </dependency>
     <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>rest.util</artifactId>
-        <version>${jupiter.version}</version>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>javax.ws.rs-api</artifactId>
     </dependency>
-      <dependency>
-          <groupId>javax.ws.rs</groupId>
-          <artifactId>javax.ws.rs-api</artifactId>
-      </dependency>
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+    </dependency>
 
     <!-- Testing -->
     <dependency>
