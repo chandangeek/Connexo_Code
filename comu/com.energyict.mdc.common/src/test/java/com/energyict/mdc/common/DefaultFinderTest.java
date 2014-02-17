@@ -100,7 +100,7 @@ public class DefaultFinderTest extends JerseyTest {
 
     @Test
     public void testQueryParametersSortedDescendingOnOneColumnFromQueryParameters() throws Exception {
-        final Response response = target("/bogus/").queryParam("sort", sorting("name", "descending")).request().get(Response.class);
+        final Response response = target("/bogus/").queryParam("sort", sorting("name", "DESC")).request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
         verify(query).select(Matchers.any(Condition.class), orderCaptor.capture());
@@ -110,7 +110,7 @@ public class DefaultFinderTest extends JerseyTest {
 
     @Test
     public void testQueryParametersSortedOnThreeColumnBuildFromQueryParameters() throws Exception {
-        final Response response = target("/bogus/").queryParam("sort",sorting("name", "descending", "field2", "ascending", "field3", "descending")).request().get(Response.class);
+        final Response response = target("/bogus/").queryParam("sort",sorting("name", "DESC", "field2", "ASC", "field3", "DESC")).request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
         verify(query).select(Matchers.any(Condition.class), orderCaptor.capture(), orderCaptor.capture(), orderCaptor.capture());
@@ -124,7 +124,7 @@ public class DefaultFinderTest extends JerseyTest {
 
     @Test
     public void testQueryParametersSortedOnThreeColumnAndPagedFromQueryParameters() throws Exception {
-        final Response response = target("/bogus/").queryParam("sort",sorting("name", "descending", "field2", "ascending", "field3", "descending")).queryParam("start",50).queryParam("limit", 100).request().get(Response.class);
+        final Response response = target("/bogus/").queryParam("sort",sorting("name", "DESC", "field2", "ASC", "field3", "DESC")).queryParam("start",50).queryParam("limit", 100).request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<Order[]> orderCaptor = ArgumentCaptor.forClass(Order[].class);
         ArgumentCaptor<Integer> startCaptor = ArgumentCaptor.forClass(Integer.class);
