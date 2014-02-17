@@ -2,9 +2,7 @@ package com.elster.jupiter.metering.readings.beans;
 
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.google.common.base.Optional;
-
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -43,7 +41,7 @@ public abstract class BaseReadingImpl implements BaseReading {
 
     @Override
     public Date getReportedDateTime() {
-        return new DefaultClock().now();
+        return new Date();
     }
 
     @Override
