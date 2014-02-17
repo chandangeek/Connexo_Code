@@ -6,10 +6,8 @@ import com.energyict.mdc.common.BusinessObject;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.dynamic.relation.Constraint;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.google.common.collect.ImmutableMap;
-
 import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -182,7 +180,7 @@ public class OrmClientImpl implements OrmClient {
                 with(this.getConstraintMemberFactory()).
                 select(
                     where("attributeTypeId").isEqualTo(relationAttributeType.getId()),
-                    null, false, null);
+                    new String[0], false, null);
     }
 
 }
