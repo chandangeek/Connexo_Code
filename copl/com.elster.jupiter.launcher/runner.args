@@ -75,6 +75,7 @@ mvn:com.elster.jupiter/ids/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/parties/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/cbo/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/metering/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/metering.groups/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/validation/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/validators/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/http.whiteboard/1.0.0-SNAPSHOT
@@ -83,11 +84,18 @@ mvn:com.elster.jupiter/rest.util/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/users.rest/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/parties.rest/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/metering.rest/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/validation.rest/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/nls.rest/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/events.rest/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/install/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/osgi.goodies/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/extjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/unifyingjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/metering.extjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/soap.whiteboard/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/fileimport/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/tasks/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/appserver/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/config.extjs/1.0.0-SNAPSHOT
 
 	
