@@ -13,7 +13,7 @@ Ext.define('Mdc.controller.history.Setup', {
         } else if (tokens.length > 1 && tokens[1] === 'licensedprotocols') {
             this.handleLicensedProtocolTokens(tokens);
         } else if (tokens.length > 1 && tokens[1] === 'devicetypes') {
-            if (tokens[3] === 'registermappings') {
+            if (tokens[3] === 'registertypes') {
                 this.handleRegisterMappingTokens(tokens);
             } else {
                 this.handleDeviceTypeTokens(tokens);

@@ -85,7 +85,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         var deviceTypes = this.getDeviceTypeGrid().getSelectionModel().getSelection();
         if (deviceTypes.length == 1) {
             var deviceTypeId = deviceTypes[0].get('id');
-            this.getDeviceTypeRegisterLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/registermappings'});
+            this.getDeviceTypeRegisterLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/registertypes'});
             this.getDeviceTypeRegisterLink().getEl().setHTML(deviceTypes[0].get('registerCount') + ' ' + I18n.translate('devicetype.registers', 'MDC', 'registers'));
             this.getDeviceTypeLogBookLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/logbooks'});
             this.getDeviceTypeLogBookLink().getEl().setHTML(deviceTypes[0].get('logBookCount') + ' ' + I18n.translate('devicetype.logbooks', 'MDC', 'logbooks'));
@@ -110,7 +110,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 var deviceTypeId = deviceType.get('id');
                 me.detailBreadCrumb(deviceType.get('name'), deviceTypeId);
 
-                me.getDeviceTypeDetailRegistersLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/registermappings'});
+                me.getDeviceTypeDetailRegistersLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/registertypes'});
                 me.getDeviceTypeDetailRegistersLink().getEl().setHTML(deviceType.get('registerCount') + ' ' + I18n.translate('devicetype.registers', 'MDC', 'registers'));
                 me.getDeviceTypeDetailLogBookLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/logbooks'});
                 me.getDeviceTypeDetailLogBookLink().getEl().setHTML(deviceType.get('logBookCount') + ' ' + I18n.translate('devicetype.logbooks', 'MDC', 'logbooks'));

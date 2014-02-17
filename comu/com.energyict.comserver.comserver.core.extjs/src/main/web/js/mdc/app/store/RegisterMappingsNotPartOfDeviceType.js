@@ -7,7 +7,7 @@ Ext.define('Mdc.store.RegisterMappingsNotPartOfDeviceType', {
     storeId: 'RegisterMappings',
     proxy: {
         type: 'rest',
-        url: '../../api/dtc/devicetypes/{deviceType}/registersNotPartOfDeviceType',
+        url: '../../api/dtc/devicetypes/{deviceType}/registersNotPartOfDeviceType?available=true',
         reader: {
             type: 'json',
             root: 'registers'

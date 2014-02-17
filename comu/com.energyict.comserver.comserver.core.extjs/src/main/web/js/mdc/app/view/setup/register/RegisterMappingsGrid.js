@@ -23,9 +23,9 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 sortable: false,
                 hideable: false,
                 renderer: function (value, b, record) {
-                    return '<a href="#setup/devicetypes/' + me.deviceTypeId + '/registermappings/' + record.get('id') + '">' + value + '</a>';
+                    return '<a href="#setup/devicetypes/' + me.deviceTypeId + '/registertypes/' + record.get('id') + '">' + value + '</a>';
                 },
-                flex: 1
+                flex: 2
             },
             {
                 xtype: 'actioncolumn',
@@ -35,7 +35,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                         + '</div>'
                 },
                 header: I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
-                flex: 1,
                 items: [
                     {
                         icon: 'resources/images/gear-16x16.png',
@@ -46,6 +45,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                         }
                     }
                 ],
+                flex: 2,
                 tdCls: 'view',
                 sortable: false,
                 hideable: false
@@ -53,21 +53,21 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
             {
                 header: I18n.translate('registerMappings.obisCode', 'MDC', 'OBIS code'),
                 dataIndex: 'obisCode',
-                flex: 1,
                 sortable: false,
-                hideable: false
+                hideable: false,
+                flex: 1
             },
             {
                 header: I18n.translate('registerMappings.type', 'MDC', 'Type'),
                 dataIndex: 'measurementKind',
-                flex: 1,
                 sortable: false,
-                hideable: false
+                hideable: false,
+                flex: 1
             },
             {
                 xtype: 'actioncolumn',
                 tdCls: 'view',
-                width: 24,
+                header : I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
                 items: [
@@ -101,12 +101,33 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
         ];
         this.dockedItems = [
             {
+
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
                 displayMsg: I18n.translate('registerMappings.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} register types'),
                 displayMoreMsg: I18n.translate('registerMappings.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} register types'),
-                emptyMsg: I18n.translate('registerMappings.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register types to display')
+                emptyMsg: I18n.translate('registerMappings.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register types to display'),
+                items: [
+                    {
+                        xtype: 'component',
+                        flex: 1
+                    },
+                    {
+
+                        text: I18n.translate('registerMapping.addRegisterMapping', 'MDC', 'Add register types'),
+                        itemId: 'addRegisterMappingBtn',
+                        xtype: 'button',
+                        href: '#setup/devicetypes/' + this.deviceTypeId + '/registertypes/add',
+                        hrefTarget: '_self',
+                        action: 'addRegisterMapping'
+                    },
+                    {
+                        text: I18n.translate('general.bulkAction', 'MDC', 'Bulk action'),
+                        itemId: 'registerMappingsBulkAction',
+                        xtype: 'button'
+                    }
+                ]
             },
             {
                 xtype: 'pagingtoolbarbottom',

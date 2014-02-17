@@ -43,24 +43,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                     itemId: 'registerTypeTitle'
                 },
                 {
-                    border: false,
-                    tbar: [
-                        '->',
-                        {
-                            text: I18n.translate('registerMapping.addRegisterMapping','MDC','Add register types'),
-                            itemId: 'addRegisterMappingBtn',
-                            xtype: 'button',
-                            href: '',
-                            hrefTarget: '_self',
-                            action: 'addRegisterMapping'
-                        },
-                        {
-                            text: I18n.translate('general.bulkAction','MDC','Bulk action'),
-                            itemId: 'registerMappingsBulkAction',
-                            xtype: 'button'
-                        }]
-                },
-                {
                     xtype: 'container',
                     items: [],
                     itemId: 'registerMappingGridContainer'

@@ -3,13 +3,9 @@ Ext.define('Mdc.view.setup.register.ReadingTypeDetails', {
     alias: 'widget.readingTypeDetails',
     autoScroll: true,
     itemId: 'readingTypeDetails',
-    requires: [
-        'Uni.view.breadcrumb.Trail'
-    ],
     closable: true,
     width: 700,
     height: 500,
-    modal: true,
     constrain: true,
     autoShow: true,
     modal:true,
@@ -20,9 +16,9 @@ Ext.define('Mdc.view.setup.register.ReadingTypeDetails', {
     closeAction : 'destroy',
     floating:true,
     cls: 'content-wrapper',
-//    border: 0,
+    //border: 0,
 //    region: 'center',
-
+    title: I18n.translate('readingType.readingTypeDetails', 'MDC', 'Reading type details'),
     items: [
 
         {
@@ -35,13 +31,6 @@ Ext.define('Mdc.view.setup.register.ReadingTypeDetails', {
                 type: 'vbox',
                 align: 'stretch'
             },
-            tbar: [
-                {
-                    xtype: 'component',
-                    html: '<h4>' + I18n.translate('readingType.readingTypeDetails', 'MDC', 'Reading type details') + '</h4>',
-                    itemId: 'registerMappingPreviewTitle'
-                }
-            ],
             items: [
                 {
                     xtype: 'container',
@@ -188,6 +177,15 @@ Ext.define('Mdc.view.setup.register.ReadingTypeDetails', {
             ]
         }
 
-    ]
+    ],
+
+
+    initComponent: function () {
+        var me = this;
+        me.callParent(arguments);
+        me.mon(Ext.getBody(), 'click', function(el, e){
+            me.close(me.closeAction);
+        }, me, { delegate: '.x-mask' });
+    }
 
 });

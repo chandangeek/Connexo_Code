@@ -9,10 +9,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
         type: 'vbox',
         align: 'stretch'
     },
+    deviceTypeId: null,
     cls: 'content-wrapper',
-//    border: 0,
-//    region: 'center',
-
     items: [
         {
             xtype: 'container',
@@ -23,36 +21,51 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
             },
             items: [
                 {
-                    xtype: 'component',
-                    html: '<h1>Add register types</h1>',
-                    margins: '10 10 10 10'
+                    xtype: 'breadcrumbTrail',
+                    region: 'north',
+                    padding: 6
                 },
                 {
-                    border: false,
-                    tbar: [
-                        '->',
+                    xtype: 'component',
+                    html: I18n.translate('registerMapping.deviceType', 'MDC', 'Device type'),
+                    margins: '10 10 0 20'
+                },
+                {
+                    xtype: 'component',
+                    html: '<h1>' + I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types') + '</h1>',
+                    margins: '10 10 10 10',
+                    itemId: 'registerTypeAddTitle'
+                },
+                {
+                    xtype: 'container',
+                    items: [],
+                    itemId: 'registerMappingAddGridContainer'
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    layout: {
+                        type: 'hbox',
+                        align: 'stretch'
+                    },
+                    margins: '10 10 0 20',
+                    items: [
                         {
-                            text: 'Manage register types',
-                            itemId: 'manageRegisterMappingBtn',
+                            text: I18n.translate('general.add', 'MDC', 'Add'),
                             xtype: 'button',
-                            href: '',
-                            hrefTarget: '_self'
+                            action: 'addRegisterMappingAction',
+                            itemId: 'addButton'
                         },
                         {
-                            text: 'Create register types',
-                            itemId: 'createRegisterMappingBtn',
-                            xtype: 'button',
-                            href: '',
-                            hrefTarget: '_self'
-
-                        }]
-                },
-                {
-                    xtype: 'registerMappingAddGrid'
-                },
-                {
-                    xtype: 'component',
-                    height: 50
+                            xtype: 'component',
+                            padding: '3 0 0 10',
+                            itemId: 'cancelLink',
+                            autoEl: {
+                                tag: 'a',
+                                href: '#setup/devicetypes/' + this.deviceTypeId + '/registertypes',
+                                html: I18n.translate('general.cancel', 'MDC', 'Cancel')
+                            }
+                        }
+                    ]
                 }
             ]}
     ],
@@ -60,6 +73,13 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
 
     initComponent: function () {
         this.callParent(arguments);
+        this.down('#registerMappingAddGridContainer').add(
+            {
+                xtype: 'registerMappingAddGrid',
+                deviceTypeId: this.deviceTypeId
+            }
+        );
+        this.down('#cancelLink').autoEl.href = '#setup/devicetypes/' + this.deviceTypeId + '/registertypes';
     }
 });
 
