@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm;
 
+import com.elster.jupiter.util.conditions.Order;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -30,8 +31,9 @@ public interface Finder<T> extends BasicQuery<T> {
      *                  otherwise the string is passed transparently to the order by clause on the select statement.
      * @return
      */
-    List<T> find(String fieldName, Object value, String orderBy);
-
+    @Deprecated
+    List<T> find(String fieldName, Object value, String order);
+    List<T> find(String fieldName, Object value, Order... orders);
     /**
      * Fetch all tuples where fieldName1 equals value 1 AND fieldName 2 equals value2
      *
@@ -43,15 +45,21 @@ public interface Finder<T> extends BasicQuery<T> {
      */
     List<T> find(String fieldName1, Object value1, String fieldName2, Object value2);
 
-    List<T> find(String fieldName1, Object value1, String fieldName2, Object value2, String orderBy);
+    @Deprecated
+    List<T> find(String fieldName1, Object value1, String fieldName2, Object value2, String order);
+    List<T> find(String fieldName1, Object value1, String fieldName2, Object value2, Order... orders);
 
     List<T> find(String[] fieldNames, Object[] values);
 
-    List<T> find(String[] fieldNames, Object[] values, String... orderBy);
+    @Deprecated
+    List<T> find(String[] fieldNames, Object[] values, String order, String... orders);
+    List<T> find(String[] fieldNames, Object[] values, Order... orders);
 
     List<T> find(Map<String, Object> valueMap);
 
-    List<T> find(Map<String, Object> valueMap, String... orderBy);
+    @Deprecated
+    List<T> find(Map<String, Object> valueMap, String order, String... orders);
+    List<T> find(Map<String, Object> valueMap, Order... orders);
 
     /**
      * Find journal entries for a primary key

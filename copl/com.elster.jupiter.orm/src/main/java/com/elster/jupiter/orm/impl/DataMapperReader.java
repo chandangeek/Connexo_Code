@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -69,7 +70,7 @@ public class DataMapperReader<T> {
 	}
 
     List<JournalEntry<T>> findJournals(KeyValue keyValue) throws SQLException {
-        return findJournal(getPrimaryKeyFragments(keyValue), new String[] { TableImpl.JOURNALTIMECOLUMNNAME + " desc" }, false);
+        return findJournal(getPrimaryKeyFragments(keyValue), new Order[] { Order.descending(TableImpl.JOURNALTIMECOLUMNNAME) }, false);
     }
 	
 	T lock(KeyValue keyValue)  throws SQLException {
@@ -77,20 +78,20 @@ public class DataMapperReader<T> {
 		return candidates.isEmpty() ? null : candidates.get(0);
 	}
 	
-	private String getListOrder(String fieldName) {
+	private Order getListOrder(String fieldName) {
 		ForeignKeyConstraintImpl constraint = getTable().getConstraintForField(fieldName);
-		if (constraint == null) {
+		if (constraint == null || constraint.getReverseOrderFieldName() == null) {
 			return null;
 		} else {
-			return constraint.getReverseOrderFieldName();
+			return Order.ascending(constraint.getReverseOrderFieldName());
 		}
 	}
 	
-	List<T> find(String[] fieldNames , Object[] values , String... orderColumns) throws SQLException {
-		if (fieldNames != null && fieldNames.length == 1 && (orderColumns == null || orderColumns.length == 0)) {
-			String listOrder = getListOrder(fieldNames[0]);
+	List<T> find(String[] fieldNames , Object[] values , Order... orders) throws SQLException {
+		if (fieldNames != null && fieldNames.length == 1 && (orders == null || orders.length == 0)) {
+			Order listOrder = getListOrder(fieldNames[0]);
 			if (listOrder != null) {
-				orderColumns = new String[] { listOrder };
+				orders = new Order[] { listOrder };
 			}
 		}
 		List<SqlFragment> fragments = new ArrayList<>();
@@ -100,16 +101,16 @@ public class DataMapperReader<T> {
 				addFragments(fragments,fieldNames[i], values[i]);
 			}
 		}
-		return find(fragments, orderColumns, false);		
+		return find(fragments, orders, false);		
 	}
 			
-	private List<T> find(List<SqlFragment> fragments, String[] orderColumns,boolean lock) throws SQLException {
-        SqlBuilder builder = selectSql(fragments, orderColumns, lock);
+	private List<T> find(List<SqlFragment> fragments, Order[] orders, boolean lock) throws SQLException {
+        SqlBuilder builder = selectSql(fragments, orders, lock);
         return doFind(fragments, builder);
 	}
 
-    private List<JournalEntry<T>> findJournal(List<SqlFragment> fragments, String[] orderColumns,boolean lock) throws SQLException {    	
-        SqlBuilder builder = selectJournalSql(fragments, orderColumns, lock);     
+    private List<JournalEntry<T>> findJournal(List<SqlFragment> fragments, Order[] orders,boolean lock) throws SQLException {    	
+        SqlBuilder builder = selectJournalSql(fragments, orders, lock);     
         List<JournalEntry<T>> result = new ArrayList<>();
         try (Connection connection = getConnection(false)) {
             try(PreparedStatement statement = builder.prepare(connection)) {
@@ -151,17 +152,17 @@ public class DataMapperReader<T> {
         return setters;
     }
 
-    private SqlBuilder selectSql(List<SqlFragment> fragments, String[] orderColumns , boolean lock) {
+    private SqlBuilder selectSql(List<SqlFragment> fragments, Order[] orders , boolean lock) {
 		SqlBuilder builder = new SqlBuilder(getSqlGenerator().getSelectFromClause(getAlias()));
-        return doSelectSql(fragments, orderColumns, lock, builder);
+        return doSelectSql(fragments, orders, lock, builder);
 	}
 
-    private SqlBuilder selectJournalSql(List<SqlFragment> fragments, String[] orderColumns , boolean lock) {
+    private SqlBuilder selectJournalSql(List<SqlFragment> fragments, Order[] orders , boolean lock) {
         SqlBuilder builder = new SqlBuilder(getSqlGenerator().getSelectFromJournalClause(getAlias()));
-        return doSelectSql(fragments, orderColumns, lock, builder);
+        return doSelectSql(fragments, orders, lock, builder);
     }
 
-    private SqlBuilder doSelectSql(List<SqlFragment> fragments, String[] orderColumns, boolean lock, SqlBuilder builder) {
+    private SqlBuilder doSelectSql(List<SqlFragment> fragments, Order[] orders, boolean lock, SqlBuilder builder) {
         if (!fragments.isEmpty()) {
             builder.append(" where ");
             String separator = "";
@@ -171,13 +172,15 @@ public class DataMapperReader<T> {
                 separator = " AND ";
             }
         }
-        if (orderColumns != null && orderColumns.length > 0) {
+        if (orders != null && orders.length > 0) {
             builder.append(" order by ");
             String separator = "";
-            for (String each : orderColumns) {
+            for (Order each : orders) {
                 builder.append(separator);
-                Column column = getColumnForField(each);
-                builder.append(column == null ? each : column.getName(getAlias()));
+                Column column = getColumnForField(each.getName());
+                builder.append(column == null ? each.getName() : column.getName(getAlias()));
+                builder.space();
+                builder.append(each.ordering());
                 separator = ", ";
             }
         }

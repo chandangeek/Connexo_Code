@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
+import com.elster.jupiter.util.conditions.Order;
 
 public abstract class PersistentList<T> extends AbstractList<T> {
 	
@@ -29,7 +30,7 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 			if (constraint.getReverseOrderFieldName() == null) {
 				target = dataMapper.find(constraint.getFieldName(),owner);
 			} else {
-				target = dataMapper.find(constraint.getFieldName(),owner,constraint.getReverseOrderFieldName());
+				target = dataMapper.find(constraint.getFieldName(),owner,Order.ascending(constraint.getReverseOrderFieldName()));
             }
 		}
 		return target;

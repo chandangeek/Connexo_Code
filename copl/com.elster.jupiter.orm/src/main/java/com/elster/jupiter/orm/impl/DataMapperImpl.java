@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T> {
 	
@@ -210,7 +211,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<T> find(String[] fieldNames, Object[] values, String... orderColumns) {
+	public List<T> find(String[] fieldNames, Object[] values, Order... orders) {
 		if (fieldNames == null) {
 			List<? super T> candidates = getCache().find();
 			if (candidates != null) {
@@ -228,7 +229,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			}
 		}
 		try {
-			return reader.find(fieldNames,values,orderColumns);
+			return reader.find(fieldNames,values,orders);
 		} catch(SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
@@ -450,5 +451,29 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	
 	public T cast (Object object) {
 		return api.cast(object);
+	}
+
+	@Override
+	@Deprecated
+	public List<T> find(String fieldName, Object value, String order) {
+		return find(fieldName,value,Order.ascending(order));
+	}
+
+	@Override
+	@Deprecated
+	public List<T> find(String fieldName1, Object value1, String fieldName2, Object value2, String order) {
+		return find(fieldName1, value1, fieldName2, value2, Order.ascending(order));
+	}
+
+	@Override
+	@Deprecated
+	public List<T> find(String[] fieldNames, Object[] values, String order,String... orders) {
+		return find(fieldNames,values,Order.from(order,orders));
+	}
+
+	@Override
+	@Deprecated
+	public List<T> find(Map<String, Object> valueMap, String order,String... orders) {
+		return find(valueMap,Order.from(order,orders));
 	}
 }
