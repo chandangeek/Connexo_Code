@@ -9,6 +9,7 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 
+import javax.inject.Inject;
 import java.util.Date;
 
 /**
@@ -26,6 +27,7 @@ public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements
     private String ediCode;
     private Date modificationDate;
 
+    @Inject
     protected PhenomenonImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {
         super(Phenomenon.class, dataModel, eventService, thesaurus);
         this.deviceConfigurationService = deviceConfigurationService;

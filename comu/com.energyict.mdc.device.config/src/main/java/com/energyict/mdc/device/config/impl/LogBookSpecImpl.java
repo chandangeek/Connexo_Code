@@ -154,7 +154,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
         }
     }
 
-    public static class LogBookSpecBuilder implements LogBookSpec.LogBookSpecBuilder {
+    static abstract class LogBookSpecBuilder implements LogBookSpec.LogBookSpecBuilder {
 
         final LogBookSpecImpl logBookSpec;
 
@@ -175,7 +175,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
         }
     }
 
-    public static abstract class LogBookSpecUpdater implements LogBookSpec.LogBookSpecUpdater {
+    static abstract class LogBookSpecUpdater implements LogBookSpec.LogBookSpecUpdater {
 
         final LogBookSpec logBookSpec;
 

@@ -45,8 +45,8 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    private LoadProfileSpecImpl initialize(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType) {
-        setDeviceConfiguration(deviceConfig);
+    private LoadProfileSpecImpl initialize(DeviceConfiguration deviceConfiguration, LoadProfileType loadProfileType) {
+        this.deviceConfiguration.set(deviceConfiguration);
         setLoadProfileType(loadProfileType);
         return this;
     }
@@ -139,8 +139,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     }
 
     private void validateLoadProfileTypeForUpdate(LoadProfileType loadProfileType) {
-        LoadProfileType myLoadProfileType = this.getLoadProfileType();
-        if (myLoadProfileType != null && myLoadProfileType.getId() != loadProfileType.getId()) {
+        if (this.loadProfileType.isPresent() && this.getLoadProfileType().getId() != loadProfileType.getId()) {
             throw new CannotChangeLoadProfileTypeOfLoadProfileSpecException(this.thesaurus);
         }
     }
@@ -180,7 +179,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         }
     }
 
-    public static class LoadProfileSpecBuilder implements LoadProfileSpec.LoadProfileSpecBuilder {
+    static abstract class LoadProfileSpecBuilder implements LoadProfileSpec.LoadProfileSpecBuilder {
 
         private final LoadProfileSpecImpl loadProfileSpec;
         private final List<BuildingCompletionListener> buildingCompletionListeners = new ArrayList<>();
@@ -195,13 +194,13 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         }
 
         @Override
-        public LoadProfileSpec.LoadProfileSpecBuilder setOverruledObisCode(ObisCode overruledObisCode){
+        public LoadProfileSpec.LoadProfileSpecBuilder setOverruledObisCode(ObisCode overruledObisCode) {
             this.loadProfileSpec.setOverruledObisCode(overruledObisCode);
             return this;
         }
 
         @Override
-        public LoadProfileSpec add(){
+        public LoadProfileSpec add() {
             this.loadProfileSpec.validateRequiredFields();
             this.notifyListeners();
             return this.loadProfileSpec;
@@ -212,7 +211,21 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
                 buildingCompletionListener.loadProfileSpecBuildingProcessCompleted(this.loadProfileSpec);
             }
         }
+    }
 
+    static abstract class LoadProfileSpecUpdater implements LoadProfileSpec.LoadProfileSpecUpdater {
+
+        final LoadProfileSpec loadProfileSpec;
+
+        protected LoadProfileSpecUpdater(LoadProfileSpec loadProfileSpec) {
+            this.loadProfileSpec = loadProfileSpec;
+        }
+
+        @Override
+        public LoadProfileSpec.LoadProfileSpecUpdater setOverruledObisCode(ObisCode overruledObisCode) {
+            this.loadProfileSpec.setOverruledObisCode(overruledObisCode);
+            return this;
+        }
     }
 
 }

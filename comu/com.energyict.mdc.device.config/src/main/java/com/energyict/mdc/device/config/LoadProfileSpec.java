@@ -64,4 +64,17 @@ public interface LoadProfileSpec extends HasId {
          */
         LoadProfileSpec add();
     }
+
+    /**
+     * Defines an <i>update</i> component to update a {@link LoadProfileSpec} implementation
+     */
+    interface LoadProfileSpecUpdater {
+
+        LoadProfileSpecUpdater setOverruledObisCode(ObisCode overruledObisCode);
+
+        /**
+         * Updates the LoadProfileSpec, preferably via his DeviceConfiguration
+         */
+        void update();
+    }
 }

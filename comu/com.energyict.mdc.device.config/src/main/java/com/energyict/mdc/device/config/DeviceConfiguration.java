@@ -74,6 +74,8 @@ public interface DeviceConfiguration {
 
     LoadProfileSpec.LoadProfileSpecBuilder createLoadProfileSpec(LoadProfileType loadProfileType);
 
+    LoadProfileSpec.LoadProfileSpecUpdater getLoadProfileSpecUpdaterFor(LoadProfileSpec loadProfileSpec);
+
     void deleteLoadProfileSpec(LoadProfileSpec loadProfileSpec);
 
     List<LogBookSpec> getLogBookSpecs();

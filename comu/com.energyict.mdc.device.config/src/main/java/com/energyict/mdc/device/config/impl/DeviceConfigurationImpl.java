@@ -382,9 +382,27 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
+    @Override
+    public LoadProfileSpec.LoadProfileSpecUpdater getLoadProfileSpecUpdaterFor(LoadProfileSpec loadProfileSpec) {
+        return new LoadProfileSpecUpdater(loadProfileSpec);
+    }
+
+    private class LoadProfileSpecUpdater extends LoadProfileSpecImpl.LoadProfileSpecUpdater {
+
+        protected LoadProfileSpecUpdater(LoadProfileSpec loadProfileSpec) {
+            super(loadProfileSpec);
+        }
+
+        @Override
+        public void update() {
+            validateUniqueLoadProfileObisCode(loadProfileSpec);
+        }
+    }
+
     private void validateUniqueLoadProfileObisCode(LoadProfileSpec loadProfileSpec) {
         for (LoadProfileSpec profileSpec : loadProfileSpecs) {
-            if (profileSpec.getDeviceObisCode().equals(loadProfileSpec.getDeviceObisCode())) {
+            if (!isSameIdObject(loadProfileSpec, profileSpec)
+                && profileSpec.getDeviceObisCode().equals(loadProfileSpec.getDeviceObisCode())) {
                 throw DuplicateObisCodeException.forLoadProfileSpec(thesaurus, this, loadProfileSpec.getDeviceObisCode(), loadProfileSpec);
             }
         }
@@ -418,7 +436,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         return new LogBookSpecBuilderForConfig(logBookSpecProvider, this, logBookType);
     }
 
-    class LogBookSpecBuilderForConfig extends LogBookSpecImpl.LogBookSpecBuilder {
+    private class LogBookSpecBuilderForConfig extends LogBookSpecImpl.LogBookSpecBuilder {
 
         LogBookSpecBuilderForConfig(Provider<LogBookSpecImpl> logBookSpecProvider, DeviceConfiguration deviceConfiguration, LogBookType logBookType) {
             super(logBookSpecProvider, deviceConfiguration, logBookType);
@@ -454,7 +472,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         return new LogBookSpecUpdaterForConfig(logBookSpec);
     }
 
-    class LogBookSpecUpdaterForConfig extends LogBookSpecImpl.LogBookSpecUpdater {
+    private class LogBookSpecUpdaterForConfig extends LogBookSpecImpl.LogBookSpecUpdater {
 
         public LogBookSpecUpdaterForConfig(LogBookSpec logBookSpec) {
             super(logBookSpec);
