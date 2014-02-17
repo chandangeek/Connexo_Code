@@ -78,7 +78,7 @@ public class ReadingQualityImpl implements ReadingQuality {
 
     @Override
     public ReadingQualityType getType() {
-        if (typeCode == null) {
+        if (type == null) {
             type = new ReadingQualityType(typeCode);
         }
         return type;
@@ -103,5 +103,10 @@ public class ReadingQualityImpl implements ReadingQuality {
         } else {
             dataModel.mapper(ReadingQuality.class).update(this);
         }
+    }
+
+    @Override
+    public Date getReadingTimestamp() {
+        return readingTimestamp.toDate();
     }
 }

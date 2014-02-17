@@ -19,4 +19,6 @@ public interface ReadingQuality {
     BaseReadingRecord getBaseReadingRecord();
 
     void save();
+
+    Date getReadingTimestamp();
 }
