@@ -6,8 +6,8 @@ Ext.define('Mdc.store.ComPortPools',{
     model: 'Mdc.model.ComPortPool',
     storeId: 'comPortPools',
     sorters: [{
-        property: 'name',
-        direction: 'ASC'
+        property: 'name'
+//        direction: 'ASC'
     }],
     remoteSort: true,
     proxy: {
