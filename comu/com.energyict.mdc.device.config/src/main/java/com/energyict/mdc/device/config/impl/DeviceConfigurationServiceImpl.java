@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -56,17 +57,19 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
+    private volatile MeteringService meteringService;
 
     public DeviceConfigurationServiceImpl() {
         super();
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, ProtocolPluggableService protocolPluggableService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
+        this.setMeteringService(meteringService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
@@ -415,6 +418,15 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    public MeteringService getMeteringService() {
+        return meteringService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     public ProtocolPluggableService getProtocolPluggableService() {

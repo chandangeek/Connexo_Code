@@ -3,13 +3,17 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 
+import javax.inject.Inject;
 import java.util.Date;
+
+import static com.elster.jupiter.util.Checks.*;
 
 /**
  * @author Karel
@@ -26,6 +30,7 @@ public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements
     private String ediCode;
     private Date modificationDate;
 
+    @Inject
     protected PhenomenonImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {
         super(Phenomenon.class, dataModel, eventService, thesaurus);
         this.deviceConfigurationService = deviceConfigurationService;
@@ -50,7 +55,7 @@ public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements
     }
 
     public Unit getUnit() {
-        if(this.unit == null && this.unitString != null && !this.unitString.equals("")){
+        if (this.unit == null && !is(this.unitString).empty()) {
             this.unit = Unit.fromDb(this.unitString);
         }
         return this.unit;

@@ -7,7 +7,7 @@ import com.elster.jupiter.orm.TransactionRequired;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 
 /**
- * Models the different event types that are produced by this device type and configurations bundle.
+ * Models the different event types that are produced by this "device type and configurations bundle".
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:44)
@@ -36,8 +36,7 @@ public enum EventType {
                 .category("Crud")
                 .scope("System")
                 .shouldPublish()
-                .withProperty("id", ValueType.LONG, "id")
-                .withProperty("version", ValueType.LONG, "version");
+                .withProperty("id", ValueType.LONG, "id");
         this.addCustomProperties(builder).create().save();
     }
 

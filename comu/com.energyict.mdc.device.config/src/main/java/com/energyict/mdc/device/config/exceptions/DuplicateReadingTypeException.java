@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.exceptions;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.ProductSpec;
@@ -14,9 +15,9 @@ import com.energyict.mdc.device.config.ProductSpec;
  */
 public class DuplicateReadingTypeException extends LocalizedException {
 
-    public DuplicateReadingTypeException(Thesaurus thesaurus, String readingType) {
-        super(thesaurus, MessageSeeds.READING_TYPE_ALREADY_EXISTS, readingType);
-        this.set("readingType", readingType);
+    public DuplicateReadingTypeException(Thesaurus thesaurus, ReadingType readingType) {
+        super(thesaurus, MessageSeeds.READING_TYPE_ALREADY_EXISTS, readingType.getMRID());
+        this.set("readingTypeId", readingType.getMRID());
     }
 
 }

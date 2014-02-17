@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
@@ -28,7 +29,6 @@ import java.util.List;
 public class ProductSpecImpl implements ProductSpec {
 
     private long id;
-    private String readingTypeString;
     private final Reference<ReadingType> readingType = ValueReference.absent();
     private Date modificationDate;
 
@@ -44,10 +44,6 @@ public class ProductSpecImpl implements ProductSpec {
         this.thesaurus = thesaurus;
     }
 
-    static ProductSpecImpl from (DataModel dataModel, String readingType) {
-        return dataModel.getInstance(ProductSpecImpl.class).initialize(readingType);
-    }
-
     static ProductSpecImpl from (DataModel dataModel, ReadingType readingType) {
         return dataModel.getInstance(ProductSpecImpl.class).initialize(readingType);
     }
@@ -57,39 +53,19 @@ public class ProductSpecImpl implements ProductSpec {
         return this;
     }
 
-    ProductSpecImpl initialize (String readingType) {
-        this.validateReadingType(readingType);
-        this.validateUniqueReadingType(readingType);
-        this.readingTypeString = readingType;
-        return this;
-    }
-
-    private void validateReadingType(String readingType) {
-        if (readingType == null) {
-            throw new ReadingTypeIsRequiredException(this.thesaurus);
-        }
-        if (readingType.trim().isEmpty()) {
-            throw new ReadingTypeIsRequiredException(this.thesaurus);
-        }
-    }
-
     private void validateReadingType(ReadingType readingType) {
         if (readingType == null) {
             throw new ReadingTypeIsRequiredException(this.thesaurus);
         }
     }
 
-    private void validateUniqueReadingType(String readingType) {
+    private void validateUniqueReadingType(ReadingType readingType) {
         if (this.findOthersByReadingType(readingType) != null) {
             throw new DuplicateReadingTypeException(this.thesaurus, readingType);
         }
     }
 
-    private void validateUniqueReadingType(ReadingType readingType) {
-        this.validateUniqueReadingType(readingType.toString());
-    }
-
-    private ProductSpec findOthersByReadingType(String readingType) {
+    private ProductSpec findOthersByReadingType(ReadingType readingType) {
         return this.getDataMapper().getUnique("readingType", readingType).orNull();
     }
 
@@ -162,7 +138,6 @@ public class ProductSpecImpl implements ProductSpec {
         this.validateReadingType(readingType);
         this.validateUniqueReadingType(readingType);
         this.readingType.set(readingType);
-        this.readingTypeString = readingType.toString();
     }
 
     @Override

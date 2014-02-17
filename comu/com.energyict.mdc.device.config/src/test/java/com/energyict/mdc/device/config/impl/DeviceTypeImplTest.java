@@ -1,7 +1,8 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.BusinessException;
@@ -43,13 +44,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 
-import static com.elster.jupiter.cbo.Accumulation.DELTADELTA;
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
 import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
-import static com.elster.jupiter.cbo.TimeAttribute.MINUTE15;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -192,7 +191,7 @@ public class DeviceTypeImplTest {
         String deviceTypeName = "testCreateDeviceTypeWithLogBookType";
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupLogBookTypesInExistingTransaction();
+            this.setupLogBookTypesInExistingTransaction(deviceTypeName);
 
             deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
@@ -211,7 +210,7 @@ public class DeviceTypeImplTest {
         String deviceTypeName = "testCreateDeviceTypeWithMultipleLogBookTypes";
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupLogBookTypesInExistingTransaction();
+            this.setupLogBookTypesInExistingTransaction(deviceTypeName);
 
             deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
@@ -231,7 +230,7 @@ public class DeviceTypeImplTest {
         String deviceTypeName = "testAddLogBookTypeThatIsAlreadyAdded";
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupLogBookTypesInExistingTransaction();
+            this.setupLogBookTypesInExistingTransaction(deviceTypeName);
 
             deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
@@ -251,7 +250,7 @@ public class DeviceTypeImplTest {
         String deviceTypeName = "testAddLogBookType";
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupLogBookTypesInExistingTransaction();
+            this.setupLogBookTypesInExistingTransaction(deviceTypeName);
 
             deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
@@ -272,7 +271,7 @@ public class DeviceTypeImplTest {
         String deviceTypeName = "testRemoveLogBookType";
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupLogBookTypesInExistingTransaction();
+            this.setupLogBookTypesInExistingTransaction(deviceTypeName);
 
             deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
@@ -293,7 +292,7 @@ public class DeviceTypeImplTest {
         String deviceTypeName = "testRemoveLogBookTypeThatIsStillInUse";
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupLogBookTypesInExistingTransaction();
+            this.setupLogBookTypesInExistingTransaction(deviceTypeName);
 
             // Setup device type
             deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
@@ -325,7 +324,7 @@ public class DeviceTypeImplTest {
         String deviceTypeName = "testCreateDeviceTypeWithLoadProfileType";
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupLoadProfileTypesInExistingTransaction();
+            this.setupLoadProfileTypesInExistingTransaction(deviceTypeName);
             deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
             // Business method
@@ -343,7 +342,7 @@ public class DeviceTypeImplTest {
         String deviceTypeName = "testCreateDeviceTypeWithMultipleLoadProfileTypes";
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupLoadProfileTypesInExistingTransaction();
+            this.setupLoadProfileTypesInExistingTransaction(deviceTypeName);
             deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
             // Business method
@@ -362,7 +361,7 @@ public class DeviceTypeImplTest {
         String deviceTypeName = "testAddLoadProfileTypeThatIsAlreadyAdded";
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupLoadProfileTypesInExistingTransaction();
+            this.setupLoadProfileTypesInExistingTransaction(deviceTypeName);
             deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
             deviceType.addLoadProfileType(this.loadProfileType);
@@ -381,7 +380,7 @@ public class DeviceTypeImplTest {
         String deviceTypeName = "testAddLoadProfileType";
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupLoadProfileTypesInExistingTransaction();
+            this.setupLoadProfileTypesInExistingTransaction(deviceTypeName);
             deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
             deviceType.addLoadProfileType(this.loadProfileType);
@@ -389,9 +388,12 @@ public class DeviceTypeImplTest {
             ctx.commit();
         }
 
-        // Business method
-        deviceType.addLoadProfileType(this.loadProfileType2);
-        deviceType.save();
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Business method
+            deviceType.addLoadProfileType(this.loadProfileType2);
+            deviceType.save();
+            ctx.commit();
+        }
 
         assertThat(deviceType.getLoadProfileTypes()).containsOnly(this.loadProfileType, this.loadProfileType2);
     }
@@ -401,7 +403,7 @@ public class DeviceTypeImplTest {
         String deviceTypeName = "testRemoveLoadProfileType";
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupLoadProfileTypesInExistingTransaction();
+            this.setupLoadProfileTypesInExistingTransaction(deviceTypeName);
             deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
             deviceType.addLoadProfileType(this.loadProfileType);
@@ -409,8 +411,11 @@ public class DeviceTypeImplTest {
             ctx.commit();
         }
 
-        // Business method
-        deviceType.removeLoadProfileType(this.loadProfileType);
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Business method
+            deviceType.removeLoadProfileType(this.loadProfileType);
+            ctx.commit();
+        }
 
         // Asserts
         assertThat(deviceType.getLoadProfileTypes()).isEmpty();
@@ -422,7 +427,7 @@ public class DeviceTypeImplTest {
         String deviceTypeName = "testRemoveLoadProfileTypeThatIsStillInUse";
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupLoadProfileTypesInExistingTransaction();
+            this.setupLoadProfileTypesInExistingTransaction(deviceTypeName);
 
             // Setup the device type
             deviceType = deviceConfigurationService.newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
@@ -501,8 +506,11 @@ public class DeviceTypeImplTest {
             ctx.commit();
         }
 
-        // Business method
-        deviceType.addRegisterMapping(this.registerMapping);
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Business method
+            deviceType.addRegisterMapping(this.registerMapping);
+            ctx.commit();
+        }
 
         // Asserts: expected RegisterMappingAlreadyInDeviceTypeException
     }
@@ -521,8 +529,11 @@ public class DeviceTypeImplTest {
             ctx.commit();
         }
 
-        // Business method
-        deviceType.addRegisterMapping(this.registerMapping);
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Business method
+            deviceType.addRegisterMapping(this.registerMapping);
+            ctx.commit();
+        }
 
         // Asserts
         assertThat(deviceType.getRegisterMappings()).containsOnly(this.registerMapping, this.registerMapping2);
@@ -542,8 +553,11 @@ public class DeviceTypeImplTest {
             ctx.commit();
         }
 
-        // Business method
-        deviceType.removeRegisterMapping(this.registerMapping);
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Business method
+            deviceType.removeRegisterMapping(this.registerMapping);
+            ctx.commit();
+        }
 
         // Asserts
         assertThat(deviceType.getRegisterMappings()).isEmpty();
@@ -570,9 +584,10 @@ public class DeviceTypeImplTest {
             ctx.commit();
         }
 
-        try {
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
             // Business method
             deviceType.removeRegisterMapping(this.registerMapping);
+            ctx.commit();
         }
         catch (CannotDeleteBecauseStillInUseException e) {
             // Asserts
@@ -588,7 +603,7 @@ public class DeviceTypeImplTest {
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
             this.setupPhenomenaInExistingTransaction();
-            this.setupLoadProfileTypesInExistingTransaction();
+            this.setupLoadProfileTypesInExistingTransaction(deviceTypeName);
             this.setupRegisterMappingTypesInExistingTransaction();
 
             // Setup the device type
@@ -605,9 +620,10 @@ public class DeviceTypeImplTest {
             ctx.commit();
         }
 
-        try {
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
             // Business method
             deviceType.removeRegisterMapping(this.registerMapping);
+            ctx.commit();
         }
         catch (CannotDeleteBecauseStillInUseException e) {
             // Asserts
@@ -641,7 +657,7 @@ public class DeviceTypeImplTest {
         String deviceTypeName = "testDeviceTypeDeletionRemovesLogBookTypes";
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupLogBookTypesInExistingTransaction();
+            this.setupLogBookTypesInExistingTransaction(deviceTypeName);
 
             deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
@@ -652,8 +668,11 @@ public class DeviceTypeImplTest {
         }
         long deviceTypeId = deviceType.getId();
 
-        // Business method
-        deviceType.delete();
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Business method
+            deviceType.delete();
+            ctx.commit();
+        }
 
         // Asserts
         SqlBuilder builder = new SqlBuilder("select count(*) from eislogbooktypeforrtutype where RTUTYPEID = ?");
@@ -672,7 +691,7 @@ public class DeviceTypeImplTest {
         String deviceTypeName = "testDeviceTypeDeletionRemovesLoadProfileTypes";
         DeviceType deviceType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupLoadProfileTypesInExistingTransaction();
+            this.setupLoadProfileTypesInExistingTransaction(deviceTypeName);
 
             deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
@@ -683,8 +702,11 @@ public class DeviceTypeImplTest {
         }
         long deviceTypeId = deviceType.getId();
 
-        // Business method
-        deviceType.delete();
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Business method
+            deviceType.delete();
+            ctx.commit();
+        }
 
         // Asserts
         SqlBuilder builder = new SqlBuilder("select count(*) from eisloadprofiletypeforrtutype where RTUTYPEID = ?");
@@ -714,8 +736,11 @@ public class DeviceTypeImplTest {
         }
         long deviceTypeId = deviceType.getId();
 
-        // Business method
-        deviceType.delete();
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Business method
+            deviceType.delete();
+            ctx.commit();
+        }
 
         // Asserts
         SqlBuilder builder = new SqlBuilder("select count(*) from eisregistermappingforrtutype where RTUTYPEID = ?");
@@ -790,16 +815,14 @@ public class DeviceTypeImplTest {
         this.phenomenon.save();
     }
 
-    private void setupLogBookTypesInExistingTransaction () {
-        String logBookTypeBaseName = DeviceTypeImplTest.class.getSimpleName();
+    private void setupLogBookTypesInExistingTransaction(String logBookTypeBaseName) {
         this.logBookType = this.inMemoryPersistence.getDeviceConfigurationService().newLogBookType(logBookTypeBaseName + "-1", ObisCode.fromString("0.0.99.98.0.255"));
         this.logBookType.save();
         this.logBookType2 = this.inMemoryPersistence.getDeviceConfigurationService().newLogBookType(logBookTypeBaseName + "-2", ObisCode.fromString("1.0.99.97.0.255"));
         this.logBookType2.save();
     }
 
-    private void setupLoadProfileTypesInExistingTransaction () {
-        String loadProfileTypeBaseName = DeviceTypeImplTest.class.getSimpleName();
+    private void setupLoadProfileTypesInExistingTransaction(String loadProfileTypeBaseName) {
         this.loadProfileType = this.inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(loadProfileTypeBaseName + "-1", ObisCode.fromString("1.0.99.1.0.255"), INTERVAL_15_MINUTES);
         this.loadProfileType.save();
         this.loadProfileType2 = this.inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(loadProfileTypeBaseName + "-2", ObisCode.fromString("1.0.99.2.0.255"), INTERVAL_15_MINUTES);
@@ -822,9 +845,8 @@ public class DeviceTypeImplTest {
     }
 
     private void setupReadingTypeInExistingTransaction () {
-        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).code();
+        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
         this.readingType = this.inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        this.productSpec.save();
     }
 
 }
