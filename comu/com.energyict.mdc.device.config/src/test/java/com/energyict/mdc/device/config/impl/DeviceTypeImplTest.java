@@ -25,6 +25,7 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceProtocolWithActiveConfigurationsException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DeviceProtocolIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
@@ -156,6 +157,32 @@ public class DeviceTypeImplTest {
 
         // Asserts
         assertThat(deviceType).isNotNull();
+    }
+
+    @Test(expected = DuplicateNameException.class)
+    public void testDuplicateDeviceTypeCreation() {
+        String deviceTypeName = "testDuplicateDeviceTypeCreation";
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Setup first device type
+            DeviceType deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+            deviceType.setDescription("For testing purposes only");
+            deviceType.save();
+            ctx.commit();
+        }
+
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Business method
+            DeviceType deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+            deviceType.setDescription("For testing purposes only");
+            deviceType.save();
+            ctx.commit();
+        }
+        catch (DuplicateNameException e) {
+            // Asserts
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.DEVICE_TYPE_ALREADY_EXISTS);
+            throw e;
+        }
+
     }
 
     @Test(expected = NameIsRequiredException.class)

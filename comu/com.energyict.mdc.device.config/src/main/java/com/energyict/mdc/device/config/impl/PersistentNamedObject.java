@@ -46,9 +46,11 @@ public abstract class PersistentNamedObject<T> extends PersistentIdObject<T> {
 
     protected void validateUniqueName(String name) {
         if (this.findOtherByName(name) != null) {
-            throw DuplicateNameException.registerMappingAlreadyExists(this.getThesaurus(), name);
+            throw this.duplicateNameException(this.getThesaurus(), name);
         }
     }
+
+    protected abstract DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name);
 
     private T findOtherByName(String name) {
         return this.getDataMapper().getUnique("name", name).orNull();

@@ -35,13 +35,15 @@ public class ProductSpecImpl implements ProductSpec {
     private DataModel dataModel;
     private EventService eventService;
     private Thesaurus thesaurus;
+    private ReadingTypeUtilService readingTypeService;
 
     @Inject
-    public ProductSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    public ProductSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ReadingTypeUtilService readingTypeService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
+        this.readingTypeService = readingTypeService;
     }
 
     static ProductSpecImpl from (DataModel dataModel, ReadingType readingType) {

@@ -369,7 +369,7 @@ public interface DeviceConfigurationService {
 
     public List<LoadProfileType> findLoadProfileTypesByName(String name);
 
-    public List<LogBookType> findLogBookTypeByName(String name);
+    public LogBookType findLogBookTypeByName(String name);
 
     public List<LogBookType> findLogBookTypeByObisCode(ObisCode obisCode);
 

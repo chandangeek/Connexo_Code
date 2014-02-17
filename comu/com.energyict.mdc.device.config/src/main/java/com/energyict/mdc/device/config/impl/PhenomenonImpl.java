@@ -8,6 +8,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
+import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 
 import javax.inject.Inject;
@@ -114,6 +115,11 @@ public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements
     @Override
     protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
         return NameIsRequiredException.phenomenonNameIsRequired(thesaurus);
+    }
+
+    @Override
+    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
+        return DuplicateNameException.phenomenonAlreadyExists(this.getThesaurus(), name);
     }
 
     @Override

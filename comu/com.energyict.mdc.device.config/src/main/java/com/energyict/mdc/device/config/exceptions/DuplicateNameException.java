@@ -67,6 +67,19 @@ public class DuplicateNameException extends LocalizedException {
 
     /**
      * Creates a new DuplicateNameException that models the exceptional situation
+     * that occurs when an attempt is made to create a {@link com.energyict.mdc.device.config.Phenomenon}
+     * but another one with the same name already exists.
+     *
+     * @param thesaurus The Thesaurus
+     * @param name The name of the Phenomenon that already exists
+     * @return The DuplicateNameException
+     */
+    public static DuplicateNameException phenomenonAlreadyExists (Thesaurus thesaurus, String name) {
+        return new DuplicateNameException(thesaurus, MessageSeeds.PHENOMENON_NAME_IS_REQUIRED, name);
+    }
+
+    /**
+     * Creates a new DuplicateNameException that models the exceptional situation
      * that occurs when an attempt is made to create a {@link com.energyict.mdc.device.config.ChannelSpec}
      * but another one with the same name already exists.
      *
@@ -103,6 +116,20 @@ public class DuplicateNameException extends LocalizedException {
      */
     public static DuplicateNameException deviceConfigurationExists(Thesaurus thesaurus, String name) {
         return new DuplicateNameException(thesaurus, MessageSeeds.DEVICE_CONFIGURATION_ALREADY_EXISTS, name);
+    }
+
+    /**
+     * Creates a new DuplicateNameException that models the exceptional situation
+     * that occurs when an attempt is made to create a {@link com.energyict.mdc.device.config.DeviceType}
+     * on a {@link com.energyict.mdc.device.config.DeviceType} but another one with the same
+     * name already exists
+     *
+     * @param thesaurus The Thesaurus
+     * @param name The name of the LogBookType that already exists
+     * @return The DuplicateNameException
+     */
+    public static DuplicateNameException deviceTypeExists(Thesaurus thesaurus, String name) {
+        return new DuplicateNameException(thesaurus, MessageSeeds.DEVICE_TYPE_ALREADY_EXISTS, name);
     }
 
     private DuplicateNameException(Thesaurus thesaurus, MessageSeeds messageSeeds, String name) {

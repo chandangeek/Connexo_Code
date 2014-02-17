@@ -18,6 +18,7 @@ import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateIntervalWhenLoadProfileTypeIsInUseException;
+import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
@@ -118,6 +119,34 @@ public class LoadProfileTypeImplTest {
         assertThat(loadProfileType.getDescription()).isNotEmpty();
         assertThat(loadProfileType.getObisCode()).isEqualTo(OBIS_CODE);
         assertThat(loadProfileType.getInterval()).isEqualTo(interval);
+    }
+
+    @Test(expected = DuplicateNameException.class)
+    public void testDuplicateName () {
+        DeviceConfigurationServiceImpl deviceConfigurationService = this.inMemoryPersistence.getDeviceConfigurationService();
+        String loadProfileTypeName = "testDuplicateName";
+        TimeDuration interval = INTERVAL_15_MINUTES;
+
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Setup first LoadProfileType
+            LoadProfileType loadProfileType = deviceConfigurationService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+            loadProfileType.setDescription("For testing purposes only");
+            loadProfileType.save();
+            ctx.commit();
+        }
+
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Business method
+            LoadProfileType loadProfileType = deviceConfigurationService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+            loadProfileType.setDescription("For testing purposes only");
+            loadProfileType.save();
+            ctx.commit();
+        }
+        catch (DuplicateNameException e) {
+            // Asserts
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_ALREADY_EXISTS);
+            throw e;
+        }
     }
 
     @Test(expected = NameIsRequiredException.class)

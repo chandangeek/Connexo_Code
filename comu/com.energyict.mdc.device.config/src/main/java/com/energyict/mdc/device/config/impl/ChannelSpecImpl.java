@@ -319,7 +319,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     protected void validateUniqueName(String name) {
         if (this.deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfiguration(), name) != null) {
-            throw DuplicateNameException.channelSpecAlreadyExists(this.getThesaurus(), name);
+            throw this.duplicateNameException(this.getThesaurus(), name);
         }
         if (name.length() > 27) {
             if (this.deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfiguration(), name.substring(0, 27)) != null) {
@@ -328,6 +328,10 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         }
     }
 
+    @Override
+    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
+        return DuplicateNameException.channelSpecAlreadyExists(this.getThesaurus(), name);
+    }
 
     @Override
     public String toString() {

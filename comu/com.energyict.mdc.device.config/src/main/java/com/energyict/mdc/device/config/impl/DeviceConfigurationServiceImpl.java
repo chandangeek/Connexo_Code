@@ -14,6 +14,7 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -25,7 +26,6 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
@@ -353,8 +353,8 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
-    public List<LogBookType> findLogBookTypeByName(String name) {
-        return this.getDataModel().mapper(LogBookType.class).find("name", name);
+    public LogBookType findLogBookTypeByName(String name) {
+        return this.getDataModel().mapper(LogBookType.class).getUnique("name", name).orNull();
     }
 
     @Override
