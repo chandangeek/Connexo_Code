@@ -46,22 +46,30 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                         }
                     }
                 ],
-                tdCls: 'view'
+                tdCls: 'view',
+                sortable: false,
+                hideable: false
             },
             {
                 header: I18n.translate('registerMappings.obisCode', 'MDC', 'OBIS code'),
                 dataIndex: 'obisCode',
-                flex: 1
+                flex: 1,
+                sortable: false,
+                hideable: false
             },
             {
                 header: I18n.translate('registerMappings.type', 'MDC', 'Type'),
                 dataIndex: 'measurementKind',
-                flex: 1
+                flex: 1,
+                sortable: false,
+                hideable: false
             },
             {
                 xtype: 'actioncolumn',
                 tdCls: 'view',
                 width: 24,
+                sortable: false,
+                hideable: false,
                 items: [
                     {
                         icon: 'resources/images/gear-16x16.png',
