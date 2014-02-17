@@ -8,10 +8,6 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
     requires: [
         'Cfg.model.ValidationRuleSet'
     ],
-    /*layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },    */
 
     layout: {
         type: 'card',

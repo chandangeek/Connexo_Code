@@ -1,7 +1,7 @@
 Ext.define('Cfg.view.validation.RuleList', {
     extend: 'Ext.grid.Panel',
     border: true,
-    margins: '0 10 0 10',
+    margins: '0 10 10 10',
     alias: 'widget.validationruleList',
     itemId: 'validationruleList',
     store: 'ValidationRules',
@@ -11,11 +11,7 @@ Ext.define('Cfg.view.validation.RuleList', {
         'Uni.view.toolbar.PagingBottom'
     ],
 
-    ruleSetId: 9001,
-
-    setRuleSetId: function(value) {
-        this.ruleSetId = value;
-    },
+    ruleSetId: null,
 
     columns: {
 

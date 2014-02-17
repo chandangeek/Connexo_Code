@@ -2,6 +2,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
     extend: 'Ext.panel.Panel',
     border: true,
     margins: '0 10 10 10',
+    //margins: '0 10 0 10',
     alias: 'widget.rulePreview',
     itemId: 'rulePreview',
     requires: [
@@ -42,10 +43,6 @@ Ext.define('Cfg.view.validation.RulePreview', {
             layout: {
                 type: 'vbox',
                 align: 'stretch'
-            },
-            defaults: {
-                anchor: '100%',
-                margins: '0 0 5 0'
             },
             tbar: [
                 {
