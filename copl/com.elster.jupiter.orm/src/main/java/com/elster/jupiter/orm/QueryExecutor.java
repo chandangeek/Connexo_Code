@@ -22,8 +22,6 @@ public interface QueryExecutor<T> extends BasicQuery<T> {
 	void setRestriction(Condition condition);
 	
 	// domain util query support
-    List<T> select(Condition condition, String[] orderBy, boolean eager , String[] exceptions);
-    List<T> select(Condition condition, String[] orderBy , boolean eager , String[] exceptions , int from , int to);
     List<T> select(Condition condition, Order[] orderBy, boolean eager , String[] exceptions);
     List<T> select(Condition condition, Order[] orderBy , boolean eager , String[] exceptions , int from , int to);
     Object convert(String fieldName , String value);

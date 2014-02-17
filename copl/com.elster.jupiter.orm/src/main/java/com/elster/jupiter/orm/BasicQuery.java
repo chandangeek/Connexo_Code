@@ -15,6 +15,7 @@ import com.google.common.base.Optional;
 public interface BasicQuery<T> {
 	Optional<T> getOptional(Object... values);
 	T getExisting(Object... values);
-    List<T> select(Condition condition, String ... orderBy);
-    List<T> select(Condition condition, Order ordering , Order ... orderings);
+    List<T> select(Condition condition, Order ... orders);
+    @Deprecated
+    List<T> select(Condition condition, String order, String ... orders);
 }

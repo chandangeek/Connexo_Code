@@ -415,12 +415,15 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return getMapperType().getType(fieldName);
 	}
 	
-	public List<T> select(Condition condition, String ... orderBy) {
-		return with().select(condition, orderBy);
+	@Override
+	@Deprecated
+	public List<T> select(Condition condition, String order, String ... orders) {
+		return with().select(condition, Order.from(order,orders));
 	}
-	
-	public List<T> select(Condition condition, Order firstOrder, Order ... orders) {
-		return with().select(condition, firstOrder, orders);
+
+	@Override
+	public List<T> select(Condition condition, Order ... orders) {
+		return with().select(condition, orders);
 	}
 	
 	DataMapperType <? super T> getMapperType() {

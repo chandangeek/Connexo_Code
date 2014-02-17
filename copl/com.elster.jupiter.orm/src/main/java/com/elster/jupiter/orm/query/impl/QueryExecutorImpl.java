@@ -36,20 +36,6 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 		}
 	}	
 	
-	@Override
-	public List<T> select(Condition condition, String[] orderBy , boolean eager , String[] exceptions) {
-		return select(condition, orderBy, eager, exceptions, 0,0);
-	}
-	
-	@Override
-	public List<T> select(Condition condition, String[] orderBy , boolean eager , String[] exceptions , int from , int to) {
-		try {
-			return new JoinExecutor<>(root.copy(), getEffectiveDate() , from,to).select(restriction.and(condition), Order.from(orderBy) , eager, exceptions);
-		} catch (SQLException ex) {
-			throw new UnderlyingSQLFailedException(ex);
-		}
-	}
-	
 	public List<T> select(Condition condition, Order[] ordering , boolean eager , String[] exceptions , int from , int to) {
 		try {
 			return new JoinExecutor<>(root.copy(), getEffectiveDate() , from,to).select(restriction.and(condition),ordering , eager, exceptions);
@@ -121,8 +107,9 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	}
 
 	@Override
-	public List<T> select(Condition condition, String... orderBy) {
-		return select(condition, orderBy, true,new String[0]);
+	@Deprecated
+	public List<T> select(Condition condition, String order , String... orders) {
+		return select(condition, Order.from(order,orders));
 	}
 
 	@Override
@@ -139,13 +126,13 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	}
 
 	@Override
-	public List<T> select(Condition condition, Order ordering, Order... orderings) {
-		return select(condition, Order.from(ordering,orderings), true, new String[0]);
+	public List<T> select(Condition condition, Order... orders) {
+		return select(condition, orders, true, new String[0]);
 	}
 
 	@Override
-	public List<T> select(Condition condition, Order[] orderBy, boolean eager,String[] exceptions) {		
-		return select(condition,orderBy,eager,exceptions,0,0);
+	public List<T> select(Condition condition, Order[] orders, boolean eager,String[] exceptions) {		
+		return select(condition,orders,eager,exceptions,0,0);
 	}
 }
 

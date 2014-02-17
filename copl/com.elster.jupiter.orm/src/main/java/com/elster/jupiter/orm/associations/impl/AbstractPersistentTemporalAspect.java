@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
 
@@ -39,16 +40,16 @@ public abstract class AbstractPersistentTemporalAspect<T extends Effectivity> im
 	
 	@Override
 	public List<T> effective(Interval interval) {
-		return postProcess(dataMapper.select(baseCondition.and(Where.where("interval").isEffective(interval)),"interval.start"));
+		return postProcess(dataMapper.select(baseCondition.and(Where.where("interval").isEffective(interval)),Order.ascending("interval.start")));
 	}
 
 	List<T> allEffective(Date date) {
-		return postProcess(dataMapper.select(baseCondition.and(Where.where("interval").isEffective(date)),"interval.start"));
+		return postProcess(dataMapper.select(baseCondition.and(Where.where("interval").isEffective(date)),Order.ascending("interval.start")));
 	}
 	
 	@Override
 	public List<T> all() {
-		return postProcess(dataMapper.select(baseCondition, "interval.start"));
+		return postProcess(dataMapper.select(baseCondition, Order.ascending("interval.start")));
 	}
 
 	public DataMapperImpl<T> getDataMapper() {
