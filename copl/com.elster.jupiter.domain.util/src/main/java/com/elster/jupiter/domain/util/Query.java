@@ -33,13 +33,15 @@ public interface Query<T> {
 	 * 
 	 * @return list of objects matching the condition
 	 */
-    List<T> select(Condition condition, String ... orderBy);
-    List<T> select(Condition condition, Order order , Order ... orders);
+	@Deprecated
+    List<T> select(Condition condition, String order, String ... orders);
+    List<T> select(Condition condition, Order ... orders);
     /** 
      * paginated query
      */
-    List<T> select(Condition condition,int from , int to , String ... orderBy);
-    List<T> select(Condition condition, int from , int to, Order order , Order ... orders);
+    @Deprecated
+    List<T> select(Condition condition,int from , int to , String order , String ... orders);
+    List<T> select(Condition condition, int from , int to, Order ... orders);
     /**
      * get by primary key. This differs from DataMapper.get that it 
      * will retrieve associated objects in a single query

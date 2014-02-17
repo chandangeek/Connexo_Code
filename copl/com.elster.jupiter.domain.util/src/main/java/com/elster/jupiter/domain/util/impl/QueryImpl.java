@@ -21,13 +21,15 @@ class QueryImpl<T> implements Query<T> {
     }
 
     @Override
-    public List<T> select(Condition condition, String... orderBy) {
-        return queryExecutor.select(condition, orderBy, isEager(), exceptions);
+    @Deprecated
+    public List<T> select(Condition condition, String order, String... orders) {
+        return select(condition, Order.from(order,orders));
     }
 
     @Override
-    public List<T> select(Condition condition, int from, int to, String... orderBy) {
-        return queryExecutor.select(condition, orderBy, isEager(), exceptions, from, to);
+    @Deprecated
+    public List<T> select(Condition condition, int from, int to, String order, String... orders) {
+        return select(condition, from, to, Order.from(order,orders));
     }
 
     @Override
@@ -89,13 +91,13 @@ class QueryImpl<T> implements Query<T> {
     }
 
 	@Override
-	public List<T> select(Condition condition, Order order, Order... orders) {
-		return queryExecutor.select(condition, Order.from(order,orders), isEager(), exceptions);
+	public List<T> select(Condition condition, Order... orders) {
+		return queryExecutor.select(condition, orders, isEager(), exceptions);
 	}
 
 	@Override
-	public List<T> select(Condition condition, int from, int to, Order order, Order... orders) {
-		return  queryExecutor.select(condition, Order.from(order,orders), isEager(), exceptions, from, to);
+	public List<T> select(Condition condition, int from, int to, Order... orders) {
+		return  queryExecutor.select(condition, orders, isEager(), exceptions, from, to);
 	}
 	
 
