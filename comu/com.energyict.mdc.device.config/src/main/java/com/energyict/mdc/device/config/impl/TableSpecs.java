@@ -1,13 +1,14 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
@@ -69,8 +70,8 @@ public enum TableSpecs {
             Column name = table.column("NAME").varChar(80).notNull().map("name").add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
             table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
-            table.column("INTERVALCOUNT").number().notNull().map("interval.count").add();
-            table.column("INTERVALUNIT").number().notNull().map("interval.timeUnitCode").add();
+            table.column("INTERVALCOUNT").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.count").add();
+            table.column("INTERVALUNIT").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.unique("UK_LOADPROFILETYPE").on(name).add();
             table.primaryKey("PK_LOADPROFILETYPE").on(id).add();
@@ -96,9 +97,10 @@ public enum TableSpecs {
             Table<ProductSpec> table = dataModel.addTable(this.name(), ProductSpec.class);
             table.map(ProductSpecImpl.class);
             Column id = table.addAutoIdColumn();
-            table.column("READINGTYPE").varChar(100).map("readingType").add();
-            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
+            Column readingType = table.column("READINGTYPE").varChar(100).add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
             table.primaryKey("PK_PRODUCTSPEC").on(id).add();
+            table.foreignKey("FK_PRODUCTSPEC_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
         }
     },
 
@@ -199,7 +201,7 @@ public enum TableSpecs {
             table.map(PhenomenonImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(80).notNull().map("name").add();
-            Column unit = table.column("UNIT").type("CHAR(7)").notNull().map("unit").add();
+            Column unit = table.column("UNIT").type("CHAR(7)").notNull().map("unitString").add();
             table.column("MEASUREMENTCODE").varChar(80).map("measurementCode").add();
             table.column("EDICODE").varChar(80).map("ediCode").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();

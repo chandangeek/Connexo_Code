@@ -33,6 +33,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.elster.jupiter.util.Checks.is;
+
 public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> implements RegisterMapping {
 
     private DeviceConfigurationService deviceConfigurationService;
@@ -104,7 +106,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     }
 
     public ObisCode getObisCode() {
-        if (this.obisCode == null) {
+        if (this.obisCode == null && !is(this.obisCodeString).empty()) {
             this.obisCode = ObisCode.fromString(this.obisCodeString);
         }
         return this.obisCode;
@@ -115,7 +117,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         if (obisCode == null) {
             throw ObisCodeIsRequiredException.registerMappingRequiresObisCode(this.getThesaurus());
         }
-        if (!this.getObisCode().equals(obisCode)) {
+        if (this.obisCodeChanged(obisCode)) {
             if (this.isInUse()) {
                 throw new CannotUpdateObisCodeWhenRegisterMappingIsInUseException(this.getThesaurus(), this);
             }
@@ -126,6 +128,10 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
             this.obisCodeString = obisCode.toString();
             this.obisCode = obisCode;
         }
+    }
+
+    private boolean obisCodeChanged(ObisCode obisCode) {
+        return !is(this.obisCode).equalTo(obisCode);
     }
 
     private RegisterMapping findOtherByObisCode(ObisCode obisCode) {
@@ -152,12 +158,17 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         if (productSpec == null) {
             throw new ProductSpecIsRequiredException(this.getThesaurus());
         }
-        if (this.getProductSpec().getId() != productSpec.getId()) {
+        if (this.productSpecChanged(productSpec)) {
             if (this.isInUse()) {
                 throw new CannotUpdateProductSpecWhenRegisterMappingIsInUseException(this.getThesaurus(), this);
             }
             this.productSpec.set(productSpec);
         }
+    }
+
+    private boolean productSpecChanged(ProductSpec productSpec) {
+        return ((!this.productSpec.isPresent() && productSpec != null)
+            || (productSpec != null && (this.getProductSpec().getId() != productSpec.getId())));
     }
 
     @Override

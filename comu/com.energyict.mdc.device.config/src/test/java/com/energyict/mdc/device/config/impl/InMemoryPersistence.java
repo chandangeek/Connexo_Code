@@ -4,17 +4,22 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
@@ -54,6 +59,7 @@ public class InMemoryPersistence {
     private EventService eventService;
     private NlsService nlsService;
     private DeviceConfigurationServiceImpl deviceConfigurationService;
+    private MeteringService meteringService;
     private DataModel dataModel;
 
     private ApplicationContext applicationContext;
@@ -72,6 +78,10 @@ public class InMemoryPersistence {
                 new UtilModule(),
                 new NlsModule(),
                 new DomainUtilModule(),
+                new PartyModule(),
+                new UserModule(),
+                new IdsModule(),
+                new MeteringModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
@@ -81,6 +91,7 @@ public class InMemoryPersistence {
             this.ormService = injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
+            this.meteringService = injector.getInstance(MeteringService.class);
             this.dataModel = this.createNewDeviceConfigurationService();
             for (DataModelInitializer initializer : dataModelInitializers) {
                 initializer.initializeDataModel(this.dataModel);
@@ -93,7 +104,7 @@ public class InMemoryPersistence {
     }
 
     private DataModel createNewDeviceConfigurationService() {
-        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.protocolPluggableService);
+        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.protocolPluggableService);
         return this.deviceConfigurationService.getDataModel();
     }
 
@@ -134,6 +145,10 @@ public class InMemoryPersistence {
             InMemoryBootstrapModule inMemoryBootstrapModule = (InMemoryBootstrapModule) bootstrapModule;
             inMemoryBootstrapModule.deactivate();
         }
+    }
+
+    public MeteringService getMeteringService() {
+        return meteringService;
     }
 
     public DeviceConfigurationServiceImpl getDeviceConfigurationService() {
