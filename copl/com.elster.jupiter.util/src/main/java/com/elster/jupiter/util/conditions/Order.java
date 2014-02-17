@@ -30,6 +30,7 @@ public final class Order {
 		return new Order(name,false);
 	}
 	
+	@Deprecated
 	public static Order[] from(String[] orderBy) {
 		if (orderBy == null) {
 			return new Order[0];
@@ -41,11 +42,12 @@ public final class Order {
 		return result;
 	}
 	
-	public static Order[] from(Order order , Order[] orders) {
+	@Deprecated
+	public static Order[] from(String order , String[] orders) {
 		Order[] result = new Order[orders.length + 1];
-		result[0] = order;
+		result[0] = Order.ascending(order);
 		for (int i = 0 ; i < orders.length; i++) {
-			result[i+1] = orders[i];
+			result[i+1] = Order.ascending(orders[i]);
 		}
 		return result;
 	}
