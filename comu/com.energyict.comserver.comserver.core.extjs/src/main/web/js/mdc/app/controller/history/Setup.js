@@ -15,6 +15,8 @@ Ext.define('Mdc.controller.history.Setup', {
         } else if (tokens.length > 1 && tokens[1] === 'devicetypes') {
             if (tokens[3] === 'registertypes') {
                 this.handleRegisterMappingTokens(tokens);
+            } else if (tokens[3] === 'configurations'){
+                this.handleConfigurationTokens(tokens);
             } else {
                 this.handleDeviceTypeTokens(tokens);
             }
@@ -95,6 +97,12 @@ Ext.define('Mdc.controller.history.Setup', {
             if (tokens[4] === 'add') {
                 Mdc.getApplication().getSetupRegisterMappingsController().addRegisterMappings(tokens[2]);
             }
+        }
+    },
+
+    handleConfigurationTokens: function (tokens) {
+        if (tokens.length === 4) {
+            Mdc.getApplication().getSetupDeviceConfigurationsController().showDeviceConfigurations(tokens[2]);
         }
     },
 
