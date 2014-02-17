@@ -53,6 +53,14 @@ public interface DeviceConfigurationService {
      */
     public ProductSpec findProductSpec(long id);
 
+    /**
+     * Finds the {@link ProductSpec} that is uniquely identified by the specified {@link ReadingType}.
+     *
+     * @param readingType The ReadingType
+     * @return The ProductSpec or <code>null</code> if there is no such ProductSpec
+     */
+    public ProductSpec findProductSpecByReadingType(ReadingType readingType);
+
     public List<ProductSpec> findAllProductSpecs();
 
     /**

@@ -107,7 +107,7 @@ public class ProductSpecImpl implements ProductSpec {
         if (this.id == 0) {
             throw new CannotDeleteDefaultProductSpecException(this.thesaurus);
         }
-        List<RegisterMapping> registerMappings = this.dataModel.mapper(RegisterMapping.class).find("productSpec", this.getId());
+        List<RegisterMapping> registerMappings = this.dataModel.mapper(RegisterMapping.class).find("productSpec", this);
         if (!registerMappings.isEmpty()) {
             throw CannotDeleteBecauseStillInUseException.productSpecIsStillInUse(this.thesaurus, this, registerMappings);
         }
@@ -141,7 +141,7 @@ public class ProductSpecImpl implements ProductSpec {
 
     @Override
     public String getDescription() {
-        return this.getReadingType().toString();
+        return this.getReadingType().getName();
     }
 
 }

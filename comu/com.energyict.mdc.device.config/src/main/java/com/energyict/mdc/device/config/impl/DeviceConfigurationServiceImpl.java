@@ -110,6 +110,11 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
+    public ProductSpec findProductSpecByReadingType(ReadingType readingType) {
+        return this.getDataModel().mapper(ProductSpec.class).getUnique("readingType", readingType).orNull();
+    }
+
+    @Override
     public List<ProductSpec> findAllProductSpecs() {
         return this.getDataModel().mapper(ProductSpec.class).find();
     }
