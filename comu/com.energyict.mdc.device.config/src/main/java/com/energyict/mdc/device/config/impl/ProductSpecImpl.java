@@ -7,7 +7,6 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
@@ -35,15 +34,13 @@ public class ProductSpecImpl implements ProductSpec {
     private DataModel dataModel;
     private EventService eventService;
     private Thesaurus thesaurus;
-    private ReadingTypeUtilService readingTypeService;
 
     @Inject
-    public ProductSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ReadingTypeUtilService readingTypeService) {
+    public ProductSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
-        this.readingTypeService = readingTypeService;
     }
 
     static ProductSpecImpl from (DataModel dataModel, ReadingType readingType) {
