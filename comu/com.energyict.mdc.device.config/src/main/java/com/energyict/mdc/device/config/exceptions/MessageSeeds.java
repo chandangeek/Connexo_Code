@@ -65,6 +65,7 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_LOAD_PROFILE_TYPE_IN_DEVICE_TYPE(7005, "deviceType.loadProfileType.duplicate", "The load profile type {0} was already added to the device type {1}", Level.SEVERE),
     DUPLICATE_LOG_BOOK_TYPE_IN_DEVICE_TYPE(7006, "deviceType.logBookType.duplicate", "The log book type {0} was already added to the device type {1}", Level.SEVERE),
     DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_ACTIVE_CONFIGURATIONS(7007, "deviceType.protocol.noupdate", "The protocol of a device type cannot change when the device type has active configurations", Level.SEVERE),
+    DUPLICATE_REGISTER_MAPPING_IN_DEVICE_TYPE(7008, "deviceType.registerMapping.duplicate", "The register mapping {0} was already added to the device type {1}", Level.SEVERE),
     LOAD_PROFILE_SPEC_DEVICE_CONFIG_IS_REQUIRED(8001, "loadProfileSpec.deviceConfig.required", "The device configuration of a load profile specification is required", Level.SEVERE),
     LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_NOT_ON_DEVICE_TYPE(8002, "loadProfileSpec.cannotAddLoadProfileSpecOfTypeXBecauseRtuTypeYDoesNotContainIt", "The load profile spec contains a load profile type {0} which is not configured on the device type", Level.SEVERE),
     LOAD_PROFILE_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(8003, "loadProfileSpec.active.configuration", "You can not add a load profile spec to an active device configuration", Level.SEVERE),

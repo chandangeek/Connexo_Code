@@ -13,6 +13,7 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -20,6 +21,7 @@ import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceProtocolWithActiveConfigurationsException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DeviceProtocolIsRequiredException;
@@ -31,6 +33,7 @@ import com.energyict.mdc.device.config.exceptions.RegisterMappingAlreadyInDevice
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +41,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -259,9 +263,12 @@ public class DeviceTypeImplTest {
             ctx.commit();
         }
 
-        // Business method
-        deviceType.addLogBookType(this.logBookType2);
-        deviceType.save();
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Business method
+            deviceType.addLogBookType(this.logBookType2);
+            deviceType.save();
+            ctx.commit();
+        }
 
         assertThat(deviceType.getLogBookTypes()).containsOnly(this.logBookType, this.logBookType2);
     }
@@ -280,8 +287,11 @@ public class DeviceTypeImplTest {
             ctx.commit();
         }
 
-        // Business method
-        deviceType.removeLogBookType(this.logBookType);
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Business method
+            deviceType.removeLogBookType(this.logBookType);
+            ctx.commit();
+        }
 
         // Asserts
         assertThat(deviceType.getLogBookTypes()).isEmpty();
@@ -448,7 +458,7 @@ public class DeviceTypeImplTest {
         }
         catch (CannotDeleteBecauseStillInUseException e) {
             // Asserts
-            assertThat(e.getMessageSeed().getNumber()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS);
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS);
             throw e;
         }
     }
@@ -524,7 +534,6 @@ public class DeviceTypeImplTest {
 
             deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
-            deviceType.addRegisterMapping(this.registerMapping);
             deviceType.save();
             ctx.commit();
         }
@@ -536,7 +545,7 @@ public class DeviceTypeImplTest {
         }
 
         // Asserts
-        assertThat(deviceType.getRegisterMappings()).containsOnly(this.registerMapping, this.registerMapping2);
+        assertThat(deviceType.getRegisterMappings()).containsOnly(this.registerMapping);
     }
 
     @Test
@@ -579,7 +588,10 @@ public class DeviceTypeImplTest {
 
             // Add DeviceConfiguration with a RegisterSpec that uses the RegisterMapping
             DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Conf 1 for " + deviceTypeName);
-            deviceConfigurationBuilder.newRegisterSpec(this.registerMapping);
+            RegisterSpec.RegisterSpecBuilder registerSpecBuilder = deviceConfigurationBuilder.newRegisterSpec(this.registerMapping);
+            registerSpecBuilder.setNumberOfDigits(5);
+            registerSpecBuilder.setNumberOfFractionDigits(2);
+            registerSpecBuilder.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
             deviceConfigurationBuilder.add();
             ctx.commit();
         }
@@ -610,6 +622,7 @@ public class DeviceTypeImplTest {
             deviceType = deviceConfigurationService.newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
             deviceType.addRegisterMapping(this.registerMapping);
+            deviceType.addLoadProfileType(this.loadProfileType);
             deviceType.save();
 
             // Add DeviceConfiguration with a ChannelSpec that uses the ChannelMapping
@@ -642,7 +655,9 @@ public class DeviceTypeImplTest {
             deviceType = this.inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType.setDescription("For testing purposes only");
             deviceType.addRegisterMapping(this.registerMapping);
+            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Active Configuration").add();
             deviceType.save();
+            deviceConfiguration.activate();
             ctx.commit();
         }
 
@@ -677,11 +692,13 @@ public class DeviceTypeImplTest {
         // Asserts
         SqlBuilder builder = new SqlBuilder("select count(*) from eislogbooktypeforrtutype where RTUTYPEID = ?");
         builder.bindLong(deviceTypeId);
-        try (PreparedStatement statement = builder.getStatement(Environment.DEFAULT.get().getConnection())) {
-            try (ResultSet resultSet = statement.executeQuery()) {
-                resultSet.next();
-                int logBookTypeCounter = resultSet.getInt(1);
-                assertThat(logBookTypeCounter).isZero();
+        try (Connection connection = Environment.DEFAULT.get().getConnection()) {
+            try (PreparedStatement statement = builder.getStatement(connection)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    resultSet.next();
+                    int logBookTypeCounter = resultSet.getInt(1);
+                    assertThat(logBookTypeCounter).isZero();
+                }
             }
         }
     }
@@ -709,13 +726,15 @@ public class DeviceTypeImplTest {
         }
 
         // Asserts
-        SqlBuilder builder = new SqlBuilder("select count(*) from eisloadprofiletypeforrtutype where RTUTYPEID = ?");
+        SqlBuilder builder = new SqlBuilder("select count(*) from EISLOADPRFTYPEFORRTUTYPE where RTUTYPEID = ?");
         builder.bindLong(deviceTypeId);
-        try (PreparedStatement statement = builder.getStatement(Environment.DEFAULT.get().getConnection())) {
-            try (ResultSet resultSet = statement.executeQuery()) {
-                resultSet.next();
-                int loadProfileTypeCounter = resultSet.getInt(1);
-                assertThat(loadProfileTypeCounter).isZero();
+        try (Connection connection = Environment.DEFAULT.get().getConnection()) {
+            try (PreparedStatement statement = builder.getStatement(connection)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    resultSet.next();
+                    int loadProfileTypeCounter = resultSet.getInt(1);
+                    assertThat(loadProfileTypeCounter).isZero();
+                }
             }
         }
     }
@@ -743,13 +762,15 @@ public class DeviceTypeImplTest {
         }
 
         // Asserts
-        SqlBuilder builder = new SqlBuilder("select count(*) from eisregistermappingforrtutype where RTUTYPEID = ?");
+        SqlBuilder builder = new SqlBuilder("select count(*) from EISREGMAPFORRTUTYPE where RTUTYPEID = ?");
         builder.bindLong(deviceTypeId);
-        try (PreparedStatement statement = builder.getStatement(Environment.DEFAULT.get().getConnection())) {
-            try (ResultSet resultSet = statement.executeQuery()) {
-                resultSet.next();
-                int registerMappingCounter = resultSet.getInt(1);
-                assertThat(registerMappingCounter).isZero();
+        try (Connection connection = Environment.DEFAULT.get().getConnection()) {
+            try (PreparedStatement statement = builder.getStatement(connection)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    resultSet.next();
+                    int registerMappingCounter = resultSet.getInt(1);
+                    assertThat(registerMappingCounter).isZero();
+                }
             }
         }
     }

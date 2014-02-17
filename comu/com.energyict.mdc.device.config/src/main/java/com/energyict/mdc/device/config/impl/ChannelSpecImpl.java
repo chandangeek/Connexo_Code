@@ -345,7 +345,9 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public void setDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
-        validateDeviceConfigurationForUpdate(deviceConfiguration);
+        if (this.deviceConfiguration.isPresent()) {
+            validateDeviceConfigurationForUpdate(deviceConfiguration);
+        }
         this.deviceConfiguration.set(deviceConfiguration);
     }
 
@@ -358,7 +360,9 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public void setRegisterMapping(RegisterMapping registerMapping) {
-        validateRegisterMappingForUpdate(registerMapping);
+        if (this.registerMapping.isPresent()) {
+            validateRegisterMappingForUpdate(registerMapping);
+        }
         this.registerMapping.set(registerMapping);
     }
 

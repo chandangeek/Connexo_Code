@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bootstrap.h2.impl.ResultSetPrinter;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -33,7 +34,14 @@ import com.google.inject.Provider;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.security.Principal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.mockito.Matchers.anyString;
@@ -165,6 +173,20 @@ public class InMemoryPersistence {
 
     public ApplicationContext getApplicationContext() {
         return applicationContext;
+    }
+
+    public static String query(String sql) {
+        Connection connection = Environment.DEFAULT.get().getConnection();
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            ResultSet resultSet = statement.executeQuery();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            new ResultSetPrinter(new PrintStream(out)).print(resultSet);
+            return new String(out.toByteArray());
+        } catch (SQLException e) {
+            StringWriter stringWriter = new StringWriter();
+            e.printStackTrace(new PrintWriter(stringWriter));
+            return stringWriter.toString();
+        }
     }
 
     private class MockModule extends AbstractModule {

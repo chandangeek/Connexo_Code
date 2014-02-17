@@ -16,7 +16,7 @@ import com.energyict.mdc.device.config.RegisterMapping;
 public class RegisterMappingAlreadyInDeviceTypeException extends LocalizedException {
 
     public RegisterMappingAlreadyInDeviceTypeException(Thesaurus thesaurus, DeviceType deviceType, RegisterMapping registerMapping) {
-        super(thesaurus, MessageSeeds.DUPLICATE_REGISTER_MAPPING_IN_LOAD_PROFILE_TYPE);
+        super(thesaurus, MessageSeeds.DUPLICATE_REGISTER_MAPPING_IN_DEVICE_TYPE, registerMapping.getName(), deviceType.getName());
         this.set("deviceType", deviceType);
         this.set("registerMapping", registerMapping);
     }

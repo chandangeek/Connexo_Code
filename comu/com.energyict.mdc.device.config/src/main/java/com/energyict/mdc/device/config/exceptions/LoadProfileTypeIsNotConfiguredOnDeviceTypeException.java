@@ -16,7 +16,8 @@ import com.energyict.mdc.device.config.LoadProfileType;
 public class LoadProfileTypeIsNotConfiguredOnDeviceTypeException extends LocalizedException{
 
     public LoadProfileTypeIsNotConfiguredOnDeviceTypeException(Thesaurus thesaurus, LoadProfileType loadProfileType) {
-        super(thesaurus, MessageSeeds.LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_NOT_ON_DEVICE_TYPE, loadProfileType);
-        set("loadProfileType", loadProfileType);
+        super(thesaurus, MessageSeeds.LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_NOT_ON_DEVICE_TYPE, loadProfileType.getName());
+        set("loadProfileTypeName", loadProfileType.getName());
     }
+
 }

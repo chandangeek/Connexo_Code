@@ -119,7 +119,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @return The NameIsRequiredException
      */
     public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUseByRegisterSpec(Thesaurus thesaurus, RegisterMapping registerMapping, List<RegisterSpec> registerSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS, registerMapping.getName(), namesToStringListForRegisterSpecs(registerSpecs));
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_REGISTER_SPEC, registerMapping.getName(), namesToStringListForRegisterSpecs(registerSpecs));
     }
 
     /**

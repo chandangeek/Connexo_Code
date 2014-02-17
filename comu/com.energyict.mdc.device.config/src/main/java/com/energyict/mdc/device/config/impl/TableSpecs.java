@@ -114,7 +114,7 @@ public enum TableSpecs {
             Column obisCode = table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
             Column productSpec = table.column("PRODUCTSPECID").number().notNull().add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
-            table.column("CUMULATIVE").number().notNull().map("cumulative").add();
+            table.column("CUMULATIVE").bool().notNull().map("cumulative").add();
             Column registerGroup = table.column("REGISTERGROUPID").number().add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
             table.foreignKey("FK_EISREGMAPREGGROUP").on(registerGroup).references(EISRTUREGISTERGROUP.name()).map("registerGroup").add();
@@ -261,7 +261,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column registerMapping = table.column("REGISTERMAPPINGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("NUMBEROFDIGITS").number().conversion(ColumnConversion.NUMBER2INT).notNull().map("numberOfDigits").add();
-            table.column("MOD_DATE").type("DATE").notNull().map("modificationDate").add();
+            table.column("MOD_DATE").type("DATE").notNull().map("modificationDate").insert("sysdate").update("sysdate").add();
             table.column("DEVICEOBISCODE").varChar(80).map("overruledObisCodeString").add();
             table.column("NUMBEROFFRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map("numberOfFractionDigits").add();
             table.column("OVERFLOWVALUE").number().map("overflow").add();
