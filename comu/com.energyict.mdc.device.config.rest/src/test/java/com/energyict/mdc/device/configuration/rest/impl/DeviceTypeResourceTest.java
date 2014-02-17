@@ -13,6 +13,13 @@ import com.energyict.mdw.amr.RegisterMappingFactory;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
 import com.energyict.mdw.shadow.amr.RegisterMappingShadow;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -23,14 +30,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -237,7 +236,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101, registerMapping102));
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
         when(registerMappingFactory.find((int)RM_ID_1)).thenReturn(registerMapping101);
-        when(registerMappingFactory.find((int)RM_ID_2)).thenReturn(registerMapping102);
+        when(registerMappingFactory.find((int) RM_ID_2)).thenReturn(registerMapping102);
 
         Entity<List<RegisterMappingInfo>> json = Entity.json(Arrays.asList(registerMappingInfo1, registerMappingInfo2));
         Response response = target("/devicetypes/31/registers").request().put(json);
@@ -280,7 +279,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(registerMapping102.getShadow()).thenReturn(registerMappingShadow2);
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101));
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
-        when(registerMappingFactory.find((int)RM_ID_1)).thenReturn(registerMapping101);
+        when(registerMappingFactory.find((int) RM_ID_1)).thenReturn(registerMapping101);
         when(registerMappingFactory.find((int)RM_ID_2)).thenReturn(registerMapping102);
 
         Entity<List<RegisterMappingInfo>> json = Entity.json(Arrays.asList(registerMappingInfo1, registerMappingInfo2));
@@ -319,7 +318,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101));
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
         when(registerMappingFactory.find((int)RM_ID_1)).thenReturn(registerMapping101);
-        when(registerMappingFactory.find((int)RM_ID_2)).thenReturn(null);
+        when(registerMappingFactory.find((int) RM_ID_2)).thenReturn(null);
 
         Entity<List<RegisterMappingInfo>> json = Entity.json(Arrays.asList(registerMappingInfo1, registerMappingInfo2));
         Response response = target("/devicetypes/31/registers").request().put(json);
@@ -347,7 +346,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         RegisterMappingShadow registerMappingShadow1 = mock(RegisterMappingShadow.class);
         when(registerMappingShadow1.getId()).thenReturn((int)RM_ID_1);
         RegisterMappingShadow registerMappingShadow2 = mock(RegisterMappingShadow.class);
-        when(registerMappingShadow2.getId()).thenReturn((int)RM_ID_2);
+        when(registerMappingShadow2.getId()).thenReturn((int) RM_ID_2);
         ShadowList<RegisterMappingShadow> registerMappingShadows = new ShadowList<>();
         registerMappingShadows.basicAdd(registerMappingShadow1);
         registerMappingShadows.basicAdd(registerMappingShadow2);
@@ -373,7 +372,49 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(registerMappingShadows.getNewShadows()).isEmpty();
     }
 
+    @Test
+    public void testRegistersForDeviceTypeWithoutFilter() throws Exception {
+        // Backend has RM 101 and 102 for device type 31
+        long deviceType_id=31;
+        long RM_ID_1 = 101L;
+        long RM_ID_2 = 102L;
 
+        DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
+        RegisterMapping registerMapping101 = mock(RegisterMapping.class);
+        when(registerMapping101.getId()).thenReturn((int)RM_ID_1);
+        RegisterMapping registerMapping102 = mock(RegisterMapping.class);
+        when(registerMapping102.getId()).thenReturn((int)RM_ID_2);
+        when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101, registerMapping102));
+        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
+
+        List response = target("/devicetypes/31/registers").request().get(List.class);
+        assertThat(response).hasSize(2);
+    }
+
+    @Test
+    public void testGetAllAvailableRegistersForDeviceType_Filtered() throws Exception {
+        // Backend has RM 101 and 102 for device type 31
+        long deviceType_id=31;
+        long RM_ID_1 = 101L;
+        long RM_ID_2 = 102L;
+        long RM_ID_3 = 103L;
+
+
+        DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
+        RegisterMapping registerMapping101 = mock(RegisterMapping.class);
+        when(registerMapping101.getId()).thenReturn((int)RM_ID_1);
+        RegisterMapping registerMapping102 = mock(RegisterMapping.class);
+        when(registerMapping102.getId()).thenReturn((int)RM_ID_2);
+        RegisterMapping registerMapping103 = mock(RegisterMapping.class);
+        when(registerMapping103.getId()).thenReturn((int)RM_ID_3);
+        when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101));
+        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
+        int[] existingIds = new int[] {(int) RM_ID_1};
+        when(registerMappingFactory.findAllExcept(existingIds)).thenReturn(Arrays.asList(registerMapping102, registerMapping103));
+
+        List response = target("/devicetypes/31/registers").queryParam("available","true").request().get(List.class);
+        assertThat(response).hasSize(2);
+    }
 
     private <T> Finder<T> mockFinder(List<T> list) {
         Finder<T> finder = mock(Finder.class);
