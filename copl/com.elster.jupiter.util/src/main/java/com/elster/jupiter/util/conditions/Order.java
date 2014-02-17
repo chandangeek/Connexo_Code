@@ -1,6 +1,10 @@
 package com.elster.jupiter.util.conditions;
 
+import java.util.Objects;
+
 public final class Order {
+	
+	public final static Order[] NOORDER = new Order[0];
 	
 	private final String name;
 	private final boolean ascending;
@@ -23,11 +27,11 @@ public final class Order {
 	}
 	
 	public  static Order ascending(String name) {
-		return new Order(name,true);
+		return new Order(Objects.requireNonNull(name),true);
 	}
 	
 	public static Order descending(String name) {
-		return new Order(name,false);
+		return new Order(Objects.requireNonNull(name),false);
 	}
 	
 	@Deprecated
