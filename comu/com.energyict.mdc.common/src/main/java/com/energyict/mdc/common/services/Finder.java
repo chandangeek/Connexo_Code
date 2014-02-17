@@ -8,7 +8,7 @@ import java.util.List;
  */
 public interface Finder<T> {
     public Finder<T> paged(Integer start, Integer pageSize);
-    public Finder<T> sorted(String sortColumn, SortOrder sortOrder);
+    public Finder<T> sorted(String sortColumn, boolean sortOrder);
     public List<T> find();
     public Finder<T> from(QueryParameters uriInfo);
 }
