@@ -9,11 +9,13 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ObjectFactory;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,7 +45,7 @@ public class MessageGenerator {
     }
 
     void addBaseReadings(MeterReading meterReading, List<? extends BaseReadingRecord> intervalReadings) {
-        meterReadingsGenerator.addBaseReadings(meterReading, intervalReadings);
+        meterReadingsGenerator.addBaseReadings(meterReading, intervalReadings, Collections.<ReadingQuality>emptyList());
     }
 
     HeaderType createHeader() {
@@ -72,7 +74,7 @@ public class MessageGenerator {
     }
 
     Reading createReading(MeterReading meterReading, BaseReading baseReading, Reading.ReadingType readingType) {
-        return meterReadingsGenerator.createReading(meterReading, baseReading, readingType);
+        return meterReadingsGenerator.createReading(meterReading, baseReading, readingType, Collections.<ReadingQuality>emptyList());
     }
 
     Reading.ReadingType createReadingType(ReadingType type) {
