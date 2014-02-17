@@ -35,22 +35,11 @@ public class UsagePointImpl implements UsagePoint {
 	private String description;
 	private String mRID;
 	private String name;
-	private AmiBillingReadyKind amiBillingReady;
-	private boolean checkBilling;
-	private UsagePointConnectedKind connectionState;
-	private Quantity estimatedLoad;
-	private boolean grounded;
 	private boolean isSdp;
 	private boolean isVirtual;
-	private boolean minimalUsageExpected;
-	private Quantity nominalServiceVoltage;
 	private String outageRegion;
-	private PhaseCode phaseCode;
-	private Quantity ratedCurrent;	
-	private Quantity ratedPower;
 	private String readCycle;
 	private String readRoute;
-	private String serviceDeliveryRemark;
 	private String servicePriority;
 	private long version;
 	private UtcInstant createTime;
@@ -58,7 +47,29 @@ public class UsagePointImpl implements UsagePoint {
 	@SuppressWarnings("unused")
 	private String userName;
 	
+	
+	
+	// move these fields to versioned
+	// these fields will be on all usagepoints characteristics
+	private AmiBillingReadyKind amiBillingReady;    
+	private boolean checkBilling;
+	private UsagePointConnectedKind connectionState;
+	private boolean minimalUsageExpected;
+	private String serviceDeliveryRemark;
+	
+	// these fields only on E
+	private boolean grounded;
+	private Quantity nominalServiceVoltage;
+	private PhaseCode phaseCode;
+	private Quantity ratedCurrent;	
+	// last two fields currently only on E
+	// we may want to generalize them later 
+	private Quantity ratedPower;
+	private Quantity estimatedLoad;
+	
+	
     // associations
+	// all associations stay on the parent
 	private final Reference<ServiceCategory> serviceCategory = ValueReference.absent();
 	private final Reference<ServiceLocation> serviceLocation = ValueReference.absent();
 	private final List<MeterActivation> meterActivations = new ArrayList<>();
