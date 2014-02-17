@@ -88,7 +88,14 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                             {
                                                 xtype: 'textfield',
                                                 name: 'name',
-                                                vtype: 'nonemptystring',
+                                                validator: function(currentValue){
+                                                    if(currentValue.length>0){
+                                                        return true;
+                                                    } else {
+                                                        return I18n.translate('devicetype.emptyName', 'MDC', 'The name of a device type can not be empty.')
+                                                    }
+                                                },
+                                                msgTarget: 'under',
                                                 required: true,
                                                 fieldLabel: I18n.translate('devicetype.name', 'MDC', 'Name'),
                                                 itemId: 'editDeviceTypeNameField',
@@ -108,7 +115,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                         text: I18n.translate('general.create', 'MDC', 'Create'),
                                                         xtype: 'button',
                                                         action: 'createAction',
-                                                        itemId: 'createEditButton'
+                                                        itemId: 'createEditButton',
+                                                        formBind: true
                                                     },
                                                     {
                                                         xtype: 'component',

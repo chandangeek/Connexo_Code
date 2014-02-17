@@ -134,7 +134,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     deleteDeviceType: function () {
-        var deviceTypeToDelete = this.getDeviceTypeGrid.getSelectionModel().getSelection()[0];
+        var deviceTypeToDelete = this.getDeviceTypeGrid().getSelectionModel().getSelection()[0];
         deviceTypeToDelete.destroy();
     },
 
@@ -179,12 +179,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             returnLink: '#setup/devicetypes/',
             deviceCommunicationProtocols: protocolStore
         });
-        this.createBreadCrumb();
-
+        var me= this;
         Mdc.getApplication().getMainController().showContent(widget);
         widget.setLoading(true);
         protocolStore.load({
             callback: function (store) {
+                me.createBreadCrumb();
                 widget.setLoading(false);
             }
         });
@@ -232,6 +232,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     createBreadCrumb: function () {
+        debugger;
         var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
             text: I18n.translate('general.administration', 'MDC', 'Administration'),
             href: '#setup'
