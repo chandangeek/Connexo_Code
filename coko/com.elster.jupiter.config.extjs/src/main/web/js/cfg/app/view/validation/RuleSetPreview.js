@@ -4,46 +4,42 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
     margins: '0 10 10 10',
     alias: 'widget.ruleSetPreview',
     itemId: 'ruleSetPreview',
-    hidden: true,
+    //hidden: true,
     requires: [
         'Cfg.model.ValidationRuleSet'
     ],
-    layout: {
+    /*layout: {
         type: 'vbox',
         align: 'stretch'
+    },    */
+
+    layout: {
+        type: 'card',
+        align: 'stretch'
     },
-    tbar: [
-        {
-            xtype: 'component',
-            html: '<h4>' + I18n.translate('validation.validationRuleSets', 'CFG', 'Validation rule sets')  + '</h4>',
-            itemId: 'rulesetPreviewTitle'
-        },
-        '->',
-        {
-            icon: 'resources/images/gear-16x16.png',
-            text: I18n.translate('validation.actions', 'CFG', 'Actions'),
-            menu:{
-                items:[
-                    {
-                        text: I18n.translate('general.edit', 'CFG', 'Edit'),
-                        itemId: 'editRuleset',
-                        action: 'editRuleset'
 
-                    },
-                    {
-                        xtype: 'menuseparator'
-                    },
-                    {
-                        text: I18n.translate('general.delete', 'CFG', 'Delete'),
-                        itemId: 'deleteRuleset',
-                        action: 'deleteRuleset'
-
-                    }
-                ]
-            }
-        }],
 
     items: [
+        {
+            xtype: 'panel',
+            border: false,
+            padding: '0 10 0 10',
+            tbar: [
+                {
+                    xtype: 'component',
+                    html: '<H4>' + I18n.translate('validation.noRuleSetSelected', 'MDC', 'No rule set selected') + '</H4>'
+                }
+            ],
+            items: [
+                {
+                    xtype: 'component',
+                    height: '100px',
+                    html: '<H5>' + I18n.translate('validation.selectRuleSet', 'MDC', 'Select a rule set to see its details') + '</H5>'
+                }
+            ]
+
+        },
+
         {
             xtype: 'form',
             itemId: 'rulesetForm',
@@ -52,6 +48,37 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
                 type: 'vbox',
                 align: 'stretch'
             },
+
+            tbar: [
+                {
+                    xtype: 'component',
+                    html: '<h4>' + I18n.translate('validation.validationRuleSets', 'CFG', 'Validation rule sets')  + '</h4>',
+                    itemId: 'rulesetPreviewTitle'
+                },
+                '->',
+                {
+                    icon: 'resources/images/gear-16x16.png',
+                    text: I18n.translate('validation.actions', 'CFG', 'Actions'),
+                    menu:{
+                        items:[
+                            {
+                                text: I18n.translate('general.edit', 'CFG', 'Edit'),
+                                itemId: 'editRuleset',
+                                action: 'editRuleset'
+
+                            },
+                            {
+                                xtype: 'menuseparator'
+                            },
+                            {
+                                text: I18n.translate('general.delete', 'CFG', 'Delete'),
+                                itemId: 'deleteRuleset',
+                                action: 'deleteRuleset'
+
+                            }
+                        ]
+                    }
+                }],
 
             items: [
                 {

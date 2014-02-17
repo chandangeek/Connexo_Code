@@ -551,11 +551,11 @@ Ext.define('Cfg.controller.Validation', {
         if (selectedSets.length == 1) {
             this.getRuleSetForm().loadRecord(selectedSets[0]);
             var ruleSetName = this.getRuleSetForm().form.findField('name').getSubmitValue();
-            this.getRuleSetPreview().show();
+            this.getRuleSetPreview().getLayout().setActiveItem(1);
             this.getRuleSetDetailsLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation/overview/' + selectedSets[0].getId() + '">View details</a>');
             this.getRulesetPreviewTitle().update('<h4>' + ruleSetName + '</h4>');
         } else {
-            this.getRuleSetPreview().hide();
+            this.getRuleSetPreview().getLayout().setActiveItem(0);
         }
     },
 
@@ -564,12 +564,13 @@ Ext.define('Cfg.controller.Validation', {
         if (selectedRules.length == 1) {
             var selectedRule = selectedRules[0];
             this.getRuleForm().loadRecord(selectedRule);
+            this.getRulePreview().getLayout().setActiveItem(1);
             this.getRulePreviewTitle().update('<h4>' + selectedRule.get("displayName") + '</h4>');
             this.addProperties(selectedRule);
             this.addReadingTypes(selectedRule);
             this.getRulePreview().show();
         } else {
-            this.getRulePreview().hide();
+            this.getRulePreview().getLayout().setActiveItem(0);
         }
     },
 
