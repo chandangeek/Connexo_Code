@@ -1,21 +1,19 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.rest.impl.filter.Filter;
-import org.json.JSONArray;
-
+import java.util.List;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 @Path("/comports")
 public class ComPortResource {
@@ -29,10 +27,9 @@ public class ComPortResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortsInfo getComPorts(@QueryParam("filter") JSONArray filter) {
+    public ComPortsInfo getComPorts(@BeanParam JsonQueryFilter comPortFilter) {
         ComPortsInfo wrapper = new ComPortsInfo();
-        if (filter != null) {
-            Filter comPortFilter = new Filter(filter);
+        if (!comPortFilter.getFilterProperties().isEmpty()) {
             if(comPortFilter.getFilterProperties().get("comserver_id")!=null){
                 ComServer comServer = engineModelService.findComServer(Integer.parseInt(comPortFilter.getFilterProperties().get("comserver_id")));
                 for (ComPort comPort : comServer.getComPorts()) {
