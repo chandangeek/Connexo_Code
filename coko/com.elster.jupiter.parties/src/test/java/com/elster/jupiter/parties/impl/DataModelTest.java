@@ -24,10 +24,12 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -129,7 +131,7 @@ public class DataModelTest {
         PartyRole role = partyService.getRole("YYY").get();
         try (TransactionContext context = getTransactionService().getContext()) {
         	Condition condition = Where.where("party").isEqualTo(party).and(Where.where("role").isEqualTo(role));
-        	List<PartyInRole> representations = dataModel.query(PartyInRole.class).select(condition,"version");
+        	List<PartyInRole> representations = dataModel.query(PartyInRole.class).select(condition,Order.ascending("version"));
         	assertThat(representations).isNotEmpty();
         	for (PartyInRole each : representations) {
         		each.getParty().getAliasName();
