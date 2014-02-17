@@ -191,13 +191,13 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
                 /* Todo: Legacy code validated that there were no Channels that used the mapping
                  * by calling ChannelFactory#hasChannelsForLoadProfileTypeAndMapping(this, registerMapping).
                  * This will now have to be dealt with via events. */
-                this.validateNoChannelSpecForReqisterMapping(registerMapping);
+                this.validateNoChannelSpecForRegisterMapping(registerMapping);
                 iterator.remove();
             }
         }
     }
 
-    private void validateNoChannelSpecForReqisterMapping(RegisterMapping registerMapping) {
+    private void validateNoChannelSpecForRegisterMapping(RegisterMapping registerMapping) {
         List<ChannelSpec> channelSpecs = this.deviceConfigurationService.findChannelSpecsForRegisterMappingInLoadProfileType(registerMapping, this);
         if (!channelSpecs.isEmpty()) {
             throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByChannelSpecs(this.thesaurus, registerMapping, channelSpecs);

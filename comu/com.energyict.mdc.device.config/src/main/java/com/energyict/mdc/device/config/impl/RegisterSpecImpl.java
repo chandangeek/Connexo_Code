@@ -212,10 +212,9 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     private void validateLinkedChannelSpec() {
-        ChannelSpec linkedChannelSpec = this.getLinkedChannelSpec();
-        if (linkedChannelSpec != null) {
-            if (getDeviceConfiguration() != null && linkedChannelSpec.getDeviceConfiguration().getId() != getDeviceConfiguration().getId()) {
-                throw new InCorrectDeviceConfigOfChannelSpecException(this.thesaurus, linkedChannelSpec, linkedChannelSpec.getDeviceConfiguration(), getDeviceConfiguration());
+        if (this.linkedChannelSpec.isPresent()) {
+            if (this.deviceConfig.isPresent() && getLinkedChannelSpec().getDeviceConfiguration().getId() != getDeviceConfiguration().getId()) {
+                throw new InCorrectDeviceConfigOfChannelSpecException(this.thesaurus, getLinkedChannelSpec(), getLinkedChannelSpec().getDeviceConfiguration(), getDeviceConfiguration());
             }
         }
     }

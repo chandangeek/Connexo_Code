@@ -185,10 +185,10 @@ public enum TableSpecs {
             table.column("DESCRIPTION").varChar(4000).map("description").add();
             table.column("PROTOTYPEID").number().map("prototype").add();
             Column deviceTypeId = table.column("DEVICETYPEID").number().notNull().add();
-            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
             table.primaryKey("PK_EISDEVICECONFIG").on(id).add();
-            table.foreignKey("FK_EISDEVCFG_DEVTYPE").on(deviceTypeId).references(EISSYSRTUTYPE.name()).map("deviceType").add();
+            table.foreignKey("FK_EISDEVCFG_DEVTYPE").on(deviceTypeId).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("deviceConfigurations").composition().onDelete(DeleteRule.CASCADE).add();
         }
     },
 

@@ -175,7 +175,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     }
 
     private void validateDeviceConfiguration() {
-        if (this.deviceConfiguration == null) {
+        if (!this.deviceConfiguration.isPresent()) {
             throw DeviceConfigIsRequiredException.loadProfileSpecRequiresDeviceConfig(this.thesaurus);
         }
     }

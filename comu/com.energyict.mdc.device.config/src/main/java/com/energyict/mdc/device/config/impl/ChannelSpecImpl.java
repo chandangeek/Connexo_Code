@@ -152,7 +152,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public TimeDuration getInterval() {
-        return (getLoadProfileSpec() != null ? getLoadProfileSpec().getInterval() : interval);
+        return (this.loadProfileSpec.isPresent() ? getLoadProfileSpec().getInterval() : interval);
     }
 
     @Override
@@ -188,7 +188,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private void validateInterval() {
-        if (getLoadProfileSpec() == null) {
+        if (!this.loadProfileSpec.isPresent()) {
             if (getInterval() == null) {
                 throw IntervalIsRequiredException.forChannelSpecWithoutLoadProfileSpec(this.thesaurus);
             }
@@ -248,19 +248,19 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private void validateDeviceConfiguration() {
-        if (this.deviceConfiguration == null) {
+        if (!this.deviceConfiguration.isPresent()) {
             throw DeviceConfigIsRequiredException.channelSpecRequiresDeviceConfig(this.thesaurus);
         }
     }
 
     private void validateRegisterMapping() {
-        if (this.registerMapping == null) {
+        if (!this.registerMapping.isPresent()) {
             throw RegisterMappingIsRequiredException.channelSpecRequiresRegisterMapping(this.thesaurus);
         }
     }
 
     private void validateDeviceTypeContainsRegisterMapping() {
-        if (getLoadProfileSpec() != null) { // then the RegisterMapping should be included in the LoadProfileSpec
+        if (!this.loadProfileSpec.isPresent()) { // then the RegisterMapping should be included in the LoadProfileSpec
             if (!getLoadProfileSpec().getLoadProfileType().getRegisterMappings().contains(getRegisterMapping())) {
                 throw RegisterMappingIsNotConfiguredException.forChannelInLoadProfileSpec(thesaurus, getLoadProfileSpec(), getRegisterMapping(), this);
             }
@@ -278,7 +278,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private void validateDeviceConfigurationContainsLoadProfileSpec() {
-        if (getLoadProfileSpec() != null) {
+        if (this.loadProfileSpec.isPresent()) {
             if (!getDeviceConfiguration().getLoadProfileSpecs().contains(getLoadProfileSpec())) {
                 throw new LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException(this.thesaurus, getLoadProfileSpec());
             }
@@ -421,8 +421,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private void validateLoadProfileSpecForUpdate(LoadProfileSpec loadProfileSpec) {
-        DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
-        if (deviceConfiguration != null && deviceConfiguration.getActive() && this.getLoadProfileSpec().getId() != loadProfileSpec.getId()) {
+        if (deviceConfiguration.isPresent() && getDeviceConfiguration().getActive() && this.getLoadProfileSpec().getId() != loadProfileSpec.getId()) {
             throw new CannotChangeLoadProfileSpecOfChannelSpec(this.thesaurus);
         }
     }

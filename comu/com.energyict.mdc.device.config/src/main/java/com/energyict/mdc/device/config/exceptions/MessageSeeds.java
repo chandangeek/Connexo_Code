@@ -79,6 +79,7 @@ public enum MessageSeeds implements MessageSeed {
     LOGBOOK_SPEC_CANNOT_CHANGE_DEVICE_CONFIG(9004, "logBookSpec.change.configuration", "You can not change the device configuration of an existing logbook specification", Level.SEVERE),
     LOGBOOK_SPEC_CANNOT_CHANGE_LOGBOOK_TYPE(9005, "logBookSpec.change.logbookType", "You can not change the logbook type of an existing logbook specification", Level.SEVERE),
     LOGBOOK_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG(9006, "logBookSpec.cannot.delete.active.config", "You can not delete a logbook specification '{0}' from an active device configuration '{1}'", Level.SEVERE),
+    LOGBOOK_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(9007, "logBookSpec.cannot.add.active.config", "You can not add a logbook spec to an active device configuration", Level.SEVERE),
     PHENOMENON_NAME_IS_REQUIRED(10001, "phenomenon.name.required", "The name of a phenomenon is required", Level.SEVERE),
     PHENOMENON_STILL_IN_USE(10002, "phenomenon.stillInUse", "You can not delete a phenomenon when it is still in use", Level.SEVERE),
     CHANNEL_SPEC_NAME_IS_REQUIRED(11001, "channelSpec.name.required", "The name of the channel specification is required", Level.SEVERE),

@@ -8,14 +8,11 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceConfigurationReferenceException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLogbookTypeOfLogbookSpecException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogbookTypeIsRequiredException;
 
 import javax.inject.Inject;
@@ -39,7 +36,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     private LogBookSpecImpl initialize(DeviceConfiguration deviceConfiguration, LogBookType logBookType) {
-        setDeviceConfiguration(deviceConfiguration);
+        this.deviceConfiguration.set(deviceConfiguration);
         setLogBookType(logBookType);
         return this;
     }
@@ -77,32 +74,17 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     private void validateRequiredFields() {
         validateDeviceConfiguration();
         validateLogbookType();
-        validateActiveConfig();
-        validateDeviceTypeContainsLogbookType();
-    }
-
-    private void validateDeviceTypeContainsLogbookType() {
-        DeviceType deviceType = getDeviceConfiguration().getDeviceType();
-        if (!deviceType.getLogBookTypes().contains(getLogBookType())) {
-            throw new LogbookTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, getLogBookType());
-        }
     }
 
     private void validateLogbookType() {
-        if (this.logBookType == null) {
+        if (!this.logBookType.isPresent()) {
             throw LogbookTypeIsRequiredException.logBookSpecRequiresLoadProfileType(this.thesaurus);
         }
     }
 
     private void validateDeviceConfiguration() {
-        if (this.deviceConfiguration == null) {
+        if (!this.deviceConfiguration.isPresent()) {
             throw DeviceConfigIsRequiredException.logBookSpecRequiresDeviceConfig(this.thesaurus);
-        }
-    }
-
-    private void validateActiveConfig() {
-        if (getDeviceConfiguration().getActive()) {
-            throw CannotAddToActiveDeviceConfigurationException.aNewLoadProfileSpec(this.thesaurus);
         }
     }
 
@@ -150,7 +132,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     private void validateLogbookTypeForUpdate(LogBookType loadProfileType) {
-        if (this.getLogBookType()!= null && this.getLogBookType().getId() != loadProfileType.getId()) {
+        if (this.logBookType.isPresent() && this.getLogBookType().getId() != loadProfileType.getId()) {
             throw new CannotChangeLogbookTypeOfLogbookSpecException(this.thesaurus);
         }
     }
@@ -191,6 +173,20 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
             this.logBookSpec.validateRequiredFields();
             return this.logBookSpec;
         }
+    }
 
+    public static abstract class LogBookSpecUpdater implements LogBookSpec.LogBookSpecUpdater {
+
+        final LogBookSpec logBookSpec;
+
+        public LogBookSpecUpdater(LogBookSpec logBookSpec) {
+            this.logBookSpec = logBookSpec;
+        }
+
+        @Override
+        public LogBookSpec.LogBookSpecUpdater setOverruledObisCode(ObisCode overruledObisCode) {
+            this.logBookSpec.setOverruledObisCode(overruledObisCode);
+            return this;
+        }
     }
 }

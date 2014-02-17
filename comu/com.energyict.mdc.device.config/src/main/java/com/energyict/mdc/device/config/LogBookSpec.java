@@ -62,4 +62,17 @@ public interface LogBookSpec extends HasId{
          */
         LogBookSpec add();
     }
+
+    /**
+     * Defines an <i>update</i> component to update a {@link LogBookSpec} implementation
+     */
+    interface LogBookSpecUpdater {
+
+        LogBookSpecUpdater setOverruledObisCode(ObisCode overruledObisCode);
+
+        /**
+         * Updates the LogBookSpec, preferably via his DeviceConfiguration
+         */
+        void update();
+    }
 }

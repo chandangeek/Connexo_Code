@@ -80,6 +80,8 @@ public interface DeviceConfiguration {
 
     LogBookSpec.LogBookSpecBuilder createLogBookSpec(LogBookType logBookType);
 
+    LogBookSpec.LogBookSpecUpdater getLogBookSpecUpdaterFor(LogBookSpec logBookSpec);
+
     void deleteLogBookSpec(LogBookSpec logBookSpec);
 
     /**

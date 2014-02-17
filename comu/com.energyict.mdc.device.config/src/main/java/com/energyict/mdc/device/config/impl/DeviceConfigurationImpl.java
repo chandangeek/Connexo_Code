@@ -14,6 +14,7 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfigurationFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.HasId;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
@@ -21,6 +22,7 @@ import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
 import com.energyict.mdc.device.config.exceptions.DeviceTypeIsRequiredException;
@@ -28,6 +30,7 @@ import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeExcept
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
+import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.protocol.api.device.Device;
 
@@ -424,10 +427,43 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         @Override
         public LogBookSpecImpl add() {
             LogBookSpecImpl logBookSpec = super.add();
+            validateActiveConfig();
+            validateDeviceTypeContainsLogbookType(logBookSpec);
             validateUniqueLogBookType(logBookSpec);
             validateUniqueLogBookObisCode(logBookSpec);
             DeviceConfigurationImpl.this.logBookSpecs.add(logBookSpec);
             return logBookSpec;
+        }
+    }
+
+    private void validateDeviceTypeContainsLogbookType(LogBookSpec logBookSpec) {
+        DeviceType deviceType = getDeviceType();
+        if (!deviceType.getLogBookTypes().contains(logBookSpec.getLogBookType())) {
+            throw new LogbookTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, logBookSpec.getLogBookType());
+        }
+    }
+
+    private void validateActiveConfig() {
+        if (getActive()) {
+            throw CannotAddToActiveDeviceConfigurationException.aNewLogBookSpec(this.thesaurus);
+        }
+    }
+
+    @Override
+    public LogBookSpec.LogBookSpecUpdater getLogBookSpecUpdaterFor(LogBookSpec logBookSpec) {
+        return new LogBookSpecUpdaterForConfig(logBookSpec);
+    }
+
+    class LogBookSpecUpdaterForConfig extends LogBookSpecImpl.LogBookSpecUpdater {
+
+        public LogBookSpecUpdaterForConfig(LogBookSpec logBookSpec) {
+            super(logBookSpec);
+        }
+
+        @Override
+        public void update() {
+            validateUniqueLogBookObisCode(logBookSpec);
+            save();
         }
     }
 
@@ -441,10 +477,15 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     private void validateUniqueLogBookObisCode(LogBookSpec logBookSpec) {
         for (LogBookSpec bookSpec : logBookSpecs) {
-            if (bookSpec.getDeviceObisCode().equals(logBookSpec.getDeviceObisCode())) {
+            if (!isSameIdObject(bookSpec, logBookSpec)
+                    && bookSpec.getDeviceObisCode().equals(logBookSpec.getDeviceObisCode())) {
                 throw DuplicateObisCodeException.forLogBookSpec(thesaurus, this, logBookSpec.getDeviceObisCode(), logBookSpec);
             }
         }
+    }
+
+    private boolean isSameIdObject(HasId first, HasId second) {
+        return first.getId() == second.getId();
     }
 
     public void deleteLogBookSpec(LogBookSpec logBookSpec) {
@@ -490,7 +531,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     private void validateDeviceTypeExists() {
-        if (this.deviceType == null) {
+        if (!this.deviceType.isPresent()) {
             throw new DeviceTypeIsRequiredException(this.thesaurus);
         }
     }
