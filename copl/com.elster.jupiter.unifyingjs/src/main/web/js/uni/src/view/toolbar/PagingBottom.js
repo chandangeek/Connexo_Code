@@ -29,6 +29,8 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
     isFullTotalCount: false,
     pageSizeParam: 'limit',
     pageStartParam: 'start',
+    itemsPerPageMsg: 'Items per page',
+
     pageSizeStore: Ext.create('Ext.data.Store', {
         fields: ['value'],
         data: [
@@ -176,7 +178,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         return [
             {
                 xtype: 'tbtext',
-                text: 'Items per page'
+                text: me.itemsPerPageMsg
             },
             {
                 xtype: 'combobox',

@@ -12,17 +12,36 @@ Ext.define('Uni.view.form.field.Vtypes', {
         this.validateHexString();
         this.validateEan13String();
         this.validateEan18String();
+        this.validateReadingtype();
     },
+
+
+    validateReadingtype: function () {
+        var me = this;
+        var message = null;
+        Ext.apply(Ext.form.field.VTypes, {
+            readingtype:  function(v) {
+                return /^\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+$/.test(v);
+            },
+            readingtypeText: 'Invalid reading type syntax',
+            readingtypeMask: /[\d\.]/i
+        });
+    },
+
 
     validateNonEmptyString: function () {
         var me = this;
+        var message = null;
         Ext.apply(Ext.form.field.VTypes, {
             nonemptystring: function (val) {
+                message = null;
                 //check value
                 if ((val==null || val==undefined || val=='')) {
                     return false;
                 }
-                return val.trim().length > 0;
+                if (val.trim().length == 0) {
+                    return false;
+                }
             },
             nonemptystringText: 'This field is required'
         });
