@@ -7,8 +7,16 @@ import java.util.List;
 
 public interface RestQuery<T> {
     
-	List<T> select(QueryParameters queryParameters, String... orderBy);
-	List<T> select(QueryParameters queryParameters, Order order, Order... orders);
+		
+	List<T> select(QueryParameters queryParameters, Order... orders);
 
+	@Deprecated
+	List<T> select(QueryParameters queryParameters, String order, String ... orders);
+	
+	@Deprecated
+	/*
+	 * use query.setRestriction for initial condition
+	 */
     List<T> select(QueryParameters queryParameters, Condition condition, String... orderBy);
+
 }
