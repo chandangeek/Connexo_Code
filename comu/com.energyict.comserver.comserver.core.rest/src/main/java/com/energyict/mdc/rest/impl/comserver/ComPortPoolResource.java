@@ -42,11 +42,11 @@ public class ComPortPoolResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Object getAllComPortPools(@QueryParam("limit") Integer limit,@QueryParam("start") Integer start,@QueryParam("sort") String sort,@QueryParam("dir") String dir) {
+    public Object getAllComPortPools(@QueryParam("limit") Integer limit,@QueryParam("start") Integer start,@QueryParam("sort") String sort) {
         List<ComPortPool> allComPortPools;
         final ComPortPoolsInfo infos = new ComPortPoolsInfo();
         if(limit!=null && start!=null){
-            String[] sortStrings = {sort + " " + dir} ;
+            String[] sortStrings = {sort} ;
             allComPortPools = engineModelService.findAllComPortPools(start, limit, sortStrings);
             if(allComPortPools.size()==limit){
                 infos.setCouldHaveNextPage();
