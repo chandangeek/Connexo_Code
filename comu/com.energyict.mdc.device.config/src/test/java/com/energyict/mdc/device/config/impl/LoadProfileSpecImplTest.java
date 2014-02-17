@@ -7,6 +7,9 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
+import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
+import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
+import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
 import org.junit.Before;
 import org.junit.Test;
@@ -96,12 +99,46 @@ public class LoadProfileSpecImplTest extends CommonDeviceConfigSpecsTest {
     @Test(expected = LoadProfileTypeIsNotConfiguredOnDeviceTypeException.class)
     public void createWithIncorrectLoadProfileTypeTest() {
         try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            LoadProfileType loadProfileType = this.inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME+"I", loadProfileTypeObisCode, interval);
+            LoadProfileType loadProfileType = this.inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME+"Incorrect", loadProfileTypeObisCode, interval);
             loadProfileType.save();
 
             LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
             loadProfileSpecBuilder.add();
+        }
+    }
 
+    @Test(expected = CannotAddToActiveDeviceConfigurationException.class)
+    public void addWithActiveDeviceConfigurationTest() {
+        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            this.deviceConfiguration.activate();
+            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+            loadProfileSpec.add();
+            tctx.commit();
+        }
+    }
+
+    @Test(expected = DuplicateLoadProfileTypeException.class)
+    public void addTwoSpecsWithSameLoadProfileTypeTest() {
+        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+            loadProfileSpec1.add();
+            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec2 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+            loadProfileSpec2.add();
+            tctx.commit();
+        }
+    }
+
+    @Test(expected = DuplicateObisCodeException.class)
+    public void addTwoSpecsWithDiffTypeButSameObisCodeTest() {
+        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            LoadProfileType loadProfileType2 = this.inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME+"other", loadProfileTypeObisCode, interval);
+            loadProfileType2.save();
+
+            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+            loadProfileSpec1.add();
+            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec2 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType2);
+            loadProfileSpec2.add();
+            tctx.commit();
         }
     }
 }
