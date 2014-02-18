@@ -29,10 +29,6 @@ public class DefaultFinder<T> implements Finder<T> {
         return new DefaultFinder<>(clazz, condition, dataModel);
     }
 
-    public static <T> Finder<T>  of(Class<T> clazz, DataModel dataModel) {
-        return new DefaultFinder<>(clazz, Condition.TRUE, dataModel);
-    }
-
     private DefaultFinder(Class<T> clazz, Condition condition, DataModel dataModel) {
         query = dataModel.query(clazz);
         this.condition = condition;
