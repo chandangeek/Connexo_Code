@@ -12,6 +12,13 @@ Ext.define('Uni.controller.Error', {
         window: null
     },
 
+    refs: [
+        {
+            ref: 'contentPanel',
+            selector: 'viewport > #contentPanel'
+        }
+    ],
+
     init: function () {
         var me = this;
 
@@ -33,15 +40,20 @@ Ext.define('Uni.controller.Error', {
     },
 
     showError: function (error) {
-        var window = this.getWindow();
-
-        if (window === null) {
-            window = Ext.widget('errorWindow');
-            this.setWindow(window);
-        }
-
-        window.setErrorMessage(error);
-        window.show();
+        var me = this;
+        Ext.create('widget.uxNotification', {
+            position: 'tc',
+            manager: '#contentPanel',
+            cls: 'ux-notification-light',
+            width: me.getContentPanel().getWidth()-20,
+//            iconCls: 'ux-notification-icon-information',
+            html: error,
+            slideInDuration: 200,
+            slideBackDuration: 200,
+            autoCloseDelay: 7000,
+            slideInAnimation: 'linear',
+            slideBackAnimation: 'linear'
+        }).show();
     },
 
     showHttp404: function () {

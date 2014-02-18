@@ -51,6 +51,12 @@
     }
 }
 
+// Buttons
+
+.uni-btn-transparent {
+    @include transparent-button;
+}
+
 // Tool icons
 
 .x-tool-edit,
@@ -574,8 +580,26 @@ $menu-width-collapsed: 55px;
     padding-right: 14px;
 }
 
-.uni-form-item-label-required {
-    background-image: url('../images/form/mandatory.png');
-    background-repeat: no-repeat;
-    background-position: right;
+.uni-form-item-label-required{
+  background-image: url('../images/form/mandatory.png');
+  background-repeat:no-repeat;
+  background-position:right;
+}
+
+//Error
+.ux-notification-light .x-window-body {
+  text-align: center;
+  padding: 15px 5px 20px 5px;
+  background-color: transparent;
+  border: 0px;
+}
+
+.ux-notification-light .x-window-header {
+  background-color: transparent;
+  border: 0px;
+}
+
+.ux-notification-light {
+  background-image: url('../images/fader.png');
+  border: 1px solid grey;
 }
