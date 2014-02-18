@@ -39,13 +39,11 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <wsdlDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim/wsdl</wsdlDirectory>
+                    <wsdlFiles>
+                        <wsdlFile>${basedir}/src/main/resources/com/elster/jupiter/metering/cim/wsdl/GetMeterReadings.wsdl</wsdlFile>
+                        <wsdlFile>${basedir}/src/main/resources/com/elster/jupiter/metering/cim/wsdl/SendMeterReadings.wsdl</wsdlFile>
+                    </wsdlFiles>
                     <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
-                    <!--<bindingDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim/wsdl</bindingDirectory>-->
-                    <!--<bindingFiles>-->
-                        <!--<bindingFile>bindings.xjb</bindingFile>-->
-                    <!--</bindingFiles>-->
-                    <!--<xnocompile>true</xnocompile>-->
                     <keep>true</keep>
                 </configuration>
                 <dependencies>
