@@ -51,6 +51,12 @@
     }
 }
 
+// Buttons
+
+.uni-btn-transparent {
+    @include transparent-button;
+}
+
 // Tool icons
 
 .x-tool-edit,
