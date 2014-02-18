@@ -20,14 +20,17 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
@@ -134,12 +137,30 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/registers")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<RegisterMappingInfo> getRegistersForDeviceType(@PathParam("id") long id) {
+    public List<RegisterMappingInfo> getRegistersForDeviceType(@PathParam("id") long id, @QueryParam("available") String available) {
         DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
         List<RegisterMappingInfo> registerMappingInfos = new ArrayList<>();
-        for (RegisterMapping registerMapping : deviceType.getRegisterMappings()) {
+
+        final List<RegisterMapping> registerMappings = new ArrayList<>();
+        if (available==null || !Boolean.parseBoolean(available)) {
+            registerMappings.addAll(deviceType.getRegisterMappings());
+        } else {
+            if (Boolean.parseBoolean(available)) {
+                Set<Long> deviceTypeRegisterMappingIds = new HashSet<>();
+                for (RegisterMapping registerMapping : deviceType.getRegisterMappings()) {
+                    deviceTypeRegisterMappingIds.add(registerMapping.getId());
+                }
+                for (RegisterMapping registerMapping : deviceConfigurationService.findAllRegisterMappings()) {
+                    if (!deviceTypeRegisterMappingIds.contains(registerMapping.getId())) {
+                        registerMappings.add(registerMapping);
+                    }
+                }
+            }
+        }
+        for (RegisterMapping registerMapping : registerMappings) {
             registerMappingInfos.add(new RegisterMappingInfo(registerMapping));
         }
+
         return registerMappingInfos;
     }
 
@@ -151,7 +172,7 @@ public class DeviceTypeResource {
         DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
         updateRegisterMappings(deviceType, registerMappingInfos);
         deviceType.save();
-        return getRegistersForDeviceType(id);
+        return getRegistersForDeviceType(id, null);
     }
 
     @POST
@@ -160,9 +181,9 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<RegisterMappingInfo> createRegistersForDeviceType(@PathParam("id") long id, RegisterMappingInfo registerMappingInfo) {
         DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
-        addRegisterMappingToDeviceType(deviceType, registerMappingInfo);
+        linkRegisterMappingToDeviceType(deviceType, registerMappingInfo);
         deviceType.save();
-        return getRegistersForDeviceType(id);
+        return getRegistersForDeviceType(id, null);
     }
 
     @DELETE
@@ -171,7 +192,7 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterMappingInfo deleteRegistersForDeviceType(@PathParam("id") long id, RegisterMappingInfo registerMappingInfo) {
         DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
-        removeRegisterMappingFromDeviceType(deviceType, registerMappingInfo.id);
+        unlinkRegisterMappingFromDeviceType(deviceType, registerMappingInfo.id);
         deviceType.save();
         return registerMappingInfo;
     }
@@ -184,20 +205,20 @@ public class DeviceTypeResource {
                 // We don't update anything about RegisterMapping in the resource
                 newRegisterMappingsIdMap.remove(Long.valueOf(existingRegisterMapping.getId()));
             } else {
-                removeRegisterMappingFromDeviceType(deviceType, existingRegisterMapping.getId());
+                unlinkRegisterMappingFromDeviceType(deviceType, existingRegisterMapping.getId());
             }
         }
 
         for (RegisterMappingInfo registerMappingInfo : newRegisterMappingsIdMap.values()) {
-            addRegisterMappingToDeviceType(deviceType, registerMappingInfo);
+            linkRegisterMappingToDeviceType(deviceType, registerMappingInfo);
         }
     }
 
-    private void removeRegisterMappingFromDeviceType(DeviceType deviceType, long existingRegisterMappingId) {
+    private void unlinkRegisterMappingFromDeviceType(DeviceType deviceType, long existingRegisterMappingId) {
         deviceType.removeRegisterMapping(getRegisterMappingById(deviceType, existingRegisterMappingId));
     }
 
-    private void addRegisterMappingToDeviceType(DeviceType deviceType, RegisterMappingInfo registerMappingInfo) {
+    private void linkRegisterMappingToDeviceType(DeviceType deviceType, RegisterMappingInfo registerMappingInfo) {
         RegisterMapping registerMapping = this.deviceConfigurationService.findRegisterMapping(registerMappingInfo.id);
         if (registerMapping==null) {
             throw new WebApplicationException("No register mapping with id " + registerMappingInfo.id,
@@ -229,7 +250,7 @@ public class DeviceTypeResource {
         DeviceType deviceType = deviceConfigurationService.findDeviceType(id);
         if (deviceType == null) {
             throw new WebApplicationException("No device type with id " + id,
-                    Response.status(Response.Status.NOT_FOUND).build());
+                    Response.Status.NOT_FOUND);
         }
         return deviceType;
     }

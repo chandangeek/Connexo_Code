@@ -14,7 +14,7 @@
     <artifactId>mdc.device.config.rest</artifactId>
     <packaging>bundle</packaging>
     <version>${comserver.version}</version>
-    <name>[MDC] mdc.device.config.rest</name>
+    <name>[MDC] Device Configuration Rest</name>
     <description>
         Contains Rest implementations to interface between the FrontEnd and BackEnd regarding device configurations
     </description>

@@ -15,11 +15,11 @@ public class RationalNumberAdapter extends XmlAdapter<String, RationalNumber> {
         }
         try {
             int index = stringValue.indexOf(SEPARATOR);
-            long numerator = Long.valueOf(stringValue.substring(1, index));
+            long numerator = Long.valueOf(stringValue.substring(0, index));
             long denominator = Long.valueOf(stringValue.substring(index+1));
             return new RationalNumber(numerator, denominator);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Could not convert '"+stringValue+"' into a valid RationalNumber");
+            throw new IllegalArgumentException("Could not convert '"+stringValue+"' into a valid RationalNumber", e);
         }
     }
 

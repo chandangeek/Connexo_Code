@@ -13,6 +13,7 @@ public class DeviceConfigurationInfo {
 
     public DeviceConfigurationInfo(DeviceConfiguration deviceConfiguration) {
         name = deviceConfiguration.getName();
+
     }
 
 }
