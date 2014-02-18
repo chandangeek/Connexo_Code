@@ -545,13 +545,8 @@ public class ComServerResourceTest extends JerseyTest {
 
         final Response response = target("/comservers/").queryParam("start", 10).queryParam("limit", 20).queryParam("sort", "name").queryParam("dir", "ASC").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        ArgumentCaptor<Integer> startArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Integer> limitArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(finder).paged(startArgumentCaptor.capture(), limitArgumentCaptor.capture());
-        ArgumentCaptor<String> sortColumnArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        verify(finder).sorted(sortColumnArgumentCaptor.capture(), anyBoolean());
-        assertThat(startArgumentCaptor.getValue()).isEqualTo(10);
-        assertThat(limitArgumentCaptor.getValue()).isEqualTo(20);
-        assertThat(sortColumnArgumentCaptor.getValue()).isEqualTo("name");
+        ArgumentCaptor<QueryParameters> argumentCaptor = ArgumentCaptor.forClass(QueryParameters.class);
+        verify(finder).from(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()).isNotNull();
     }
 }

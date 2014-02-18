@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -18,11 +19,9 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.json.JSONArray;
 
 @Path("/comservers")
 public class ComServerResource {
@@ -36,11 +35,9 @@ public class ComServerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServersInfo getComServers(@QueryParam("start") Integer start, @QueryParam("limit") Integer limit,
-                               @QueryParam("sort") JSONArray sort,
-                               @QueryParam("sort") String singleSortName,  @QueryParam("dir") String singeSortDirection) {
-        ComServersInfo comServers = new ComServersInfo(); // TODO Why can't we directly access QueryParameters as a BeanParam in this resource?????
-        List<ComServer> allComServers = engineModelService.findAllComServers().from(new QueryParameters(start, limit, sort, singleSortName, singeSortDirection)).find();
+    public ComServersInfo getComServers(@BeanParam QueryParameters queryParameters) {
+        ComServersInfo comServers = new ComServersInfo();
+        List<ComServer> allComServers = engineModelService.findAllComServers().from(queryParameters).find();
 
         for (ComServer comServer : allComServers) {
             comServers.comServers.add(ComServerInfoFactory.asInfo(comServer));
