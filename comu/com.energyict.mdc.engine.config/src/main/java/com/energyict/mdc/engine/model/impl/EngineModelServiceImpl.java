@@ -30,14 +30,6 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -45,6 +37,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.inject.Inject;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import static com.energyict.mdc.engine.model.impl.ComPortImpl.OUTBOUND_DISCRIMINATOR;
 import static com.energyict.mdc.engine.model.impl.ComServerImpl.OFFLINE_COMSERVER_DISCRIMINATOR;
@@ -383,7 +382,12 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public List<ComPortPool> findAllComPortPools(int from, int pageSize, String[] orderBy) {
-        return dataModel.query(ComPortPool.class).select(Where.where("obsoleteDate").isNull(), orderBy, true, new String[0], from + 1, from + pageSize);
+        Finder<ComPortPool> comPortPoolFinder = DefaultFinder.of(ComPortPool.class, Where.where("obsoleteDate").isNull(), dataModel).paged(from, pageSize);
+        for (String order : orderBy) {
+            comPortPoolFinder.sorted(order, true);
+        }
+
+        return comPortPoolFinder.find();
     }
 
     @Override
