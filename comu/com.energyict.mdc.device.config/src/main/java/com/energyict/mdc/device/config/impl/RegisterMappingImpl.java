@@ -21,6 +21,7 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenRegisterMappingIsInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateProductSpecWhenRegisterMappingIsInUseException;
+import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
@@ -103,6 +104,11 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     @Override
     protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
         return NameIsRequiredException.registerMappingNameIsRequired(thesaurus);
+    }
+
+    @Override
+    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
+        return DuplicateNameException.registerMappingAlreadyExists(this.getThesaurus(), name);
     }
 
     public ObisCode getObisCode() {

@@ -6,14 +6,19 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLogBookTypeIsInUseException;
+import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
 
 import javax.inject.Inject;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -69,7 +74,15 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
 
     @Override
     protected void validateDelete() {
-        // Nothing to validate
+        // Validate that the LogBookType is not in use by a DeviceType
+        List<DeviceTypeLogBookTypeUsage> logBookTypeUsages = this.dataModel.mapper(DeviceTypeLogBookTypeUsage.class).find("logBookType", this);
+        if (!logBookTypeUsages.isEmpty()) {
+            List<DeviceType> deviceTypes = new ArrayList<>(logBookTypeUsages.size());
+            for (DeviceTypeLogBookTypeUsage logBookTypeUsage : logBookTypeUsages) {
+                deviceTypes.add(logBookTypeUsage.getDeviceType());
+            }
+            throw CannotDeleteBecauseStillInUseException.logBookTypeIsStillInUseByDeviceType(this.getThesaurus(), this, deviceTypes);
+        }
     }
 
     protected void doDelete() {
@@ -79,6 +92,11 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
     @Override
     protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
         throw NameIsRequiredException.logBookTypeNameIsRequired(thesaurus);
+    }
+
+    @Override
+    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
+        return DuplicateNameException.logBookTypeAlreadyExists(this.getThesaurus(), name);
     }
 
     @Override
@@ -104,8 +122,12 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
     }
 
     private boolean canChangeObisCode() {
+        return !this.inUseByLogBookSpecs();
+    }
+
+    private boolean inUseByLogBookSpecs() {
         List<LogBookSpecImpl> logBookTypes = this.dataModel.mapper(LogBookSpecImpl.class).find("logBookType", this);
-        return logBookTypes.isEmpty();
+        return !logBookTypes.isEmpty();
     }
 
     @Override

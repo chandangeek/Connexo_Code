@@ -19,6 +19,7 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceProtocolWithActiveConfigurationsException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DeviceProtocolIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
@@ -81,6 +82,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
         return NameIsRequiredException.deviceTypeNameIsRequired(thesaurus);
+    }
+
+    @Override
+    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
+        return DuplicateNameException.deviceTypeExists(thesaurus, name);
     }
 
     @Override

@@ -17,6 +17,7 @@ import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateIntervalWhenLoadProfileTypeIsInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException;
+import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
@@ -98,6 +99,11 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     @Override
     protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
         throw NameIsRequiredException.loadProfileTypeNameIsRequired(thesaurus);
+    }
+
+    @Override
+    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
+        return DuplicateNameException.loadProfileTypeAlreadyExists(thesaurus, name);
     }
 
     protected void doDelete() {

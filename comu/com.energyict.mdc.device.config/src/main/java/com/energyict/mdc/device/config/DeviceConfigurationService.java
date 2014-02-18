@@ -53,6 +53,14 @@ public interface DeviceConfigurationService {
      */
     public ProductSpec findProductSpec(long id);
 
+    /**
+     * Finds the {@link ProductSpec} that is uniquely identified by the specified {@link ReadingType}.
+     *
+     * @param readingType The ReadingType
+     * @return The ProductSpec or <code>null</code> if there is no such ProductSpec
+     */
+    public ProductSpec findProductSpecByReadingType(ReadingType readingType);
+
     public List<ProductSpec> findAllProductSpecs();
 
     /**
@@ -369,7 +377,7 @@ public interface DeviceConfigurationService {
 
     public List<LoadProfileType> findLoadProfileTypesByName(String name);
 
-    public List<LogBookType> findLogBookTypeByName(String name);
+    public LogBookType findLogBookTypeByName(String name);
 
     public List<LogBookType> findLogBookTypeByObisCode(ObisCode obisCode);
 

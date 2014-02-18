@@ -113,6 +113,18 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
     /**
      * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
      * situation that occurs when an attempt is made to delete a {@link LogBookType}
+     * while it is still used by the specified {@link DeviceType}s.
+     *
+     * @param thesaurus The Thesaurus
+     * @return The NameIsRequiredException
+     */
+    public static CannotDeleteBecauseStillInUseException logBookTypeIsStillInUseByDeviceType(Thesaurus thesaurus, LogBookType logBookType, List<DeviceType> deviceTypes) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS, logBookType.getName(), namesToStringListForDeviceTypes(deviceTypes));
+    }
+
+    /**
+     * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
+     * situation that occurs when an attempt is made to delete a {@link LogBookType}
      * while it is still used by the specified {@link LogBookSpec}s.
      *
      * @param thesaurus The Thesaurus

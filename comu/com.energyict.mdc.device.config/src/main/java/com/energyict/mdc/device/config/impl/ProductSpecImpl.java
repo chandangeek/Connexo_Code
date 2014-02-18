@@ -7,7 +7,6 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
@@ -108,7 +107,7 @@ public class ProductSpecImpl implements ProductSpec {
         if (this.id == 0) {
             throw new CannotDeleteDefaultProductSpecException(this.thesaurus);
         }
-        List<RegisterMapping> registerMappings = this.dataModel.mapper(RegisterMapping.class).find("productSpec", this.getId());
+        List<RegisterMapping> registerMappings = this.dataModel.mapper(RegisterMapping.class).find("productSpec", this);
         if (!registerMappings.isEmpty()) {
             throw CannotDeleteBecauseStillInUseException.productSpecIsStillInUse(this.thesaurus, this, registerMappings);
         }
@@ -142,7 +141,7 @@ public class ProductSpecImpl implements ProductSpec {
 
     @Override
     public String getDescription() {
-        return this.getReadingType().toString();
+        return this.getReadingType().getName();
     }
 
 }

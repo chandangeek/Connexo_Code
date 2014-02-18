@@ -7,6 +7,7 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
+import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 
 import javax.inject.Inject;
@@ -37,6 +38,11 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     @Override
     protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
         throw NameIsRequiredException.registerGroupNameIsRequired(thesaurus);
+    }
+
+    @Override
+    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
+        return DuplicateNameException.registerGroupAlreadyExists(thesaurus, name);
     }
 
     @Override

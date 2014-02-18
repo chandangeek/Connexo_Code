@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.Environment;
@@ -15,6 +18,7 @@ import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateIntervalWhenLoadProfileTypeIsInUseException;
+import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
@@ -26,10 +30,16 @@ import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
+import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
+import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
+import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
+import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -49,7 +59,7 @@ public class LoadProfileTypeImplTest {
 
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
-    @Mock
+
     private ReadingType readingType;
     private InMemoryPersistence inMemoryPersistence = new InMemoryPersistence();
     private Phenomenon phenomenon;
@@ -109,6 +119,34 @@ public class LoadProfileTypeImplTest {
         assertThat(loadProfileType.getDescription()).isNotEmpty();
         assertThat(loadProfileType.getObisCode()).isEqualTo(OBIS_CODE);
         assertThat(loadProfileType.getInterval()).isEqualTo(interval);
+    }
+
+    @Test(expected = DuplicateNameException.class)
+    public void testDuplicateName () {
+        DeviceConfigurationServiceImpl deviceConfigurationService = this.inMemoryPersistence.getDeviceConfigurationService();
+        String loadProfileTypeName = "testDuplicateName";
+        TimeDuration interval = INTERVAL_15_MINUTES;
+
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Setup first LoadProfileType
+            LoadProfileType loadProfileType = deviceConfigurationService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+            loadProfileType.setDescription("For testing purposes only");
+            loadProfileType.save();
+            ctx.commit();
+        }
+
+        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            // Business method
+            LoadProfileType loadProfileType = deviceConfigurationService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+            loadProfileType.setDescription("For testing purposes only");
+            loadProfileType.save();
+            ctx.commit();
+        }
+        catch (DuplicateNameException e) {
+            // Asserts
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_ALREADY_EXISTS);
+            throw e;
+        }
     }
 
     @Test(expected = NameIsRequiredException.class)
@@ -311,6 +349,7 @@ public class LoadProfileTypeImplTest {
 
             // Setup DeviceType with a DeviceConfiguration and a LoadProfileSpec that uses the LoadProfileType
             DeviceType deviceType = deviceConfigurationService.newDeviceType("testUpdateIntervalWhileInUse", this.deviceProtocolPluggableClass);
+            deviceType.addLoadProfileType(loadProfileType);
             DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
             configurationBuilder.newLoadProfileSpec(loadProfileType);
             configurationBuilder.add();
@@ -334,6 +373,8 @@ public class LoadProfileTypeImplTest {
         LoadProfileType loadProfileType;
         long registerMappingId;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            this.setupReadingTypeInExistingTransaction();
+
             // Setup ProductSpec
             ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
             productSpec.save();
@@ -369,6 +410,8 @@ public class LoadProfileTypeImplTest {
         RegisterMapping registerMapping;
         LoadProfileType loadProfileType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            this.setupReadingTypeInExistingTransaction();
+
             // Setup ProductSpec
             ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
             productSpec.save();
@@ -404,6 +447,8 @@ public class LoadProfileTypeImplTest {
         RegisterMapping registerMapping;
         LoadProfileType loadProfileType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            this.setupReadingTypeInExistingTransaction();
+
             // Setup ProductSpec
             ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
             productSpec.save();
@@ -442,6 +487,7 @@ public class LoadProfileTypeImplTest {
         LoadProfileType loadProfileType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
             this.setupPhenomenaInExistingTransaction();
+            this.setupReadingTypeInExistingTransaction();
 
             // Setup ProductSpec
             ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
@@ -459,6 +505,8 @@ public class LoadProfileTypeImplTest {
 
             // Setup DeviceType with a DeviceConfiguration and LoadProfileSpec and ChannelSpec that uses the LoadProfileType
             DeviceType deviceType = deviceConfigurationService.newDeviceType("testUpdateIntervalWhileInUse", this.deviceProtocolPluggableClass);
+            deviceType.addLoadProfileType(loadProfileType);
+            deviceType.addRegisterMapping(registerMapping);
             DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
             LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(loadProfileType);
             configurationBuilder.newChannelSpec(registerMapping, this.phenomenon, loadProfileSpecBuilder);
@@ -512,6 +560,8 @@ public class LoadProfileTypeImplTest {
         RegisterMapping registerMapping;
         LoadProfileType loadProfileType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+            this.setupReadingTypeInExistingTransaction();
+
             // Setup ProductSpec
             ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
             productSpec.save();
@@ -548,6 +598,7 @@ public class LoadProfileTypeImplTest {
         LoadProfileType loadProfileType;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
             this.setupPhenomenaInExistingTransaction();
+            this.setupReadingTypeInExistingTransaction();
 
             // Setup LoadProfileType
             loadProfileType = deviceConfigurationService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
@@ -564,6 +615,7 @@ public class LoadProfileTypeImplTest {
 
             // Setup DeviceType with a DeviceConfiguration and LoadProfileSpec and ChannelSpec that uses the LoadProfileType
             DeviceType deviceType = deviceConfigurationService.newDeviceType("testUpdateIntervalWhileInUse", this.deviceProtocolPluggableClass);
+            deviceType.addLoadProfileType(loadProfileType);
             DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
             LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(loadProfileType);
             configurationBuilder.newChannelSpec(registerMapping, this.phenomenon, loadProfileSpecBuilder);
@@ -590,9 +642,11 @@ public class LoadProfileTypeImplTest {
     private void assertLoadProfileTypeDoesNotExist(LoadProfileType loadProfileType) throws SQLException {
         SqlBuilder builder = new SqlBuilder("select * from EISLOADPROFILETYPE where id = ?");
         builder.bindLong(loadProfileType.getId());
-        try (PreparedStatement preparedStatement = builder.getStatement(Environment.DEFAULT.get().getConnection())) {
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                assertThat(resultSet.next()).as("Was not expecting to find LoadProfileType " + loadProfileType.getName() + " after deletion").isFalse();
+        try (Connection connection = Environment.DEFAULT.get().getConnection()) {
+            try (PreparedStatement preparedStatement = builder.getStatement(connection)) {
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    assertThat(resultSet.next()).as("Was not expecting to find LoadProfileType " + loadProfileType.getName() + " after deletion").isFalse();
+                }
             }
         }
     }
@@ -600,9 +654,11 @@ public class LoadProfileTypeImplTest {
     private void assertRegisterMappingsDoNotExist(LoadProfileType loadProfileType) throws SQLException {
         SqlBuilder builder = new SqlBuilder("select * from EISREGMAPPINGINLOADPROFILETYPE where LOADPROFILETYPEID = ?");
         builder.bindLong(loadProfileType.getId());
-        try (PreparedStatement preparedStatement = builder.getStatement(Environment.DEFAULT.get().getConnection())) {
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                assertThat(resultSet.next()).as("Was not expecting to find register mappings for LoadProfileType " + loadProfileType.getName() + " after deletion").isFalse();
+        try (Connection connection = Environment.DEFAULT.get().getConnection()) {
+            try (PreparedStatement preparedStatement = builder.getStatement(connection)) {
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    assertThat(resultSet.next()).as("Was not expecting to find register mappings for LoadProfileType " + loadProfileType.getName() + " after deletion").isFalse();
+                }
             }
         }
     }
@@ -610,6 +666,11 @@ public class LoadProfileTypeImplTest {
     private void setupPhenomenaInExistingTransaction () {
         this.phenomenon = this.inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(DeviceTypeImplTest.class.getSimpleName(), Unit.get("kWh"));
         this.phenomenon.save();
+    }
+
+    private void setupReadingTypeInExistingTransaction () {
+        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        this.readingType = this.inMemoryPersistence.getMeteringService().getReadingType(code).get();
     }
 
 }

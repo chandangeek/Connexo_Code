@@ -123,6 +123,11 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
+    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
+        return DuplicateNameException.deviceConfigurationExists(thesaurus, name);
+    }
+
+    @Override
     public void notifyDelete() {
         //TODO
     }

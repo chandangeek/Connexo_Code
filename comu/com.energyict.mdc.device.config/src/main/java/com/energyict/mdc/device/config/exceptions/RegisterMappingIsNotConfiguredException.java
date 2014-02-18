@@ -19,10 +19,6 @@ import com.energyict.mdc.device.config.RegisterMapping;
  */
 public class RegisterMappingIsNotConfiguredException extends LocalizedException {
 
-    private RegisterMappingIsNotConfiguredException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
-        super(thesaurus, messageSeed, args);
-    }
-
     /**
      * Creates a new RegisterMappingIsNotConfiguredException that models the
      * exceptional situation that occurs when an attempt is made to add a
@@ -37,7 +33,7 @@ public class RegisterMappingIsNotConfiguredException extends LocalizedException 
      * @return the newly create RegisterMappingIsNotConfiguredException
      */
     public static RegisterMappingIsNotConfiguredException forChannelInLoadProfileSpec(Thesaurus thesaurus, LoadProfileSpec loadProfileSpec, RegisterMapping registerMapping, ChannelSpec channelSpec) {
-        return new RegisterMappingIsNotConfiguredException(thesaurus, MessageSeeds.CHANNEL_SPEC_REGISTER_MAPPING_IS_NOT_IN_LOAD_PROFILE_SPEC, channelSpec, registerMapping, loadProfileSpec);
+        return new RegisterMappingIsNotConfiguredException(thesaurus, MessageSeeds.CHANNEL_SPEC_REGISTER_MAPPING_IS_NOT_IN_LOAD_PROFILE_SPEC, channelSpec.getName(), registerMapping.getName(), loadProfileSpec.getObisCode());
     }
 
     /**
@@ -54,6 +50,11 @@ public class RegisterMappingIsNotConfiguredException extends LocalizedException 
      * @return RegisterMappingIsNotConfiguredException
      */
     public static RegisterMappingIsNotConfiguredException forChannelInDeviceType(Thesaurus thesaurus, ChannelSpec channelSpec, RegisterMapping registerMapping, DeviceType deviceType) {
-        return new RegisterMappingIsNotConfiguredException(thesaurus, MessageSeeds.CHANNEL_SPEC_REGISTER_MAPPING_IS_NOT_ON_DEVICE_TYPE, channelSpec, registerMapping, deviceType);
+        return new RegisterMappingIsNotConfiguredException(thesaurus, MessageSeeds.CHANNEL_SPEC_REGISTER_MAPPING_IS_NOT_ON_DEVICE_TYPE, channelSpec.getName(), registerMapping.getName(), deviceType.getName());
     }
+
+    private RegisterMappingIsNotConfiguredException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
+        super(thesaurus, messageSeed, args);
+    }
+
 }
