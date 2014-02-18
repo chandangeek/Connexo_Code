@@ -307,8 +307,55 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             last = pageCount < me.totalPages ? me.totalPages : pageCount;
 
         if (me.fireEvent('beforechange', me, last) !== false) {
-            me.store.loadPage(last);
+            me.store.loadPage(last, {
+                params: me.params
+            });
+
             return true;
+        }
+        return false;
+    },
+
+    moveFirst : function(){
+        var me = this;
+        if (this.fireEvent('beforechange', this, 1) !== false){
+            this.store.loadPage(1, {
+                params: me.params
+            });
+            return true;
+        }
+        return false;
+    },
+
+    movePrevious : function(){
+        var me = this,
+            store = me.store,
+            prev = store.currentPage - 1;
+
+        if (prev > 0) {
+            if (me.fireEvent('beforechange', me, prev) !== false) {
+                store.loadPage(store.currentPage - 1, {
+                    params: me.params
+                });
+                return true;
+            }
+        }
+        return false;
+    },
+
+    moveNext : function(){
+        var me = this,
+            store = me.store,
+            total = me.getPageData().pageCount,
+            next = store.currentPage + 1;
+
+        if (next <= total) {
+            if (me.fireEvent('beforechange', me, next) !== false) {
+                store.loadPage(store.currentPage + 1, {
+                    params: me.params
+                });
+                return true;
+            }
         }
         return false;
     },
@@ -361,6 +408,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         navItem.getEl().on('click', function () {
             Ext.History.suspendEvents();
             me.store.loadPage(page, {
+                params: me.params,
                 callback: function () {
                     Ext.History.resumeEvents();
                 }
