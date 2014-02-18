@@ -88,7 +88,7 @@ public class DefaultFinderTest extends JerseyTest {
     }
 
     @Test
-    public void testQueryParametersPaged() throws Exception {
+    public void testQueryParametersPagedNoSorting() throws Exception {
         final Response response = target("/bogus/").queryParam("start",5).queryParam("limit", 100).request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<Integer> startCaptor = ArgumentCaptor.forClass(Integer.class);
@@ -99,8 +99,8 @@ public class DefaultFinderTest extends JerseyTest {
     }
 
     @Test
-    public void testQueryParametersSortedDescendingOnOneColumnFromQueryParameters() throws Exception {
-        final Response response = target("/bogus/").queryParam("sort", sorting("name", "DESC")).request().get(Response.class);
+    public void testQueryParametersSortedDescendingWithSingleSortFromQueryParameters() throws Exception {
+        final Response response = target("/bogus/").queryParam("sort", "name").queryParam("dir", "DESC").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
         verify(query).select(Matchers.any(Condition.class), orderCaptor.capture());

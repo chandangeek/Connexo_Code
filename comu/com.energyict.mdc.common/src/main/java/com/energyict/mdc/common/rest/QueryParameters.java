@@ -4,55 +4,65 @@ import com.elster.jupiter.util.conditions.Order;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class QueryParameters {
 
-    public static final String EXTJS_ASCENDING = "ASC";
+    // Below are the fields as they are added to the query by ExtJS
+    private static final String EXTJS_ASCENDING = "ASC";
+    private static final String EXTJS_START = "start";
+    private static final String EXTJS_LIMIT = "limit";
+    private static final String EXTJS_SORT = "sort";
+    private static final String EXTJS_DIR = "dir";
+    private static final String EXTJS_DIRECTION = "direction";
+    private static final String EXTJS_FIELD = "field";
 
-    private final Integer start;
-    private final Integer limit;
-    private final JSONArray sort;
-    private final String singleSortName;
-    private final String singeSortDirection;
+    private final UriInfo uriInfo;
 
     @Inject
-    public QueryParameters(@QueryParam("start") Integer start, @QueryParam("limit") Integer limit,
-                           @QueryParam("sort") JSONArray sort,
-                           @QueryParam("sort") String singleSortName,  @QueryParam("dir") String singeSortDirection)  {
-        this.start = start;
-        this.limit = limit;
-        this.sort = sort;
-        this.singleSortName = singleSortName;
-        this.singeSortDirection = singeSortDirection;
+    public QueryParameters(@Context UriInfo uriInfo)  {
+        this.uriInfo = uriInfo;
     }
 
     public Integer getStart() {
-        return start;
+        return getIntegerOrNull(EXTJS_START);
     }
 
     public Integer getLimit() {
-        return limit;
+        return getIntegerOrNull(EXTJS_LIMIT);
     }
 
     public List<Order> getSortingColumns()  {
         try {
             List<Order> sortingColumns = new ArrayList<>();
-            if (sort!=null) {
-                for (int index=0; index<sort.length(); index++) {
-                    JSONObject object = sort.getJSONObject(index);
-                    sortingColumns.add(EXTJS_ASCENDING.equals(object.getString("direction"))?Order.ascending(object.getString("field")):Order.descending(object.getString("field")));
+            String singleSortDirection = uriInfo.getQueryParameters().getFirst(EXTJS_DIR);
+            String sort = uriInfo.getQueryParameters().getFirst(EXTJS_SORT);
+            if (singleSortDirection!=null && sort!=null) {
+                sortingColumns.add(EXTJS_ASCENDING.equals(singleSortDirection) ? Order.ascending(sort) : Order.descending(sort));
+            } else if (sort!=null && !sort.isEmpty()){
+                JSONArray jsonArray = new JSONArray(sort);
+                for (int index=0; index<jsonArray.length(); index++) {
+                    JSONObject object = jsonArray.getJSONObject(index);
+                    sortingColumns.add(EXTJS_ASCENDING.equals(object.getString(EXTJS_DIRECTION))?Order.ascending(object.getString(EXTJS_FIELD)):Order.descending(object.getString(EXTJS_FIELD)));
                 }
-            } else if (singleSortName!=null && singeSortDirection!=null) {
-                sortingColumns.add(EXTJS_ASCENDING.equals(singeSortDirection) ? Order.ascending(singleSortName) : Order.descending(singleSortName));
             }
             return sortingColumns;
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
     }
+
+    private Integer getIntegerOrNull(String name) {
+        String start = uriInfo.getQueryParameters().getFirst(name);
+        if (start!=null) {
+            return Integer.parseInt(start);
+        }
+        return null;
+    }
+
 
 }
