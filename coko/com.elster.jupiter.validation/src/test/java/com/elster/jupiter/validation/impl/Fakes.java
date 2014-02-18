@@ -162,7 +162,7 @@ public enum Fakes {
         }
 
         @Override
-        public List<T> find(String[] fieldNames, Object[] values, String... orderBy) {
+        public List<T> find(String[] fieldNames, Object[] values, String order, String... orders) {
             return null;
         }
 
@@ -172,7 +172,7 @@ public enum Fakes {
         }
 
         @Override
-        public List<T> find(Map<String, Object> valueMap, String... orderBy) {
+        public List<T> find(Map<String, Object> valueMap, String order, String... orders) {
             return null;
         }
 
@@ -226,7 +226,7 @@ public enum Fakes {
         }
 
 		@Override
-		public List<T> select(Condition condition, String... orderBy) {
+		public List<T> select(Condition condition, String order, String... orderBy) {
 			return null;
 		}
 
@@ -237,7 +237,27 @@ public enum Fakes {
 		}
 
 		@Override
-		public List<T> select(Condition condition, Order ordering, Order... orderings) {
+		public List<T> select(Condition condition, Order... orderings) {
+			return null;
+		}
+
+		@Override
+		public List<T> find(String fieldName, Object value, Order... orders) {
+			return null;
+		}
+
+		@Override
+		public List<T> find(String fieldName1, Object value1,String fieldName2, Object value2, Order... orders) {
+			return null;
+		}
+
+		@Override
+		public List<T> find(String[] fieldNames, Object[] values, Order... orders) {
+			return null;
+		}
+
+		@Override
+		public List<T> find(Map<String, Object> valueMap, Order... orders) {
 			return null;
 		}
 
