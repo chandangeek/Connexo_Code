@@ -102,7 +102,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
                         if (value) {
                             return I18n.translate('general.yes', 'CFG', 'Yes')
                         } else {
-                            return I18n.translate('general.no', 'CFG', 'no')
+                            return I18n.translate('general.no', 'CFG', 'No')
                         }
                     }
                 },
