@@ -13,7 +13,9 @@ import com.energyict.mdc.pluggable.PluggableService;
  * @since 2013-12-23 (15:10)
  */
 public enum EventType {
-    DELETED("DELETED");
+    CREATED("pluggableclass/CREATED"),
+    UPDATED("pluggableclass/UPDATED"),
+    DELETED("pluggableclass/DELETED");
 
     private static final String NAMESPACE = "com/energyict/mdc/pluggable/";
     private final String topic;

@@ -120,6 +120,7 @@ public class PluggableClassImpl implements PluggableClass {
      */
     protected void postNew() {
         this.getDataMapper().persist(this);
+        this.eventService.postEvent(EventType.CREATED.topic(), this);
     }
 
     /**
@@ -127,6 +128,7 @@ public class PluggableClassImpl implements PluggableClass {
      */
     protected void post() {
         this.getDataMapper().update(this);
+        this.eventService.postEvent(EventType.UPDATED.topic(), this);
     }
 
     public void delete() {
