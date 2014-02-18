@@ -114,7 +114,7 @@ public class ProductSpecImpl implements ProductSpec {
     }
 
     private void notifyDependents() {
-        this.eventService.postEvent(EventType.DELETED.topic(), this);
+        this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(), this);
     }
 
     @Override

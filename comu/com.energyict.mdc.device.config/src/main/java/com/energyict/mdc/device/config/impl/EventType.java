@@ -14,8 +14,39 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
  */
 public enum EventType {
 
-    UPDATED("UPDATED"),
-    DELETED("DELETED");
+    DEVICETYPE_CREATED("devicetype/CREATED"),
+    DEVICETYPE_UPDATED("devicetype/UPDATED"),
+    DEVICETYPE_DELETED("devicetype/DELETED"),
+    LOGBOOKTYPE_CREATED("logbooktype/CREATED"),
+    LOGBOOKTYPE_UPDATED("logbooktype/UPDATED"),
+    LOGBOOKTYPE_DELETED("logbooktype/DELETED"),
+    LOADPROFILETYPE_CREATED("loadprofiletype/CREATED"),
+    LOADPROFILETYPE_UPDATED("loadprofiletype/UPDATED"),
+    LOADPROFILETYPE_DELETED("loadprofiletype/DELETED"),
+    REGISTERMAPPING_CREATED("registermapping/CREATED"),
+    REGISTERMAPPING_UPDATED("registermapping/UPDATED"),
+    REGISTERMAPPING_DELETED("registermapping/DELETED"),
+    DEVICECONFIGURATION_CREATED("deviceconfiguration/CREATED"),
+    DEVICECONFIGURATION_UPDATED("deviceconfiguration/UPDATED"),
+    DEVICECONFIGURATION_DELETED("deviceconfiguration/DELETED"),
+    LOGBOOKSPEC_CREATED("logbookspec/CREATED"),
+    LOGBOOKSPEC_UPDATED("logbookspec/UPDATED"),
+    LOGBOOKSPEC_DELETED("logbookspec/DELETED"),
+    LOADPROFILESPEC_CREATED("loadprofilespec/CREATED"),
+    LOADPROFILESPEC_UPDATED("loadprofilespec/UPDATED"),
+    LOADPROFILESPEC_DELETED("loadprofilespec/DELETED"),
+    CHANNELSPEC_CREATED("channelspec/CREATED"),
+    CHANNELSPEC_UPDATED("channelspec/UPDATED"),
+    CHANNELSPEC_DELETED("channelspec/DELETED"),
+    REGISTERSPEC_CREATED("registerspec/CREATED"),
+    REGISTERSPEC_UPDATED("registerspec/UPDATED"),
+    REGISTERSPEC_DELETED("registerspec/DELETED"),
+    REGISTERGROUP_CREATED("registergroup/CREATED"),
+    REGISTERGROUP_UPDATED("registergroup/UPDATED"),
+    REGISTERGROUP_DELETED("registergroup/DELETED"),
+    PHENOMENON_CREATED("phenomenon/CREATED"),
+    PHENOMENON_UPDATED("phenomenon/UPDATED"),
+    PHENOMENON_DELETED("phenomenon/DELETED");
 
     private static final String NAMESPACE = "com/energyict/mdc/device/config/";
     private final String topic;

@@ -92,6 +92,21 @@ public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements
     }
 
     @Override
+    protected CreateEventType createEventType() {
+        return CreateEventType.PHENOMENON;
+    }
+
+    @Override
+    protected UpdateEventType updateEventType() {
+        return UpdateEventType.PHENOMENON;
+    }
+
+    @Override
+    protected DeleteEventType deleteEventType() {
+        return DeleteEventType.PHENOMENON;
+    }
+
+    @Override
     protected void validateDelete() {
         //TODO what to do with the Undefined? Who puts it in here?
 //        if (isUndefined()) {

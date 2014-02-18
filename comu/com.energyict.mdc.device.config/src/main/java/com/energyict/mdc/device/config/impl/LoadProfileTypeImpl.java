@@ -110,6 +110,21 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         this.getDataMapper().remove(this);
     }
 
+    @Override
+    protected CreateEventType createEventType() {
+        return CreateEventType.LOADPROFILETYPE;
+    }
+
+    @Override
+    protected UpdateEventType updateEventType() {
+        return UpdateEventType.LOADPROFILETYPE;
+    }
+
+    @Override
+    protected DeleteEventType deleteEventType() {
+        return DeleteEventType.LOADPROFILETYPE;
+    }
+
     public ObisCode getObisCode() {
         if (this.obisCode == null) {
             this.obisCode = ObisCode.fromString(this.obisCodeString);

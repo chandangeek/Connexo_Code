@@ -115,6 +115,21 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
+    protected CreateEventType createEventType() {
+        return CreateEventType.DEVICETYPE;
+    }
+
+    @Override
+    protected UpdateEventType updateEventType() {
+        return UpdateEventType.DEVICETYPE;
+    }
+
+    @Override
+    protected DeleteEventType deleteEventType() {
+        return DeleteEventType.DEVICETYPE;
+    }
+
+    @Override
     protected void validateDelete() {
         if (this.hasActiveConfigurations()) {
             throw CannotDeleteBecauseStillInUseException.deviceTypeIsStillInUse(this.getThesaurus(), this);
