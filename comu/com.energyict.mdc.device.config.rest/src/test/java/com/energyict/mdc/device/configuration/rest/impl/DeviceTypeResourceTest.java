@@ -3,7 +3,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.ShadowList;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.common.services.SortOrder;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -32,7 +31,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -419,7 +418,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
     private <T> Finder<T> mockFinder(List<T> list) {
         Finder<T> finder = mock(Finder.class);
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), any(SortOrder.class))).thenReturn(finder);
+        when(finder.sorted(anyString(), anyBoolean())).thenReturn(finder);
         when(finder.find()).thenReturn(list);
         return finder;
     }
