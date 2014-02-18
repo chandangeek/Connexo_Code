@@ -1,8 +1,12 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.ObisCode;
@@ -26,18 +30,14 @@ import com.energyict.mdc.device.config.exceptions.ProductSpecIsRequiredException
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import org.junit.*;
-import org.junit.runner.*;
+import java.sql.SQLException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.sql.SQLException;
-
-import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
-import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
-import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
-import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
-import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -52,8 +52,6 @@ import static org.mockito.Mockito.when;
 public class RegisterMappingImplTest {
 
     private static final TimeDuration INTERVAL_15_MINUTES = new TimeDuration(15, TimeDuration.MINUTES);
-    private static final ObisCode OBIS_CODE = ObisCode.fromString("1.0.99.1.0.255");
-    private static final ObisCode OBIS_CODE_2 = ObisCode.fromString("1.0.99.2.0.255");
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
 
     @Mock
@@ -68,6 +66,8 @@ public class RegisterMappingImplTest {
     private ProductSpec productSpec;
     private ProductSpec productSpec2;
     private Phenomenon phenomenon;
+    private ObisCode obisCode1;
+    private ObisCode obisCode2;
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -94,7 +94,7 @@ public class RegisterMappingImplTest {
             this.setupProductSpecsInExistingTransaction();
 
             // Business method
-            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, OBIS_CODE, this.productSpec);
+            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, this.productSpec);
             registerMapping.setDescription("For testing purposes only");
             registerMapping.save();
             ctx.commit();
@@ -106,7 +106,7 @@ public class RegisterMappingImplTest {
         assertThat(registerMapping.getName()).isEqualTo(registerMappingName);
         assertThat(registerMapping.getDescription()).isNotEmpty();
         assertThat(registerMapping.getReadingType()).isEqualTo(this.readingType);
-        assertThat(registerMapping.getObisCode()).isEqualTo(OBIS_CODE);
+        assertThat(registerMapping.getObisCode()).isEqualTo(obisCode1);
     }
 
     @Test
@@ -115,21 +115,21 @@ public class RegisterMappingImplTest {
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
             this.setupProductSpecsInExistingTransaction();
 
-            RegisterMapping registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, OBIS_CODE, this.productSpec);
+            RegisterMapping registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, this.productSpec);
             registerMapping.setDescription("For testing purposes only");
             registerMapping.save();
             ctx.commit();
         }
 
         // Business method
-        RegisterMapping registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().findRegisterMappingByObisCodeAndProductSpec(OBIS_CODE, this.productSpec);
+        RegisterMapping registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().findRegisterMappingByObisCodeAndProductSpec(obisCode1, this.productSpec);
 
         // Asserts
         assertThat(registerMapping).isNotNull();
         assertThat(registerMapping.getName()).isEqualTo(registerMappingName);
         assertThat(registerMapping.getDescription()).isNotEmpty();
         assertThat(registerMapping.getReadingType()).isEqualTo(this.readingType);
-        assertThat(registerMapping.getObisCode()).isEqualTo(OBIS_CODE);
+        assertThat(registerMapping.getObisCode()).isEqualTo(obisCode1);
     }
 
     @Test(expected = NameIsRequiredException.class)
@@ -139,7 +139,7 @@ public class RegisterMappingImplTest {
             this.setupProductSpecsInExistingTransaction();
 
             // Business method
-            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(null, OBIS_CODE, this.productSpec);
+            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(null, obisCode1, this.productSpec);
             registerMapping.setDescription("For testing purposes only");
             registerMapping.save();
             ctx.commit();
@@ -158,7 +158,7 @@ public class RegisterMappingImplTest {
             this.setupProductSpecsInExistingTransaction();
 
             // Business method
-            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("", OBIS_CODE, this.productSpec);
+            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("", obisCode1, this.productSpec);
             registerMapping.setDescription("For testing purposes only");
             registerMapping.save();
             ctx.commit();
@@ -196,7 +196,7 @@ public class RegisterMappingImplTest {
         RegisterMapping registerMapping;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
             // Business method
-            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, OBIS_CODE, null);
+            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, null);
             registerMapping.setDescription("For testing purposes only");
             registerMapping.save();
             ctx.commit();
@@ -206,13 +206,13 @@ public class RegisterMappingImplTest {
     }
 
     @Test
-    public void testUpdateObisCode () {
+    public void testUpdateObisCodeAndProductSpec() {
         String registerMappingName = "testUpdateObisCode";
         RegisterMapping registerMapping;
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
             this.setupProductSpecsInExistingTransaction();
 
-            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, OBIS_CODE, this.productSpec);
+            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, this.productSpec);
             registerMapping.setDescription("For testing purposes only");
             registerMapping.save();
             ctx.commit();
@@ -220,16 +220,17 @@ public class RegisterMappingImplTest {
 
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
             // Business method
-            registerMapping.setObisCode(OBIS_CODE_2);
+            registerMapping.setObisCode(obisCode2);
+            registerMapping.setProductSpec(productSpec2);
             registerMapping.save();
             ctx.commit();
         }
 
         // Asserts
-        assertThat(registerMapping.getObisCode()).isEqualTo(OBIS_CODE_2);
+        assertThat(registerMapping.getObisCode()).isEqualTo(obisCode2);
         assertThat(registerMapping.getName()).isEqualTo(registerMappingName);
         assertThat(registerMapping.getDescription()).isNotEmpty();
-        assertThat(registerMapping.getReadingType()).isEqualTo(this.readingType);
+        assertThat(registerMapping.getReadingType()).isEqualTo(this.readingType2);
     }
 
     @Test(expected = DuplicateObisCodeException.class)
@@ -239,24 +240,24 @@ public class RegisterMappingImplTest {
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
             this.setupProductSpecsInExistingTransaction();
 
-            updateCandidate = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, OBIS_CODE, this.productSpec);
+            updateCandidate = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, this.productSpec);
             updateCandidate.setDescription("For testing purposes only");
             updateCandidate.save();
 
-            RegisterMapping other = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("other", OBIS_CODE_2, this.productSpec);
+            RegisterMapping other = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("other", obisCode2, this.productSpec);
             other.save();
             ctx.commit();
         }
 
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
             // Business method
-            updateCandidate.setObisCode(OBIS_CODE_2);
+            updateCandidate.setObisCode(obisCode2);
             updateCandidate.save();
             ctx.commit();
         }
         catch (DuplicateObisCodeException e) {
             // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_OBIS_CODE_ALREADY_EXISTS);
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_ALREADY_EXISTS);
             throw e;
         }
     }
@@ -269,7 +270,7 @@ public class RegisterMappingImplTest {
             this.setupProductSpecsInExistingTransaction();
 
             // Create the RegisterMapping
-            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, OBIS_CODE, this.productSpec);
+            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, this.productSpec);
             registerMapping.setDescription("For testing purposes only");
             registerMapping.save();
 
@@ -287,7 +288,7 @@ public class RegisterMappingImplTest {
 
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
             // Business method
-            registerMapping.setObisCode(OBIS_CODE_2);
+            registerMapping.setObisCode(obisCode2);
             registerMapping.save();
             ctx.commit();
         }
@@ -303,7 +304,7 @@ public class RegisterMappingImplTest {
             this.setupProductSpecsInExistingTransaction();
 
             // Create the RegisterMapping
-            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, OBIS_CODE, this.productSpec);
+            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, this.productSpec);
             registerMapping.setDescription("For testing purposes only");
             registerMapping.save();
 
@@ -324,7 +325,7 @@ public class RegisterMappingImplTest {
 
         try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
             // Business method
-            registerMapping.setObisCode(OBIS_CODE_2);
+            registerMapping.setObisCode(obisCode2);
             registerMapping.save();
             ctx.commit();
         }
@@ -340,7 +341,7 @@ public class RegisterMappingImplTest {
             this.setupProductSpecsInExistingTransaction();
 
             // Create the RegisterMapping
-            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, OBIS_CODE, this.productSpec);
+            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, this.productSpec);
             registerMapping.setDescription("For testing purposes only");
             registerMapping.save();
             ctx.commit();
@@ -354,7 +355,7 @@ public class RegisterMappingImplTest {
         }
 
         // Asserts
-        assertThat(registerMapping.getObisCode()).isEqualTo(OBIS_CODE);
+        assertThat(registerMapping.getObisCode()).isEqualTo(obisCode1);
         assertThat(registerMapping.getName()).isEqualTo(registerMappingName);
         assertThat(registerMapping.getDescription()).isNotEmpty();
         assertThat(registerMapping.getReadingType()).isEqualTo(this.readingType2);
@@ -368,7 +369,7 @@ public class RegisterMappingImplTest {
             this.setupProductSpecsInExistingTransaction();
 
             // Create the RegisterMapping
-            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, OBIS_CODE, this.productSpec);
+            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, this.productSpec);
             registerMapping.setDescription("For testing purposes only");
             registerMapping.save();
 
@@ -402,7 +403,7 @@ public class RegisterMappingImplTest {
             this.setupProductSpecsInExistingTransaction();
 
             // Create the RegisterMapping
-            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, OBIS_CODE, this.productSpec);
+            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, this.productSpec);
             registerMapping.setDescription("For testing purposes only");
             registerMapping.save();
 
@@ -439,7 +440,7 @@ public class RegisterMappingImplTest {
             this.setupProductSpecsInExistingTransaction();
 
             // Business method
-            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, OBIS_CODE, this.productSpec);
+            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, this.productSpec);
             registerMapping.setDescription("For testing purposes only");
             registerMapping.save();
             ctx.commit();
@@ -464,7 +465,7 @@ public class RegisterMappingImplTest {
             this.setupProductSpecsInExistingTransaction();
 
             // Create the RegisterMapping
-            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, OBIS_CODE, this.productSpec);
+            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, this.productSpec);
             registerMapping.setDescription("For testing purposes only");
             registerMapping.save();
 
@@ -499,7 +500,7 @@ public class RegisterMappingImplTest {
             this.setupProductSpecsInExistingTransaction();
 
             // Create the RegisterMapping
-            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, OBIS_CODE, this.productSpec);
+            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, this.productSpec);
             registerMapping.setDescription("For testing purposes only");
             registerMapping.save();
 
@@ -537,7 +538,7 @@ public class RegisterMappingImplTest {
             this.setupProductSpecsInExistingTransaction();
 
             // Create the RegisterMapping
-            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, OBIS_CODE, this.productSpec);
+            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, this.productSpec);
             registerMapping.setDescription("For testing purposes only");
             registerMapping.save();
 
@@ -567,7 +568,7 @@ public class RegisterMappingImplTest {
             this.setupProductSpecsInExistingTransaction();
 
             // Create the RegisterMapping
-            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, OBIS_CODE, this.productSpec);
+            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, this.productSpec);
             registerMapping.setDescription("For testing purposes only");
             registerMapping.save();
 
@@ -597,10 +598,22 @@ public class RegisterMappingImplTest {
     }
 
     private void setupReadingTypesInExistingTransaction() {
-        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        String code = ReadingTypeCodeBuilder
+                    .of(Commodity.ELECTRICITY_SECONDARY_METERED)
+                    .accumulate(Accumulation.BULKQUANTITY)
+                    .flow(FlowDirection.FORWARD)
+                    .measure(MeasurementKind.ENERGY)
+                    .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
         this.readingType = this.inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        String code2 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE60).accumulate(Accumulation.DELTADELTA).code();
+        this.obisCode1 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(readingType).getObisCode();
+        String code2 = ReadingTypeCodeBuilder
+                    .of(Commodity.ELECTRICITY_SECONDARY_METERED)
+                    .accumulate(Accumulation.BULKQUANTITY)
+                    .flow(FlowDirection.REVERSE)
+                    .measure(MeasurementKind.ENERGY)
+                    .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
         this.readingType2 = this.inMemoryPersistence.getMeteringService().getReadingType(code2).get();
+        this.obisCode2 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(readingType2).getObisCode();
     }
 
     private void setupLoadProfileTypesInExistingTransaction() {

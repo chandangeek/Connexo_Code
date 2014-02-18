@@ -176,6 +176,10 @@ public class InMemoryPersistence {
         return protocolPluggableService;
     }
 
+    public MdcReadingTypeUtilService getReadingTypeUtilService() {
+        return readingTypeUtilService;
+    }
+
     public ApplicationContext getApplicationContext() {
         return applicationContext;
     }
