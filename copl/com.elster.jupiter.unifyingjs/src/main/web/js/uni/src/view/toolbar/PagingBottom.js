@@ -31,6 +31,11 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
     pageStartParam: 'start',
     itemsPerPageMsg: 'Items per page',
 
+    firstText : 'First page',
+    prevText : 'Previous page',
+    nextText : 'Next page',
+    lastText : 'Last page',
+
     pageSizeStore: Ext.create('Ext.data.Store', {
         fields: ['value'],
         data: [
