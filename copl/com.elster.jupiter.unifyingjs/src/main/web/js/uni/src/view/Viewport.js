@@ -3,7 +3,6 @@
  */
 Ext.define('Uni.view.Viewport', {
     extend: 'Ext.container.Viewport',
-
     requires: [
         'Ext.layout.container.Border',
         'Uni.view.navigation.Header',

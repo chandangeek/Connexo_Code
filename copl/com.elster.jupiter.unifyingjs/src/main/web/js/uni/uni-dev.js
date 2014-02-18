@@ -6,6 +6,7 @@
         enabled: true,
         disableCaching: true,
         paths: {
+            'Ext.ux.window': '../uni/packages/Ext.ux.window.Notification',
             'Uni': '../uni/src'
         }
     });
