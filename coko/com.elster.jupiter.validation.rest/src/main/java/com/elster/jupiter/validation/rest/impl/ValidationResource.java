@@ -1,9 +1,15 @@
 package com.elster.jupiter.validation.rest.impl;
 
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.ValidationAction;
@@ -12,6 +18,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.Validator;
 import com.google.common.base.Optional;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.math.BigDecimal;
@@ -22,13 +29,34 @@ import java.util.Set;
 @Path("/validation")
 public class ValidationResource {
 
+    private final RestQueryService queryService;
+
+    @Inject
+    public ValidationResource(RestQueryService queryService) {
+        this.queryService = queryService;
+    }
+
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public ValidationRuleSetInfos getValidationRuleSets(@Context UriInfo uriInfo) {
-        List<ValidationRuleSet> list = Bus.getValidationService().getValidationRuleSets();
+        QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
+        List<ValidationRuleSet> list = queryRuleSets(params);
+        return toRuleSetInfos(list, params.getStart(), params.getLimit());
+    }
+
+    private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters) {
+        Query<ValidationRuleSet> query = Bus.getValidationService().getRuleSetQuery();
+        RestQuery<ValidationRuleSet> restQuery = queryService.wrap(query);
+        return restQuery.select(queryParameters);
+    }
+
+    private ValidationRuleSetInfos toRuleSetInfos(List<ValidationRuleSet> list, int start, int limit) {
         ValidationRuleSetInfos infos = new ValidationRuleSetInfos(list);
-        infos.total = list.size();
+        infos.total = start + list.size();
+        if (list.size() == limit) {
+            infos.total++;
+        }
         return infos;
     }
 
@@ -36,12 +64,13 @@ public class ValidationResource {
     @GET
      @Path("/rules/{id}")
      @Produces(MediaType.APPLICATION_JSON)
-     public ValidationRuleInfos getValidationRules(@PathParam("id") String id) {
+     public ValidationRuleInfos getValidationRules(@PathParam("id") String id, @Context UriInfo uriInfo) {
+        QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         Optional<ValidationRuleSet> optional = Bus.getValidationService().getValidationRuleSet(Long.parseLong(id));
         if (optional.isPresent()) {
             ValidationRuleInfos infos = new ValidationRuleInfos();
             ValidationRuleSet set = optional.get();
-            for (ValidationRule rule : set.getRules()) {
+            for (ValidationRule rule : set.getRules(params.getStart(), params.getLimit())) {
                 infos.add(rule);
             }
             infos.total = set.getRules().size();
@@ -102,7 +131,11 @@ public class ValidationResource {
                             ValidationRuleSet set = optional.get();
                             rule = set.addRule(ValidationAction.FAIL, info.implementation, info.name);
                             for (ReadingTypeInfo readingTypeInfo: info.readingTypes) {
-                                rule.addReadingType(Bus.getMeteringService().getReadingType(readingTypeInfo.mRID).get());
+                                ReadingType rt = Bus.getMeteringService().getReadingType(readingTypeInfo.mRID).get();
+                                if (rt == null) {
+                                    throw new WebApplicationException(Response.Status.NOT_FOUND);
+                                }
+                                rule.addReadingType(rt);
                             }
                             for (ValidationRulePropertyInfo propertyInfo: info.properties) {
                                 rule.addProperty(propertyInfo.name, Unit.WATT_HOUR.amount(propertyInfo.value));
