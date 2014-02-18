@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
@@ -35,15 +36,15 @@ public class ComServerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServersInfo getComServers(@BeanParam QueryParameters queryParameters) {
-        ComServersInfo comServers = new ComServersInfo();
+    public PagedInfoList getComServers(@BeanParam QueryParameters queryParameters) {
+        List<ComServerInfo> comServers = new ArrayList<>();
         List<ComServer> allComServers = engineModelService.findAllComServers().from(queryParameters).find();
 
         for (ComServer comServer : allComServers) {
-            comServers.comServers.add(ComServerInfoFactory.asInfo(comServer));
+            comServers.add(ComServerInfoFactory.asInfo(comServer));
         }
 
-        return comServers;
+        return PagedInfoList.asJson("comServers", comServers, queryParameters);
     }
 
     @GET
