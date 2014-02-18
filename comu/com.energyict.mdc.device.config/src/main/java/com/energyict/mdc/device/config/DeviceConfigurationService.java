@@ -4,9 +4,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.device.config.impl.RegisterMappingImpl;
 import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import java.util.List;
@@ -197,22 +196,6 @@ public interface DeviceConfigurationService {
     public RegisterSpec findRegisterSpec(long id);
 
     /**
-     * Finds all the {@link RegisterMapping RegisterMappings} which are defined in the given DeviceType
-     *
-     * @param deviceTypeId the ID of the {@link DeviceType}
-     * @return all the RegisterMappings which are defined for the given DeviceType
-     */
-    public List<RegisterMapping> findRegisterMappingByDeviceType(int deviceTypeId);
-
-    /**
-     * Finds all the {@link RegisterSpec RegisterSpecs} which are modeled by the given list of {@link RegisterMapping RegisterMappings}
-     *
-     * @param mappings the list of {@link RegisterMapping RegisterMappings} which model the requested {@link RegisterSpec RegisterSpecs}
-     * @return the list of RegisterSpecs
-     */
-    public List<RegisterSpec> findRegisterSpecsByRegisterMappings(List<RegisterMapping> mappings);
-
-    /**
      * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given {@link DeviceType} and modeled by the given {@link RegisterMapping RegisterMappings}
      *
      * @param deviceType      the DeviceType
@@ -228,34 +211,6 @@ public interface DeviceConfigurationService {
      * @return the list of RegisterSpecs
      */
     public List<RegisterSpec> findRegisterSpecsByRegisterMapping(long registerMappingId);
-
-    /**
-     * Finds a list of {@link RegisterSpec RegisterSpecs} which are defined for the given {@link DeviceConfiguration}
-     *
-     * @param deviceConfig the DeviceConfiguration
-     * @return the list of RegisterSpecs of the given DeviceConfiguration
-     */
-    public List<RegisterSpec> findRegisterSpecsByDeviceConfiguration(DeviceConfiguration deviceConfig);
-
-    /**
-     * Finds a list of {@link RegisterSpec RegisterSpecs} which are linked to the given {@link ChannelSpec} and
-     * has the given {@link ChannelSpecLinkType}
-     *
-     * @param channelSpec the {@link com.energyict.mdc.device.config.ChannelSpec}
-     * @param linkType    the {@link com.energyict.mdc.device.config.ChannelSpecLinkType}
-     * @return the list of RegisterSpecs
-     */
-    public List<RegisterSpec> findRegisterSpecsByChannelSpecAndLinkType(ChannelSpec channelSpec, ChannelSpecLinkType linkType);
-
-    /**
-     * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given DeviceConfiguration and
-     * modeled by the given RegisterMapping
-     *
-     * @param deviceConfigId    the ID of the {@link DeviceConfiguration}
-     * @param registerMappingId the ID of the {@link RegisterMapping}
-     * @return the list of RegisterSpecs
-     */
-    public List<RegisterSpec> findRegisterSpecsByDeviceConfigurationAndRegisterMapping(long deviceConfigId, long registerMappingId);
 
     /**
      * Finds a list of {@link ChannelSpec ChannelSpecs} which are linked to the given {@link LoadProfileSpec}
@@ -280,15 +235,6 @@ public interface DeviceConfigurationService {
      * @return the LoadProfileSpec or <code>null</code> if there is no such LoadProfileSpec
      */
     public LoadProfileSpec findLoadProfileSpec(int loadProfileSpecId);
-
-    /**
-     * Finds a list of {@link LoadProfileSpec LoadProfileSpecs} which are defined for the
-     * given {@link DeviceConfiguration}
-     *
-     * @param deviceConfig the DeviceConfiguration
-     * @return the list of LoadProfileSpecs for the given DeviceConfiguration
-     */
-    public List<LoadProfileSpec> findLoadProfileSpecsByDeviceConfig(DeviceConfiguration deviceConfig);
 
     /**
      * Find a {@link LoadProfileSpec} which is modeled by the given {@link LoadProfileType} for the given
@@ -317,24 +263,6 @@ public interface DeviceConfigurationService {
     public LogBookSpec findLogBookSpec(long id);
 
     /**
-     * Find the {@link LogBookSpec LogBookSpecs} for the given {@link DeviceConfiguration}
-     *
-     * @param deviceConfiguration the DeviceConfiguration
-     * @return the requested LogBookSpecs
-     */
-    public List<LogBookSpec> findLogBookSpecsByDeviceConfiguration(DeviceConfiguration deviceConfiguration);
-
-    /**
-     * Find the {@link LogBookSpec} which is modeled by the given {@link LogBookType}
-     * for the given {@link DeviceConfiguration}
-     *
-     * @param deviceConfig the DeviceConfiguration
-     * @param type         the LogBookType which models the LogBookSpec
-     * @return the requested LogBookSpec
-     */
-    public LogBookSpec findLogBookSpecByDeviceConfigAndLogBookType(DeviceConfiguration deviceConfig, LogBookType type);
-
-    /**
      * Checks whether or not the given Phenomenon is in use
      *
      * @param phenomenon the Phenomenon to check
@@ -348,21 +276,7 @@ public interface DeviceConfigurationService {
 
     public Phenomenon findPhenomenonByNameAndUnit(String name, String unit);
 
-    public List<Phenomenon> findPhenomenonByEdiCode(String ediCode);
-
     public ChannelSpec findChannelSpecForLoadProfileSpecAndRegisterMapping(LoadProfileSpec loadProfileSpec, RegisterMapping registerMapping);
-
-    public ChannelSpec findChannelSpecByDeviceConfigurationAndName(DeviceConfiguration deviceConfig, String name);
-
-    public List<ChannelSpec> findChannelSpecsByDeviceConfiguration(DeviceConfiguration deviceConfig);
-
-    public List<ChannelSpec> findChannelSpecsByDeviceConfigurationAndRegisterMapping(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping);
-
-    public DeviceConfiguration findDeviceConfigurationByNameAndDeviceType(String name, DeviceType deviceType);
-
-    public List<DeviceConfiguration> findActiveDeviceConfigurationsByDeviceType(DeviceType deviceType);
-
-    public List<DeviceConfiguration> findDeviceConfigurationsByDeviceType(DeviceType deviceType);
 
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLoadProfileType(LoadProfileType loadProfileType);
 
@@ -372,13 +286,10 @@ public interface DeviceConfigurationService {
 
     public List<DeviceConfiguration> findDeviceConfigurationsUsingRegisterMapping(RegisterMapping registerMapping);
 
-
     public List<DeviceType> findDeviceTypeWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
     public List<LoadProfileType> findLoadProfileTypesByName(String name);
 
     public LogBookType findLogBookTypeByName(String name);
-
-    public List<LogBookType> findLogBookTypeByObisCode(ObisCode obisCode);
 
 }

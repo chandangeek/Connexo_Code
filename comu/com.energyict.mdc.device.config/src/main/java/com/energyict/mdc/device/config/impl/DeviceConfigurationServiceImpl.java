@@ -50,7 +50,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @since 2014-01-30 (15:38)
  */
 @Component(name="com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, InstallService.class})
-public class DeviceConfigurationServiceImpl implements DeviceConfigurationService, InstallService {
+public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, InstallService {
 
     private volatile ProtocolPluggableService protocolPluggableService;
 
@@ -200,18 +200,6 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
-    public List<RegisterMapping> findRegisterMappingByDeviceType(int deviceTypeId) {
-        Condition condition = where("deviceType").isEqualTo(findDeviceType(deviceTypeId));
-        return this.getDataModel().query(RegisterMapping.class, DeviceTypeRegisterMappingUsage.class).select(condition);
-    }
-
-    @Override
-    public List<RegisterSpec> findRegisterSpecsByRegisterMappings(List<RegisterMapping> mappings) {
-        Condition condition = ListOperator.IN.contains("registerMapping", mappings);
-        return this.getDataModel().query(RegisterSpec.class, RegisterMapping.class).select(condition);
-    }
-
-    @Override
     public List<RegisterSpec> findRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
         Condition condition = where("deviceType").isEqualTo(deviceType).and(where("registerMapping").isEqualTo(registerMapping));
         return this.getDataModel().query(RegisterSpec.class, RegisterMapping.class, DeviceTypeRegisterMappingUsage.class).select(condition);
@@ -224,22 +212,9 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
-    public List<RegisterSpec> findRegisterSpecsByDeviceConfiguration(DeviceConfiguration deviceConfig) {
-        return this.getDataModel().mapper(RegisterSpec.class).find("deviceConfig", deviceConfig);
-    }
-
-    @Override
     public List<RegisterSpec> findRegisterSpecsByChannelSpecAndLinkType(ChannelSpec channelSpec, ChannelSpecLinkType linkType) {
         Condition condition = where("linkedChannelSpec").isEqualTo(channelSpec).and(where("channelSpecLinkType").isEqualTo(linkType));
         return this.getDataModel().query(RegisterSpec.class, ChannelSpec.class).select(condition);
-    }
-
-    @Override
-    public List<RegisterSpec> findRegisterSpecsByDeviceConfigurationAndRegisterMapping(long deviceConfigId, long registerMappingId) {
-        DeviceConfiguration deviceConfiguration = findDeviceConfiguration(deviceConfigId);
-        RegisterMapping registerMapping = findRegisterMapping(registerMappingId);
-        Condition condition = where("deviceConfig").isEqualTo(deviceConfiguration).and(where("registerMapping").isEqualTo(registerMapping));
-        return this.getDataModel().query(RegisterSpec.class, DeviceConfiguration.class, RegisterMapping.class).select(condition);
     }
 
     @Override
@@ -258,11 +233,6 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
-    public List<LoadProfileSpec> findLoadProfileSpecsByDeviceConfig(DeviceConfiguration deviceConfiguration) {
-        return this.getDataModel().mapper(LoadProfileSpec.class).find("deviceConfiguration", deviceConfiguration);
-    }
-
-    @Override
     public LoadProfileSpec findLoadProfileSpecsByDeviceConfigAndLoadProfileType(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType) {
         return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("deviceConfiguration", deviceConfig, "loadProfileType", loadProfileType).orNull();
     }
@@ -278,18 +248,8 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
-    public List<LogBookSpec> findLogBookSpecsByDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
-        return this.getDataModel().mapper(LogBookSpec.class).find("deviceConfiguration", deviceConfiguration);
-    }
-
-    @Override
-    public LogBookSpec findLogBookSpecByDeviceConfigAndLogBookType(DeviceConfiguration deviceConfig, LogBookType logBookType) {
-        return this.getDataModel().mapper(LogBookSpec.class).getUnique("deviceConfiguration", deviceConfig, "logBookType", logBookType).orNull();
-    }
-
-    @Override
     public boolean isPhenomenonInUse(Phenomenon phenomenon) {
-        return this.getDataModel().mapper(ChannelSpec.class).find("phenomenon", phenomenon).size() > 0;
+        return !this.getDataModel().mapper(ChannelSpec.class).find("phenomenon", phenomenon).isEmpty();
     }
 
     @Override
@@ -308,11 +268,6 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
-    public List<Phenomenon> findPhenomenonByEdiCode(String ediCode) {
-        return this.getDataModel().mapper(Phenomenon.class).find("ediCode", ediCode);
-    }
-
-    @Override
     public ChannelSpec findChannelSpecForLoadProfileSpecAndRegisterMapping(LoadProfileSpec loadProfileSpec, RegisterMapping registerMapping) {
         return this.getDataModel().mapper(ChannelSpec.class).getUnique("loadProfileSpec", loadProfileSpec, "registerMapping", registerMapping).orNull();
     }
@@ -323,28 +278,8 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
-    public List<ChannelSpec> findChannelSpecsByDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
-        return this.getDataModel().mapper(ChannelSpec.class).find("deviceConfiguration", deviceConfiguration);
-    }
-
-    @Override
-    public List<ChannelSpec> findChannelSpecsByDeviceConfigurationAndRegisterMapping(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping) {
-        return this.getDataModel().mapper(ChannelSpec.class).find("deviceConfiguration", deviceConfiguration, "registerMapping", registerMapping);
-    }
-
-    @Override
     public DeviceConfiguration findDeviceConfigurationByNameAndDeviceType(String name, DeviceType deviceType) {
         return this.getDataModel().mapper(DeviceConfiguration.class).getUnique("name", name, "deviceType", deviceType).orNull();
-    }
-
-    @Override
-    public List<DeviceConfiguration> findActiveDeviceConfigurationsByDeviceType(DeviceType deviceType) {
-        return this.getDataModel().mapper(DeviceConfiguration.class).find("deviceType", deviceType, "active", true);
-    }
-
-    @Override
-    public List<DeviceConfiguration> findDeviceConfigurationsByDeviceType(DeviceType deviceType) {
-        return this.getDataModel().mapper(DeviceConfiguration.class).find("deviceType", deviceType);
     }
 
     @Override
@@ -360,11 +295,6 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     @Override
     public LogBookType findLogBookTypeByName(String name) {
         return this.getDataModel().mapper(LogBookType.class).getUnique("name", name).orNull();
-    }
-
-    @Override
-    public List<LogBookType> findLogBookTypeByObisCode(ObisCode obisCode) {
-        return this.getDataModel().mapper(LogBookType.class).find("obisCodeString", obisCode.toString());
     }
 
     @Override

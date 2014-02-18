@@ -313,7 +313,8 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     // TODO check if this validation is oké
     private void validateChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType, ChannelSpec channelSpec) {
         if (channelSpec != null && channelSpecLinkType != null) {
-            List<RegisterSpec> registerSpecs = this.deviceConfigurationService.findRegisterSpecsByChannelSpecAndLinkType(channelSpec, channelSpecLinkType);
+            ServerDeviceConfigurationService deviceConfigurationService = (ServerDeviceConfigurationService) this.deviceConfigurationService;
+            List<RegisterSpec> registerSpecs = deviceConfigurationService.findRegisterSpecsByChannelSpecAndLinkType(channelSpec, channelSpecLinkType);
             if (!registerSpecs.isEmpty()) {
                 RegisterSpec currentPrimeRegisterSpec = registerSpecs.get(0);
                 if (currentPrimeRegisterSpec != null && channelSpecLinkType == ChannelSpecLinkType.PRIME) {

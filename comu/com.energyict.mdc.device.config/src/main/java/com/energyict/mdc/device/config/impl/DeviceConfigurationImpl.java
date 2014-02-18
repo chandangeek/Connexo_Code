@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceCommunicationConfigurationFactory;
@@ -19,7 +20,6 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
@@ -250,7 +250,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     protected void validateName(String newName) {
         super.validateName(newName);
-        DeviceConfiguration deviceConfiguration = this.deviceConfigurationService.findDeviceConfigurationByNameAndDeviceType(newName, this.getDeviceType());
+        ServerDeviceConfigurationService deviceConfigurationService = (ServerDeviceConfigurationService) this.deviceConfigurationService;
+        DeviceConfiguration deviceConfiguration = deviceConfigurationService.findDeviceConfigurationByNameAndDeviceType(newName, this.getDeviceType());
         if (deviceConfiguration != null) {
             throw DuplicateNameException.deviceConfigurationExists(thesaurus, newName);
         }

@@ -333,11 +333,12 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     protected void validateUniqueName(String name) {
-        if (this.deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfiguration(), name) != null) {
+        ServerDeviceConfigurationService deviceConfigurationService = (ServerDeviceConfigurationService) this.deviceConfigurationService;
+        if (deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfiguration(), name) != null) {
             throw this.duplicateNameException(this.getThesaurus(), name);
         }
         if (name.length() > 27) {
-            if (this.deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfiguration(), name.substring(0, 27)) != null) {
+            if (deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfiguration(), name.substring(0, 27)) != null) {
                 throw DuplicateNameException.channelSpecAlreadyExistsFirstChars(this.getThesaurus(), name.substring(0, 27));
             }
         }
