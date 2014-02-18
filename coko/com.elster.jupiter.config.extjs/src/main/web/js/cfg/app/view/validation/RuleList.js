@@ -16,9 +16,9 @@ Ext.define('Cfg.view.validation.RuleList', {
     columns: {
 
         items: [
-            { header: I18n.translate('validation.name', 'CFG', 'Name'), dataIndex: 'name', flex: 1},
-            { header: I18n.translate('validation.rule', 'CFG', 'Rule'), dataIndex: 'displayName', flex: 1},
-            { header: I18n.translate('validation.active', 'CFG', 'Active'), dataIndex: 'active', flex: 1,
+            { header: I18n.translate('validation.name', 'CFG', 'Name'), dataIndex: 'name', flex: 1, sortable: false},
+            { header: I18n.translate('validation.rule', 'CFG', 'Rule'), dataIndex: 'displayName', flex: 1, sortable: false},
+            { header: I18n.translate('validation.active', 'CFG', 'Active'), dataIndex: 'active', flex: 1, sortable: false,
                 renderer:function(value){
                     if (value) {
                         return I18n.translate('general.yes', 'CFG', 'Yes')
@@ -29,6 +29,7 @@ Ext.define('Cfg.view.validation.RuleList', {
             },
             {
                 xtype:'actioncolumn',
+                sortable: false,
                 header: I18n.translate('validation.actions', 'CFG', 'Actions'),
                 align: 'center',
                 width:150,

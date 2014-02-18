@@ -18,15 +18,16 @@ Ext.define('Cfg.view.validation.RuleSetList', {
 
     columns: {
         items: [
-            { header: I18n.translate('general.name', 'CFG', 'Name'), dataIndex: 'name', flex: 1,
+            { header: I18n.translate('general.name', 'CFG', 'Name'), dataIndex: 'name', flex: 1, sortable: false,
                 renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                     return '<a style="color:#007dc3" href="#/validation/overview/' + record.getId() + '">' + value + '</a>'
                 }
             },
-            { header: I18n.translate('validation.numberOfRules', 'CFG', 'Number of rules'), dataIndex: 'numberOfRules', flex: 1, align: 'center'  },
-            { header:I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules'), dataIndex: 'numberOfInactiveRules', flex: 1, align: 'center' },
+            { header: I18n.translate('validation.numberOfRules', 'CFG', 'Number of rules'), dataIndex: 'numberOfRules', flex: 1, align: 'center', sortable: false  },
+            { header:I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules'), dataIndex: 'numberOfInactiveRules', flex: 1, align: 'center', sortable: false },
             {
                 xtype:'actioncolumn',
+                sortable: false,
                 align: 'center',
                 header: I18n.translate('validation.actions', 'CFG', 'Actions'),
                 width:150,
