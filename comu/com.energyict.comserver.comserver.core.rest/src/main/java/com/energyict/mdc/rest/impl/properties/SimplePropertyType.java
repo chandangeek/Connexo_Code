@@ -1,7 +1,23 @@
 package com.energyict.mdc.rest.impl.properties;
 
-import com.energyict.mdc.dynamic.*;
-import com.energyict.mdc.metering.mapping.ObisCodeToReadingTypeFactory;
+import com.elster.jupiter.metering.ReadingType;
+import com.energyict.mdc.dynamic.BigDecimalFactory;
+import com.energyict.mdc.dynamic.BooleanFactory;
+import com.energyict.mdc.dynamic.DateAndTimeFactory;
+import com.energyict.mdc.dynamic.DateFactory;
+import com.energyict.mdc.dynamic.Ean13Factory;
+import com.energyict.mdc.dynamic.Ean18Factory;
+import com.energyict.mdc.dynamic.EncryptedStringFactory;
+import com.energyict.mdc.dynamic.HexStringFactory;
+import com.energyict.mdc.dynamic.LargeStringFactory;
+import com.energyict.mdc.dynamic.ObisCodeValueFactory;
+import com.energyict.mdc.dynamic.PasswordFactory;
+import com.energyict.mdc.dynamic.SpatialCoordinatesFactory;
+import com.energyict.mdc.dynamic.StringFactory;
+import com.energyict.mdc.dynamic.ThreeStateFactory;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.energyict.mdc.dynamic.TimeOfDayFactory;
+import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.rest.impl.CodeTableInfo;
 import com.energyict.mdc.rest.impl.LoadProfileTypeInfo;
 import com.energyict.mdc.rest.impl.TimeZoneInUseInfo;
@@ -148,7 +164,7 @@ public enum SimplePropertyType {
         }
     },
 
-    READINGTYPE(false, ObisCodeToReadingTypeFactory.class) {
+    READINGTYPE(false, ReadingType.class) {
         public Object getInfoObject(Map<String, Object> map) {
             throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'READINTYPE', JSON should have properly deserialized this");
         }
