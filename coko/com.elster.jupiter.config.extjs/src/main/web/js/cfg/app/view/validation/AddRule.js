@@ -174,6 +174,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                         {
                                             xtype: 'component',
                                             html: '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation">' + I18n.translate('general.cancel', 'CFG', 'Cancel') + '</a>',
+                                            itemId: 'cancelAddRuleLink',
                                             padding: '3 0 0 0',
                                             margin: '0 0 0 20',
                                             width: 100

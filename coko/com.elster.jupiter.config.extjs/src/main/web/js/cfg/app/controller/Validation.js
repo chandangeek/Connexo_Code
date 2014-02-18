@@ -41,6 +41,7 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'rulesetOverviewTitle',selector: 'ruleSetOverview #rulesetOverviewTitle'} ,
         {ref: 'ruleBrowseTitle',selector: 'validationruleBrowse #ruleBrowseTitle'} ,
         {ref: 'ruleSetDetailsLink',selector: 'ruleSetPreview #ruleSetDetailsLink'} ,
+        {ref: 'cancelAddRuleLink',selector: 'addRule #cancelAddRuleLink'} ,
         {ref: 'rulesListContainer', selector: 'rulesContainer > #rulesListContainer'},
 
         {ref: 'ruleSetOverviewLink',selector: 'rulesContainer #ruleSetOverviewLink'} ,
@@ -258,6 +259,7 @@ Ext.define('Cfg.controller.Validation', {
     addRule: function(id) {
         var me = this;
         var view = Ext.create('Cfg.view.validation.AddRule');
+        this.getCancelAddRuleLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation/rules/' + id + '">' + I18n.translate('general.cancel', 'CFG', 'Cancel') + '</a>');
         Cfg.getApplication().getMainController().showContent(view);
         var ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
         ruleSetsStore.load({
