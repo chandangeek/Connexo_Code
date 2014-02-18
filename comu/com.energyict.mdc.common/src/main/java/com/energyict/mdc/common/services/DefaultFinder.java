@@ -54,16 +54,7 @@ public class DefaultFinder<T> implements Finder<T> {
     @Override
     public List<T> find() {
         if (start==null || pageSize ==null) {
-            Order[] orderBy=new Order[0];
-            Order firstOrder=null;
-            if (!sortingColumns.isEmpty()) {
-                firstOrder = sortingColumns.get(0);
-                if (sortingColumns.size()>1) {
-                    orderBy=sortingColumns.subList(1, sortingColumns.size()).toArray(new Order[sortingColumns.size()-1]);
-                }
-            }
-
-            return query.select(condition, firstOrder, orderBy);
+            return query.select(condition, sortingColumns.toArray(new Order[sortingColumns.size()]));
         } else {
             return query.select(condition, sortingColumns.toArray(new Order[sortingColumns.size()]), true, new String[0], this.start + 1, this.start + this.pageSize);
         }
