@@ -17,6 +17,13 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
      */
     params: {},
 
+    /**
+     * @cfg {Number} Default page size
+     *
+     * The default page size to use when initializing the paging component.
+     */
+    defaultPageSize: 10,
+
     totalCount: 0,
     totalPages: 0,
     isFullTotalCount: false,
@@ -52,30 +59,23 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             pageSize = queryStrings[this.pageSizeParam],
             pageStart = queryStrings[this.pageStartParam];
 
-        pageSize = parseInt(pageSize, 10) || this.store.pageSize;
-        pageStart = parseInt(pageStart, 10) || 0;
+        pageSize = parseInt(pageSize, this.defaultPageSize) || this.store.pageSize;
+        pageStart = parseInt(pageStart, this.defaultPageSize) || 0;
 
         this.initPageSizeAndStart(pageSize, pageStart);
     },
 
     initPageSizeAndStart: function (pageSize, pageStart) {
         var me = this,
-            pageNum = Math.max(Math.ceil((pageStart + 1) / pageSize), 1),
-            changed = false;
+            pageNum = Math.max(Math.ceil((pageStart + 1) / pageSize), 1);
 
         if (this.store.currentPage !== pageNum) {
             this.store.currentPage = pageNum;
-            changed = true;
         }
 
         pageSize = this.adjustPageSize(pageSize);
         if (this.store.pageSize !== pageSize) {
             this.store.pageSize = pageSize;
-            changed = true;
-        }
-
-        if (changed) {
-            this.resetQueryString();
         }
 
         this.store.load({
@@ -120,11 +120,15 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         me.store.currentPage = newPage;
         me.store.pageSize = pageSize;
         me.totalPages = 0;
-        me.params.forEach(function(entry) {
-            var key = Object.keys(entry)[0];
-            var value = entry[key];
-            me.store.getProxy().setExtraParam(key,value);
-        });
+
+        if (Ext.isArray(me.params)) {
+            me.params.forEach(function (entry) {
+                var key = Object.keys(entry)[0];
+                var value = entry[key];
+                me.store.getProxy().setExtraParam(key, value);
+            });
+        }
+
         me.store.load({
             params: me.params,
             callback: function (records) {

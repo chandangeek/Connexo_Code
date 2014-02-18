@@ -51,6 +51,12 @@
     }
 }
 
+// Buttons
+
+.uni-btn-transparent {
+    @include transparent-button;
+}
+
 // Tool icons
 
 .x-tool-edit,
@@ -571,7 +577,7 @@ $menu-width-collapsed: 55px;
 }
 
 .x-form-item-label {
-  padding-right: 14px;
+    padding-right: 14px;
 }
 
 .uni-form-item-label-required{
