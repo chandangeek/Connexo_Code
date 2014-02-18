@@ -2,7 +2,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem'
+        'Uni.model.BreadcrumbItem',
+        'Ext.ux.window.Notification'
     ],
 
     views: [
@@ -196,7 +197,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         if (record) {
             record.set(values);
             record.save({
-                callback: function (record) {
+                success: function (record) {
                     location.href = '#setup/devicetypes/' + record.get('id');
                 }
             });
@@ -232,7 +233,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     createBreadCrumb: function () {
-        debugger;
         var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
             text: I18n.translate('general.administration', 'MDC', 'Administration'),
             href: '#setup'
