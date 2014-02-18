@@ -333,34 +333,6 @@ public class RegisterMappingImplTest {
         // Asserts: expected CannotUpdateObisCodeWhenRegisterMappingIsInUseException
     }
 
-    @Test
-    public void testUpdateProductSpec () {
-        String registerMappingName = "testUpdateProductSpec";
-        RegisterMapping registerMapping;
-        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupProductSpecsInExistingTransaction();
-
-            // Create the RegisterMapping
-            registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, this.productSpec);
-            registerMapping.setDescription("For testing purposes only");
-            registerMapping.save();
-            ctx.commit();
-        }
-
-        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            // Business method
-            registerMapping.setProductSpec(this.productSpec2);
-            registerMapping.save();
-            ctx.commit();
-        }
-
-        // Asserts
-        assertThat(registerMapping.getObisCode()).isEqualTo(obisCode1);
-        assertThat(registerMapping.getName()).isEqualTo(registerMappingName);
-        assertThat(registerMapping.getDescription()).isNotEmpty();
-        assertThat(registerMapping.getReadingType()).isEqualTo(this.readingType2);
-    }
-
     @Test(expected = CannotUpdateProductSpecWhenRegisterMappingIsInUseException.class)
     public void testCannotUpdateProductSpecWhenUsedByRegisterSpec () {
         String registerMappingName = "testCannotUpdateProductSpecWhenUsedByRegisterSpec";
