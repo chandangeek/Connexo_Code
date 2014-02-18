@@ -106,9 +106,14 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                                 name: 'mrid'
                                             },
                                             {
+                                                xtype: 'component',
+                                                html: '&nbsp;&nbsp;'
+                                            },
+                                            {
                                                 xtype: 'button',
                                                 icon: 'resources/images/gear-16x16.png',
                                                 tooltip: 'Reading type info',
+                                                cls: 'uni-btn-transparent',
                                                 handler: function (item, test) {
                                                     var record = me.down('#registerMappingPreviewForm').form.getRecord();
                                                     this.fireEvent('showReadingTypeInfo', record);
