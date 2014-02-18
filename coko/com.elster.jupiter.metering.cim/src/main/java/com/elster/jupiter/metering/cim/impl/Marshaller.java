@@ -17,7 +17,7 @@ public class Marshaller {
     private javax.xml.bind.Marshaller payloadMarshaller = getMarshallerForContext("ch.iec.tc57._2011.meterreadings_");
     private javax.xml.bind.Marshaller messageMarshaller = getMarshallerForContext("ch.iec.tc57._2011.schema.message");
 
-    void marshal(CreatedMeterReadings createdMeterReadings, OutputStream out) {
+    public void marshal(CreatedMeterReadings createdMeterReadings, OutputStream out) {
         try {
             messageMarshaller.marshal(createdMeterReadings, out);
         } catch (JAXBException e) {
@@ -26,7 +26,7 @@ public class Marshaller {
 
     }
 
-    void addPayload(CreatedMeterReadings createdMeterReadings, MeterReadings meterReadings) throws JAXBException {
+    public void addPayload(CreatedMeterReadings createdMeterReadings, MeterReadings meterReadings) throws JAXBException {
         DOMResult result = new DOMResult();
         payloadMarshaller.marshal(new JAXBElement<>(new QName("http://iec.ch/TC57/2011/MeterReadings#", "MeterReadings"), MeterReadings.class, meterReadings), result);
         Element payloadElement = ((Document) result.getNode()).getDocumentElement();

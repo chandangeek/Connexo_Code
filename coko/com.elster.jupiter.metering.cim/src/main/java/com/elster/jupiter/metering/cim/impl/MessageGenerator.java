@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.cim.Sender;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;

@@ -32,8 +32,12 @@ string -->
 <xs:schema xmlns="http://iec.ch/TC57/2011/schema/message"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            targetNamespace="http://iec.ch/TC57/2011/schema/message"
-           elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.0">
-    <xs:include schemaLocation="CreatedMeterReadings.xsd"/>
+           elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.0"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+           jaxb:extensionBindingPrefixes="xjc" jaxb:version="2.1"
+        >
+    <!--<xs:include schemaLocation="CreatedMeterReadings.xsd"/>-->
     <xs:complexType name="RequestType">
         <xs:annotation>
             <xs:documentation>Request type definition</xs:documentation>
@@ -688,4 +692,26 @@ string -->
         <xs:attribute name="kind" type="IDKindType"/>
         <xs:attribute name="objectType" type="xs:string"/>
     </xs:attributeGroup>
+
+    <xs:annotation>
+        <xs:appinfo>
+            <jaxb:globalBindings generateElementProperty="false">
+                <jaxb:javaType
+                        name="java.util.Date"
+                        xmlType="xs:dateTime"
+                        parseMethod="com.elster.jupiter.metering.cim.soap.impl.XsdDateTimeConverter.unmarshal"
+                        printMethod="com.elster.jupiter.metering.cim.soap.impl.XsdDateTimeConverter.marshalDateTime"
+                        />
+                <jaxb:javaType
+                        name="java.util.Date"
+                        xmlType="xs:date"
+                        parseMethod="com.elster.jupiter.metering.cim.soap.impl.XsdDateTimeConverter.unmarshal"
+                        printMethod="com.elster.jupiter.metering.cim.soap.impl.XsdDateTimeConverter.marshalDate"
+                        />
+                <xjc:serializable />
+            </jaxb:globalBindings>
+        </xs:appinfo>
+    </xs:annotation>
+
+
 </xs:schema>

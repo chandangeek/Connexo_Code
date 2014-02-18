@@ -41,10 +41,10 @@
                 <configuration>
                     <wsdlDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim/wsdl</wsdlDirectory>
                     <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
-                    <bindingDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim/wsdl</bindingDirectory>
-                    <bindingFiles>
-                        <bindingFile>bindings.xjb</bindingFile>
-                    </bindingFiles>
+                    <!--<bindingDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim/wsdl</bindingDirectory>-->
+                    <!--<bindingFiles>-->
+                        <!--<bindingFile>bindings.xjb</bindingFile>-->
+                    <!--</bindingFiles>-->
                     <!--<xnocompile>true</xnocompile>-->
                     <keep>true</keep>
                 </configuration>
@@ -145,8 +145,17 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>soap.whiteboard.cxf</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>net.jcip</groupId>
             <artifactId>jcip-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
     </dependencies>
 </project>

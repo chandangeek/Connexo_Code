@@ -5,7 +5,8 @@
            xmlns:obj1="http://iec.ch/TC57/2011/MeterReadings#"
            xmlns:obj2="http://iec.ch/TC57/2011/GetMeterReadings#"
            targetNamespace="http://iec.ch/TC57/2011/GetMeterReadingsMessage"
-           elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.0">
+           elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.0"
+        >
     <!-- Base Message Definitions -->
     <xs:import namespace="http://iec.ch/TC57/2011/schema/message"
                schemaLocation="Message.xsd"/>
@@ -99,4 +100,5 @@
                 type="tns:MeterReadingsResponseMessageType"/>
     <xs:element name="MeterReadingsFaultMessage"
                 type="tns:MeterReadingsFaultMessageType"/>
+
 </xs:schema>
