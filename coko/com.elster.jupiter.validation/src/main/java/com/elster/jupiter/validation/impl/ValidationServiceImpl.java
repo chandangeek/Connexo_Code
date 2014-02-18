@@ -1,5 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
@@ -45,15 +47,17 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     private volatile List<ValidatorFactory> validatorFactories = new ArrayList<>();
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
+    private volatile QueryService queryService;
 
     public ValidationServiceImpl() {
     }
 
     @Inject
-    ValidationServiceImpl(Clock clock, EventService eventService, MeteringService meteringService, OrmService ormService, NlsService nlsService) {
+    ValidationServiceImpl(Clock clock, EventService eventService, MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService) {
         this.clock = clock;
         this.eventService = eventService;
         this.meteringService = meteringService;
+        setQueryService(queryService);
         setOrmService(ormService);
         setNlsService(nlsService);
         activate();
@@ -109,6 +113,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     }
 
     @Reference
+    public void setQueryService(QueryService queryService) {
+        this.queryService = queryService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.DOMAIN);
     }
@@ -133,6 +142,15 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     @Override
     public Optional<ValidationRule> getValidationRule(long id) {
         return dataModel.mapper(ValidationRule.class).getOptional(id);
+    }
+
+    @Override
+    public Query<ValidationRuleSet> getRuleSetQuery() {
+        return queryService.wrap(
+                dataModel.query(
+                        ValidationRuleSet.class
+                )
+        );
     }
 
     @Override

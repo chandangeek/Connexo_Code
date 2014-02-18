@@ -24,6 +24,8 @@ public interface ValidationRuleSet extends IdentifiedObject {
 
     List<? extends ValidationRule> getRules();
 
+    List<? extends ValidationRule> getRules(int start, int limit);
+
     ValidationRule addRule(ValidationAction action, String implementation, String name);
 
     void deleteRule(ValidationRule rule);

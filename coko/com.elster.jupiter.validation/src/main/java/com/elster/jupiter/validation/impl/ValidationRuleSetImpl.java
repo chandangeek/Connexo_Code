@@ -5,6 +5,8 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
+import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
@@ -190,6 +192,12 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Override
     public List<IValidationRule> getRules() {
         return Collections.unmodifiableList(doGetRules());
+    }
+
+    public List<IValidationRule> getRules(int start, int limit) {
+        return Collections.unmodifiableList(
+                dataModel.query(IValidationRule.class).select(
+                        Operator.EQUAL.compare("ruleSetId", this.id), new Order[] {}, false, new String[]{}, start + 1, start + limit));
     }
 
     private List<IValidationRule> doGetRules() {

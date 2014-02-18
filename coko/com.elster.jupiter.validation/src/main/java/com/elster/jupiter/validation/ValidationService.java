@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
@@ -25,4 +26,6 @@ public interface ValidationService {
     void validate(MeterActivation meterActivation, Interval interval);
 
     Optional<ValidationRule> getValidationRule(long id);
+
+    Query<ValidationRuleSet> getRuleSetQuery();
 }
