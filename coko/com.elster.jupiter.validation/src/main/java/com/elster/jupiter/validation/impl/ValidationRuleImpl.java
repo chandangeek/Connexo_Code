@@ -69,6 +69,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
         this.position = position;
         this.ruleSetId = ruleSet.getId();
         this.name = name;
+        this.active = false;
         return this;
     }
 
