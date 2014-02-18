@@ -2,6 +2,7 @@ package com.energyict.mdc.dynamic.relation.impl;
 
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.common.BusinessObject;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.dynamic.relation.Constraint;
@@ -146,7 +147,7 @@ public class OrmClientImpl implements OrmClient {
                 with(this.getRelationAttributeTypeFactory()).
                 select(
                     where("objectFactoryId").isEqualTo(factory.getId()),
-                        new String[]{"name"}, true, null);
+                        Order.ascending("name"));
     }
 
     @Override
@@ -179,8 +180,7 @@ public class OrmClientImpl implements OrmClient {
         return this.getConstraintFactory().
                 with(this.getConstraintMemberFactory()).
                 select(
-                    where("attributeTypeId").isEqualTo(relationAttributeType.getId()),
-                    new String[0], false, null);
+                    where("attributeTypeId").isEqualTo(relationAttributeType.getId()));
     }
 
 }
