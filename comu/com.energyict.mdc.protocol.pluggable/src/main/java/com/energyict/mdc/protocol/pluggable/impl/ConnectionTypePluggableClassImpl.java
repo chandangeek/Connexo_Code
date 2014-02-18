@@ -342,6 +342,21 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
+    protected CreateEventType createEventType() {
+        return CreateEventType.CONNECTIONTYPE;
+    }
+
+    @Override
+    protected UpdateEventType updateEventType() {
+        return UpdateEventType.CONNECTIONTYPE;
+    }
+
+    @Override
+    protected DeleteEventType deleteEventType() {
+        return DeleteEventType.CONNECTIONTYPE;
+    }
+
+    @Override
     public boolean isInstance (ConnectionType connectionType) {
         return this.getJavaClassName().getClass().equals(connectionType.getClass().getName());
     }

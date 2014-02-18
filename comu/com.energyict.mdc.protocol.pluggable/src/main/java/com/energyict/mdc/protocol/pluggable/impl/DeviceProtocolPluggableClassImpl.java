@@ -219,4 +219,19 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         }
     }
 
+    @Override
+    protected CreateEventType createEventType() {
+        return CreateEventType.DEVICEPROTOCOL;
+    }
+
+    @Override
+    protected UpdateEventType updateEventType() {
+        return UpdateEventType.DEVICEPROTOCOL;
+    }
+
+    @Override
+    protected DeleteEventType deleteEventType() {
+        return DeleteEventType.DEVICEPROTOCOL;
+    }
+
 }

@@ -120,7 +120,14 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
 
     public void save() {
         this.validate();
+        long id = this.getPluggableClass().getId();
         this.getPluggableClass().save();
+        if (id > 0) {
+            this.eventService.postEvent(this.createEventType().topic(), this);
+        }
+        else {
+            this.eventService.postEvent(this.updateEventType().topic(), this);
+        }
     }
 
     public void delete() {
@@ -133,8 +140,14 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
     protected abstract void validateLicense ();
 
     protected void notifyDeleted() {
-        this.eventService.postEvent(EventType.DELETED.topic(), this);
+        this.eventService.postEvent(this.deleteEventType().topic(), this);
     }
+
+    protected abstract CreateEventType createEventType();
+
+    protected abstract UpdateEventType updateEventType();
+
+    protected abstract DeleteEventType deleteEventType();
 
     protected abstract T newInstance (PluggableClass pluggableClass);
 

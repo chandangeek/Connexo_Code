@@ -13,7 +13,15 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
  * @since 2013-12-23 (15:30)
  */
 public enum EventType {
-    DELETED("DELETED");
+    CONNECTIONTYPE_CREATED("connectiontype/CREATED"),
+    CONNECTIONTYPE_UPDATED("connectiontype/UPDATED"),
+    CONNECTIONTYPE_DELETED("connectiontype/DELETED"),
+    DEVICEPROTOCOL_CREATED("deviceprotocol/CREATED"),
+    DEVICEPROTOCOL_UPDATED("deviceprotocol/UPDATED"),
+    DEVICEPROTOCOL_DELETED("deviceprotocol/DELETED"),
+    INBOUNDDEVICEPROTOCOL_CREATED("inbounddeviceprotocol/CREATED"),
+    INBOUNDDEVICEPROTOCOL_UPDATED("inbounddeviceprotocol/UPDATED"),
+    INBOUNDDEVICEPROTOCOL_DELETED("inbounddeviceprotocol/DELETED");
 
     private static final String NAMESPACE = "com/energyict/mdc/protocol/pluggable/";
     private final String topic;

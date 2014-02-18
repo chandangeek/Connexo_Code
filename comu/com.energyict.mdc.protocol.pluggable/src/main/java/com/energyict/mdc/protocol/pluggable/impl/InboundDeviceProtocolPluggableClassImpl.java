@@ -86,4 +86,19 @@ public final class InboundDeviceProtocolPluggableClassImpl extends PluggableClas
         throw new UnsupportedOperationException("InboundDeviceProtocolPluggableClassImpl#notifyDelete");
     }
 
+    @Override
+    protected CreateEventType createEventType() {
+        return CreateEventType.INBOUNDEVICEPROTOCOL;
+    }
+
+    @Override
+    protected UpdateEventType updateEventType() {
+        return UpdateEventType.INBOUNDEVICEPROTOCOL;
+    }
+
+    @Override
+    protected DeleteEventType deleteEventType() {
+        return DeleteEventType.INBOUNDEVICEPROTOCOL;
+    }
+
 }
