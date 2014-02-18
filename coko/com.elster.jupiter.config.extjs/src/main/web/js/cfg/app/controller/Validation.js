@@ -567,7 +567,7 @@ Ext.define('Cfg.controller.Validation', {
             var selectedRule = selectedRules[0];
             this.getRuleForm().loadRecord(selectedRule);
             this.getRulePreview().getLayout().setActiveItem(1);
-            this.getRulePreviewTitle().update('<h4>' + selectedRule.get("displayName") + '</h4>');
+            this.getRulePreviewTitle().update('<h4>' + selectedRule.get("name") + '</h4>');
             this.addProperties(selectedRule);
             this.addReadingTypes(selectedRule);
             this.getRulePreview().show();

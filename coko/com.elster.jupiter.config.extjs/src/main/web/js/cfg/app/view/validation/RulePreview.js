@@ -80,6 +80,13 @@ Ext.define('Cfg.view.validation.RulePreview', {
             items: [
                 {
                     xtype: 'displayfield',
+                    name: 'name',
+                    fieldLabel: I18n.translate('validation.name', 'CFG', 'Name'),
+                    labelAlign: 'right',
+                    labelWidth:	250
+                },
+                {
+                    xtype: 'displayfield',
                     name: 'displayName',
                     fieldLabel: I18n.translate('validation.Rule', 'CFG', 'Rule'),
                     labelAlign: 'right',
