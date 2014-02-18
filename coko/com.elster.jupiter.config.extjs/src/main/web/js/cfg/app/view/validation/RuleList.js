@@ -34,7 +34,6 @@ Ext.define('Cfg.view.validation.RuleList', {
                 width:150,
                 items: [{
                     icon: 'resources/images/gear-16x16.png',
-                    tooltip: I18n.translate('general.view', 'CFG', 'View'),
                     handler: function(grid, rowIndex, colIndex,item,e) {
                         var menu = Ext.widget('menu', {
                             items: [{
