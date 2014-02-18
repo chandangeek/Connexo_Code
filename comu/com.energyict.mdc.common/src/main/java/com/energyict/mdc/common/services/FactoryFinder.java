@@ -24,7 +24,7 @@ public class FactoryFinder<T> implements Finder<T> {
     }
 
     @Override
-    public Finder<T> sorted(String sortColumn, SortOrder sortOrder) {
+    public Finder<T> sorted(String sortColumn, boolean sortOrder) {
         return this;
     }
 

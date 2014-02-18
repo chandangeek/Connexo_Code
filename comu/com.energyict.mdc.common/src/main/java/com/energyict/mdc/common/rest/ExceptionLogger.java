@@ -3,7 +3,6 @@ package com.energyict.mdc.common.rest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import org.glassfish.jersey.server.monitoring.ApplicationEvent;
 import org.glassfish.jersey.server.monitoring.ApplicationEventListener;
 import org.glassfish.jersey.server.monitoring.RequestEvent;
@@ -33,16 +32,9 @@ public class ExceptionLogger implements ApplicationEventListener {
             switch (event.getType()) {
             case ON_EXCEPTION:
                 Throwable exception = event.getException();
-                if (exception !=null) {
+                if (exception !=null && !(exception instanceof WebApplicationException)) {
                     LOGGER.severe(exception.getMessage());
                     LOGGER.log(Level.FINE, exception.getMessage(), exception);
-                    if (!(exception instanceof WebApplicationException)) {
-                        throw new WebApplicationException(exception.getLocalizedMessage(),
-                                exception,
-                                Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exception.getLocalizedMessage()).build());
-                    } else {
-                        throw (WebApplicationException)exception;
-                    }
                 }
                 break;
             }
