@@ -1,14 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.impl;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.xml.ws.Endpoint;
-
-import org.apache.cxf.jaxws.spi.ProviderImpl;
+import com.elster.jupiter.soap.whiteboard.EndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.CxfSupport;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -17,7 +10,12 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
-import com.elster.jupiter.soap.whiteboard.EndPointProvider;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.xml.ws.Endpoint;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component(name = "com.elster.jupiter.soap.whiteboard.implementation", service = {} , immediate = true)
 public class Whiteboard {
@@ -44,16 +42,11 @@ public class Whiteboard {
     		return;
     	}
     	System.out.println("Serving " + alias);
-    	// trick javax.xml.ws to find cxf provider
-    	ClassLoader old = Thread.currentThread().getContextClassLoader();
-    	try {
-    		Thread.currentThread().setContextClassLoader(ProviderImpl.class.getClassLoader());
+    	try (CxfSupport cxfSupport = new CxfSupport()) {
     		Endpoint endpoint = Endpoint.publish(alias, Objects.requireNonNull(provider.get()));
     		endpoints.put(provider,endpoint);
     	} catch (Exception ex) {
     		ex.printStackTrace();
-    	} finally {
-    		Thread.currentThread().setContextClassLoader(old);
     	}
     }
 
