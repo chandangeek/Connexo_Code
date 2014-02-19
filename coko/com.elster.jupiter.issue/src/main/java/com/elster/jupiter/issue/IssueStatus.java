@@ -19,4 +19,15 @@ public enum IssueStatus {
     public String toString() {
         return this.readableName;
     }
+
+    public static IssueStatus fromString(String text) {
+        if (text != null) {
+            for (IssueStatus column : IssueStatus.values()) {
+                if (column.toString().equalsIgnoreCase(text)) {
+                    return column;
+                }
+            }
+        }
+        return null;
+    }
 }
