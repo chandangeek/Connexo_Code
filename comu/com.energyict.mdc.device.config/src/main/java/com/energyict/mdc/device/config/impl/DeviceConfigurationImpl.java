@@ -342,6 +342,24 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
+    @Override
+    public ChannelSpec.ChannelSpecUpdater getChannelSpecUpdaterFor(ChannelSpec channelSpec) {
+        return new ChannelSpecUpdaterForConfig(channelSpec);
+    }
+
+    class ChannelSpecUpdaterForConfig extends ChannelSpecImpl.ChannelSpecUpdater {
+
+        protected ChannelSpecUpdaterForConfig(ChannelSpec channelSpec) {
+            super(channelSpec);
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            save();
+        }
+    }
+
     private void validateUniqueChannelSpecPerLoadProfileSpec(ChannelSpec channelSpec) {
         for (ChannelSpec spec : channelSpecs) {
             if (channelSpec.getLoadProfileSpec() == null) {

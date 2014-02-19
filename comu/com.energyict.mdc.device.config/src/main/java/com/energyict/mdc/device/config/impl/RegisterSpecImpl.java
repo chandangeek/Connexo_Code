@@ -44,7 +44,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     private ObisCode overruledObisCode;
     private BigDecimal overflow;
     private BigDecimal multiplier = BigDecimal.ONE;
-    private MultiplierMode multiplierMode;
+    private MultiplierMode multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
 
     private ChannelSpecLinkType channelSpecLinkType;
     private Date modificationDate;

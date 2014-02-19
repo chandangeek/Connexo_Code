@@ -1,27 +1,20 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.device.config.common.Transactional;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.sql.SQLException;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -33,7 +26,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
  * Time: 11:22
  */
 @RunWith(MockitoJUnitRunner.class)
-public class LogBookSpecImplTest extends CommonDeviceConfigSpecsTest{
+public class LogBookSpecImplTest extends CommonDeviceConfigSpecsTest {
 
     private static final String DEVICE_CONFIGURATION_NAME = LogBookSpecImplTest.class.getName() + "Config";
     private static final String LOGBOOK_TYPE_NAME = LogBookSpecImplTest.class.getName() + "LogBookType";
@@ -50,32 +43,27 @@ public class LogBookSpecImplTest extends CommonDeviceConfigSpecsTest{
     }
 
     private void initializeDeviceTypeWithLogBookTypeAndDeviceConfiguration() {
-        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            logBookType = this.inMemoryPersistence.getDeviceConfigurationService().newLogBookType(LOGBOOK_TYPE_NAME, logBookTypeObisCode);
-            logBookType.save();
+        logBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(LOGBOOK_TYPE_NAME, logBookTypeObisCode);
+        logBookType.save();
 
-            // Business method
-            deviceType.setDescription("For logBookSpec Test purposes only");
-            deviceType.addLogBookType(logBookType);
-            DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
-            deviceConfiguration = deviceConfigurationBuilder.add();
-            deviceType.save();
-            ctx.commit();
-        }
+        // Business method
+        deviceType.setDescription("For logBookSpec Test purposes only");
+        deviceType.addLogBookType(logBookType);
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
+        deviceConfiguration = deviceConfigurationBuilder.add();
+        deviceType.save();
     }
 
     private LogBookSpec createDefaultTestingLogBookSpecWithOverruledObisCode() {
         LogBookSpec logBookSpec;
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            LogBookSpec.LogBookSpecBuilder logBookSpecBuilder = deviceConfiguration.createLogBookSpec(this.logBookType);
-            logBookSpecBuilder.setOverruledObisCode(overruledLogBookSpecObisCode);
-            logBookSpec = logBookSpecBuilder.add();
-            tctx.commit();
-        }
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder = deviceConfiguration.createLogBookSpec(this.logBookType);
+        logBookSpecBuilder.setOverruledObisCode(overruledLogBookSpecObisCode);
+        logBookSpec = logBookSpecBuilder.add();
         return logBookSpec;
     }
 
     @Test
+    @Transactional
     public void createLogBookSpecTest() {
         LogBookSpec logBookSpec = createDefaultTestingLogBookSpecWithOverruledObisCode();
 
@@ -86,15 +74,13 @@ public class LogBookSpecImplTest extends CommonDeviceConfigSpecsTest{
     }
 
     @Test
+    @Transactional
     public void updateLogBookSpecTest() {
         LogBookSpec logBookSpec = createDefaultTestingLogBookSpecWithOverruledObisCode();
 
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            LogBookSpec.LogBookSpecUpdater logBookSpecUpdater = this.deviceConfiguration.getLogBookSpecUpdaterFor(logBookSpec);
-            logBookSpecUpdater.setOverruledObisCode(null);
-            logBookSpecUpdater.update();
-            tctx.commit();
-        }
+        LogBookSpec.LogBookSpecUpdater logBookSpecUpdater = this.deviceConfiguration.getLogBookSpecUpdaterFor(logBookSpec);
+        logBookSpecUpdater.setOverruledObisCode(null);
+        logBookSpecUpdater.update();
 
         assertThat(logBookSpec.getLogBookType()).isEqualTo(this.logBookType);
         assertThat(logBookSpec.getDeviceObisCode()).isEqualTo(this.logBookTypeObisCode);
@@ -103,108 +89,92 @@ public class LogBookSpecImplTest extends CommonDeviceConfigSpecsTest{
     }
 
     @Test(expected = LogbookTypeIsNotConfiguredOnDeviceTypeException.class)
+    @Transactional
     public void createWithIncorrectLogBookType() {
         LogBookSpec logBookSpec;
         LogBookType logBookType;
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
 
-            logBookType = this.inMemoryPersistence.getDeviceConfigurationService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", ObisCode.fromString("1.0.1.0.1.0"));
-            logBookType.save();
+        logBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", ObisCode.fromString("1.0.1.0.1.0"));
+        logBookType.save();
 
-            LogBookSpec.LogBookSpecBuilder logBookSpecBuilder = deviceConfiguration.createLogBookSpec(logBookType);
-            logBookSpecBuilder.setOverruledObisCode(overruledLogBookSpecObisCode);
-            logBookSpec = logBookSpecBuilder.add();
-            // we will not be able to commit it
-        }
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder = deviceConfiguration.createLogBookSpec(logBookType);
+        logBookSpecBuilder.setOverruledObisCode(overruledLogBookSpecObisCode);
+        logBookSpec = logBookSpecBuilder.add();
     }
 
     @Test(expected = CannotAddToActiveDeviceConfigurationException.class)
+    @Transactional
     public void addWithActiveDeviceConfigurationTest() {
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.deviceConfiguration.activate();
-            LogBookSpec.LogBookSpecBuilder logBookSpecBuilder = deviceConfiguration.createLogBookSpec(this.logBookType);
-            logBookSpecBuilder.setOverruledObisCode(overruledLogBookSpecObisCode);
-            LogBookSpec logBookSpec = logBookSpecBuilder.add();
-            tctx.commit();
-        }
+        this.deviceConfiguration.activate();
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder = deviceConfiguration.createLogBookSpec(this.logBookType);
+        logBookSpecBuilder.setOverruledObisCode(overruledLogBookSpecObisCode);
+        LogBookSpec logBookSpec = logBookSpecBuilder.add();
     }
 
     @Test(expected = DuplicateLogBookTypeException.class)
+    @Transactional
     public void addTwoSpecsWithSameLogBookTypeTest() {
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(this.logBookType);
-            LogBookSpec logBookSpec1 = logBookSpecBuilder1.add();
-            LogBookSpec.LogBookSpecBuilder logBookSpecBuilder2 = deviceConfiguration.createLogBookSpec(this.logBookType);
-            LogBookSpec logBookSpec2 = logBookSpecBuilder2.add();
-            tctx.commit();
-        }
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(this.logBookType);
+        LogBookSpec logBookSpec1 = logBookSpecBuilder1.add();
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder2 = deviceConfiguration.createLogBookSpec(this.logBookType);
+        LogBookSpec logBookSpec2 = logBookSpecBuilder2.add();
     }
 
     @Test(expected = DuplicateObisCodeException.class)
+    @Transactional
     public void addTwoSpecsWithDiffTypeButSameObisCodeTest() {
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            LogBookType otherLogBookType = this.inMemoryPersistence.getDeviceConfigurationService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", logBookTypeObisCode);
-            otherLogBookType.save();
-            this.deviceType.addLogBookType(otherLogBookType);
-            LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(this.logBookType);
-            LogBookSpec logBookSpec1 = logBookSpecBuilder1.add();
-            LogBookSpec.LogBookSpecBuilder logBookSpecBuilder2 = deviceConfiguration.createLogBookSpec(otherLogBookType);
-            LogBookSpec logBookSpec2 = logBookSpecBuilder2.add();
-            tctx.commit();
-        }
+        LogBookType otherLogBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", logBookTypeObisCode);
+        otherLogBookType.save();
+        this.deviceType.addLogBookType(otherLogBookType);
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(this.logBookType);
+        LogBookSpec logBookSpec1 = logBookSpecBuilder1.add();
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder2 = deviceConfiguration.createLogBookSpec(otherLogBookType);
+        LogBookSpec logBookSpec2 = logBookSpecBuilder2.add();
     }
 
     @Test(expected = DuplicateObisCodeException.class)
+    @Transactional
     public void addTwoSpecsWithDiffObisCodeButOverruledAsSameObisCodeTest() {
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            LogBookType otherLogBookType = this.inMemoryPersistence.getDeviceConfigurationService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", ObisCode.fromString("1.0.1.0.1.0"));
-            otherLogBookType.save();
-            this.deviceType.addLogBookType(otherLogBookType);
-            LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(this.logBookType);
-            LogBookSpec logBookSpec1 = logBookSpecBuilder1.add();
-            LogBookSpec.LogBookSpecBuilder logBookSpecBuilder2 = deviceConfiguration.createLogBookSpec(otherLogBookType);
-            logBookSpecBuilder2.setOverruledObisCode(logBookTypeObisCode);
-            LogBookSpec logBookSpec2 = logBookSpecBuilder2.add();
-            tctx.commit();
-        }
+        LogBookType otherLogBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", ObisCode.fromString("1.0.1.0.1.0"));
+        otherLogBookType.save();
+        this.deviceType.addLogBookType(otherLogBookType);
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(this.logBookType);
+        LogBookSpec logBookSpec1 = logBookSpecBuilder1.add();
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder2 = deviceConfiguration.createLogBookSpec(otherLogBookType);
+        logBookSpecBuilder2.setOverruledObisCode(logBookTypeObisCode);
+        LogBookSpec logBookSpec2 = logBookSpecBuilder2.add();
     }
 
     @Test(expected = DuplicateObisCodeException.class)
+    @Transactional
     public void addTwoSpecsWithDiffObisCodeButSameAfterUpdateTest() {
         LogBookSpec logBookSpec2;
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            LogBookType otherLogBookType = this.inMemoryPersistence.getDeviceConfigurationService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", ObisCode.fromString("1.0.1.0.1.0"));
-            otherLogBookType.save();
-            this.deviceType.addLogBookType(otherLogBookType);
-            LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(this.logBookType);
-            LogBookSpec logBookSpec1 = logBookSpecBuilder1.add();
-            LogBookSpec.LogBookSpecBuilder logBookSpecBuilder2 = deviceConfiguration.createLogBookSpec(otherLogBookType);
-            logBookSpec2 = logBookSpecBuilder2.add();
-            LogBookSpec.LogBookSpecUpdater logBookSpecUpdater = this.deviceConfiguration.getLogBookSpecUpdaterFor(logBookSpec2);
-            logBookSpecUpdater.setOverruledObisCode(logBookTypeObisCode);
-            logBookSpecUpdater.update();
-            tctx.commit();
-        }
+        LogBookType otherLogBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", ObisCode.fromString("1.0.1.0.1.0"));
+        otherLogBookType.save();
+        this.deviceType.addLogBookType(otherLogBookType);
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(this.logBookType);
+        LogBookSpec logBookSpec1 = logBookSpecBuilder1.add();
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder2 = deviceConfiguration.createLogBookSpec(otherLogBookType);
+        logBookSpec2 = logBookSpecBuilder2.add();
+        LogBookSpec.LogBookSpecUpdater logBookSpecUpdater = this.deviceConfiguration.getLogBookSpecUpdaterFor(logBookSpec2);
+        logBookSpecUpdater.setOverruledObisCode(logBookTypeObisCode);
+        logBookSpecUpdater.update();
     }
 
     @Test
+    @Transactional
     public void successfulDeleteTest() {
         LogBookSpec logBookSpec = createDefaultTestingLogBookSpecWithOverruledObisCode();
 
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            deviceConfiguration.deleteLogBookSpec(logBookSpec);
-            tctx.commit();
-        }
+        deviceConfiguration.deleteLogBookSpec(logBookSpec);
     }
 
     @Test(expected = CannotDeleteFromActiveDeviceConfigurationException.class)
+    @Transactional
     public void cannotDeleteWhenConfigIsActiveTest() {
         LogBookSpec logBookSpec = createDefaultTestingLogBookSpecWithOverruledObisCode();
 
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.deviceConfiguration.activate();
-            this.deviceConfiguration.deleteLogBookSpec(logBookSpec);
-            tctx.commit();
-        }
+        this.deviceConfiguration.activate();
+        this.deviceConfiguration.deleteLogBookSpec(logBookSpec);
     }
 }

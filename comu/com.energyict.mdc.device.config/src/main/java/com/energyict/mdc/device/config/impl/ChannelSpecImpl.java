@@ -54,18 +54,18 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private final Reference<RegisterMapping> registerMapping = ValueReference.absent();
+    private final Reference<Phenomenon> phenomenon = ValueReference.absent();
+    private final Reference<LoadProfileSpec> loadProfileSpec = ValueReference.absent();
+    private final Reference<ProductSpec> productSpec = ValueReference.absent();
+    private ReadingMethod readingMethod = ReadingMethod.ENGINEERING_UNIT;
+    private ValueCalculationMethod valueCalculationMethod = ValueCalculationMethod.AUTOMATIC;
+    private MultiplierMode multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
+    private BigDecimal multiplier = BigDecimal.ONE;
+    private int nbrOfFractionDigits = 0;
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
-    private int nbrOfFractionDigits;
     private BigDecimal overflow;
-    private final Reference<Phenomenon> phenomenon = ValueReference.absent();
-    private ReadingMethod readingMethod;
-    private MultiplierMode multiplierMode;
-    private BigDecimal multiplier;
-    private ValueCalculationMethod valueCalculationMethod;
-    private final Reference<LoadProfileSpec> loadProfileSpec = ValueReference.absent();
     private TimeDuration interval;
-    private final Reference<ProductSpec> productSpec = ValueReference.absent();
 
     @Inject
     public ChannelSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {
@@ -82,6 +82,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon) {
         setDeviceConfiguration(deviceConfiguration);
         setRegisterMapping(registerMapping);
+        setProductSpec(registerMapping.getProductSpec());
         setPhenomenon(phenomenon);
         return this;
     }
@@ -170,7 +171,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         validatePhenomenon();
         validatePhenomenonAndRegisterMappingUnitCompatibility();
         validateReadingMethod();
-        validateMultiplierMode();
+        validateMultiplier();
         validateValueCalculationMethod();
         validateInterval();
         validateForCollectionMethod();
@@ -209,7 +210,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     private void validateChannelSpecsForDuplicateRegisterMappings() {
         ChannelSpec channelSpec = this.deviceConfigurationService.findChannelSpecForLoadProfileSpecAndRegisterMapping(getLoadProfileSpec(), getRegisterMapping());
-        if (channelSpec != null) {
+        if (channelSpec != null && channelSpec.getId() != getId()) {
             throw DuplicateRegisterMappingException.forChannelSpecInLoadProfileSpec(thesaurus, channelSpec, getRegisterMapping(), this.getLoadProfileSpec());
         }
     }
@@ -220,13 +221,15 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         }
     }
 
-    private void validateMultiplierMode() {
-        if (this.multiplierMode == null) {
+    private void validateMultiplierMode(MultiplierMode multiplierMode) {
+        if (multiplierMode == null) {
             throw MultiplierModeIsRequiredException.forChannelSpec(this.thesaurus, this);
-        } else {
-            if (MultiplierMode.CONFIGURED_ON_OBJECT.equals(this.multiplierMode) && getMultiplier() == null) {
-                throw MultiplierIsRequiredException.onChannelSpecWhenModeIsOnObject(thesaurus, this, this.multiplierMode);
-            }
+        }
+    }
+
+    private void validateMultiplier(){
+        if(this.multiplier == null){
+            throw MultiplierIsRequiredException.onChannelSpecWhenModeIsOnObject(thesaurus, this, this.multiplierMode);
         }
     }
 
@@ -234,7 +237,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         if (readingMethod == null) {
             throw ReadingMethodIsRequiredException.forChannelSpec(this.thesaurus, this);
         }
-
     }
 
     private void validatePhenomenonAndRegisterMappingUnitCompatibility() {
@@ -260,7 +262,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private void validateDeviceTypeContainsRegisterMapping() {
-        if (!this.loadProfileSpec.isPresent()) { // then the RegisterMapping should be included in the LoadProfileSpec
+        if (this.loadProfileSpec.isPresent()) { // then the RegisterMapping should be included in the LoadProfileSpec
             if (!getLoadProfileSpec().getLoadProfileType().getRegisterMappings().contains(getRegisterMapping())) {
                 throw RegisterMappingIsNotConfiguredException.forChannelInLoadProfileSpec(thesaurus, getLoadProfileSpec(), getRegisterMapping(), this);
             }
@@ -308,8 +310,8 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     @Override
-    public void delete() {
-        getDeviceConfiguration().deleteChannelSpec(this);
+    public void validateUpdate() {
+        this.validateRequiredFields();
     }
 
     @Override
@@ -424,12 +426,17 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public void setMultiplierMode(MultiplierMode multiplierMode) {
+        validateMultiplierMode(multiplierMode);
         this.multiplierMode = multiplierMode;
+        if (!this.multiplierMode.equals(MultiplierMode.CONFIGURED_ON_OBJECT)) {
+            this.multiplier = BigDecimal.ONE;
+        }
     }
 
     @Override
     public void setMultiplier(BigDecimal multiplier) {
         this.multiplier = multiplier;
+        this.multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
     }
 
     @Override
@@ -441,6 +448,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     public void setLoadProfileSpec(LoadProfileSpec loadProfileSpec) {
         validateLoadProfileSpecForUpdate(loadProfileSpec);
         this.loadProfileSpec.set(loadProfileSpec);
+        setInterval(getLoadProfileSpec().getInterval());    // if the channel is linked to a LoadProfileSpec, then the interval must be the same as that of the LoadProfileType
     }
 
     private void validateLoadProfileSpecForUpdate(LoadProfileSpec loadProfileSpec) {
@@ -464,9 +472,10 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         return productSpec.get();
     }
 
-    public static class ChannelSpecBuilder implements ChannelSpec.ChannelSpecBuilder {
+    static abstract class ChannelSpecBuilder implements ChannelSpec.ChannelSpecBuilder {
 
         final ChannelSpecImpl channelSpec;
+        String tempName;
 
         public ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
             this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, registerMapping, phenomenon, loadProfileSpec);
@@ -480,6 +489,12 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         @Override
         public void loadProfileSpecBuildingProcessCompleted(LoadProfileSpec loadProfileSpec) {
             this.channelSpec.setLoadProfileSpec(loadProfileSpec);
+        }
+
+        @Override
+        public ChannelSpec.ChannelSpecBuilder setName(String channelSpecName) {
+            this.tempName = channelSpecName;
+            return this;
         }
 
         @Override
@@ -497,12 +512,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         @Override
         public ChannelSpec.ChannelSpecBuilder setOverflow(BigDecimal overflow) {
             this.channelSpec.setOverflow(overflow);
-            return this;
-        }
-
-        @Override
-        public ChannelSpec.ChannelSpecBuilder setPhenomenon(Phenomenon phenomenon) {
-            this.channelSpec.setPhenomenon(phenomenon);
             return this;
         }
 
@@ -531,21 +540,70 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         }
 
         @Override
-        public ChannelSpec.ChannelSpecBuilder setInterval(TimeDuration interval) {
-            this.channelSpec.setInterval(interval);
-            return this;
-        }
-
-        @Override
-        public ChannelSpec.ChannelSpecBuilder setProductSpec(ProductSpec productSpec) {
-            this.channelSpec.setProductSpec(productSpec);
-            return this;
-        }
-
-        @Override
-        public ChannelSpec add(){
+        public ChannelSpec add() {
+            if(Checks.is(tempName).empty()){
+                this.channelSpec.setName(this.channelSpec.getRegisterMapping().getName());
+            } else {
+                this.channelSpec.setName(tempName);
+            }
             this.channelSpec.validateRequiredFields();
             return this.channelSpec;
+        }
+    }
+
+    static abstract class ChannelSpecUpdater implements ChannelSpec.ChannelSpecUpdater{
+
+        final ChannelSpec channelSpec;
+
+        protected ChannelSpecUpdater(ChannelSpec channelSpec) {
+            this.channelSpec = channelSpec;
+        }
+
+        @Override
+        public ChannelSpec.ChannelSpecUpdater setOverruledObisCode(ObisCode overruledObisCode) {
+            this.channelSpec.setOverruledObisCode(overruledObisCode);
+            return this;
+        }
+
+        @Override
+        public ChannelSpec.ChannelSpecUpdater setNbrOfFractionDigits(int nbrOfFractionDigits) {
+            this.channelSpec.setNbrOfFractionDigits(nbrOfFractionDigits);
+            return this;
+        }
+
+        @Override
+        public ChannelSpec.ChannelSpecUpdater setOverflow(BigDecimal overflow) {
+            this.channelSpec.setOverflow(overflow);
+            return this;
+        }
+
+        @Override
+        public ChannelSpec.ChannelSpecUpdater setReadingMethod(ReadingMethod readingMethod) {
+            this.channelSpec.setReadingMethod(readingMethod);
+            return this;
+        }
+
+        @Override
+        public ChannelSpec.ChannelSpecUpdater setMultiplierMode(MultiplierMode multiplierMode) {
+            this.channelSpec.setMultiplierMode(multiplierMode);
+            return this;
+        }
+
+        @Override
+        public ChannelSpec.ChannelSpecUpdater setMultiplier(BigDecimal multiplier) {
+            this.setMultiplier(multiplier);
+            return this;
+        }
+
+        @Override
+        public ChannelSpec.ChannelSpecUpdater setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod) {
+            this.channelSpec.setValueCalculationMethod(valueCalculationMethod);
+            return this;
+        }
+
+        @Override
+        public void update() {
+            this.channelSpec.validateUpdate();
         }
     }
 

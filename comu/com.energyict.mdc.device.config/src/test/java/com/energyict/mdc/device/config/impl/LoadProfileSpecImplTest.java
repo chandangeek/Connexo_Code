@@ -1,12 +1,12 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
+import com.energyict.mdc.device.config.common.Transactional;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
@@ -45,32 +45,27 @@ public class LoadProfileSpecImplTest extends CommonDeviceConfigSpecsTest {
     }
 
     private void initializeDeviceTypeWithLogBookTypeAndDeviceConfiguration() {
-        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            loadProfileType = this.inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval);
-            loadProfileType.save();
+        loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval);
+        loadProfileType.save();
 
-            // Business method
-            deviceType.setDescription("For loadProfileSpec Test purposes only");
-            deviceType.addLoadProfileType(loadProfileType);
-            DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
-            deviceConfiguration = deviceConfigurationBuilder.add();
-            deviceType.save();
-            ctx.commit();
-        }
+        // Business method
+        deviceType.setDescription("For loadProfileSpec Test purposes only");
+        deviceType.addLoadProfileType(loadProfileType);
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
+        deviceConfiguration = deviceConfigurationBuilder.add();
+        deviceType.save();
     }
 
     private LoadProfileSpec createDefaultTestingLoadProfileSpecWithOverruledObisCode() {
         LoadProfileSpec loadProfileSpec;
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfiguration.createLoadProfileSpec(this.loadProfileType);
-            loadProfileSpecBuilder.setOverruledObisCode(overruledLoadProfileSpecObisCode);
-            loadProfileSpec = loadProfileSpecBuilder.add();
-            tctx.commit();
-        }
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfiguration.createLoadProfileSpec(this.loadProfileType);
+        loadProfileSpecBuilder.setOverruledObisCode(overruledLoadProfileSpecObisCode);
+        loadProfileSpec = loadProfileSpecBuilder.add();
         return loadProfileSpec;
     }
 
     @Test
+    @Transactional
     public void createLoadProfileSpecTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
@@ -82,15 +77,13 @@ public class LoadProfileSpecImplTest extends CommonDeviceConfigSpecsTest {
     }
 
     @Test
+    @Transactional
     public void updateLoadProfileSpecTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            LoadProfileSpec.LoadProfileSpecUpdater loadProfileSpecUpdater = this.deviceConfiguration.getLoadProfileSpecUpdaterFor(loadProfileSpec);
-            loadProfileSpec.setOverruledObisCode(null);
-            loadProfileSpecUpdater.update();
-            tctx.commit();
-        }
+        LoadProfileSpec.LoadProfileSpecUpdater loadProfileSpecUpdater = this.deviceConfiguration.getLoadProfileSpecUpdaterFor(loadProfileSpec);
+        loadProfileSpec.setOverruledObisCode(null);
+        loadProfileSpecUpdater.update();
 
         assertThat(loadProfileSpec.getLoadProfileType()).isEqualTo(this.loadProfileType);
         assertThat(loadProfileSpec.getDeviceConfiguration()).isEqualTo(this.deviceConfiguration);
@@ -100,115 +93,98 @@ public class LoadProfileSpecImplTest extends CommonDeviceConfigSpecsTest {
     }
 
     @Test(expected = LoadProfileTypeIsNotConfiguredOnDeviceTypeException.class)
+    @Transactional
     public void createWithIncorrectLoadProfileTypeTest() {
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            LoadProfileType loadProfileType = this.inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME+"Incorrect", loadProfileTypeObisCode, interval);
-            loadProfileType.save();
+        LoadProfileType loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "Incorrect", loadProfileTypeObisCode, interval);
+        loadProfileType.save();
 
-            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
-            loadProfileSpecBuilder.add();
-        }
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+        loadProfileSpecBuilder.add();
     }
 
     @Test(expected = CannotAddToActiveDeviceConfigurationException.class)
+    @Transactional
     public void addWithActiveDeviceConfigurationTest() {
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.deviceConfiguration.activate();
-            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
-            loadProfileSpec.add();
-            tctx.commit();
-        }
+        this.deviceConfiguration.activate();
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+        loadProfileSpec.add();
     }
 
     @Test(expected = DuplicateLoadProfileTypeException.class)
+    @Transactional
     public void addTwoSpecsWithSameLoadProfileTypeTest() {
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
-            loadProfileSpec1.add();
-            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec2 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
-            loadProfileSpec2.add();
-            tctx.commit();
-        }
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+        loadProfileSpec1.add();
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec2 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+        loadProfileSpec2.add();
     }
 
     @Test(expected = DuplicateObisCodeException.class)
+    @Transactional
     public void addTwoSpecsWithDiffTypeButSameObisCodeTest() {
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            LoadProfileType loadProfileType2 = this.inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME+"other", loadProfileTypeObisCode, interval);
-            loadProfileType2.save();
-            this.deviceType.addLoadProfileType(loadProfileType2);
-            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
-            loadProfileSpec1.add();
-            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec2 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType2);
-            loadProfileSpec2.add();
-            tctx.commit();
-        }
+        LoadProfileType loadProfileType2 = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", loadProfileTypeObisCode, interval);
+        loadProfileType2.save();
+        this.deviceType.addLoadProfileType(loadProfileType2);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+        loadProfileSpec1.add();
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec2 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType2);
+        loadProfileSpec2.add();
     }
 
     @Test(expected = DuplicateObisCodeException.class)
+    @Transactional
     public void addTwoSpecsWithDiffObisCodeButOverruledAsSameTest() {
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            LoadProfileType loadProfileType2 = this.inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME+"other", ObisCode.fromString("1.0.99.98.0.255"), interval);
-            loadProfileType2.save();
-            this.deviceType.addLoadProfileType(loadProfileType2);
-            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
-            loadProfileSpec1.add();
-            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec2 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType2);
-            loadProfileSpec2.setOverruledObisCode(loadProfileTypeObisCode);
-            loadProfileSpec2.add();
-            tctx.commit();
-        }
+        LoadProfileType loadProfileType2 = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", ObisCode.fromString("1.0.99.98.0.255"), interval);
+        loadProfileType2.save();
+        this.deviceType.addLoadProfileType(loadProfileType2);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+        loadProfileSpec1.add();
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec2 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType2);
+        loadProfileSpec2.setOverruledObisCode(loadProfileTypeObisCode);
+        loadProfileSpec2.add();
     }
 
     @Test(expected = DuplicateObisCodeException.class)
+    @Transactional
     public void addTwoSpecsWithDiffObisCodeButSameAfterUpdateTest() {
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            LoadProfileType loadProfileType2 = this.inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME+"other", ObisCode.fromString("1.0.99.98.0.255"), interval);
-            loadProfileType2.save();
-            this.deviceType.addLoadProfileType(loadProfileType2);
-            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
-            loadProfileSpecBuilder1.add();
-            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder2 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType2);
-            LoadProfileSpec loadProfileSpec = loadProfileSpecBuilder2.add();
-            LoadProfileSpec.LoadProfileSpecUpdater loadProfileSpecUpdater = this.deviceConfiguration.getLoadProfileSpecUpdaterFor(loadProfileSpec);
-            loadProfileSpecUpdater.setOverruledObisCode(loadProfileTypeObisCode);
-            loadProfileSpecUpdater.update();
-            tctx.commit();
-        }
+        LoadProfileType loadProfileType2 = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", ObisCode.fromString("1.0.99.98.0.255"), interval);
+        loadProfileType2.save();
+        this.deviceType.addLoadProfileType(loadProfileType2);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+        loadProfileSpecBuilder1.add();
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder2 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType2);
+        LoadProfileSpec loadProfileSpec = loadProfileSpecBuilder2.add();
+        LoadProfileSpec.LoadProfileSpecUpdater loadProfileSpecUpdater = this.deviceConfiguration.getLoadProfileSpecUpdaterFor(loadProfileSpec);
+        loadProfileSpecUpdater.setOverruledObisCode(loadProfileTypeObisCode);
+        loadProfileSpecUpdater.update();
     }
 
     @Test
+    @Transactional
     public void successfulDeleteTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.deviceConfiguration.deleteLoadProfileSpec(loadProfileSpec);
-            tctx.commit();
-        }
+        this.deviceConfiguration.deleteLoadProfileSpec(loadProfileSpec);
     }
 
     @Test(expected = CannotDeleteFromActiveDeviceConfigurationException.class)
+    @Transactional
     public void deleteFromActiveDeviceConfigurationTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.deviceConfiguration.activate();
-            this.deviceConfiguration.deleteLoadProfileSpec(loadProfileSpec);
-            tctx.commit();
-        }
+        this.deviceConfiguration.activate();
+        this.deviceConfiguration.deleteLoadProfileSpec(loadProfileSpec);
     }
 
     @Test
+    @Transactional
     public void buildingCompletionListenerTest() {
         LoadProfileSpec.BuildingCompletionListener buildingCompletionListener = mock(LoadProfileSpec.BuildingCompletionListener.class);
         LoadProfileSpec loadProfileSpec;
-        try (TransactionContext tctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfiguration.createLoadProfileSpec(this.loadProfileType);
-            loadProfileSpecBuilder.setOverruledObisCode(overruledLoadProfileSpecObisCode);
-            loadProfileSpecBuilder.notifyOnAdd(buildingCompletionListener);
-            loadProfileSpec = loadProfileSpecBuilder.add();
-            tctx.commit();
-        }
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfiguration.createLoadProfileSpec(this.loadProfileType);
+        loadProfileSpecBuilder.setOverruledObisCode(overruledLoadProfileSpecObisCode);
+        loadProfileSpecBuilder.notifyOnAdd(buildingCompletionListener);
+        loadProfileSpec = loadProfileSpecBuilder.add();
 
         verify(buildingCompletionListener).loadProfileSpecBuildingProcessCompleted(loadProfileSpec);
     }
