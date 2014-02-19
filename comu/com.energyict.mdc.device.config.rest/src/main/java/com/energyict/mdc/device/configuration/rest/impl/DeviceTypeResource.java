@@ -7,32 +7,19 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.services.DeviceConfigurationService;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.amr.RegisterMappingFactory;
-import com.energyict.mdw.core.DeviceConfiguration;
-import com.energyict.mdw.core.DeviceType;
-import com.energyict.mdw.core.LoadProfileType;
-import com.energyict.mdw.core.LogBookType;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
 import com.energyict.mdw.shadow.amr.RegisterMappingShadow;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
@@ -94,7 +81,7 @@ public class DeviceTypeResource {
             deviceType.update(shadow);
             return new DeviceTypeInfo(deviceType);
         } catch (Exception e) {
-            throw new WebApplicationException("failed to update device type "+deviceTypeInfo.id, e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build());
+            throw new WebApplicationException("failed to update device type " + deviceTypeInfo.id, e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build());
         }
     }
 
@@ -150,14 +137,14 @@ public class DeviceTypeResource {
         List<RegisterMappingInfo> registerMappingInfos = new ArrayList<>();
 
         final List<RegisterMapping> registerMappings = new ArrayList<>();
-        if (available==null || !Boolean.parseBoolean(available)) {
+        if (available == null || !Boolean.parseBoolean(available)) {
             registerMappings.addAll(deviceType.getRegisterMappings());
         } else {
             if (Boolean.parseBoolean(available)) {
                 int[] existing = new int[deviceType.getRegisterMappings().size()];
-                int index=0;
+                int index = 0;
                 for (RegisterMapping registerMapping : deviceType.getRegisterMappings()) {
-                    existing[index++]=registerMapping.getId();
+                    existing[index++] = registerMapping.getId();
                 }
 
                 registerMappings.addAll(registerMappingFactory.findAllExcept(existing));
@@ -183,13 +170,13 @@ public class DeviceTypeResource {
     }
 
     @POST
-    @Path("/{id}/registers")
+    @Path("/{id}/registers/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public List<RegisterMappingInfo> createRegistersForDeviceType(@PathParam("id") long id, RegisterMappingInfo registerMappingInfo) {
+    public List<RegisterMappingInfo> createRegistersForDeviceType(@PathParam("id") long id, @PathParam("rmId") long rmId) {
         DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
 
-        linkRegisterMappingToDeviceType(deviceType.getShadow(), registerMappingInfo);
+        linkRegisterMappingToDeviceType(deviceType.getShadow(), rmId, deviceType);
 
         return getRegistersForDeviceType(id, null);
     }
@@ -220,27 +207,31 @@ public class DeviceTypeResource {
         }
 
         for (RegisterMappingInfo registerMappingInfo : newRegisterMappingsIdMap.values()) {
-            linkRegisterMappingToDeviceType(deviceTypeShadow, registerMappingInfo);
+            linkRegisterMappingToDeviceType(deviceTypeShadow, registerMappingInfo.id, deviceType);
         }
     }
 
     private void unlinkRegisterMappingFromDeviceType(DeviceTypeShadow deviceTypeShadow, long existingRegisterMappingId) {
-        deviceTypeShadow.getRegisterMappingShadows().remove(getRegisterMappingById(deviceTypeShadow.getRegisterMappingShadows(), (int)existingRegisterMappingId));
+        deviceTypeShadow.getRegisterMappingShadows().remove(getRegisterMappingById(deviceTypeShadow.getRegisterMappingShadows(), (int) existingRegisterMappingId));
     }
 
-    private void linkRegisterMappingToDeviceType(DeviceTypeShadow deviceTypeShadow, RegisterMappingInfo registerMappingInfo) {
-        RegisterMapping registerMapping = registerMappingFactory.find((int) registerMappingInfo.id);
-        if (registerMapping==null) {
-            throw new WebApplicationException("No register mapping with id " + registerMappingInfo.id,
+    private void linkRegisterMappingToDeviceType(DeviceTypeShadow deviceTypeShadow, long registerMappingId, DeviceType deviceType) {
+        RegisterMapping registerMapping = registerMappingFactory.find((int) registerMappingId);
+        if (registerMapping == null) {
+            throw new WebApplicationException("No register mapping with id " + registerMappingId,
                     Response.status(Response.Status.BAD_REQUEST).build());
-
         }
         deviceTypeShadow.getRegisterMappingShadows().add(registerMapping.getShadow());
+        try {
+            deviceType.update(deviceTypeShadow);
+        } catch (Exception e) {
+            throw new WebApplicationException("failed to add register type " + registerMapping.getName(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build());
+        }
     }
 
     private RegisterMappingShadow getRegisterMappingById(List<RegisterMappingShadow> registerMappingShadows, int id) {
         for (RegisterMappingShadow registerMappingShadow : registerMappingShadows) {
-            if (registerMappingShadow.getId()==id) {
+            if (registerMappingShadow.getId() == id) {
                 return registerMappingShadow;
             }
         }
