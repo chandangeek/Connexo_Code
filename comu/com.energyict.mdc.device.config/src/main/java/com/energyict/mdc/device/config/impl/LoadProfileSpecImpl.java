@@ -128,6 +128,21 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     }
 
     @Override
+    protected CreateEventType createEventType() {
+        return CreateEventType.LOADPROFILESPEC;
+    }
+
+    @Override
+    protected UpdateEventType updateEventType() {
+        return UpdateEventType.LOADPROFILESPEC;
+    }
+
+    @Override
+    protected DeleteEventType deleteEventType() {
+        return DeleteEventType.LOADPROFILESPEC;
+    }
+
+    @Override
     public String toString() {
         return getDeviceConfiguration().getName() + "/" + getLoadProfileType().getName();
     }

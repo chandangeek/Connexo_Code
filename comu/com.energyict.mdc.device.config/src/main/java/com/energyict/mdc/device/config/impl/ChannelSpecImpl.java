@@ -313,6 +313,21 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     @Override
+    protected CreateEventType createEventType() {
+        return CreateEventType.CHANNELSPEC;
+    }
+
+    @Override
+    protected UpdateEventType updateEventType() {
+        return UpdateEventType.CHANNELSPEC;
+    }
+
+    @Override
+    protected DeleteEventType deleteEventType() {
+        return DeleteEventType.CHANNELSPEC;
+    }
+
+    @Override
     public void validateDelete() {
         // the configuration will validate the active 'part'
     }

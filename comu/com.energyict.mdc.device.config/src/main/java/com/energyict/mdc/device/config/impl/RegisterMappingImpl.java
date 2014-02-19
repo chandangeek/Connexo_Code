@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -26,19 +27,23 @@ import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ProductSpecIsRequiredException;
-
-import javax.inject.Inject;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.inject.Inject;
 
 import static com.elster.jupiter.util.Checks.is;
 
 public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> implements RegisterMapping {
 
-    private DeviceConfigurationService deviceConfigurationService;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final MeteringService meteringService;
+    private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
+
     private String obisCodeString;
     private ObisCode obisCode;
     private Reference<ProductSpec> productSpec = ValueReference.absent();
@@ -50,10 +55,12 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     private Clock clock;
 
     @Inject
-    public RegisterMappingImpl(DataModel dataModel, EventService eventService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, Clock clock) {
+    public RegisterMappingImpl(DataModel dataModel, EventService eventService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, Clock clock, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         super(RegisterMapping.class, dataModel, eventService, thesaurus);
         this.clock = clock;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.meteringService = meteringService;
+        this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
 
     RegisterMappingImpl initialize(String name, ObisCode obisCode, ProductSpec productSpec) {
@@ -99,6 +106,21 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     @Override
     protected void doDelete() {
         this.getDataMapper().remove(this);
+    }
+
+    @Override
+    protected CreateEventType createEventType() {
+        return CreateEventType.REGISTERMAPPING;
+    }
+
+    @Override
+    protected UpdateEventType updateEventType() {
+        return UpdateEventType.REGISTERMAPPING;
+    }
+
+    @Override
+    protected DeleteEventType deleteEventType() {
+        return DeleteEventType.REGISTERMAPPING;
     }
 
     @Override
@@ -179,8 +201,8 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
 
     @Override
     public ReadingType getReadingType() {
-        // Todo: use the information from the ProductSpec
-        return null;
+        Optional<ReadingType> readingType = meteringService.getReadingType(mdcReadingTypeUtilService.getReadingTypeFrom(this.getObisCode(), this.getUnit()));
+        return readingType.get();
     }
 
     public String getDescription() {

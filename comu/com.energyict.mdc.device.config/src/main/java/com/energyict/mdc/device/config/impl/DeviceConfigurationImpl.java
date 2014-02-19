@@ -306,7 +306,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
         registerSpec.validateDelete();
         this.registerSpecs.remove(registerSpec);
-        this.eventService.postEvent(EventType.DELETED.topic(),registerSpec);
+        this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),registerSpec);
     }
 
     public List<ChannelSpec> getChannelSpecs() {
@@ -362,7 +362,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
         channelSpec.validateDelete();
         this.channelSpecs.remove(channelSpec);
-        this.eventService.postEvent(EventType.DELETED.topic(),channelSpec);
+        this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),channelSpec);
     }
 
     public List<LoadProfileSpec> getLoadProfileSpecs() {
@@ -431,7 +431,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
         loadProfileSpec.validateDelete();
         this.loadProfileSpecs.remove(loadProfileSpec);
-        this.eventService.postEvent(EventType.DELETED.topic(),loadProfileSpec);
+        this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),loadProfileSpec);
     }
 
     @Override
@@ -520,7 +520,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
         logBookSpec.validateDelete();
         this.logBookSpecs.remove(logBookSpec);
-        this.eventService.postEvent(EventType.DELETED.topic(),logBookSpec);
+        this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),logBookSpec);
     }
 
     public boolean getActive() {
@@ -570,6 +570,21 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     protected void doDelete() {
         this.getDataMapper().remove(this);
+    }
+
+    @Override
+    protected CreateEventType createEventType() {
+        return CreateEventType.DEVICECONFIGURATION;
+    }
+
+    @Override
+    protected UpdateEventType updateEventType() {
+        return UpdateEventType.DEVICECONFIGURATION;
+    }
+
+    @Override
+    protected DeleteEventType deleteEventType() {
+        return DeleteEventType.DEVICECONFIGURATION;
     }
 
     @Override
