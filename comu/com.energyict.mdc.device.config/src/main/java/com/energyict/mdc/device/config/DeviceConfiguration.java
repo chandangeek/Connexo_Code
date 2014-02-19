@@ -60,6 +60,8 @@ public interface DeviceConfiguration {
 
     RegisterSpec.RegisterSpecBuilder createRegisterSpec(RegisterMapping registerMapping);
 
+    RegisterSpec.RegisterSpecUpdater getRegisterSpecUpdaterFor(RegisterSpec registerSpec);
+
     void deleteRegisterSpec(RegisterSpec registerSpec);
 
     List<ChannelSpec> getChannelSpecs();

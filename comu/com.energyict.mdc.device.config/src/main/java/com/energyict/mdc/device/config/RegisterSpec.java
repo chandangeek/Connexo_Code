@@ -123,17 +123,32 @@ public interface RegisterSpec extends HasId {
 
     void setOverflow(BigDecimal overflow);
 
+    /**
+     * Set the Multiplier of the RegisterSpec to the given <i>multiplier</i>.
+     * <p/>
+     * <b>Note:</b> By setting the Multiplier, you automatically set the MultiplierMode to {@link MultiplierMode#CONFIGURED_ON_OBJECT}
+     *
+     * @param multiplier the multiplier to set
+     */
     void setMultiplier(BigDecimal multiplier);
 
+    /**
+     * Set the MultiplierMode to the given mode.
+     * <p/>
+     * <b>Note:</b> By setting the mode to either {@link MultiplierMode#VERSIONED} or {@link MultiplierMode#NONE},
+     * you automatically set a previously given Multiplier back to {@link BigDecimal#ONE}
+     *
+     * @param multiplierMode the given MultiplierMode
+     */
     void setMultiplierMode(MultiplierMode multiplierMode);
 
     ChannelSpecLinkType getChannelSpecLinkType();
 
     void setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType);
 
-    void delete();
-
     void validateDelete();
+
+    void validateUpdate();
 
     /**
      * Defines a Builder interface to construct a {@link RegisterSpec}
@@ -152,16 +167,76 @@ public interface RegisterSpec extends HasId {
 
         RegisterSpecBuilder setOverflow(BigDecimal overflow);
 
+        /**
+         * Set the Multiplier of the RegisterSpec to the given <i>multiplier</i>.
+         * <p/>
+         * <b>Note:</b> By setting the Multiplier, you automatically set the MultiplierMode to {@link MultiplierMode#CONFIGURED_ON_OBJECT}
+         *
+         * @param multiplier the multiplier to set
+         */
         RegisterSpecBuilder setMultiplier(BigDecimal multiplier);
 
+        /**
+         * Set the MultiplierMode to the given mode.
+         * <p/>
+         * <b>Note:</b> By setting the mode to either {@link MultiplierMode#VERSIONED} or {@link MultiplierMode#NONE},
+         * you automatically set a previously given Multiplier back to {@link BigDecimal#ONE}
+         *
+         * @param multiplierMode the given MultiplierMode
+         */
         RegisterSpecBuilder setMultiplierMode(MultiplierMode multiplierMode);
 
         RegisterSpecBuilder setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType);
 
         /**
          * Does final validation and <i>creates</i> the {@link RegisterSpec}
+         *
          * @return the RegisterSpec
          */
         RegisterSpec add();
+    }
+
+    /**
+     * Defines a updater component to update a {@link RegisterSpec}
+     */
+    interface RegisterSpecUpdater {
+
+        RegisterSpecUpdater setRegisterMapping(RegisterMapping registerMapping);
+
+        RegisterSpecUpdater setLinkedChannelSpec(ChannelSpec linkedChannelSpec);
+
+        RegisterSpecUpdater setNumberOfDigits(int numberOfDigits);
+
+        RegisterSpecUpdater setNumberOfFractionDigits(int numberOfFractionDigits);
+
+        RegisterSpecUpdater setOverruledObisCode(ObisCode overruledObisCode);
+
+        RegisterSpecUpdater setOverflow(BigDecimal overflow);
+
+        /**
+         * Set the Multiplier of the RegisterSpec to the given <i>multiplier</i>.
+         * <p/>
+         * <b>Note:</b> By setting the Multiplier, you automatically set the MultiplierMode to {@link MultiplierMode#CONFIGURED_ON_OBJECT}
+         *
+         * @param multiplier the multiplier to set
+         */
+        RegisterSpecUpdater setMultiplier(BigDecimal multiplier);
+
+        /**
+         * Set the MultiplierMode to the given mode.
+         * <p/>
+         * <b>Note:</b> By setting the mode to either {@link MultiplierMode#VERSIONED} or {@link MultiplierMode#NONE},
+         * you automatically set a previously given Multiplier back to {@link BigDecimal#ONE}
+         *
+         * @param multiplierMode the given MultiplierMode
+         */
+        RegisterSpecUpdater setMultiplierMode(MultiplierMode multiplierMode);
+
+        RegisterSpecUpdater setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType);
+
+        /**
+         * Updates the RegisterSpec, preferably via his DeviceConfiguration
+         */
+        void update();
     }
 }
