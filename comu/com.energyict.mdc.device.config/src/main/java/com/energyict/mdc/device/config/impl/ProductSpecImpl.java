@@ -14,10 +14,10 @@ import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseE
 import com.energyict.mdc.device.config.exceptions.CannotDeleteDefaultProductSpecException;
 import com.energyict.mdc.device.config.exceptions.DuplicateReadingTypeException;
 import com.energyict.mdc.device.config.exceptions.ReadingTypeIsRequiredException;
-
-import javax.inject.Inject;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import java.util.Date;
 import java.util.List;
+import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link ProductSpec} interace.
@@ -27,20 +27,22 @@ import java.util.List;
  */
 public class ProductSpecImpl implements ProductSpec {
 
+    private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private long id;
     private final Reference<ReadingType> readingType = ValueReference.absent();
-    private Date modificationDate;
 
+    private Date modificationDate;
     private DataModel dataModel;
     private EventService eventService;
     private Thesaurus thesaurus;
 
     @Inject
-    public ProductSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    public ProductSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
+        this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
 
     static ProductSpecImpl from (DataModel dataModel, ReadingType readingType) {
@@ -124,7 +126,7 @@ public class ProductSpecImpl implements ProductSpec {
 
     @Override
     public Unit getUnit() {
-        throw new UnsupportedOperationException("Need to use the ReadingTypeUnitMapping as a service");
+        return mdcReadingTypeUtilService.getReadingTypeInformationFor(readingType.get()).getUnit();
     }
 
     @Override

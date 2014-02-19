@@ -26,14 +26,13 @@ import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -43,6 +42,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -72,6 +73,7 @@ public class InMemoryPersistence {
 
     private ApplicationContext applicationContext;
     private ProtocolPluggableService protocolPluggableService;
+    private MdcReadingTypeUtilService readingTypeUtilService;
 
     public void initializeDatabase (String testName, DataModelInitializer... dataModelInitializers) {
         this.initializeMocks(testName);
@@ -93,6 +95,8 @@ public class InMemoryPersistence {
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
+                new MdcReadingTypeUtilServiceModule(),
+                new DeviceConfigurationModule(),
                 new MdcCommonModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
@@ -100,6 +104,7 @@ public class InMemoryPersistence {
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
+            this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.dataModel = this.createNewDeviceConfigurationService();
             for (DataModelInitializer initializer : dataModelInitializers) {
                 initializer.initializeDataModel(this.dataModel);
@@ -112,7 +117,7 @@ public class InMemoryPersistence {
     }
 
     private DataModel createNewDeviceConfigurationService() {
-        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.protocolPluggableService);
+        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.protocolPluggableService, this.readingTypeUtilService);
         return this.deviceConfigurationService.getDataModel();
     }
 
@@ -169,6 +174,10 @@ public class InMemoryPersistence {
 
     public ProtocolPluggableService getProtocolPluggableService() {
         return protocolPluggableService;
+    }
+
+    public MdcReadingTypeUtilService getReadingTypeUtilService() {
+        return readingTypeUtilService;
     }
 
     public ApplicationContext getApplicationContext() {

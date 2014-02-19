@@ -30,16 +30,16 @@ import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import java.util.List;
+import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -58,19 +58,21 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
+    private volatile MdcReadingTypeUtilService readingTypeUtilService;
 
     public DeviceConfigurationServiceImpl() {
         super();
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
         this.setProtocolPluggableService(protocolPluggableService);
+        this.setReadingTypeUtilService(mdcReadingTypeUtilService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install();
@@ -85,7 +87,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public DeviceType newDeviceType(String name, String deviceProtocolPluggableClassName) {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass =
-                this.getProtocolPluggableService().findDeviceProtocolPluggableClassByName(deviceProtocolPluggableClassName);
+                protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceProtocolPluggableClassName);
         return newDeviceType(name, deviceProtocolPluggableClass);
     }
 
@@ -341,10 +343,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return dataModel;
     }
 
-    public EventService getEventService() {
-        return eventService;
-    }
-
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
@@ -355,17 +353,14 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
-    public MeteringService getMeteringService() {
-        return meteringService;
-    }
-
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
-    public ProtocolPluggableService getProtocolPluggableService() {
-        return protocolPluggableService;
+    @Reference
+    public void setReadingTypeUtilService(MdcReadingTypeUtilService readingTypeUtilService) {
+        this.readingTypeUtilService = readingTypeUtilService;
     }
 
     @Reference
@@ -382,6 +377,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
+                bind(MeteringService.class).toInstance(meteringService);
             }
         };
     }
