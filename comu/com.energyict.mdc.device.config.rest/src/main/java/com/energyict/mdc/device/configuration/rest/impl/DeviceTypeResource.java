@@ -64,7 +64,7 @@ public class DeviceTypeResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteDeviceType(@PathParam("id") long id) throws SQLException, BusinessException {
-        DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
+        DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
         deviceType.delete();
         return Response.ok().build();
 
@@ -82,7 +82,7 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public DeviceTypeInfo updateDeviceType(@PathParam("id") long id, DeviceTypeInfo deviceTypeInfo) {
-        DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
+        DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
         DeviceTypeShadow shadow = deviceType.getShadow();
         shadow.setName(deviceTypeInfo.name);
         List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = protocolPluggableService.findAllDeviceProtocolPluggableClasses();
@@ -106,7 +106,7 @@ public class DeviceTypeResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceTypeInfo findDeviceType(@PathParam("id") long id) {
-        DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
+        DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
         return new DeviceTypeInfo(deviceType, deviceType.getRegisterMappings());
     }
 
@@ -114,7 +114,7 @@ public class DeviceTypeResource {
     @Path("/{id}/loadprofiletypes")
     @Produces(MediaType.APPLICATION_JSON)
     public List<LoadProfileTypeInfo> getLoadProfilesForDeviceType(@PathParam("id") long id) {
-        DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
+        DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
         List<LoadProfileTypeInfo> loadProfileTypeInfos = new ArrayList<>();
         for (LoadProfileType loadProfileType : deviceType.getLoadProfileTypes()) {
             loadProfileTypeInfos.add(new LoadProfileTypeInfo(loadProfileType));
@@ -126,7 +126,7 @@ public class DeviceTypeResource {
     @Path("/{id}/logbooktypes")
     @Produces(MediaType.APPLICATION_JSON)
     public List<LogBookTypeInfo> getLogBookTypesForDeviceType(@PathParam("id") long id) {
-        DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
+        DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
         List<LogBookTypeInfo> logBookTypeInfos = new ArrayList<>();
         for (LogBookType logBookType : deviceType.getLogBookTypes()) {
             logBookTypeInfos.add(new LogBookTypeInfo(logBookType));
@@ -138,7 +138,7 @@ public class DeviceTypeResource {
     @Path("/{id}/deviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON)
     public List<DeviceConfigurationInfo> getDeviceConfigurationsForDeviceType(@PathParam("id") long id) {
-        DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
+        DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
         List<DeviceConfigurationInfo> deviceConfigurationInfos = new ArrayList<>();
         for (DeviceConfiguration deviceConfiguration : deviceType.getConfigurations()) {
             deviceConfigurationInfos.add(new DeviceConfigurationInfo(deviceConfiguration));
@@ -150,7 +150,7 @@ public class DeviceTypeResource {
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON)
     public List<RegisterMappingInfo> getRegisterMappingsForDeviceType(@PathParam("id") long id, @QueryParam("available") String available) {
-        DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
+        DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
         List<RegisterMappingInfo> registerMappingInfos = new ArrayList<>();
 
         final List<RegisterMapping> registerMappings = new ArrayList<>();
@@ -179,7 +179,7 @@ public class DeviceTypeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public List<RegisterMappingInfo> linkRegisterMappingToDeviceType(@PathParam("id") long id, @PathParam("rmId") long rmId) {
-        DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
+        DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
 
         linkRegisterMappingToDeviceType(deviceType.getShadow(), rmId);
 
@@ -190,7 +190,7 @@ public class DeviceTypeResource {
     @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response unlinkRegisterMappingFromDeviceType(@PathParam("id") long id, @PathParam("rmId") long registerMappingId) {
-        DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
+        DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
         if (getRegisterMappingById(deviceType.getShadow().getRegisterMappingShadows(), (int) registerMappingId)==null) {
             String message = "No register type with id " + registerMappingId + " configured on device " + id;
             throw new WebApplicationException(message,
@@ -258,7 +258,7 @@ public class DeviceTypeResource {
         return registerMappingIdList;
     }
 
-    private DeviceType findDeviceTypeByNameOrThrowException(long id) {
+    private DeviceType findDeviceTypeByIdOrThrowException(long id) {
         DeviceType deviceType = deviceConfigurationService.findDeviceType(id);
         if (deviceType == null) {
             throw new WebApplicationException("No device type with id " + id,
