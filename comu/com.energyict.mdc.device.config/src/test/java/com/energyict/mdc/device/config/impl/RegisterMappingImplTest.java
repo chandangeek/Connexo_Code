@@ -319,7 +319,7 @@ public class RegisterMappingImplTest {
             deviceType.addRegisterMapping(registerMapping);
             DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
             LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(this.loadProfileType);
-            configurationBuilder.newChannelSpec(registerMapping, this.phenomenon, loadProfileSpecBuilder);
+            configurationBuilder.newChannelSpec(registerMapping, this.phenomenon, loadProfileSpecBuilder).setReadingMethod(ReadingMethod.BASIC_DATA).setMultiplierMode(MultiplierMode.NONE).setValueCalculationMethod(ValueCalculationMethod.AUTOMATIC);
             configurationBuilder.add();
             deviceType.save();
             ctx.commit();
@@ -390,7 +390,7 @@ public class RegisterMappingImplTest {
             deviceType.addRegisterMapping(registerMapping);
             DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
             LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(this.loadProfileType);
-            configurationBuilder.newChannelSpec(registerMapping, this.phenomenon, loadProfileSpecBuilder);
+            configurationBuilder.newChannelSpec(registerMapping, this.phenomenon, loadProfileSpecBuilder).setReadingMethod(ReadingMethod.BASIC_DATA).setMultiplierMode(MultiplierMode.NONE).setValueCalculationMethod(ValueCalculationMethod.AUTOMATIC);
             configurationBuilder.add();
             deviceType.save();
             ctx.commit();
