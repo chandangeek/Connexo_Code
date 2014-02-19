@@ -4,7 +4,8 @@ import com.elster.jupiter.issue.IssueAssignee;
 import com.elster.jupiter.issue.IssueAssigneeType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
-import com.google.inject.Inject;
+
+import javax.inject.Inject;
 
 public class IssueAssigneeImpl implements IssueAssignee {
     private final DataModel dataModel;

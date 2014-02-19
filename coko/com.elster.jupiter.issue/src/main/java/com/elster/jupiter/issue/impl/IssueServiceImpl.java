@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.logging.Logger;
 
-@Component(name = "com.elster.jupiter.issue", service = {IssueService.class, InstallService.class}, property = "name=" + IssueService.COMPONENTNAME)
+@Component(name = "com.elster.jupiter.issue", service = {IssueService.class, InstallService.class}, property = "name=" + IssueService.COMPONENT_NAME)
 public class IssueServiceImpl implements IssueService, InstallService {
     private volatile DataModel dataModel;
     private volatile OrmService ormService;
@@ -62,7 +62,7 @@ public class IssueServiceImpl implements IssueService, InstallService {
     @Reference
     public void setOrmService(OrmService ormService) {
         this.ormService = ormService;
-        dataModel = ormService.newDataModel(IssueService.COMPONENTNAME, "Issue Management");
+        dataModel = ormService.newDataModel(IssueService.COMPONENT_NAME, "Issue Management");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }

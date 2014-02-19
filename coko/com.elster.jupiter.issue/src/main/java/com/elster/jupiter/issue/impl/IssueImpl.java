@@ -7,9 +7,9 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.fields.impl.ReverseConstraintMapping;
 import com.elster.jupiter.util.time.UtcInstant;
-import com.google.inject.Inject;
+
+import javax.inject.Inject;
 
 public class IssueImpl implements Issue {
     private final DataModel dataModel;

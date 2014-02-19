@@ -9,7 +9,7 @@ import java.util.Map;
  This interface provides operations for manipulation with issues in database
  */
 public interface IssueService {
-    static String COMPONENTNAME = "ISU";
+    String COMPONENT_NAME = "ISU";
 
     Optional<Issue> getIssueById(long issueId);
     Query<Issue> getIssueListQuery();
