@@ -114,6 +114,21 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     @Override
+    protected CreateEventType createEventType() {
+        return CreateEventType.LOGBOOKSPEC;
+    }
+
+    @Override
+    protected UpdateEventType updateEventType() {
+        return UpdateEventType.LOGBOOKSPEC;
+    }
+
+    @Override
+    protected DeleteEventType deleteEventType() {
+        return DeleteEventType.LOGBOOKSPEC;
+    }
+
+    @Override
     public String toString() {
         return getLogBookType().getName() + "/" + getObisCode().toString();
     }

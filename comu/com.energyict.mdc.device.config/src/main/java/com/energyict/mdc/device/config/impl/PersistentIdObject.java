@@ -48,6 +48,7 @@ public abstract class PersistentIdObject<T> {
         }
         else {
             this.postNew();
+            this.notifyCreated();
         }
     }
 
@@ -57,13 +58,23 @@ public abstract class PersistentIdObject<T> {
         this.notifyDeleted();
     }
 
-    private void notifyUpdated() {
-        this.eventService.postEvent(EventType.UPDATED.topic(), this);
+    private void notifyCreated() {
+        this.eventService.postEvent(this.createEventType().topic(), this);
     }
 
-    private void notifyDeleted() {
-        this.eventService.postEvent(EventType.DELETED.topic(), this);
+    protected abstract CreateEventType createEventType();
+
+    private void notifyUpdated() {
+        this.eventService.postEvent(this.updateEventType().topic(), this);
     }
+
+    protected abstract UpdateEventType updateEventType();
+
+    private void notifyDeleted() {
+        this.eventService.postEvent(this.deleteEventType().topic(), this);
+    }
+
+    protected abstract DeleteEventType deleteEventType();
 
     /**
      * Saves this object for the first time.

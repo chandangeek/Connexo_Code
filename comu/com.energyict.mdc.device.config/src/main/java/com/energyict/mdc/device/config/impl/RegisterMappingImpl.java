@@ -109,6 +109,21 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     }
 
     @Override
+    protected CreateEventType createEventType() {
+        return CreateEventType.REGISTERMAPPING;
+    }
+
+    @Override
+    protected UpdateEventType updateEventType() {
+        return UpdateEventType.REGISTERMAPPING;
+    }
+
+    @Override
+    protected DeleteEventType deleteEventType() {
+        return DeleteEventType.REGISTERMAPPING;
+    }
+
+    @Override
     protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
         return NameIsRequiredException.registerMappingNameIsRequired(thesaurus);
     }

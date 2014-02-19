@@ -148,6 +148,21 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     @Override
+    protected CreateEventType createEventType() {
+        return CreateEventType.REGISTERSPEC;
+    }
+
+    @Override
+    protected UpdateEventType updateEventType() {
+        return UpdateEventType.REGISTERSPEC;
+    }
+
+    @Override
+    protected DeleteEventType deleteEventType() {
+        return DeleteEventType.REGISTERSPEC;
+    }
+
+    @Override
     public void validateDelete() {
         // the configuration must validate the 'active' state
     }

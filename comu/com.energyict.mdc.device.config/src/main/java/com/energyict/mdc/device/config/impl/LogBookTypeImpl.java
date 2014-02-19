@@ -90,6 +90,21 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
     }
 
     @Override
+    protected CreateEventType createEventType() {
+        return CreateEventType.LOGBOOKTYPE;
+    }
+
+    @Override
+    protected UpdateEventType updateEventType() {
+        return UpdateEventType.LOGBOOKTYPE;
+    }
+
+    @Override
+    protected DeleteEventType deleteEventType() {
+        return DeleteEventType.LOGBOOKTYPE;
+    }
+
+    @Override
     protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
         throw NameIsRequiredException.logBookTypeNameIsRequired(thesaurus);
     }

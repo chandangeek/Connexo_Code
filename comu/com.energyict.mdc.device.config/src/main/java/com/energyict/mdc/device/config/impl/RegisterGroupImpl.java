@@ -71,6 +71,21 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     }
 
     @Override
+    protected CreateEventType createEventType() {
+        return CreateEventType.REGISTERGROUP;
+    }
+
+    @Override
+    protected UpdateEventType updateEventType() {
+        return UpdateEventType.REGISTERGROUP;
+    }
+
+    @Override
+    protected DeleteEventType deleteEventType() {
+        return DeleteEventType.REGISTERGROUP;
+    }
+
+    @Override
     public String toString () {
         return this.getName();
     }
