@@ -10,6 +10,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 
+import java.util.logging.Logger;
+
 /**
  * Copyrights EnergyICT
  * Date: 17/02/14
@@ -22,6 +24,8 @@ import org.osgi.service.component.annotations.Deactivate;
                 "osgi.command.function=getReadingTypeFrom"},  immediate = true)
 public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService {
 
+    Logger logger = Logger.getLogger(MdcReadingTypeUtilServiceImpl.class.getName());
+
     @Activate
     public void activate(BundleContext context) {
     }
@@ -31,27 +35,27 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     }
 
     public void readingTypeHelp(){
-        System.out.println("- Use getReadingTypeInformation(readingType) to print the ObisCode/Unit and interval of a given 18 digit ReadingType.");
-        System.out.println("- The getReadingTypeFrom takes two or three arguments:");
-        System.out.println("\t- Obiscode and Unit.");
-        System.out.println("\t- Obiscode, Unit and Interval in seconds.");
+        logger.info("- Use getReadingTypeInformation(readingType) to print the ObisCode/Unit and interval of a given 18 digit ReadingType.");
+        logger.info("- The getReadingTypeFrom takes two or three arguments:");
+        logger.info("\t- Obiscode and Unit.");
+        logger.info("\t- Obiscode, Unit and Interval in seconds.");
     }
 
     public void getReadingTypeInformation(String readingType){
         ReadingTypeInformation readingTypeInformation = getReadingTypeInformationFor(readingType);
-        System.out.println("ObisCode : " + readingTypeInformation.getObisCode());
-        System.out.println("Unit : " + readingTypeInformation.getUnit());
-        System.out.println("Interval : " + readingTypeInformation.getTimeDuration());
+        logger.info("ObisCode : " + readingTypeInformation.getObisCode());
+        logger.info("Unit : " + readingTypeInformation.getUnit());
+        logger.info("Interval : " + readingTypeInformation.getTimeDuration());
     }
 
     public void getReadingTypeFrom(String... arguments){
         try {
             if(arguments.length == 2){
-                System.out.println("ReadingType : " + getReadingTypeFrom(ObisCode.fromString(arguments[0]), Unit.get(arguments[1])));
+                logger.info("ReadingType : " + getReadingTypeFrom(ObisCode.fromString(arguments[0]), Unit.get(arguments[1])));
             } else if (arguments.length == 3){
-                System.out.println("ReadingType : " + getReadingTypeFrom(ObisCode.fromString(arguments[0]), Unit.get(arguments[1]), new TimeDuration(Integer.valueOf(arguments[2]))));
+                logger.info("ReadingType : " + getReadingTypeFrom(ObisCode.fromString(arguments[0]), Unit.get(arguments[1]), new TimeDuration(Integer.valueOf(arguments[2]))));
             } else {
-                System.out.println("Sorry, you provided an incorrect amount of arguments.");
+                logger.info("Sorry, you provided an incorrect amount of arguments.");
             }
         } catch (Exception e) {
             System.err.println(e);
