@@ -10,7 +10,6 @@ import com.elster.jupiter.metering.cim.CimMessageHandlerFactory;
 import com.elster.jupiter.metering.cim.Sender;
 import com.elster.jupiter.metering.cim.UnderlyingXmlException;
 import com.elster.jupiter.metering.cim.impl.Marshaller;
-import com.elster.jupiter.soap.whiteboard.cxf.CxfSupport;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -44,7 +43,7 @@ public class SoapSender implements Sender {
 
     @Override
     public void send(CreatedMeterReadings createdMeterReadings, MeterReadings meterReadings) {
-        try (CxfSupport cxfSupport = new CxfSupport()) {
+        try {
             marshaller.addPayload(createdMeterReadings, meterReadings);
 
             QName SERVICE_NAME =
