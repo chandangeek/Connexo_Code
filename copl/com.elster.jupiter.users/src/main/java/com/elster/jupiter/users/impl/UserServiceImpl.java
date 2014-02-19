@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService, InstallService {
 	}
 
     public Optional<User> authenticate(String userName, String password) {
-        //TODO check password
+        //TODO check password *
         return findUser(userName);
     }
 
