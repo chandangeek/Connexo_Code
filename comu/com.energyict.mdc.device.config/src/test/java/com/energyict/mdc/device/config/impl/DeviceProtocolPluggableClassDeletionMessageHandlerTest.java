@@ -16,13 +16,12 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.service.event.EventConstants;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,6 +74,57 @@ public class DeviceProtocolPluggableClassDeletionMessageHandlerTest {
         // Should not throw VetoDeviceProtocolPluggableClassDeletionBecauseStillUsedByDeviceTypesException
     }
 
+    @Test
+    public void testDeleteEventForDeviceProtocolPluggableClassWithIntegerIdThatIsNotUsed () {
+        Integer deviceProtocolPluggableClassId = new Integer(666);
+        when(this.protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId)).thenReturn(this.deviceProtocolPluggableClass);
+
+        Message message = this.mockDeleteMessage(deviceProtocolPluggableClassId);
+
+        // Business method
+        this.newTestHandler().process(message);
+
+        // Asserts
+        verify(message).getPayload();
+        verify(this.protocolPluggableService).findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId);
+        verify(this.deviceConfigurationService).findDeviceTypesWithDeviceProtocol(this.deviceProtocolPluggableClass);
+        // Should not throw VetoDeviceProtocolPluggableClassDeletionBecauseStillUsedByDeviceTypesException
+    }
+
+    @Test
+    public void testDeleteEventForDeviceProtocolPluggableClassWithStringIdThatIsNotUsed () {
+        String deviceProtocolPluggableClassId = "666";
+        when(this.protocolPluggableService.findDeviceProtocolPluggableClass(666)).thenReturn(this.deviceProtocolPluggableClass);
+
+        Message message = this.mockDeleteMessage(deviceProtocolPluggableClassId);
+
+        // Business method
+        this.newTestHandler().process(message);
+
+        // Asserts
+        verify(message).getPayload();
+        verify(this.protocolPluggableService).findDeviceProtocolPluggableClass(666);
+        verify(this.deviceConfigurationService).findDeviceTypesWithDeviceProtocol(this.deviceProtocolPluggableClass);
+        // Should not throw VetoDeviceProtocolPluggableClassDeletionBecauseStillUsedByDeviceTypesException
+    }
+
+    @Test
+    public void testDeleteEventForDeviceProtocolPluggableClassWithBigDecimalIdThatIsNotUsed () {
+        Long deviceProtocolPluggableClassId = new Long(666);
+        when(this.protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId)).thenReturn(this.deviceProtocolPluggableClass);
+
+        Message message = this.mockDeleteMessage(new BigDecimal(deviceProtocolPluggableClassId));
+
+        // Business method
+        this.newTestHandler().process(message);
+
+        // Asserts
+        verify(message).getPayload();
+        verify(this.protocolPluggableService).findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId);
+        verify(this.deviceConfigurationService).findDeviceTypesWithDeviceProtocol(this.deviceProtocolPluggableClass);
+        // Should not throw VetoDeviceProtocolPluggableClassDeletionBecauseStillUsedByDeviceTypesException
+    }
+
     @Test(expected = VetoDeviceProtocolPluggableClassDeletionBecauseStillUsedByDeviceTypesException.class)
     public void testDeleteEventForDeviceProtocolPluggableClassThatIsStillInUse () {
         Long deviceProtocolPluggableClassId = new Long(666);
@@ -91,6 +141,18 @@ public class DeviceProtocolPluggableClassDeletionMessageHandlerTest {
     }
 
     @Test
+    public void testDeleteEventWithMissingDeviceProtocolPluggableClassId () {
+        Message message = this.mockDeleteMessage(null);
+
+        // Business method
+        this.newTestHandler().process(message);
+
+        // Asserts
+        verify(message).getPayload();
+        // Should not throw any nasty exceptions (like e.g. NullPointerException because the device protocol pluggable is missing)
+    }
+
+    @Test
     public void testDeleteEventForDeviceProtocolPluggableClassThatDoesNotExist () {
         Message message = this.mockDeleteMessage(new Long(666));
 
@@ -102,13 +164,18 @@ public class DeviceProtocolPluggableClassDeletionMessageHandlerTest {
         // Should not throw any nasty exceptions (like e.g. NullPointerException because the device protocol pluggable class does not exist)
     }
 
-    private Message mockDeleteMessage(Long deviceProtocolPluggableClassId) {
+    private Message mockDeleteMessage(Object deviceProtocolPluggableClassId) {
         Map<String, Object> messageProperties = new HashMap<>();
         messageProperties.put(EventConstants.TIMESTAMP, System.currentTimeMillis());
         messageProperties.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/protocol/pluggable/deviceprotocol/DELETED");
-        messageProperties.put("id", deviceProtocolPluggableClassId);
-        when(this.jsonService.deserialize(anyString(), eq(Map.class))).thenReturn(messageProperties);
-        return mock(Message.class);
+        if (deviceProtocolPluggableClassId != null) {
+            messageProperties.put("id", deviceProtocolPluggableClassId);
+        }
+        Message message = mock(Message.class);
+        byte[] payLoad = "DeviceProtocolPluggableClassDeletionMessageHandlerTest#mockDeleteMessage".getBytes();
+        when(message.getPayload()).thenReturn(payLoad);
+        when(this.jsonService.deserialize(payLoad, Map.class)).thenReturn(messageProperties);
+        return message;
     }
 
     private DeviceProtocolPluggableClassDeletionMessageHandler newTestHandler () {

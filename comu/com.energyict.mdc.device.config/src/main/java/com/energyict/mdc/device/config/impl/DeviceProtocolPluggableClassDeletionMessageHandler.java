@@ -16,6 +16,8 @@ import org.osgi.service.event.EventConstants;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Handles delete events that are being sent when a {@link DeviceProtocolPluggableClass}
@@ -26,6 +28,8 @@ import java.util.Map;
  * @since 2014-02-19 (12:42)
  */
 public class DeviceProtocolPluggableClassDeletionMessageHandler implements MessageHandler {
+
+    private static Logger LOGGER = Logger.getLogger(DeviceProtocolPluggableClassDeletionMessageHandler.class.getName());
 
     private final JsonService jsonService;
     private final Thesaurus thesaurus;
@@ -51,18 +55,27 @@ public class DeviceProtocolPluggableClassDeletionMessageHandler implements Messa
 
     private void handleDeleteMessage(Map<?,?> messageProperties) {
         Long deviceProtocolPluggableClassId = this.getLongFrom(messageProperties, "id");
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId);
-        if (deviceProtocolPluggableClass != null) {
-            List<DeviceType> deviceTypes = this.deviceConfigurationService.findDeviceTypesWithDeviceProtocol(deviceProtocolPluggableClass);
-            if (!deviceTypes.isEmpty()) {
-                throw new VetoDeviceProtocolPluggableClassDeletionBecauseStillUsedByDeviceTypesException(this.thesaurus, deviceProtocolPluggableClass, deviceTypes);
+        if (deviceProtocolPluggableClassId != null) {
+            DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId);
+            if (deviceProtocolPluggableClass != null) {
+                List<DeviceType> deviceTypes = this.deviceConfigurationService.findDeviceTypesWithDeviceProtocol(deviceProtocolPluggableClass);
+                if (!deviceTypes.isEmpty()) {
+                    throw new VetoDeviceProtocolPluggableClassDeletionBecauseStillUsedByDeviceTypesException(this.thesaurus, deviceProtocolPluggableClass, deviceTypes);
+                }
+            }
+            else {
+                LOGGER.log(Level.SEVERE, "Device protocol pluggable class with id '" + deviceProtocolPluggableClassId+ "' does not exist");
             }
         }
     }
 
     private Long getLongFrom (Map<?, ?> messageProperties, String propertyName) {
-        Object contents = this.getPropertyFrom(messageProperties, propertyName);
-        if (contents instanceof Long) {
+        Object contents = messageProperties.get(propertyName);
+        if (contents == null) {
+            LOGGER.log(Level.SEVERE, "Expected message parameters of device protocol pluggable class delete event to contain a value for property '" + propertyName + "'");
+            return null;
+        }
+        else if (contents instanceof Long) {
             return (Long) contents;
         }
         else if (contents instanceof Integer) {
@@ -75,19 +88,9 @@ public class DeviceProtocolPluggableClassDeletionMessageHandler implements Messa
             return Long.parseLong((String) contents);
         }
         else {
-            throw new IllegalArgumentException("Device protocol pluggable class id is expected to be numerial but got " + contents.getClass().getName());
+            LOGGER.severe("Device protocol pluggable class event property '" + propertyName + "' is expected to be numerial but got " + contents.getClass().getName());
+            return null;
         }
-    }
-
-    private Object getPropertyFrom (Map<?, ?> messageProperties, String propertyName) {
-        Object propertyValue = messageProperties.get(propertyName);
-        if (propertyValue == null) {
-            throw new NullPointerException("Expected message parameters of device protocol pluggable class delete event to contain a value for property " + propertyName);
-        }
-        else {
-            return propertyValue;
-        }
-
     }
 
 }
