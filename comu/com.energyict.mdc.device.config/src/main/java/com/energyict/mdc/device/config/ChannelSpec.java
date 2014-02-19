@@ -88,20 +88,20 @@ public interface ChannelSpec extends HasId {
 
     void validateDelete();
 
-    void delete();
+    void validateUpdate();
 
     /**
      * Defines a Builder interface to construct a {@link ChannelSpec}
      */
     interface ChannelSpecBuilder extends LoadProfileSpec.BuildingCompletionListener {
 
+        ChannelSpecBuilder setName(String channelSpecName);
+
         ChannelSpecBuilder setOverruledObisCode(ObisCode overruledObisCode);
 
         ChannelSpecBuilder setNbrOfFractionDigits(int nbrOfFractionDigits);
 
         ChannelSpecBuilder setOverflow(BigDecimal overflow);
-
-        ChannelSpecBuilder setPhenomenon(Phenomenon phenomenon);
 
         ChannelSpecBuilder setReadingMethod(ReadingMethod readingMethod);
 
@@ -111,14 +111,32 @@ public interface ChannelSpec extends HasId {
 
         ChannelSpecBuilder setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
 
-        ChannelSpecBuilder setInterval(TimeDuration interval);
-
-        ChannelSpecBuilder setProductSpec(ProductSpec productSpec);
-
         /**
          * Does final validation and <i>creates</i> the {@link ChannelSpec}
          * @return the ChannelSpec
          */
         ChannelSpec add();
+    }
+
+    interface ChannelSpecUpdater {
+
+        ChannelSpecUpdater setOverruledObisCode(ObisCode overruledObisCode);
+
+        ChannelSpecUpdater setNbrOfFractionDigits(int nbrOfFractionDigits);
+
+        ChannelSpecUpdater setOverflow(BigDecimal overflow);
+
+        ChannelSpecUpdater setReadingMethod(ReadingMethod readingMethod);
+
+        ChannelSpecUpdater setMultiplierMode(MultiplierMode multiplierMode);
+
+        ChannelSpecUpdater setMultiplier(BigDecimal multiplier);
+
+        ChannelSpecUpdater setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
+
+        /**
+         * Updates the ChannelSpec, preferably via his DeviceConfiguration
+         */
+        void update();
     }
 }

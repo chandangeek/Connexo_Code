@@ -243,8 +243,8 @@ public enum TableSpecs {
             table.column("MULTIPLIER").number().notNull().map("multiplier").add();
             table.column("VALUECALCULATIONMETHOD").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("valueCalculationMethod").add();
             Column loadprofilespecid = table.column("LOADPROFILESPECID").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            table.column("INTERVAL").number().notNull().map("interval.count").add();
-            table.column("INTERVALCODE").number().notNull().map("interval.timeUnitCode").add();
+            table.column("INTERVAL").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.count").add();
+            table.column("INTERVALCODE").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
             table.primaryKey("PK_EISCHANNELSPECID").on(id).add();
             table.foreignKey("FK_EISCHNSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("channelSpecs").composition().onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("FK_EISCHNSPEC_REGMAP").on(rturegistermappingid).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();

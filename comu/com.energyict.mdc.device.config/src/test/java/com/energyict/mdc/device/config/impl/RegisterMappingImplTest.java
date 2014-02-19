@@ -30,6 +30,8 @@ import com.energyict.mdc.device.config.exceptions.ProductSpecIsRequiredException
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
+import com.energyict.mdc.protocol.api.device.ReadingMethod;
+import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
 import java.sql.SQLException;
 import org.junit.After;
 import org.junit.Before;
@@ -317,7 +319,7 @@ public class RegisterMappingImplTest {
             deviceType.addRegisterMapping(registerMapping);
             DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
             LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(this.loadProfileType);
-            configurationBuilder.newChannelSpec(registerMapping, this.phenomenon, loadProfileSpecBuilder);
+            configurationBuilder.newChannelSpec(registerMapping, this.phenomenon, loadProfileSpecBuilder).setReadingMethod(ReadingMethod.BASIC_DATA).setMultiplierMode(MultiplierMode.NONE).setValueCalculationMethod(ValueCalculationMethod.AUTOMATIC);
             configurationBuilder.add();
             deviceType.save();
             ctx.commit();
@@ -388,7 +390,7 @@ public class RegisterMappingImplTest {
             deviceType.addRegisterMapping(registerMapping);
             DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
             LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(this.loadProfileType);
-            configurationBuilder.newChannelSpec(registerMapping, this.phenomenon, loadProfileSpecBuilder);
+            configurationBuilder.newChannelSpec(registerMapping, this.phenomenon, loadProfileSpecBuilder).setReadingMethod(ReadingMethod.BASIC_DATA).setMultiplierMode(MultiplierMode.NONE).setValueCalculationMethod(ValueCalculationMethod.AUTOMATIC);
             configurationBuilder.add();
             deviceType.save();
             ctx.commit();
@@ -485,7 +487,7 @@ public class RegisterMappingImplTest {
             deviceType.addRegisterMapping(registerMapping);
             DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
             LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(this.loadProfileType);
-            configurationBuilder.newChannelSpec(registerMapping, this.phenomenon, loadProfileSpecBuilder);
+            configurationBuilder.newChannelSpec(registerMapping, this.phenomenon, loadProfileSpecBuilder).setReadingMethod(ReadingMethod.BASIC_DATA).setMultiplierMode(MultiplierMode.NONE).setValueCalculationMethod(ValueCalculationMethod.AUTOMATIC);
             configurationBuilder.add();
             deviceType.save();
             ctx.commit();

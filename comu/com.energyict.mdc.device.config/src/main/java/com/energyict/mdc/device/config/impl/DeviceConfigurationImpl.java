@@ -228,23 +228,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     //TODO the creation of the CommunicationConfiguration is currently skipped ...
-//    protected void doInit(DeviceConfigurationShadow shadow) throws SQLException, BusinessException {
-//        copyNew(shadow);
-//        validateNew(shadow);
-//        postNew();
-//        if (DeviceCollectionMethodType.COMSERVER.equals(getDeviceType().getDeviceCollectionMethodType())) {
-//            // Will be null during import process since a separate Command needs to process that
-//            if (shadow.getCommunicationConfigurationShadow() != null) {
-//                this.createCommunicationConfiguration(shadow);
-//            }
-//        }
-//
-//        createLoadProfileSpecs(shadow.getLoadProfileSpecShadows());
-//        createChannelSpecs(shadow.getChannelSpecShadows().getNewShadows());
-//        createLogBookSpecs(shadow.getLogBookSpecShadows());
-//        createRegisterSpecs(shadow.getRegisterSpecShadows().getNewShadows());
-//        created();
-//    }
 
 
     @Override
@@ -285,9 +268,28 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
+    @Override
+    public RegisterSpec.RegisterSpecUpdater getRegisterSpecUpdaterFor(RegisterSpec registerSpec) {
+        return new RegisterSpecUpdaterForConfig(registerSpec);
+    }
+
+    class RegisterSpecUpdaterForConfig extends RegisterSpecImpl.RegisterSpecUpdater {
+
+        public RegisterSpecUpdaterForConfig(RegisterSpec registerSpec) {
+            super(registerSpec);
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            validateUniqueRegisterSpecObisCode(registerSpec);
+            save();
+        }
+    }
+
     private void validateUniqueRegisterSpecObisCode(RegisterSpec registerSpec) {
         for (RegisterSpec spec : registerSpecs) {
-            if (spec.getDeviceObisCode().equals(registerSpec.getDeviceObisCode())) {
+            if (!isSameIdObject(registerSpec, spec) && spec.getDeviceObisCode().equals(registerSpec.getDeviceObisCode())) {
                 throw DuplicateObisCodeException.forRegisterSpec(thesaurus, this, registerSpec.getDeviceObisCode(), registerSpec);
             }
         }
@@ -338,6 +340,24 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             validateUniqueChannelSpecPerLoadProfileSpec(channelSpec);
             DeviceConfigurationImpl.this.channelSpecs.add(channelSpec);
             return channelSpec;
+        }
+    }
+
+    @Override
+    public ChannelSpec.ChannelSpecUpdater getChannelSpecUpdaterFor(ChannelSpec channelSpec) {
+        return new ChannelSpecUpdaterForConfig(channelSpec);
+    }
+
+    class ChannelSpecUpdaterForConfig extends ChannelSpecImpl.ChannelSpecUpdater {
+
+        protected ChannelSpecUpdaterForConfig(ChannelSpec channelSpec) {
+            super(channelSpec);
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            save();
         }
     }
 
@@ -402,6 +422,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         @Override
         public void update() {
             validateUniqueLoadProfileObisCode(loadProfileSpec);
+            save();
         }
     }
 

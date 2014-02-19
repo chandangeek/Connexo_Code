@@ -17,7 +17,7 @@ import java.math.BigDecimal;
  */
 public class OverFlowValueCanNotExceedNumberOfDigitsException extends LocalizedException {
 
-    public OverFlowValueCanNotExceedNumberOfDigitsException(Thesaurus thesaurus, BigDecimal overflow, String max, int numberOfDigits) {
+    public OverFlowValueCanNotExceedNumberOfDigitsException(Thesaurus thesaurus, BigDecimal overflow, double max, int numberOfDigits) {
         super(thesaurus, MessageSeeds.REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS, overflow, max, numberOfDigits);
         set("overflow", overflow);
         set("max", max);

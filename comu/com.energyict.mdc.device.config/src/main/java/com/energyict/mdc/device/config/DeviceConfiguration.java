@@ -60,6 +60,8 @@ public interface DeviceConfiguration {
 
     RegisterSpec.RegisterSpecBuilder createRegisterSpec(RegisterMapping registerMapping);
 
+    RegisterSpec.RegisterSpecUpdater getRegisterSpecUpdaterFor(RegisterSpec registerSpec);
+
     void deleteRegisterSpec(RegisterSpec registerSpec);
 
     List<ChannelSpec> getChannelSpecs();
@@ -67,6 +69,8 @@ public interface DeviceConfiguration {
     ChannelSpec.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
 
     ChannelSpec.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder);
+
+    ChannelSpec.ChannelSpecUpdater getChannelSpecUpdaterFor(ChannelSpec channelSpec);
 
     void deleteChannelSpec(ChannelSpec channelSpec);
 

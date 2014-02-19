@@ -75,7 +75,7 @@ public class InMemoryPersistence {
     private ProtocolPluggableService protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
 
-    public void initializeDatabase (String testName, DataModelInitializer... dataModelInitializers) {
+    public void initializeDatabase (String testName) {
         this.initializeMocks(testName);
         InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
         Injector injector = Guice.createInjector(
@@ -106,9 +106,6 @@ public class InMemoryPersistence {
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.dataModel = this.createNewDeviceConfigurationService();
-            for (DataModelInitializer initializer : dataModelInitializers) {
-                initializer.initializeDataModel(this.dataModel);
-            }
             ctx.commit();
         }
         Environment environment = injector.getInstance(Environment.class);
