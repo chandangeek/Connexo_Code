@@ -3,6 +3,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.core.DeviceType;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -29,6 +30,8 @@ public class DeviceTypeInfo {
     public boolean canBeGateway;
     @JsonUnwrapped // As requested by ExtJS people
     public DeviceProtocolInfo deviceProtocolInfo;
+    @JsonProperty("registerTypes")
+    public List<RegisterMappingInfo> registerMappings;
 
     public DeviceTypeInfo() {
     }
@@ -51,6 +54,13 @@ public class DeviceTypeInfo {
                     this.canBeDirectlyAddressed = deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SESSION);
                 }
             }
+        }
+    }
+
+    public DeviceTypeInfo(DeviceType deviceType, List<RegisterMapping> registerMappings) {
+        this(deviceType);
+        for (RegisterMapping registerMapping : registerMappings) {
+            this.registerMappings.add(new RegisterMappingInfo(registerMapping));
         }
     }
 }

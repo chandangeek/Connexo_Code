@@ -6,6 +6,7 @@ import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.services.DeviceConfigurationService;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.amr.RegisterMappingFactory;
@@ -43,18 +44,20 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
     private static DeviceConfigurationService deviceConfigurationService;
     private static RegisterMappingFactory registerMappingFactory;
+    private static ProtocolPluggableService protocolPluggableService;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         deviceConfigurationService = mock(DeviceConfigurationService.class);
         registerMappingFactory = mock(RegisterMappingFactory.class);
+        protocolPluggableService = mock(ProtocolPluggableService.class);
     }
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        reset(deviceConfigurationService, registerMappingFactory);
+        reset(deviceConfigurationService, registerMappingFactory, protocolPluggableService);
     }
 
     @Override
@@ -68,6 +71,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
             protected void configure() {
                 bind(deviceConfigurationService).to(DeviceConfigurationService.class);
                 bind(registerMappingFactory).to(RegisterMappingFactory.class);
+                bind(protocolPluggableService).to(ProtocolPluggableService.class);
             }
         });
         return resourceConfig;
@@ -166,8 +170,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(configsList.size()).thenReturn(NUMBER_OF_CONFIGS);
         List loadProfileList = mock(List.class);
         when(loadProfileList.size()).thenReturn(NUMBER_OF_LOADPROFILES);
-        List registerList = mock(List.class);
-        when(registerList.size()).thenReturn(NUMBER_OF_REGISTERS);
+        List registerList = Arrays.asList(new RegisterMappingInfo(),new RegisterMappingInfo(),new RegisterMappingInfo(),new RegisterMappingInfo(),new RegisterMappingInfo(),new RegisterMappingInfo(),new RegisterMappingInfo(),new RegisterMappingInfo());
         List logBooksList = mock(List.class);
         when(logBooksList.size()).thenReturn(NUMBER_OF_LOGBOOKS);
 
@@ -198,6 +201,32 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(jsonDeviceType.get("canBeGateway")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("canBeDirectlyAddressed")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("communicationProtocolName")).isEqualTo("device protocol name").describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceType.containsKey("registerTypes")).describedAs("JSon representation of a field, JavaScript impact if it changed");
+    }
+
+    @Test
+    public void testUnlinkSingleNonExistingRegisterMappingFromDeviceType() throws Exception {
+        // Backend has RM 101, UI wants to remove 102
+        long RM_ID_1 = 101L;
+
+        DeviceType deviceType = mockDeviceType("updater", 31);
+        DeviceTypeShadow deviceTypeShadow = mock(DeviceTypeShadow.class);
+        RegisterMappingShadow registerMappingShadow1 = mock(RegisterMappingShadow.class);
+        when(registerMappingShadow1.getId()).thenReturn((int)RM_ID_1);
+        ShadowList<RegisterMappingShadow> registerMappingShadows = new ShadowList<>();
+        registerMappingShadows.basicAdd(registerMappingShadow1);
+        when(deviceTypeShadow.getRegisterMappingShadows()).thenReturn(registerMappingShadows);
+        when(deviceType.getShadow()).thenReturn(deviceTypeShadow);
+        RegisterMapping registerMapping101 = mock(RegisterMapping.class);
+        when(registerMapping101.getId()).thenReturn((int)RM_ID_1);
+        when(registerMapping101.getShadow()).thenReturn(registerMappingShadow1);
+        when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101));
+        when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
+        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(Collections.<DeviceProtocolPluggableClass>emptyList());
+        when(registerMappingFactory.find((int) RM_ID_1)).thenReturn(registerMapping101);
+
+        Response response = target("/devicetypes/31/registertypes/102").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -234,11 +263,14 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(registerMapping102.getShadow()).thenReturn(registerMappingShadow2);
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101, registerMapping102));
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
-        when(registerMappingFactory.find((int)RM_ID_1)).thenReturn(registerMapping101);
+        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(Collections.<DeviceProtocolPluggableClass>emptyList());
+        when(registerMappingFactory.find((int) RM_ID_1)).thenReturn(registerMapping101);
         when(registerMappingFactory.find((int) RM_ID_2)).thenReturn(registerMapping102);
 
-        Entity<List<RegisterMappingInfo>> json = Entity.json(Arrays.asList(registerMappingInfo1, registerMappingInfo2));
-        Response response = target("/devicetypes/31/registers").request().put(json);
+        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
+        deviceTypeInfo.registerMappings=Arrays.asList(registerMappingInfo1, registerMappingInfo2);
+        Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
+        Response response = target("/devicetypes/31").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         // Nothing deleted, nothing updated
@@ -278,11 +310,14 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(registerMapping102.getShadow()).thenReturn(registerMappingShadow2);
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101));
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
+        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(registerMappingFactory.find((int) RM_ID_1)).thenReturn(registerMapping101);
         when(registerMappingFactory.find((int)RM_ID_2)).thenReturn(registerMapping102);
 
-        Entity<List<RegisterMappingInfo>> json = Entity.json(Arrays.asList(registerMappingInfo1, registerMappingInfo2));
-        Response response = target("/devicetypes/31/registers").request().put(json);
+        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
+        deviceTypeInfo.registerMappings=Arrays.asList(registerMappingInfo1, registerMappingInfo2);
+        Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
+        Response response = target("/devicetypes/31").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         assertThat(registerMappingShadows.getDeletedShadows()).isEmpty();
@@ -316,11 +351,14 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(registerMapping101.getShadow()).thenReturn(registerMappingShadow1);
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101));
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
+        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(registerMappingFactory.find((int)RM_ID_1)).thenReturn(registerMapping101);
         when(registerMappingFactory.find((int) RM_ID_2)).thenReturn(null);
 
-        Entity<List<RegisterMappingInfo>> json = Entity.json(Arrays.asList(registerMappingInfo1, registerMappingInfo2));
-        Response response = target("/devicetypes/31/registers").request().put(json);
+        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
+        deviceTypeInfo.registerMappings=Arrays.asList(registerMappingInfo1, registerMappingInfo2);
+        Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
+        Response response = target("/devicetypes/31").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
     }
@@ -358,12 +396,15 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(registerMapping102.getId()).thenReturn((int)RM_ID_2);
         when(registerMapping102.getShadow()).thenReturn(registerMappingShadow2);
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101, registerMapping102));
+        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
         when(registerMappingFactory.find((int)RM_ID_1)).thenReturn(registerMapping101);
         when(registerMappingFactory.find((int)RM_ID_2)).thenReturn(registerMapping102);
 
-        Entity<List<RegisterMappingInfo>> json = Entity.json(Arrays.asList(registerMappingInfo1));
-        Response response = target("/devicetypes/31/registers").request().put(json);
+        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
+        deviceTypeInfo.registerMappings=Arrays.asList(registerMappingInfo1);
+        Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
+        Response response = target("/devicetypes/31").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         // Nothing deleted, nothing updated
@@ -386,7 +427,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101, registerMapping102));
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
 
-        List response = target("/devicetypes/31/registers").request().get(List.class);
+        List response = target("/devicetypes/31/registertypes").request().get(List.class);
         assertThat(response).hasSize(2);
     }
 
@@ -411,7 +452,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         int[] existingIds = new int[] {(int) RM_ID_1};
         when(registerMappingFactory.findAllExcept(existingIds)).thenReturn(Arrays.asList(registerMapping102, registerMapping103));
 
-        List response = target("/devicetypes/31/registers").queryParam("available","true").request().get(List.class);
+        List response = target("/devicetypes/31/registertypes").queryParam("available","true").request().get(List.class);
         assertThat(response).hasSize(2);
     }
 

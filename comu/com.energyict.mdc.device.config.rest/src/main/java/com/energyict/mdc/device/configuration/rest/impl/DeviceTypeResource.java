@@ -5,33 +5,46 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.services.DeviceConfigurationService;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.amr.RegisterMappingFactory;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.DeviceConfiguration;
+import com.energyict.mdw.core.DeviceType;
+import com.energyict.mdw.core.LoadProfileType;
+import com.energyict.mdw.core.LogBookType;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
 import com.energyict.mdw.shadow.amr.RegisterMappingShadow;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
 
     private final DeviceConfigurationService deviceConfigurationService;
     private final RegisterMappingFactory registerMappingFactory;
+    private final ProtocolPluggableService protocolPluggableService;
 
     @Inject
-    public DeviceTypeResource(DeviceConfigurationService deviceConfigurationService, RegisterMappingFactory registerMappingFactory) {
+    public DeviceTypeResource(DeviceConfigurationService deviceConfigurationService, RegisterMappingFactory registerMappingFactory, ProtocolPluggableService protocolPluggableService) {
         this.deviceConfigurationService = deviceConfigurationService;
         this.registerMappingFactory = registerMappingFactory;
+        this.protocolPluggableService = protocolPluggableService;
     }
 
     @GET
@@ -72,11 +85,14 @@ public class DeviceTypeResource {
         DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
         DeviceTypeShadow shadow = deviceType.getShadow();
         shadow.setName(deviceTypeInfo.name);
-        List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = MeteringWarehouse.getCurrent().getProtocolPluggableService().findAllDeviceProtocolPluggableClasses();
+        List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = protocolPluggableService.findAllDeviceProtocolPluggableClasses();
         for (DeviceProtocolPluggableClass deviceProtocolPluggableClass : deviceProtocolPluggableClasses) {
             if (deviceProtocolPluggableClass.getName().equals(deviceTypeInfo.deviceProtocolInfo.name)) {
                 shadow.setDeviceProtocolPluggableClassId(deviceProtocolPluggableClass.getId());
             }
+        }
+        if (deviceTypeInfo.registerMappings!=null) {
+            updateRegisterMappingAssociations(shadow, deviceTypeInfo.registerMappings);
         }
         try {
             deviceType.update(shadow);
@@ -91,7 +107,7 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceTypeInfo findDeviceType(@PathParam("id") long id) {
         DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
-        return new DeviceTypeInfo(deviceType);
+        return new DeviceTypeInfo(deviceType, deviceType.getRegisterMappings());
     }
 
     @GET
@@ -131,9 +147,9 @@ public class DeviceTypeResource {
     }
 
     @GET
-    @Path("/{id}/registers")
+    @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<RegisterMappingInfo> getRegistersForDeviceType(@PathParam("id") long id, @QueryParam("available") String available) {
+    public List<RegisterMappingInfo> getRegisterMappingsForDeviceType(@PathParam("id") long id, @QueryParam("available") String available) {
         DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
         List<RegisterMappingInfo> registerMappingInfos = new ArrayList<>();
 
@@ -158,57 +174,49 @@ public class DeviceTypeResource {
         return registerMappingInfos;
     }
 
-    @PUT
-    @Path("/{id}/registers")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<RegisterMappingInfo> updateRegistersForDeviceType(@PathParam("id") long id, List<RegisterMappingInfo> registerMappingInfos) {
-        DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
-
-        updateRegisterMappings(deviceType, registerMappingInfos);
-
-        return getRegistersForDeviceType(id, null);
-    }
-
     @POST
-    @Path("/{id}/registers/{rmId}")
+    @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public List<RegisterMappingInfo> createRegistersForDeviceType(@PathParam("id") long id, @PathParam("rmId") long rmId) {
+    public List<RegisterMappingInfo> linkRegisterMappingToDeviceType(@PathParam("id") long id, @PathParam("rmId") long rmId) {
         DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
 
-        linkRegisterMappingToDeviceType(deviceType.getShadow(), rmId, deviceType);
+        linkRegisterMappingToDeviceType(deviceType.getShadow(), rmId);
 
-        return getRegistersForDeviceType(id, null);
+        return getRegisterMappingsForDeviceType(id, null);
     }
 
     @DELETE
-    @Path("/{id}/registers")
+    @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public RegisterMappingInfo deleteRegistersForDeviceType(@PathParam("id") long id, RegisterMappingInfo registerMappingInfo) {
+    public Response unlinkRegisterMappingFromDeviceType(@PathParam("id") long id, @PathParam("rmId") long registerMappingId) {
         DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
+        if (getRegisterMappingById(deviceType.getShadow().getRegisterMappingShadows(), (int) registerMappingId)==null) {
+            String message = "No register type with id " + registerMappingId + " configured on device " + id;
+            throw new WebApplicationException(message,
+                    Response.status(Response.Status.BAD_REQUEST).entity(message).build());
+        }
 
-        unlinkRegisterMappingFromDeviceType(deviceType.getShadow(), registerMappingInfo.id);
+        unlinkRegisterMappingFromDeviceType(deviceType.getShadow(), registerMappingId);
 
-        return registerMappingInfo;
+        return Response.ok().build();
     }
 
 
-    private void updateRegisterMappings(DeviceType deviceType, List<RegisterMappingInfo> newRegisterMappings) {
-        DeviceTypeShadow deviceTypeShadow = deviceType.getShadow();
-        Map<Long, RegisterMappingInfo> newRegisterMappingsIdMap = asIdz(newRegisterMappings);
-        for (RegisterMapping existingRegisterMapping : deviceType.getRegisterMappings()) {
-            if (newRegisterMappingsIdMap.containsKey(Long.valueOf(existingRegisterMapping.getId()))) {
-                // We don't update anything about RegisterMapping in the resource
-                newRegisterMappingsIdMap.remove(Long.valueOf(existingRegisterMapping.getId()));
-            } else {
-                unlinkRegisterMappingFromDeviceType(deviceTypeShadow, existingRegisterMapping.getId());
-            }
+    private void updateRegisterMappingAssociations(DeviceTypeShadow deviceTypeShadow, List<RegisterMappingInfo> newRegisterMappings) {
+        List<Long> newRegisterMappingsIds = asIdz(newRegisterMappings);
+        List<Long> existingRegisterMappingsIds = asIds(deviceTypeShadow.getRegisterMappingShadows());
+
+        List<Long> toBeDeleted = new ArrayList<>(existingRegisterMappingsIds);
+        toBeDeleted.removeAll(newRegisterMappingsIds);
+        for (Long toBeDeletedId : toBeDeleted) {
+            unlinkRegisterMappingFromDeviceType(deviceTypeShadow, toBeDeletedId);
         }
 
-        for (RegisterMappingInfo registerMappingInfo : newRegisterMappingsIdMap.values()) {
-            linkRegisterMappingToDeviceType(deviceTypeShadow, registerMappingInfo.id, deviceType);
+        List<Long> toBeCreated = new ArrayList<>(newRegisterMappingsIds);
+        toBeCreated.removeAll(existingRegisterMappingsIds);
+        for (Long toBeCreatedId : toBeCreated) {
+            linkRegisterMappingToDeviceType(deviceTypeShadow, toBeCreatedId);
         }
     }
 
@@ -216,18 +224,13 @@ public class DeviceTypeResource {
         deviceTypeShadow.getRegisterMappingShadows().remove(getRegisterMappingById(deviceTypeShadow.getRegisterMappingShadows(), (int) existingRegisterMappingId));
     }
 
-    private void linkRegisterMappingToDeviceType(DeviceTypeShadow deviceTypeShadow, long registerMappingId, DeviceType deviceType) {
+    private void linkRegisterMappingToDeviceType(DeviceTypeShadow deviceTypeShadow, long registerMappingId) {
         RegisterMapping registerMapping = registerMappingFactory.find((int) registerMappingId);
         if (registerMapping == null) {
             throw new WebApplicationException("No register mapping with id " + registerMappingId,
                     Response.status(Response.Status.BAD_REQUEST).build());
         }
         deviceTypeShadow.getRegisterMappingShadows().add(registerMapping.getShadow());
-        try {
-            deviceType.update(deviceTypeShadow);
-        } catch (Exception e) {
-            throw new WebApplicationException("failed to add register type " + registerMapping.getName(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build());
-        }
     }
 
     private RegisterMappingShadow getRegisterMappingById(List<RegisterMappingShadow> registerMappingShadows, int id) {
@@ -236,16 +239,23 @@ public class DeviceTypeResource {
                 return registerMappingShadow;
             }
         }
-        throw new WebApplicationException("This situation should never have happened: error looking up shadow in internal list: " + id,
-                Response.status(Response.Status.INTERNAL_SERVER_ERROR).build());
+        return null;
     }
 
-    private Map<Long, RegisterMappingInfo> asIdz(List<RegisterMappingInfo> registerMappingInfos) {
-        Map<Long, RegisterMappingInfo> registerMappingIdMap = new HashMap<>();
+    private List<Long> asIdz(List<RegisterMappingInfo> registerMappingInfos) {
+        List<Long> registerMappingIdList = new ArrayList<>();
         for (RegisterMappingInfo registerMappingInfo : registerMappingInfos) {
-            registerMappingIdMap.put(registerMappingInfo.id, registerMappingInfo);
+            registerMappingIdList.add(registerMappingInfo.id);
         }
-        return registerMappingIdMap;
+        return registerMappingIdList;
+    }
+
+    private List<Long> asIds(List<RegisterMappingShadow> registerMappingShadows) {
+        List<Long> registerMappingIdList = new ArrayList<>();
+        for (RegisterMappingShadow registerMappingInfo : registerMappingShadows) {
+            registerMappingIdList.add(Long.valueOf(registerMappingInfo.getId()));
+        }
+        return registerMappingIdList;
     }
 
     private DeviceType findDeviceTypeByNameOrThrowException(long id) {
