@@ -286,7 +286,7 @@ public interface DeviceConfigurationService {
 
     public List<DeviceConfiguration> findDeviceConfigurationsUsingRegisterMapping(RegisterMapping registerMapping);
 
-    public List<DeviceType> findDeviceTypeWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
+    public List<DeviceType> findDeviceTypesWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
     public List<LoadProfileType> findLoadProfileTypesByName(String name);
 

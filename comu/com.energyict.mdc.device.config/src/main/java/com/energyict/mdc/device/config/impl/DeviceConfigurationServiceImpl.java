@@ -283,7 +283,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public List<DeviceType> findDeviceTypeWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+    public List<DeviceType> findDeviceTypesWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         return this.getDataModel().mapper(DeviceType.class).find("deviceProtocolPluggableClass", deviceProtocolPluggableClass);
     }
 
