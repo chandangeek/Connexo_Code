@@ -1,7 +1,11 @@
-package com.elster.jupiter.issue.impl;
+package com.elster.jupiter.issue.database;
 
+import com.elster.jupiter.issue.HistoricalIssue;
 import com.elster.jupiter.issue.Issue;
 import com.elster.jupiter.issue.IssueAssignee;
+import com.elster.jupiter.issue.impl.HistoricalIssueImpl;
+import com.elster.jupiter.issue.impl.IssueAssigneeImpl;
+import com.elster.jupiter.issue.impl.IssueImpl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.*;
 
@@ -12,7 +16,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2UTCINSTANT;
 public enum TableSpecs {
     ISU_ASSIGNEE {
         @Override
-        void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel) {
             Table<IssueAssignee> table = dataModel.addTable(name(), IssueAssignee.class);
             table.map(IssueAssigneeImpl.class);
             table.setJournalTableName(DatabaseConst.ISSUE_ASSIGNEE_JOURNAL_TABLE_NAME);
@@ -27,7 +31,7 @@ public enum TableSpecs {
     },
     ISU_DOMAIN {
         @Override
-		void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel) {
 			Table<Issue> table = dataModel.addTable(name(), Issue.class);
 			table.map(IssueImpl.class);
 			table.setJournalTableName(DatabaseConst.ISSUE_JOURNAL_TABLE_NAME);
@@ -43,12 +47,30 @@ public enum TableSpecs {
 			table.addAuditColumns();
 			table.primaryKey(DatabaseConst.ISSUE_PK_NAME).on(idColumn).add();
             table.foreignKey(DatabaseConst.ISSUE_FK_TO_DEVICE).map("device").on(deviceRefIdColumn).references(MeteringService.COMPONENTNAME, DatabaseConst.METERING_DEVICE_TABLE).
-                    onDelete(DeleteRule.CASCADE).add();
+                    onDelete(DeleteRule.RESTRICT).add();
             table.foreignKey(DatabaseConst.ISSUE_FK_TO_ASSIGNEE).map("assignee").on(assigneeRefIdColumn).references(ISU_ASSIGNEE.name())
-                    .onDelete(DeleteRule.RESTRICT).composition().add();
+                    .onDelete(DeleteRule.CASCADE).add();
 		}
-	}
+	},
+    ISU_HISTISU {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<HistoricalIssue> table = dataModel.addTable(name(), HistoricalIssue.class);
+            table.map(HistoricalIssueImpl.class);
+
+            Column idColumn = table.addAutoIdColumn();
+            table.column(DatabaseConst.ISSUE_COLUMN_REASON).map("reason").type("varchar(200)").notNull().add();
+            table.column(DatabaseConst.ISSUE_COLUMN_DUE_DATE).map("dueDate").type("number").conversion(NUMBER2UTCINSTANT).add();
+            table.column(DatabaseConst.ISSUE_COLUMN_STATUS).map("status").type("number").conversion(NUMBER2ENUM).notNull().add();
+
+            table.column(DatabaseConst.ISSUE_HIST_COLUMN_DEVICE_ID).map("deviceId").type("number").conversion(NUMBER2LONG).add();
+            table.column(DatabaseConst.ISSUE_HIST_COLUMN_ASSIGNEE_TYPE).map("assigneeType").type("number").conversion(NUMBER2ENUM).notNull().add();
+            table.column(DatabaseConst.ISSUE_HIST_COLUMN_ASSIGNEE_ID).map("assigneeId").type("number").conversion(NUMBER2LONG).add();
+            table.column(DatabaseConst.ISSUE_HIST_COLUMN_CREATE_TIME).map("createTime").type("number").conversion(NUMBER2UTCINSTANT).add();
+            table.primaryKey(DatabaseConst.ISSUE_HIST_PK_NAME).on(idColumn).add();
+        }
+    }
     ;
 	
-	abstract void addTo(DataModel component);
+	public abstract void addTo(DataModel component);
 }

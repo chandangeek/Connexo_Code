@@ -1,4 +1,4 @@
-package com.elster.jupiter.issue.impl;
+package com.elster.jupiter.issue.database;
 
 public class DatabaseConst {
     // Bundle tables in database
@@ -24,4 +24,11 @@ public class DatabaseConst {
     public static final String ISSUE_ASSIGNEE_COLUMN_ASSIGNEE_REF = "ASSIGNEE_REF";
 
     public static final String ISSUE_ASSIGNEE_PK_NAME = "ISU_PK_ISSUE_ASSIGNEE";
+
+    // Issue Historical Table
+    public static final String ISSUE_HIST_PK_NAME = "ISU_PK_HIST_ISSUE";
+    public static final String ISSUE_HIST_COLUMN_DEVICE_ID = "DEVICE_ID";
+    public static final String ISSUE_HIST_COLUMN_ASSIGNEE_TYPE = "ASSIGNEE_TYPE";
+    public static final String ISSUE_HIST_COLUMN_ASSIGNEE_ID = "ASSIGNEE_ID";
+    public static final String ISSUE_HIST_COLUMN_CREATE_TIME = "CREATE_TIME";
 }

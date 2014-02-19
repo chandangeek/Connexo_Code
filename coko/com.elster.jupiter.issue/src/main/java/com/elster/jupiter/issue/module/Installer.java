@@ -1,4 +1,4 @@
-package com.elster.jupiter.issue.impl;
+package com.elster.jupiter.issue.module;
 
 import com.elster.jupiter.orm.DataModel;
 
@@ -9,7 +9,7 @@ public class Installer {
 
     private final DataModel dataModel;
 
-    Installer (DataModel dataModel) {
+    public Installer (DataModel dataModel) {
         this.dataModel = dataModel;
     }
 

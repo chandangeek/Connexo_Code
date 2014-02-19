@@ -88,6 +88,18 @@ public class IssueImpl implements Issue {
         return status;
     }
 
+    @Override
+    public String getTitle() {
+        String title = getReason();
+        if (getDevice() != null){
+            StringBuilder titleWithDevice = new StringBuilder(title);
+            titleWithDevice.append(" to ");
+            titleWithDevice.append(getDevice().getSerialNumber());
+            title = titleWithDevice.toString();
+        }
+        return title;
+    }
+
     public void setStatus(IssueStatus status) {
         this.status = status;
     }

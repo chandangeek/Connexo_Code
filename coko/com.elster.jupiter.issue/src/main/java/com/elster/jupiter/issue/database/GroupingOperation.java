@@ -1,5 +1,6 @@
-package com.elster.jupiter.issue.impl;
+package com.elster.jupiter.issue.database;
 
+import com.elster.jupiter.issue.impl.IssueGroupColumns;
 import com.elster.jupiter.orm.DataModel;
 
 import java.sql.Connection;

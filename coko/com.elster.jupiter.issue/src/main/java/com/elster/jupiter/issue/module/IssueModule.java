@@ -1,7 +1,8 @@
-package com.elster.jupiter.issue.impl;
+package com.elster.jupiter.issue.module;
 
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.IssueService;
+import com.elster.jupiter.issue.impl.IssueServiceImpl;
 import com.elster.jupiter.orm.OrmService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;

@@ -3,23 +3,20 @@ package com.elster.jupiter.issue;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.util.time.UtcInstant;
 
-public interface Issue {
-
+public interface HistoricalIssue {
     long getId();
 
     IssueStatus getStatus();
-
-    String getTitle();
 
     String getReason();
 
     UtcInstant getDueDate();
 
-    EndDevice getDevice();
+    long getDeviceId();
 
-    long getVersion();
+    IssueAssigneeType getAssigneeType();
 
-    IssueAssignee getAssignee();
+    long getAssigneeId();
 
     UtcInstant getCreateTime();
 }

@@ -2,11 +2,14 @@ package com.elster.jupiter.issue.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.issue.Issue;
-import com.elster.jupiter.issue.IssueAssignee;
-import com.elster.jupiter.issue.IssueService;
+import com.elster.jupiter.issue.*;
+import com.elster.jupiter.issue.database.GroupingOperation;
+import com.elster.jupiter.issue.database.TableSpecs;
+import com.elster.jupiter.issue.exception.IssueClosingException;
+import com.elster.jupiter.issue.module.Installer;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.google.common.base.Optional;
@@ -102,5 +105,22 @@ public class IssueServiceImpl implements IssueService, InstallService {
                 .setOrderDirection(isAsc)
                 .execute();
         return groups;
+    }
+
+    @Override
+    public void closeIssue(long issueId, long version, IssueStatus newStatus, String comment) throws IssueClosingException{
+        Issue issueForClose = this.getIssueById(issueId).orNull();
+        if (issueForClose == null){
+            String identifier = "id = " + String.valueOf(issueId);
+            throw new IssueClosingException(new DoesNotExistException(identifier), "with " + identifier);
+        }
+        if (version != issueForClose.getVersion()){
+            // TODO check, may be we already have ConcurentModificationException or something like that
+            throw new IssueClosingException(issueForClose.getTitle());
+        }
+        IssueImpl.class.cast(issueForClose).setStatus(newStatus);
+        HistoricalIssue historicalIssue = new HistoricalIssueImpl(issueForClose);
+        dataModel.mapper(HistoricalIssue.class).persist(historicalIssue);
+        dataModel.mapper(Issue.class).remove(issueForClose);
     }
 }
