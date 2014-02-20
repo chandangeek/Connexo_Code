@@ -73,7 +73,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 items: [
                     {
                         icon: 'resources/images/gear-16x16.png',
-                        tooltip: 'View',
                         handler: function (grid, rowIndex, colIndex, item, e) {
                             var menu = Ext.widget('menu', {
                                 items: [
