@@ -1,4 +1,4 @@
 -classpath: target/classes
-Bundle-Activator: com.elster.jupiter.unifyingjs.Activator
+-dsannotations: *
 Private-Package: com.elster.jupiter.unifyingjs
-Include-Resource: src/main/web 
+Include-Resource: src/main/web;src/main/resources
