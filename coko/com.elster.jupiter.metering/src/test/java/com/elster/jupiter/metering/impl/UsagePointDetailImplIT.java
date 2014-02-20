@@ -120,6 +120,11 @@ public class UsagePointDetailImplIT {
             Date january2014 = new DateTime(2014, 1, 1, 0, 0, 0, 0).toDate();
             ElectricityDetail elecDetail = newElectricityDetail(usagePoint, january2014);
             usagePoint.addDetail(elecDetail);
+
+            Date february2014 = new DateTime(2013, 2, 1, 0, 0, 0, 0).toDate();
+            elecDetail = newElectricityDetail(usagePoint, february2014);
+            usagePoint.addDetail(elecDetail);
+
             context.commit();
 
             Optional optional =  usagePoint.getDetail(january2014);
@@ -127,11 +132,16 @@ public class UsagePointDetailImplIT {
             ElectricityDetail foundElecDetail = (ElectricityDetail) optional.get();
             foundElecDetail.getAmiBillingReady();
 
+            optional =  usagePoint.getDetail(february2014);
+            assertThat(optional.isPresent()).isTrue();
+            foundElecDetail = (ElectricityDetail) optional.get();
+            foundElecDetail.getAmiBillingReady();
+
             Date january2013 = new DateTime(2013, 1, 2, 0, 0, 0, 0).toDate();
             optional =  usagePoint.getDetail(january2013);
             assertThat(optional.isPresent()).isFalse();
 
-            Date february2014 = new DateTime(2013, 2, 1, 0, 0, 0, 0).toDate();
+
 
 
         }
