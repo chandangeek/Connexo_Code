@@ -146,15 +146,17 @@ public class UsagePointDetailImplIT {
             assertThat(foundElecDetail.getInterval().equals(new Interval(february2014, null))).isTrue();
             foundElecDetail.getAmiBillingReady();
 
+            System.out.println(foundElecDetail.toString());
+
             Date january2013 = new DateTime(2013, 1, 1, 0, 0, 0, 0).toDate();
             optional =  usagePoint.getDetail(january2013);
             assertThat(optional.isPresent()).isFalse();
 
 
-            /*Date march2014 = new DateTime(2013, 3, 1, 0, 0, 0, 0).toDate();
+            Date march2014 = new DateTime(2014, 3, 1, 0, 0, 0, 0).toDate();
             Interval interval = new Interval(january2014, march2014);
             List<UsagePointDetailImpl> details = usagePoint.getDetail(interval);
-            assertThat(details.size() == 2).isTrue();   */
+            assertThat(details.size() == 2).isTrue();
 
 
 

@@ -11,8 +11,8 @@ import javax.inject.Inject;
 public class DefaultDetailImpl extends UsagePointDetailImpl implements DefaultDetail {
 
     @Inject
-    DefaultDetailImpl(Clock clock) {
-        super(clock);
+    DefaultDetailImpl(Clock clock, DataModel dataModel) {
+        super(clock, dataModel);
     }
 
     static DefaultDetailImpl from(DataModel dataModel, UsagePoint usagePoint, Interval interval) {

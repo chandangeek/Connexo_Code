@@ -11,8 +11,8 @@ import javax.inject.Inject;
 public class GasDetailImpl extends UsagePointDetailImpl implements GasDetail {
 
     @Inject
-    GasDetailImpl(Clock clock) {
-        super(clock);
+    GasDetailImpl(Clock clock, DataModel dataModel) {
+        super(clock, dataModel);
     }
 
     static GasDetailImpl from(DataModel dataModel, UsagePoint usagePoint, Interval interval) {

@@ -24,8 +24,8 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
 
 
     @Inject
-    ElectricityDetailImpl(Clock clock) {
-        super(clock);
+    ElectricityDetailImpl(Clock clock, DataModel dataModel) {
+        super(clock, dataModel);
     }
 
     static ElectricityDetailImpl from(DataModel dataModel, UsagePoint usagePoint, Interval interval) {

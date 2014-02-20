@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
@@ -16,6 +17,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import static com.google.common.base.Objects.toStringHelper;
 
 public abstract class UsagePointDetailImpl implements UsagePointDetail {
 
@@ -47,13 +50,16 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
     private Interval interval;
     private final Clock clock;
 
+    private DataModel dataModel;
+
     //Associations
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
 
 
     @Inject
-    UsagePointDetailImpl(Clock clock) {
+    UsagePointDetailImpl(Clock clock, DataModel dataModel) {
         this.clock = clock;
+        this.dataModel = dataModel;
     }
 
     UsagePointDetailImpl init(UsagePoint usagePoint, Interval interval) {
@@ -64,11 +70,9 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
         return this;
     }
 
-    void terminate(Date date) {
-        if (!interval.isEffective(date)) {
-            throw new IllegalArgumentException();
-        }
-        interval = interval.withEnd(date);
+    @Override
+    public void update() {
+        dataModel.update(this);
     }
 
     @Override
@@ -139,5 +143,17 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
     @Override
     public UsagePoint getUsagePoint() {
         return usagePoint.get();
+    }
+
+    @Override
+    public String toString() {
+        return toStringHelper(this).add("usagePoint", usagePoint).add("interval", interval).toString();
+    }
+
+    void terminate(Date date) {
+        if (!interval.isEffective(date)) {
+            throw new IllegalArgumentException();
+        }
+        interval = interval.withEnd(date);
     }
 }

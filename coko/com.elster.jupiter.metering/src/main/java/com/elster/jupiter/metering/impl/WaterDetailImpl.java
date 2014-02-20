@@ -11,8 +11,8 @@ import javax.inject.Inject;
 public class WaterDetailImpl extends UsagePointDetailImpl implements WaterDetail {
 
     @Inject
-    WaterDetailImpl(Clock clock) {
-        super(clock);
+    WaterDetailImpl(Clock clock, DataModel dataModel) {
+        super(clock, dataModel);
     }
 
     static WaterDetailImpl from(DataModel dataModel, UsagePoint usagePoint, Interval interval) {

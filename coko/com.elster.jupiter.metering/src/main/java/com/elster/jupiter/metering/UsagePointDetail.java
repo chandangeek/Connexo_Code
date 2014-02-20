@@ -29,4 +29,6 @@ public interface UsagePointDetail extends Effectivity {
     boolean conflictsWith(UsagePointDetail other);
 
     UsagePoint getUsagePoint();
+
+    void update();
 }

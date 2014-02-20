@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.google.common.base.Objects.toStringHelper;
+
 public class UsagePointImpl implements UsagePoint {
 	// persistent fields
 	private long id;
@@ -336,6 +338,7 @@ public class UsagePointImpl implements UsagePoint {
             }
         }
     }
+
 
 
 
