@@ -23,7 +23,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validator;
 import javax.validation.constraints.AssertFalse;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -77,7 +81,7 @@ public abstract class ComServerImpl implements ComServer {
     private TimeDuration schedulingInterPollDelay;
     private Date modificationDate;
     private final List<ComPort>  comPorts = new ArrayList<>();
-    @Null(groups = { Save.Update.class, Save.Delete.class }, message = "{MDC.comserver.noUpdateAllowed}")
+    @Null(groups = { Save.Update.class, Delete.class }, message = "{MDC.comserver.noUpdateAllowed}")
     private Date obsoleteDate;
 
     @Inject
@@ -419,9 +423,17 @@ public abstract class ComServerImpl implements ComServer {
 
     @Override
     public void delete() {
-        Save.DELETE.save(dataModel, this);
+        validate(Delete.class);
         this.comPorts.clear();
         dataModel.remove(this);
+    }
+
+    private void validate(Class<?> group) {
+        Validator validator = dataModel.getValidatorFactory().getValidator();
+        Set<ConstraintViolation<ComServerImpl>> constraintViolations = validator.validate(this, group);
+        if (!constraintViolations.isEmpty()) {
+            throw new ConstraintViolationException(constraintViolations);
+        }
     }
 
     @Override
@@ -434,4 +446,6 @@ public abstract class ComServerImpl implements ComServer {
         }
 
     }
+
+    interface Delete {}
 }
