@@ -10,9 +10,17 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.RegisterMappingsNotPartOfDeviceType'
+        'Mdc.store.AvailableRegisterTypes'
     ],
-    store: 'RegisterMappingsNotPartOfDeviceType',
+    nbrOfSelectedItems: 0,
+    listeners: {
+        selectionchange: function (view, selections, options) {
+            this.nbrOfSelectedItems = selections.length;
+            this.down('#pagingt').displayMsg = this.nbrOfSelectedItems + ' ' + I18n.translate('registerMappingsAdd.pagingtoolbartop.displayMsg', 'MDC', 'register types selected');
+            this.down('#pagingt').onLoad();
+        }
+    },
+    store: 'AvailableRegisterTypes',
     padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
@@ -25,7 +33,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 renderer: function (value, b, record) {
                     return '<a href="#setup/devicetypes/' + me.deviceTypeId + '/registertypes/' + record.get('id') + '">' + value + '</a>';
                 },
-                flex: 1
+                flex: 2
             },
             {
                 xtype: 'actioncolumn',
@@ -35,7 +43,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                         + '</div>'
                 },
                 header: I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
-                flex: 1,
+                flex: 2,
                 items: [
                     {
                         icon: 'resources/images/gear-16x16.png',
@@ -70,9 +78,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: I18n.translate('registerMappings.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} register types'),
-                displayMoreMsg: I18n.translate('registerMappings.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} register types'),
-                emptyMsg: I18n.translate('registerMappings.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register types to display'),
+                itemId: 'pagingt',
+                displayMsg: this.nbrOfSelectedItems + ' ' + I18n.translate('registerMappingsAdd.pagingtoolbartop.displayMsg', 'MDC', ' register types selected'),
                 items: [
                     {
                         xtype: 'component',

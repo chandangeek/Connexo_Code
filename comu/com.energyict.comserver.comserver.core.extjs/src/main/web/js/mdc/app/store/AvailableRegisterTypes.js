@@ -1,16 +1,16 @@
-Ext.define('Mdc.store.RegisterTypes', {
+Ext.define('Mdc.store.AvailableRegisterTypes', {
     extend: 'Ext.data.Store',
     requires: [
         'Mdc.model.RegisterType'
     ],
     model: 'Mdc.model.RegisterType',
-    storeId: 'RegisterTypes',
+    storeId: 'AvailableRegisterTypes',
     proxy: {
         type: 'rest',
-        url: '../../api/dtc/devicetypes/{deviceType}/registertypes',
+        url: '../../api/dtc/devicetypes/{deviceType}/registertypes?available=true',
         reader: {
             type: 'json',
-            root: 'registerTypes'
+            root: 'registers'
         }
     }
 });

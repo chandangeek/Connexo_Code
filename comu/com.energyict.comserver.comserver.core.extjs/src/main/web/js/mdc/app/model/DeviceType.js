@@ -12,8 +12,16 @@ Ext.define('Mdc.model.DeviceType', {
         {name: 'deviceConfigurationCount', type: 'int', useNull: true},
         {name: 'canBeGateway', type: 'boolean', useNull: true},
         {name: 'canBeDirectlyAddressable', type: 'boolean', useNull: true},
-        {name: 'communicationProtocolName', type: 'string', useNull: true}
+        {name: 'communicationProtocolName', type: 'string', useNull: true},
+        {name: 'registerTypes'}
     ],
+    associations: [
+            {name: 'registerTypes', type: 'hasMany', model: 'Mdc.model.RegisterType', associationKey: 'registerTypes',
+                getTypeDiscriminator: function (node) {
+                    return 'Mdc.model.RegisterType';
+                }
+            }
+        ],
 
     proxy: {
         type: 'rest',
