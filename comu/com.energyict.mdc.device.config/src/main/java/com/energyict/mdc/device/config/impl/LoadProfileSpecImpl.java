@@ -116,11 +116,6 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     }
 
     @Override
-    public void delete() {
-        getDeviceConfiguration().deleteLoadProfileSpec(this);
-    }
-
-    @Override
     public void validateDelete() {
         if (this.deviceConfigurationService.findChannelSpecsForLoadProfileSpec(this).size() > 0) {
             throw new CannotDeleteLoadProfileSpecLinkedChannelSpecsException(this.thesaurus);

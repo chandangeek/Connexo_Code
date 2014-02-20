@@ -133,7 +133,7 @@ public enum TableSpecs {
             Column loadProfileType = table.column("LOADPROFILETYPEID").number().notNull().add();
             Column deviceType = table.column("RTUTYPEID").number().notNull().add();
             table.primaryKey("PK_LOADPRFTYPEFORRTUTYPE").on(loadProfileType, deviceType).add();
-            table.foreignKey("FK_RTUTYPEID_LPT_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("loadProfileTypeUsages").composition().add();
+            table.foreignKey("FK_RTUTYPEID_LPT_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("loadProfileTypeUsages").composition().onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("FK_LPTID_LPT_RTUTYPE_JOIN").on(loadProfileType).references(EISLOADPROFILETYPE.name()).map("loadProfileType").add();
         }
     },
@@ -146,7 +146,7 @@ public enum TableSpecs {
             Column registermapping = table.column("REGISTERMAPPINGID").number().notNull().add();
             Column deviceType = table.column("RTUTYPEID").number().notNull().add();
             table.primaryKey("PK_REGMAPFORRTUTYPE").on(registermapping, deviceType).add();
-            table.foreignKey("FK_RTUTPID_REGMAP_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("registerMappingUsages").composition().add();
+            table.foreignKey("FK_RTUTPID_REGMAP_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("registerMappingUsages").composition().onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("FK_MAPID_REGMAP_RTUTYPE_JOIN").on(registermapping).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
         }
     },
@@ -159,7 +159,7 @@ public enum TableSpecs {
             Column logBookType = table.column("LOGBOOKTYPEID").number().notNull().add();
             Column deviceType = table.column("RTUTYPEID").number().notNull().add();
             table.primaryKey("PK_LOGBOOKTYPEFORRTUTYPE").on(logBookType, deviceType).add();
-            table.foreignKey("FK_RTUTYPEID_LBT_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("logBookTypeUsages").composition().add();
+            table.foreignKey("FK_RTUTYPEID_LBT_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("logBookTypeUsages").composition().onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("FK_LBTYPEID_LBTT_RTUTYPE_JOIN").on(logBookType).references(EISLOGBOOKTYPE.name()).map("logBookType").add();
         }
     },
@@ -172,7 +172,7 @@ public enum TableSpecs {
             Column loadProfileType = table.column("LOADPROFILETYPEID").number().notNull().add();
             Column registerMapping = table.column("REGMAPPINGID").number().notNull().add();
             table.primaryKey("PK_REGMAPPINGINLOADPROFILETYPE").on(loadProfileType, registerMapping).add();
-            table.foreignKey("FK_REGMAPLPT_LOADPROFILETYPEID").on(loadProfileType).references(EISLOADPROFILETYPE.name()).map("loadProfileType").reverseMap("registerMappingUsages").composition().add();
+            table.foreignKey("FK_REGMAPLPT_LOADPROFILETYPEID").on(loadProfileType).references(EISLOADPROFILETYPE.name()).map("loadProfileType").reverseMap("registerMappingUsages").composition().onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("FK_REGMAPLPT_REGMAPPINGID").on(registerMapping).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
         }
     },

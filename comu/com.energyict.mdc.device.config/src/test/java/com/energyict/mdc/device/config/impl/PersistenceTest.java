@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -22,9 +21,9 @@ import java.sql.SQLException;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public abstract class CommonDeviceConfigSpecsTest {
+public abstract class PersistenceTest {
 
-    static final String DEVICE_TYPE_NAME = LogBookSpecImplTest.class.getName() + "Type";
+    static final String DEVICE_TYPE_NAME = PersistenceTest.class.getName() + "Type";
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
     protected DeviceType deviceType;
 
@@ -36,19 +35,19 @@ public abstract class CommonDeviceConfigSpecsTest {
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
-    private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
-    private DeviceProtocol deviceProtocol;
+    DeviceProtocol deviceProtocol;
 
     static InMemoryPersistence inMemoryPersistence = new InMemoryPersistence();
 
-    public CommonDeviceConfigSpecsTest() {
+    public PersistenceTest() {
     }
 
     @BeforeClass
     public static void initialize() {
         inMemoryPersistence = new InMemoryPersistence();
-        inMemoryPersistence.initializeDatabase("CommonDeviceConfigSpecsTest.mdc.device.config");
+        inMemoryPersistence.initializeDatabase("PersistenceTest.mdc.device.config");
     }
 
     @AfterClass

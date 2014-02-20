@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
  * Date: 17/02/14
  * Time: 09:55
  */
-public class LoadProfileSpecImplTest extends CommonDeviceConfigSpecsTest {
+public class LoadProfileSpecImplTest extends PersistenceTest {
 
     private static final String DEVICE_CONFIGURATION_NAME = LoadProfileSpecImplTest.class.getName() + "Config";
     private static final String LOAD_PROFILE_TYPE_NAME = LoadProfileSpecImplTest.class.getSimpleName() + "LoadProfileType";

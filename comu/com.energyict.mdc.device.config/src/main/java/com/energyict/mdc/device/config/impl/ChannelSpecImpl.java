@@ -541,6 +541,12 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         }
 
         @Override
+        public ChannelSpec.ChannelSpecBuilder setInterval(TimeDuration interval) {
+            this.channelSpec.setInterval(interval);
+            return this;
+        }
+
+        @Override
         public ChannelSpec add() {
             if(Checks.is(tempName).empty()){
                 this.channelSpec.setName(this.channelSpec.getRegisterMapping().getName());

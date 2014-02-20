@@ -111,6 +111,8 @@ public interface ChannelSpec extends HasId {
 
         ChannelSpecBuilder setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
 
+        ChannelSpecBuilder setInterval(TimeDuration interval);
+
         /**
          * Does final validation and <i>creates</i> the {@link ChannelSpec}
          * @return the ChannelSpec

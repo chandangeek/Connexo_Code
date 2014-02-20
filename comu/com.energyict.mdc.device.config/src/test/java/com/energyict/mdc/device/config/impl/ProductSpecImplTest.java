@@ -8,6 +8,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.device.config.common.Transactional;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateReadingTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
@@ -33,37 +34,19 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 2014-02-17 (16:05)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ProductSpecImplTest {
+public class ProductSpecImplTest extends PersistenceTest {
 
-    private InMemoryPersistence inMemoryPersistence = new InMemoryPersistence();
     private ReadingType readingType;
 
-    @Before
-    public void initializeDatabaseAndMocks() {
-        this.inMemoryPersistence = new InMemoryPersistence();
-        this.inMemoryPersistence.initializeDatabase("ProductSpecImplTest.mdc.device.config");
-        this.initializeMocks();
-    }
-
-    private void initializeMocks() {
-    }
-
-    @After
-    public void cleanUpDataBase() throws SQLException {
-        this.inMemoryPersistence.cleanUpDataBase();
-    }
-
     @Test
-    public void testCreationWithoutViolations () {
+    @Transactional
+    public void testCreationWithoutViolations() {
         ProductSpec productSpec;
-        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupReadingTypeInExistingTransaction();
+        this.setupReadingTypeInExistingTransaction();
 
-            // Business method
-            productSpec = this.inMemoryPersistence.getDeviceConfigurationService().newProductSpec(this.readingType);
-            productSpec.save();
-            ctx.commit();
-        }
+        // Business method
+        productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(this.readingType);
+        productSpec.save();
 
         // Asserts
         assertThat(productSpec).isNotNull();
@@ -72,111 +55,93 @@ public class ProductSpecImplTest {
     }
 
     @Test
-    public void testFindAfterCreation () {
-        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupReadingTypeInExistingTransaction();
+    @Transactional
+    public void testFindAfterCreation() {
+        this.setupReadingTypeInExistingTransaction();
 
-            ProductSpec productSpec = this.inMemoryPersistence.getDeviceConfigurationService().newProductSpec(this.readingType);
-            productSpec.save();
-            ctx.commit();
-        }
+        ProductSpec productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(this.readingType);
+        productSpec.save();
 
         // Business method
-        ProductSpec productSpec = this.inMemoryPersistence.getDeviceConfigurationService().findProductSpecByReadingType(this.readingType);
+        ProductSpec productSpec2 = inMemoryPersistence.getDeviceConfigurationService().findProductSpecByReadingType(this.readingType);
 
         // Asserts
-        assertThat(productSpec).isNotNull();
+        assertThat(productSpec2).isNotNull();
     }
 
     @Test(expected = ReadingTypeIsRequiredException.class)
-    public void testCreationWithoutReadingType () {
+    @Transactional
+    public void testCreationWithoutReadingType() {
         ProductSpec productSpec;
-        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            // Business method
-            productSpec = this.inMemoryPersistence.getDeviceConfigurationService().newProductSpec(null);
-            productSpec.save();
-            ctx.commit();
-        }
+        // Business method
+        productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(null);
+        productSpec.save();
 
         // Asserts: expected ReadingTypeIsRequiredException
     }
 
     @Test(expected = DuplicateReadingTypeException.class)
-    public void testDuplicateReadingType () {
+    @Transactional
+    public void testDuplicateReadingType() {
         ProductSpec productSpec;
-        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupReadingTypeInExistingTransaction();
+        this.setupReadingTypeInExistingTransaction();
 
-            // Setup first ProductSpec
-            productSpec = this.inMemoryPersistence.getDeviceConfigurationService().newProductSpec(this.readingType);
-            productSpec.save();
-            ctx.commit();
-        }
+        // Setup first ProductSpec
+        productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(this.readingType);
+        productSpec.save();
 
-        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            // Business method
-            productSpec = this.inMemoryPersistence.getDeviceConfigurationService().newProductSpec(this.readingType);
-            productSpec.save();
-            ctx.commit();
-        }
+        // Business method
+        productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(this.readingType);
+        productSpec.save();
 
         // Asserts: expected DuplicateReadingTypeException
     }
 
     @Test
-    public void testDelete () {
+    @Transactional
+    public void testDelete() {
         ProductSpec productSpec;
-        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            this.setupReadingTypeInExistingTransaction();
+        this.setupReadingTypeInExistingTransaction();
 
-            productSpec = this.inMemoryPersistence.getDeviceConfigurationService().newProductSpec(this.readingType);
-            productSpec.save();
-            ctx.commit();
-        }
+        productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(this.readingType);
+        productSpec.save();
 
-        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
-            // Business method
-            productSpec.delete();
-            ctx.commit();
-        }
+        // Business method
+        productSpec.delete();
 
-        ProductSpec expectedNull = this.inMemoryPersistence.getDeviceConfigurationService().findProductSpecByReadingType(this.readingType);
+        ProductSpec expectedNull = inMemoryPersistence.getDeviceConfigurationService().findProductSpecByReadingType(this.readingType);
 
         // Asserts
         assertThat(expectedNull).isNull();
     }
 
     @Test(expected = CannotDeleteBecauseStillInUseException.class)
-    public void testCannotDeleteWhenUsedByRegisterMapping () {
+    @Transactional
+    public void testCannotDeleteWhenUsedByRegisterMapping() {
         ProductSpec productSpec;
-        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
 
-            this.setupReadingTypeInExistingTransaction();
+        this.setupReadingTypeInExistingTransaction();
 
-            productSpec = this.inMemoryPersistence.getDeviceConfigurationService().newProductSpec(this.readingType);
-            productSpec.save();
+        productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(this.readingType);
+        productSpec.save();
 
-            RegisterMapping registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(ProductSpecImplTest.class.getSimpleName(), ObisCode.fromString("1.0.99.1.0.255"), productSpec);
-            registerMapping.save();
+        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(ProductSpecImplTest.class.getSimpleName(), ObisCode.fromString("1.0.99.1.0.255"), productSpec);
+        registerMapping.save();
 
-            ctx.commit();
-        }
 
-        try (TransactionContext ctx = this.inMemoryPersistence.getTransactionService().getContext()) {
+        try {
             // Business method
             productSpec.delete();
-            ctx.commit();
-        }
-        catch (CannotDeleteBecauseStillInUseException e) {
+        } catch (CannotDeleteBecauseStillInUseException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.PRODUCT_SPEC_STILL_IN_USE);
             throw e;
         }
     }
 
-    private void setupReadingTypeInExistingTransaction () {
+    private void setupReadingTypeInExistingTransaction() {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
-        this.readingType = this.inMemoryPersistence.getMeteringService().getReadingType(code).get();
+        this.readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
     }
 
 }

@@ -75,7 +75,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         return this;
     }
 
-    static DeviceTypeImpl from (DataModel dataModel, String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+    static DeviceTypeImpl from(DataModel dataModel, String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         return dataModel.getInstance(DeviceTypeImpl.class).initialize(name, deviceProtocolPluggableClass);
     }
 
@@ -110,7 +110,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.getDataMapper().remove(this);
     }
 
-    private void notifyDelete (ServerDeviceConfiguration deviceConfiguration) {
+    private void notifyDelete(ServerDeviceConfiguration deviceConfiguration) {
         deviceConfiguration.notifyDelete();
     }
 
@@ -344,7 +344,35 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             DeviceTypeRegisterMappingUsage registerMappingUsage = iterator.next();
             if (registerMappingUsage.sameRegisterMapping(registerMapping)) {
                 this.validateRegisterMappingNotUsedByRegisterSpec(registerMapping);
+                this.validateRegisterMappingNotUsedByChannelSpec(registerMapping);
                 iterator.remove();
+            }
+        }
+    }
+
+    private void validateRegisterMappingNotUsedByChannelSpec(RegisterMapping registerMapping) {
+        List<ChannelSpec> channelSpecs = this.getChannelSpecsForRegisterMapping(registerMapping);
+        if (!channelSpecs.isEmpty()) {
+            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByChannelSpecs(this.thesaurus, registerMapping, channelSpecs);
+        }
+    }
+
+    private List<ChannelSpec> getChannelSpecsForRegisterMapping(RegisterMapping registerMapping) {
+        List<ChannelSpec> channelSpecs = new ArrayList<>();
+        this.collectChannelSpecsForRegisterMapping(registerMapping, channelSpecs);
+        return channelSpecs;
+    }
+
+    private void collectChannelSpecsForRegisterMapping(RegisterMapping registerMapping, List<ChannelSpec> channelSpecs) {
+        for (DeviceConfiguration deviceConfiguration : this.getConfigurations()) {
+            this.collectChannelSpecsForRegisterMapping(registerMapping, deviceConfiguration, channelSpecs);
+        }
+    }
+
+    private void collectChannelSpecsForRegisterMapping(RegisterMapping registerMapping, DeviceConfiguration deviceConfiguration, List<ChannelSpec> channelSpecs) {
+        for (ChannelSpec channelSpec : deviceConfiguration.getChannelSpecs()) {
+            if(channelSpec.getRegisterMapping().getId() == registerMapping.getId()){
+                channelSpecs.add(channelSpec);
             }
         }
     }
@@ -451,7 +479,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         return ImmutableList.copyOf(this.deviceConfigurations);
     }
 
-    private void addConfiguration (DeviceConfiguration deviceConfiguration) {
+    private void addConfiguration(DeviceConfiguration deviceConfiguration) {
         this.deviceConfigurations.add(deviceConfiguration);
     }
 
@@ -474,14 +502,16 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             }
         };
 
-        protected abstract void verify ();
+        protected abstract void verify();
     }
 
     private interface NestedBuilder {
-        public void add ();
+
+        public void add();
     }
 
     private class ChannelSpecBuilder implements NestedBuilder {
+
         private final ChannelSpec.ChannelSpecBuilder builder;
 
         private ChannelSpecBuilder(ChannelSpec.ChannelSpecBuilder builder) {
@@ -496,6 +526,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private class RegisterSpecBuilder implements NestedBuilder {
+
         private final RegisterSpec.RegisterSpecBuilder builder;
 
         private RegisterSpecBuilder(RegisterSpec.RegisterSpecBuilder builder) {
@@ -510,6 +541,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private class LoadProfileSpecBuilder implements NestedBuilder {
+
         private final LoadProfileSpec.LoadProfileSpecBuilder builder;
 
         private LoadProfileSpecBuilder(LoadProfileSpec.LoadProfileSpecBuilder builder) {
@@ -524,6 +556,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private class LogBookSpecBuilder implements NestedBuilder {
+
         private final LogBookSpec.LogBookSpecBuilder builder;
 
         private LogBookSpecBuilder(LogBookSpec.LogBookSpecBuilder builder) {
@@ -538,6 +571,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private class ConfigurationBuilder implements DeviceConfigurationBuilder {
+
         private BuildingMode mode;
         private final DeviceConfiguration underConstruction;
         private final List<NestedBuilder> nestedBuilders = new ArrayList<>();

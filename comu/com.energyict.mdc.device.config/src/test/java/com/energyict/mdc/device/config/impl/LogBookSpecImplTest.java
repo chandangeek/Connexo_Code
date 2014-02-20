@@ -26,7 +26,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
  * Time: 11:22
  */
 @RunWith(MockitoJUnitRunner.class)
-public class LogBookSpecImplTest extends CommonDeviceConfigSpecsTest {
+public class LogBookSpecImplTest extends PersistenceTest {
 
     private static final String DEVICE_CONFIGURATION_NAME = LogBookSpecImplTest.class.getName() + "Config";
     private static final String LOGBOOK_TYPE_NAME = LogBookSpecImplTest.class.getName() + "LogBookType";

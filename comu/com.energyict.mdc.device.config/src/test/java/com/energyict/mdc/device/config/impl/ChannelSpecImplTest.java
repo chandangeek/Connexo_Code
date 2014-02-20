@@ -44,7 +44,7 @@ import static org.fest.assertions.Assertions.assertThat;
  * Date: 17/02/14
  * Time: 15:48
  */
-public class ChannelSpecImplTest extends CommonDeviceConfigSpecsTest {
+public class ChannelSpecImplTest extends PersistenceTest {
 
     private static final String DEVICE_CONFIGURATION_NAME = ChannelSpecImplTest.class.getName() + "Config";
     private static final String LOAD_PROFILE_TYPE_NAME = ChannelSpecImplTest.class.getSimpleName() + "LoadProfileType";
@@ -74,17 +74,17 @@ public class ChannelSpecImplTest extends CommonDeviceConfigSpecsTest {
 
     private void initializeDeviceTypeWithRegisterMappingAndLoadProfileTypeAndDeviceConfiguration() {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
-        this.readingType = this.inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        this.productSpec = this.inMemoryPersistence.getDeviceConfigurationService().newProductSpec(readingType);
+        this.readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
+        this.productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(readingType);
         this.productSpec.save();
-        this.registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME, registerMappingObisCode, productSpec);
+        this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME, registerMappingObisCode, productSpec);
         this.registerMapping.save();
-        loadProfileType = this.inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval);
+        loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval);
         loadProfileType.addRegisterMapping(registerMapping);
         loadProfileType.save();
 
 
-        this.phenomenon = this.inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(PHENOMENON_NAME, phenomenonUnit);
+        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(PHENOMENON_NAME, phenomenonUnit);
         this.phenomenon.save();
 
         // Business method
@@ -418,7 +418,7 @@ public class ChannelSpecImplTest extends CommonDeviceConfigSpecsTest {
         ChannelSpec channelSpec;
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        RegisterMapping registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME + "Other", overruledChannelSpecObisCode, productSpec);
+        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME + "Other", overruledChannelSpecObisCode, productSpec);
         registerMapping.save();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpec = channelSpecBuilder.add();
@@ -430,7 +430,7 @@ public class ChannelSpecImplTest extends CommonDeviceConfigSpecsTest {
         ChannelSpec channelSpec;
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        RegisterMapping registerMapping = this.inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME + "Other", overruledChannelSpecObisCode, productSpec);
+        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME + "Other", overruledChannelSpecObisCode, productSpec);
         registerMapping.save();
         this.deviceType.addRegisterMapping(registerMapping);
         this.deviceType.save();

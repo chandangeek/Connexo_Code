@@ -104,11 +104,6 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     @Override
-    public void delete() {
-        getDeviceConfiguration().deleteLogBookSpec(this);
-    }
-
-    @Override
     public void validateDelete() {
         // the configuration will validate the 'active' part
     }

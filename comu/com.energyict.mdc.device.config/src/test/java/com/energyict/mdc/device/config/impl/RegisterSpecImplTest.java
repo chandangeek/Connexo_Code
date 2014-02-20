@@ -45,7 +45,7 @@ import static org.fest.assertions.Assertions.assertThat;
  * Date: 17/02/14
  * Time: 15:51
  */
-public class RegisterSpecImplTest extends CommonDeviceConfigSpecsTest {
+public class RegisterSpecImplTest extends PersistenceTest {
 
     private static final String DEVICE_CONFIGURATION_NAME = RegisterSpecImplTest.class.getName() + "Config";
     private static final String REGISTER_MAPPING_NAME = RegisterSpecImplTest.class.getSimpleName() + "RegisterMapping";
