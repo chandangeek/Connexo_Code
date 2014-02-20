@@ -95,7 +95,7 @@ public class UsagePointDetailImplIT {
                 new UtilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
-                new TransactionModule(true),
+                new TransactionModule(),
                 new NlsModule()
         );
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
@@ -167,7 +167,7 @@ public class UsagePointDetailImplIT {
 
             //2 details to be found in the period from 1 january 2014 to 1 march 2014
             Interval interval = new Interval(JANUARY_2014, MARCH_2014);
-            List<UsagePointDetailImpl> details = usagePoint.getDetail(interval);
+            List details = usagePoint.getDetail(interval);
             assertThat(details.size() == 2).isTrue();
         }
 
@@ -228,7 +228,7 @@ public class UsagePointDetailImplIT {
 
             //2 details to be found in the period from 1 january 2014 to 1 march 2014
             Interval interval = new Interval(JANUARY_2014, MARCH_2014);
-            List<UsagePointDetailImpl> details = usagePoint.getDetail(interval);
+            List details = usagePoint.getDetail(interval);
             assertThat(details.size() == 2).isTrue();
         }
 
