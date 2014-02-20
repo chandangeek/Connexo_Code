@@ -2,8 +2,14 @@ Ext.define('Mdc.controller.history.Setup', {
     extend: 'Uni.controller.history.Converter',
 
     rootToken: 'setup',
+    previousTokens:['setup'],
+    currentTokens:null,
 
     doConversion: function (tokens) {
+        if(this.currentTokens!==null){
+          this.previousTokens=this.currentTokens;
+        }
+        this.currentTokens=tokens;
         if (tokens.length > 1 && tokens[1] === 'comservers') {
             this.handleComServerTokens(tokens);
         } else if (tokens.length > 1 && tokens[1] === 'devicecommunicationprotocols') {
@@ -25,6 +31,9 @@ Ext.define('Mdc.controller.history.Setup', {
         }
     },
 
+    tokenizePreviousTokens: function(){
+        return this.tokenize(this.previousTokens);
+    },
 
     handleComServerTokens: function (tokens) {
         if (tokens.length == 2) {

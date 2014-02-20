@@ -136,7 +136,11 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
     deleteDeviceType: function () {
         var deviceTypeToDelete = this.getDeviceTypeGrid().getSelectionModel().getSelection()[0];
-        deviceTypeToDelete.destroy();
+        deviceTypeToDelete.destroy({
+            callback: function () {
+                location.href = '#setup/devicetypes/';
+            }
+        });
     },
 
     deleteDeviceTypeFromDetails: function () {
@@ -152,7 +156,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         var protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols');
         var widget = Ext.widget('deviceTypeEdit', {
             edit: true,
-            returnLink: '#setup/devicetypes/' + deviceTypeId,
+            returnLink: Mdc.getApplication().getHistorySetupController().tokenizePreviousTokens(),
             deviceCommunicationProtocols: protocolStore
         });
         Mdc.getApplication().getMainController().showContent(widget);
@@ -212,7 +216,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             record.set(values);
             record.save({
                 callback: function (record) {
-                    location.href = '#setup/devicetypes/' + record.get('id');
+                    location.href = Mdc.getApplication().getHistorySetupController().tokenizePreviousTokens();
                 }
             });
 
