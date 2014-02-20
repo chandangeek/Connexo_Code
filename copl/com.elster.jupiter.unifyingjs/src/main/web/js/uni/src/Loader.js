@@ -11,6 +11,7 @@ Ext.define('Uni.Loader', {
         'Uni.About',
 
         'Ext.tip.QuickTipManager',
+        'Ext.layout.container.Absolute',
         'Uni.util.I18n',
         'Ext.state.CookieProvider',
 
@@ -110,6 +111,7 @@ Ext.define('Uni.Loader', {
      * @param {Function} callback Callback to call after all scripts have finished loading
      */
     loadScripts: function (callback) {
+        console.log('loadScripts');
         this.loadScript('../uni/resources/js/underscore/underscore-min.js', callback);
         this.loadScript('../uni/resources/js/moment/min/moment.min.js', callback);
     },
@@ -117,8 +119,13 @@ Ext.define('Uni.Loader', {
     afterLoadingScripts: function (callback) {
         I18n = Uni.util.I18n;
         I18n.load(function () {
+            console.log('afterLoadingScripts');
             callback();
         });
     }
 
 });
+
+Ext.require('Uni.util.I18n');
+
+var I18n = I18n || {};

@@ -65,7 +65,7 @@ Ext.define('Uni.view.window.Wizard', {
         },
         {
             flex: 1,
-            overflowY: 'auto',
+            overflowY: true,
             layout: {
                 type: 'hbox',
                 align: 'stretch'
@@ -136,14 +136,7 @@ Ext.define('Uni.view.window.Wizard', {
                 steps = Ext.clone(steps);
             }
 
-            // TODO Construct the menu and wizard content.
-
             this.items[1].items[1].items = steps;
-
-            for (var i = 0; i < steps.length; i++) {
-                var step = steps[i];
-                // TODO Add the steps to the menu.
-            }
         }
 
         this.callParent(arguments);
