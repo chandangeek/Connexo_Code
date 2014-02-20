@@ -129,7 +129,6 @@ public class UsagePointCrudTest {
         long id = usagePoint.getId();
         assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
         usagePoint.save();
-        assertThat(dataModel.mapper(UsagePoint.class).find("amiBillingReady", AmiBillingReadyKind.AMIDISABLED)).hasSize(1);
         assertThat(usagePoint.getVersion()).isEqualTo(2);
         usagePoint.delete();
         assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(0);
