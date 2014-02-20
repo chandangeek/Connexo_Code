@@ -84,7 +84,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                                                 element: 'el',
                                                 fn: function () {
                                                     console.log('Remove');
-                                                    this.fireEvent('remove', grid, grid.getSelectionModel().getSelection());
+                                                    this.fireEvent('removeItem', grid, grid.getSelectionModel().getSelection(), me.deviceTypeId);
                                                 },
                                                 scope: this
                                             }
@@ -127,16 +127,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                         xtype: 'button'
                     }
                 ]
-            }/*,
-            {
-                xtype: 'pagingtoolbarbottom',
-                store: this.store,
-                dock: 'bottom',
-                params: [
-                    {deviceType: me.deviceTypeId}
-                ],
-                itemsPerPageMsg: I18n.translate('registerMappings.pagingtoolbarbottom.itemsPerPageMsg', 'MDC', 'Register types per page')
-            }*/
+            }
         ];
 
         this.callParent();

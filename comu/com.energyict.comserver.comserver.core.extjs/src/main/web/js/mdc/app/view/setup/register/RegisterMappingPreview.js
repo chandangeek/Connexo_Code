@@ -59,8 +59,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                             items: [
                                 {
                                     text: I18n.translate('general.remove', 'MDC', 'Remove'),
-                                    itemId: 'deleteRegisterMapping',
-                                    action: 'deleteRegisterMapping'
+                                    itemId: 'removeRegisterMapping',
+                                    action: 'removeRegisterMapping'
 
                                 }
                             ]
