@@ -2,20 +2,17 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmiBillingReadyKind;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceLocation;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointAccountability;
-import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.util.units.Quantity;
 import com.google.common.base.Optional;
@@ -46,30 +43,11 @@ public class UsagePointImpl implements UsagePoint {
 	private UtcInstant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
-	
-	
-	
-	// move these fields to versioned
-	// these fields will be on all usagepoints characteristics
-	private AmiBillingReadyKind amiBillingReady;    
-	private boolean checkBilling;
-	private UsagePointConnectedKind connectionState;
-	private boolean minimalUsageExpected;
-	private String serviceDeliveryRemark;
-	
-	// these fields only on E
-	private boolean grounded;
-	private Quantity nominalServiceVoltage;
-	private PhaseCode phaseCode;
-	private Quantity ratedCurrent;	
-	// last two fields currently only on E
-	// we may want to generalize them later 
-	private Quantity ratedPower;
-	private Quantity estimatedLoad;
-	
-	
+
+
+    private TemporalReference<UsagePointDetailImpl> detail = Temporals.absent();
+
     // associations
-	// all associations stay on the parent
 	private final Reference<ServiceCategory> serviceCategory = ValueReference.absent();
 	private final Reference<ServiceLocation> serviceLocation = ValueReference.absent();
 	private final List<MeterActivation> meterActivations = new ArrayList<>();
@@ -94,9 +72,6 @@ public class UsagePointImpl implements UsagePoint {
 		this.mRID = mRID;
 		this.serviceCategory.set(serviceCategory);
 		this.isSdp = true;
-		this.amiBillingReady = AmiBillingReadyKind.UNKNOWN;
-		this.connectionState = UsagePointConnectedKind.UNKNOWN;
-		this.phaseCode = PhaseCode.UNKNOWN;
         return this;
 	}
 	
@@ -132,31 +107,6 @@ public class UsagePointImpl implements UsagePoint {
 	}
 
 	@Override
-	public AmiBillingReadyKind getAmiBillingReady() {
-		return amiBillingReady;
-	}
-
-	@Override
-	public boolean isCheckBilling() {
-		return checkBilling;
-	}
-
-	@Override
-	public UsagePointConnectedKind getConnectionState() {
-		return connectionState;
-	}
-
-	@Override
-	public Quantity getEstimatedLoad() {
-		return estimatedLoad;
-	}
-
-	@Override
-	public boolean isGrounded() {
-		return grounded;
-	}
-
-	@Override
 	public boolean isSdp() {
 		return isSdp;
 	}
@@ -167,33 +117,8 @@ public class UsagePointImpl implements UsagePoint {
 	}
 
 	@Override
-	public boolean isMinimumUsageExpected() {
-		return minimalUsageExpected;
-	}
-
-	@Override
-	public Quantity getNominalServiceVoltage() {
-		return nominalServiceVoltage;
-	}
-
-	@Override
 	public String getOutageRegion() {
 		return outageRegion;
-	}
-
-	@Override
-	public PhaseCode getPhaseCode() {
-		return phaseCode;
-	}
-
-	@Override
-	public Quantity getRatedCurrent() {
-		return ratedCurrent;
-	}
-
-	@Override
-	public Quantity getRatedPower() {
-		return ratedPower;
 	}
 
 	@Override
@@ -204,11 +129,6 @@ public class UsagePointImpl implements UsagePoint {
 	@Override
 	public String getReadRoute() {
 		return readRoute;
-	}
-
-	@Override
-	public String getServiceDeliveryRemark() {
-		return serviceDeliveryRemark;
 	}
 
 	@Override
@@ -224,31 +144,6 @@ public class UsagePointImpl implements UsagePoint {
 	@Override
 	public ServiceLocation getServiceLocation() {
 		return serviceLocation.get();
-	}
-
-	@Override
-	public void setAmiBillingReady(AmiBillingReadyKind kind) {
-		this.amiBillingReady = kind;
-	}
-
-	@Override
-	public void setCheckBilling(boolean checkBilling) {
-		this.checkBilling = checkBilling;
-	}
-
-	@Override
-	public void setConnectionState(UsagePointConnectedKind kind) {
-		this.connectionState = kind;
-	}
-
-	@Override
-	public void setMinimalUsageExpected(boolean minimalUsageExpected) {
-		this.minimalUsageExpected = minimalUsageExpected;
-	}
-
-	@Override
-	public void setPhaseCode(PhaseCode phaseCode) {
-		this.phaseCode = phaseCode;
 	}
 
 	@Override
@@ -269,11 +164,6 @@ public class UsagePointImpl implements UsagePoint {
 	@Override
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	@Override
-	public void setGrounded(boolean grounded) {
-		this.grounded = grounded;
 	}
 
 	@Override
@@ -302,11 +192,6 @@ public class UsagePointImpl implements UsagePoint {
 	}
 
 	@Override
-	public void setServiceDeliveryRemark(String serviceDeliveryRemark) {
-		this.serviceDeliveryRemark = serviceDeliveryRemark;
-	}
-
-	@Override
 	public void setServicePriority(String servicePriority) {
 		this.servicePriority = servicePriority;
 	}
@@ -332,27 +217,6 @@ public class UsagePointImpl implements UsagePoint {
         dataModel.remove(this);
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
-
-	@Override
-	public void setEstimatedLoad(Quantity estimatedLoad) {
-		this.estimatedLoad = estimatedLoad;		
-	}
-
-	@Override
-	public void setNominalServiceVoltage(Quantity nominalServiceVoltage) {
-		this.nominalServiceVoltage = nominalServiceVoltage;
-	}
-
-	@Override
-	public void setRatedCurrent(Quantity ratedCurrent) {
-		this.ratedCurrent = ratedCurrent;			
-	}
-
-	@Override
-	public void setRatedPower(Quantity ratedPower) {
-		this.ratedPower = ratedPower;		
-	}
-
 
 	@Override
 	public List<MeterActivation> getMeterActivations() {
@@ -420,6 +284,41 @@ public class UsagePointImpl implements UsagePoint {
             }
         }
         return false;
+    }
+
+    @Override
+    public Optional<UsagePointDetailImpl> getDetail(Date date) {
+        return detail.effective(date);
+    }
+
+    @Override
+    public List<UsagePointDetailImpl> getDetail(Interval interval) {
+        return detail.effective(interval);
+    }
+
+
+
+    @Override
+    public UsagePointDetail newDetail(Date start) {
+        UsagePointDetail candidate = serviceCategory.get().newUsagePointDetail(this, start, dataModel);
+        validateAddingDetail(candidate);
+        detail.add((UsagePointDetailImpl) candidate);
+        touch();
+        return candidate;
+    }
+
+    public void touch() {
+        if (id != 0) {
+            dataModel.touch(this);
+        }
+    }
+
+    private void validateAddingDetail(UsagePointDetail candidate) {
+        for (UsagePointDetail usagePointDetail : detail.effective(candidate.getInterval())) {
+            if (candidate.conflictsWith(usagePointDetail)) {
+                throw new IllegalArgumentException("Conflicts with existing usage point characteristics : " + candidate);
+            }
+        }
     }
 
 }

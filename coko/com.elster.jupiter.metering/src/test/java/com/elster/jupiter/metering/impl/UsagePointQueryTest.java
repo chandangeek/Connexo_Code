@@ -150,8 +150,8 @@ public class UsagePointQueryTest {
         location.save();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
         usagePoint.setServiceLocation(location);
-        usagePoint.setAmiBillingReady(AmiBillingReadyKind.AMICAPABLE);
-        usagePoint.setRatedPower(Unit.WATT_HOUR.amount(BigDecimal.valueOf(1000),3));
+        //usagePoint.setAmiBillingReady(AmiBillingReadyKind.AMICAPABLE);
+        //usagePoint.setRatedPower(Unit.WATT_HOUR.amount(BigDecimal.valueOf(1000),3));
         usagePoint.save();
         Query<UsagePoint> query = meteringService.getUsagePointQuery();
         Condition condition = where("amiBillingReady").isEqualTo(AmiBillingReadyKind.AMICAPABLE);

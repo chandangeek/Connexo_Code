@@ -1,15 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingQuality;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceLocation;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.Column;
@@ -145,22 +136,22 @@ public enum TableSpecs {
 			table.column("NAME").type("varchar2(80)").map("name").add();
 			table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
 			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
-			table.column("AMIBILLINGREADY").number().notNull().conversion(NUMBER2ENUM).map("amiBillingReady").add();
-			table.column("CHECKBILLING").bool().map("checkBilling").add();
-			table.column("CONNECTIONSTATE").number().notNull().conversion(NUMBER2ENUM).map("connectionState").add();
-			table.addQuantityColumns("ESTIMATEDLOAD", false, "estimatedLoad");
-			table.column("GROUNDED").bool().map("grounded").add();
+			//table.column("AMIBILLINGREADY").number().notNull().conversion(NUMBER2ENUM).map("amiBillingReady").add();
+			//table.column("CHECKBILLING").bool().map("checkBilling").add();
+			//table.column("CONNECTIONSTATE").number().notNull().conversion(NUMBER2ENUM).map("connectionState").add();
+			//table.addQuantityColumns("ESTIMATEDLOAD", false, "estimatedLoad");
+			//table.column("GROUNDED").bool().map("grounded").add();
 			table.column("ISSDP").bool().map("isSdp").add();
 			table.column("ISVIRTUAL").bool().map("isVirtual").add();
-			table.column("MINIMALUSAGEEXPECTED").bool().map("minimalUsageExpected").add();
-			table.addQuantityColumns("NOMINALVOLTAGE",false, "nominalServiceVoltage");
+			//table.column("MINIMALUSAGEEXPECTED").bool().map("minimalUsageExpected").add();
+			//table.addQuantityColumns("NOMINALVOLTAGE",false, "nominalServiceVoltage");
 			table.column("OUTAGEREGION").type("varchar2(80)").map("outageRegion").add();
-			table.column("PHASECODE").type("varchar2(7)").conversion(CHAR2ENUM).map("phaseCode").add();
-			table.addQuantityColumns("RATEDCURRENT", false, "ratedCurrent");
-			table.addQuantityColumns("RATEDPOWER", false , "ratedPower");
+			//table.column("PHASECODE").type("varchar2(7)").conversion(CHAR2ENUM).map("phaseCode").add();
+			//table.addQuantityColumns("RATEDCURRENT", false, "ratedCurrent");
+			//table.addQuantityColumns("RATEDPOWER", false , "ratedPower");
 			table.column("READCYCLE").type("varchar2(80)").map("readCycle").add();
 			table.column("READROUTE").type("varchar2(80)").map("readRoute").add();
-			table.column("SERVICEDELIVERYREMARK").type("varchar2(80)").map("serviceDeliveryRemark").add();
+			//table.column("SERVICEDELIVERYREMARK").type("varchar2(80)").map("serviceDeliveryRemark").add();
 			table.column("SERVICEPRIORITY").type("varchar2(80)").map("servicePriority").add();
 			table.addAuditColumns();
 			table.primaryKey("MTR_PK_USAGEPOINT").on(idColumn).add();
@@ -349,7 +340,80 @@ public enum TableSpecs {
             table.foreignKey("MTR_FK_ENDDEVICEEVENT_DETAIL").on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn).references(MTR_ENDDEVICEEVENTRECORD.name())
                     .onDelete(DeleteRule.CASCADE).map("eventRecord").reverseMap("detailRecords").composition().add();
         }
-    };
+    },
+
+    MTR_ELECTRICITYDETAIL {
+        void addTo(DataModel dataModel) {
+            Table<ElectricityDetail> table = dataModel.addTable(name(), ElectricityDetail.class);
+            table.map(ElectricityDetailImpl.class);
+            table.setJournalTableName("MTR_ELECTRICITYDETAILJRNL");;
+            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+
+            addCommonUsagePointDetailColumns(table);
+
+            table.column("GROUNDED").bool().map("grounded").add();
+            table.addQuantityColumns("NOMINALVOLTAGE",false, "nominalServiceVoltage");
+            table.column("PHASECODE").type("varchar2(7)").conversion(CHAR2ENUM).map("phaseCode").add();
+            table.addQuantityColumns("RATEDCURRENT", false, "ratedCurrent");
+            table.addQuantityColumns("RATEDPOWER", false , "ratedPower");
+            table.addQuantityColumns("ESTIMATEDLOAD", false, "estimatedLoad");
+
+            table.addAuditColumns();
+            table.primaryKey("MTR_PK_ELECTRICITYDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
+            table.foreignKey("MTR_FK_EDETAILUP").references(MTR_USAGEPOINT.name()).onDelete(CASCADE).map("usagePoint").reverseMap("detail").composition().add();
+        }
+    };/*,
+
+    MTR_GASDETAIL {
+        void addTo(DataModel dataModel) {
+            Table<GasDetail> table = dataModel.addTable(name(), GasDetail.class);
+            table.map(GasDetailImpl.class);
+            table.setJournalTableName("MTR_GASDETAILJRNL");
+            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            addCommonUsagePointDetailColumns(table);
+            table.addAuditColumns();
+            table.primaryKey("MTR_PK_GASDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
+            table.foreignKey("MTR_FK_GDETAILUP").references(MTR_USAGEPOINT.name()).onDelete(RESTRICT).map("usagePoint");
+        }
+    },
+
+    MTR_WATERDETAIL {
+        void addTo(DataModel dataModel) {
+            Table<WaterDetail> table = dataModel.addTable(name(), WaterDetail.class);
+            table.map(WaterDetailImpl.class);
+            table.setJournalTableName("MTR_WATERDETAILJRNL");
+            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            addCommonUsagePointDetailColumns(table);
+            table.addAuditColumns();
+            table.primaryKey("MTR_PK_WATERDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
+            table.foreignKey("MTR_FK_WDETAILUP").references(MTR_USAGEPOINT.name()).onDelete(RESTRICT).map("usagePoint");
+        }
+    },
+
+    MTR_DEFAULTDETAIL {
+        void addTo(DataModel dataModel) {
+            Table<DefaultDetail> table = dataModel.addTable(name(), DefaultDetail.class);
+            table.map(DefaultDetailImpl.class);
+            table.setJournalTableName("MTR_DEFAULTDETAILJRNL");
+            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            addCommonUsagePointDetailColumns(table);
+            table.addAuditColumns();
+            table.primaryKey("MTR_PK_DEFAULTDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
+            table.foreignKey("MTR_FK_DDETAILUP").references(MTR_USAGEPOINT.name()).onDelete(RESTRICT).map("usagePoint");
+        }
+    };  */
+
+    void addCommonUsagePointDetailColumns(Table table) {
+        table.column("AMIBILLINGREADY").number().notNull().conversion(NUMBER2ENUM).map("amiBillingReady").add();
+        table.column("CHECKBILLING").bool().map("checkBilling").add();
+        table.column("CONNECTIONSTATE").number().notNull().conversion(NUMBER2ENUM).map("connectionState").add();
+        table.column("MINIMALUSAGEEXPECTED").bool().map("minimalUsageExpected").add();
+        table.column("SERVICEDELIVERYREMARK").type("varchar2(80)").map("serviceDeliveryRemark").add();
+    }
 
    
     abstract void addTo(DataModel component);

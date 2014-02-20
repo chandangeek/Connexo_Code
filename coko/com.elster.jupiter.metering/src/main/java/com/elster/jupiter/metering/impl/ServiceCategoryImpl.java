@@ -2,10 +2,14 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.elster.jupiter.util.time.impl.DefaultClock;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.Date;
 
 public class ServiceCategoryImpl implements ServiceCategory {
 	//persistent fields
@@ -73,4 +77,19 @@ public class ServiceCategoryImpl implements ServiceCategory {
 	public UsagePoint newUsagePoint(String mRid) {
 		return usagePointFactory.get().init(mRid,this);
 	}
+
+    @Override
+    public UsagePointDetail newUsagePointDetail(UsagePoint usagePoint, Date start, DataModel usagePointDataModel) {
+        Clock clock = new DefaultClock();
+        if (kind.equals(ServiceKind.ELECTRICITY)) {
+            return ElectricityDetailImpl.from(usagePointDataModel, usagePoint, Interval.startAt(start));
+        } else if (kind.equals(ServiceKind.GAS)) {
+            return GasDetailImpl.from(usagePointDataModel, usagePoint, Interval.startAt(start));
+        } else if (kind.equals(ServiceKind.WATER)) {
+            return WaterDetailImpl.from(usagePointDataModel, usagePoint, Interval.startAt(start));
+        } else {
+            return DefaultDetailImpl.from(usagePointDataModel, usagePoint, Interval.startAt(start));
+        }
+    }
+
 }
