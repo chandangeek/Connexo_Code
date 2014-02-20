@@ -344,9 +344,9 @@ public enum TableSpecs {
 
     MTR_ELECTRICITYDETAIL {
         void addTo(DataModel dataModel) {
-            Table<ElectricityDetail> table = dataModel.addTable(name(), ElectricityDetail.class);
+            Table<UsagePointDetail> table = dataModel.addTable(name(), UsagePointDetail.class);
             table.map(ElectricityDetailImpl.class);
-            table.setJournalTableName("MTR_ELECTRICITYDETAILJRNL");;
+            table.setJournalTableName("MTR_ELECTRICITYDETAILJRNL");
             Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
 
@@ -361,7 +361,7 @@ public enum TableSpecs {
 
             table.addAuditColumns();
             table.primaryKey("MTR_PK_ELECTRICITYDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
-            table.foreignKey("MTR_FK_EDETAILUP").references(MTR_USAGEPOINT.name()).onDelete(CASCADE).map("usagePoint").reverseMap("detail").composition().add();
+            table.foreignKey("MTR_FK_EDETAILUP").on(usagePointIdColumn).references(MTR_USAGEPOINT.name()).onDelete(CASCADE).map("usagePoint").reverseMap("detail").composition().add();
         }
     };/*,
 

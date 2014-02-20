@@ -10,7 +10,7 @@ import com.elster.jupiter.util.units.Quantity;
  * Time: 9:13
  * To change this template use File | Settings | File Templates.
  */
-public interface ElectricityDetail {
+public interface ElectricityDetail extends UsagePointDetail {
 
     boolean isGrounded();
     Quantity getNominalServiceVoltage();

@@ -7,5 +7,5 @@ package com.elster.jupiter.metering;
  * Time: 9:14
  * To change this template use File | Settings | File Templates.
  */
-public interface DefaultDetail {
+public interface DefaultDetail extends UsagePointDetail {
 }

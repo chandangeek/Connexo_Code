@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
 import java.util.Objects;
@@ -19,6 +20,15 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
     private UsagePointConnectedKind connectionState;
     private boolean minimalUsageExpected;
     private String serviceDeliveryRemark;
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private UtcInstant createTime;
+    @SuppressWarnings("unused")
+    private UtcInstant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     private Interval interval;
     private final Clock clock;
