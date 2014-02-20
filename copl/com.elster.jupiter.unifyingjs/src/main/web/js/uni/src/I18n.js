@@ -1,5 +1,5 @@
 /**
- * @class Uni.util.I18n
+ * @class Uni.I18n
  *
  * Internationalization (I18N) class that can be used to retrieve translations from the translations
  * REST interface. It uses the {@link Uni.store.Translations} store to retrieve all the available
@@ -29,7 +29,7 @@
  * # Short notation
  *
  * There are 2 ways of using the internationalization object, the most pragmatic one being the preferred way.
- * You can just call the global I18n variable that has a reference to a singleton {@link Uni.util.I18n}
+ * You can just call the global I18n variable that has a reference to a singleton {@link Uni.I18n}
  * instance.
  *
  *     @example
@@ -39,14 +39,14 @@
  *
  * The main advantage of this way is that it can be used without having to declare separate variables,
  * take requirements into consideration, and improve code readability. The other way is to call the
- * fully qualified name of {@link Uni.util.I18n} instead, as shown below.
+ * fully qualified name of {@link Uni.I18n} instead, as shown below.
  *
  *     @example
  *     Ext.create('Ext.panel.Panel' {
- *         title: Uni.util.I18n.translate('my.key', 'CMP', 'Fallback')
+ *         title: Uni.I18n.translate('my.key', 'CMP', 'Fallback')
  *     });
  *
- * Be mindful that you will need to add {@link Uni.util.I18n} as a requirement every time, which can be
+ * Be mindful that you will need to add {@link Uni.I18n} as a requirement every time, which can be
  * easily forgotten for something as frequently used as internationalization.
  *
  * # Translating simple string values
@@ -113,7 +113,7 @@
  * More information and examples can be found at the {@link #formatCurrency} function.
  *
  */
-Ext.define('Uni.util.I18n', {
+Ext.define('Uni.I18n', {
     singleton: true,
     requires: ['Uni.store.Translations'],
 

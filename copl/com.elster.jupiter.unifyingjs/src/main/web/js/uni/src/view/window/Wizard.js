@@ -80,7 +80,7 @@ Ext.define('Uni.view.window.Wizard', {
                     items: [
                         {
                             xtype: 'component',
-                            html: '<h3>' + I18n.translate('window.wizard.menu.title', 'UNI', 'Steps') + '</h3>'
+                            html: '<h3>' + Uni.I18n.translate('window.wizard.menu.title', 'UNI', 'Steps') + '</h3>'
                         },
                         {
                             xtype: 'navigationSubMenu',
@@ -104,25 +104,25 @@ Ext.define('Uni.view.window.Wizard', {
             flex: 1
         },
         {
-            text: I18n.translate('window.wizard.tools.previous', 'UNI', '&laquo; Previous'),
+            text: Uni.I18n.translate('window.wizard.tools.previous', 'UNI', '&laquo; Previous'),
             action: 'prev',
             scope: this,
             handler: this.prevStep,
             disabled: true
         },
         {
-            text: I18n.translate('window.wizard.tools.next', 'UNI', 'Next &raquo;'),
+            text: Uni.I18n.translate('window.wizard.tools.next', 'UNI', 'Next &raquo;'),
             action: 'next',
             scope: this,
             handler: this.nextStep,
             disabled: true
         },
         {
-            text: I18n.translate('window.wizard.tools.finish', 'UNI', 'Finish'),
+            text: Uni.I18n.translate('window.wizard.tools.finish', 'UNI', 'Finish'),
             action: 'finish'
         },
         {
-            text: I18n.translate('window.wizard.tools.cancel', 'UNI', 'Cancel'),
+            text: Uni.I18n.translate('window.wizard.tools.cancel', 'UNI', 'Cancel'),
             action: 'cancel'
         }
     ],

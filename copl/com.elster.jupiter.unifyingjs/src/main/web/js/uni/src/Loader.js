@@ -12,7 +12,7 @@ Ext.define('Uni.Loader', {
 
         'Ext.tip.QuickTipManager',
         'Ext.layout.container.Absolute',
-        'Uni.util.I18n',
+        'Uni.I18n',
         'Ext.state.CookieProvider',
 
         'Uni.controller.Configuration',
@@ -31,7 +31,7 @@ Ext.define('Uni.Loader', {
     initI18n: function (components) {
         // The I18n singleton is not initialized here because there is no guarantee
         // this method will be called since it is optional.
-        Uni.util.I18n.init(components);
+        Uni.I18n.init(components);
     },
 
     onReady: function (callback) {
@@ -117,15 +117,10 @@ Ext.define('Uni.Loader', {
     },
 
     afterLoadingScripts: function (callback) {
-        I18n = Uni.util.I18n;
-        I18n.load(function () {
+        Uni.I18n.load(function () {
             console.log('afterLoadingScripts');
             callback();
         });
     }
 
 });
-
-Ext.require('Uni.util.I18n');
-
-var I18n = I18n || {};
