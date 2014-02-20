@@ -160,42 +160,6 @@ public class UsagePointImplTest {
         assertThat(usagePoint.getName()).isEqualTo(NAME);
     }
 
-    /*@Test
-    public void testGetAmiBillingReady() {
-        usagePoint.setAmiBillingReady(AmiBillingReadyKind.AMICAPABLE);
-
-        assertThat(usagePoint.getAmiBillingReady()).isEqualTo(AmiBillingReadyKind.AMICAPABLE);
-    }
-
-    @Test
-    public void testIsCheckBilling() {
-        usagePoint.setCheckBilling(true);
-
-        assertThat(usagePoint.isCheckBilling()).isTrue();
-    }
-
-    @Test
-    public void testGetConnectionState() {
-        usagePoint.setConnectionState(UsagePointConnectedKind.CONNECTED);
-
-        assertThat(usagePoint.getConnectionState()).isEqualTo(UsagePointConnectedKind.CONNECTED);
-    }
-
-    @Test
-    public void testGetEstimatedLoad() {
-        Quantity load = Unit.WATT_HOUR.amount(BigDecimal.ONE);
-        usagePoint.setEstimatedLoad(load);
-
-        assertThat(usagePoint.getEstimatedLoad()).isEqualTo(load);
-    }
-
-    @Test
-    public void testIsGrounded() {
-        usagePoint.setGrounded(true);
-
-        assertThat(usagePoint.isGrounded()).isTrue();
-    }   */
-
     @Test
     public void testIsSDP() {
         usagePoint.setSdp(true);
@@ -210,22 +174,6 @@ public class UsagePointImplTest {
         assertThat(usagePoint.isVirtual()).isTrue();
     }
 
-    /*@Test
-    public void testIsMinimumUsageExpected() {
-        usagePoint.setMinimalUsageExpected(true);
-
-        assertThat(usagePoint.isMinimumUsageExpected()).isTrue();
-    }
-
-    @Test
-    public void testGetNominalServiceVoltage() {
-        Quantity voltage = Unit.VOLT.amount(BigDecimal.valueOf(220));
-
-        usagePoint.setNominalServiceVoltage(voltage);
-
-        assertThat(usagePoint.getNominalServiceVoltage()).isEqualTo(voltage);
-    }         */
-
     @Test
     public void testGetOutageRegion() {
         String outageRegion = "outageRegion";
@@ -233,31 +181,6 @@ public class UsagePointImplTest {
 
         assertThat(usagePoint.getOutageRegion()).isEqualTo(outageRegion);
     }
-
-    /*@Test
-    public void testGetPahseCode() {
-        usagePoint.setPhaseCode(PhaseCode.ABCN);
-
-        assertThat(usagePoint.getPhaseCode()).isEqualTo(PhaseCode.ABCN);
-    }
-
-    @Test
-    public void testGetRatedCurrent() {
-        Quantity ratedCurrent = Unit.AMPERE.amount(BigDecimal.valueOf(14));
-
-        usagePoint.setRatedCurrent(ratedCurrent);
-
-        assertThat(usagePoint.getRatedCurrent()).isEqualTo(ratedCurrent);
-    }
-
-    @Test
-    public void testGetRatedPower() {
-        Quantity ratedPower = Unit.WATT.amount(BigDecimal.valueOf(156156));
-
-        usagePoint.setRatedPower(ratedPower);
-
-        assertThat(usagePoint.getRatedPower()).isEqualTo(ratedPower);
-    }      */
 
     @Test
     public void testGetReadCycle() {
@@ -275,13 +198,6 @@ public class UsagePointImplTest {
         assertThat(usagePoint.getReadRoute()).isEqualTo(readRoute);
     }
 
-    /*@Test
-    public void testGetServiceDeliveryRemark() {
-        String remark = "remark";
-        usagePoint.setServiceDeliveryRemark(remark);
-
-        assertThat(usagePoint.getServiceDeliveryRemark()).isEqualTo(remark);
-    }    */
 
     @Test
     public void testGetServicePriority() {
