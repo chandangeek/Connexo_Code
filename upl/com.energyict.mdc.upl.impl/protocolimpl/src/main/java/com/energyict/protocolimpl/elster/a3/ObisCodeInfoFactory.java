@@ -43,6 +43,8 @@ import com.energyict.protocolimpl.elster.a3.tables.SourceInfo;
  */
 public class ObisCodeInfoFactory {
 
+	public static int DEBUG = 0;
+	
 	List obisCodeInfos;
 	AlphaA3 alphaA3;
 
@@ -265,24 +267,50 @@ public class ObisCodeInfoFactory {
     	BigDecimal varC = abbic.getCurrent_mult().multiply(abbic.getVoltage_mult().multiply(dspic.getPhase_c_var()));
     	BigDecimal voltAC = abbic.getVoltage_mult().multiply(dspic.getLine_c_to_a_voltage());//479.2;
     	
+    	
+    	if(DEBUG>0)System.out.println("voltA: " + voltA);
+    	if(DEBUG>0)System.out.println("currA: " + currA);
+    	if(DEBUG>0)System.out.println("wattA: " + wattA);
+    	if(DEBUG>0)System.out.println("varA: " + varA);
+    	if(DEBUG>0)System.out.println("voltC: " + voltC);
+    	if(DEBUG>0)System.out.println("currC: " + currC);
+    	if(DEBUG>0)System.out.println("wattC: " + wattC);
+    	if(DEBUG>0)System.out.println("varC: " + varC);
+    	if(DEBUG>0)System.out.println("voltAC: " + voltAC);
+    	
+    	
     	int rotation = actualService.getRotation();
+    	if(DEBUG>0)System.out.println("rotation: " + rotation);
     	
 
 //    	4 - Use Wa and VARa to determine Phase angle of Ia with respect to Vab
 //			=MOD(DEGREES(ATAN(VARa/Wa))+IF(Wa<0,180,0),360)
-    	double pA = Math.toDegrees(Math.atan(varA.doubleValue()/wattA.doubleValue()));
-    	if (wattA.doubleValue()<0) {
-    		pA += 180;
-    	}    	
-    	if (pA<0) {
-    		pA = pA+360;
+    	if(DEBUG>0)System.out.println("var/watt: " + varA.doubleValue()/wattA.doubleValue());
+    	
+    	double pA = 0;
+    	if (Double.isNaN(varA.doubleValue()/wattA.doubleValue())) {
+    		pA=90;
+    		if (varA.doubleValue()<0) {
+    			pA += 180;
+    		}
+    	} else {
+    		pA = Math.toDegrees(Math.atan(varA.doubleValue()/wattA.doubleValue()));
+    		if (wattA.doubleValue()<0) {
+    			pA += 180;
+    		}    	
+    		if (pA<0) {
+    			pA = pA+360;
+    		}
     	}
+    	if(DEBUG>0)System.out.println("pA: " + pA);
 
 //    	4a - Use Ia magnitude & phase angle to get real and imaginary components of Ia
 //			Ia_real=Ia*COS(RADIANS(Pa))
 //    		Ia_imag=Ia*SIN(RADIANS(Pa))
     	double currA_real = currA.doubleValue() * Math.cos(Math.toRadians(pA));
     	double currA_imag = currA.doubleValue() * Math.sin(Math.toRadians(pA));
+    	if(DEBUG>0)System.out.println("currA_real: " + currA_real);
+    	if(DEBUG>0)System.out.println("currA_imag: " + currA_imag);
 
 //
 //    	5 - use three line to line voltage magnitudes to determine the actual angle of Vcb to Vab
@@ -294,39 +322,53 @@ public class ObisCodeInfoFactory {
     	}
     	double pvCA = 360+(mult*Math.toDegrees((Math.acos((Math.pow(voltA.doubleValue(),2)+Math.pow(voltC.doubleValue(),2)-Math.pow(voltAC.doubleValue(),2))/(2*voltA.doubleValue()*voltC.doubleValue()))))); 
     	pvCA = pvCA % 360;
+    	
+    	if(DEBUG>0)System.out.println("pvCA: " + pvCA);
 
 //    	7 - Use Wc and VARc to determine Phase angle of Ic with respect to Vcb
 //			Pc=MOD(DEGREES(ATAN(VARc/Wc))+IF(Wc<0,180,0),360)
-    	double pC = Math.toDegrees(Math.atan(varC.doubleValue()/wattC.doubleValue()));
-    	if (wattC.doubleValue()<0) {
-    		pC += 180;
-    	}    	
-    	if (pC<0) {
-    		pC = pC+360;
+    	double pC = 0;
+    	
+    	if (Double.isNaN(varC.doubleValue()/wattC.doubleValue())) {
+    		pC=90;
+    		if (varC.doubleValue()<0) {
+    			pC += 180;
+    		}
+    	} else {
+    		pC = Math.toDegrees(Math.atan(varC.doubleValue()/wattC.doubleValue()));
+    		if (wattC.doubleValue()<0) {
+    			pC += 180;
+    		}    	
+    		if (pC<0) {
+    			pC = pC+360;
+    		}
     	}
+    	
+    	if(DEBUG>0)System.out.println("pC: " + pC);
 
 //    	8 - Add the angle from step 4 to the resultant angle from steps 2 & 3 to get the angle of Ic to Vab
 //			Pca=MOD(Pc+PVca,360)
     	double pCA=(pC+pvCA)%360;
-//    	System.out.println("pCA " + pCA);
+    	if(DEBUG>0)System.out.println("pCA " + pCA);
+    	
 //    	8a - Use Ic magnitude & phase angle to get real and imaginary components of Ic
 //			Ic_real=Ic*COS(RADIANS(Pca))
 //    		Ic_imag=Ic*SIN(RADIANS(Pca))
     	double currC_real = currC.doubleValue() * Math.cos(Math.toRadians(pCA));
     	double currC_imag = currC.doubleValue() * Math.sin(Math.toRadians(pCA));
-//    	System.out.println("currC_real " + currC_real);
-//    	System.out.println("currC_imag " + currC_imag);
+    	if(DEBUG>0)System.out.println("currC_real " + currC_real);
+    	if(DEBUG>0)System.out.println("currC_imag " + currC_imag);
 
 //
 //    	9 - Negate the sum of the real components of Ia and Ic to get the real component of Ib
 //			Ib_real=-(Ia_real+Ic_real)
     	double currB_real = -1 * (currA_real+currC_real);
-//    	System.out.println("currB_real " + currB_real);
+    	if(DEBUG>0)System.out.println("currB_real " + currB_real);
 
 //    	10 - Negate the sum of the imaginary components of Ia and Ic to get the imaginary component of Ib
 //			Ib_imag=-(Ia_imag+Ic_imag)
     	double currB_imag = -1 * (currA_imag+currC_imag);
-
+    	if(DEBUG>0)System.out.println("currB_imag " + currB_imag);
 //    	11 - Use the real and imaginary components of Ib to calculate a magnitude and phase angle for Ib
 //			Ib_mag=(Ib_real^2+Ib_imag^2)^0.5
 //    		Pba=MOD(DEGREES(ATAN(Ib_imag/Ib_real))+IF(Ib_real<0,180,0),360)
