@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -29,6 +30,8 @@ public class DeviceTypeInfo {
     public boolean canBeGateway;
     @JsonUnwrapped // As requested by ExtJS people
     public DeviceProtocolInfo deviceProtocolInfo;
+    @JsonProperty("registerTypes")
+    public List<RegisterMappingInfo> registerMappings;
 
     public DeviceTypeInfo() {
     }
@@ -53,4 +56,12 @@ public class DeviceTypeInfo {
             }
         }
     }
+
+    public DeviceTypeInfo(DeviceType deviceType, List<RegisterMapping> registerMappings) {
+        this(deviceType);
+        for (RegisterMapping registerMapping : registerMappings) {
+            this.registerMappings.add(new RegisterMappingInfo(registerMapping));
+        }
+    }
+
 }
