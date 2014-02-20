@@ -5,7 +5,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
     alias: 'widget.registerMappingPreview',
     itemId: 'registerMappingPreview',
     requires: [
-        'Mdc.model.RegisterMapping'
+        'Mdc.model.RegisterType'
     ],
     layout: {
         type: 'card',

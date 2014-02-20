@@ -11,13 +11,14 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
     ],
 
     requires: [
-        'Mdc.store.RegisterMappings',
+        'Mdc.store.RegisterTypes',
+        'Mdc.store.AvailableRegisterTypes',
         'Uni.model.BreadcrumbItem'
     ],
 
     stores: [
-        'RegisterMappings',
-        'RegisterMappingsNotPartOfDeviceType'
+        'RegisterTypes',
+        'AvailableRegisterTypes'
     ],
 
     refs: [
@@ -31,6 +32,8 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'registerMappingAddGrid', selector: '#registermappingaddgrid'}
     ],
+
+    deviceTypeId: null,
 
     init: function () {
 
@@ -48,6 +51,9 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                 click: this.addRegisterMappingsToDeviceType
             },
             '#registerMappingPreviewForm button[action = showReadingTypeInfo]': {
+                showReadingTypeInfo: this.showReadingType
+            },
+            '#registermappingaddgrid actioncolumn': {
                 showReadingTypeInfo: this.showReadingType
             }
         });
@@ -76,33 +82,42 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
 
     showRegisterMappings: function (id) {
         var me = this;
-        this.getRegisterMappingsStore().getProxy().setExtraParam('deviceType', id);
-        var widget = Ext.widget('registerMappingsSetup', {deviceTypeId: id});
-        this.getAddRegisterMappingBtn().href = '#/setup/devicetypes/' + id + '/registertypes/add';
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
-            success: function (deviceType) {
-                var deviceTypeName = deviceType.get('name');
-                widget.down('#registerTypeTitle').html = '<h1>' + deviceTypeName + ' > ' + I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types') + '</h1>';
-                Mdc.getApplication().getMainController().showContent(widget);
-                me.createBreadCrumbs(id, deviceTypeName);
-            }
-        });
+        this.getRegisterTypesStore().getProxy().setExtraParam('deviceType', id);
+        this.getRegisterTypesStore().load(
+            {
+                callback: function () {
+                    var widget = Ext.widget('registerMappingsSetup', {deviceTypeId: id});
+                    me.getAddRegisterMappingBtn().href = '#/setup/devicetypes/' + id + '/registertypes/add';
+                    Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
+                        success: function (deviceType) {
+                            var deviceTypeName = deviceType.get('name');
+                            widget.down('#registerTypeTitle').html = '<h1>' + deviceTypeName + ' > ' + I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types') + '</h1>';
+                            Mdc.getApplication().getMainController().showContent(widget);
+                            me.createBreadCrumbs(id, deviceTypeName);
+                        }
+                    });
+                }
+            });
     },
 
     addRegisterMappings: function (id) {
         var me = this;
         var widget = Ext.widget('registerMappingAdd', {deviceTypeId: id});
-        console.log('add register mappings ');
-        console.log(id);
-        this.getRegisterMappingsNotPartOfDeviceTypeStore().getProxy().setExtraParam('deviceType', id);
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
-            success: function (deviceType) {
-                var deviceTypeName = deviceType.get('name');
-                widget.down('#registerTypeAddTitle').html = '<h1>' + deviceTypeName + ' > ' + I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types') + '</h1>';
-                Mdc.getApplication().getMainController().showContent(widget);
-                me.createBreadCrumbsAddRegisterType(id, deviceTypeName);
-            }
-        });
+        me.deviceTypeId = id;
+        this.getAvailableRegisterTypesStore().getProxy().setExtraParam('deviceType', id);
+        this.getAvailableRegisterTypesStore().load(
+            {
+                callback: function () {
+                    Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
+                        success: function (deviceType) {
+                            var deviceTypeName = deviceType.get('name');
+                            widget.down('#registerTypeAddTitle').html = '<h1>' + deviceTypeName + ' > ' + I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types') + '</h1>';
+                            Mdc.getApplication().getMainController().showContent(widget);
+                            me.createBreadCrumbsAddRegisterType(id, deviceTypeName);
+                        }
+                    });
+                }
+            });
     },
 
     createBreadCrumbs: function (deviceTypeId, deviceTypeName) {
@@ -165,16 +180,50 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
     },
 
     showReadingType: function (record) {
-        console.log('show reading type info');
         var widget = Ext.widget('readingTypeDetails');
         this.getReadingTypeDetailsForm().loadRecord(record);
         widget.show();
     },
 
     addRegisterMappingsToDeviceType: function () {
+        console.log('addRegisterMappingsToDeviceType');
+        var me = this;
         var registerMappings = this.getRegisterMappingAddGrid().getSelectionModel().getSelection();
-        console.log(registerMappings);
 
+        /*registerMappings.forEach(function (entry) {
+         var registerMapping = Ext.clone(entry);
+         registerMapping.getProxy().setExtraParam('deviceType', me.deviceTypeId);
+         registerMapping.phantom = true;
+
+         registerMapping.save({
+         callback: function () {
+         registerMapping.commit();
+         me.getRegisterMappingsStore().add(registerMapping);
+         }
+         });
+         });*/
+        /* this.getRegisterMappingsStore().getProxy().setExtraParam('deviceType', me.deviceTypeId);
+         me.getRegisterMappingsStore().reload({
+         callback: function() {*/
+        //location.href = '#setup/devicetypes/' + me.deviceTypeId + '/registertypes';
+        /*      }
+         }
+
+         );*/
+
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
+            success: function (deviceType) {
+                console.log(deviceType.registerTypes());
+                deviceType.registerTypes().add(registerMappings);
+                deviceType.save({
+                    callback: function () {
+                        deviceType.commit();
+                        me.getRegisterTypesStore().add(registerMappings);
+                        location.href = '#setup/devicetypes/' + me.deviceTypeId + '/registertypes';
+                    }
+                });
+            }
+        });
     }
 
 });

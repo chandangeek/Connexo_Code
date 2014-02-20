@@ -10,9 +10,9 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.RegisterMappings'
+        'Mdc.store.RegisterTypes'
     ],
-    store: 'RegisterMappings',
+    store: 'RegisterTypes',
     padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
@@ -73,7 +73,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 items: [
                     {
                         icon: 'resources/images/gear-16x16.png',
-                        tooltip: 'View',
                         handler: function (grid, rowIndex, colIndex, item, e) {
                             var menu = Ext.widget('menu', {
                                 items: [
@@ -128,7 +127,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                         xtype: 'button'
                     }
                 ]
-            },
+            }/*,
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
@@ -137,7 +136,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                     {deviceType: me.deviceTypeId}
                 ],
                 itemsPerPageMsg: I18n.translate('registerMappings.pagingtoolbarbottom.itemsPerPageMsg', 'MDC', 'Register types per page')
-            }
+            }*/
         ];
 
         this.callParent();
