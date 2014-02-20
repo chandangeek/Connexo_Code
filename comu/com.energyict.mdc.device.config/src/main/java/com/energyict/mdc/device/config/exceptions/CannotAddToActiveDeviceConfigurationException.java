@@ -53,4 +53,16 @@ public class CannotAddToActiveDeviceConfigurationException extends LocalizedExce
     public static CannotAddToActiveDeviceConfigurationException aNewLogBookSpec(Thesaurus thesaurus) {
         return new CannotAddToActiveDeviceConfigurationException(thesaurus, MessageSeeds.LOGBOOK_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION);
     }
+
+    /**
+     * Creates a new CannotAddToActiveDeviceConfigurationException that models the exceptional
+     * situation that occurs when an attempt is made to add a {@link com.energyict.mdc.device.config.RegisterSpec}
+     * to an <i>active</i> {@link com.energyict.mdc.device.config.DeviceConfiguration}
+     *
+     * @param thesaurus The Thesaurus
+     * @return The CannotAddToActiveDeviceConfigurationException
+     */
+    public static CannotAddToActiveDeviceConfigurationException aNewRegisterSpec(Thesaurus thesaurus) {
+        return new CannotAddToActiveDeviceConfigurationException(thesaurus, MessageSeeds.REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG);
+    }
 }

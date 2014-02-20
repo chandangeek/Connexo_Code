@@ -75,7 +75,7 @@ public class InMemoryPersistence {
     private ProtocolPluggableService protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
 
-    public void initializeDatabase (String testName) {
+    public void initializeDatabase(String testName, boolean showSqlLogging) {
         this.initializeMocks(testName);
         InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
         Injector injector = Guice.createInjector(
@@ -84,7 +84,7 @@ public class InMemoryPersistence {
                 new ThreadSecurityModule(this.principal),
                 new EventsModule(),
                 new PubSubModule(),
-                new TransactionModule(),
+                new TransactionModule(showSqlLogging),
                 new UtilModule(),
                 new NlsModule(),
                 new DomainUtilModule(),

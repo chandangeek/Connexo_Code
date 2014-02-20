@@ -47,7 +47,7 @@ public abstract class PersistenceTest {
     @BeforeClass
     public static void initialize() {
         inMemoryPersistence = new InMemoryPersistence();
-        inMemoryPersistence.initializeDatabase("PersistenceTest.mdc.device.config");
+        inMemoryPersistence.initializeDatabase("PersistenceTest.mdc.device.config", false);
     }
 
     @AfterClass

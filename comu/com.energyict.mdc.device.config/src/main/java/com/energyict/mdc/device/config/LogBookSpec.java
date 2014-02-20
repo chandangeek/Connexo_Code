@@ -48,6 +48,8 @@ public interface LogBookSpec extends HasId{
 
     void delete();
 
+    void save();
+
     /**
      * Defines a Builder interface to construct a {@link LogBookSpec}
      */

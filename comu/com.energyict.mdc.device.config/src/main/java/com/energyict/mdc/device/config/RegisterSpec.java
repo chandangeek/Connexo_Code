@@ -150,6 +150,8 @@ public interface RegisterSpec extends HasId {
 
     void validateUpdate();
 
+    void save();
+
     /**
      * Defines a Builder interface to construct a {@link RegisterSpec}
      */

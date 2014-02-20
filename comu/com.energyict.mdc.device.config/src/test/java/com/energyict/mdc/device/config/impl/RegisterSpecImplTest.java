@@ -20,13 +20,13 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.common.Transactional;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
+import com.energyict.mdc.device.config.exceptions.DuplicatePrimeRegisterSpecException;
 import com.energyict.mdc.device.config.exceptions.InvalidValueException;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -385,14 +385,43 @@ public class RegisterSpecImplTest extends PersistenceTest {
         assertThat(registerSpec.getMultiplier()).isEqualTo(BigDecimal.TEN);
     }
 
-    @Ignore // TODO unignore once you create the ChannelSpecImplTests
     @Test
     @Transactional
-    public void setChannelSpecTest() {
+    public void updateWithChannelSpecTest() {
+        ChannelSpec channelSpec;
+        Phenomenon phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("BasicPhenomenon", Unit.get("kWh"));
+        phenomenon.save();
+        LoadProfileType loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType("LoadProfileType", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1));
+        loadProfileType.addRegisterMapping(registerMapping);
+        loadProfileType.save();
+        this.deviceType.addLoadProfileType(loadProfileType);
+        this.deviceType.save();
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpecBuilder.add());
+        channelSpec = channelSpecBuilder.add();
+
+        RegisterSpec defaultRegisterSpec;
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(registerMapping);
+        setRegisterSpecDefaultFields(registerSpecBuilder);
+        registerSpecBuilder.setLinkedChannelSpec(channelSpec);
+        registerSpecBuilder.setChannelSpecLinkType(ChannelSpecLinkType.PRIME);
+        defaultRegisterSpec = registerSpecBuilder.add();
+
+        RegisterSpec loaded = inMemoryPersistence.getDeviceConfigurationService().findRegisterSpec(defaultRegisterSpec.getId());
+
+        assertThat(loaded.getLinkedChannelSpec().getId()).isEqualTo(channelSpec.getId());
+        assertThat(loaded.getChannelSpecLinkType()).isEqualTo(ChannelSpecLinkType.PRIME);
+    }
+
+    @Test(expected = DuplicatePrimeRegisterSpecException.class)
+    @Transactional
+    public void cannotCreateDoublePrimeRegisterForChannelTest() {
         RegisterSpec defaultRegisterSpec = createDefaultRegisterSpec();
         ChannelSpec channelSpec;
         Phenomenon phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("BasicPhenomenon", Unit.get("kWh"));
+        phenomenon.save();
         LoadProfileType loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType("LoadProfileType", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1));
+        loadProfileType.addRegisterMapping(registerMapping);
         loadProfileType.save();
         this.deviceType.addLoadProfileType(loadProfileType);
         this.deviceType.save();
@@ -405,22 +434,45 @@ public class RegisterSpecImplTest extends PersistenceTest {
         registerSpecUpdater.setChannelSpecLinkType(ChannelSpecLinkType.PRIME);
         registerSpecUpdater.update();
 
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(registerMapping);
+        setRegisterSpecDefaultFields(registerSpecBuilder);
+        registerSpecBuilder.setOverruledObisCode(ObisCode.fromString("1.1.1.1.1.1"));
+        registerSpecBuilder.setLinkedChannelSpec(channelSpec);
+        registerSpecBuilder.setChannelSpecLinkType(ChannelSpecLinkType.PRIME);
 
-        assertThat(defaultRegisterSpec.getLinkedChannelSpec()).isEqualTo(channelSpec);
-        assertThat(defaultRegisterSpec.getChannelSpecLinkType()).isEqualTo(ChannelSpecLinkType.PRIME);
+        RegisterSpec registerSpec2 = registerSpecBuilder.add();
     }
 
-    @Ignore
-    @Test
-    @Transactional
-    public void cannotCreateDoublePrimeRegisterForChannelTest() {
-        //todo to complete
-    }
-
-    @Ignore
-    @Test
+    @Test(expected = DuplicatePrimeRegisterSpecException.class)
     @Transactional
     public void cannotUpdateDoublePrimeRegisterForChannelTest() {
-        //todo to complete
+        RegisterSpec defaultRegisterSpec = createDefaultRegisterSpec();
+        ChannelSpec channelSpec;
+        Phenomenon phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("BasicPhenomenon", Unit.get("kWh"));
+        phenomenon.save();
+        LoadProfileType loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType("LoadProfileType", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1));
+        loadProfileType.addRegisterMapping(registerMapping);
+        loadProfileType.save();
+        this.deviceType.addLoadProfileType(loadProfileType);
+        this.deviceType.save();
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpecBuilder.add());
+        channelSpec = channelSpecBuilder.add();
+
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(defaultRegisterSpec);
+        registerSpecUpdater.setLinkedChannelSpec(channelSpec);
+        registerSpecUpdater.setChannelSpecLinkType(ChannelSpecLinkType.PRIME);
+        registerSpecUpdater.update();
+
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(registerMapping);
+        setRegisterSpecDefaultFields(registerSpecBuilder);
+        registerSpecBuilder.setOverruledObisCode(ObisCode.fromString("1.1.1.1.1.1"));
+        registerSpecBuilder.setLinkedChannelSpec(channelSpec);
+        registerSpecBuilder.setChannelSpecLinkType(ChannelSpecLinkType.TIME_OF_USE);
+        RegisterSpec registerSpec2 = registerSpecBuilder.add();
+
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater2 = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec2);
+        registerSpecUpdater2.setChannelSpecLinkType(ChannelSpecLinkType.PRIME);
+        registerSpecUpdater2.update();
     }
 }

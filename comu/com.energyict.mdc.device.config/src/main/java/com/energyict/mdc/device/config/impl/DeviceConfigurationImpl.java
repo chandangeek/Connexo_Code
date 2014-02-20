@@ -125,6 +125,15 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
+    protected void validateUniqueName(String name) {
+        for (DeviceConfiguration deviceConfiguration : this.deviceType.get().getConfigurations()) {
+            if(!isSameIdObject(deviceConfiguration, this) && deviceConfiguration.getName().equals(name)){
+                throw this.duplicateNameException(this.getThesaurus(), name);
+            }
+        }
+    }
+
+    @Override
     protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
         return DuplicateNameException.deviceConfigurationExists(thesaurus, name);
     }
@@ -261,6 +270,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         @Override
         public RegisterSpec add() {
             RegisterSpec registerSpec = super.add();
+            validateActiveDeviceConfiguration(CannotAddToActiveDeviceConfigurationException.aNewRegisterSpec(getThesaurus()));
             validateUniqueRegisterSpecObisCode(registerSpec);
             DeviceConfigurationImpl.this.registerSpecs.add(registerSpec);
             return registerSpec;
@@ -280,9 +290,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
         @Override
         public void update() {
-            super.update();
             validateUniqueRegisterSpecObisCode(registerSpec);
-            save();
+            super.update();
         }
     }
 
@@ -319,7 +328,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public ChannelSpec.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+    public ChannelSpec.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
         return new ChannelSpecBuilderForConfig(channelSpecProvider, this, registerMapping, phenomenon, loadProfileSpecBuilder);
     }
 
@@ -336,6 +345,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         @Override
         public ChannelSpec add() {
             ChannelSpec channelSpec = super.add();
+            validateActiveDeviceConfiguration(CannotAddToActiveDeviceConfigurationException.aNewChannelSpec(getThesaurus()));
             validateUniqueChannelSpecPerLoadProfileSpec(channelSpec);
             DeviceConfigurationImpl.this.channelSpecs.add(channelSpec);
             return channelSpec;
@@ -355,20 +365,22 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
         @Override
         public void update() {
+            validateUniqueChannelSpecPerLoadProfileSpec(channelSpec);
             super.update();
-            save();
         }
     }
 
     private void validateUniqueChannelSpecPerLoadProfileSpec(ChannelSpec channelSpec) {
         for (ChannelSpec spec : channelSpecs) {
-            if (channelSpec.getLoadProfileSpec() == null) {
-                if (spec.getLoadProfileSpec() == null && channelSpec.getDeviceObisCode().equals(spec.getDeviceObisCode())) {
-                    throw DuplicateObisCodeException.forChannelSpecConfigWithoutLoadProfileSpec(thesaurus, this, channelSpec.getDeviceObisCode(), channelSpec);
-                }
-            } else if (channelSpec.getLoadProfileSpec().getId() == spec.getLoadProfileSpec().getId()) {
-                if (channelSpec.getDeviceObisCode().equals(spec.getDeviceObisCode())) {
-                    throw DuplicateObisCodeException.forChannelSpecInLoadProfileSpec(thesaurus, this, channelSpec.getDeviceObisCode(), channelSpec, channelSpec.getLoadProfileSpec());
+            if(!isSameIdObject(spec, channelSpec)){
+                if (channelSpec.getLoadProfileSpec() == null) {
+                    if (spec.getLoadProfileSpec() == null && channelSpec.getDeviceObisCode().equals(spec.getDeviceObisCode())) {
+                        throw DuplicateObisCodeException.forChannelSpecConfigWithoutLoadProfileSpec(thesaurus, this, channelSpec.getDeviceObisCode(), channelSpec);
+                    }
+                } else if (channelSpec.getLoadProfileSpec().getId() == spec.getLoadProfileSpec().getId()) {
+                    if (channelSpec.getDeviceObisCode().equals(spec.getDeviceObisCode())) {
+                        throw DuplicateObisCodeException.forChannelSpecInLoadProfileSpec(thesaurus, this, channelSpec.getDeviceObisCode(), channelSpec, channelSpec.getLoadProfileSpec());
+                    }
                 }
             }
         }
@@ -400,6 +412,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
         public LoadProfileSpec add() {
             LoadProfileSpec loadProfileSpec = super.add();
+            validateActiveDeviceConfiguration(CannotAddToActiveDeviceConfigurationException.aNewLoadProfileSpec(getThesaurus()));
             validateUniqueLoadProfileType(loadProfileSpec);
             validateUniqueLoadProfileObisCode(loadProfileSpec);
             DeviceConfigurationImpl.this.loadProfileSpecs.add(loadProfileSpec);
@@ -421,7 +434,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         @Override
         public void update() {
             validateUniqueLoadProfileObisCode(loadProfileSpec);
-            save();
+            super.update();
         }
     }
 
@@ -471,8 +484,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         @Override
         public LogBookSpecImpl add() {
             LogBookSpecImpl logBookSpec = super.add();
-            validateActiveConfig();
-            validateDeviceTypeContainsLogbookType(logBookSpec);
+            validateActiveDeviceConfiguration(CannotAddToActiveDeviceConfigurationException.aNewLogBookSpec(getThesaurus()));
             validateUniqueLogBookType(logBookSpec);
             validateUniqueLogBookObisCode(logBookSpec);
             DeviceConfigurationImpl.this.logBookSpecs.add(logBookSpec);
@@ -480,16 +492,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
-    private void validateDeviceTypeContainsLogbookType(LogBookSpec logBookSpec) {
-        DeviceType deviceType = getDeviceType();
-        if (!deviceType.getLogBookTypes().contains(logBookSpec.getLogBookType())) {
-            throw new LogbookTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, logBookSpec.getLogBookType());
-        }
-    }
-
-    private void validateActiveConfig() {
+    private void validateActiveDeviceConfiguration(CannotAddToActiveDeviceConfigurationException specException) {
         if (getActive()) {
-            throw CannotAddToActiveDeviceConfigurationException.aNewLogBookSpec(this.thesaurus);
+            throw specException;
         }
     }
 
@@ -507,7 +512,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         @Override
         public void update() {
             validateUniqueLogBookObisCode(logBookSpec);
-            save();
+            super.update();
         }
     }
 

@@ -591,7 +591,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         @Override
         public ChannelSpec.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
-            ChannelSpec.ChannelSpecBuilder builder = this.underConstruction.newChannelSpec(registerMapping, phenomenon, loadProfileSpecBuilder);
+            ChannelSpec.ChannelSpecBuilder builder = this.underConstruction.createChannelSpec(registerMapping, phenomenon, loadProfileSpecBuilder);
             this.nestedBuilders.add(new ChannelSpecBuilder(builder));
             return builder;
         }

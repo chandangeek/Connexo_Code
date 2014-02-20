@@ -458,6 +458,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         @Override
         public void update() {
             this.registerSpec.validateUpdate();
+            this.registerSpec.save();
         }
     }
 }

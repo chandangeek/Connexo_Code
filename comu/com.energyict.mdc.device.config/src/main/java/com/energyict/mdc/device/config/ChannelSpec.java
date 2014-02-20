@@ -90,6 +90,8 @@ public interface ChannelSpec extends HasId {
 
     void validateUpdate();
 
+    void save();
+
     /**
      * Defines a Builder interface to construct a {@link ChannelSpec}
      */

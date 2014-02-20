@@ -8,11 +8,13 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceConfigurationReferenceException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLogbookTypeOfLogbookSpecException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogbookTypeIsRequiredException;
 
 import javax.inject.Inject;
@@ -74,6 +76,15 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     private void validateRequiredFields() {
         validateDeviceConfiguration();
         validateLogbookType();
+        validateDeviceTypeContainsLogbookType();
+
+    }
+
+    private void validateDeviceTypeContainsLogbookType() {
+        DeviceType deviceType = getDeviceConfiguration().getDeviceType();
+        if (!deviceType.getLogBookTypes().contains(getLogBookType())) {
+            throw new LogbookTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, getLogBookType());
+        }
     }
 
     private void validateLogbookType() {
@@ -197,6 +208,11 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
         public LogBookSpec.LogBookSpecUpdater setOverruledObisCode(ObisCode overruledObisCode) {
             this.logBookSpec.setOverruledObisCode(overruledObisCode);
             return this;
+        }
+
+        @Override
+        public void update() {
+            this.logBookSpec.save();
         }
     }
 }
