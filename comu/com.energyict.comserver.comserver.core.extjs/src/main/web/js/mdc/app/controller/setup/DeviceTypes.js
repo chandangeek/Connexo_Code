@@ -136,7 +136,11 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
     deleteDeviceType: function () {
         var deviceTypeToDelete = this.getDeviceTypeGrid().getSelectionModel().getSelection()[0];
-        deviceTypeToDelete.destroy();
+        deviceTypeToDelete.destroy({
+            callback: function () {
+                location.href = '#setup/devicetypes/';
+            }
+        });
     },
 
     deleteDeviceTypeFromDetails: function () {
