@@ -10,6 +10,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
@@ -18,15 +19,16 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
+//import com.elster.jupiter.users.User;
+//import com.elster.jupiter.users.security.Privileges;
+//import javax.annotation.security.RolesAllowed;
+
 @Path("/issue")
-public class GeneralViewController {
+public class    GeneralViewController {
     private final RestQueryService queryService;
     private final IssueService issueService;
     private final TransactionService transactionService;
@@ -39,12 +41,17 @@ public class GeneralViewController {
         this.transactionService = transactionService;
     }
 
-     @GET
-     @Produces(MediaType.APPLICATION_JSON)
-     public IssueList getAllIssues(@Context UriInfo uriInfo) {
-        QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        IssueList resultList = queryIssueList(true, params);
-        return resultList;
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllIssues(@Context UriInfo uriInfo) {
+        IssueList resultList;
+        try {
+            QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
+            resultList = queryIssueList(true, params);
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        return Response.ok().entity(resultList).build();
     }
 
     @GET
@@ -66,7 +73,7 @@ public class GeneralViewController {
             rIssue.setNumber(groupEntry.getValue());
             resultList.add(rIssue);
         }
-    return resultList;
+        return resultList;
     }
 
     private IssueList queryIssueList(boolean maySeeAny, QueryParameters queryParameters) {
@@ -77,19 +84,17 @@ public class GeneralViewController {
             condition = where("reason").isEqualTo(queryParameters.get("reason").get(0));
         }
         List<String> sortList = queryParameters.get("sort");
-        //condition = condition.and(where("serviceLocation.mainAddress.townDetail.country").isEqualTo("BE"));
+        List<Order> orders = convertSortListToOrderList(sortList, queryParameters);
         List<Issue> list = new LinkedList<Issue>();
         if (sortList != null && condition != null) {
-            list = query.select(condition, queryParameters.getStart(), queryParameters.getLimit(), sortList.get(0));
-
+            list = query.select(condition, queryParameters.getStart(), queryParameters.getLimit(), orders.toArray(new Order[orders.size()]));
         } else if (condition != null) {
             list = query.select(condition, queryParameters.getStart(), queryParameters.getLimit());
         } else if (sortList != null) {
             RestQuery<Issue> restQuery = queryService.wrap(query);
-            list = restQuery.select(queryParameters, sortList.get(0));
+            list = restQuery.select(queryParameters, orders.toArray(new Order[orders.size()]));
         } else {
             RestQuery<Issue> restQuery = queryService.wrap(query);
-
             list = restQuery.select(queryParameters);
         }
         IssueList resultList = new IssueList();
@@ -110,4 +115,28 @@ public class GeneralViewController {
         }
         return new IssuePreview(issue.get());
     }
+
+    private List<Order> convertSortListToOrderList(List<String> sortList, QueryParameters queryParameters) {
+        List<Order> orders = new ArrayList<Order>();
+        if (sortList != null) {
+            List<String> orderList = queryParameters.get("order");
+            if ((orderList == null) || (sortList.size() == orderList.size())) {
+                for (int i = 0; i < sortList.size(); i++) {
+                    if (orderList != null) {
+                        if ("DESC".equalsIgnoreCase(orderList.get(i))) {
+                            orders.add(Order.descending(sortList.get(i)));
+                        } else {
+                            orders.add(Order.ascending(sortList.get(i)));
+                        }
+                    } else {
+                        orders.add(Order.ascending(sortList.get(i)));
+                    }
+                }
+            } else {
+                throw new IllegalArgumentException();
+            }
+        }
+        return orders;
+    }
+
 }
