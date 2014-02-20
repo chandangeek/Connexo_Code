@@ -5,6 +5,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.metering.ReadingTypeInformation;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;

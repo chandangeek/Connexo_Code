@@ -12,6 +12,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.metering.ReadingTypeInformation;
 import org.junit.Ignore;
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.energyict.mdc.metering.impl;
+package com.energyict.mdc.metering;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;

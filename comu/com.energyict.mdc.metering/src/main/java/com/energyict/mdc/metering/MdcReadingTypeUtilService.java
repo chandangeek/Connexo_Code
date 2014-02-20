@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.metering.impl.ReadingTypeInformation;
 
 /**
  * Provides converters from ReadingType to ObisCode/Unit/Interval and visa versa
@@ -16,7 +15,7 @@ import com.energyict.mdc.metering.impl.ReadingTypeInformation;
 public interface MdcReadingTypeUtilService {
 
     /**
-     * Creates a {@link com.energyict.mdc.metering.impl.ReadingTypeInformation} based on the given readingType
+     * Creates a {@link ReadingTypeInformation} based on the given readingType
      *
      * @param readingType the readingType string
      * @return the ReadingTypeInformation modeled by the given readingType string
