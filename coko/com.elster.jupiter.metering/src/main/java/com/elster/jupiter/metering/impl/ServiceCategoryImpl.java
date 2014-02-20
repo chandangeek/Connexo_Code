@@ -79,16 +79,15 @@ public class ServiceCategoryImpl implements ServiceCategory {
 	}
 
     @Override
-    public UsagePointDetail newUsagePointDetail(UsagePoint usagePoint, Date start, DataModel usagePointDataModel) {
-        Clock clock = new DefaultClock();
+    public UsagePointDetail newUsagePointDetail(UsagePoint usagePoint, Date start) {
         if (kind.equals(ServiceKind.ELECTRICITY)) {
-            return ElectricityDetailImpl.from(usagePointDataModel, usagePoint, Interval.startAt(start));
+            return ElectricityDetailImpl.from(dataModel, usagePoint, Interval.startAt(start));
         } else if (kind.equals(ServiceKind.GAS)) {
-            return GasDetailImpl.from(usagePointDataModel, usagePoint, Interval.startAt(start));
+            return GasDetailImpl.from(dataModel, usagePoint, Interval.startAt(start));
         } else if (kind.equals(ServiceKind.WATER)) {
-            return WaterDetailImpl.from(usagePointDataModel, usagePoint, Interval.startAt(start));
+            return WaterDetailImpl.from(dataModel, usagePoint, Interval.startAt(start));
         } else {
-            return DefaultDetailImpl.from(usagePointDataModel, usagePoint, Interval.startAt(start));
+            return DefaultDetailImpl.from(dataModel, usagePoint, Interval.startAt(start));
         }
     }
 

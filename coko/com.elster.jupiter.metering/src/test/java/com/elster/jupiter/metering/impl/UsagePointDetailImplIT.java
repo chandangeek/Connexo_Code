@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -22,6 +23,8 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.util.units.Unit;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -36,6 +39,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -109,15 +113,35 @@ public class UsagePointDetailImplIT {
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
             usagePoint.save();
-            //long id = usagePoint.getId();
-            //assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
-            //Date date = new DateTime(2014, 1, 1, 0, 0, 0, 0).toDate();
-            //usagePoint.newDetail(date);
+            long id = usagePoint.getId();
+            assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
+            Date date = new DateTime(2014, 1, 1, 0, 0, 0, 0).toDate();
+            ElectricityDetail elecDetail = (ElectricityDetail) serviceCategory.newUsagePointDetail(usagePoint, date);
+
+            //general properties
+            elecDetail.setAmiBillingReady(AmiBillingReadyKind.AMIDISABLED);
+            elecDetail.setCheckBilling(true);
+            elecDetail.setConnectionState(UsagePointConnectedKind.CONNECTED);
+            elecDetail.setMinimalUsageExpected(true);
+            elecDetail.setServiceDeliveryRemark("remark");
+
+            //electriciy specific properties
+            elecDetail.setGrounded(true);
+            Quantity voltage = Unit.VOLT.amount(BigDecimal.valueOf(220));
+            elecDetail.setNominalServiceVoltage(voltage);
+            elecDetail.setPhaseCode(PhaseCode.ABCN);
+            Quantity ratedCurrent = Unit.AMPERE.amount(BigDecimal.valueOf(14));
+            elecDetail.setRatedCurrent(ratedCurrent);
+            Quantity ratedPower = Unit.WATT.amount(BigDecimal.valueOf(156156));
+            elecDetail.setRatedPower(ratedPower);
+            Quantity load = Unit.WATT_HOUR.amount(BigDecimal.ONE);
+            elecDetail.setEstimatedLoad(load);
+
+            usagePoint.addDetail(elecDetail);
             context.commit();
         }
 
     }
-
 
 }
 

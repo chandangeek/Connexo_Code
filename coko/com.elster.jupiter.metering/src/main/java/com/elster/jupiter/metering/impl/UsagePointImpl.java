@@ -296,15 +296,11 @@ public class UsagePointImpl implements UsagePoint {
         return detail.effective(interval);
     }
 
-
-
     @Override
-    public UsagePointDetail newDetail(Date start) {
-        UsagePointDetail candidate = serviceCategory.get().newUsagePointDetail(this, start, dataModel);
-        validateAddingDetail(candidate);
-        detail.add((UsagePointDetailImpl) candidate);
+    public void addDetail(UsagePointDetail usagePointDetail) {
+        validateAddingDetail(usagePointDetail);
+        detail.add((UsagePointDetailImpl) usagePointDetail);
         touch();
-        return candidate;
     }
 
     public void touch() {

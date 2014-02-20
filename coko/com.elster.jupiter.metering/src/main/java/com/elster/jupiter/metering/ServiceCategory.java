@@ -12,5 +12,5 @@ public interface ServiceCategory extends HasName {
 	ServiceKind getKind();
 	UsagePoint newUsagePoint(String mRID);
 
-    UsagePointDetail newUsagePointDetail(UsagePoint usagePoint, Date start, DataModel dataModel);
+    UsagePointDetail newUsagePointDetail(UsagePoint usagePoint, Date start);
 }

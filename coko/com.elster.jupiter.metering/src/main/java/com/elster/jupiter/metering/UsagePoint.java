@@ -82,5 +82,6 @@ public interface UsagePoint extends IdentifiedObject {
 
     List<UsagePointDetailImpl> getDetail(Interval interval);
     Optional<UsagePointDetailImpl> getDetail(Date date);
-    UsagePointDetail newDetail(Date start);
+
+    void addDetail(UsagePointDetail usagePointDetail);
 }
