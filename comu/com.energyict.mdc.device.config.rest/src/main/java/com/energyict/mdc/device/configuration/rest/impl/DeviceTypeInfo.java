@@ -4,11 +4,16 @@ import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdw.amr.RegisterMapping;
+import com.energyict.mdw.core.DeviceType;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonUnwrapped;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement
 public class DeviceTypeInfo {
@@ -59,6 +64,7 @@ public class DeviceTypeInfo {
 
     public DeviceTypeInfo(DeviceType deviceType, List<RegisterMapping> registerMappings) {
         this(deviceType);
+        this.registerMappings = new ArrayList<>();
         for (RegisterMapping registerMapping : registerMappings) {
             this.registerMappings.add(new RegisterMappingInfo(registerMapping));
         }
