@@ -5,12 +5,14 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
-import org.json.JSONObject;
-
 import java.sql.SQLException;
 import java.util.List;
+import org.json.JSONObject;
 
 public interface EngineModelService {
+
+    String COMPONENT_NAME = "MDC";
+
     public ComServer findComServer(String name);
     /**
      * Finds the ComServer with the specified unique identifier.

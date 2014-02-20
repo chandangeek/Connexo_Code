@@ -1,5 +1,11 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleNlsKey;
+import com.elster.jupiter.nls.SimpleTranslation;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -36,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import javax.inject.Inject;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -54,17 +61,20 @@ import static com.energyict.mdc.engine.model.impl.ComServerImpl.REMOTE_COMSERVER
 public class EngineModelServiceImpl implements EngineModelService, InstallService, OrmClient {
 
     private volatile DataModel dataModel;
+    private Thesaurus thesaurus;
 
     public EngineModelServiceImpl() {
         super();
     }
 
     @Inject
-    public EngineModelServiceImpl(OrmService ormService) {
+    public EngineModelServiceImpl(OrmService ormService, NlsService nlsService) {
         this.setOrmService(ormService);
+        this.setNlsService(nlsService);
         activate();
+        createTranslations();
         if (!dataModel.isInstalled()) {
-        	install();
+            install();
         }
     }
 
@@ -73,12 +83,28 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
         dataModel.install(true, true);
     }
 
+    private void createTranslations() {
+        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+            SimpleNlsKey nlsKey = SimpleNlsKey.key(EngineModelService.COMPONENT_NAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
+            translations.add(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
+        }
+        thesaurus.addTranslations(translations);
+    }
+
+
+
     @Reference
     public void setOrmService(OrmService ormService) {
         this.dataModel = ormService.newDataModel("CEM", "ComServer Engine Model");
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel);
         }
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(EngineModelService.COMPONENT_NAME,Layer.DOMAIN);
     }
 
     Module getModule() {

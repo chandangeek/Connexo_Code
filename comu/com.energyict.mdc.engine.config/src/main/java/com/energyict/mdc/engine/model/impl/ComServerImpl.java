@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.domain.util.Unique;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
@@ -17,16 +19,20 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provider;
-
-import java.util.Collection;
-import java.util.HashMap;
-import javax.inject.Inject;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validator;
+import javax.validation.constraints.AssertFalse;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Pattern;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.ComServer} interface.
@@ -35,6 +41,7 @@ import java.util.Map;
  * @since 2012-03-28 (10:20)
  */
 @XmlRootElement
+@Unique(fields = {"name"}, groups = { Save.Create.class, Save.Update.class }, message = "{MDC.DuplicateComServer}")
 public abstract class ComServerImpl implements ComServer {
 
     protected static final String ONLINE_COMSERVER_DISCRIMINATOR = "0";
@@ -57,14 +64,24 @@ public abstract class ComServerImpl implements ComServer {
     private final Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider;
 
     private long id;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
+    @Pattern(regexp="[a-zA-Z0-9\\.\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{MDC.InvalidChars}")
     private String name;
+    @AssertFalse(groups = Save.Update.class)
     private boolean active;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
     private LogLevel serverLogLevel;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
     private LogLevel communicationLogLevel;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
+    @MinTimeDuration(value = 60 ,groups = { Save.Create.class, Save.Update.class }, message = "{MDC.ValueTooSmall}")
     private TimeDuration changesInterPollDelay;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
+    @MinTimeDuration(value = 60 ,groups = { Save.Create.class, Save.Update.class }, message = "{MDC.ValueTooSmall}")
     private TimeDuration schedulingInterPollDelay;
     private Date modificationDate;
     private final List<ComPort>  comPorts = new ArrayList<>();
+    @Null(groups = Save.Update.class, message = "{MDC.comserver.noUpdateAllowed}")
     private Date obsoleteDate;
 
     @Inject
@@ -80,28 +97,7 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     protected void validate(){
-        this.validate(name);
         this.validateConstraint(name);
-        this.validateNotNull(this.getServerLogLevel(), "comserver.serverLogLevel");
-        this.validateNotNull(this.getCommunicationLogLevel(), "comserver.comLogLevel");
-        this.validateChangesInterPollDelay();
-        this.validateSchedulingInterPollDelay();
-    }
-
-    private void validateChangesInterPollDelay() {
-        this.validateNotNull(this.getChangesInterPollDelay(), CHANGES_INTER_POLL_DELAY_RESOURCE_KEY);
-        this.validateBigger(this.getChangesInterPollDelay(), MINIMUM_INTERPOLL_DELAY, CHANGES_INTER_POLL_DELAY_RESOURCE_KEY);
-    }
-
-    private void validateSchedulingInterPollDelay()  {
-        this.validateNotNull(this.getSchedulingInterPollDelay(), SCHEDULING_INTER_POLL_DELAY_RESOURCE_KEY);
-        this.validateBigger(this.getSchedulingInterPollDelay(), MINIMUM_INTERPOLL_DELAY, SCHEDULING_INTER_POLL_DELAY_RESOURCE_KEY);
-    }
-
-    protected void validateUpdateAllowed() {
-        if (this.isObsolete()) {
-            throw new TranslatableApplicationException("comserver.noUpdateAllowed", "Obsolete ComServers can no longer be updated");
-        }
     }
 
     protected void validateConstraint (String name) {
@@ -114,12 +110,6 @@ public abstract class ComServerImpl implements ComServer {
     protected void validateNotNull (Object propertyValue, String propertyName) {
         if (propertyValue == null) {
             throw new TranslatableApplicationException("XcannotBeEmpty", "\"{0}\" is a required property", propertyName);
-        }
-    }
-
-    protected void validateBigger (TimeDuration propertyValue, TimeDuration minimum, String propertyName) {
-        if (minimum.compareTo(propertyValue) > 0) {
-            throw new TranslatableApplicationException("XshouldBeAtLeast", "Minimal acceptable value for \"{0}\" is \"{1}\"", propertyName, minimum);
         }
     }
 
@@ -291,36 +281,6 @@ public abstract class ComServerImpl implements ComServer {
         }
     }
 
-    protected void validate (String newName) {
-        validateNotNull(newName, "name");
-        /* Validation provided by superclass work with a set of invalid
-         * characters (see getInvalidCharacters()) but actually,
-         * a set of valid chars works a lot better in this case.
-         * Therefore, getInvalidCharacters will return "" and
-         * superclass will only validate null and empty String.
-         */
-        this.checkContainsOnlyRFC1035Chars(newName);
-    }
-
-    /**
-     * Checks that the specified name contains only characters
-     * that are allowed by the RCC 1035 specification as the name
-     * of a ComServer will be used as a hostname in URLs later on.
-     *
-     * @param name The name to be verified
-     */
-    private void checkContainsOnlyRFC1035Chars (String name) {
-        for (int i = 0; i < name.length(); i++) {
-            if (!this.isRFC1035Char(name.charAt(i))) {
-                throw new TranslatableApplicationException("nameXcontainsInvalidChars", "The name \"{0}\" contains invalid characters", name);
-            }
-        }
-    }
-
-    private boolean isRFC1035Char (char c) {
-        return Character.isDigit(c) || Character.isAlphabetic(c) || c == '.' || c == '-';
-    }
-
     public Date getModificationDate() {
         return modificationDate;
     }
@@ -458,12 +418,20 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     public void save() {
-        validate();
+        validate(Save.Create.class);
         if (this.getId()==0) {
             dataModel.persist(this);
         } else {
-            validateUpdateAllowed();
+            validate(Save.Update.class);
             dataModel.update(this);
+        }
+    }
+
+    private void validate(Class<?> group) {
+        Validator validator = dataModel.getValidatorFactory().getValidator();
+        Set<ConstraintViolation<ComServerImpl>> constraintViolations = validator.validate(this, group);
+        if (!constraintViolations.isEmpty()) {
+            throw new ConstraintViolationException(constraintViolations);
         }
     }
 

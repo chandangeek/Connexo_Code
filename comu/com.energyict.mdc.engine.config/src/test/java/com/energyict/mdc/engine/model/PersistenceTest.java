@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -10,28 +11,19 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.ExpectedErrorRule;
 import com.energyict.mdc.TransactionalRule;
-import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class PersistenceTest {
@@ -51,6 +43,7 @@ public class PersistenceTest {
                 inMemoryBootstrapModule,
                 new OrmModule(),
                 new UtilModule(),
+                new NlsModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new MdcCommonModule(),

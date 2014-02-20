@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
@@ -13,14 +14,12 @@ import com.energyict.mdc.engine.model.RemoteComServer;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
-import com.google.common.collect.Range;
 import com.google.inject.Provider;
-
-import javax.inject.Inject;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import org.hibernate.validator.constraints.Range;
+import org.hibernate.validator.constraints.URL;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.OnlineComServer} interface.
@@ -31,13 +30,18 @@ import java.util.List;
 public class OnlineComServerImpl extends ComServerImpl implements OnlineComServer {
 
     private final EngineModelService engineModelService;
+    @URL(message = "{MDC.InvalidURL}", groups = {Save.Update.class, Save.Create.class})
     private String queryAPIPostUri;
+    @URL(message = "{MDC.InvalidURL}", groups = {Save.Update.class, Save.Create.class})
     private String eventRegistrationUri;
+    @Range(min=MINIMUM_STORE_TASK_QUEUE_SIZE, max=MAXIMUM_STORE_TASK_QUEUE_SIZE, message = "{MDC.ValueNotInRange}", groups = {Save.Update.class, Save.Create.class})
+    private int storeTaskQueueSize;
+    @Range(min=MINIMUM_NUMBER_OF_STORE_TASK_THREADS, max=MAXIMUM_NUMBER_OF_STORE_TASK_THREADS, message = "{MDC.ValueNotInRange}", groups = {Save.Update.class, Save.Create.class})
+    private int numberOfStoreTaskThreads;
+    @Range(min=MINIMUM_STORE_TASK_THREAD_PRIORITY, max=MAXIMUM_STORE_TASK_THREAD_PRIORITY, message = "{MDC.ValueNotInRange}", groups = {Save.Update.class, Save.Create.class})
+    private int storeTaskThreadPriority;
     private boolean usesDefaultQueryAPIPostUri=true;
     private boolean usesDefaultEventRegistrationUri=true;
-    private int storeTaskQueueSize;
-    private int numberOfStoreTaskThreads;
-    private int storeTaskThreadPriority;
 
     @Inject
     public OnlineComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider) {
@@ -52,11 +56,6 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
 
     protected void validate() {
         super.validate();
-        this.validateQueryAPIPostUri();
-        this.validateEventRegistrationUri();
-        this.validateValueInRange(this.getStoreTaskQueueSize(), MINIMUM_STORE_TASK_QUEUE_SIZE, MAXIMUM_STORE_TASK_QUEUE_SIZE, "onlineComServer.storeTaskQueueSize");
-        this.validateValueInRange(this.getNumberOfStoreTaskThreads(), MINIMUM_NUMBER_OF_STORE_TASK_THREADS, MAXIMUM_NUMBER_OF_STORE_TASK_THREADS, "onlineComServer.numberOfStoreTaskThreads");
-        this.validateValueInRange(this.getStoreTaskThreadPriority(), MINIMUM_STORE_TASK_THREAD_PRIORITY, MAXIMUM_STORE_TASK_THREAD_PRIORITY, "onlineComServer.storeTaskThreadPriority");
         this.validateInboundComPortDuplicateComPorts();
     }
 
@@ -71,41 +70,6 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
                     portNumbers.add(portNumber);
                 }
             }
-        }
-    }
-
-    private void validateQueryAPIPostUri() {
-        if (!Checks.is(this.queryAPIPostUri).emptyOrOnlyWhiteSpace()) {
-            this.validateUri(this.queryAPIPostUri, "queryAPIPostURI");
-        }
-    }
-
-    private void validateEventRegistrationUri() {
-        String uri = this.eventRegistrationUri;
-        if (!Checks.is(uri).emptyOrOnlyWhiteSpace()) {
-            this.validateUri(uri, "eventRegistrationURI");
-        }
-    }
-
-    private void validateValueInRange(int value, int lowerBoundary, int upperBoundary, String propertyName) {
-        if (!Range.closed(lowerBoundary, upperBoundary).contains(value)) {
-            throw new TranslatableApplicationException(
-                    "valueXforPropertyshouldBeInRangeFromYandZ",
-                    "The value {0} for property {1} should be in the range from {2} to {3}",
-                    propertyName, value, lowerBoundary, upperBoundary);
-        }
-    }
-
-    private void validateUri(String uri, String propertyName)  {
-        try {
-            new URI(uri);
-        }
-        catch (URISyntaxException e) {
-            throw new TranslatableApplicationException(
-                    "XisNotAValidURI",
-                    "\"{0}\" is not a valid URI for property {1} of {2}",
-                    new Object[] {uri, "onlineComServer." + propertyName, "onlineComServer"},
-                    e);
         }
     }
 

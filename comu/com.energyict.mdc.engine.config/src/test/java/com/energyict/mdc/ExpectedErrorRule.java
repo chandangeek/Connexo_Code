@@ -1,6 +1,8 @@
 package com.energyict.mdc;
 
 import com.energyict.mdc.common.TranslatableApplicationException;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import org.junit.internal.AssumptionViolatedException;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -57,6 +59,19 @@ public class ExpectedErrorRule implements TestRule {
                                 throw new AssertionError("Expected messageId: "
                                         + annotation.messageId()+" but encountered "+messageId, e);
 
+                            }
+                        } else {
+                            if (ConstraintViolationException.class.isAssignableFrom(e.getClass())) {
+                                boolean expectedViolationIsPresent=false;
+                                for (ConstraintViolation<?> constraintViolation : ((ConstraintViolationException) e).getConstraintViolations()) {
+                                    if (constraintViolation.getMessageTemplate().equals(annotation.messageId())) {
+                                        expectedViolationIsPresent=true;
+                                    }
+                                }
+                                if (!expectedViolationIsPresent) {
+                                    throw new AssertionError("Validation violation encountered, but the expected message was not listed: "
+                                            + annotation.messageId(), e);
+                                }
                             }
                         }
                     }
