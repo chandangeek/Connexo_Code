@@ -1,14 +1,12 @@
 package com.elster.jupiter.domain.util;
 
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
  
 class UniqueValidator implements ConstraintValidator<Unique, Object> {
 	@Inject
