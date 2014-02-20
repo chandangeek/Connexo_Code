@@ -3,11 +3,11 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.TransactionRequiredException;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.orm.internal.TableSpecs;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
@@ -15,15 +15,6 @@ import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import javax.sql.DataSource;
-import javax.validation.ValidationProviderResolver;
-
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -32,6 +23,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
+import javax.sql.DataSource;
+import javax.validation.ValidationProviderResolver;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.elster.jupiter.orm", immediate = true, service = {OrmService.class, InstallService.class}, property = "name=" + OrmService.COMPONENTNAME)
 public class OrmServiceImpl implements OrmService, InstallService {
@@ -122,7 +119,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
     }
 
     @Reference
-    public void setValidationProviderResolver(ValidationProviderResolver ValidationProviderResolver) {
+    public void setValidationProviderResolver(ValidationProviderResolver validationProviderResolver) {
         this.validationProviderResolver = validationProviderResolver;
     }
 
