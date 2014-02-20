@@ -3,32 +3,30 @@ package com.elster.jupiter.issue.rest.controller;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.Issue;
 import com.elster.jupiter.issue.IssueService;
-import com.elster.jupiter.issue.rest.request.IssueListRequest;
 import com.elster.jupiter.issue.rest.response.*;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-//import com.elster.jupiter.users.User;
-//import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
 
-//import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/issue")
-public class    GeneralViewController {
+public class GeneralViewController {
     private final RestQueryService queryService;
     private final IssueService issueService;
     private final TransactionService transactionService;
@@ -105,7 +103,7 @@ public class    GeneralViewController {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public IssuePreview getIssueById(@PathParam("id") long id/*, @Context SecurityContext securityContext*/) {
+    public IssuePreview getIssueById(@PathParam("id") long id) {
         Optional<Issue> issue = issueService.getIssueById(id);
         if (!issue.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
