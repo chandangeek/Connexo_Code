@@ -1,5 +1,8 @@
 package com.elster.jupiter.issue.rest.response;
 
+import com.elster.jupiter.util.collections.ArrayDiffList;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class ActionRequestFail {
@@ -16,6 +19,9 @@ public class ActionRequestFail {
     }
 
     public List<IssueFailInfo> getIssues() {
+        if (issues == null){
+            issues = new ArrayList<IssueFailInfo>();
+        }
         return issues;
     }
 

@@ -1,8 +1,11 @@
 package com.elster.jupiter.issue.rest.controller;
 
 import com.elster.jupiter.issue.IssueService;
+import com.elster.jupiter.issue.IssueStatus;
+import com.elster.jupiter.issue.OperationResult;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
+import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.response.ActionRequestFail;
 import com.elster.jupiter.issue.rest.response.BaseActionResponse;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -13,7 +16,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Arrays;
+import java.util.*;
 
 @Path("/issue")
 public class IssueActionController {
@@ -34,32 +37,35 @@ public class IssueActionController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response closeIssues(final CloseIssueRequest request){
-        // TODO replace by real actions
         return Response.ok().entity(
                 transactionService.execute(new Transaction<BaseActionResponse>() {
                     @Override
                     public BaseActionResponse perform() {
                         BaseActionResponse response = new BaseActionResponse();
-                        if (request.getIssues() != null) {
-                            long[] success = new long[]{1L, 2L};
+                        IssueStatus newIssueStatus = IssueStatus.fromString(request.getStatus());
+                        if (request.getIssues() != null && newIssueStatus != null) {
+                            List<Long> success = new ArrayList<>();
+                            Map<String, ActionRequestFail> allCloseFails = new HashMap<>();
+                            for (EntityReference issueForClose : request.getIssues()) {
+                                OperationResult<String, String[]> result = issueService.closeIssue(issueForClose.getId(), issueForClose.getVersion(), newIssueStatus, request.getComment());
+                                if (result.isFailed()) {
+                                    String failReason = result.getFailReason()[0];
+                                    String issueTitle = result.getFailReason()[1];
 
-                            ActionRequestFail.IssueFailInfo info1 = new ActionRequestFail.IssueFailInfo(12L, "Unable to connect to Eimeter 1");
-                            ActionRequestFail.IssueFailInfo info2 = new ActionRequestFail.IssueFailInfo(245L, "Unable to connect to Eimeter 2");
-
-                            ActionRequestFail fail1 = new ActionRequestFail();
-                            fail1.setReason("Already closed");
-                            fail1.setIssues(Arrays.asList(new ActionRequestFail.IssueFailInfo[]{info1, info2}));
-
-                            ActionRequestFail.IssueFailInfo info3 = new ActionRequestFail.IssueFailInfo(8L, "Unable to connect to Eimeter 3");
-                            ActionRequestFail.IssueFailInfo info4 = new ActionRequestFail.IssueFailInfo(98L, "Unable to connect to Eimeter 4");
-                            ActionRequestFail.IssueFailInfo info5 = new ActionRequestFail.IssueFailInfo(234L, "Unable to connect to Eimeter 5");
-
-                            ActionRequestFail fail2 = new ActionRequestFail();
-                            fail2.setReason("Some problems");
-                            fail2.setIssues(Arrays.asList(new ActionRequestFail.IssueFailInfo[]{info3, info4, info5}));
-
+                                    ActionRequestFail failsWithSameReason = allCloseFails.get(failReason);
+                                    if (failsWithSameReason == null) {
+                                        failsWithSameReason = new ActionRequestFail();
+                                        failsWithSameReason.setReason(failReason);
+                                        allCloseFails.put(failReason, failsWithSameReason);
+                                    }
+                                    ActionRequestFail.IssueFailInfo issueFail = new ActionRequestFail.IssueFailInfo(issueForClose.getId(), issueTitle);
+                                    failsWithSameReason.getIssues().add(issueFail);
+                                } else {
+                                    success.add(issueForClose.getId());
+                                }
+                            }
                             response.setSuccess(success);
-                            response.setFailure(Arrays.asList(new ActionRequestFail[]{fail1, fail2}));
+                            response.setFailure(new ArrayList<ActionRequestFail>(allCloseFails.values()));
                         } else {
                             throw new WebApplicationException(Response.Status.BAD_REQUEST);
                         }
@@ -81,8 +87,6 @@ public class IssueActionController {
                     public BaseActionResponse perform() {
                         BaseActionResponse response = new BaseActionResponse();
                         if (request.getIssues() != null) {
-                            long[] success = new long[]{1L, 2L};
-
                             ActionRequestFail.IssueFailInfo info1 = new ActionRequestFail.IssueFailInfo(12L, "Unable to connect to Eimeter 1");
                             ActionRequestFail.IssueFailInfo info2 = new ActionRequestFail.IssueFailInfo(245L, "Unable to connect to Eimeter 2");
                             ActionRequestFail.IssueFailInfo info3 = new ActionRequestFail.IssueFailInfo(8L, "Unable to connect to Eimeter 3");
@@ -98,7 +102,7 @@ public class IssueActionController {
                             fail2.setReason("Some problems");
                             fail2.setIssues(Arrays.asList(new ActionRequestFail.IssueFailInfo[]{info4, info5}));
 
-                            response.setSuccess(success);
+                            response.setSuccess(Arrays.asList(new Long[]{1L, 2L}));
                             response.setFailure(Arrays.asList(new ActionRequestFail[]{fail1, fail2}));
                         } else {
                             throw new WebApplicationException(Response.Status.BAD_REQUEST);

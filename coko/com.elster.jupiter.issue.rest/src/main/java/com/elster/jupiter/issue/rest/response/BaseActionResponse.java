@@ -3,14 +3,14 @@ package com.elster.jupiter.issue.rest.response;
 import java.util.List;
 
 public class BaseActionResponse {
-    private long[] success;
+    private List<Long> success;
     private List<ActionRequestFail> failure;
 
-    public long[] getSuccess() {
+    public List<Long> getSuccess() {
         return success;
     }
 
-    public void setSuccess(long[] success) {
+    public void setSuccess(List<Long> success) {
         this.success = success;
     }
 

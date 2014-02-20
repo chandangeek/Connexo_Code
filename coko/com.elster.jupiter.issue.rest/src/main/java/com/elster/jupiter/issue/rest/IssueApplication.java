@@ -9,8 +9,6 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.internal.util.$ImmutableSet;
-import com.google.inject.internal.util.$UnmodifiableIterator;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.ComponentContext;
@@ -19,13 +17,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 
 @Component(name = "com.elster.jupiter.issue.rest", service = Application.class, immediate = true, property = {"alias=/isu"})
