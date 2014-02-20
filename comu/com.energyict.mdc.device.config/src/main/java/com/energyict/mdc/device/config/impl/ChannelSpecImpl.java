@@ -273,12 +273,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         }
     }
 
-    private void validateActiveConfig() {
-        if (getDeviceConfiguration().getActive()) {
-            throw CannotAddToActiveDeviceConfigurationException.aNewChannelSpec(this.thesaurus);
-        }
-    }
-
     private void validateDeviceConfigurationContainsLoadProfileSpec() {
         if (this.loadProfileSpec.isPresent()) {
             if (!getDeviceConfiguration().getLoadProfileSpecs().contains(getLoadProfileSpec())) {
@@ -295,7 +289,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     protected void postNew() {
-        validateActiveConfig();
         this.getDataMapper().persist(this);
     }
 
@@ -611,6 +604,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         @Override
         public void update() {
             this.channelSpec.validateUpdate();
+            this.channelSpec.save();
         }
     }
 

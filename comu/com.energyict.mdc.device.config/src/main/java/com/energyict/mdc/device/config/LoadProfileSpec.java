@@ -34,6 +34,8 @@ public interface LoadProfileSpec extends HasId {
 
     void delete();
 
+    void save();
+
     /**
      * Defines the behavior for a component that is interested
      * to know about the completion of the building

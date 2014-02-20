@@ -110,15 +110,6 @@ public class LoadProfileSpecImplTest extends PersistenceTest {
         loadProfileSpec.add();
     }
 
-    @Test(expected = DuplicateLoadProfileTypeException.class)
-    @Transactional
-    public void addTwoSpecsWithSameLoadProfileTypeTest() {
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
-        loadProfileSpec1.add();
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec2 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
-        loadProfileSpec2.add();
-    }
-
     @Test(expected = DuplicateObisCodeException.class)
     @Transactional
     public void addTwoSpecsWithDiffTypeButSameObisCodeTest() {

@@ -83,7 +83,6 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     private void validateRequiredFields() {
         validateDeviceConfiguration();
         validateLoadProfileType();
-        validateActiveConfig();
         validateDeviceTypeContainsLoadProfileType();
     }
 
@@ -97,12 +96,6 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     @Override
     protected void postNew() {
         this.getDataMapper().persist(this);
-    }
-
-    private void validateActiveConfig() {
-        if (getDeviceConfiguration().getActive()) {
-            throw CannotAddToActiveDeviceConfigurationException.aNewLoadProfileSpec(this.thesaurus);
-        }
     }
 
     @Override
@@ -235,6 +228,11 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         public LoadProfileSpec.LoadProfileSpecUpdater setOverruledObisCode(ObisCode overruledObisCode) {
             this.loadProfileSpec.setOverruledObisCode(overruledObisCode);
             return this;
+        }
+
+        @Override
+        public void update() {
+            this.loadProfileSpec.save();
         }
     }
 

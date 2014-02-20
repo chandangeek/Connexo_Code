@@ -111,15 +111,6 @@ public class LogBookSpecImplTest extends PersistenceTest {
         LogBookSpec logBookSpec = logBookSpecBuilder.add();
     }
 
-    @Test(expected = DuplicateLogBookTypeException.class)
-    @Transactional
-    public void addTwoSpecsWithSameLogBookTypeTest() {
-        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(this.logBookType);
-        LogBookSpec logBookSpec1 = logBookSpecBuilder1.add();
-        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder2 = deviceConfiguration.createLogBookSpec(this.logBookType);
-        LogBookSpec logBookSpec2 = logBookSpecBuilder2.add();
-    }
-
     @Test(expected = DuplicateObisCodeException.class)
     @Transactional
     public void addTwoSpecsWithDiffTypeButSameObisCodeTest() {

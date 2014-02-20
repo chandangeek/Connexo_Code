@@ -9,7 +9,7 @@ import java.util.List;
  * User: gde
  * Date: 5/11/12
  */
-public interface DeviceConfiguration {
+public interface DeviceConfiguration extends HasId {
 
 
     /**
@@ -68,7 +68,7 @@ public interface DeviceConfiguration {
 
     ChannelSpec.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
 
-    ChannelSpec.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder);
+    ChannelSpec.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder);
 
     ChannelSpec.ChannelSpecUpdater getChannelSpecUpdaterFor(ChannelSpec channelSpec);
 
@@ -109,6 +109,8 @@ public interface DeviceConfiguration {
      * @return The DeviceCommunicationConfiguration
      */
     public DeviceCommunicationConfiguration getCommunicationConfiguration();
+
+    void save();
 
     //TODO we remove 'CreateDeviceTransaction' and 'DeviceConfigurationChanges' from the API, must be included when time comes ...
 }
