@@ -12,6 +12,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -61,6 +62,18 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
         this.amiBillingReady = AmiBillingReadyKind.UNKNOWN;
         this.connectionState = UsagePointConnectedKind.UNKNOWN;
         return this;
+    }
+
+    void terminate(Date date) {
+        if (!interval.isEffective(date)) {
+            throw new IllegalArgumentException();
+        }
+        interval = interval.withEnd(date);
+    }
+
+    @Override
+    public boolean conflictsWith(UsagePointDetail other) {
+        return interval.overlaps(other.getInterval());
     }
 
     @Override
@@ -121,11 +134,6 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
     @Override
     public void setServiceDeliveryRemark(String serviceDeliveryRemark) {
         this.serviceDeliveryRemark = serviceDeliveryRemark;
-    }
-
-    @Override
-    public boolean conflictsWith(UsagePointDetail other) {
-        return interval.overlaps(other.getInterval());
     }
 
     @Override

@@ -297,9 +297,14 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public void addDetail(UsagePointDetail usagePointDetail) {
-        validateAddingDetail(usagePointDetail);
-        detail.add((UsagePointDetailImpl) usagePointDetail);
+    public void addDetail(UsagePointDetail newDetail) {
+        Optional<UsagePointDetailImpl> optional = this.getDetail(newDetail.getInterval().getStart());
+        if (optional.isPresent()) {
+            UsagePointDetailImpl previousDetail = optional.get();
+            this.terminateDetail(previousDetail, newDetail.getInterval().getStart());
+        }
+        validateAddingDetail(newDetail);
+        detail.add((UsagePointDetailImpl) newDetail);
         touch();
     }
 
@@ -309,6 +314,21 @@ public class UsagePointImpl implements UsagePoint {
         }
     }
 
+    @Override
+    public UsagePointDetail terminateDetail(UsagePointDetail detail, Date date) {
+        UsagePointDetailImpl toUpdate = null;
+        if (detail.getUsagePoint() == this) {
+            toUpdate = (UsagePointDetailImpl) detail;
+        }
+        if (toUpdate == null || !detail.getInterval().isEffective(date)) {
+            throw new IllegalArgumentException();
+        }
+        toUpdate.terminate(date);
+        dataModel.update(toUpdate);
+        touch();
+        return toUpdate;
+    }
+
     private void validateAddingDetail(UsagePointDetail candidate) {
         for (UsagePointDetail usagePointDetail : detail.effective(candidate.getInterval())) {
             if (candidate.conflictsWith(usagePointDetail)) {
@@ -316,5 +336,9 @@ public class UsagePointImpl implements UsagePoint {
             }
         }
     }
+
+
+
+
 
 }

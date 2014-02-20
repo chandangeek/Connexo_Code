@@ -84,4 +84,6 @@ public interface UsagePoint extends IdentifiedObject {
     Optional<UsagePointDetailImpl> getDetail(Date date);
 
     void addDetail(UsagePointDetail usagePointDetail);
+
+    UsagePointDetail terminateDetail(UsagePointDetail detail, Date date);
 }

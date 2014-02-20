@@ -117,29 +117,44 @@ public class UsagePointDetailImplIT {
             long id = usagePoint.getId();
             assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
 
+            //add details valid from 1 january 2014
             Date january2014 = new DateTime(2014, 1, 1, 0, 0, 0, 0).toDate();
+
             ElectricityDetail elecDetail = newElectricityDetail(usagePoint, january2014);
             usagePoint.addDetail(elecDetail);
 
-            Date february2014 = new DateTime(2013, 2, 1, 0, 0, 0, 0).toDate();
+            //add details valid from 1 february 2014 (this closes the previous detail on this date)
+            Date february2014 = new DateTime(2014, 2, 1, 0, 0, 0, 0).toDate();
             elecDetail = newElectricityDetail(usagePoint, february2014);
             usagePoint.addDetail(elecDetail);
 
             context.commit();
 
+            //get details valid from 1 january 2014
             Optional optional =  usagePoint.getDetail(january2014);
             assertThat(optional.isPresent()).isTrue();
             ElectricityDetail foundElecDetail = (ElectricityDetail) optional.get();
+            //verify interval is closed because a second was added!
+            assertThat(foundElecDetail.getInterval().equals(new Interval(january2014, february2014))).isTrue();
             foundElecDetail.getAmiBillingReady();
 
+
+            //get details valid from 1 february 2014 (finds same details as from 1 february 2014)
             optional =  usagePoint.getDetail(february2014);
             assertThat(optional.isPresent()).isTrue();
             foundElecDetail = (ElectricityDetail) optional.get();
+            assertThat(foundElecDetail.getInterval().equals(new Interval(february2014, null))).isTrue();
             foundElecDetail.getAmiBillingReady();
 
-            Date january2013 = new DateTime(2013, 1, 2, 0, 0, 0, 0).toDate();
+            Date january2013 = new DateTime(2013, 1, 1, 0, 0, 0, 0).toDate();
             optional =  usagePoint.getDetail(january2013);
             assertThat(optional.isPresent()).isFalse();
+
+
+            /*Date march2014 = new DateTime(2013, 3, 1, 0, 0, 0, 0).toDate();
+            Interval interval = new Interval(january2014, march2014);
+            List<UsagePointDetailImpl> details = usagePoint.getDetail(interval);
+            assertThat(details.size() == 2).isTrue();   */
 
 
 
