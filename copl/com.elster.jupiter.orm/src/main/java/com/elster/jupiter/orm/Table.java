@@ -46,7 +46,7 @@ public interface Table<T> {
 	String getComponentName();
 	List<? extends Column> getPrimaryKeyColumns();
     Table<T> map(Class<? extends T> implementer);
-	Table<T> map(Map<String,Class<? extends T>> implementers);
+    Table<T> map(Map<String,Class<? extends T>> implementers);
 	boolean maps(Class<?> implementer);
 
 }
