@@ -3,10 +3,12 @@ package com.elster.jupiter.issue.module;
 import com.elster.jupiter.issue.IssueService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import java.text.MessageFormat;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
-    ISSUE_ACTION_CLOSE_FAIL(1001, "issue.action.close.fail", "Failed to close issue {0}", Level.SEVERE);
+    ISSUE_NOT_PRESENT(1001, "issue.not.present", "Issue doesn't exist", Level.SEVERE),
+    ISSUE_ALREADY_CHANGED(1002, "issue.already.changed", "Issue has been already changed", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -43,5 +45,13 @@ public enum MessageSeeds implements MessageSeed {
     @Override
     public Level getLevel() {
         return this.level;
+    }
+
+    public String getFormated(Object... args){
+        return MessageSeeds.getFormated(this, args);
+    }
+
+    public static String getFormated(MessageSeed messageSeed, Object... args){
+        return MessageFormat.format(messageSeed.getDefaultFormat(), args);
     }
 }

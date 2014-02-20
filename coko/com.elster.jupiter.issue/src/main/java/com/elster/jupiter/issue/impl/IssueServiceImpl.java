@@ -5,12 +5,12 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.*;
 import com.elster.jupiter.issue.database.GroupingOperation;
 import com.elster.jupiter.issue.database.TableSpecs;
-import com.elster.jupiter.issue.exception.IssueClosingException;
 import com.elster.jupiter.issue.module.Installer;
+import com.elster.jupiter.issue.module.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
@@ -108,19 +108,20 @@ public class IssueServiceImpl implements IssueService, InstallService {
     }
 
     @Override
-    public void closeIssue(long issueId, long version, IssueStatus newStatus, String comment) throws IssueClosingException{
+    public OperationResult<String, String[]> closeIssue(long issueId, long version, IssueStatus newStatus, String comment){
         Issue issueForClose = this.getIssueById(issueId).orNull();
+        OperationResult<String, String[]> result = new OperationResult<>();
         if (issueForClose == null){
-            String identifier = "id = " + String.valueOf(issueId);
-            throw new IssueClosingException(new DoesNotExistException(identifier), "with " + identifier);
+            String title = "issue with id = " + String.valueOf(issueId);
+            return result.setFail(new String[]{MessageSeeds.ISSUE_NOT_PRESENT.getDefaultFormat(), title});
         }
         if (version != issueForClose.getVersion()){
-            // TODO check, may be we already have ConcurentModificationException or something like that
-            throw new IssueClosingException(issueForClose.getTitle());
+            return result.setFail(new String[]{MessageSeeds.ISSUE_ALREADY_CHANGED.getDefaultFormat(), issueForClose.getTitle()});
         }
         IssueImpl.class.cast(issueForClose).setStatus(newStatus);
         HistoricalIssue historicalIssue = new HistoricalIssueImpl(issueForClose);
         dataModel.mapper(HistoricalIssue.class).persist(historicalIssue);
         dataModel.mapper(Issue.class).remove(issueForClose);
+        return result;
     }
 }
