@@ -9,11 +9,24 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public abstract class UsagePointDetailImpl implements UsagePointDetail {
+
+    static final Map<String, Class<? extends UsagePointDetail>> IMPLEMENTERS = createImplementers();
+
+    static Map<String, Class<? extends UsagePointDetail>> createImplementers() {
+        return ImmutableMap.<String, Class<? extends UsagePointDetail>> builder()
+                .put("E", ElectricityDetailImpl.class)
+                .put("G", GasDetailImpl.class)
+                .put("W", WaterDetailImpl.class)
+                .put("D", DefaultDetailImpl.class).build();
+    }
 
     private AmiBillingReadyKind amiBillingReady;
     private boolean checkBilling;

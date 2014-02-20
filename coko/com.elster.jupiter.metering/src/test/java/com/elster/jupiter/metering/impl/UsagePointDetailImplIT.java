@@ -25,6 +25,7 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -115,31 +116,53 @@ public class UsagePointDetailImplIT {
             usagePoint.save();
             long id = usagePoint.getId();
             assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
-            Date date = new DateTime(2014, 1, 1, 0, 0, 0, 0).toDate();
-            ElectricityDetail elecDetail = (ElectricityDetail) serviceCategory.newUsagePointDetail(usagePoint, date);
 
-            //general properties
-            elecDetail.setAmiBillingReady(AmiBillingReadyKind.AMIDISABLED);
-            elecDetail.setCheckBilling(true);
-            elecDetail.setConnectionState(UsagePointConnectedKind.CONNECTED);
-            elecDetail.setMinimalUsageExpected(true);
-            elecDetail.setServiceDeliveryRemark("remark");
-
-            //electriciy specific properties
-            elecDetail.setGrounded(true);
-            Quantity voltage = Unit.VOLT.amount(BigDecimal.valueOf(220));
-            elecDetail.setNominalServiceVoltage(voltage);
-            elecDetail.setPhaseCode(PhaseCode.ABCN);
-            Quantity ratedCurrent = Unit.AMPERE.amount(BigDecimal.valueOf(14));
-            elecDetail.setRatedCurrent(ratedCurrent);
-            Quantity ratedPower = Unit.WATT.amount(BigDecimal.valueOf(156156));
-            elecDetail.setRatedPower(ratedPower);
-            Quantity load = Unit.WATT_HOUR.amount(BigDecimal.ONE);
-            elecDetail.setEstimatedLoad(load);
-
+            Date january2014 = new DateTime(2014, 1, 1, 0, 0, 0, 0).toDate();
+            ElectricityDetail elecDetail = newElectricityDetail(usagePoint, january2014);
             usagePoint.addDetail(elecDetail);
             context.commit();
+
+            Optional optional =  usagePoint.getDetail(january2014);
+            assertThat(optional.isPresent()).isTrue();
+            ElectricityDetail foundElecDetail = (ElectricityDetail) optional.get();
+            foundElecDetail.getAmiBillingReady();
+
+            Date january2013 = new DateTime(2013, 1, 2, 0, 0, 0, 0).toDate();
+            optional =  usagePoint.getDetail(january2013);
+            assertThat(optional.isPresent()).isFalse();
+
+            Date february2014 = new DateTime(2013, 2, 1, 0, 0, 0, 0).toDate();
+
+
         }
+
+    }
+
+    protected ElectricityDetail newElectricityDetail(UsagePoint usagePoint, Date date) {
+        ElectricityDetail elecDetail = (ElectricityDetail) usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, date);
+        fillElectricityDetail(elecDetail);
+        return elecDetail;
+    }
+
+    protected void fillElectricityDetail(ElectricityDetail elecDetail) {
+        //general properties
+        elecDetail.setAmiBillingReady(AmiBillingReadyKind.AMIDISABLED);
+        elecDetail.setCheckBilling(true);
+        elecDetail.setConnectionState(UsagePointConnectedKind.CONNECTED);
+        elecDetail.setMinimalUsageExpected(true);
+        elecDetail.setServiceDeliveryRemark("remark");
+
+        //electriciy specific properties
+        elecDetail.setGrounded(true);
+        Quantity voltage = Unit.VOLT.amount(BigDecimal.valueOf(220));
+        elecDetail.setNominalServiceVoltage(voltage);
+        elecDetail.setPhaseCode(PhaseCode.ABCN);
+        Quantity ratedCurrent = Unit.AMPERE.amount(BigDecimal.valueOf(14));
+        elecDetail.setRatedCurrent(ratedCurrent);
+        Quantity ratedPower = Unit.WATT.amount(BigDecimal.valueOf(156156));
+        elecDetail.setRatedPower(ratedPower);
+        Quantity load = Unit.WATT_HOUR.amount(BigDecimal.ONE);
+        elecDetail.setEstimatedLoad(load);
 
     }
 

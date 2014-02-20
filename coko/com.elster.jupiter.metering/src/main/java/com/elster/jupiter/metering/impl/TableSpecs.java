@@ -342,15 +342,21 @@ public enum TableSpecs {
         }
     },
 
-    MTR_ELECTRICITYDETAIL {
+    MTR_USAGEPOINTDETAIL {
         void addTo(DataModel dataModel) {
             Table<UsagePointDetail> table = dataModel.addTable(name(), UsagePointDetail.class);
-            table.map(ElectricityDetailImpl.class);
-            table.setJournalTableName("MTR_ELECTRICITYDETAILJRNL");
+            table.map(UsagePointDetailImpl.IMPLEMENTERS);
+            table.setJournalTableName("MTR_USAGEPOINTDETAILJRNL");
             Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
 
-            addCommonUsagePointDetailColumns(table);
+            table.addDiscriminatorColumn("SERVICECATEGORY", "varchar2(1)");
+
+            table.column("AMIBILLINGREADY").number().notNull().conversion(NUMBER2ENUM).map("amiBillingReady").add();
+            table.column("CHECKBILLING").bool().map("checkBilling").add();
+            table.column("CONNECTIONSTATE").number().notNull().conversion(NUMBER2ENUM).map("connectionState").add();
+            table.column("MINIMALUSAGEEXPECTED").bool().map("minimalUsageExpected").add();
+            table.column("SERVICEDELIVERYREMARK").type("varchar2(80)").map("serviceDeliveryRemark").add();
 
             table.column("GROUNDED").bool().map("grounded").add();
             table.addQuantityColumns("NOMINALVOLTAGE",false, "nominalServiceVoltage");
@@ -360,61 +366,10 @@ public enum TableSpecs {
             table.addQuantityColumns("ESTIMATEDLOAD", false, "estimatedLoad");
 
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_ELECTRICITYDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
-            table.foreignKey("MTR_FK_EDETAILUP").on(usagePointIdColumn).references(MTR_USAGEPOINT.name()).onDelete(CASCADE).map("usagePoint").reverseMap("detail").composition().add();
+            table.primaryKey("MTR_PK_USAGEPOINTDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
+            table.foreignKey("MTR_FK_USAGEPOINTDETAILUP").on(usagePointIdColumn).references(MTR_USAGEPOINT.name()).onDelete(CASCADE).map("usagePoint").reverseMap("detail").composition().add();
         }
-    };/*,
+    };
 
-    MTR_GASDETAIL {
-        void addTo(DataModel dataModel) {
-            Table<GasDetail> table = dataModel.addTable(name(), GasDetail.class);
-            table.map(GasDetailImpl.class);
-            table.setJournalTableName("MTR_GASDETAILJRNL");
-            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).add();
-            List<Column> intervalColumns = table.addIntervalColumns("interval");
-            addCommonUsagePointDetailColumns(table);
-            table.addAuditColumns();
-            table.primaryKey("MTR_PK_GASDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
-            table.foreignKey("MTR_FK_GDETAILUP").references(MTR_USAGEPOINT.name()).onDelete(RESTRICT).map("usagePoint");
-        }
-    },
-
-    MTR_WATERDETAIL {
-        void addTo(DataModel dataModel) {
-            Table<WaterDetail> table = dataModel.addTable(name(), WaterDetail.class);
-            table.map(WaterDetailImpl.class);
-            table.setJournalTableName("MTR_WATERDETAILJRNL");
-            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).add();
-            List<Column> intervalColumns = table.addIntervalColumns("interval");
-            addCommonUsagePointDetailColumns(table);
-            table.addAuditColumns();
-            table.primaryKey("MTR_PK_WATERDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
-            table.foreignKey("MTR_FK_WDETAILUP").references(MTR_USAGEPOINT.name()).onDelete(RESTRICT).map("usagePoint");
-        }
-    },
-
-    MTR_DEFAULTDETAIL {
-        void addTo(DataModel dataModel) {
-            Table<DefaultDetail> table = dataModel.addTable(name(), DefaultDetail.class);
-            table.map(DefaultDetailImpl.class);
-            table.setJournalTableName("MTR_DEFAULTDETAILJRNL");
-            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).add();
-            List<Column> intervalColumns = table.addIntervalColumns("interval");
-            addCommonUsagePointDetailColumns(table);
-            table.addAuditColumns();
-            table.primaryKey("MTR_PK_DEFAULTDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
-            table.foreignKey("MTR_FK_DDETAILUP").references(MTR_USAGEPOINT.name()).onDelete(RESTRICT).map("usagePoint");
-        }
-    };  */
-
-    void addCommonUsagePointDetailColumns(Table table) {
-        table.column("AMIBILLINGREADY").number().notNull().conversion(NUMBER2ENUM).map("amiBillingReady").add();
-        table.column("CHECKBILLING").bool().map("checkBilling").add();
-        table.column("CONNECTIONSTATE").number().notNull().conversion(NUMBER2ENUM).map("connectionState").add();
-        table.column("MINIMALUSAGEEXPECTED").bool().map("minimalUsageExpected").add();
-        table.column("SERVICEDELIVERYREMARK").type("varchar2(80)").map("serviceDeliveryRemark").add();
-    }
-
-   
     abstract void addTo(DataModel component);
 }
