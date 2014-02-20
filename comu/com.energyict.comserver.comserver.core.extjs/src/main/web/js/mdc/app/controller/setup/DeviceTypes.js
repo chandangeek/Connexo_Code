@@ -152,7 +152,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         var protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols');
         var widget = Ext.widget('deviceTypeEdit', {
             edit: true,
-            returnLink: '#setup/devicetypes/' + deviceTypeId,
+            returnLink: Mdc.getApplication().getHistorySetupController().tokenizePreviousTokens(),
             deviceCommunicationProtocols: protocolStore
         });
         Mdc.getApplication().getMainController().showContent(widget);
@@ -212,7 +212,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             record.set(values);
             record.save({
                 callback: function (record) {
-                    location.href = '#setup/devicetypes/' + record.get('id');
+                    location.href = Mdc.getApplication().getHistorySetupController().tokenizePreviousTokens();
                 }
             });
 
