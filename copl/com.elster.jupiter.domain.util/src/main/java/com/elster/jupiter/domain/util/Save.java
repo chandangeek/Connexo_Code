@@ -19,14 +19,8 @@ public enum Save {
 		<T> void doSave(DataModel dataModel, T object) {
 			dataModel.update(object);
 		}
-	},
-	DELETE(Delete.class) {
-		@Override
-		<T> void doSave(DataModel dataModel, T object) {
-			dataModel.update(object);
-		}
 	};
-
+	
 	private final Class<?> group;
 	
 	Save(Class<?> group) {
@@ -60,9 +54,6 @@ public enum Save {
 	
 	public interface Update {
 	}
-
-    public interface Delete {
-    }
 		
 	public static Save action(long id) {
 		return id == 0 ? CREATE : UPDATE;
