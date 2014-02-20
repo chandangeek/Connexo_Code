@@ -47,6 +47,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ *     //TODO the creation of the CommunicationConfiguration is currently skipped ...
+ *
  * User: gde
  * Date: 5/11/12
  */
@@ -129,7 +131,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public void notifyDelete() {
-        //TODO
+        validateDelete();
     }
 
     @Override
@@ -226,9 +228,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
         return availableObisCode;
     }
-
-    //TODO the creation of the CommunicationConfiguration is currently skipped ...
-
 
     @Override
     protected void validateName(String newName) {

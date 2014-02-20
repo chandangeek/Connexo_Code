@@ -107,6 +107,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     }
 
     protected void doDelete() {
+        this.registerMappingUsages.clear();
         this.getDataMapper().remove(this);
     }
 
