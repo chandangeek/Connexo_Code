@@ -49,7 +49,13 @@ public class UsagePointDetailImplIT {
     private static final Quantity VOLTAGE = Unit.VOLT.amount(BigDecimal.valueOf(220));
     private static final Quantity RATED_CURRENT = Unit.AMPERE.amount(BigDecimal.valueOf(14));
     private static final Quantity RATED_POWER = Unit.WATT.amount(BigDecimal.valueOf(156156));
+    private static final Quantity RATED_POWER2 = Unit.WATT.amount(BigDecimal.valueOf(156157));
     private static final Quantity LOAD = Unit.WATT_HOUR.amount(BigDecimal.ONE);
+
+    private static final Date JANUARY_2014 = new DateTime(2014, 1, 1, 0, 0, 0, 0).toDate();
+    private static final Date FEBRUARY_2014 = new DateTime(2014, 2, 1, 0, 0, 0, 0).toDate();
+    private static final Date JANUARY_2013 = new DateTime(2013, 1, 1, 0, 0, 0, 0).toDate();
+    private static final Date MARCH_2014 = new DateTime(2014, 3, 1, 0, 0, 0, 0).toDate();
 
     private Injector injector;
 
@@ -107,69 +113,138 @@ public class UsagePointDetailImplIT {
     }
 
     @Test
-    public void testUsagePointDetails() {
+    public void testElectricityUsagePointDetails() {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
+
         try (TransactionContext context = transactionService.getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
             DataModel dataModel = ((MeteringServiceImpl) meteringService).getDataModel();
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
             usagePoint.save();
-            long id = usagePoint.getId();
             assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
 
             //add details valid from 1 january 2014
-            Date january2014 = new DateTime(2014, 1, 1, 0, 0, 0, 0).toDate();
-
-            ElectricityDetail elecDetail = newElectricityDetail(usagePoint, january2014);
+            ElectricityDetail elecDetail = newElectricityDetail(usagePoint, JANUARY_2014);
             usagePoint.addDetail(elecDetail);
 
             //add details valid from 1 february 2014 (this closes the previous detail on this date)
-            Date february2014 = new DateTime(2014, 2, 1, 0, 0, 0, 0).toDate();
-            elecDetail = newElectricityDetail(usagePoint, february2014);
+            elecDetail = newElectricityDetail(usagePoint, FEBRUARY_2014);
             usagePoint.addDetail(elecDetail);
 
-            context.commit();
 
             //get details valid from 1 january 2014
-            Optional optional =  usagePoint.getDetail(january2014);
+            Optional optional =  usagePoint.getDetail(JANUARY_2014);
             assertThat(optional.isPresent()).isTrue();
             ElectricityDetail foundElecDetail = (ElectricityDetail) optional.get();
             //verify interval is closed because a second was added!
-            assertThat(foundElecDetail.getInterval().equals(new Interval(january2014, february2014))).isTrue();
+            assertThat(foundElecDetail.getInterval().equals(new Interval(JANUARY_2014, FEBRUARY_2014))).isTrue();
+            //check content
             checkElectricityDetailContent(foundElecDetail);
 
+            //update the detail rated power and check
+            foundElecDetail.setRatedPower(RATED_POWER2);
+            foundElecDetail.update();
+
+            context.commit();
+
+            optional =  usagePoint.getDetail(JANUARY_2014);
+            assertThat(optional.isPresent()).isTrue();
+            ElectricityDetail updatedElecDetail = (ElectricityDetail) optional.get();
+            assertThat(updatedElecDetail.getRatedPower().equals(RATED_POWER2)).isTrue();
 
             //get details valid from 1 february 2014 (finds same details as from 1 february 2014)
-            optional =  usagePoint.getDetail(february2014);
+            optional =  usagePoint.getDetail(FEBRUARY_2014);
             assertThat(optional.isPresent()).isTrue();
             foundElecDetail = (ElectricityDetail) optional.get();
-            assertThat(foundElecDetail.getInterval().equals(new Interval(february2014, null))).isTrue();
+            assertThat(foundElecDetail.getInterval().equals(new Interval(FEBRUARY_2014, null))).isTrue();
             foundElecDetail.getAmiBillingReady();
 
-            System.out.println(foundElecDetail.toString());
-
-            Date january2013 = new DateTime(2013, 1, 1, 0, 0, 0, 0).toDate();
-            optional =  usagePoint.getDetail(january2013);
+            //no details to be found valid on 1 january 2013
+            optional =  usagePoint.getDetail(JANUARY_2013);
             assertThat(optional.isPresent()).isFalse();
 
 
-            Date march2014 = new DateTime(2014, 3, 1, 0, 0, 0, 0).toDate();
-            Interval interval = new Interval(january2014, march2014);
+            //2 details to be found in the period from 1 january 2014 to 1 march 2014
+            Interval interval = new Interval(JANUARY_2014, MARCH_2014);
             List<UsagePointDetailImpl> details = usagePoint.getDetail(interval);
             assertThat(details.size() == 2).isTrue();
-
-
-
-
         }
 
     }
+
+    @Test
+    public void testGasUsagePointDetails() {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+
+        try (TransactionContext context = transactionService.getContext()) {
+            MeteringService meteringService = injector.getInstance(MeteringService.class);
+            DataModel dataModel = ((MeteringServiceImpl) meteringService).getDataModel();
+            ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.GAS).get();
+            UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
+            usagePoint.save();
+            assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
+
+            //add details valid from 1 january 2014
+            GasDetail gasDetail = newGasDetail(usagePoint, JANUARY_2014);
+            usagePoint.addDetail(gasDetail);
+
+            //add details valid from 1 february 2014 (this closes the previous detail on this date)
+            gasDetail = newGasDetail(usagePoint, FEBRUARY_2014);
+            usagePoint.addDetail(gasDetail);
+
+
+            //get details valid from 1 january 2014
+            Optional optional =  usagePoint.getDetail(JANUARY_2014);
+            assertThat(optional.isPresent()).isTrue();
+            GasDetail foundGasDetail = (GasDetail) optional.get();
+            //verify interval is closed because a second was added!
+            assertThat(foundGasDetail.getInterval().equals(new Interval(JANUARY_2014, FEBRUARY_2014))).isTrue();
+            //check content
+            checkGasDetailContent(foundGasDetail);
+
+            //update "check billing" and check
+            foundGasDetail.setCheckBilling(false);
+            foundGasDetail.update();
+
+            context.commit();
+
+            optional =  usagePoint.getDetail(JANUARY_2014);
+            assertThat(optional.isPresent()).isTrue();
+            GasDetail updatedGasDetail = (GasDetail) optional.get();
+            assertThat(updatedGasDetail.isCheckBilling() == false).isTrue();
+
+            //get details valid from 1 february 2014 (finds same details as from 1 february 2014)
+            optional =  usagePoint.getDetail(FEBRUARY_2014);
+            assertThat(optional.isPresent()).isTrue();
+            foundGasDetail = (GasDetail) optional.get();
+            assertThat(foundGasDetail.getInterval().equals(new Interval(FEBRUARY_2014, null))).isTrue();
+            foundGasDetail.getAmiBillingReady();
+
+            //no details to be found valid on 1 january 2013
+            optional =  usagePoint.getDetail(JANUARY_2013);
+            assertThat(optional.isPresent()).isFalse();
+
+
+            //2 details to be found in the period from 1 january 2014 to 1 march 2014
+            Interval interval = new Interval(JANUARY_2014, MARCH_2014);
+            List<UsagePointDetailImpl> details = usagePoint.getDetail(interval);
+            assertThat(details.size() == 2).isTrue();
+        }
+
+    }
+
 
     protected ElectricityDetail newElectricityDetail(UsagePoint usagePoint, Date date) {
         ElectricityDetail elecDetail = (ElectricityDetail) usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, date);
         fillElectricityDetail(elecDetail);
         return elecDetail;
+    }
+
+    protected GasDetail newGasDetail(UsagePoint usagePoint, Date date) {
+        GasDetail gasDetail = (GasDetail) usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, date);
+        fillGasDetail(gasDetail);
+        return gasDetail;
     }
 
     protected void fillElectricityDetail(ElectricityDetail elecDetail) {
@@ -190,6 +265,17 @@ public class UsagePointDetailImplIT {
 
     }
 
+    protected void fillGasDetail(GasDetail gasDetail) {
+        //general properties
+        gasDetail.setAmiBillingReady(AmiBillingReadyKind.AMIDISABLED);
+        gasDetail.setCheckBilling(true);
+        gasDetail.setConnectionState(UsagePointConnectedKind.CONNECTED);
+        gasDetail.setMinimalUsageExpected(true);
+        gasDetail.setServiceDeliveryRemark("remark");
+
+        //gas specific properties: none defined yet
+    }
+
     protected void checkElectricityDetailContent(ElectricityDetail elecDetail) {
         //general properties
         assertThat(elecDetail.getAmiBillingReady().equals(AmiBillingReadyKind.AMIDISABLED)).isTrue();
@@ -205,6 +291,17 @@ public class UsagePointDetailImplIT {
         assertThat(elecDetail.getRatedCurrent().equals(RATED_CURRENT)).isTrue();
         assertThat(elecDetail.getRatedPower().equals(RATED_POWER)).isTrue();
         assertThat(elecDetail.getEstimatedLoad().equals(LOAD)).isTrue();
+    }
+
+    protected void checkGasDetailContent(GasDetail gasDetail) {
+        //general properties
+        assertThat(gasDetail.getAmiBillingReady().equals(AmiBillingReadyKind.AMIDISABLED)).isTrue();
+        assertThat(gasDetail.isCheckBilling() == true).isTrue();
+        assertThat(gasDetail.getConnectionState().equals(UsagePointConnectedKind.CONNECTED)).isTrue();
+        assertThat(gasDetail.isMinimalUsageExpected() == true).isTrue();
+        assertThat(gasDetail.getServiceDeliveryRemark().equals("remark")).isTrue();
+
+        //gas specific properties: none defined yet
     }
 
 }

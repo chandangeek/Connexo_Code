@@ -347,7 +347,7 @@ public enum TableSpecs {
             Table<UsagePointDetail> table = dataModel.addTable(name(), UsagePointDetail.class);
             table.map(UsagePointDetailImpl.IMPLEMENTERS);
             table.setJournalTableName("MTR_USAGEPOINTDETAILJRNL");
-            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).add();
+            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").notNull().conversion(NUMBER2LONGNULLZERO).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
 
             table.addDiscriminatorColumn("SERVICECATEGORY", "varchar2(1)");
@@ -358,7 +358,7 @@ public enum TableSpecs {
             table.column("MINIMALUSAGEEXPECTED").bool().map("minimalUsageExpected").add();
             table.column("SERVICEDELIVERYREMARK").type("varchar2(80)").map("serviceDeliveryRemark").add();
 
-            table.column("GROUNDED").bool().map("grounded").add();
+            table.column("GROUNDED").type("char(1)").conversion(CHAR2BOOLEAN).map("grounded").add();
             table.addQuantityColumns("NOMINALVOLTAGE",false, "nominalServiceVoltage");
             table.column("PHASECODE").type("varchar2(7)").conversion(CHAR2ENUM).map("phaseCode").add();
             table.addQuantityColumns("RATEDCURRENT", false, "ratedCurrent");
