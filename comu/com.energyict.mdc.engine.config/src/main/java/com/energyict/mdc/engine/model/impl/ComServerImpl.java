@@ -23,11 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validator;
 import javax.validation.constraints.AssertFalse;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -81,7 +77,7 @@ public abstract class ComServerImpl implements ComServer {
     private TimeDuration schedulingInterPollDelay;
     private Date modificationDate;
     private final List<ComPort>  comPorts = new ArrayList<>();
-    @Null(groups = Save.Update.class, message = "{MDC.comserver.noUpdateAllowed}")
+    @Null(groups = { Save.Update.class, Save.Delete.class }, message = "{MDC.comserver.noUpdateAllowed}")
     private Date obsoleteDate;
 
     @Inject
@@ -417,27 +413,13 @@ public abstract class ComServerImpl implements ComServer {
         throw new BusinessException("ComServerXDoesNotSupportRemoteQueries", "The comserver {0} does not support remote queries", this.getName());
     }
 
-    public void save() {
-        validate(Save.Create.class);
-        if (this.getId()==0) {
-            dataModel.persist(this);
-        } else {
-            validate(Save.Update.class);
-            dataModel.update(this);
-        }
-    }
-
-    private void validate(Class<?> group) {
-        Validator validator = dataModel.getValidatorFactory().getValidator();
-        Set<ConstraintViolation<ComServerImpl>> constraintViolations = validator.validate(this, group);
-        if (!constraintViolations.isEmpty()) {
-            throw new ConstraintViolationException(constraintViolations);
-        }
+    final public void save() {
+        Save.action(this.getId()).save(dataModel, this);
     }
 
     @Override
     public void delete() {
-        validateDelete();
+        Save.DELETE.save(dataModel, this);
         this.comPorts.clear();
         dataModel.remove(this);
     }

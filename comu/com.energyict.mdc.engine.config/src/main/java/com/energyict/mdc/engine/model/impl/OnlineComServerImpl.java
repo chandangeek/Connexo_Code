@@ -79,9 +79,7 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
         this.validateNotUsedByRemoteComServers();
     }
 
-    @Override
     protected void validateMakeObsolete() {
-        super.validateMakeObsolete();
         this.validateNotUsedByRemoteComServers();
     }
 
