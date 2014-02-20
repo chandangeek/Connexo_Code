@@ -7,8 +7,6 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.*;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -18,7 +16,6 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
@@ -29,7 +26,6 @@ import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -49,6 +45,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointDetailImplIT {
+
+    private static final Quantity VOLTAGE = Unit.VOLT.amount(BigDecimal.valueOf(220));
+    private static final Quantity RATED_CURRENT = Unit.AMPERE.amount(BigDecimal.valueOf(14));
+    private static final Quantity RATED_POWER = Unit.WATT.amount(BigDecimal.valueOf(156156));
+    private static final Quantity LOAD = Unit.WATT_HOUR.amount(BigDecimal.ONE);
 
     private Injector injector;
 
@@ -136,7 +137,7 @@ public class UsagePointDetailImplIT {
             ElectricityDetail foundElecDetail = (ElectricityDetail) optional.get();
             //verify interval is closed because a second was added!
             assertThat(foundElecDetail.getInterval().equals(new Interval(january2014, february2014))).isTrue();
-            foundElecDetail.getAmiBillingReady();
+            checkElectricityDetailContent(foundElecDetail);
 
 
             //get details valid from 1 february 2014 (finds same details as from 1 february 2014)
@@ -181,16 +182,29 @@ public class UsagePointDetailImplIT {
 
         //electriciy specific properties
         elecDetail.setGrounded(true);
-        Quantity voltage = Unit.VOLT.amount(BigDecimal.valueOf(220));
-        elecDetail.setNominalServiceVoltage(voltage);
+        elecDetail.setNominalServiceVoltage(VOLTAGE);
         elecDetail.setPhaseCode(PhaseCode.ABCN);
-        Quantity ratedCurrent = Unit.AMPERE.amount(BigDecimal.valueOf(14));
-        elecDetail.setRatedCurrent(ratedCurrent);
-        Quantity ratedPower = Unit.WATT.amount(BigDecimal.valueOf(156156));
-        elecDetail.setRatedPower(ratedPower);
-        Quantity load = Unit.WATT_HOUR.amount(BigDecimal.ONE);
-        elecDetail.setEstimatedLoad(load);
+        elecDetail.setRatedCurrent(RATED_CURRENT);
+        elecDetail.setRatedPower(RATED_POWER);
+        elecDetail.setEstimatedLoad(LOAD);
 
+    }
+
+    protected void checkElectricityDetailContent(ElectricityDetail elecDetail) {
+        //general properties
+        assertThat(elecDetail.getAmiBillingReady().equals(AmiBillingReadyKind.AMIDISABLED)).isTrue();
+        assertThat(elecDetail.isCheckBilling() == true).isTrue();
+        assertThat(elecDetail.getConnectionState().equals(UsagePointConnectedKind.CONNECTED)).isTrue();
+        assertThat(elecDetail.isMinimalUsageExpected() == true).isTrue();
+        assertThat(elecDetail.getServiceDeliveryRemark().equals("remark")).isTrue();
+
+        //electriciy specific properties
+        assertThat(elecDetail.isGrounded() == true).isTrue();
+        assertThat(elecDetail.getNominalServiceVoltage().equals(VOLTAGE)).isTrue();
+        assertThat(elecDetail.getPhaseCode().equals(PhaseCode.ABCN)).isTrue();
+        assertThat(elecDetail.getRatedCurrent().equals(RATED_CURRENT)).isTrue();
+        assertThat(elecDetail.getRatedPower().equals(RATED_POWER)).isTrue();
+        assertThat(elecDetail.getEstimatedLoad().equals(LOAD)).isTrue();
     }
 
 }
