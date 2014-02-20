@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering;
 
-import com.elster.jupiter.metering.impl.UsagePointDetailImpl;
 import com.elster.jupiter.orm.associations.Effectivity;
 
 /**

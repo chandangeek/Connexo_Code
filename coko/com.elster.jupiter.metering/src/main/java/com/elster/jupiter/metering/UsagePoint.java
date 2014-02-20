@@ -1,15 +1,10 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
-import com.elster.jupiter.cbo.PhaseCode;
-import com.elster.jupiter.metering.impl.*;
-import com.elster.jupiter.metering.impl.ElectricityDetailImpl;
-import com.elster.jupiter.metering.impl.WaterDetailImpl;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.units.Quantity;
 import com.google.common.base.Optional;
 
 import java.util.Date;
