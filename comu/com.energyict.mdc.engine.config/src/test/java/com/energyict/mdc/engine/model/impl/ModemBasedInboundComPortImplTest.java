@@ -2,8 +2,8 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
+import com.energyict.mdc.Expected;
 import com.energyict.mdc.Transactional;
-import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -24,9 +24,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 import org.mockito.Mock;
 
 import static junit.framework.Assert.assertEquals;
@@ -34,8 +32,6 @@ import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
-import static org.assertj.core.api.Fail.fail;
 
 /**
  * Tests the {@link ModemBasedInboundComPortImpl} component.
@@ -169,8 +165,9 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         assertThat(reloaded.getModemInitStrings()).isEmpty();
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
     @Transactional
+    @Expected(expected=TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
     public void testCreateWithoutComPortPool() throws BusinessException, SQLException {
         createOnlineComServer().newModemBasedInboundComport()
         .name(COMPORT_NAME)
@@ -183,8 +180,9 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         // Expecting an InvalidValueException to be thrown because the ComPortPool is not set
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
     @Transactional
+    @Expected(expected=TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
     public void testCreateWithoutName() throws BusinessException, SQLException {
         createOnlineComServer().newModemBasedInboundComport()
         .comPortPool(createComPortPool())
@@ -201,8 +199,9 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         // Expecting a BusinessException to be thrown because the name is not set
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
     @Transactional
+    @Expected(expected=TranslatableApplicationException.class, messageId = "duplicateComPortX")
     public void testCreateWithExistingName() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
         createSimpleComPort(onlineComServer);
@@ -246,8 +245,9 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         // No BusinessException expected, because a new ComPort can have the same name as a deleted one.
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
     @Transactional
+    @Expected(expected=TranslatableApplicationException.class, messageId = "XcannotBeEqualOrLessThanZero")
     public void testCreateWithZeroRingCount() throws BusinessException, SQLException {
         createOnlineComServer().newModemBasedInboundComport()
         .comPortPool(createComPortPool())
@@ -265,8 +265,9 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         // Expecting a BusinessException to be thrown because a ComPort with the same name already exists
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
     @Transactional
+    @Expected(expected=TranslatableApplicationException.class, messageId = "XcannotBeEqualOrLessThanZero")
     public void testCreateWithZeroMaximumNumberOfDialErrors() throws BusinessException, SQLException {
         createOnlineComServer().newModemBasedInboundComport()
         .comPortPool(createComPortPool())
@@ -284,8 +285,9 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         // Expecting a BusinessException to be thrown because a ComPort with the same name already exists
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
     @Transactional
+    @Expected(expected=TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
     public void testCreateWithoutConnectTimeout() throws BusinessException, SQLException {
         createOnlineComServer().newModemBasedInboundComport()
         .comPortPool(createComPortPool())
@@ -303,8 +305,9 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         // Expecting a BusinessException to be thrown because the connect timeout is not specified
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
     @Transactional
+    @Expected(expected=TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
     public void testCreateWithoutAtCommandTimeout() throws BusinessException, SQLException {
         createOnlineComServer().newModemBasedInboundComport()
         .comPortPool(createComPortPool())
@@ -322,8 +325,9 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         // Expecting a BusinessException to be thrown because the at command timeout is not specified
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
     @Transactional
+    @Expected(expected=TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
     public void testCreateWithoutAtCommandTry() throws BusinessException, SQLException {
         createOnlineComServer().newModemBasedInboundComport()
         .comPortPool(createComPortPool())
@@ -341,8 +345,9 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         // Expecting a BusinessException to be thrown because the at command try is not specified
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
     @Transactional
+    @Expected(expected=TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
     public void testCreateWithoutSerialPortConfiguration() throws BusinessException, SQLException {
         createOnlineComServer().newModemBasedInboundComport()
         .comPortPool(createComPortPool())
@@ -459,8 +464,9 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         assertEquals("Flow control does nt match", newFlowControl, comPort.getSerialPortConfiguration().getFlowControl());
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
     @Transactional
+    @Expected(expected=TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
     public void updateWithNullName() throws BusinessException, SQLException {
         ModemBasedInboundComPortImpl comPort = (ModemBasedInboundComPortImpl) this.createSimpleComPort();
 
