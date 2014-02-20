@@ -1,13 +1,11 @@
 package com.elster.jupiter.domain.util;
 
+import com.elster.jupiter.orm.DataModel;
 import java.util.Set;
-
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 import javax.validation.groups.Default;
-
-import com.elster.jupiter.orm.DataModel;
 
 public enum Save {
 	CREATE(Create.class) {
@@ -21,8 +19,14 @@ public enum Save {
 		<T> void doSave(DataModel dataModel, T object) {
 			dataModel.update(object);
 		}
+	},
+	DELETE(Delete.class) {
+		@Override
+		<T> void doSave(DataModel dataModel, T object) {
+			dataModel.update(object);
+		}
 	};
-	
+
 	private final Class<?> group;
 	
 	Save(Class<?> group) {
@@ -56,6 +60,9 @@ public enum Save {
 	
 	public interface Update {
 	}
+
+    public interface Delete {
+    }
 		
 	public static Save action(long id) {
 		return id == 0 ? CREATE : UPDATE;
