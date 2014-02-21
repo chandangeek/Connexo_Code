@@ -219,7 +219,8 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                     title: 'Remove register type: "' + registerMappingToDelete.get('name') + '"',
                     config: {
                         registerMappingToDelete: registerMappingToDelete,
-                        deviceType: deviceType
+                        deviceType: deviceType,
+                        me: me
                     },
                     buttons: Ext.MessageBox.YESNO,
                     fn: me.removeRegisterMappingFromDeviceType,
@@ -236,9 +237,11 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         if (btn === 'yes') {
             var deviceType = opt.config.deviceType;
             var registerMappingToDelete = opt.config.registerMappingToDelete;
+            var me = opt.config.me;
             deviceType.registerTypes().remove(registerMappingToDelete);
             deviceType.save({
                 callback: function () {
+                    me.getRegisterTypesStore().remove(registerMappingToDelete);
                     location.href = '#setup/devicetypes/' + deviceType.get('id') + '/registertypes';
                 }
             });
