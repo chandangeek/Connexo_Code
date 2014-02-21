@@ -12,3 +12,12 @@ images_dir = File.join(dir, '..', 'resources', 'images')
 # Require any additional compass plugins here.
 output_style = :compressed
 environment = :production
+
+module Sass::Script::Functions
+  def get_resource_dir()
+    dir = ENV.fetch("resource_dir", './UnifyingJS/')
+    Sass::Script::String.new(dir)
+  end
+end
+
+
