@@ -197,7 +197,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     public List<IValidationRule> getRules(int start, int limit) {
         return Collections.unmodifiableList(
                 dataModel.query(IValidationRule.class).select(
-                        Operator.EQUAL.compare("ruleSetId", this.id), new Order[] {}, false, new String[]{}, start + 1, start + limit));
+                        Operator.EQUAL.compare("ruleSetId", this.id), new Order[] {Order.ascending("name")}, false, new String[]{}, start + 1, start + limit));
     }
 
     private List<IValidationRule> doGetRules() {
@@ -208,7 +208,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     private List<IValidationRule> loadRules() {
-        return ruleFactory().find("ruleSet", this);
+        return ruleFactory().find("ruleSet", this, Order.ascending("name"));
     }
 
     @Override

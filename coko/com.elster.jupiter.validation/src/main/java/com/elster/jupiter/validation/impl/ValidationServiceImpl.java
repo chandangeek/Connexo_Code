@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.Upcast;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
@@ -155,7 +156,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     @Override
     public List<ValidationRuleSet> getValidationRuleSets() {
-        return new ArrayList<>(dataModel.mapper(ValidationRuleSet.class).find());
+        return new ArrayList<>(dataModel.mapper(ValidationRuleSet.class).find((String[]) null, (Object[]) null, Order.ascending("name")));
     }
 
     @Override
