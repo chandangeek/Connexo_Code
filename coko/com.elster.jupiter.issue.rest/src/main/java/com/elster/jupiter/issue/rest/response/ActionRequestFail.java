@@ -1,7 +1,5 @@
 package com.elster.jupiter.issue.rest.response;
 
-import com.elster.jupiter.util.collections.ArrayDiffList;
-
 import java.util.ArrayList;
 import java.util.List;
 
