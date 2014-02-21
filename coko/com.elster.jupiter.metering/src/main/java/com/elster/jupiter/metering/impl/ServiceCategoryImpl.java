@@ -2,10 +2,8 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
-import com.elster.jupiter.util.time.impl.DefaultClock;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
