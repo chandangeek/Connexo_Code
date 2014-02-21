@@ -26,7 +26,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-20 (17:49)
  */
-@Component(name="com.energyict.mdc.pluggable", service = {PluggableService.class, InstallService.class}, property = "name=CPC")
+@Component(name="com.energyict.mdc.pluggable", service = {PluggableService.class, InstallService.class}, property = "name=" + PluggableService.COMPONENTNAME)
 public class PluggableServiceImpl implements PluggableService, InstallService {
 
     private volatile DataModel dataModel;
@@ -138,7 +138,7 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(true, true, true);
+        new Installer(this.dataModel, this.eventService, this.thesaurus).install(false, false, true);
     }
 
 }
