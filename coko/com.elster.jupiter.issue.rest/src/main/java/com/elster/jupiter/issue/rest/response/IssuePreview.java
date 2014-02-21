@@ -9,16 +9,18 @@ public class IssuePreview {
     private long dueDate;
     private IssueAssignee assignee;
     private IssueDevice device;
+    private long creationDate;
     private long version;
 
     public IssuePreview(Issue issue){
         if (issue != null) {
             this.setId(issue.getId());
-            this.setReason(issue.getReason());
+            this.setReason(issue.getTitle());
             this.setStatus(issue.getStatus().toString());
             this.setDueDate(issue.getDueDate().getTime());
             this.setAssignee(new IssueAssignee(issue.getAssignee()));
             this.setDevice(new IssueDevice(issue.getDevice()));
+            this.setCreationDate(issue.getCreateTime().getTime());
             this.setVersion(issue.getVersion());
         }
     }
@@ -69,6 +71,14 @@ public class IssuePreview {
 
     public void setDevice(IssueDevice device) {
         this.device = device;
+    }
+
+    public long getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(long creationDate) {
+        this.creationDate = creationDate;
     }
 
     public long getVersion() {
