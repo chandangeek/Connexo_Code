@@ -31,6 +31,11 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
     pageStartParam: 'start',
     itemsPerPageMsg: 'Items per page',
 
+    firstText : 'First page',
+    prevText : 'Previous page',
+    nextText : 'Next page',
+    lastText : 'Last page',
+
     pageSizeStore: Ext.create('Ext.data.Store', {
         fields: ['value'],
         data: [
@@ -78,6 +83,8 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             this.store.pageSize = pageSize;
         }
 
+        this.initExtraParams();
+
         this.store.load({
             params: me.params,
             callback: function (records) {
@@ -121,13 +128,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         me.store.pageSize = pageSize;
         me.totalPages = 0;
 
-        if (Ext.isArray(me.params)) {
-            me.params.forEach(function (entry) {
-                var key = Object.keys(entry)[0];
-                var value = entry[key];
-                me.store.getProxy().setExtraParam(key, value);
-            });
-        }
+        this.initExtraParams();
 
         me.store.load({
             params: me.params,
@@ -307,8 +308,59 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             last = pageCount < me.totalPages ? me.totalPages : pageCount;
 
         if (me.fireEvent('beforechange', me, last) !== false) {
-            me.store.loadPage(last);
+            me.initExtraParams();
+            me.store.loadPage(last, {
+                params: me.params
+            });
+
             return true;
+        }
+        return false;
+    },
+
+    moveFirst : function(){
+        var me = this;
+        if (this.fireEvent('beforechange', this, 1) !== false){
+            me.initExtraParams();
+            this.store.loadPage(1, {
+                params: me.params
+            });
+            return true;
+        }
+        return false;
+    },
+
+    movePrevious : function(){
+        var me = this,
+            store = me.store,
+            prev = store.currentPage - 1;
+
+        if (prev > 0) {
+            if (me.fireEvent('beforechange', me, prev) !== false) {
+                me.initExtraParams();
+                store.loadPage(store.currentPage - 1, {
+                    params: me.params
+                });
+                return true;
+            }
+        }
+        return false;
+    },
+
+    moveNext : function(){
+        var me = this,
+            store = me.store,
+            total = me.getPageData().pageCount,
+            next = store.currentPage + 1;
+
+        if (next <= total) {
+            if (me.fireEvent('beforechange', me, next) !== false) {
+                me.initExtraParams();
+                store.loadPage(store.currentPage + 1, {
+                    params: me.params
+                });
+                return true;
+            }
         }
         return false;
     },
@@ -360,7 +412,9 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
     addNavItemClickHandler: function (me, page, navItem) {
         navItem.getEl().on('click', function () {
             Ext.History.suspendEvents();
+            me.initExtraParams();
             me.store.loadPage(page, {
+                params: me.params,
                 callback: function () {
                     Ext.History.resumeEvents();
                 }
@@ -382,6 +436,17 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             href = me.buildQueryString(start);
 
         return template.apply([page, href]);
+    },
+
+    initExtraParams: function () {
+        var me = this;
+        if (Ext.isArray(me.params)) {
+             me.params.forEach(function (entry) {
+                 var key = Object.keys(entry)[0];
+                 var value = entry[key];
+                 me.store.getProxy().setExtraParam(key, value);
+             });
+         }
     }
 
 });
