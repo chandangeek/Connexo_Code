@@ -140,8 +140,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                             columnWidth: 0.5,
                                             fieldLabel: Uni.I18n.translate('devicetype.dataSources', 'MDC', 'Data sources'),
                                             layout: {
-                                                type: 'vbox',
-                                                align: 'stretch'
+                                                type: 'vbox'
                                             },
                                             items: [
                                                 {
@@ -184,8 +183,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                             columnWidth: 0.5,
                                             fieldLabel: Uni.I18n.translate('devicetype.deviceConfigurationCount', 'MDC', 'Device configuration count'),
                                             layout: {
-                                                type: 'vbox',
-                                                align: 'stretch'
+                                                type: 'vbox'
                                             },
                                             items: [
                                                 {
