@@ -2,7 +2,6 @@ Ext.define('Cfg.view.validation.RulePreview', {
     extend: 'Ext.panel.Panel',
     border: true,
     margins: '0 10 10 10',
-    //margins: '0 10 0 10',
     alias: 'widget.rulePreview',
     itemId: 'rulePreview',
     requires: [
@@ -38,12 +37,14 @@ Ext.define('Cfg.view.validation.RulePreview', {
 
         {
             xtype: 'form',
+            border: false,
             itemId: 'ruleForm',
-            padding: '10 10 0 10',
+            padding: '0 10 0 10',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
+
             tbar: [
                 {
                     xtype: 'component',
@@ -80,6 +81,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
             items: [
                 {
                     xtype: 'displayfield',
+                    margin: '10 0 0 0',
                     name: 'name',
                     fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                     labelAlign: 'right',

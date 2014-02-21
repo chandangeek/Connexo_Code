@@ -2,7 +2,8 @@ Ext.define('Cfg.view.validation.RulesContainer', {
     extend: 'Ext.container.Container',
     alias: 'widget.rulesContainer',
     itemId: 'rulesContainer',
-    cls: 'content-container',
+    //cls: 'content-container',
+    border: false,
     overflowY: 'auto',
     requires: [
         'Cfg.view.validation.RuleSetPreview',
@@ -19,6 +20,7 @@ Ext.define('Cfg.view.validation.RulesContainer', {
             xtype: 'toolbar',
             dock : 'left',
             width: 150,
+            border: false,
             layout: {
                 type: 'vbox',
                 align: 'left'
@@ -53,6 +55,7 @@ Ext.define('Cfg.view.validation.RulesContainer', {
         }]
     },{
         xtype: 'container',
+        border: false,
         region: 'center',
         itemId: 'rulesListContainer',
         layout: 'fit'

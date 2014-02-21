@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validation.RuleSetPreview', {
     extend: 'Ext.panel.Panel',
-    border: true,
+    border: false,
     margins: '0 10 10 10',
     alias: 'widget.ruleSetPreview',
     itemId: 'ruleSetPreview',
@@ -38,8 +38,9 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
 
         {
             xtype: 'form',
+            border: false,
             itemId: 'rulesetForm',
-            padding: '10 10 0 10',
+            padding: '0 10 0 10',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -79,6 +80,7 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
             items: [
                 {
                     xtype: 'displayfield',
+                    margin: '10 0 0 0',
                     name: 'name',
                     fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                     //labelAlign: 'right',
@@ -108,6 +110,7 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
                 {
                     xtype: 'toolbar',
                     docked: 'bottom',
+                    border: false,
                     title: 'Bottom Toolbar',
                     items: [
                         '->',
