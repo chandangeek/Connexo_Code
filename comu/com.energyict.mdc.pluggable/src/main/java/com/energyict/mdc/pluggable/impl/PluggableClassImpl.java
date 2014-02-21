@@ -166,7 +166,7 @@ public class PluggableClassImpl implements PluggableClass {
     }
 
     private List<PluggableClass> findOthersByName (String name) {
-        return this.getDataMapper().find("name", name, "pluggableType", this.getPluggableClassType());
+        return this.getDataMapper().find("name", name);
     }
 
     @Override
