@@ -173,11 +173,6 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         return "Elster AS300-P (SSWG IC) DLMS";
     }
 
-    /**
-     * Returns the version
-     *
-     * @return the version string
-     */
     public String getVersion() {
         return "$Date$";
     }

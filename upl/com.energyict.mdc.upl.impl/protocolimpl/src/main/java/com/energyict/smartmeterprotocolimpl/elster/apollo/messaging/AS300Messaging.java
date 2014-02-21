@@ -41,6 +41,8 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
     private static final String STANDING_CHARGE = "Standing charge";
     protected static final String DISCONNECT_CONTROL_RECONNECT = "DisconnectControlReconnect";
     protected static final String DISCONNECT_CONTROL_DISCONNECT = "DisconnectControlDisconnect";
+    protected static final String SET_DISCONNECT_CONTROL_MODE = "SetControlMode";
+    protected static final String CONTROL_MODE = "Control mode (range 0 - 6)";
     protected static final String TEXT_TO_EMETER_DISPLAY = "TextToEmeterDisplay";
     protected static final String TEXT_TO_IHD = "TextToInHomeDisplay";
     protected static final String MESSAGE = "Message";
@@ -73,6 +75,7 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
         MessageCategorySpec connectDisconnectCat = new MessageCategorySpec("Connect/disconnect");
         connectDisconnectCat.addMessageSpec(addMsgWithValues("Disconnect Control - Reconnect", DISCONNECT_CONTROL_RECONNECT, false, false));
         connectDisconnectCat.addMessageSpec(addMsgWithValues("Disconnect Control - Disconnect", DISCONNECT_CONTROL_DISCONNECT, false, false));
+        connectDisconnectCat.addMessageSpec(addMsgWithValues("Disconnect Control - Write control mode", SET_DISCONNECT_CONTROL_MODE, false, true, CONTROL_MODE));
         categories.add(connectDisconnectCat);
 
         MessageCategorySpec textMessagesCat = new MessageCategorySpec("Display");

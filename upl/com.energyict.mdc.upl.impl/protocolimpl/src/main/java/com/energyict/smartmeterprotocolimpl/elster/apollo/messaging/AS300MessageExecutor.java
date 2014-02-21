@@ -11,6 +11,7 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
@@ -121,6 +122,8 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
                 doConnect(content);
             } else if (isDisconnectControlMessage(content)) {
                 doDisconnect(content);
+            } else if (isSetDisconnectControlMode(content)) {
+                setDisconnectControlMode(content);
             } else if (isTextToEMeterDisplayMessage(content)) {
                 sendTextToDisplay(content, true);
             } else if (isTextToIHDMessage(content)) {
@@ -546,15 +549,24 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     }
 
     private void doConnect(final String content) throws IOException {
-        log(Level.INFO, "Received Remote Connect message.");
+        log(Level.INFO, "Received Disconnect Control - Remote Connect message.");
         Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
         connector.remoteReconnect();
     }
 
     private void doDisconnect(final String content) throws IOException {
-        log(Level.INFO, "Received Disconnect Control - Disonnect message.");
+        log(Level.INFO, "Received Disconnect Control - Disconnect message.");
         Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
         connector.remoteDisconnect();
+    }
+
+    private void setDisconnectControlMode(final String content) throws IOException {
+        log(Level.INFO, "Received Set Disconnect Control Mode message.");
+        String[] parts = content.split("=");
+        int controlMode = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
+        Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
+        connector.writeControlMode(new TypeEnum(controlMode));
+        log(Level.INFO, "Successfully set control mode to " + controlMode);
     }
 
     private void sendTextToDisplay(final String content, final boolean sendToEMeter) throws IOException {
@@ -702,6 +714,10 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
 
     private boolean isDisconnectControlMessage(final String messageContent) {
         return (messageContent != null) && messageContent.contains(AS300Messaging.DISCONNECT_CONTROL_DISCONNECT);
+    }
+
+    private boolean isSetDisconnectControlMode(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(AS300Messaging.SET_DISCONNECT_CONTROL_MODE);
     }
 
     private boolean isTextToEMeterDisplayMessage(final String messageContent) {
