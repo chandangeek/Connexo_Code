@@ -32,6 +32,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         {ref: 'deviceTypeLogBookLink', selector: '#deviceTypeLogBooksLink'},
         {ref: 'deviceTypeDetailLogBookLink', selector: '#deviceTypeDetailLogBooksLink'},
         {ref: 'deviceConfigurationsLink', selector: '#deviceConfigurationsLink'},
+        {ref: 'deviceConfigurationsDetailLink', selector: '#deviceConfigurationsDetailLink'},
         {ref: 'deviceTypeLoadProfilesLink', selector: '#deviceTypeLoadProfilesLink'},
         {ref: 'deviceTypeDetailLoadProfilesLink', selector: '#deviceTypeDetailLoadProfilesLink'},
         {ref: 'deviceTypeDetailForm', selector: '#deviceTypeDetailForm'},
@@ -117,7 +118,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 me.getDeviceTypeDetailLogBookLink().getEl().setHTML(deviceType.get('logBookCount') + ' ' + Uni.I18n.translate('devicetype.logbooks', 'MDC', 'logbooks'));
                 me.getDeviceTypeDetailLoadProfilesLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/loadprofiles'});
                 me.getDeviceTypeDetailLoadProfilesLink().getEl().setHTML(deviceType.get('loadProfileCount') + ' ' + Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'loadprofiles'));
-
+                me.getDeviceConfigurationsDetailLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/configurations'});
+                me.getDeviceConfigurationsDetailLink().getEl().setHTML(deviceType.get('deviceConfigurationCount') + ' ' + Uni.I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations'));
                 widget.down('form').loadRecord(deviceType);
 
                 me.getDeviceTypePreviewTitle().update('<h4>' + deviceType.get('name') + ' ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h4>');
