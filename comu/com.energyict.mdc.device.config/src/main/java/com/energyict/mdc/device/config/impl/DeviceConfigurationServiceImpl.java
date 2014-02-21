@@ -76,7 +76,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setReadingTypeUtilService(mdcReadingTypeUtilService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
-            this.install();
+            this.install(true);
         }
     }
 
@@ -390,7 +390,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(false, false, true);
+        this.install(false);
+    }
+
+    private void install(boolean exeuteDdl) {
+        new Installer(this.dataModel, this.eventService, this.thesaurus).install(exeuteDdl, false, true);
     }
 
 }
