@@ -20,7 +20,17 @@ Ext.define('Uni.Loader', {
         'Uni.controller.Navigation',
         'Uni.controller.Notifications',
         'Uni.controller.Search',
-        'Uni.view.form.field.Vtypes'
+        'Uni.view.form.field.Vtypes',
+
+        'Uni.override.ApplicationOverride',
+        'Uni.override.CheckboxOverride',
+        'Uni.override.FieldBaseOverride',
+        'Uni.override.LabelableOverride',
+        'Uni.override.FieldContainerOverride',
+        'Uni.override.NumberFieldOverride',
+        'Uni.override.JsonWriterOverride',
+        'Uni.override.RestOverride',
+        'Uni.override.StoreOverride'
     ],
 
     /**
@@ -40,7 +50,6 @@ Ext.define('Uni.Loader', {
         this.loadFont();
         this.loadTooltips();
         this.loadStateManager();
-        this.loadOverrides();
         this.loadStores();
         this.loadVtypes();
 
@@ -59,18 +68,6 @@ Ext.define('Uni.Loader', {
 
     loadStateManager: function () {
         Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
-    },
-
-    loadOverrides: function () {
-        Ext.require('Uni.override.ApplicationOverride');
-        Ext.require('Uni.override.CheckboxOverride');
-        Ext.require('Uni.override.FieldBaseOverride');
-        Ext.require('Uni.override.LabelableOverride');
-        Ext.require('Uni.override.FieldContainerOverride');
-        Ext.require('Uni.override.NumberFieldOverride');
-        Ext.require('Uni.override.JsonWriterOverride');
-        Ext.require('Uni.override.RestOverride');
-        Ext.require('Uni.override.StoreOverride');
     },
 
     loadStores: function () {
