@@ -50,7 +50,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:38)
  */
-@Component(name="com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, InstallService.class}, property = {"name=DTC"})
+@Component(name="com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, InstallService.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME)
 public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, InstallService {
 
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -390,7 +390,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(false, true, true);
+        new Installer(this.dataModel, this.eventService, this.thesaurus).install(false, false, true);
     }
 
 }
