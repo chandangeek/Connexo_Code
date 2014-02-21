@@ -30,14 +30,6 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import javax.inject.Inject;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,12 +37,21 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import static com.energyict.mdc.engine.model.impl.ComPortImpl.OUTBOUND_DISCRIMINATOR;
 import static com.energyict.mdc.engine.model.impl.ComServerImpl.OFFLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.model.impl.ComServerImpl.ONLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.model.impl.ComServerImpl.REMOTE_COMSERVER_DISCRIMINATOR;
 
-@Component(name = "com.energyict.mdc.engine.model", service = {EngineModelService.class, InstallService.class}, property = {"name=CEM"})
+@Component(name = "com.energyict.mdc.engine.model", service = {EngineModelService.class, InstallService.class}, property = "name=" + EngineModelService.COMPONENT_NAME)
 public class EngineModelServiceImpl implements EngineModelService, InstallService, OrmClient {
 
     private volatile DataModel dataModel;
@@ -70,12 +71,12 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public void install() {
-        dataModel.install(true, true);
+        dataModel.install(false, false);
     }
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        this.dataModel = ormService.newDataModel("CEM", "ComServer Engine Model");
+        this.dataModel = ormService.newDataModel(EngineModelService.COMPONENT_NAME, "ComServer Engine Model");
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel);
         }

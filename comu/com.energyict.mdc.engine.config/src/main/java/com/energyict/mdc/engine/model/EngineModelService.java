@@ -11,6 +11,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface EngineModelService {
+
+    public static final String COMPONENT_NAME = "CEM";
+
     public ComServer findComServer(String name);
     /**
      * Finds the ComServer with the specified unique identifier.
