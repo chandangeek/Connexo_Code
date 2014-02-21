@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 
 import java.sql.SQLException;
 
+import com.elster.jupiter.users.UserDirectory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -76,7 +77,10 @@ public class UserServiceImplTest {
     public void testCreateUser() {
     	UserService userService = injector.getInstance(UserService.class);
     	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-    		User user = userService.createUser(AUTH_NAME, DESCRIPTION);
+            UserDirectory userDirectory = userService.findDefaultUserDirectory();
+    		User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION);
+            user.save();
+
     		assertThat(user.getName()).isEqualTo(AUTH_NAME);
     		assertThat(user.getDescription()).isEqualTo(DESCRIPTION);
     		// skip ctx.commit()
@@ -88,7 +92,10 @@ public class UserServiceImplTest {
     public void testCreateUserPersists() {
     	UserService userService = injector.getInstance(UserService.class);
     	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
-    		userService.createUser(AUTH_NAME, DESCRIPTION);
+            UserDirectory userDirectory = userService.findDefaultUserDirectory();
+            User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION);
+    		user.save();
+
     		assertThat(userService.findUser(AUTH_NAME)).isPresent();
     		// skip ctx.commit()
     	}

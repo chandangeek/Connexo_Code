@@ -10,6 +10,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.google.common.base.Optional;
@@ -86,7 +87,9 @@ public class UserIT {
             @Override
             protected void doPerform() {
                 UserService userService = injector.getInstance(UserService.class);
-                User user = userService.createUser("authName", "description");
+
+                UserDirectory userDirectory = userService.findDefaultUserDirectory();
+                User user = userDirectory.newUser("authName", "description");
                 user.setLocale(Locale.CANADA_FRENCH);
                 user.setPassword("password");
                 user.save();

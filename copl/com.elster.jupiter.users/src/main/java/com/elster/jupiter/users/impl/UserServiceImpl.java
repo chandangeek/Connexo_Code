@@ -2,15 +2,15 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.*;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.google.common.base.Optional;
@@ -24,6 +24,8 @@ import javax.inject.Inject;
 import javax.xml.bind.DatatypeConverter;
 import java.util.List;
 
+import static com.elster.jupiter.util.Checks.is;
+
 @Component(
         name = "com.elster.jupiter.users",
         service = {UserService.class, InstallService.class},
@@ -31,27 +33,28 @@ import java.util.List;
         property = "name=" + UserService.COMPONENTNAME)
 public class UserServiceImpl implements UserService, InstallService {
 
-    private static final String REALM = "Jupiter";
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
     private volatile QueryService queryService;
+    private volatile Thesaurus thesaurus;
+    private static final String JUPITER_REALM = "Jupiter";
 
     public UserServiceImpl() {
     }
-    
+
     @Inject
     public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService) {
-    	setTransactionService(transactionService);
-    	setQueryService(queryService);
-    	setOrmService(ormService);
-    	activate();
-    	if (!dataModel.isInstalled()) {
-    		install();
-    	}
+        setTransactionService(transactionService);
+        setQueryService(queryService);
+        setOrmService(ormService);
+        activate();
+        if (!dataModel.isInstalled()) {
+            install();
+        }
     }
-    
+
     @Activate
-	public void activate() {
+    public void activate() {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -59,11 +62,28 @@ public class UserServiceImpl implements UserService, InstallService {
                 bind(UserService.class).toInstance(UserServiceImpl.this);
             }
         });
-	}
+    }
 
-    public Optional<User> authenticate(String userName, String password) {
-        //TODO check password
-        return findUser(userName);
+    public Optional<User> authenticate(String domain, String userName, String password) {
+        UserDirectory userDirectory = is(domain).empty() ? findDefaultUserDirectory() : getUserDirectory(domain);
+        return userDirectory.authenticate(userName, password);
+    }
+
+    private UserDirectory getUserDirectory(String domain) {
+        Optional<UserDirectory> found = dataModel.mapper(UserDirectory.class).getOptional(domain);
+        if (!found.isPresent()) {
+            throw new NoDomainFoundException(thesaurus, domain);
+        }
+        return found.get();
+    }
+
+    @Override
+    public UserDirectory findDefaultUserDirectory() {
+        List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUAL.compare("isDefault", true));
+        if (found.isEmpty()) {
+            throw new NoDefaultDomainException(thesaurus);
+        }
+        return found.get(0);
     }
 
     @Override
@@ -73,7 +93,16 @@ public class UserServiceImpl implements UserService, InstallService {
         }
         String plainText = new String(DatatypeConverter.parseBase64Binary(base64));
         String[] names = plainText.split(":");
-        return authenticate(names[0], names.length > 0 ? null : names[1]);
+
+        String domain = null;
+        String userName = names[0];
+
+        String[] items = userName.split("/");
+        if(items.length > 1){
+            domain = items[0];
+            userName = items[1];
+        }
+        return authenticate(domain, userName, names.length > 0 ? null : names[1]);
     }
 
     @Override
@@ -89,34 +118,27 @@ public class UserServiceImpl implements UserService, InstallService {
         result.persist();
         return result;
     }
-	
-	@Override
-	public User createUser(String authenticationName, String description) {
-		UserImpl result = UserImpl.from(dataModel, authenticationName, description);
-		result.save();
-		return result;
-	}
-	
-	@Deactivate
-	public void deactivate() {
-	}
+
+    @Deactivate
+    public void deactivate() {
+    }
 
     @Override
     public Optional<Group> findGroup(String name) {
-    	for (Group group : getGroups()) {
-    		if (group.getName().equals(name)) {
-    			return Optional.of(group);
-    		}
-    	}
+        for (Group group : getGroups()) {
+            if (group.getName().equals(name)) {
+                return Optional.of(group);
+            }
+        }
         return Optional.<Group>absent();
     }
 
     @Override
     public Optional<User> findUser(String authenticationName) {
-    	Condition condition = Operator.EQUAL.compare("authenticationName",authenticationName);
-    	List<User> users = dataModel.query(User.class,UserInGroup.class).select(condition);
-        return users.isEmpty() ? Optional.<User>absent() : Optional.of(users.get(0));      
-	}
+        Condition condition = Operator.EQUAL.compare("authenticationName", authenticationName);
+        List<User> users = dataModel.query(User.class, UserInGroup.class).select(condition);
+        return users.isEmpty() ? Optional.<User>absent() : Optional.of(users.get(0));
+    }
 
     @Override
     public Optional<Group> getGroup(long id) {
@@ -126,6 +148,11 @@ public class UserServiceImpl implements UserService, InstallService {
     @Override
     public List<Group> getGroups() {
         return dataModel.mapper(Group.class).find();
+    }
+
+    @Override
+    public String getRealm() {
+        return JUPITER_REALM;
     }
 
     @Override
@@ -147,11 +174,6 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Override
-    public String getRealm() {
-        return REALM;
-    }
-
-    @Override
     public Optional<User> getUser(long id) {
         return userFactory().getOptional(id);
     }
@@ -161,9 +183,9 @@ public class UserServiceImpl implements UserService, InstallService {
         return getQueryService().wrap(dataModel.query(User.class));
     }
 
-	public void install() {
-		new InstallerImpl(dataModel).install();
-	}
+    public void install() {
+        new InstallerImpl(dataModel).install();
+    }
 
     @Override
     public Group newGroup(String name) {
@@ -171,8 +193,23 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Override
-    public User newUser(String name) {
-        return UserImpl.from(dataModel, name);
+    public UserDirectory createInternalDirectory(String domain) {
+        return InternalDirectoryImpl.from(dataModel, domain);
+    }
+
+    @Override
+    public LdapUserDirectory createActiveDirectory(String domain) {
+        return ActiveDirectoryImpl.from(dataModel, domain);
+    }
+
+    @Override
+    public LdapUserDirectory createApacheDirectory(String domain) {
+        return ApacheDirectoryImpl.from(dataModel, domain);
+    }
+
+    @Override
+    public Optional<UserDirectory> findUserDirectory(String domain) {
+        return dataModel.mapper(UserDirectory.class).getOptional(domain);
     }
 
     @Reference
@@ -191,6 +228,11 @@ public class UserServiceImpl implements UserService, InstallService {
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        thesaurus = nlsService.getThesaurus(UserService.COMPONENTNAME, Layer.DOMAIN);
     }
 
     private DataMapper<User> userFactory() {

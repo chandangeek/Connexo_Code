@@ -6,7 +6,9 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserDirectory;
 
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
@@ -35,6 +37,22 @@ public enum TableSpecs {
 			table.unique("IDS_U_GROUP").on(nameColumn).add();
 		}
 	},
+    USR_USERDIRECTORY {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UserDirectory> table = dataModel.addTable(name(), UserDirectory.class);
+			table.map(AbstractUserDirectoryImpl.IMPLEMENTERS);
+            Column domain = table.column("DOMAIN").type("varchar(128)").notNull().map("domain").add();
+            table.addDiscriminatorColumn("DIRECTORY_TYPE", "char(3)");
+            table.column("IS_DEFAULT").bool().map("isDefault").add();
+            table.column("GROUPS_INTERNAL").type("char(1)").conversion(CHAR2BOOLEAN).map("manageGroupsInternal").add();
+            table.column("DIRECTORY_USER").type("varchar(4000)").map("directoryUser").add();
+            table.column("PASSWORD").type("varchar(128)").map("password").add();
+            table.column("URL").type("varchar(4000)").map("url").add();
+            table.addAuditColumns();
+            table.primaryKey("USR_PK_USERDIRECTORY").on(domain).add();
+        }
+    },
 	USR_USER {
 		void addTo(DataModel dataModel) {
 			Table<User> table = dataModel.addTable(name(), User.class);
@@ -44,11 +62,13 @@ public enum TableSpecs {
 			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
 			table.column("HA1").type("varchar2(32)").map("ha1").add();
             table.column("LANGUAGETAG").type("varchar2(64)").map("languageTag").add();
-			table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
+            Column userDirColumn = table.column("USER_DIRECTORY").varChar(128).notNull().add();
+            table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");
 			table.primaryKey("USR_PK_USER").on(idColumn).add();
-			table.unique("USR_U_USERAUTHNAME").on(authenticationNameColumn).add();
+			table.unique("USR_U_USERAUTHNAME").on(userDirColumn, authenticationNameColumn).add();
+            table.foreignKey("USR_FK_USER_USERDIR").references(USR_USERDIRECTORY.name()).onDelete(CASCADE).map("userDirectory").on(userDirColumn).add();
 		}
 	},
 	USR_PRIVILEGEINGROUP {
@@ -76,6 +96,6 @@ public enum TableSpecs {
 		}
 	};
 
-	abstract void addTo(DataModel component);	
+	abstract void addTo(DataModel dataModel);
 	
 }

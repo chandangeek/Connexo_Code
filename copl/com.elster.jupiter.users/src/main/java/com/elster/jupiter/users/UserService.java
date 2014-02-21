@@ -9,8 +9,6 @@ public interface UserService {
 
     String COMPONENTNAME = "USR";
 
-    User createUser(String authenticationName, String description);
-
     Group createGroup(String name);
 
     Privilege createPrivilege(String componentName, String name, String description);
@@ -27,15 +25,23 @@ public interface UserService {
 
     Optional<User> authenticateBase64(String base64String);
 
-    String getRealm();
-
     List<Group> getGroups();
+
+    String getRealm();
 
     Query<User> getUserQuery();
 
     Group newGroup(String name);
 
-    User newUser(String name);
+    List<Privilege> getPrivileges();
 
-	List<Privilege> getPrivileges();
+    UserDirectory createInternalDirectory(String domain);
+
+    Optional<UserDirectory> findUserDirectory(String domain);
+
+    UserDirectory findDefaultUserDirectory();
+
+    LdapUserDirectory createActiveDirectory(String domain);
+
+    LdapUserDirectory createApacheDirectory(String domain);
 }

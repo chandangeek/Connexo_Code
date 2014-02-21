@@ -9,6 +9,7 @@ import java.util.List;
 
 public class InstallerImpl {
 
+    public static final String DEFULT_DOMAIN_NAME = "Local";
     private DataModel dataModel;
 
     public InstallerImpl(DataModel dataModel) {
@@ -22,19 +23,28 @@ public class InstallerImpl {
 	
 	private void createMasterData() {
 		createPrivileges();
-		GroupImpl administrators = createAdministrators();
-		createAdmin(administrators);		
+        InternalDirectoryImpl directory = createDirectory();
+        GroupImpl administrators = createAdministrators();
+		createAdmin(directory, administrators);
 	}
 
-	private GroupImpl createAdministrators() {
+    private InternalDirectoryImpl createDirectory() {
+        InternalDirectoryImpl directory = InternalDirectoryImpl.from(dataModel, DEFULT_DOMAIN_NAME);
+        directory.setDefault(true);
+        directory.save();
+        return directory;
+    }
+
+    private GroupImpl createAdministrators() {
 		GroupImpl group = GroupImpl.from(dataModel, "Administrators");
 		group.save();
 		group.grant(Privileges.MANAGE_USERS);
 		return group;
 	}
 	
-	private void createAdmin(GroupImpl administrators) {
-		UserImpl user = UserImpl.from(dataModel, "admin", "System Administrator");
+	private void createAdmin(InternalDirectoryImpl directory, GroupImpl administrators) {
+        UserImpl user = directory.newUser("admin", "System Administrator");
+
 		user.setPassword("admin");
 		user.save();
 		user.join(administrators);

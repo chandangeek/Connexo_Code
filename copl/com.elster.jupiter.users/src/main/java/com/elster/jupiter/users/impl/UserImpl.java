@@ -1,18 +1,17 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
-import javax.xml.bind.DatatypeConverter;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -32,6 +31,7 @@ public class UserImpl implements User {
     private UtcInstant createTime;
     private UtcInstant modTime;
     private String languageTag;
+    private Reference<UserDirectory> userDirectory = ValueReference.absent();
 
     // transient
     private List<UserInGroup> memberships;
@@ -43,16 +43,17 @@ public class UserImpl implements User {
         this.dataModel = dataModel;
     }
 
-    static UserImpl from(DataModel dataModel, String authenticationName) {
-        return from(dataModel, authenticationName, null);
+    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName) {
+        return from(dataModel, userDirectory, authenticationName, null);
     }
 
-    static UserImpl from(DataModel dataModel, String authenticationName, String description) {
-        return dataModel.getInstance(UserImpl.class).init(authenticationName, description);
+    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, String description) {
+        return dataModel.getInstance(UserImpl.class).init(userDirectory, authenticationName, description);
     }
 
-    UserImpl init(String authenticationName, String description) {
+    UserImpl init(UserDirectory userDirectory, String authenticationName, String description) {
         validateAuthenticationName(authenticationName);
+        this.userDirectory.set(userDirectory);
         this.authenticationName = authenticationName;
         this.description = description;
         return this;
@@ -136,12 +137,16 @@ public class UserImpl implements User {
     
     @Override
     public List<Group> getGroups() {
-    	List<UserInGroup> userInGroups = getMemberships();
-    	ImmutableList.Builder<Group> builder = ImmutableList.builder();
-    	for (UserInGroup each : userInGroups) {
-    		builder.add(each.getGroup());
-   		}
-    	return builder.build();
+        return userDirectory.get().getGroups(this);
+    }
+
+    List<Group> doGetGroups() {
+        List<UserInGroup> userInGroups = getMemberships();
+        ImmutableList.Builder<Group> builder = ImmutableList.builder();
+        for (UserInGroup each : userInGroups) {
+            builder.add(each.getGroup());
+           }
+        return builder.build();
     }
 
     public void save() {
@@ -219,18 +224,7 @@ public class UserImpl implements User {
 	}
 	
 	private String createHa1(String password ) {
-		try {
-			MessageDigest messageDigest = MessageDigest.getInstance("MD5");
-			messageDigest.update(authenticationName.getBytes());
-			messageDigest.update(":".getBytes());
-			messageDigest.update(dataModel.getInstance(UserService.class).getRealm().getBytes());
-			messageDigest.update(":".getBytes());
-			messageDigest.update(password.getBytes());			
-			byte[] md5 = messageDigest.digest();
-			return DatatypeConverter.printHexBinary(md5).toLowerCase();
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
-		}
+        return new DigestHa1Util().createHa1(userDirectory.get().getDomain(), authenticationName, password);
 	}
 
 	@Override
