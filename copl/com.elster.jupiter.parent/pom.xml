@@ -331,10 +331,12 @@
                 <module>../com.elster.jupiter.messaging</module>
                 <module>../com.elster.jupiter.messaging.oracle</module>
                 <module>../com.elster.jupiter.metering</module>
+                <module>../com.elster.jupiter.metering.groups</module>
                 <module>../com.elster.jupiter.extjs</module>
                 <module>../com.elster.jupiter.unifyingjs</module>
                 <module>../com.elster.jupiter.metering.extjs</module>
                 <module>../com.elster.jupiter.metering.rest</module>
+                <module>../com.elster.jupiter.metering.cim</module>
                 <module>../com.elster.jupiter.nls.rest</module>
                 <module>../com.elster.jupiter.orm</module>
                 <module>../com.elster.jupiter.osgi.goodies</module>
@@ -345,6 +347,7 @@
                 <module>../com.elster.jupiter.rest.util</module>
                 <module>../com.elster.jupiter.rest.whiteboard</module>
                 <module>../com.elster.jupiter.soap.whiteboard</module>
+                <module>../com.elster.jupiter.soap.whiteboard.cxf</module>
                 <module>../com.elster.jupiter.security.thread</module>
                 <module>../com.elster.jupiter.tasks</module>
                 <module>../com.elster.jupiter.transaction</module>
