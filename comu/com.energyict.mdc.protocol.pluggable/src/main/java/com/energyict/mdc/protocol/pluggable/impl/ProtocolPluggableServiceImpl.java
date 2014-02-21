@@ -56,7 +56,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-23 (13:47)
  */
-@Component(name="com.energyict.mdc.protocol.pluggable", service = {ProtocolPluggableService.class, InstallService.class})
+@Component(name="com.energyict.mdc.protocol.pluggable", service = {ProtocolPluggableService.class, InstallService.class}, property = "name=PPC")
 public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, InstallService {
 
     private volatile DataModel dataModel;
