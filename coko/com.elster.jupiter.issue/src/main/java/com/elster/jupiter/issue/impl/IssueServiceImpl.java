@@ -58,7 +58,7 @@ public class IssueServiceImpl implements IssueService, InstallService {
 
     @Override
     public void install() {
-        new Installer(this.dataModel).install(true, true);
+        new Installer(this.dataModel).install(true, false);
     }
 
     @Reference
