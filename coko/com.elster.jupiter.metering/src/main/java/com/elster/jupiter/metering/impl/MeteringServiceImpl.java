@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -36,12 +37,14 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+
 import java.util.Date;
 import java.util.List;
 
@@ -149,6 +152,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         return queryService.wrap(
                 dataModel.query(
                         UsagePoint.class,
+                        UsagePointDetail.class,
                         ServiceLocation.class,
                         MeterActivation.class,
                         EndDevice.class,
