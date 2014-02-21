@@ -65,13 +65,17 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
         this.setOrmService(ormService);
         activate();
         if (!dataModel.isInstalled()) {
-        	install();
+        	this.install(true);
         }
     }
 
     @Override
     public void install() {
-        dataModel.install(false, false);
+        this.install(false);
+    }
+
+    private void install(boolean executeDdl) {
+        dataModel.install(executeDdl, false);
     }
 
     @Reference
