@@ -70,28 +70,28 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
                 {
                     xtype: 'displayfield',
                     name: 'name',
-                    fieldLabel: I18n.translate('validation.name', 'CFG', 'Name') + ':',
+                    fieldLabel: I18n.translate('validation.name', 'CFG', 'Name'),
                     labelAlign: 'right',
                     labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'description',
-                    fieldLabel: I18n.translate('validation.description', 'CFG', 'Description') + ':',
+                    fieldLabel: I18n.translate('validation.description', 'CFG', 'Description'),
                     labelAlign: 'right',
                     labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'numberOfRules',
-                    fieldLabel:  I18n.translate('validation.numberOfRules', 'CFG', 'Number of rules') + ':',
+                    fieldLabel:  I18n.translate('validation.numberOfRules', 'CFG', 'Number of rules'),
                     labelAlign: 'right',
                     labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'numberOfInactiveRules',
-                    fieldLabel:  I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules') + ':',
+                    fieldLabel:  I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules'),
                     labelAlign: 'right',
                     labelWidth:	250
                 }
