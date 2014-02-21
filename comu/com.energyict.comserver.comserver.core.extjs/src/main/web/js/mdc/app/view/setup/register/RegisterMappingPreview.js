@@ -22,14 +22,14 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                 tbar: [
                     {
                         xtype: 'component',
-                        html: '<H4>' + I18n.translate('registerMapping.noRegisterMappingSelected', 'MDC', 'No register type selected') + '</H4>'
+                        html: '<H4>' + Uni.I18n.translate('registerMapping.noRegisterMappingSelected', 'MDC', 'No register type selected') + '</H4>'
                     }
                 ],
                 items: [
                     {
                         xtype: 'component',
                         height: '100px',
-                        html: '<H5>' + I18n.translate('registerMapping.selectRegisterMapping', 'MDC', 'Select a register type to see its details') + '</H5>'
+                        html: '<H5>' + Uni.I18n.translate('registerMapping.selectRegisterMapping', 'MDC', 'Select a register type to see its details') + '</H5>'
                     }
                 ]
 
@@ -48,17 +48,17 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                 tbar: [
                     {
                         xtype: 'component',
-                        html: '<h4>' + I18n.translate('registerMapping.previewTitle', 'MDC', 'Selected register preview') + '</h4>',
+                        html: '<h4>' + Uni.I18n.translate('registerMapping.previewTitle', 'MDC', 'Selected register preview') + '</h4>',
                         itemId: 'registerMappingPreviewTitle'
                     },
                     '->',
                     {
                         icon: 'resources/images/gear-16x16.png',
-                        text: I18n.translate('general.actions', 'MDC', 'Actions'),
+                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                         menu: {
                             items: [
                                 {
-                                    text: I18n.translate('general.remove', 'MDC', 'Remove'),
+                                    text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                                     itemId: 'removeRegisterMapping',
                                     action: 'removeRegisterMapping'
 
@@ -86,14 +86,14 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                     {
                                         xtype: 'displayfield',
                                         name: 'name',
-                                        fieldLabel: I18n.translate('registerMapping.name', 'MDC', 'Name'),
+                                        fieldLabel: Uni.I18n.translate('registerMapping.name', 'MDC', 'Name'),
                                         labelAlign: 'right',
                                         labelWidth: 150
                                     },
                                     {
                                         xtype: 'fieldcontainer',
                                         columnWidth: 0.5,
-                                        fieldLabel: I18n.translate('registerMapping.readingType', 'MDC', 'Reading type'),
+                                        fieldLabel: Uni.I18n.translate('registerMapping.readingType', 'MDC', 'Reading type'),
                                         labelAlign: 'right',
                                         labelWidth: 150,
                                         layout: {
@@ -127,7 +127,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                     {
                                         xtype: 'displayfield',
                                         name: 'obisCode',
-                                        fieldLabel: I18n.translate('registerMapping.obisCode', 'MDC', 'OBIS code'),
+                                        fieldLabel: Uni.I18n.translate('registerMapping.obisCode', 'MDC', 'OBIS code'),
                                         labelAlign: 'right',
                                         labelWidth: 150
                                     }
@@ -144,14 +144,14 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                     {
                                         xtype: 'displayfield',
                                         name: 'measurementKind',
-                                        fieldLabel: I18n.translate('registerMapping.type', 'MDC', 'Type'),
+                                        fieldLabel: Uni.I18n.translate('registerMapping.type', 'MDC', 'Type'),
                                         labelAlign: 'right',
                                         labelWidth: 150
                                     },
                                     {
                                         xtype: 'displayfield',
                                         name: 'dataCollectionGroup',
-                                        fieldLabel: I18n.translate('registerMapping.dataCollectionGroup', 'MDC', 'Data collection group'),
+                                        fieldLabel: Uni.I18n.translate('registerMapping.dataCollectionGroup', 'MDC', 'Data collection group'),
                                         labelAlign: 'right',
                                         labelWidth: 150
                                     }

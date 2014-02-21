@@ -27,12 +27,12 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                 },
                 {
                     xtype: 'component',
-                    html: I18n.translate('registerMapping.deviceType', 'MDC', 'Device type'),
+                    html: Uni.I18n.translate('registerMapping.deviceType', 'MDC', 'Device type'),
                     margins: '10 10 0 20'
                 },
                 {
                     xtype: 'component',
-                    html: '<h1>' + I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types') + '</h1>',
+                    html: '<h1>' + Uni.I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types') + '</h1>',
                     margins: '10 10 10 10',
                     itemId: 'registerTypeAddTitle'
                 },
@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                     margins: '10 10 0 20',
                     items: [
                         {
-                            text: I18n.translate('general.add', 'MDC', 'Add'),
+                            text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                             xtype: 'button',
                             action: 'addRegisterMappingAction',
                             itemId: 'addButton'
@@ -62,7 +62,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                             autoEl: {
                                 tag: 'a',
                                 href: '#setup/devicetypes/' + this.deviceTypeId + '/registertypes',
-                                html: I18n.translate('general.cancel', 'MDC', 'Cancel')
+                                html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
                             }
                         }
                     ]

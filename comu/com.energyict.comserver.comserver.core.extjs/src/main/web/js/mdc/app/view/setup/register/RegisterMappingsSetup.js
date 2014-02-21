@@ -33,12 +33,12 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                 },
                 {
                     xtype: 'component',
-                    html: I18n.translate('registerMapping.deviceType','MDC','Device type'),
+                    html: Uni.I18n.translate('registerMapping.deviceType','MDC','Device type'),
                     margins: '10 10 0 20'
                 },
                 {
                     xtype: 'component',
-                    html: '<h1>' + I18n.translate('registerMapping.registerTypes','MDC','Register types') + '</h1>',
+                    html: '<h1>' + Uni.I18n.translate('registerMapping.registerTypes','MDC','Register types') + '</h1>',
                     margins: '10 10 10 10',
                     itemId: 'registerTypeTitle'
                 },

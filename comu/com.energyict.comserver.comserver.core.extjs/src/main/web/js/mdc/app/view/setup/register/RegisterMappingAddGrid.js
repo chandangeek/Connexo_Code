@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
     listeners: {
         selectionchange: function (view, selections, options) {
             this.nbrOfSelectedItems = selections.length;
-            this.down('#pagingt').displayMsg = this.nbrOfSelectedItems + ' ' + I18n.translate('registerMappingsAdd.pagingtoolbartop.displayMsg', 'MDC', 'register types selected');
+            this.down('#pagingt').displayMsg = this.nbrOfSelectedItems + ' ' + Uni.I18n.translate('registerMappingsAdd.pagingtoolbartop.displayMsg', 'MDC', 'register types selected');
             this.down('#pagingt').onLoad();
         }
     },
@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
         var me = this;
         this.columns = [
             {
-                header: I18n.translate('registerMappings.name', 'MDC', 'Name'),
+                header: Uni.I18n.translate('registerMappings.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 sortable: false,
                 hideable: false,
@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                         + record.get('mrid') + '&nbsp' + '&nbsp'
                         + '</div>'
                 },
-                header: I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
+                header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
                 flex: 2,
                 items: [
                     {
@@ -59,14 +59,14 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 hideable: false
             },
             {
-                header: I18n.translate('registerMappings.obisCode', 'MDC', 'OBIS code'),
+                header: Uni.I18n.translate('registerMappings.obisCode', 'MDC', 'OBIS code'),
                 dataIndex: 'obisCode',
                 flex: 1,
                 sortable: false,
                 hideable: false
             },
             {
-                header: I18n.translate('registerMappings.type', 'MDC', 'Type'),
+                header: Uni.I18n.translate('registerMappings.type', 'MDC', 'Type'),
                 dataIndex: 'measurementKind',
                 flex: 1,
                 sortable: false,
@@ -79,7 +79,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 store: this.store,
                 dock: 'top',
                 itemId: 'pagingt',
-                displayMsg: this.nbrOfSelectedItems + ' ' + I18n.translate('registerMappingsAdd.pagingtoolbartop.displayMsg', 'MDC', ' register types selected'),
+                displayMsg: this.nbrOfSelectedItems + ' ' + Uni.I18n.translate('registerMappingsAdd.pagingtoolbartop.displayMsg', 'MDC', ' register types selected'),
                 items: [
                     {
                         xtype: 'component',

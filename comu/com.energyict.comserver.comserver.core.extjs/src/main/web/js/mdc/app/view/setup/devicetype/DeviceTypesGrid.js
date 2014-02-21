@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
         var me = this;
         this.columns = [
             {
-                header : I18n.translate('devicetype.name', 'MDC', 'Name'),
+                header : Uni.I18n.translate('devicetype.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 sortable: false,
                 hideable: false,
@@ -24,7 +24,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 flex: 1
             },
             {
-                header: I18n.translate('devicetype.communicationProtocol', 'MDC', 'Device communication protocol'),
+                header: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Device communication protocol'),
                 dataIndex: 'communicationProtocolName',
                 sortable: false,
                 hideable: false,
@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
             {
                 xtype:'actioncolumn',
                 tdCls:'view',
-                header : I18n.translate('general.actions', 'MDC', 'Actions'),
+                header : Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
                 items: [{
@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                         var menu = Ext.widget('menu', {
                             items: [{
                                 xtype: 'menuitem',
-                                text: I18n.translate('general.edit', 'MDC', 'Edit'),
+                                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                 listeners: {
                                     click: {
                                         element: 'el',
@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                                 }
                             }, {
                                 xtype: 'menuitem',
-                                text: I18n.translate('general.delete', 'MDC', 'Delete'),
+                                text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
                                 listeners: {
                                     click: {
                                         element: 'el',
@@ -86,7 +86,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                         flex: 1
                     },
                     {
-                        text: I18n.translate('devicetype.createDeviceType', 'MDC', 'Create device type'),
+                        text: Uni.I18n.translate('devicetype.createDeviceType', 'MDC', 'Create device type'),
                         itemId: 'createDeviceType',
                         xtype: 'button',
                         action: 'createDeviceType'

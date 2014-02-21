@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
         var me = this;
         this.columns = [
             {
-                header: I18n.translate('registerMappings.name', 'MDC', 'Name'),
+                header: Uni.I18n.translate('registerMappings.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 sortable: false,
                 hideable: false,
@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                         + record.get('mrid') + '&nbsp' + '&nbsp'
                         + '</div>'
                 },
-                header: I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
+                header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
                 items: [
                     {
                         icon: 'resources/images/gear-16x16.png',
@@ -51,14 +51,14 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 hideable: false
             },
             {
-                header: I18n.translate('registerMappings.obisCode', 'MDC', 'OBIS code'),
+                header: Uni.I18n.translate('registerMappings.obisCode', 'MDC', 'OBIS code'),
                 dataIndex: 'obisCode',
                 sortable: false,
                 hideable: false,
                 flex: 1
             },
             {
-                header: I18n.translate('registerMappings.type', 'MDC', 'Type'),
+                header: Uni.I18n.translate('registerMappings.type', 'MDC', 'Type'),
                 dataIndex: 'measurementKind',
                 sortable: false,
                 hideable: false,
@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
             {
                 xtype: 'actioncolumn',
                 tdCls: 'view',
-                header : I18n.translate('general.actions', 'MDC', 'Actions'),
+                header : Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
                 items: [
@@ -78,7 +78,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                                 items: [
                                     {
                                         xtype: 'menuitem',
-                                        text: I18n.translate('registerMappings.remove', 'MDC', 'Remove'),
+                                        text: Uni.I18n.translate('registerMappings.remove', 'MDC', 'Remove'),
                                         listeners: {
                                             click: {
                                                 element: 'el',
@@ -104,9 +104,9 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: I18n.translate('registerMappings.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} register types'),
-                displayMoreMsg: I18n.translate('registerMappings.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} register types'),
-                emptyMsg: I18n.translate('registerMappings.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register types to display'),
+                displayMsg: Uni.I18n.translate('registerMappings.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} register types'),
+                displayMoreMsg: Uni.I18n.translate('registerMappings.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} register types'),
+                emptyMsg: Uni.I18n.translate('registerMappings.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register types to display'),
                 items: [
                     {
                         xtype: 'component',
@@ -114,7 +114,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                     },
                     {
 
-                        text: I18n.translate('registerMapping.addRegisterMapping', 'MDC', 'Add register types'),
+                        text: Uni.I18n.translate('registerMapping.addRegisterMapping', 'MDC', 'Add register types'),
                         itemId: 'addRegisterMappingBtn',
                         xtype: 'button',
                         href: '#setup/devicetypes/' + this.deviceTypeId + '/registertypes/add',
@@ -122,7 +122,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                         action: 'addRegisterMapping'
                     },
                     {
-                        text: I18n.translate('general.bulkAction', 'MDC', 'Bulk action'),
+                        text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk action'),
                         itemId: 'registerMappingsBulkAction',
                         xtype: 'button'
                     }

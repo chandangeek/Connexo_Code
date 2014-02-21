@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
                 },
                 {
                     xtype: 'component',
-                    html: '<h1>'+ I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types')+'</h1>',
+                    html: '<h1>'+ Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types')+'</h1>',
                     margins: '10 10 10 10'
                 },
                 {

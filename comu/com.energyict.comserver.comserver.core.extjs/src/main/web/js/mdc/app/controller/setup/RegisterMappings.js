@@ -95,7 +95,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                     Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
                         success: function (deviceType) {
                             var deviceTypeName = deviceType.get('name');
-                            widget.down('#registerTypeTitle').html = '<h1>' + deviceTypeName + ' > ' + I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types') + '</h1>';
+                            widget.down('#registerTypeTitle').html = '<h1>' + deviceTypeName + ' > ' + Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types') + '</h1>';
                             Mdc.getApplication().getMainController().showContent(widget);
                             me.createBreadCrumbs(id, deviceTypeName);
                         }
@@ -115,7 +115,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                     Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
                         success: function (deviceType) {
                             var deviceTypeName = deviceType.get('name');
-                            widget.down('#registerTypeAddTitle').html = '<h1>' + deviceTypeName + ' > ' + I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types') + '</h1>';
+                            widget.down('#registerTypeAddTitle').html = '<h1>' + deviceTypeName + ' > ' + Uni.I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types') + '</h1>';
                             Mdc.getApplication().getMainController().showContent(widget);
                             me.createBreadCrumbsAddRegisterType(id, deviceTypeName);
                         }
@@ -128,7 +128,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         var me = this;
 
         var breadcrumbRegisterTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
+            text: Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
             href: 'registertypes'
         });
 
@@ -138,11 +138,11 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         });
 
         var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: I18n.translate('registerMapping.deviceTypes', 'MDC', 'Device types'),
+            text: Uni.I18n.translate('registerMapping.deviceTypes', 'MDC', 'Device types'),
             href: 'devicetypes'
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: I18n.translate('general.administration', 'MDC', 'Administration'),
+            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
             href: '#setup'
         });
 
@@ -155,12 +155,12 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         var me = this;
 
         var breadcrumbAddRegisterTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types'),
+            text: Uni.I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types'),
             href: 'Add register types'
         });
 
         var breadcrumbRegisterTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
+            text: Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
             href: 'registertypes'
         });
 
@@ -170,11 +170,11 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         });
 
         var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: I18n.translate('registerMapping.deviceTypes', 'MDC', 'Device types'),
+            text: Uni.I18n.translate('registerMapping.deviceTypes', 'MDC', 'Device types'),
             href: 'devicetypes'
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: I18n.translate('general.administration', 'MDC', 'Administration'),
+            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
             href: '#setup'
         });
 
