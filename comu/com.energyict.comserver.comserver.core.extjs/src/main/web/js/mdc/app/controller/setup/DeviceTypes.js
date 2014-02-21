@@ -170,7 +170,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 protocolStore.load({
                     callback: function (store) {
                         widget.down('form').loadRecord(deviceType);
-                        widget.down('#deviceTypeEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + deviceType.get('name')+'</H2>');
+                        widget.down('#deviceTypeEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name')+'"</H2>');
                         widget.setLoading(false);
                     }
                 })
