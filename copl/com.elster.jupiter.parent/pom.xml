@@ -278,6 +278,7 @@
                     <instructions>
                         <Bundle-Vendor>Elster</Bundle-Vendor>
                         <Bundle-RequiredExecutionEnvironment>JavaSE-1.7</Bundle-RequiredExecutionEnvironment>
+                        <_sources>true</_sources>
                         <_include>bnd.bnd</_include>
                     </instructions>
                 </configuration>
