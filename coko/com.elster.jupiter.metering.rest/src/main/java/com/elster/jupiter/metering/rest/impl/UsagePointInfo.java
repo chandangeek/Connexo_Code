@@ -1,12 +1,17 @@
 package com.elster.jupiter.metering.rest.impl;
 
+import java.util.Date;
+
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
+import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.util.units.Quantity;
+import com.google.common.base.Optional;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -59,27 +64,34 @@ public class UsagePointInfo {
 		aliasName = usagePoint.getAliasName();
 		description = usagePoint.getDescription();
 		name = usagePoint.getName();
-		amiBillingReady = usagePoint.getAmiBillingReady();
-		checkBilling = usagePoint.isCheckBilling();
-		connectionState = usagePoint.getConnectionState();
-		estimatedLoad = usagePoint.getEstimatedLoad();
-		grounded = usagePoint.isGrounded();
 		isSdp = usagePoint.isSdp();
 		isVirtual = usagePoint.isVirtual();
-		minimalUsageExpected = usagePoint.isMinimumUsageExpected();
-		nominalServiceVoltage = usagePoint.getNominalServiceVoltage();
 		outageRegion = usagePoint.getOutageRegion();
-		phaseCode = usagePoint.getPhaseCode();
-		ratedCurrent = usagePoint.getRatedCurrent();
-		ratedPower = usagePoint.getRatedPower();
 		readCycle = usagePoint.getReadCycle();
 		readRoute = usagePoint.getReadRoute();
-		serviceDeliveryRemark = usagePoint.getServiceDeliveryRemark();
 		servicePriority = usagePoint.getServicePriority();
 		version = usagePoint.getVersion();
 		createTime = usagePoint.getCreateDate().getTime();
 		modTime = usagePoint.getModificationDate().getTime();
-
+		Optional<? extends UsagePointDetail> detailHolder = usagePoint.getDetail(new Date());
+		if (detailHolder.isPresent()) {
+			UsagePointDetail detail = detailHolder.get();
+			minimalUsageExpected = detail.isMinimalUsageExpected();
+			amiBillingReady = detail.getAmiBillingReady();	
+			checkBilling = detail.isCheckBilling();
+			connectionState = detail.getConnectionState();
+			serviceDeliveryRemark = detail.getServiceDeliveryRemark();
+			if (detail instanceof ElectricityDetail) {
+				ElectricityDetail eDetail = (ElectricityDetail) detail;
+				estimatedLoad = eDetail.getEstimatedLoad();
+				grounded = eDetail.isGrounded();
+				nominalServiceVoltage = eDetail.getNominalServiceVoltage();
+				phaseCode = eDetail.getPhaseCode();
+				ratedCurrent = eDetail.getRatedCurrent();
+				ratedPower = eDetail.getRatedPower();
+			}
+		}
+		
 	}
 	
 	void addServiceLocationInfo() {

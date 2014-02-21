@@ -33,7 +33,7 @@ final class CreateUsagePointTransaction implements Transaction<UsagePoint> {
 
     private UsagePoint doPerform(Optional<ServiceCategory> serviceCategory) {
         UsagePoint usagePoint = serviceCategory.get().newUsagePoint(info.mRID);
-        usagePoint.setPhaseCode(info.phaseCode);
+        //usagePoint.setPhaseCode(info.phaseCode);
         usagePoint.save();
         return usagePoint;
     }

@@ -1,8 +1,10 @@
 package com.elster.jupiter.metering.rest.impl;
 
+import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.transaction.Transaction;
@@ -12,7 +14,9 @@ import com.google.common.base.Optional;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+
 import java.security.Principal;
+import java.util.Date;
 
 
 final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
@@ -45,25 +49,30 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
                 usagePoint.setAliasName(info.aliasName);
                 usagePoint.setDescription(info.description);
                 usagePoint.setName(info.name);
-                usagePoint.setAmiBillingReady(info.amiBillingReady);
-                usagePoint.setCheckBilling(info.checkBilling);
-                usagePoint.setConnectionState(info.connectionState);
-                usagePoint.setEstimatedLoad(info.estimatedLoad);
-                usagePoint.setGrounded(info.grounded);
                 usagePoint.setSdp(info.isSdp);
                 usagePoint.setVirtual(info.isVirtual);
-                usagePoint.setMinimalUsageExpected(info.minimalUsageExpected);
-                usagePoint.setNominalServiceVoltage(info.nominalServiceVoltage);
                 usagePoint.setOutageRegion(info.outageRegion);
-                usagePoint.setPhaseCode(info.phaseCode);
-                usagePoint.setRatedCurrent(info.ratedCurrent);
-                usagePoint.setRatedPower(info.ratedPower);
                 usagePoint.setReadCycle(info.readCycle);
                 usagePoint.setReadRoute(info.readRoute);
-                usagePoint.setServiceDeliveryRemark(info.serviceDeliveryRemark);
                 usagePoint.setServicePriority(info.servicePriority);
-                usagePoint.setPhaseCode(info.phaseCode);
-                usagePoint.setRatedPower(info.ratedPower);
+                UsagePointDetail detail = usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, new Date());
+                detail.setAmiBillingReady(info.amiBillingReady);
+                detail.setCheckBilling(info.checkBilling);
+                detail.setConnectionState(info.connectionState);
+                detail.setMinimalUsageExpected(info.minimalUsageExpected);
+                if (detail instanceof ElectricityDetail) {
+                	ElectricityDetail eDetail = (ElectricityDetail) detail;
+                	eDetail.setEstimatedLoad(info.estimatedLoad);
+	                eDetail.setGrounded(info.grounded);
+	                eDetail.setNominalServiceVoltage(info.nominalServiceVoltage);
+	                eDetail.setPhaseCode(info.phaseCode);
+	                eDetail.setRatedCurrent(info.ratedCurrent);
+	                eDetail.setRatedPower(info.ratedPower);
+	                eDetail.setServiceDeliveryRemark(info.serviceDeliveryRemark);
+	                eDetail.setPhaseCode(info.phaseCode);
+	                eDetail.setRatedPower(info.ratedPower);
+                }
+                usagePoint.addDetail(detail);
                 usagePoint.save();
             } else {
                 throw new WebApplicationException(Response.Status.CONFLICT);
