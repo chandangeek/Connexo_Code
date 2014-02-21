@@ -23,7 +23,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                 },
                 {
                     xtype: 'component',
-                    html: '<h1>' + I18n.translate('validation.createRuleSet', 'CFG', 'Create rule set') + '</h1>',
+                    html: '<h1>' + Uni.I18n.translate('validation.createRuleSet', 'CFG', 'Create rule set') + '</h1>',
                     margins: '10 10 10 10'
                 },
                 {
@@ -42,13 +42,13 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             name: 'name',
                             validator:function(text){
                                 if(Ext.util.Format.trim(text).length==0)
-                                    return I18n.translate('validation.requiredField', 'CFG', 'This field is required');
+                                    return Uni.I18n.translate('validation.requiredField', 'CFG', 'This field is required');
                                 else
                                     return true;
                             },
                             required: true,
                             msgTarget: 'under',
-                            fieldLabel: I18n.translate('validation.name', 'CFG', 'Name'),
+                            fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                             labelAlign: 'right',
                             labelWidth:	150,
                             maxLength: 80,
@@ -57,7 +57,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                         {
                             xtype: 'textarea',
                             name: 'description',
-                            fieldLabel: I18n.translate('validation.description', 'CFG', 'Description'),
+                            fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description'),
                             labelWidth:	150,
                             maxLength: 256,
                             enforceMaxLength: true
@@ -74,7 +74,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             },
                             items: [
                                 {
-                                    text: I18n.translate('general.create', 'CFG', 'Create'),
+                                    text: Uni.I18n.translate('general.create', 'CFG', 'Create'),
                                     xtype: 'button',
                                     action: 'createNewRuleSet',
                                     itemId: 'createNewRuleSet',

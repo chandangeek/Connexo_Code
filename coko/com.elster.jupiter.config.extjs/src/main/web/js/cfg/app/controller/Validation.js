@@ -226,7 +226,7 @@ Ext.define('Cfg.controller.Validation', {
                         labelAlign: 'right',
                         validator:function(text){
                             if(Ext.util.Format.trim(text).length==0)
-                                return I18n.translate('validation.requiredField', 'CFG', 'This field is required');
+                                return Uni.I18n.translate('validation.requiredField', 'CFG', 'This field is required');
                             else
                                 return true;
                         },
@@ -259,7 +259,7 @@ Ext.define('Cfg.controller.Validation', {
     addRule: function(id) {
         var me = this;
         var view = Ext.create('Cfg.view.validation.AddRule');
-        this.getCancelAddRuleLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation/rules/' + id + '">' + I18n.translate('general.cancel', 'CFG', 'Cancel') + '</a>');
+        this.getCancelAddRuleLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation/rules/' + id + '">' + Uni.I18n.translate('general.cancel', 'CFG', 'Cancel') + '</a>');
         Cfg.getApplication().getMainController().showContent(view);
         var ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
         ruleSetsStore.load({

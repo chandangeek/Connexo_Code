@@ -29,7 +29,7 @@ Ext.define('Cfg.view.validation.RulesContainer', {
                 toggleGroup: 'ratings',
                 itemId: 'ruleSetOverviewLink',
                 href: 'www.google.com',
-                text: I18n.translate('general.overview', 'CFG', 'Overview'),
+                text: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
                 hrefTarget: '_self',
                 width: 130,
                 style: {
@@ -42,7 +42,7 @@ Ext.define('Cfg.view.validation.RulesContainer', {
                 toggleGroup: 'ratings',
                 itemId: 'rulesLink',
                 href: 'www.google.com',
-                text: I18n.translate('validation.rules', 'CFG', 'Rules'),
+                text: Uni.I18n.translate('validation.rules', 'CFG', 'Rules'),
                 hrefTarget: '_self',
                 width: 130,
                 style: {

@@ -29,7 +29,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                 },
                 {
                     xtype: 'component',
-                    html: '<h1>' + I18n.translate('validation.addRule', 'CFG', 'Add rule') + '</h1>',
+                    html: '<h1>' + Uni.I18n.translate('validation.addRule', 'CFG', 'Add rule') + '</h1>',
                     margins: '10 10 10 10'
                 },
                 {
@@ -44,11 +44,11 @@ Ext.define('Cfg.view.validation.AddRule', {
                             items:[
                                 {
                                     xtype: 'textfield',
-                                    fieldLabel:  I18n.translate('validation.name', 'CFG', 'Name'),
+                                    fieldLabel:  Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                                     labelAlign: 'right',
                                     validator:function(text){
                                         if(Ext.util.Format.trim(text).length==0)
-                                            return I18n.translate('validation.requiredField', 'CFG', 'This field is required');
+                                            return Uni.I18n.translate('validation.requiredField', 'CFG', 'This field is required');
                                         else
                                             return true;
                                     },
@@ -65,7 +65,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     itemId: 'validatorCombo',
                                     validator:function(text){
                                         if(Ext.util.Format.trim(text).length==0)
-                                            return I18n.translate('validation.requiredField', 'CFG', 'This field is required');
+                                            return Uni.I18n.translate('validation.requiredField', 'CFG', 'This field is required');
                                         else
                                             return true;
                                     },
@@ -77,10 +77,10 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     valueField: 'implementation',
                                     displayField: 'displayName',
                                     queryMode: 'local',
-                                    fieldLabel: I18n.translate('validation.rule', 'CFG', 'Rule'),
+                                    fieldLabel: Uni.I18n.translate('validation.rule', 'CFG', 'Rule'),
                                     labelAlign: 'right',
                                     forceSelection: false,
-                                    emptyText: I18n.translate('validation.selectARule', 'CFG', 'Select a rule') + '...',
+                                    emptyText: Uni.I18n.translate('validation.selectARule', 'CFG', 'Select a rule') + '...',
                                     labelWidth:	250,
                                     width: 600
                                 },
@@ -102,13 +102,13 @@ Ext.define('Cfg.view.validation.AddRule', {
                                             items: [
                                                 {
                                                     xtype: 'textfield',
-                                                    fieldLabel: I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
+                                                    fieldLabel: Uni.I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
                                                     labelAlign: 'right',
                                                     itemId: 'readingTypeTextField1',
                                                     vtype: 'readingtype',
                                                     validator:function(text){
                                                         if(Ext.util.Format.trim(text).length==0)
-                                                            return I18n.translate('validation.requiredField', 'CFG', 'This field is required');
+                                                            return Uni.I18n.translate('validation.requiredField', 'CFG', 'This field is required');
                                                         else
                                                             return true;
                                                     },
@@ -135,7 +135,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     layout: 'hbox',
                                     items: [
                                         {
-                                            text: '+ ' + I18n.translate('validation.addAnother', 'CFG', 'Add another'),
+                                            text: '+ ' + Uni.I18n.translate('validation.addAnother', 'CFG', 'Add another'),
                                             xtype: 'button',
                                             action: 'addReadingTypeAction',
                                             itemId: 'addReadingTypeAction',
@@ -165,7 +165,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     layout: 'hbox',
                                     items: [
                                         {
-                                            text: I18n.translate('general.create', 'CFG', 'Create'),
+                                            text: Uni.I18n.translate('general.create', 'CFG', 'Create'),
                                             xtype: 'button',
                                             action: 'createRuleAction',
                                             itemId: 'createRuleAction',
@@ -173,7 +173,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                         },
                                         {
                                             xtype: 'component',
-                                            html: '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation">' + I18n.translate('general.cancel', 'CFG', 'Cancel') + '</a>',
+                                            html: '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation">' + Uni.I18n.translate('general.cancel', 'CFG', 'Cancel') + '</a>',
                                             itemId: 'cancelAddRuleLink',
                                             padding: '3 0 0 0',
                                             margin: '0 0 0 20',

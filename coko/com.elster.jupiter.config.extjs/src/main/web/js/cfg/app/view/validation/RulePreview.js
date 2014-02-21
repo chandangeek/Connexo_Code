@@ -23,14 +23,14 @@ Ext.define('Cfg.view.validation.RulePreview', {
             tbar: [
                 {
                     xtype: 'component',
-                    html: '<H4>' + I18n.translate('validation.noRuleSelected', 'MDC', 'No rule selected') + '</H4>'
+                    html: '<H4>' + Uni.I18n.translate('validation.noRuleSelected', 'MDC', 'No rule selected') + '</H4>'
                 }
             ],
             items: [
                 {
                     xtype: 'component',
                     height: '100px',
-                    html: '<H5>' + I18n.translate('validation.selectRule', 'MDC', 'Select a rule to see its details') + '</H5>'
+                    html: '<H5>' + Uni.I18n.translate('validation.selectRule', 'MDC', 'Select a rule to see its details') + '</H5>'
                 }
             ]
 
@@ -47,17 +47,17 @@ Ext.define('Cfg.view.validation.RulePreview', {
             tbar: [
                 {
                     xtype: 'component',
-                    html: '<h4>' + I18n.translate('validation.validationRule', 'CFG', 'Validation rule') + '</h4>',
+                    html: '<h4>' + Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule') + '</h4>',
                     itemId: 'rulePreviewTitle'
                 },
                 '->',
                 {
                     icon: 'resources/images/gear-16x16.png',
-                    text: I18n.translate('validation.actions', 'CFG', 'Actions'),
+                    text: Uni.I18n.translate('validation.actions', 'CFG', 'Actions'),
                     menu:{
                         items:[
                             {
-                                text: I18n.translate('general.edit', 'CFG', 'Edit'),
+                                text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
                                 itemId: 'editRule',
                                 action: 'editRule'
 
@@ -66,7 +66,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
                                 xtype: 'menuseparator'
                             },
                             {
-                                text: I18n.translate('general.delete', 'CFG', 'Delete'),
+                                text: Uni.I18n.translate('general.delete', 'CFG', 'Delete'),
                                 itemId: 'deleteRule',
                                 action: 'deleteRule'
 
@@ -81,34 +81,34 @@ Ext.define('Cfg.view.validation.RulePreview', {
                 {
                     xtype: 'displayfield',
                     name: 'name',
-                    fieldLabel: I18n.translate('validation.name', 'CFG', 'Name'),
+                    fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                     labelAlign: 'right',
                     labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'displayName',
-                    fieldLabel: I18n.translate('validation.Rule', 'CFG', 'Rule'),
+                    fieldLabel: Uni.I18n.translate('validation.Rule', 'CFG', 'Rule'),
                     labelAlign: 'right',
                     labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'active',
-                    fieldLabel: I18n.translate('validation.active', 'CFG', 'Active'),
+                    fieldLabel: Uni.I18n.translate('validation.active', 'CFG', 'Active'),
                     labelAlign: 'right',
                     labelWidth:	250,
                     renderer:function(value){
                         if (value) {
-                            return I18n.translate('general.yes', 'CFG', 'Yes')
+                            return Uni.I18n.translate('general.yes', 'CFG', 'Yes')
                         } else {
-                            return I18n.translate('general.no', 'CFG', 'No')
+                            return Uni.I18n.translate('general.no', 'CFG', 'No')
                         }
                     }
                 },
                 {
                     xtype: 'fieldcontainer',
-                    fieldLabel:  I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
+                    fieldLabel:  Uni.I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
                     labelAlign: 'right',
                     labelWidth:	250,
                     layout: 'vbox',

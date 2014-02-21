@@ -27,18 +27,18 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
             tbar: [
                 {
                     xtype: 'component',
-                    html: '<h4>' +  I18n.translate('validation.validationRuleSets', 'CFG', 'Validation rule sets') + '</h4>',
+                    html: '<h4>' +  Uni.I18n.translate('validation.validationRuleSets', 'CFG', 'Validation rule sets') + '</h4>',
                     itemId: 'rulesetOverviewTitle',
                     margins: '0 0 10 0'
                 },
                 '->',
                 {
                     icon: 'resources/images/gear-16x16.png',
-                    text:  I18n.translate('validation.actions', 'CFG', 'Actions'),
+                    text:  Uni.I18n.translate('validation.actions', 'CFG', 'Actions'),
                     menu:{
                         items:[
                             {
-                                text:  I18n.translate('general.edit', 'CFG', 'Edit'),
+                                text:  Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
                                 itemId: 'editRuleset',
                                 action: 'editRuleset'
 
@@ -47,7 +47,7 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
                                 xtype: 'menuseparator'
                             },
                             {
-                                text: I18n.translate('general.delete', 'CFG', 'Delete'),
+                                text: Uni.I18n.translate('general.delete', 'CFG', 'Delete'),
                                 itemId: 'deleteRuleset',
                                 action: 'deleteRuleset'
 
@@ -70,28 +70,28 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
                 {
                     xtype: 'displayfield',
                     name: 'name',
-                    fieldLabel: I18n.translate('validation.name', 'CFG', 'Name'),
+                    fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                     labelAlign: 'right',
                     labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'description',
-                    fieldLabel: I18n.translate('validation.description', 'CFG', 'Description'),
+                    fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description'),
                     labelAlign: 'right',
                     labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'numberOfRules',
-                    fieldLabel:  I18n.translate('validation.numberOfRules', 'CFG', 'Number of rules'),
+                    fieldLabel:  Uni.I18n.translate('validation.numberOfRules', 'CFG', 'Number of rules'),
                     labelAlign: 'right',
                     labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'numberOfInactiveRules',
-                    fieldLabel:  I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules'),
+                    fieldLabel:  Uni.I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules'),
                     labelAlign: 'right',
                     labelWidth:	250
                 }

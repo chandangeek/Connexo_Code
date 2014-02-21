@@ -27,7 +27,7 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
                 },
                 {
                     xtype: 'component',
-                    html: '<h1>' + I18n.translate('validation.rules', 'CFG', 'Rules') + '</h1>',
+                    html: '<h1>' + Uni.I18n.translate('validation.rules', 'CFG', 'Rules') + '</h1>',
                     itemId: 'ruleBrowseTitle',
                     margins: '10 10 10 10'
                 },

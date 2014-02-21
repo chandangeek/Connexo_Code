@@ -2,6 +2,7 @@
     "name": "Cfg",
 
     "requires": [
+        "UnifyingJS"
     ],
 
     "id": "62a5b2da-6a48-448e-9244-ed433f7b29ce"

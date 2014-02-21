@@ -29,7 +29,7 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
 
                 {
                     xtype: 'component',
-                    html: '<h1>' +  I18n.translate('validation.validationRuleSets', 'CFG', 'Validation rule sets') +'</h1>',
+                    html: '<h1>' +  Uni.I18n.translate('validation.validationRuleSets', 'CFG', 'Validation rule sets') +'</h1>',
                     margins: '10 10 10 10'
                 },
                 {
