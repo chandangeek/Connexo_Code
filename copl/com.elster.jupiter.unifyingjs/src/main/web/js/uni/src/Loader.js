@@ -111,14 +111,22 @@ Ext.define('Uni.Loader', {
      * @param {Function} callback Callback to call after all scripts have finished loading
      */
     loadScripts: function (callback) {
-        console.log('loadScripts');
+        // TODO Fix temporary workaround for not being able to load scripts dynamically.
+        var production = true;
+
+        // <debug>
+        production = false;
         this.loadScript('../uni/resources/js/underscore/underscore-min.js', callback);
         this.loadScript('../uni/resources/js/moment/min/moment.min.js', callback);
+        // </debug>
+
+        if (production) {
+            callback();
+        }
     },
 
     afterLoadingScripts: function (callback) {
         Uni.I18n.load(function () {
-            console.log('afterLoadingScripts');
             callback();
         });
     }
