@@ -28,7 +28,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-17 (10:28)
  */
-@Component(name="com.energyict.mdc.dynamic.relation", service = {RelationService.class, InstallService.class}, property = "name=CDR")
+@Component(name="com.energyict.mdc.dynamic.relation", service = {RelationService.class, InstallService.class}, property = "name=" + RelationService.COMPONENT_NAME)
 public class RelationServiceImpl implements RelationService, ServiceLocator, InstallService {
 
     private volatile DataModel dataModel;
@@ -82,7 +82,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.thesaurus).install(true, true, true);
+        new Installer(this.dataModel, this.thesaurus).install(false, false, true);
     }
 
     @Deactivate
