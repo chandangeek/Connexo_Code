@@ -15,5 +15,5 @@ public interface IssueService {
     Query<Issue> getIssueListQuery();
     Map<String, Long> getIssueGroupList (String groupColumn, boolean isAsc, long start, long limit);
 
-    OperationResult<String, String[]> closeIssue(long issueId, long version, IssueStatus newStatus, String comment);
+    OperationResult<String, String[]> closeIssue(long issueId, long version, IssueStatus newStatus, String comment, boolean force);
 }

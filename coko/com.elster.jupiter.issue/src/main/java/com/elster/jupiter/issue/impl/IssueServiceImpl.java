@@ -10,7 +10,6 @@ import com.elster.jupiter.issue.module.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
@@ -108,7 +107,7 @@ public class IssueServiceImpl implements IssueService, InstallService {
     }
 
     @Override
-    public OperationResult<String, String[]> closeIssue(long issueId, long version, IssueStatus newStatus, String comment){
+    public OperationResult<String, String[]> closeIssue(long issueId, long version, IssueStatus newStatus, String comment, boolean force){
         Issue issueForClose = this.getIssueById(issueId).orNull();
         OperationResult<String, String[]> result = new OperationResult<>();
         if (issueForClose == null){
@@ -118,10 +117,13 @@ public class IssueServiceImpl implements IssueService, InstallService {
         if (version != issueForClose.getVersion()){
             return result.setFail(new String[]{MessageSeeds.ISSUE_ALREADY_CHANGED.getDefaultFormat(), issueForClose.getTitle()});
         }
-        IssueImpl.class.cast(issueForClose).setStatus(newStatus);
-        HistoricalIssue historicalIssue = new HistoricalIssueImpl(issueForClose);
-        dataModel.mapper(HistoricalIssue.class).persist(historicalIssue);
-        dataModel.mapper(Issue.class).remove(issueForClose);
+        // TODO may be it will better to extract this code to separate method (updateStatus(Issue issue) for example)
+        if (force){
+            IssueImpl.class.cast(issueForClose).setStatus(newStatus);
+            HistoricalIssue historicalIssue = new HistoricalIssueImpl(issueForClose);
+            dataModel.mapper(HistoricalIssue.class).persist(historicalIssue);
+            dataModel.mapper(Issue.class).remove(issueForClose);
+        }
         return result;
     }
 }
