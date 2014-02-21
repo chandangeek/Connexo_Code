@@ -9,11 +9,12 @@ import com.elster.jupiter.issue.impl.IssueAssigneeImpl;
 import com.elster.jupiter.issue.impl.IssueImpl;
 import com.elster.jupiter.issue.impl.IssueReasonImpl;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.Table;
 
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2UTCINSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.*;
 
 public enum TableSpecs {
     ISU_ASSIGNEE {
@@ -36,16 +37,18 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<IssueReason> table = dataModel.addTable(name(), IssueReason.class);
             table.map(IssueReasonImpl.class);
+            table.cache();
             table.setJournalTableName(DatabaseConst.ISSUE_REASON_JOURNAL_TABLE_NAME);
 
             Column idColumn = table.addAutoIdColumn();
             table.column(DatabaseConst.ISSUE_REASON_COLUMN_NAME).map("name").type("varchar(200)").notNull().add();
+            table.column(DatabaseConst.ISSUE_REASON_COLUMN_TOPIC).map("topic").type("varchar(200)").notNull().add();
 
             table.addAuditColumns();
             table.primaryKey(DatabaseConst.ISSUE_REASON_PK_NAME).on(idColumn).add();
         }
     },
-    ISU_DOMAIN {
+    ISU_ISSUE {
         @Override
         public void addTo(DataModel dataModel) {
 			Table<Issue> table = dataModel.addTable(name(), Issue.class);

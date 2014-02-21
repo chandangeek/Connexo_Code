@@ -2,7 +2,7 @@ package com.elster.jupiter.issue.database;
 
 public class DatabaseConst {
     // Bundle tables in database
-    public static final String ISSUE_JOURNAL_TABLE_NAME = "ISU_DOMAINJRNL";
+    public static final String ISSUE_JOURNAL_TABLE_NAME = "ISU_ISSUEJRNL";
     public static final String ISSUE_ASSIGNEE_JOURNAL_TABLE_NAME = "ISU_ASSIGNEEJRNL";
     public static final String METERING_DEVICE_TABLE = "MTR_ENDDEVICE";
     public static final String ISSUE_REASON_JOURNAL_TABLE_NAME = "ISU_REASONJRNL";
@@ -23,7 +23,7 @@ public class DatabaseConst {
 
     // Issue Reason table column's names
     public static final String ISSUE_REASON_COLUMN_TOPIC = "TOPIC";
-    public static final String ISSUE_REASON_COLUMN_NAME = "REASON_NAME";
+    public static final String ISSUE_REASON_COLUMN_NAME = "NAME";
 
     public static final String ISSUE_REASON_PK_NAME = "ISU_PK_ISSUE_REASON";
 

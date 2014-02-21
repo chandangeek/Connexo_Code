@@ -1,7 +1,5 @@
 package com.elster.jupiter.issue.impl;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.IssueEventType;
 import com.elster.jupiter.issue.IssueReason;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -21,39 +19,10 @@ public class IssueReasonImpl implements IssueReason {
     private UtcInstant modTime;
     private String userName;
 
-   @Inject
-   IssueReasonImpl(DataModel dataModel) {
+    @Inject
+    IssueReasonImpl(DataModel dataModel) {
        this.dataModel = dataModel;
    }
-
-   public String getTopic() {
-       return topic;
-   }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setVersion(long version) {
-        this.version = version;
-    }
-
-    public void setCreateTime(UtcInstant createTime) {
-        this.createTime = createTime;
-    }
-
-    public void setModTime(UtcInstant modTime) {
-        this.modTime = modTime;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
 
     IssueReasonImpl init (String topic, String name) {
         this.topic = topic;
@@ -89,5 +58,33 @@ public class IssueReasonImpl implements IssueReason {
 
     public long getVersion() {
         return version;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
+    public void setCreateTime(UtcInstant createTime) {
+        this.createTime = createTime;
+    }
+
+    public void setModTime(UtcInstant modTime) {
+        this.modTime = modTime;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }
