@@ -1,5 +1,7 @@
 package com.elster.jupiter.util.units;
 
+import com.elster.jupiter.util.Checks;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
@@ -159,11 +161,12 @@ public final class Quantity implements Comparable<Quantity> {
 
         Quantity quantity = (Quantity) o;
 
-        if (multiplier != quantity.multiplier) return false;
-        if (unit != quantity.unit) return false;
-        if (value != null ? !value.equals(quantity.value) : quantity.value != null) return false;
+        return multiplier == quantity.multiplier && unit == quantity.unit && Checks.is(value).equalValue(quantity.value);
 
-        return true;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(multiplier, unit, value.doubleValue());
+    }
 }
