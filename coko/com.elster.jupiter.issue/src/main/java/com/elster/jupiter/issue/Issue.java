@@ -11,7 +11,7 @@ public interface Issue {
 
     String getTitle();
 
-    String getReason();
+    IssueReason getReason();
 
     UtcInstant getDueDate();
 

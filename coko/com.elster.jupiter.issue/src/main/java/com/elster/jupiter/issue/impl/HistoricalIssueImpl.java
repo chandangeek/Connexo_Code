@@ -1,14 +1,12 @@
 package com.elster.jupiter.issue.impl;
 
-import com.elster.jupiter.issue.HistoricalIssue;
-import com.elster.jupiter.issue.Issue;
-import com.elster.jupiter.issue.IssueAssigneeType;
-import com.elster.jupiter.issue.IssueStatus;
+import com.elster.jupiter.issue.*;
 import com.elster.jupiter.util.time.UtcInstant;
 
 public class HistoricalIssueImpl implements HistoricalIssue {
     protected long id;
-    protected String reason;
+    protected IssueReason reason;
+    protected long reasonId;
     protected UtcInstant dueDate;
     protected IssueStatus status;
     protected long deviceId;
@@ -35,7 +33,7 @@ public class HistoricalIssueImpl implements HistoricalIssue {
         return id;
     }
     @Override
-    public String getReason() {
+    public IssueReason getReason() {
         return reason;
     }
     @Override
@@ -61,5 +59,13 @@ public class HistoricalIssueImpl implements HistoricalIssue {
     @Override
     public UtcInstant getCreateTime() {
         return createTime;
+    }
+
+    public long getReasonId() {
+        return reasonId;
+    }
+
+    public void setReasonId(long reasonId) {
+        this.reasonId = reasonId;
     }
 }

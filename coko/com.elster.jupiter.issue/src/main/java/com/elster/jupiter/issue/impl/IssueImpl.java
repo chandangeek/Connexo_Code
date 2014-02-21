@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.impl;
 
 import com.elster.jupiter.issue.Issue;
 import com.elster.jupiter.issue.IssueAssignee;
+import com.elster.jupiter.issue.IssueReason;
 import com.elster.jupiter.issue.IssueStatus;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.orm.DataModel;
@@ -15,12 +16,12 @@ public class IssueImpl implements Issue {
     private final DataModel dataModel;
 
     protected long id;
-    protected String reason;
     protected UtcInstant dueDate;
     protected IssueStatus status;
 
     protected Reference<IssueAssignee> assignee = ValueReference.absent();
     protected Reference<EndDevice> device = ValueReference.absent();
+    protected Reference<IssueReason> reason = ValueReference.absent();
 
     // Audit fields
     private long version;
@@ -90,7 +91,7 @@ public class IssueImpl implements Issue {
 
     @Override
     public String getTitle() {
-        String title = getReason();
+        String title = getReason().getName();
         if (getDevice() != null){
             StringBuilder titleWithDevice = new StringBuilder(title);
             titleWithDevice.append(" to ");
@@ -105,12 +106,12 @@ public class IssueImpl implements Issue {
     }
 
     @Override
-    public String getReason() {
-        return reason;
+    public IssueReason getReason() {
+        return this.reason.orNull();
     }
 
-    public void setReason(String reason) {
-        this.reason = reason;
+    public void setReason(IssueReason reason) {
+        this.reason.set(reason);
     }
 
     @Override

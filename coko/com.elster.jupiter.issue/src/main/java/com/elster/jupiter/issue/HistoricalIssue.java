@@ -8,7 +8,7 @@ public interface HistoricalIssue {
 
     IssueStatus getStatus();
 
-    String getReason();
+    IssueReason getReason();
 
     UtcInstant getDueDate();
 
