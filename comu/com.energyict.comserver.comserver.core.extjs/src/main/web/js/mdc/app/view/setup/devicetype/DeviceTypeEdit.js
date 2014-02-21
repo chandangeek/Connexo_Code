@@ -89,7 +89,9 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                 queryMode: 'local',
                                                 displayField: 'name',
                                                 valueField: 'name',
-                                                required: true
+                                                required: true,
+                                                forceSelection: true,
+                                                editable: false
                                             },
                                             {
                                                 xtype: 'textfield',
