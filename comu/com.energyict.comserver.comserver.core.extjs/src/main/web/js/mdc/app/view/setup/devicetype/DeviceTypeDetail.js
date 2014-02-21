@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                     tbar: [
                         {
                             xtype: 'component',
-                            html: '<h4>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h4>',
+                            html: '<h1>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>',
                             itemId: 'deviceTypePreviewTitle'
                         },
                         {

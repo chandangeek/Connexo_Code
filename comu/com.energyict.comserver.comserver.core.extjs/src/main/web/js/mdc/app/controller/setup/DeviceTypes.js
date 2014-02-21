@@ -122,7 +122,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 me.getDeviceConfigurationsDetailLink().getEl().setHTML(deviceType.get('deviceConfigurationCount') + ' ' + Uni.I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations'));
                 widget.down('form').loadRecord(deviceType);
 
-                me.getDeviceTypePreviewTitle().update('<h4>' + deviceType.get('name') + ' ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h4>');
+                me.getDeviceTypePreviewTitle().update('<h1>' + deviceType.get('name') + ' - ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
             }
         });
         Mdc.getApplication().getMainController().showContent(widget);
