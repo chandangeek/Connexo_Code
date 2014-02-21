@@ -1,4 +1,4 @@
 -classpath: target/classes 
 -dsannotations: *
-Private-Package: com.elster.jupiter.issue.rest.controller
+Private-Package: com.elster.jupiter.issue.rest.controller, com.elster.jupiter.issue.rest.transactions
 Export-Package: com.elster.jupiter.issue.rest, com.elster.jupiter.issue.rest.response, com.elster.jupiter.issue.rest.request
