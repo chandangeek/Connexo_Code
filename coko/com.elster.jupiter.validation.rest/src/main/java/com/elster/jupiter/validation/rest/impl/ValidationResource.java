@@ -11,6 +11,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
@@ -48,7 +49,7 @@ public class ValidationResource {
     private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters) {
         Query<ValidationRuleSet> query = Bus.getValidationService().getRuleSetQuery();
         RestQuery<ValidationRuleSet> restQuery = queryService.wrap(query);
-        return restQuery.select(queryParameters);
+        return restQuery.select(queryParameters, Order.ascending("name"));
     }
 
     private ValidationRuleSetInfos toRuleSetInfos(List<ValidationRuleSet> list, int start, int limit) {
