@@ -83,7 +83,7 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
         this.setClock(clock);
         this.activate();
         if (!this.dataModel.isInstalled()) {
-            this.install();
+            this.install(true);
         }
     }
 
@@ -138,7 +138,11 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(false, false, true);
+        this.install(false);
+    }
+
+    private void install(boolean executeDdl) {
+        new Installer(this.dataModel, this.eventService, this.thesaurus).install(executeDdl, false, true);
     }
 
 }
