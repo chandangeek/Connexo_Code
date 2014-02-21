@@ -23,7 +23,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                     if (value) {
                         return I18n.translate('general.yes', 'CFG', 'Yes')
                     } else {
-                        return I18n.translate('general.no', 'CFG', 'Yes')
+                        return I18n.translate('general.no', 'CFG', 'No')
                     }
                 }
             },
