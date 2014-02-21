@@ -46,7 +46,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
         this.setNlsService(nlsService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
-            this.install();
+            this.install(true);
         }
     }
 
@@ -82,7 +82,11 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.thesaurus).install(false, false, true);
+        this.install(false);
+    }
+
+    private void install(boolean executeDdl) {
+        new Installer(this.dataModel, this.thesaurus).install(executeDdl, false, true);
     }
 
     @Deactivate
