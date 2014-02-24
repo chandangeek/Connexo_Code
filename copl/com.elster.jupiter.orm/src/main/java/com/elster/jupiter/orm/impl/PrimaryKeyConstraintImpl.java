@@ -1,7 +1,10 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.PrimaryKeyConstraint;
+
+import static com.elster.jupiter.util.Checks.is;
 
 public class PrimaryKeyConstraintImpl extends TableConstraintImpl implements PrimaryKeyConstraint {
 	
@@ -9,8 +12,11 @@ public class PrimaryKeyConstraintImpl extends TableConstraintImpl implements Pri
 	
 	@Override
 	PrimaryKeyConstraintImpl init(TableImpl<?> table, String name) {
-		super.init(table,name);
-		return this;
+        if (is(name).empty()) {
+            throw new IllegalTableMappingException("Table " + table.getName() + " : primary key can not have an empty name.");
+        }
+        super.init(table,name);
+        return this;
 	}
 	
 	static PrimaryKeyConstraintImpl from(TableImpl<?> table , String name) {
@@ -34,14 +40,19 @@ public class PrimaryKeyConstraintImpl extends TableConstraintImpl implements Pri
 	
 	static class BuilderImpl implements PrimaryKeyConstraint.Builder {
 		private final PrimaryKeyConstraintImpl constraint;
-		
+
 		public BuilderImpl(TableImpl<?> table, String name) {
 			this.constraint = PrimaryKeyConstraintImpl.from(table,name);
 		}
 
 		@Override
 		public Builder on(Column... columns) {
-			constraint.add(columns);
+            for (Column column : columns) {
+                if (!constraint.getTable().equals(column.getTable())) {
+                    throw new IllegalTableMappingException("Table " + constraint.getTable().getName() + " : primary key can not have columns from another table : " + column.getName() + ".");
+                }
+            }
+            constraint.add(columns);
 			return this;
 		}
 		

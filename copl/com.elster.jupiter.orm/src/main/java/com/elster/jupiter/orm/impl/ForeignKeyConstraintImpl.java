@@ -1,15 +1,9 @@
 package com.elster.jupiter.orm.impl;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.associations.Reference;
@@ -18,6 +12,15 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.associations.impl.AssociationKind;
 import com.elster.jupiter.orm.associations.impl.PersistentReference;
 import com.google.common.base.Optional;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
+import static com.elster.jupiter.util.Checks.is;
 
 public class ForeignKeyConstraintImpl extends TableConstraintImpl implements ForeignKeyConstraint {
 	// persistent fields
@@ -35,6 +38,9 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 	
 	@Override
 	ForeignKeyConstraintImpl init(TableImpl<?> table, String name) {
+        if (is(name).empty()) {
+            throw new IllegalTableMappingException("Table " + table.getName() + " : foreign key can not have an empty name.");
+        }
 		super.init(table, name);
 		return this;
 	}
@@ -43,12 +49,15 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 		return new ForeignKeyConstraintImpl().init(table,name);
 	}
 
-	private final void setReferencedTable(TableImpl<?> table) {
+	private void setReferencedTable(TableImpl<?> table) {
 		this.referencedTable.set(table);
 	}
 	
 	@Override
 	public TableImpl<?> getReferencedTable() {
+        if (!referencedTable.isPresent()) {
+            throw new IllegalTableMappingException("Foreign key " + getName() + " on table " + getTable().getName() + " is missing a referenced table.");
+        }
 		return referencedTable.get();
 	}
 	
@@ -273,6 +282,11 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 
 		@Override
 		public Builder on(Column... columns) {
+            for (Column column : columns) {
+                if (!constraint.getTable().equals(column.getTable())) {
+                    throw new IllegalTableMappingException("Table " + constraint.getTable().getName() + " : foreign key can not have columns from another table as key : " + column.getName() + ".");
+                }
+            }
 			constraint.add(columns);
 			return this;
 		}
@@ -291,7 +305,11 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 
 		@Override
 		public Builder references(String name) {
-			constraint.setReferencedTable(constraint.getTable().getDataModel().getTable(name));
+            TableImpl<?> referencedTable = constraint.getTable().getDataModel().getTable(name);
+            if (referencedTable == null) {
+                throw new IllegalTableMappingException("Foreign key FK_NAME on table " + constraint.getTable().getName() + " the referenced table " + name + " does not exist.");
+            }
+            constraint.setReferencedTable(referencedTable);
 			return this;
 		}
 
@@ -304,7 +322,10 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 		
 		@Override
 		public Builder reverseMap(String field) {
-			constraint.reverseFieldName = field;
+            if (constraint.getReferencedTable().getField(field) == null) {
+                throw new IllegalTableMappingException("Foreign key FK_NAME on table " + constraint.getTable().getName() + " the referenced object does not have a field named " + field + ".");
+            }
+            constraint.reverseFieldName = field;
 			return this;
 		}
 

@@ -1,19 +1,19 @@
 package com.elster.jupiter.orm.associations.impl;
 
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Collections;
-
 import com.elster.jupiter.orm.associations.AbstractTemporalAspect;
 import com.elster.jupiter.orm.associations.Effectivity;
-import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.TemporalList;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalList;
+import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.List;
 
 
 public enum AssociationKind {
