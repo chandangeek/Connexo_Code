@@ -94,6 +94,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         onlineComServer.setQueryAPIPostUri(QUERY_API_POST_URI);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setStoreTaskQueueSize(1);
 
             // Business method
         onlineComServer.save();
@@ -109,7 +112,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.ValueTooSmall}")
+    @ExpectedConstraintViolation(messageId = "{MDC.ValueTooSmall}", property = "changesInterPollDelay")
     public void testTooSmallChangesInterPollDelay () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
         onlineComServer.setName("testTooSmallChangesInterPollDelay");
@@ -119,13 +122,16 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setChangesInterPollDelay(new TimeDuration(1, TimeDuration.SECONDS));
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         onlineComServer.setQueryAPIPostUri(QUERY_API_POST_URI);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setStoreTaskQueueSize(1);
 
         onlineComServer.save();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.ValueTooSmall}")
+    @ExpectedConstraintViolation(messageId = "{MDC.ValueTooSmall}", property = "schedulingInterPollDelay")
     public void testTooSmallSchedulingInterPollDelay () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
         onlineComServer.setName("testTooSmallSchedulingInterPollDelay");
@@ -135,6 +141,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.SECONDS));
         onlineComServer.setQueryAPIPostUri(QUERY_API_POST_URI);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setStoreTaskQueueSize(1);
 
         onlineComServer.save();
     }
@@ -158,11 +167,11 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.InvalidURL}")
+    @ExpectedConstraintViolation(messageId = "{MDC.InvalidURL}", property = "queryAPIPostUri")
     @Transactional
     public void testCreateWithInvalidQueryAPIURL () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
-        String name = "With ComPort";
+        String name = "WithComPort";
         onlineComServer.setName(name);
         onlineComServer.setActive(true);
         onlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
@@ -170,6 +179,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         onlineComServer.setQueryAPIPostUri(INVALID_URL);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setStoreTaskQueueSize(1);
 
         // Business method
         onlineComServer.save();
@@ -201,7 +213,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.InvalidURL}")
+    @ExpectedConstraintViolation(messageId = "{MDC.InvalidURL}", property = "eventRegistrationUri")
     @Transactional
     public void testCreateWithInvalidEventRegistrationURI () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -213,6 +225,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         onlineComServer.setEventRegistrationUri(INVALID_URL);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setStoreTaskQueueSize(1);
 
         // Business method
         onlineComServer.save();
@@ -234,6 +249,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         onlineComServer.setQueryAPIPostUri(QUERY_API_POST_URI);
         onlineComServer.setStoreTaskQueueSize(OnlineComServer.MINIMUM_STORE_TASK_QUEUE_SIZE - 1);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
 
         // Business method
         onlineComServer.save();
@@ -242,7 +259,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.ValueNotInRange}")
+    @ExpectedConstraintViolation(messageId = "{MDC.ValueNotInRange}", property="storeTaskQueueSize")
     @Transactional
     public void testCreateWithTooBigQueueSize () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -255,6 +272,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         onlineComServer.setQueryAPIPostUri(QUERY_API_POST_URI);
         onlineComServer.setStoreTaskQueueSize(OnlineComServer.MAXIMUM_STORE_TASK_QUEUE_SIZE + 1);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
 
         // Business method
         onlineComServer.save();
@@ -263,7 +282,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.ValueNotInRange}")
+    @ExpectedConstraintViolation(messageId = "{MDC.ValueNotInRange}", property="numberOfStoreTaskThreads")
     @Transactional
     public void testCreateWithTooSmallNumberOfThreads () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -276,6 +295,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         onlineComServer.setQueryAPIPostUri(QUERY_API_POST_URI);
         onlineComServer.setNumberOfStoreTaskThreads(OnlineComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS - 1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setStoreTaskQueueSize(1);
 
         // Business method
         onlineComServer.save();
@@ -284,7 +305,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.ValueNotInRange}")
+    @ExpectedConstraintViolation(messageId = "{MDC.ValueNotInRange}", property = "numberOfStoreTaskThreads")
     @Transactional
     public void testCreateWithTooManyNumberOfThreads () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -297,6 +318,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         onlineComServer.setQueryAPIPostUri(QUERY_API_POST_URI);
         onlineComServer.setNumberOfStoreTaskThreads(OnlineComServer.MAXIMUM_NUMBER_OF_STORE_TASK_THREADS + 1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setStoreTaskQueueSize(1);
 
         // Business method
         onlineComServer.save();
@@ -305,7 +328,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.ValueNotInRange}")
+    @ExpectedConstraintViolation(messageId = "{MDC.ValueNotInRange}", property = "storeTaskThreadPriority")
     @Transactional
     public void testCreateWithTooLowThreadPriority () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -318,6 +341,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         onlineComServer.setQueryAPIPostUri(QUERY_API_POST_URI);
         onlineComServer.setStoreTaskThreadPriority(OnlineComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY - 1);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.setStoreTaskQueueSize(1);
 
         // Business method
         onlineComServer.save();
@@ -326,7 +351,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.ValueNotInRange}")
+    @ExpectedConstraintViolation(messageId = "{MDC.ValueNotInRange}", property = "storeTaskThreadPriority")
     @Transactional
     public void testCreateWithTooHighThreadPriority () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -339,6 +364,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         onlineComServer.setQueryAPIPostUri(QUERY_API_POST_URI);
         onlineComServer.setStoreTaskThreadPriority(OnlineComServer.MAXIMUM_STORE_TASK_THREAD_PRIORITY + 1);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.setStoreTaskQueueSize(1);
 
         // Business method
         onlineComServer.save();
@@ -347,7 +374,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}")
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "name")
     @Transactional
     public void testCreateWithoutName () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -356,6 +383,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setStoreTaskQueueSize(1);
 
         // Business method
         onlineComServer.save();
@@ -364,7 +394,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}")
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "serverLogLevel")
     @Transactional
     public void testCreateWithoutServerLogLevel () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -375,6 +405,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setStoreTaskQueueSize(1);
 
         // Business method
         onlineComServer.save();
@@ -383,7 +416,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}")
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "communicationLogLevel")
     @Transactional
     public void testCreateWithoutCommunicationLogLevel () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -394,6 +427,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setCommunicationLogLevel(null);
         onlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setStoreTaskQueueSize(1);
 
         // Business method
         onlineComServer.save();
@@ -402,7 +438,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}")
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "changesInterPollDelay")
     @Transactional
     public void testCreateWithoutChangesInterPollDelay () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -413,6 +449,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServer.setChangesInterPollDelay(null);
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setStoreTaskQueueSize(1);
 
         // Business method
         onlineComServer.save();
@@ -421,7 +460,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}")
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "schedulingInterPollDelay")
     @Transactional
     public void testCreateWithoutSchedulingInterPollDelay () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -432,6 +471,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServer.setSchedulingInterPollDelay(null);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setStoreTaskQueueSize(1);
 
         // Business method
         onlineComServer.save();
@@ -440,7 +482,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComServer}")
+    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComServer}", property = "uniqueName")
     @Transactional
     public void testCreateWithExistingName () throws BusinessException, SQLException {
         String name = "DuplicateExceptionExpected";
@@ -453,7 +495,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.TRACE);
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         onlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setStoreTaskQueueSize(1);
 
         // Business method
         onlineComServer.save();

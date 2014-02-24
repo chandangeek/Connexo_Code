@@ -445,7 +445,7 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @AssertTrue(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.DuplicateComServer}")
-    private boolean isUnique() {
+    private boolean isUniqueName() {
         ComServer comServerWithTheSameName = engineModelService.findComServer(name);
         return !(comServerWithTheSameName != null && this.getId() != comServerWithTheSameName.getId() && !comServerWithTheSameName.isObsolete());
     }
