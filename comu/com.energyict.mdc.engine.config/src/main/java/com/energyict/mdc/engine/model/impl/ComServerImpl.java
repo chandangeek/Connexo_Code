@@ -94,17 +94,9 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     protected void validate(){
-        this.validateConstraint(name);
     }
 
-    protected void validateConstraint (String name) {
-        ComServer comServerWithTheSameName = engineModelService.findComServer(name);
-        if (comServerWithTheSameName!=null && this.getId() != comServerWithTheSameName.getId() && !comServerWithTheSameName.isObsolete()) {
-            throw new TranslatableApplicationException("duplicateComServerX", "A ComServer by the name of \"{0}\" already exists (id={1})", name, comServerWithTheSameName.getId());
-        }
-    }
-
-    protected void validateNotNull (Object propertyValue, String propertyName) {
+    protected void validateNotNull(Object propertyValue, String propertyName) {
         if (propertyValue == null) {
             throw new TranslatableApplicationException("XcannotBeEmpty", "\"{0}\" is a required property", propertyName);
         }

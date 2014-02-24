@@ -1,11 +1,12 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.domain.util.NotNullReference;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
@@ -14,10 +15,8 @@ import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.google.inject.Provider;
-
 import javax.inject.Inject;
-import java.net.URI;
-import java.net.URISyntaxException;
+import org.hibernate.validator.constraints.URL;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.RemoteComServer} interface.
@@ -27,11 +26,13 @@ import java.net.URISyntaxException;
  */
 public class RemoteComServerImpl extends ComServerImpl implements RemoteComServer {
 
+    @NotNullReference(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmpty}")
     private final Reference<OnlineComServer> onlineComServer = ValueReference.absent();
     private String queryAPIUsername;
     private String queryAPIPassword;
-    private String eventRegistrationUri;
     private boolean usesDefaultEventRegistrationUri=true;
+    @URL(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.InvalidURL}")
+    private String eventRegistrationUri;
 
     public static RemoteComServer from(DataModel dataModel) {
         return dataModel.getInstance(RemoteComServerImpl.class);
@@ -40,27 +41,6 @@ public class RemoteComServerImpl extends ComServerImpl implements RemoteComServe
     @Inject
     public RemoteComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider) {
         super(dataModel, engineModelService, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider);
-    }
-
-    protected void validate()  {
-        super.validate();
-        this.validateNotNull(this.onlineComServer.orNull(), "remoteComServer.onlineComServer");
-        this.validateEventRegistrationUri();
-    }
-
-    private void validateEventRegistrationUri() {
-        if (!Checks.is(this.eventRegistrationUri).emptyOrOnlyWhiteSpace()) {
-            try {
-                new URI(this.eventRegistrationUri);
-            }
-            catch (URISyntaxException e) {
-                throw new TranslatableApplicationException(
-                        "XisNotAValidURI",
-                        "\"{0}\" is not a valid URI for property {1} of {2}",
-                        new Object[] {this.eventRegistrationUri, "remoteComServer." + "eventRegistrationURI", "remoteComServer"},
-                        e);
-            }
-        }
     }
 
     @Override

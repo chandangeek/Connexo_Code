@@ -11,16 +11,16 @@ import java.util.logging.Level;
  * @since 2014-01-23 (11:00)
  */
 public enum MessageSeeds implements MessageSeed {
-    SHOULD_BE_AT_LEAST(1,"ValueTooSmall", "Minimal acceptable value is {min}, was {value}", Level.SEVERE),
-    CAN_NOT_BE_EMPTY(2, "CanNotBeEmpty", "Required property, can not be empty", Level.SEVERE),
-    VALUE_NOT_IN_RANGE(3, "ValueNotInRange", "{value} not in range {min} to {max}", Level.SEVERE),
-    INVALID_URL(4, "InvalidURL", "{value} is not a valid URL", Level.SEVERE),
-    INVALID_CHARS(4, "InvalidChars", "contains invalid chars, should obey {regex}", Level.SEVERE),
+    SHOULD_BE_AT_LEAST(1,"MDC.ValueTooSmall", "Minimal acceptable value is {min}, was {value}", Level.SEVERE),
+    CAN_NOT_BE_EMPTY(2, "MDC.CanNotBeEmpty", "Required property, can not be empty", Level.SEVERE),
+    VALUE_NOT_IN_RANGE(3, "MDC.ValueNotInRange", "{value} not in range {min} to {max}", Level.SEVERE),
+    INVALID_URL(4, "MDC.InvalidURL", "{value} is not a valid URL", Level.SEVERE),
+    INVALID_CHARS(5, "MDC.InvalidChars", "contains invalid chars, should obey {regex}", Level.SEVERE),
 
 
-    DUPLICATE_COMSERVER(101, "DuplicateComServer", "ComServer with name {value} already exists", Level.SEVERE),
-    OBSOLETE_COMSERVER_CANT_BE_UPDATED(103, "comserver.noUpdateAllowed", "Obsolete ComServers can no longer be updated", Level.SEVERE),
-    ONLINE_COMSERVER_STILL_REFERENCED(104, "MDC.OnlineComServerXStillReferenced", "Online Comserver is still referenced by remote comserver(s)", Level.SEVERE)
+    DUPLICATE_COMSERVER(101, "MDC.DuplicateComServer", "ComServer with name {value} already exists", Level.SEVERE),
+    OBSOLETE_COMSERVER_CANT_BE_UPDATED(103, "MDC.comserver.noUpdateAllowed", "Obsolete ComServers can no longer be updated", Level.SEVERE),
+    ONLINE_COMSERVER_STILL_REFERENCED(104, "MDC.OnlineComServerXStillReferenced", "Online Comserver is still referenced by remote comserver(s)", Level.SEVERE),
     ;
 
     private final int number;
