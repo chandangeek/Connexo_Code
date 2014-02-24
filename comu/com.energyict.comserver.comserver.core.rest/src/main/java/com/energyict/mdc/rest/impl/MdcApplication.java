@@ -1,8 +1,8 @@
 package com.energyict.mdc.rest.impl;
 
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
-import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
 import com.energyict.mdc.rest.impl.comserver.ComPortResource;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
+import com.energyict.mdc.rest.impl.comserver.ConstraintViolationExceptionMapper;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,12 +34,14 @@ public class MdcApplication extends Application {
     private volatile PropertySpecService propertySpecService;
     private volatile TransactionService transactionService;
     private volatile DeviceConfigurationService deviceConfigurationService;
+    private NlsService nlsService;
 
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(AutoCloseDatabaseConnection.class,
                 TransactionWrapper.class,
-                ExceptionLogger.class,
+//                ExceptionLogger.class,
+                ConstraintViolationExceptionMapper.class,
                 ComServerResource.class,
                 ComPortResource.class,
                 ComPortPoolResource.class,
@@ -85,7 +88,10 @@ public class MdcApplication extends Application {
         this.transactionService = transactionService;
     }
 
-
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
+    }
     @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
@@ -101,6 +107,7 @@ public class MdcApplication extends Application {
             bind(engineModelService).to(EngineModelService.class);
             bind(transactionService).to(TransactionService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
+            bind(nlsService).to(NlsService.class);
         }
     }
 

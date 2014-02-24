@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.engine.model.ComPort;
@@ -28,10 +29,12 @@ import javax.ws.rs.core.Response;
 public class ComServerResource {
 
     private final EngineModelService engineModelService;
+    private final NlsService nlsService;
 
     @Inject
-    public ComServerResource(EngineModelService engineModelService) {
+    public ComServerResource(EngineModelService engineModelService, NlsService nlsService) {
         this.engineModelService = engineModelService;
+        this.nlsService = nlsService;
     }
 
     @GET
@@ -95,7 +98,7 @@ public class ComServerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo createComServer(ComServerInfo comServerInfo) {
-        try {
+//        try {
             ComServer comServer = comServerInfo.createNew(engineModelService);
             comServerInfo.writeTo(comServer,engineModelService);
             comServer.save();
@@ -108,9 +111,11 @@ public class ComServerResource {
                 comPortInfo.createNew(comServer, engineModelService);
             }
             return ComServerInfoFactory.asInfo(comServer);
-        } catch (Exception e) {
-            throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
-        }
+//        } catch (ConstraintViolationException e) {
+//            throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.BAD_REQUEST).entity(new ConstraintViolationInfo(e, nlsService)).build());
+//        } catch (Exception e) {
+//            throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
+//        }
     }
 
     @PUT

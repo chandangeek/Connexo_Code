@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
+import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
@@ -13,6 +14,7 @@ import com.energyict.mdc.engine.model.RemoteComServer;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
+import com.energyict.mdc.rest.impl.comserver.ConstraintViolationExceptionMapper;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.ModemInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OfflineComServerInfo;
@@ -23,8 +25,12 @@ import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
@@ -36,10 +42,12 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
+import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -47,6 +55,7 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -62,10 +71,12 @@ import static org.mockito.Mockito.when;
 public class ComServerResourceTest extends JerseyTest {
 
     private static EngineModelService engineModelService;
+    private static NlsService nlsService;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         engineModelService = mock(EngineModelService.class);
+        nlsService = mock(NlsService.class);
     }
 
     @Override
@@ -81,10 +92,12 @@ public class ComServerResourceTest extends JerseyTest {
         enable(TestProperties.DUMP_ENTITY);
         ResourceConfig resourceConfig = new ResourceConfig(ComServerResource.class);
         resourceConfig.register(JacksonFeature.class); // Server side JSON processing
+        resourceConfig.register(ConstraintViolationExceptionMapper.class);
         resourceConfig.register(new AbstractBinder() {
             @Override
             protected void configure() {
                 bind(engineModelService).to(EngineModelService.class);
+                bind(nlsService).to(NlsService.class);
             }
         });
         return resourceConfig;
@@ -93,6 +106,7 @@ public class ComServerResourceTest extends JerseyTest {
     @Override
     protected void configureClient(ClientConfig config) {
         config.register(JacksonFeature.class); // client side JSON processing
+        config.register(ConstraintViolationExceptionMapper.class);
 
         super.configureClient(config);
     }
@@ -532,6 +546,42 @@ public class ComServerResourceTest extends JerseyTest {
         verify(serverSideComServer).save();
         verify(serverSideComServer).newOutboundComPort();
         verify(serverSideComServer, times(1)).removeComPort(outboundComPortA_id);
+    }
+
+    @Test
+    public void testCreateComServerThrowsConstraintViolationException() throws Exception {
+        long comServer_id = 3;
+
+        OnlineComServer serverSideComServer = mock(OnlineComServer.class);
+        when(serverSideComServer.getId()).thenReturn(comServer_id);
+        when(engineModelService.newOnlineComServerInstance()).thenReturn(serverSideComServer);
+        Set<ConstraintViolation<?>> constrainViolations = new HashSet<>();
+
+        ConstraintViolation constraintViolation1 = mock(ConstraintViolation.class);
+        when(constraintViolation1.getMessageTemplate()).thenReturn("{MDC.CanNotBeNull}");
+        when(constraintViolation1.getPropertyPath()).thenReturn(PathImpl.createPathFromString("name"));
+        constrainViolations.add(constraintViolation1);
+
+        ConstraintViolation constraintViolation2 = mock(ConstraintViolation.class);
+        when(constraintViolation2.getMessageTemplate()).thenReturn("{MDC.CanNotBeNull}");
+        when(constraintViolation2.getPropertyPath()).thenReturn(PathImpl.createPathFromString("someProperty"));
+        constrainViolations.add(constraintViolation2);
+
+        when(nlsService.interpolate(Matchers.<ConstraintViolation<?>>anyObject())).thenReturn("Property can not be null");
+        ConstraintViolationException toBeThrown = new ConstraintViolationException(constrainViolations);
+        doThrow(toBeThrown).when(serverSideComServer).save();
+        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
+        onlineComServerInfo.name="new name";
+        TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
+        timeDurationInfo.count=2;
+        timeDurationInfo.timeUnit="seconds";
+        onlineComServerInfo.inboundComPorts = new ArrayList<>();
+        onlineComServerInfo.outboundComPorts =new ArrayList<>();
+
+        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
+
+        final Response response = target("/comservers").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
