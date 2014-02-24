@@ -100,7 +100,7 @@ public class IssueServiceImpl implements IssueService, InstallService {
 
     @Override
     public Query<Issue> getIssueListQuery() {
-        return queryService.wrap(dataModel.query(Issue.class,IssueAssignee.class));
+        return queryService.wrap(dataModel.query(Issue.class,IssueAssignee.class, IssueReason.class));
     }
 
     @Override
