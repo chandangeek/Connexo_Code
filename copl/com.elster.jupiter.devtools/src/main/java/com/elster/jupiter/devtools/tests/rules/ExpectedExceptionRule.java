@@ -5,6 +5,8 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class ExpectedExceptionRule implements TestRule {
 
     public ExpectedExceptionRule() {
@@ -43,15 +45,12 @@ public class ExpectedExceptionRule implements TestRule {
                     throw assertionError;
                 } else {
                     if (!annotation.message().isEmpty()) {
-                        if (!e.getMessage().equals(annotation.message())) {
-                            throw new AssertionError("Expected messageId: " + annotation.message() + " but encountered " + e.getMessage(), e);
-                        }
+                        assertThat(e.getMessage()).isEqualTo(annotation.message());
                     }
                     return;
                 }
             }
-            throw new AssertionError("Expected exception: "
-                    + annotation.value().getName());
+            throw new AssertionError("Expected exception: " + annotation.value().getName());
 
         }
 
