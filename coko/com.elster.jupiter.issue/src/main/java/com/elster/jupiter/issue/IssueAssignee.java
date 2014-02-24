@@ -1,9 +1,10 @@
 package com.elster.jupiter.issue;
 
+import com.elster.jupiter.users.User;
+
 public interface IssueAssignee {
-    long getId();
-    IssueAssigneeType getAssigneeType();
-    // TODO here should be a valid reference to Assignee object
-    String getAssigneeRef();
-    long getVersion();
+    IssueAssigneeType getType();
+    User getUser();
+    AssigneeTeam getTeam();
+    AssigneeRole getRole();
 }

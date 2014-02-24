@@ -5,60 +5,77 @@ import com.elster.jupiter.util.time.UtcInstant;
 
 public class HistoricalIssueImpl implements HistoricalIssue {
     protected long id;
-    protected IssueReason reason;
-    protected long reasonId;
+    protected String type;
+    protected UtcInstant createTime;
     protected UtcInstant dueDate;
-    protected IssueStatus status;
+    protected long reasonId;
+    protected long statusId;
     protected long deviceId;
     protected IssueAssigneeType assigneeType;
-    protected long assigneeId;
-    protected UtcInstant createTime;
+    protected long assigneeUserId;
+    protected long assigneeTeamId;
+    protected long assigneeRoleId;
 
     HistoricalIssueImpl(Issue fromIssue){
         if (fromIssue == null){
             throw new IllegalArgumentException("Source issue for historical issue can't be null");
         }
-        this.reason = fromIssue.getReason();
-        this.dueDate = fromIssue.getDueDate();
-        this.status = fromIssue.getStatus();
-        this.deviceId = fromIssue.getDevice().getId();
-        this.assigneeType = fromIssue.getAssignee().getAssigneeType();
-        // TODO here should be a valid reference to Assignee object
-        this.assigneeId = 0L;
+        this.type = Issue.TYPE_IDENTIFIER;
         this.createTime = fromIssue.getCreateTime();
+        this.dueDate = fromIssue.getDueDate();
+        this.reasonId = fromIssue.getReason().getId();
+        this.statusId = fromIssue.getStatus().getId();
+        this.deviceId = fromIssue.getDevice().getId();
+        this.assigneeType = fromIssue.getAssignee().getType();
+        switch (this.assigneeType){
+            case USER:
+                if (fromIssue.getAssignee().getUser() != null){
+                    this.assigneeUserId = fromIssue.getAssignee().getUser().getId();
+                }
+                break;
+            case TEAM:
+                if (fromIssue.getAssignee().getTeam() != null) {
+                    this.assigneeTeamId = fromIssue.getAssignee().getTeam().getId();
+                }
+                break;
+            case ROLE:
+                if (fromIssue.getAssignee().getRole() != null) {
+                    this.assigneeRoleId = fromIssue.getAssignee().getRole().getId();
+                }
+                break;
+        }
     }
 
-    @Override
     public long getId() {
         return id;
     }
-    @Override
-    public IssueReason getReason() {
-        return reason;
+
+    public void setId(long id) {
+        this.id = id;
     }
-    @Override
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public UtcInstant getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(UtcInstant createTime) {
+        this.createTime = createTime;
+    }
+
     public UtcInstant getDueDate() {
         return dueDate;
     }
-    @Override
-    public IssueStatus getStatus() {
-        return status;
-    }
-    @Override
-    public long getDeviceId() {
-        return deviceId;
-    }
-    @Override
-    public IssueAssigneeType getAssigneeType() {
-        return assigneeType;
-    }
-    @Override
-    public long getAssigneeId() {
-        return assigneeId;
-    }
-    @Override
-    public UtcInstant getCreateTime() {
-        return createTime;
+
+    public void setDueDate(UtcInstant dueDate) {
+        this.dueDate = dueDate;
     }
 
     public long getReasonId() {
@@ -67,5 +84,53 @@ public class HistoricalIssueImpl implements HistoricalIssue {
 
     public void setReasonId(long reasonId) {
         this.reasonId = reasonId;
+    }
+
+    public long getStatusId() {
+        return statusId;
+    }
+
+    public void setStatusId(long statusId) {
+        this.statusId = statusId;
+    }
+
+    public long getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(long deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public IssueAssigneeType getAssigneeType() {
+        return assigneeType;
+    }
+
+    public void setAssigneeType(IssueAssigneeType assigneeType) {
+        this.assigneeType = assigneeType;
+    }
+
+    public long getAssigneeUserId() {
+        return assigneeUserId;
+    }
+
+    public void setAssigneeUserId(long assigneeUserId) {
+        this.assigneeUserId = assigneeUserId;
+    }
+
+    public long getAssigneeTeamId() {
+        return assigneeTeamId;
+    }
+
+    public void setAssigneeTeamId(long assigneeTeamId) {
+        this.assigneeTeamId = assigneeTeamId;
+    }
+
+    public long getAssigneeRoleId() {
+        return assigneeRoleId;
+    }
+
+    public void setAssigneeRoleId(long assigneeRoleId) {
+        this.assigneeRoleId = assigneeRoleId;
     }
 }

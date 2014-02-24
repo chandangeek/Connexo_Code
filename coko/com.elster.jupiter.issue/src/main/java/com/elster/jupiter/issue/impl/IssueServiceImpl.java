@@ -87,6 +87,18 @@ public class IssueServiceImpl implements IssueService, InstallService {
     }
 
     @Override
+    public Optional<IssueReason> getIssueReasonById(long reasonId) {
+        Query<IssueReason> query = queryService.wrap(dataModel.query(IssueReason.class));
+        return query.get(reasonId);
+    }
+
+    @Override
+    public Optional<IssueStatus> getIssueStatusById(long statusId) {
+        Query<IssueStatus> query = queryService.wrap(dataModel.query(IssueStatus.class));
+        return query.get(statusId);
+    }
+
+    @Override
     public Query<Issue> getIssueListQuery() {
         return queryService.wrap(dataModel.query(Issue.class,IssueAssignee.class));
     }
@@ -117,7 +129,7 @@ public class IssueServiceImpl implements IssueService, InstallService {
         if (version != issueForClose.getVersion()){
             return result.setFail(new String[]{MessageSeeds.ISSUE_ALREADY_CHANGED.getDefaultFormat(), issueForClose.getTitle()});
         }
-        // TODO may be it will better to extract this code to separate method (updateStatus(Issue issue) for example)
+        // TODO may be it will better to extract this code to separate method (update(Issue issue) for example)
         if (force){
             IssueImpl.class.cast(issueForClose).setStatus(newStatus);
             HistoricalIssue historicalIssue = new HistoricalIssueImpl(issueForClose);

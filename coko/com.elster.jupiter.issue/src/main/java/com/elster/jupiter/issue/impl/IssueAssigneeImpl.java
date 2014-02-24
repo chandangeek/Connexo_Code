@@ -2,69 +2,48 @@ package com.elster.jupiter.issue.impl;
 
 import com.elster.jupiter.issue.IssueAssignee;
 import com.elster.jupiter.issue.IssueAssigneeType;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.UtcInstant;
-
-import javax.inject.Inject;
+import com.elster.jupiter.issue.AssigneeRole;
+import com.elster.jupiter.issue.AssigneeTeam;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.users.User;
 
 public class IssueAssigneeImpl implements IssueAssignee {
-    private final DataModel dataModel;
 
-    private long id;
-    private String assigneeRef;
-    private IssueAssigneeType assigneeType;
+    private IssueAssigneeType type;
+    private Reference<User> user = ValueReference.absent();
+    private Reference<AssigneeTeam> team = ValueReference.absent();
+    private Reference<AssigneeRole> role = ValueReference.absent();
 
-    // Audit fields
-    private long version;
-    private UtcInstant createTime;
-    private UtcInstant modTime;
-    private String userName;
-
-    @Inject
-    IssueAssigneeImpl(DataModel dataModel) {
-        this.dataModel = dataModel;
+    public IssueAssigneeType getType() {
+        return type;
     }
 
-    IssueAssigneeImpl init(String assigneeRef, IssueAssigneeType assigneeType) {
-        this.assigneeRef = assigneeRef;
-        this.assigneeType = assigneeType;
-        return this;
+    public void setType(IssueAssigneeType type) {
+        this.type = type;
     }
 
-    static IssueAssigneeImpl from(DataModel dataModel, String assigneeRef, IssueAssigneeType assigneeType) {
-
-        return dataModel.getInstance(IssueAssigneeImpl.class).init(assigneeRef, assigneeType);
+    public User getUser() {
+        return user.orNull();
     }
 
-    @Override
-    public long getId() {
-        return id;
+    public void setUser(User user) {
+        this.user.set(user);
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public AssigneeTeam getTeam() {
+        return team.orNull();
     }
 
-    @Override
-    public String getAssigneeRef() {
-        return assigneeRef;
+    public void setTeam(AssigneeTeam team) {
+        this.team.set(team);
     }
 
-    public void setAssigneeRef(String assigneeRef) {
-        this.assigneeRef = assigneeRef;
+    public AssigneeRole getRole() {
+        return role.orNull();
     }
 
-    @Override
-    public IssueAssigneeType getAssigneeType() {
-        return assigneeType;
-    }
-
-    public void setAssigneeType(IssueAssigneeType assigneeType) {
-        this.assigneeType = assigneeType;
-    }
-
-    @Override
-    public long getVersion() {
-        return version;
+    public void setRole(AssigneeRole role) {
+        this.role.set(role);
     }
 }

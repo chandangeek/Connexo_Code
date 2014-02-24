@@ -90,7 +90,7 @@ public class GroupingOperation {
             (SELECT ROWNUM as rnum, intr.*
              FROM
                 (SELECT DISTINCT isu.reason as col, count(isu.reason) as num
-                 FROM ISU_DOMAIN isu
+                 FROM ISU_ISSUE isu
                  GROUP BY (isu.reason)
                  ORDER BY num DESC, col ASC
                 ) intr
@@ -106,7 +106,7 @@ public class GroupingOperation {
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT " + GROUP_TITLE + ", " + GROUP_COUNT + " FROM " + "(SELECT ROWNUM as rnum, intr.* FROM (SELECT DISTINCT ISU.");
         sql.append(this.groupBy.name()).append(" AS " + GROUP_TITLE + ", COUNT(ISU.");
-        sql.append(this.groupBy.name()).append(") AS " + GROUP_COUNT + " FROM ").append(TableSpecs.ISU_DOMAIN.name()).append(" ISU GROUP BY ISU.");
+        sql.append(this.groupBy.name()).append(") AS " + GROUP_COUNT + " FROM ").append(TableSpecs.ISU_ISSUE.name()).append(" ISU GROUP BY ISU.");
         sql.append(this.groupBy.name()).append(" ORDER BY " + GROUP_COUNT).append(" ").append(this.isAsc ? "ASC" : "DESC");
         sql.append(", ").append(GROUP_TITLE).append(" ASC");
         sql.append(") intr WHERE ROWNUM <= ?) ext WHERE ext.rnum > ?");

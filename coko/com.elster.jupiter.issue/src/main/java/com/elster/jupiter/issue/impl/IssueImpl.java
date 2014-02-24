@@ -9,19 +9,24 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
+import java.util.Map;
 
 public class IssueImpl implements Issue {
+    // TODO apply general class of issue
+    public final Map<String, Class<? extends IssueImpl>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends IssueImpl>>of(Issue.TYPE_IDENTIFIER, IssueImpl.class);
+
     private final DataModel dataModel;
 
     protected long id;
     protected UtcInstant dueDate;
-    protected IssueStatus status;
-
-    protected Reference<IssueAssignee> assignee = ValueReference.absent();
-    protected Reference<EndDevice> device = ValueReference.absent();
     protected Reference<IssueReason> reason = ValueReference.absent();
+    protected Reference<IssueStatus> status = ValueReference.absent();
+
+    protected IssueAssigneeImpl assignee;
+    protected Reference<EndDevice> device = ValueReference.absent();
 
     // Audit fields
     private long version;
@@ -32,15 +37,6 @@ public class IssueImpl implements Issue {
     @Inject
     IssueImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-    }
-
-    IssueImpl init(String status) {
-        this.status = IssueStatus.valueOf(status);
-        return this;
-    }
-
-    static IssueImpl from(DataModel dataModel, String status) {
-        return dataModel.getInstance(IssueImpl.class).init(status);
     }
 
     public long getVersion() {
@@ -85,11 +81,6 @@ public class IssueImpl implements Issue {
     }
 
     @Override
-    public IssueStatus getStatus() {
-        return status;
-    }
-
-    @Override
     public String getTitle() {
         String title = getReason().getName();
         if (getDevice() != null){
@@ -101,10 +92,6 @@ public class IssueImpl implements Issue {
         return title;
     }
 
-    public void setStatus(IssueStatus status) {
-        this.status = status;
-    }
-
     @Override
     public IssueReason getReason() {
         return this.reason.orNull();
@@ -112,6 +99,14 @@ public class IssueImpl implements Issue {
 
     public void setReason(IssueReason reason) {
         this.reason.set(reason);
+    }
+
+    public IssueStatus getStatus() {
+        return this.status.get();
+    }
+
+    public void setStatus(IssueStatus status) {
+        this.status.set(status);
     }
 
     @Override
@@ -133,10 +128,6 @@ public class IssueImpl implements Issue {
     }
 
     public IssueAssignee getAssignee() {
-        return assignee.orNull();
-    }
-
-    public void setAssignee(IssueAssignee assignee) {
-        this.assignee.set(assignee);
+        return assignee;
     }
 }

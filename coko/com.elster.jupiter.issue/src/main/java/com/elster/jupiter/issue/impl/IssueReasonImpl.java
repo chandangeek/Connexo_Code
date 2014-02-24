@@ -1,7 +1,5 @@
 package com.elster.jupiter.issue.impl;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.IssueEventType;
 import com.elster.jupiter.issue.IssueReason;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;

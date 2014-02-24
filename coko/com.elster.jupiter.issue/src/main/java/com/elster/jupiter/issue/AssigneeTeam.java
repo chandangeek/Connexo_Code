@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue;
 
-public interface IssueStatus {
+public interface AssigneeTeam {
     long getId();
     String getName();
+    long getVersion();
 }

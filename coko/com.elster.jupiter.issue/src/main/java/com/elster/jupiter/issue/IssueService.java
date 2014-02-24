@@ -12,6 +12,8 @@ public interface IssueService {
     String COMPONENT_NAME = "ISU";
 
     Optional<Issue> getIssueById(long issueId);
+    Optional<IssueReason> getIssueReasonById(long reasonId);
+    Optional<IssueStatus> getIssueStatusById(long statusId);
     Query<Issue> getIssueListQuery();
     Map<String, Long> getIssueGroupList (String groupColumn, boolean isAsc, long start, long limit);
 
