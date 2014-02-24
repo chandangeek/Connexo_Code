@@ -1,9 +1,8 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
-import com.energyict.mdc.Transactional;
-import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -19,23 +18,18 @@ import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+import org.junit.Test;
+import org.mockito.Mock;
+
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.mockito.Mock;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
-import static org.assertj.core.api.Fail.fail;
 
 /**
  * Tests the {@link ModemBasedInboundComPortImpl} component.

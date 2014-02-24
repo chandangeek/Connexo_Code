@@ -1,16 +1,11 @@
 package com.energyict.mdc.engine.model;
 
-import com.elster.jupiter.transaction.TransactionContext;
-import com.energyict.mdc.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;

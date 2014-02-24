@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.energyict.mdc.Expected;
 import com.energyict.mdc.ExpectedErrorRule;
-import com.energyict.mdc.Transactional;
-import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -20,9 +20,7 @@ import org.junit.rules.TestRule;
 
 import java.sql.SQLException;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

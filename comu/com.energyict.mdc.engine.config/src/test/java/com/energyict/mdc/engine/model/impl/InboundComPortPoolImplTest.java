@@ -1,9 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.Expected;
-import com.energyict.mdc.ExpectedErrorRule;
-import com.energyict.mdc.Transactional;
-import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -20,10 +18,9 @@ import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
-import java.math.BigDecimal;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
+
+import java.math.BigDecimal;
 
 import static junit.framework.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;

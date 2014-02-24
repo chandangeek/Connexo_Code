@@ -1,10 +1,8 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.Expected;
-import com.energyict.mdc.ExpectedErrorRule;
-import com.energyict.mdc.Transactional;
-import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -13,14 +11,13 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.PersistenceTest;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.Provider;
-import org.junit.*;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import java.sql.SQLException;
-import org.junit.rules.TestRule;
-import org.mockito.Mock;
 
 import static org.junit.Assert.*;
 

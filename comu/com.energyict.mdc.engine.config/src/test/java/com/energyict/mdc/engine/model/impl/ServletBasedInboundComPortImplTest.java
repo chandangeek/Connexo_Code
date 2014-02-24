@@ -1,28 +1,22 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.Expected;
-import com.energyict.mdc.ExpectedErrorRule;
-import com.energyict.mdc.Transactional;
-import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import java.sql.SQLException;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
+
+import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link ServletBasedInboundComPortImpl} component.
