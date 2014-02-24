@@ -15,7 +15,7 @@ environment = :production
 
 module Sass::Script::Functions
   def get_resource_dir()
-    dir = ENV.fetch("resource_dir", './UnifyingJS/')
+    dir = ENV.fetch("resource_dir", '../../')
     Sass::Script::String.new(dir)
   end
 end
