@@ -1,6 +1,5 @@
 package com.energyict.mdc;
 
-import com.energyict.mdc.common.TranslatableApplicationException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import org.junit.internal.AssumptionViolatedException;
@@ -53,25 +52,16 @@ public class ExpectedErrorRule implements TestRule {
                     throw new Exception(message, e);
                 } else {
                     if (!annotation.messageId().isEmpty()) {
-                        if (TranslatableApplicationException.class.isAssignableFrom(e.getClass())) {
-                            String messageId = ((TranslatableApplicationException) e).getMessageId();
-                            if (!messageId.equals(annotation.messageId())) {
-                                throw new AssertionError("Expected messageId: "
-                                        + annotation.messageId()+" but encountered "+messageId, e);
-
+                        if (ConstraintViolationException.class.isAssignableFrom(e.getClass())) {
+                            boolean expectedViolationIsPresent=false;
+                            for (ConstraintViolation<?> constraintViolation : ((ConstraintViolationException) e).getConstraintViolations()) {
+                                if (constraintViolation.getMessageTemplate().equals(annotation.messageId())) {
+                                    expectedViolationIsPresent=true;
+                                }
                             }
-                        } else {
-                            if (ConstraintViolationException.class.isAssignableFrom(e.getClass())) {
-                                boolean expectedViolationIsPresent=false;
-                                for (ConstraintViolation<?> constraintViolation : ((ConstraintViolationException) e).getConstraintViolations()) {
-                                    if (constraintViolation.getMessageTemplate().equals(annotation.messageId())) {
-                                        expectedViolationIsPresent=true;
-                                    }
-                                }
-                                if (!expectedViolationIsPresent) {
-                                    throw new AssertionError("Validation violation encountered, but the expected message was not listed: "
-                                            + annotation.messageId(), e);
-                                }
+                            if (!expectedViolationIsPresent) {
+                                throw new AssertionError("Validation violation encountered, but the expected message was not listed: "
+                                        + annotation.messageId(), e);
                             }
                         }
                     }

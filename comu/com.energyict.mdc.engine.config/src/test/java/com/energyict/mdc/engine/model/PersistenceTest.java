@@ -9,6 +9,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
+import com.energyict.mdc.ExpectedConstraintViolationRule;
 import com.energyict.mdc.ExpectedErrorRule;
 import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
@@ -34,6 +35,8 @@ public class PersistenceTest {
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
     @Rule
     public TestRule expectedErrorRule = new ExpectedErrorRule();
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     @BeforeClass
     public static void staticSetUp() throws SQLException {
