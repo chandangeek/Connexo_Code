@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.common.ExpectedErrorRule;
-import com.energyict.mdc.device.config.common.TransactionalRule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import org.junit.AfterClass;
@@ -30,7 +30,7 @@ public abstract class PersistenceTest {
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
     @Rule
-    public TestRule expectedErrorRule = new ExpectedErrorRule();
+    public TestRule expectedErrorRule = new ExpectedExceptionRule();
 
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;

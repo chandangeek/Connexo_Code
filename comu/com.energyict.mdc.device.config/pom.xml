@@ -63,6 +63,18 @@
       <version>${jupiter.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>devtools</artifactId>
+      <version>${jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>devtools.persistence</artifactId>
+      <version>${jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
       <dependency>
           <groupId>org.easytesting</groupId>
           <artifactId>fest-assert-core</artifactId>

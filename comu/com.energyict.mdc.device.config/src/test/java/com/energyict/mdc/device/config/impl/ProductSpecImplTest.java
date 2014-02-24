@@ -8,7 +8,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
-import com.energyict.mdc.device.config.common.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateReadingTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
