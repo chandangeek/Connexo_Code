@@ -56,17 +56,17 @@ public class IssueActionController {
 
                             ActionRequestFail fail1 = new ActionRequestFail();
                             fail1.setReason("Already assigned");
-                            fail1.setIssues(Arrays.asList(new ActionRequestFail.IssueFailInfo[]{info1, info2, info3}));
+                            fail1.setIssues(Arrays.asList(info1, info2, info3));
 
                             ActionRequestFail.IssueFailInfo info4 = new ActionRequestFail.IssueFailInfo(98L, "Unable to connect to Eimeter 4");
                             ActionRequestFail.IssueFailInfo info5 = new ActionRequestFail.IssueFailInfo(234L, "Unable to connect to Eimeter 5");
 
                             ActionRequestFail fail2 = new ActionRequestFail();
                             fail2.setReason("Some problems");
-                            fail2.setIssues(Arrays.asList(new ActionRequestFail.IssueFailInfo[]{info4, info5}));
+                            fail2.setIssues(Arrays.asList(info4, info5));
 
-                            response.setSuccess(Arrays.asList(new Long[]{1L, 2L}));
-                            response.setFailure(Arrays.asList(new ActionRequestFail[]{fail1, fail2}));
+                            response.setSuccess(Arrays.asList(1L, 2L));
+                            response.setFailure(Arrays.asList(fail1, fail2));
                         } else {
                             throw new WebApplicationException(Response.Status.BAD_REQUEST);
                         }

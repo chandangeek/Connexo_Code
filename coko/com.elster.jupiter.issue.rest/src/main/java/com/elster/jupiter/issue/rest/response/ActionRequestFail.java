@@ -5,7 +5,7 @@ import java.util.List;
 
 public class ActionRequestFail {
     private String reason;
-    List<IssueFailInfo> issues;
+    private List<IssueFailInfo> issues;
     private long count;
 
     public String getReason() {

@@ -8,7 +8,7 @@ import java.util.List;
 public class CloseIssueRequest {
     private List<EntityReference> issues;
     private String comment;
-    private String status;
+    private long status;
     private boolean force;
 
     public List<EntityReference> getIssues() {
@@ -27,11 +27,11 @@ public class CloseIssueRequest {
         this.comment = comment;
     }
 
-    public String getStatus() {
+    public long getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(long status) {
         this.status = status;
     }
 

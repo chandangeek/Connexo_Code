@@ -1,27 +1,24 @@
 package com.elster.jupiter.issue.rest.response;
 
 public class IssueAssignee {
-    private long id;
     private String type;
     private String title;
-    private long version;
 
     public IssueAssignee(com.elster.jupiter.issue.IssueAssignee assignee){
         if (assignee != null) {
-            this.setId(assignee.getId());
-            this.setType(assignee.getAssigneeType().toString());
-            // TODO here should be valid path to title
-            this.setTitle(assignee.getAssigneeRef());
-            this.setVersion(assignee.getVersion());
+            this.setType(assignee.getType().name());
+            switch (assignee.getType()){
+                case USER:
+                    this.setTitle(assignee.getUser() != null ? assignee.getUser().getName() : "");
+                    break;
+                case TEAM:
+                    this.setTitle(assignee.getTeam() != null ? assignee.getTeam().getName() : "");
+                    break;
+                case ROLE:
+                    this.setTitle(assignee.getRole() != null ? assignee.getRole().getName() : "");
+                    break;
+            }
         }
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getType() {
@@ -38,13 +35,5 @@ public class IssueAssignee {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public long getVersion() {
-        return version;
-    }
-
-    public void setVersion(long version) {
-        this.version = version;
     }
 }
