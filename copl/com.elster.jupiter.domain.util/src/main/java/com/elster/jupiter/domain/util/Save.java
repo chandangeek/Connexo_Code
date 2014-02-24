@@ -54,9 +54,9 @@ public enum Save {
 	
 	public interface Update {
 	}
-		
+
 	public static Save action(long id) {
 		return id == 0 ? CREATE : UPDATE;
 	}
-	
+
 }
