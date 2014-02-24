@@ -115,5 +115,7 @@ mvn:com.energyict/mdc-protocols/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.dynamic/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.pluggable/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.pluggable/1.0.0-SNAPSHOT
+mvn:com.energyict/mdc.metering/1.0.0-SNAPSHOT
+mvn:com.energyict/mdc.device.config/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.device.config.rest/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.protocol.pluggable/1.0.0-SNAPSHOT
