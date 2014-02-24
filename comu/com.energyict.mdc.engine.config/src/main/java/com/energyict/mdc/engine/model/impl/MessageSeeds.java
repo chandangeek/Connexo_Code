@@ -20,6 +20,7 @@ public enum MessageSeeds implements MessageSeed {
 
     DUPLICATE_COMSERVER(101, "DuplicateComServer", "ComServer with name {value} already exists", Level.SEVERE),
     OBSOLETE_COMSERVER_CANT_BE_UPDATED(103, "comserver.noUpdateAllowed", "Obsolete ComServers can no longer be updated", Level.SEVERE),
+    ONLINE_COMSERVER_STILL_REFERENCED(104, "MDC.OnlineComServerXStillReferenced", "Online Comserver is still referenced by remote comserver(s)", Level.SEVERE)
     ;
 
     private final int number;

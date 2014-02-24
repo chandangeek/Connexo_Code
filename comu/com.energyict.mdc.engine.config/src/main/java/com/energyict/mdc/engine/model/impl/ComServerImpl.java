@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.domain.util.Unique;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
@@ -28,7 +27,7 @@ import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
-import javax.validation.constraints.AssertFalse;
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
@@ -41,7 +40,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @since 2012-03-28 (10:20)
  */
 @XmlRootElement
-@Unique(fields = {"name"}, groups = { Save.Create.class, Save.Update.class }, message = "{MDC.DuplicateComServer}")
 public abstract class ComServerImpl implements ComServer {
 
     protected static final String ONLINE_COMSERVER_DISCRIMINATOR = "0";
@@ -67,7 +65,6 @@ public abstract class ComServerImpl implements ComServer {
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
     @Pattern(regexp="[a-zA-Z0-9\\.\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{MDC.InvalidChars}")
     private String name;
-    @AssertFalse(groups = Save.Update.class)
     private boolean active;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
     private LogLevel serverLogLevel;
@@ -447,5 +444,13 @@ public abstract class ComServerImpl implements ComServer {
 
     }
 
+    @AssertTrue(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.DuplicateComServer}")
+    private boolean isUnique() {
+        ComServer comServerWithTheSameName = engineModelService.findComServer(name);
+        return !(comServerWithTheSameName != null && this.getId() != comServerWithTheSameName.getId() && !comServerWithTheSameName.isObsolete());
+    }
+
     interface Delete {}
+
+    interface Obsolete {}
 }

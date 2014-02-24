@@ -10,7 +10,6 @@ import com.energyict.mdc.engine.model.IPBasedInboundComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.RemoteComServer;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
@@ -18,6 +17,7 @@ import com.google.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
+import javax.validation.constraints.AssertTrue;
 import org.hibernate.validator.constraints.Range;
 import org.hibernate.validator.constraints.URL;
 
@@ -73,21 +73,9 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
         }
     }
 
-    @Override
-    protected void validateDelete() {
-        super.validateDelete();
-        this.validateNotUsedByRemoteComServers();
-    }
-
-    protected void validateMakeObsolete() {
-        this.validateNotUsedByRemoteComServers();
-    }
-
-    private void validateNotUsedByRemoteComServers() {
-        List<RemoteComServer> remoteComServersWithOnlineComServer = engineModelService.findRemoteComServersWithOnlineComServer(this);
-        if (!remoteComServersWithOnlineComServer.isEmpty()) {
-            throw new TranslatableApplicationException("onlineComServerXStillReferenced", "Online Comserver {0} is still referenced by {1} remote comserver(s)", this.getName(), remoteComServersWithOnlineComServer.size());
-        }
+    @AssertTrue(groups = { Delete.class, Obsolete.class }, message = "MDC.OnlineComServerXStillReferenced")
+    private boolean isNotUsedByRemoteComServers() {
+        return engineModelService.findRemoteComServersWithOnlineComServer(this).isEmpty();
     }
 
     @Override

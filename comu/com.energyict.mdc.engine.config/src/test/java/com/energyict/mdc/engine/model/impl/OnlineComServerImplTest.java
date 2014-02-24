@@ -512,7 +512,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
         OnlineComServer comServer = getEngineModelService().newOnlineComServerInstance();
         String name = "willChangeSoon";
         comServer.setName(name);
-        comServer.setActive(true);
+//        comServer.setActive(true);
         comServer.setServerLogLevel(SERVER_LOG_LEVEL);
         comServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
         comServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
@@ -634,7 +634,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @Expected(expected = ConstraintViolationException.class, messageId = "onlineComServerXStillReferenced")
+    @Expected(expected = ConstraintViolationException.class, messageId = "MDC.OnlineComServerXStillReferenced")
     @Transactional
     public void testDeleteWhileStillUsedByRemoteComServer() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
@@ -671,7 +671,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @Expected(expected = ConstraintViolationException.class, messageId = "onlineComServerXStillReferenced")
+    @Expected(expected = ConstraintViolationException.class, messageId = "MDC.OnlineComServerXStillReferenced")
     @Transactional
     public void testMakeObsoleteWhileStillUsedByRemoteComServer () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
