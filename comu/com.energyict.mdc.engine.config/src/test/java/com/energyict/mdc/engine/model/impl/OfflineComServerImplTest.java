@@ -1,32 +1,27 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.Expected;
+import com.energyict.mdc.ExpectedConstraintViolation;
 import com.energyict.mdc.Transactional;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OfflineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.Provider;
+import java.sql.SQLException;
+import java.util.List;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.sql.SQLException;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 /**
 * Tests the {@link OfflineComServerImpl} component.
@@ -86,7 +81,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XshouldBeAtLeast")
+    @ExpectedConstraintViolation( messageId = "{MDC.ValueTooSmall}", property = "changesInterPollDelay")
     public void testTooSmallChangesInterPollDelay () throws BusinessException, SQLException {
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
         offlineComServer.setName("testTooSmallChangesInterPollDelay");
@@ -101,7 +96,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XshouldBeAtLeast")
+    @ExpectedConstraintViolation( messageId = "{MDC.ValueTooSmall}", property = "schedulingInterPollDelay")
     public void testTooSmallSchedulingInterPollDelay () throws BusinessException, SQLException {
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
         offlineComServer.setName("testTooSmallSchedulingInterPollDelay");
@@ -161,7 +156,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class)
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "name")
     public void testCreateWithoutName () throws BusinessException, SQLException {
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
         offlineComServer.setActive(true);
@@ -175,7 +170,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class)
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "serverLogLevel")
     public void testCreateWithoutServerLogLevel () throws BusinessException, SQLException {
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
         String name = "No-Server-LogLevel";
@@ -191,7 +186,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class)
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "communicationLogLevel")
     public void testCreateWithoutCommunicationLogLevel () throws BusinessException, SQLException {
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
         String name = "No-Communication-LogLevel";
@@ -207,7 +202,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class)
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "changesInterPollDelay")
     public void testCreateWithoutChangesInterPollDelay () throws BusinessException, SQLException {
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
         String name = "No-Changes-InterpollDelay";
@@ -223,7 +218,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
+    @ExpectedConstraintViolation( messageId = "{MDC.CanNotBeEmpty}", property = "schedulingInterPollDelay")
     public void testCreateWithoutSchedulingInterPollDelay () throws BusinessException, SQLException {
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
         String name = "No-Scheduling-InterpollDelay";
@@ -239,7 +234,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class)
+    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComServer}", property = "uniqueName")
     public void testCreateWithExistingName () throws BusinessException, SQLException {
         String serverName = "Candidate-for-duplicate";
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
@@ -460,7 +455,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class)
+    @ExpectedConstraintViolation(messageId = "{MDC.comserver.noUpdateAllowed}")
     public void testUpdateAfterMakeObsolete() throws BusinessException, SQLException {
         OfflineComServer comServer = getEngineModelService().newOfflineComServerInstance();
         String name = "testUpdateAfterMakeObsolete";
