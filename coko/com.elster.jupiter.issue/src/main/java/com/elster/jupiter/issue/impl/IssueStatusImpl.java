@@ -18,10 +18,19 @@ public class IssueStatusImpl implements IssueStatus {
     private UtcInstant modTime;
     private String userName;
 
-   @Inject
-   IssueStatusImpl(DataModel dataModel) {
-       this.dataModel = dataModel;
-   }
+    @Inject
+    IssueStatusImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
+
+    IssueStatusImpl init(String name) {
+        this.name = name;
+        return this;
+    }
+
+    static IssueStatusImpl from(DataModel dataModel, String name) {
+        return dataModel.getInstance(IssueStatusImpl.class).init(name);
+    }
 
     public long getId() {
         return id;

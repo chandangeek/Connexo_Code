@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.UserService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -28,16 +29,18 @@ public class IssueServiceImpl implements IssueService, InstallService {
     private volatile OrmService ormService;
     private volatile QueryService queryService;
     private volatile MeteringService meteringService;
+    private volatile UserService userService;
     private static Logger LOG = Logger.getLogger(IssueServiceImpl.class.getName());
 
     public IssueServiceImpl(){
     }
 
     @Inject
-    public IssueServiceImpl(OrmService ormService, QueryService queryService, MeteringService meteringService) {
+    public IssueServiceImpl(OrmService ormService, QueryService queryService, MeteringService meteringService, UserService userService) {
         setOrmService(ormService);
         setQueryService(queryService);
         setMeteringService(meteringService);
+        setUserService(userService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -52,13 +55,14 @@ public class IssueServiceImpl implements IssueService, InstallService {
                 bind(OrmService.class).toInstance(ormService);
                 bind(QueryService.class).toInstance(queryService);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(UserService.class).toInstance(userService);
             }
         });
     }
 
     @Override
     public void install() {
-        new Installer(this.dataModel).install(true, false);
+        new Installer(this, this.dataModel).install(true, false);
     }
 
     @Reference
@@ -80,6 +84,11 @@ public class IssueServiceImpl implements IssueService, InstallService {
         this.meteringService = meteringService;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     @Override
     public Optional<Issue> getIssueById(long issueId) {
         Query<Issue> query = queryService.wrap(dataModel.query(Issue.class));
@@ -92,15 +101,29 @@ public class IssueServiceImpl implements IssueService, InstallService {
         return query.get(reasonId);
     }
 
+    public void createIssueReason(String reasonName){
+        if (reasonName != null && reasonName.length() > 0){
+            IssueReason newReason = IssueReasonImpl.from(this.dataModel, "", reasonName);
+            dataModel.mapper(IssueReason.class).persist(newReason);
+        }
+    }
+
     @Override
     public Optional<IssueStatus> getIssueStatusById(long statusId) {
         Query<IssueStatus> query = queryService.wrap(dataModel.query(IssueStatus.class));
         return query.get(statusId);
     }
 
+    public void createIssueStatus(String statusName){
+        if (statusName != null && statusName.length() > 0){
+            IssueStatus newStatus = IssueStatusImpl.from(this.dataModel, statusName);
+            dataModel.mapper(IssueStatus.class).persist(newStatus);
+        }
+    }
+
     @Override
     public Query<Issue> getIssueListQuery() {
-        return queryService.wrap(dataModel.query(Issue.class,IssueAssignee.class, IssueReason.class));
+        return queryService.wrap(dataModel.query(Issue.class, IssueReason.class, IssueStatus.class));
     }
 
     @Override

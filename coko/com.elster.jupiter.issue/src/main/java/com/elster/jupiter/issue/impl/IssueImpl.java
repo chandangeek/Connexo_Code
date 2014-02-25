@@ -1,22 +1,21 @@
 package com.elster.jupiter.issue.impl;
 
-import com.elster.jupiter.issue.Issue;
-import com.elster.jupiter.issue.IssueAssignee;
-import com.elster.jupiter.issue.IssueReason;
-import com.elster.jupiter.issue.IssueStatus;
+import com.elster.jupiter.issue.*;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import java.util.Map;
 
 public class IssueImpl implements Issue {
     // TODO apply general class of issue
-    public final Map<String, Class<? extends IssueImpl>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends IssueImpl>>of(Issue.TYPE_IDENTIFIER, IssueImpl.class);
+    public static Map<String, Class<? extends Issue>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends Issue>>of(Issue.TYPE_IDENTIFIER, IssueImpl.class);
 
     private final DataModel dataModel;
 
@@ -26,6 +25,13 @@ public class IssueImpl implements Issue {
     protected Reference<IssueStatus> status = ValueReference.absent();
 
     protected IssueAssigneeImpl assignee;
+
+    //work around
+    private IssueAssigneeType type;
+    private Reference<User> user = ValueReference.absent();
+    private Reference<AssigneeTeam> team = ValueReference.absent();
+    private Reference<AssigneeRole> role = ValueReference.absent();
+
     protected Reference<EndDevice> device = ValueReference.absent();
 
     // Audit fields
@@ -128,6 +134,13 @@ public class IssueImpl implements Issue {
     }
 
     public IssueAssignee getAssignee() {
+        if (assignee == null){
+            assignee = new IssueAssigneeImpl();
+            assignee.setType(type);
+            assignee.setUser(user.orNull());
+            assignee.setTeam(team.orNull());
+            assignee.setRole(role.orNull());
+        }
         return assignee;
     }
 }

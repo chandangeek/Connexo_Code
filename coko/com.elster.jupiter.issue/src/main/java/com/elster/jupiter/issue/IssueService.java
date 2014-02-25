@@ -13,7 +13,9 @@ public interface IssueService {
 
     Optional<Issue> getIssueById(long issueId);
     Optional<IssueReason> getIssueReasonById(long reasonId);
+    void createIssueReason(String reasonName);
     Optional<IssueStatus> getIssueStatusById(long statusId);
+    void createIssueStatus(String statusName);
     Query<Issue> getIssueListQuery();
     Map<String, Long> getIssueGroupList (String groupColumn, boolean isAsc, long start, long limit);
 

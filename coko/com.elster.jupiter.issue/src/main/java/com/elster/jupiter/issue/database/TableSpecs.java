@@ -75,7 +75,7 @@ public enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
 			Table<Issue> table = dataModel.addTable(name(), Issue.class);
-			table.map(IssueImpl.class);
+			table.map(IssueImpl.IMPLEMENTERS);
 			table.setJournalTableName(DatabaseConst.ISSUE_JOURNAL_TABLE_NAME);
 
 			Column idColumn = table.addAutoIdColumn();
@@ -84,7 +84,7 @@ public enum TableSpecs {
             Column reasonRefIdColumn = table.column(DatabaseConst.ISSUE_COLUMN_REASON_ID).type("number").conversion(NUMBER2LONG).notNull().add();
 			Column statusRefIdColumn = table.column(DatabaseConst.ISSUE_COLUMN_STATUS_ID).type("number").conversion(NUMBER2LONG).notNull().add();
             Column deviceRefIdColumn = table.column(DatabaseConst.ISSUE_COLUMN_DEVICE_ID).type("number").conversion(NUMBER2LONG).add();
-            table.column(DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE).map("assignee.type").type("number").conversion(NUMBER2ENUM).add();
+            table.column(DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE).map("type").type("number").conversion(NUMBER2ENUM).add();
             Column userRefIdColumn = table.column(DatabaseConst.ISSUE_COLUMN_USER_ID).type("number").conversion(NUMBER2LONG).add();
             Column teamRefIdColumn = table.column(DatabaseConst.ISSUE_COLUMN_TEAM_ID).type("number").conversion(NUMBER2LONG).add();
             Column roleRefIdColumn = table.column(DatabaseConst.ISSUE_COLUMN_ROLE_ID).type("number").conversion(NUMBER2LONG).add();
@@ -98,9 +98,9 @@ public enum TableSpecs {
                     .onDelete(DeleteRule.CASCADE).add();
             table.foreignKey(DatabaseConst.ISSUE_FK_TO_DEVICE).map("device").on(deviceRefIdColumn).references(MeteringService.COMPONENTNAME, DatabaseConst.METERING_DEVICE_TABLE).
                     onDelete(DeleteRule.RESTRICT).add();
-            table.foreignKey(DatabaseConst.ISSUE_FK_TO_USER).map("assignee.user").on(userRefIdColumn).references(UserService.COMPONENTNAME, DatabaseConst.USER_DEVICE_TABLE).add();
-            table.foreignKey(DatabaseConst.ISSUE_FK_TO_TEAM).map("assignee.team").on(teamRefIdColumn).references(ISU_ASSIGNEETEAM.name()).add();
-            table.foreignKey(DatabaseConst.ISSUE_FK_TO_ROLE).map("assignee.role").on(roleRefIdColumn).references(ISU_ASSIGNEEROLE.name()).add();
+            table.foreignKey(DatabaseConst.ISSUE_FK_TO_USER).map("user").on(userRefIdColumn).references(UserService.COMPONENTNAME, DatabaseConst.USER_DEVICE_TABLE).add();
+            table.foreignKey(DatabaseConst.ISSUE_FK_TO_TEAM).map("team").on(teamRefIdColumn).references(ISU_ASSIGNEETEAM.name()).add();
+            table.foreignKey(DatabaseConst.ISSUE_FK_TO_ROLE).map("role").on(roleRefIdColumn).references(ISU_ASSIGNEEROLE.name()).add();
 		}
 	},
     ISU_ISSUEHISTORY {

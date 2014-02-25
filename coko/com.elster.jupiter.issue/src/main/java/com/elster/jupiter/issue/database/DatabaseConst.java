@@ -29,7 +29,7 @@ public class DatabaseConst {
     public static final String ISSUE_FK_TO_ROLE = "ISU_FK_TO_ROLE";
 
 // Issue Reason table
-    public static final String ISSUE_REASON_COLUMN_NAME = "NAME";
+    public static final String ISSUE_REASON_COLUMN_NAME = "REASON_NAME";
     public static final String ISSUE_REASON_COLUMN_TOPIC = "REASON_TOPIC";
 
     public static final String ISSUE_REASON_PK_NAME = "ISU_PK_ISSUE_REASON";
@@ -40,7 +40,7 @@ public class DatabaseConst {
     public static final String ISSUE_STATUS_PK_NAME = "ISU_PK_ISSUE_STATUS";
 
 // Issue Assignee tables
-    public static final String ISSUE_ASSIGNEE_NAME = "NAME";
+    public static final String ISSUE_ASSIGNEE_NAME = "ASSIGNEE_NAME";
     public static final String ISSUE_ASSIGNEE_DESCRIPTION = "DESCRIPTION";
 
     public static final String ISSUE_ASSIGNEE_TEAM_PK_NAME = "ISU_PK_ISSUE_ASSIGNEE_TEAM";
