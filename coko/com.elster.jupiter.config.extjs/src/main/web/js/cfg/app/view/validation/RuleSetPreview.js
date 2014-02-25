@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validation.RuleSetPreview', {
     extend: 'Ext.panel.Panel',
-    border: false,
+    border: true,
     margins: '0 10 10 10',
     alias: 'widget.ruleSetPreview',
     itemId: 'ruleSetPreview',

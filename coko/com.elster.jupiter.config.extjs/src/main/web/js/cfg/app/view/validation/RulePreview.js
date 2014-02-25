@@ -41,8 +41,8 @@ Ext.define('Cfg.view.validation.RulePreview', {
             itemId: 'ruleForm',
             padding: '0 10 0 10',
             layout: {
-                type: 'vbox',
-                align: 'stretch'
+                type: 'vbox'//,
+                //align: 'stretch'
             },
 
             tbar: [
@@ -81,7 +81,6 @@ Ext.define('Cfg.view.validation.RulePreview', {
             items: [
                 {
                     xtype: 'displayfield',
-                    margin: '10 0 0 0',
                     name: 'name',
                     fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                     labelAlign: 'right',
@@ -108,21 +107,40 @@ Ext.define('Cfg.view.validation.RulePreview', {
                         }
                     }
                 },
-                {
-                    xtype: 'fieldcontainer',
-                    fieldLabel:  Uni.I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
+
+
+                /*{
+                    xtype: 'displayfield',
+                    name: 'displayName',
+                    fieldLabel: Uni.I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
                     labelAlign: 'right',
-                    labelWidth:	250,
-                    layout: 'vbox',
-                    defaults: {
-                        flex: 1,
-                        hideLabel: true
-                    },
+                    labelWidth:	250
+                },
+                {
+                    xtype: 'displayfield',
+                    name: 'displayName',
+                    fieldLabel: '&nbsp',
+                    labelAlign: 'right',
+                    labelWidth:	250
+                },       */
+
+                {
+                    xtype: 'container',
+                    //fieldLabel:  Uni.I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
+                    //labelAlign: 'right',
+                    //labelWidth:	250,
+                    //layout: 'vbox',
+                    //defaults: {
+                    //    flex: 1,
+                    //    hideLabel: true
+                    //},
                     itemId: 'readingTypesArea',
                     items: []
                 },
+                ,
                 {
                     xtype: 'container',
+                    margin: '5 0 0 0',
                     itemId: 'propertiesArea',
                     items: []
                 }

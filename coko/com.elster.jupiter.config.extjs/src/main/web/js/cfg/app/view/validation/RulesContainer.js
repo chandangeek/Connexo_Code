@@ -4,7 +4,7 @@ Ext.define('Cfg.view.validation.RulesContainer', {
     itemId: 'rulesContainer',
     //cls: 'content-container',
     border: false,
-    overflowY: 'auto',
+    //overflowY: 'auto',
     requires: [
         'Cfg.view.validation.RuleSetPreview',
         'Cfg.view.validation.RuleBrowse'

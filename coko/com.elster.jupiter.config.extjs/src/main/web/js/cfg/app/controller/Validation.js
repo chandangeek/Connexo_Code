@@ -580,6 +580,7 @@ Ext.define('Cfg.controller.Validation', {
 
     addProperties: function(selectedRule) {
         var properties = selectedRule.data.properties;
+        this.getRuleForm()
         this.getPropertiesArea().removeAll();
         for (var i = 0; i < properties.length; i++) {
             var property = properties[i];
@@ -611,13 +612,44 @@ Ext.define('Cfg.controller.Validation', {
             var readingType = readingTypes[i];
             var aliasName = readingType.aliasName;
             var mRID = readingType.mRID;
+            var fieldlabel = Uni.I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)');
+            if (i > 0) {
+                fieldlabel = '&nbsp';
+            }
             this.getReadingTypesArea().add(
+
                 {
+                            xtype: 'container',
+                            layout: {
+                                type: 'hbox'
+                            },
+                            items: [
+                                {
+                                    xtype: 'displayfield',
+                                    fieldLabel: fieldlabel,
+                                    labelWidth:	250,
+                                    //width: 600,
+                                    //margin:'0 0 5 0',
+                                    value: mRID
+                                }, {
+                                    xtype: 'component',
+                                    html: '<span style="color:grey"><i>' + aliasName + '</i></span>',
+                                    margin: '5 0 0 10'
+                                }
+                            ]
+                }
+
+
+
+
+                /*{
                     xtype: 'fieldcontainer',
+                    fieldLabel:  Uni.I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
                     layout: 'hbox',
+                    labelWidth:	250,
                     defaults: {
-                        flex: 1,
-                        hideLabel: true
+                        flex: 1
+                        //hideLabel: true
                     },
                     items: [
                         {
@@ -631,7 +663,7 @@ Ext.define('Cfg.controller.Validation', {
                             margin: '0 0 0 20'
                         }
                     ]
-                }
+                }*/
             );
         }
     }
