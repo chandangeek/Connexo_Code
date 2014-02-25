@@ -28,7 +28,8 @@ enum FlowDirectionMapping {
     LEADING(ItemMatcher.itemMatcherFor(13, 33, 53, 73), FlowDirection.LEADING),
     LAGGING(ItemMatcher.itemMatcherFor(84, 85, 86, 87), FlowDirection.LAGGING),
     TOTAL(ItemMatcher.itemMatcherFor(15, 35, 55, 75), FlowDirection.TOTAL),
-    NET(ItemMatcher.itemMatcherFor(16, 36, 56, 76), FlowDirection.NET);
+    NET(ItemMatcher.itemMatcherFor(16, 36, 56, 76), FlowDirection.NET),
+    TOTALBYPHASE(ItemMatcher.itemMatcherFor(15, 35, 55, 75), FlowDirection.TOTALBYPHASE);
 
     private final Matcher<Integer> possibleCValues;
     private final FlowDirection flowDirection;

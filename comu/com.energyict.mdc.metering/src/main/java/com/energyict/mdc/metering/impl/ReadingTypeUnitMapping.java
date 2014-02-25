@@ -71,6 +71,7 @@ enum ReadingTypeUnitMapping {
                     ItemMatcher.itemMatcherFor(69, 70))),
     VOLTAMPEREREACTIVEHOUR(BaseUnit.VOLTAMPEREREACTIVEHOUR, ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR,
             CompositeMatcher.createMatcherFor(
+                    ItemMatcher.itemMatcherFor(15, 16, 35, 36, 55, 53, 75, 76),
                     RangeMatcher.rangeMatcherFor(new Range(3, 8)),
                     RangeMatcher.rangeMatcherFor(new Range(23, 28)),
                     RangeMatcher.rangeMatcherFor(new Range(43, 48)),

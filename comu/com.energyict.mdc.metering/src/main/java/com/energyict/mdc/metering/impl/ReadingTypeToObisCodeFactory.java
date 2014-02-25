@@ -315,29 +315,32 @@ public final class ReadingTypeToObisCodeFactory {
         public String getMessage() {
             StringBuilder builder = new StringBuilder();
             builder.append("Could not extract a unique ObisCode for given ReadingType.\r\n");
-            builder.append("\t - ReadingType : ").append(readingTypeMrdi);
-            builder.append("\t - A : ").append(getAllCandidates(optionals.getaFieldCandidates()));
-            builder.append("\t - B : ").append("0");
-            builder.append("\t - C : ").append(getAllCandidates(optionals.getcFieldCandidates()));
-            builder.append("\t - D : ").append(getAllCandidates(optionals.getdFieldCandidates()));
-            builder.append("\t - E : ").append(getAllCandidates(optionals.geteFieldCandidates()));
-            builder.append("\t - F : ").append(getAllCandidates(optionals.getfFieldCandidates()));
-            builder.append("\t - Unit : ").append(getAllCandidates(optionals.getBaseUnitCandidates()));
-            builder.append("\t - Interval : ").append(getAllCandidates(optionals.getIntervalSeconds()));
+            builder.append("\r\n\t - ReadingType : ").append(readingTypeMrdi);
+            builder.append("\r\n\t - A : ").append(getAllCandidates(optionals.getaFieldCandidates()));
+            builder.append("\r\n\t - B : ").append("0");
+            builder.append("\r\n\t - C : ").append(getAllCandidates(optionals.getcFieldCandidates()));
+            builder.append("\r\n\t - D : ").append(getAllCandidates(optionals.getdFieldCandidates()));
+            builder.append("\r\n\t - E : ").append(getAllCandidates(optionals.geteFieldCandidates()));
+            builder.append("\r\n\t - F : ").append(getAllCandidates(optionals.getfFieldCandidates()));
+            builder.append("\r\n\t - Unit : ").append(getAllCandidates(optionals.getBaseUnitCandidates()));
+            builder.append("\r\n\t - Interval : ").append(getAllCandidates(optionals.getIntervalSeconds()));
             return builder.toString();
         }
 
         private String getAllCandidates(Candidates<Integer> integerCandidates) {
-            StringBuilder stringBuilder = new StringBuilder();
-            Iterator<Integer> iterator = integerCandidates.getAllCandidates().iterator();
-            boolean next = iterator.hasNext();
-            while(next){
-                stringBuilder.append(iterator.next());
-                if (next = iterator.hasNext()) {
-                    stringBuilder.append(", ");
+            if(integerCandidates != null && !integerCandidates.getAllCandidates().isEmpty()){
+                StringBuilder stringBuilder = new StringBuilder();
+                Iterator<Integer> iterator = integerCandidates.getAllCandidates().iterator();
+                boolean next = iterator.hasNext();
+                while(next){
+                    stringBuilder.append(iterator.next());
+                    if (next = iterator.hasNext()) {
+                        stringBuilder.append(", ");
+                    }
                 }
+                return stringBuilder.toString();
             }
-            return stringBuilder.toString();
+            return "no candidates";
         }
     }
 
