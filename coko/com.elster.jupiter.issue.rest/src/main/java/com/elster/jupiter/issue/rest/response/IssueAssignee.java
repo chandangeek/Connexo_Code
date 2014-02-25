@@ -6,7 +6,7 @@ public class IssueAssignee {
 
     public IssueAssignee(com.elster.jupiter.issue.IssueAssignee assignee){
         if (assignee != null) {
-            this.setType(assignee.getType().name());
+            this.setType(assignee.getType().getType());
             switch (assignee.getType()){
                 case USER:
                     this.setTitle(assignee.getUser() != null ? assignee.getUser().getName() : "");

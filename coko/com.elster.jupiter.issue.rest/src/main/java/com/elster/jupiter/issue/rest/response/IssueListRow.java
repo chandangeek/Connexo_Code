@@ -15,7 +15,7 @@ public class IssueListRow {
         if (issue != null) {
             this.setId(issue.getId());
             this.setReason(issue.getTitle());
-            this.setStatus(issue.getStatus().toString());
+            this.setStatus(issue.getStatus().getName());
             this.setDueDate(issue.getDueDate().getTime());
             this.setAssignee(new IssueAssignee(issue.getAssignee()));
             this.setVersion(issue.getVersion());

@@ -15,8 +15,8 @@ public class IssuePreview {
     public IssuePreview(Issue issue){
         if (issue != null) {
             this.setId(issue.getId());
-            this.setReason(issue.getTitle());
-            this.setStatus(issue.getStatus().toString());
+            this.setReason(issue.getReason().getName());
+            this.setStatus(issue.getStatus().getName());
             this.setDueDate(issue.getDueDate().getTime());
             this.setAssignee(new IssueAssignee(issue.getAssignee()));
             this.setDevice(new IssueDevice(issue.getDevice()));

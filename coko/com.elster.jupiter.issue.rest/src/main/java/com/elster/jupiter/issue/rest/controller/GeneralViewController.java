@@ -23,10 +23,6 @@ import java.util.*;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-//import com.elster.jupiter.users.User;
-//import com.elster.jupiter.users.security.Privileges;
-//import javax.annotation.security.RolesAllowed;
-
 @Path("/issue")
 public class    GeneralViewController {
     private final RestQueryService queryService;
@@ -81,7 +77,7 @@ public class    GeneralViewController {
         query.setEager();
         Condition condition = null;
         if (queryParameters.get("reason") != null) {
-            condition = where("reason").isEqualTo(queryParameters.get("reason").get(0));
+            condition = where("reason.name").isEqualTo(queryParameters.get("reason").get(0));
         }
         List<String> sortList = queryParameters.get("sort");
         List<Order> orders = convertSortListToOrderList(sortList, queryParameters);
@@ -138,5 +134,4 @@ public class    GeneralViewController {
         }
         return orders;
     }
-
 }

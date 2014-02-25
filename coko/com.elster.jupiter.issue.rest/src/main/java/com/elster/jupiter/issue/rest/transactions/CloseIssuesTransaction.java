@@ -28,7 +28,7 @@ public class CloseIssuesTransaction implements Transaction<BaseActionResponse> {
     @Override
     public BaseActionResponse perform() {
         BaseActionResponse response = new BaseActionResponse();
-        IssueStatus newIssueStatus = issueService.getIssueStatusById(request.getStatus()).get();
+        IssueStatus newIssueStatus = issueService.getIssueStatusById(request.getStatus()).orNull();
         if (request.getIssues() != null && newIssueStatus != null) {
             List<Long> success = new ArrayList<>();
             Map<String, ActionRequestFail> allCloseFails = new HashMap<>();
