@@ -10,7 +10,8 @@ import com.elster.jupiter.metering.cim.CimMessageHandlerFactory;
 import com.elster.jupiter.metering.cim.Sender;
 import com.elster.jupiter.metering.cim.UnderlyingXmlException;
 import com.elster.jupiter.metering.cim.impl.Marshaller;
-import com.elster.jupiter.soap.whiteboard.cxf.CxfSupport;
+import com.elster.jupiter.soap.whiteboard.SoapProviderSupport;
+import com.elster.jupiter.soap.whiteboard.SoapProviderSupportFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -26,6 +27,7 @@ import java.net.URL;
 public class SoapSender implements Sender {
     private final Marshaller marshaller = new Marshaller();
     private volatile CimMessageHandlerFactory factory;
+    private volatile SoapProviderSupportFactory soapProviderSupportFactory;
 
     @Activate
     public void activate() {
@@ -42,9 +44,14 @@ public class SoapSender implements Sender {
         factory.addSender(this);
     }
 
+    @Reference
+    public void setSoapProviderSupportFactory(SoapProviderSupportFactory soapProviderSupportFactory) {
+        this.soapProviderSupportFactory = soapProviderSupportFactory;
+    }
+
     @Override
     public void send(CreatedMeterReadings createdMeterReadings, MeterReadings meterReadings) {
-        try (CxfSupport cxfSupport = new CxfSupport()) {
+        try (SoapProviderSupport support = soapProviderSupportFactory.create()) {
             marshaller.addPayload(createdMeterReadings, meterReadings);
 
             QName SERVICE_NAME =
