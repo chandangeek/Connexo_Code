@@ -14,6 +14,7 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -48,12 +49,14 @@ public class UsagePointResource {
     private final RestQueryService queryService;
     private final MeteringService meteringService;
     private final TransactionService transactionService;
+    private final Clock clock;
 
     @Inject
-    public UsagePointResource(RestQueryService queryService, MeteringService meteringService, TransactionService transactionService) {
+    public UsagePointResource(RestQueryService queryService, MeteringService meteringService, TransactionService transactionService, Clock clock) {
         this.queryService = queryService;
         this.meteringService = meteringService;
         this.transactionService = transactionService;
+        this.clock = clock;
     }
 
     @GET
@@ -98,7 +101,7 @@ public class UsagePointResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info, @Context SecurityContext securityContext) {
         info.id = id;
-        transactionService.execute(new UpdateUsagePointTransaction(info, securityContext.getUserPrincipal(), meteringService));
+        transactionService.execute(new UpdateUsagePointTransaction(info, securityContext.getUserPrincipal(), meteringService, clock));
         return getUsagePoint(info.id, securityContext);
 	}
 	  

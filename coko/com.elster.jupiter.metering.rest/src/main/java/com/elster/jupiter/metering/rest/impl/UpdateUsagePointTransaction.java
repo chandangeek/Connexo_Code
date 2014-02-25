@@ -9,14 +9,13 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-
 import java.security.Principal;
-import java.util.Date;
 
 
 final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
@@ -24,12 +23,14 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
     private final UsagePointInfo info;
     private final Principal principal;
     private final MeteringService meteringService;
+    private final Clock clock;
 
     @Inject
-    UpdateUsagePointTransaction(UsagePointInfo info, Principal principal, MeteringService meteringService) {
+    UpdateUsagePointTransaction(UsagePointInfo info, Principal principal, MeteringService meteringService, Clock clock) {
         this.info = info;
         this.principal = principal;
         this.meteringService = meteringService;
+        this.clock = clock;
     }
 
     @Override
@@ -55,7 +56,7 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
                 usagePoint.setReadCycle(info.readCycle);
                 usagePoint.setReadRoute(info.readRoute);
                 usagePoint.setServicePriority(info.servicePriority);
-                UsagePointDetail detail = usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, new Date());
+                UsagePointDetail detail = usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, clock.now());
                 detail.setAmiBillingReady(info.amiBillingReady);
                 detail.setCheckBilling(info.checkBilling);
                 detail.setConnectionState(info.connectionState);

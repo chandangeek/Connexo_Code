@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Clock;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Activate;
@@ -22,8 +23,9 @@ public class MeteringApplication extends Application implements BinderProvider {
 	private volatile MeteringService meteringService;
 	private volatile TransactionService transactionService;
 	private volatile RestQueryService restQueryService;
-	
-	public MeteringApplication() {
+    private volatile Clock clock;
+
+    public MeteringApplication() {
 		classes.add(UsagePointResource.class);		
 	}
 
@@ -45,8 +47,13 @@ public class MeteringApplication extends Application implements BinderProvider {
 	public void setRestQueryService(RestQueryService restQueryService) {
 		this.restQueryService = restQueryService;
 	}
-	
-	@Activate
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Activate
 	public void activate() {
 	}
 	
@@ -62,6 +69,7 @@ public class MeteringApplication extends Application implements BinderProvider {
                 bind(restQueryService).to(RestQueryService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(meteringService).to(MeteringService.class);
+                bind(clock).to(Clock.class);
             }
         };
     }
