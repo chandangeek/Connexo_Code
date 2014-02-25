@@ -1,8 +1,9 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
+import com.elster.jupiter.soap.whiteboard.SoapProviderSupport;
 import org.apache.cxf.jaxws.spi.ProviderImpl;
 
-public class CxfSupport implements AutoCloseable {
+public class CxfSupport implements SoapProviderSupport {
 
     private final ClassLoader torestore;
 
