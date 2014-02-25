@@ -11,7 +11,7 @@ import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.*;
 import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
-import static com.elster.jupiter.cbo.ReadingTypeUnit.VOLTAMPEREHOUR;
+import static com.elster.jupiter.cbo.ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static com.elster.jupiter.cbo.TimeAttribute.*;
 
@@ -29,14 +29,12 @@ public class ReadingTypeGenerator {
 		FORWARDENERGY (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO,WATTHOUR),"Forward Energy"),
 		REVERSEENERGY (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO,WATTHOUR),"Reverse Energy"),
 		NETENERGY (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(NET).measure(ENERGY).in(KILO,WATTHOUR),"Net Energy"),
-		LAGGINGREACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(LAGGING).measure(ENERGY).in(KILO,VOLTAMPEREHOUR),"Lagging Reactive Energy"),
-		LEADINGREACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(LEADING).measure(ENERGY).in(KILO,VOLTAMPEREHOUR),"Leading Reactive Energy"),
-		TOTALREACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(TOTAL).measure(ENERGY).in(KILO,VOLTAMPEREHOUR),"Total Reactive Energy"),
-		TOTALBYPHASEREACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(TOTALBYPHASE).measure(ENERGY).in(KILO,VOLTAMPEREHOUR),"Total by Phase Reactive Energy"),
-		Q1REACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q1).measure(ENERGY).in(KILO,VOLTAMPEREHOUR),"Q1 Reactive Energy"),
-		Q2REACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q2).measure(ENERGY).in(KILO,VOLTAMPEREHOUR),"Q2 Reactive Energy"),
-		Q3REACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q3).measure(ENERGY).in(KILO,VOLTAMPEREHOUR),"Q3 Reactive Energy"),
-		Q4REACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q4).measure(ENERGY).in(KILO,VOLTAMPEREHOUR),"Q4 Reactive Energy");
+		TOTALREACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(TOTAL).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Total Reactive Energy"),
+		TOTALBYPHASEREACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(TOTALBYPHASE).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Total by Phase Reactive Energy"),
+		Q1REACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q1).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Q1 Reactive Energy"),
+		Q2REACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q2).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Q2 Reactive Energy"),
+		Q3REACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q3).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Q3 Reactive Energy"),
+		Q4REACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q4).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Q4 Reactive Energy");
 	
 		private final ReadingTypeCodeBuilder builder;
 		private final String name;
