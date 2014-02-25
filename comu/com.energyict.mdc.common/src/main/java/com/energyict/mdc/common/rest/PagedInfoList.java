@@ -1,12 +1,13 @@
 package com.energyict.mdc.common.rest;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * generic helper class to json-serialize a list of info-objects into a json format that is understood by our ExtJS paging component.
@@ -17,12 +18,14 @@ public class PagedInfoList {
     private final String jsonListName;
     private boolean couldHaveNextPage;
     private List infos = new ArrayList<>();
+    private QueryParameters queryParameters;
 
     public int getTotal() {
-        return infos.size() + (couldHaveNextPage?1:0);
+        return queryParameters.getStart() + infos.size() + (couldHaveNextPage?1:0);
     }
 
     private PagedInfoList(String jsonListName, List infos, QueryParameters queryParameters) {
+        this.queryParameters = queryParameters;
         this.jsonListName = jsonListName;
         this.infos = infos;
         couldHaveNextPage=queryParameters.getLimit()!=null && infos.size()==queryParameters.getLimit();
