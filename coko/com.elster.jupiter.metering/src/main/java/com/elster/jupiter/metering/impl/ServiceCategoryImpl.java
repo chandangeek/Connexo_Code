@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.Date;
 
-public class ServiceCategoryImpl implements ServiceCategory {
+public class ServiceCategoryImpl implements ServiceCategory  {
 	//persistent fields
 	private ServiceKind kind;
 	private String aliasName;
@@ -75,6 +75,11 @@ public class ServiceCategoryImpl implements ServiceCategory {
 	public UsagePoint newUsagePoint(String mRid) {
 		return usagePointFactory.get().init(mRid,this);
 	}
+
+    @Override
+    public String getTranslationKey() {
+        return "service.category." + kind.name().toLowerCase();
+    }
 
     @Override
     public UsagePointDetail newUsagePointDetail(UsagePoint usagePoint, Date start) {

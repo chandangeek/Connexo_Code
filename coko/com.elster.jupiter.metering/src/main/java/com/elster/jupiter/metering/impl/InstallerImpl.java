@@ -58,13 +58,14 @@ public class InstallerImpl {
     public void install() {
     	createVaults();
         createRecordSpecs();
-        createServiceCategories();
+        List<ServiceCategoryImpl> serviceCategories = createServiceCategories();
         createReadingTypes();
         createPartyRoles();
         createPrivileges();
         createAmrSystems();
         createEndDeviceEventTypes();
         createEventTypes();
+        createTranslations(serviceCategories);
     }
 
     private void createEventTypes() {
@@ -155,10 +156,13 @@ public class InstallerImpl {
     	RecordSpecs.createAll(idsService);
     }
 
-    private void createServiceCategories() {
+    private List<ServiceCategoryImpl> createServiceCategories() {
+        List<ServiceCategoryImpl> list = new ArrayList<>();
     	for (ServiceKind kind : ServiceKind.values()) {
-    		meteringService.createServiceCategory(kind);
-    	}
+            ServiceCategoryImpl serviceCategory = meteringService.createServiceCategory(kind);
+            list.add(serviceCategory);
+        }
+        return list;
     }
 
     private void createReadingTypes() {
@@ -190,11 +194,15 @@ public class InstallerImpl {
         return result;
     }
 
-    private void createTranslations() {
+    private void createTranslations(List<ServiceCategoryImpl> serviceCategories) {
         List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
         for (MessageSeeds messageSeed : MessageSeeds.values()) {
             SimpleNlsKey nlsKey = SimpleNlsKey.key(MeteringService.COMPONENTNAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
             translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
+        }
+        for (ServiceCategoryImpl serviceCategory : serviceCategories) {
+            SimpleNlsKey nlsKey = SimpleNlsKey.key(MeteringService.COMPONENTNAME, Layer.DOMAIN, serviceCategory.getTranslationKey()).defaultMessage(serviceCategory.getKind().getDisplayName());
+            translations.add(toTranslation(nlsKey, Locale.ENGLISH, serviceCategory.getKind().getDisplayName()));
         }
         thesaurus.addTranslations(translations);
     }

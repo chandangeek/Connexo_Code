@@ -1,11 +1,10 @@
 package com.elster.jupiter.metering;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.nls.HasTranslatableName;
 
 import java.util.Date;
 
-public interface ServiceCategory extends HasName {
+public interface ServiceCategory extends HasTranslatableName {
 	int getId();
 	String getAliasName();
 	String getDescription();
