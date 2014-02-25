@@ -351,7 +351,7 @@ Ext.define('Cfg.controller.Validation', {
         var breadcrumbs = me.getBreadCrumbs();
 
         var breadcrumbNewRuleSet = Ext.create('Uni.model.BreadcrumbItem', {
-            text: 'Create new rule set'
+            text: 'Create rule set'
         });
 
         var breadcrumbRuleSets = Ext.create('Uni.model.BreadcrumbItem', {
