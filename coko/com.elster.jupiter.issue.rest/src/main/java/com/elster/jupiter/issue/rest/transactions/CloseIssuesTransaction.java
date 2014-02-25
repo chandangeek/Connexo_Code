@@ -7,6 +7,7 @@ import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.response.ActionRequestFail;
 import com.elster.jupiter.issue.rest.response.BaseActionResponse;
+import com.elster.jupiter.issue.rest.response.IssueShortInfo;
 import com.elster.jupiter.transaction.Transaction;
 
 import javax.ws.rs.WebApplicationException;
@@ -28,12 +29,12 @@ public class CloseIssuesTransaction implements Transaction<BaseActionResponse> {
     @Override
     public BaseActionResponse perform() {
         BaseActionResponse response = new BaseActionResponse();
-        IssueStatus newIssueStatus = issueService.getIssueStatusById(request.getStatus()).orNull();
+        IssueStatus newIssueStatus = issueService.getIssueStatusFromString(request.getStatus());
         if (request.getIssues() != null && newIssueStatus != null) {
-            List<Long> success = new ArrayList<>();
+            List<IssueShortInfo> success = new ArrayList<>();
             Map<String, ActionRequestFail> allCloseFails = new HashMap<>();
             for (EntityReference issueForClose : request.getIssues()) {
-                OperationResult<String, String[]> result = issueService.closeIssue(issueForClose.getId(), issueForClose.getVersion(), newIssueStatus, request.getComment(), request.isForce());
+                OperationResult<String, String[]> result = issueService.closeIssue(issueForClose.getId(), issueForClose.getVersion(), newIssueStatus, request.getComment());
                 if (result.isFailed()) {
                     String failReason = result.getFailReason()[0];
                     String issueTitle = result.getFailReason()[1];
@@ -44,10 +45,10 @@ public class CloseIssuesTransaction implements Transaction<BaseActionResponse> {
                         failsWithSameReason.setReason(failReason);
                         allCloseFails.put(failReason, failsWithSameReason);
                     }
-                    ActionRequestFail.IssueFailInfo issueFail = new ActionRequestFail.IssueFailInfo(issueForClose.getId(), issueTitle);
+                    IssueShortInfo issueFail = new IssueShortInfo(issueForClose.getId(), issueTitle);
                     failsWithSameReason.getIssues().add(issueFail);
                 } else {
-                    success.add(issueForClose.getId());
+                    success.add(new IssueShortInfo(issueForClose.getId()));
                 }
             }
             response.setSuccess(success);

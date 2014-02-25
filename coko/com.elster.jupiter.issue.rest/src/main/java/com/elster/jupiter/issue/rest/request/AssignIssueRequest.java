@@ -9,7 +9,6 @@ public class AssignIssueRequest {
     private List<EntityReference> issues;
     private String comment;
     private AssigneeReference assignee;
-    private boolean force;
 
     public List<EntityReference> getIssues() {
         return issues;
@@ -33,14 +32,6 @@ public class AssignIssueRequest {
 
     public void setAssignee(AssigneeReference assignee) {
         this.assignee = assignee;
-    }
-
-    public boolean isForce() {
-        return force;
-    }
-
-    public void setForce(boolean force) {
-        this.force = force;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

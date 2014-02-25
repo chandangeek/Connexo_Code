@@ -5,6 +5,7 @@ import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.response.ActionRequestFail;
 import com.elster.jupiter.issue.rest.response.BaseActionResponse;
+import com.elster.jupiter.issue.rest.response.IssueShortInfo;
 import com.elster.jupiter.issue.rest.transactions.CloseIssuesTransaction;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.Transaction;
@@ -50,22 +51,22 @@ public class IssueActionController {
                     public BaseActionResponse perform() {
                         BaseActionResponse response = new BaseActionResponse();
                         if (request.getIssues() != null) {
-                            ActionRequestFail.IssueFailInfo info1 = new ActionRequestFail.IssueFailInfo(12L, "Unable to connect to Eimeter 1");
-                            ActionRequestFail.IssueFailInfo info2 = new ActionRequestFail.IssueFailInfo(245L, "Unable to connect to Eimeter 2");
-                            ActionRequestFail.IssueFailInfo info3 = new ActionRequestFail.IssueFailInfo(8L, "Unable to connect to Eimeter 3");
+                            IssueShortInfo info1 = new IssueShortInfo(12L, "Unable to connect to Eimeter 1");
+                            IssueShortInfo info2 = new IssueShortInfo(245L, "Unable to connect to Eimeter 2");
+                            IssueShortInfo info3 = new IssueShortInfo(8L, "Unable to connect to Eimeter 3");
 
                             ActionRequestFail fail1 = new ActionRequestFail();
                             fail1.setReason("Already assigned");
                             fail1.setIssues(Arrays.asList(info1, info2, info3));
 
-                            ActionRequestFail.IssueFailInfo info4 = new ActionRequestFail.IssueFailInfo(98L, "Unable to connect to Eimeter 4");
-                            ActionRequestFail.IssueFailInfo info5 = new ActionRequestFail.IssueFailInfo(234L, "Unable to connect to Eimeter 5");
+                            IssueShortInfo info4 = new IssueShortInfo(98L, "Unable to connect to Eimeter 4");
+                            IssueShortInfo info5 = new IssueShortInfo(234L, "Unable to connect to Eimeter 5");
 
                             ActionRequestFail fail2 = new ActionRequestFail();
                             fail2.setReason("Some problems");
                             fail2.setIssues(Arrays.asList(info4, info5));
 
-                            response.setSuccess(Arrays.asList(1L, 2L));
+                            response.setSuccess(Arrays.asList(new IssueShortInfo(1L),new IssueShortInfo(2L)));
                             response.setFailure(Arrays.asList(fail1, fail2));
                         } else {
                             throw new WebApplicationException(Response.Status.BAD_REQUEST);
