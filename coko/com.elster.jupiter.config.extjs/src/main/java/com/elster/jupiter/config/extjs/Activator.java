@@ -13,9 +13,9 @@ public class Activator implements BundleActivator {
 	
 	public void start(BundleContext bundleContext) throws Exception {
 		String alias = "/cfg";
-		HttpResource resource = new HttpResource(alias, "/js/cfg" , new BundleResolver(bundleContext),new DefaultStartPage("configuration"));
+		//HttpResource resource = new HttpResource(alias, "/js/cfg" , new BundleResolver(bundleContext),new DefaultStartPage("configuration"));
 		// Comment above and uncomment next line for file based javascript serving, changing second argument as appropriate
-		//HttpResource resource = new HttpResource(alias, "/home/lvz/Documents/Workspace/Jupiter/meteringextjs/js/mtr" , new FileResolver());
+		HttpResource resource = new HttpResource(alias, "C:/jupiterrepo/com.elster.jupiter.config.extjs/src/main/web/js/cfg" , new FileResolver());
 		registration = bundleContext.registerService(HttpResource.class, resource , null);
 	}
 	
