@@ -628,42 +628,17 @@ Ext.define('Cfg.controller.Validation', {
                                     xtype: 'displayfield',
                                     fieldLabel: fieldlabel,
                                     labelWidth:	250,
-                                    //width: 600,
-                                    //margin:'0 0 5 0',
+                                    width: 500,
                                     value: mRID
                                 }, {
                                     xtype: 'component',
+                                    width: 500,
                                     html: '<span style="color:grey"><i>' + aliasName + '</i></span>',
                                     margin: '5 0 0 10'
                                 }
                             ]
                 }
 
-
-
-
-                /*{
-                    xtype: 'fieldcontainer',
-                    fieldLabel:  Uni.I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
-                    layout: 'hbox',
-                    labelWidth:	250,
-                    defaults: {
-                        flex: 1
-                        //hideLabel: true
-                    },
-                    items: [
-                        {
-                            xtype: 'component',
-                            html: mRID,
-                            width: 250
-                        },
-                        {
-                            xtype: 'component',
-                            html: '<span style="color:grey"><i>' + aliasName + '</i></span>',
-                            margin: '0 0 0 20'
-                        }
-                    ]
-                }*/
             );
         }
     }

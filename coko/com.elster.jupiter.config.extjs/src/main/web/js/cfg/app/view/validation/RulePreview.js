@@ -108,32 +108,8 @@ Ext.define('Cfg.view.validation.RulePreview', {
                     }
                 },
 
-
-                /*{
-                    xtype: 'displayfield',
-                    name: 'displayName',
-                    fieldLabel: Uni.I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
-                    labelAlign: 'right',
-                    labelWidth:	250
-                },
-                {
-                    xtype: 'displayfield',
-                    name: 'displayName',
-                    fieldLabel: '&nbsp',
-                    labelAlign: 'right',
-                    labelWidth:	250
-                },       */
-
                 {
                     xtype: 'container',
-                    //fieldLabel:  Uni.I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
-                    //labelAlign: 'right',
-                    //labelWidth:	250,
-                    //layout: 'vbox',
-                    //defaults: {
-                    //    flex: 1,
-                    //    hideLabel: true
-                    //},
                     itemId: 'readingTypesArea',
                     items: []
                 },
