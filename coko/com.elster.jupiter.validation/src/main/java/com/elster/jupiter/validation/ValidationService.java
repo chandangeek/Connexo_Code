@@ -28,4 +28,6 @@ public interface ValidationService {
     Optional<ValidationRule> getValidationRule(long id);
 
     Query<ValidationRuleSet> getRuleSetQuery();
+
+    Optional<ValidationRuleSet> getValidationRuleSet(String name);
 }

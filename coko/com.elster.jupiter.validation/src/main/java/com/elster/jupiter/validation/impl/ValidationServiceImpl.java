@@ -13,6 +13,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.Upcast;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
@@ -138,6 +140,13 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     @Override
     public Optional<ValidationRuleSet> getValidationRuleSet(long id) {
         return dataModel.mapper(IValidationRuleSet.class).getOptional(id).transform(UPCAST);
+    }
+
+    @Override
+    public Optional<ValidationRuleSet> getValidationRuleSet(String name) {
+        Condition condition = Operator.EQUAL.compare("name", name);
+        List<ValidationRuleSet> ruleSets = dataModel.query(ValidationRuleSet.class).select(condition);
+        return ruleSets.isEmpty() ? Optional.<ValidationRuleSet>absent() : Optional.of(ruleSets.get(0));
     }
 
     @Override
