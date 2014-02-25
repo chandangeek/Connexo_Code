@@ -16,9 +16,9 @@ Ext.define('Cfg.view.validation.RuleList', {
     columns: {
 
         items: [
-            { header: Uni.I18n.translate('validation.name', 'CFG', 'Name'), dataIndex: 'name', flex: 1, sortable: false},
-            { header: Uni.I18n.translate('validation.rule', 'CFG', 'Rule'), dataIndex: 'displayName', flex: 1, sortable: false},
-            { header: Uni.I18n.translate('validation.active', 'CFG', 'Active'), dataIndex: 'active', flex: 1, sortable: false,
+            { header: Uni.I18n.translate('validation.name', 'CFG', 'Name'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true},
+            { header: Uni.I18n.translate('validation.rule', 'CFG', 'Rule'), dataIndex: 'displayName', flex: 0.3, sortable: false, fixed: true},
+            { header: Uni.I18n.translate('validation.active', 'CFG', 'Active'), dataIndex: 'active', flex: 0.3, sortable: false, fixed: true,
                 renderer:function(value){
                     if (value) {
                         return Uni.I18n.translate('general.yes', 'CFG', 'Yes')
@@ -29,10 +29,12 @@ Ext.define('Cfg.view.validation.RuleList', {
             },
             {
                 xtype:'actioncolumn',
+                fixed: true,
                 sortable: false,
                 header: Uni.I18n.translate('validation.actions', 'CFG', 'Actions'),
                 align: 'center',
-                width:150,
+                //width:150,
+                flex: 0.1,
                 items: [{
                     icon: 'resources/images/gear-16x16.png',
                     handler: function(grid, rowIndex, colIndex,item,e) {

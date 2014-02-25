@@ -18,19 +18,20 @@ Ext.define('Cfg.view.validation.RuleSetList', {
 
     columns: {
         items: [
-            { header: Uni.I18n.translate('general.name', 'CFG', 'Name'), dataIndex: 'name', flex: 1, sortable: false,
+            { header: Uni.I18n.translate('general.name', 'CFG', 'Name'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true,
                 renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                     return '<a style="color:#007dc3" href="#/validation/overview/' + record.getId() + '">' + value + '</a>'
                 }
             },
-            { header: Uni.I18n.translate('validation.numberOfRules', 'CFG', 'Number of rules'), dataIndex: 'numberOfRules', flex: 1, align: 'center', sortable: false  },
-            { header:Uni.I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules'), dataIndex: 'numberOfInactiveRules', flex: 1, align: 'center', sortable: false },
+            { header: Uni.I18n.translate('validation.numberOfRules', 'CFG', 'Number of rules'), dataIndex: 'numberOfRules', flex: 0.3, align: 'center', sortable: false, fixed: true  },
+            { header:Uni.I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules'), dataIndex: 'numberOfInactiveRules', flex: 0.3, align: 'center', sortable: false, fixed: true },
             {
                 xtype:'actioncolumn',
+                fixed: true,
                 sortable: false,
                 align: 'center',
                 header: Uni.I18n.translate('validation.actions', 'CFG', 'Actions'),
-                width:150,
+                flex: 0.1,
                 items: [{
                     icon: 'resources/images/gear-16x16.png',
                     handler: function(grid, rowIndex, colIndex,item,e) {
