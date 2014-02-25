@@ -74,7 +74,7 @@ public class MasterDataGenerator {
         for (ReadingType readingType : meteringService.getAvailableReadingTypes()) {
             try {
                 ProductSpec productSpec = deviceConfigurationService.findProductSpecByReadingType(readingType);
-                if(productSpec.getUnit() != null){
+                if(productSpec != null && productSpec.getUnit() != null){
                     ReadingTypeInformation readingTypeInformation = readingTypeUtilService.getReadingTypeInformationFor(readingType);
                     RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping(readingType.getName(), readingTypeInformation.getObisCode(), productSpec);
                     registerMapping.save();
