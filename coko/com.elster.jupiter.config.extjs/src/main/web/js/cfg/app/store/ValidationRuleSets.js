@@ -2,10 +2,6 @@ Ext.define('Cfg.store.ValidationRuleSets', {
     extend: 'Ext.data.Store',
     autoLoad: true,
     model: 'Cfg.model.ValidationRuleSet',
-    sorters: [{
-        property: 'name',
-        direction: 'ASC'
-    }],
 
 
     proxy: {

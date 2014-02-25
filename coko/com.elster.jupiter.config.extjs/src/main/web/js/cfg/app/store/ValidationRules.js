@@ -3,11 +3,6 @@ Ext.define('Cfg.store.ValidationRules', {
     autoLoad: false,
     model: 'Cfg.model.ValidationRule',
 
-    sorters: [{
-        property: 'name',
-        direction: 'ASC'
-    }],
-
     proxy: {
         type: 'rest',
         url: '/api/val/validation',
