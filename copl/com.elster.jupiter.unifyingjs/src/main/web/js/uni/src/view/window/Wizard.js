@@ -90,10 +90,26 @@ Ext.define('Uni.view.window.Wizard', {
                 },
                 {
                     xtype: 'container',
-                    itemId: 'stepsContainer',
-                    layout: 'card',
-                    items: []
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    },
+                    items: [
+                        {
+                            xtype: 'component',
+                            itemId: 'stepsTitle',
+                            html: '&nbsp;'
+                        },
+                        {
+                            xtype: 'container',
+                            itemId: 'stepsContainer',
+                            layout: 'card',
+                            flex: 1,
+                            items: []
+                        }
+                    ]
                 }
+
             ]
         }
     ],
@@ -136,7 +152,7 @@ Ext.define('Uni.view.window.Wizard', {
                 steps = Ext.clone(steps);
             }
 
-            this.items[1].items[1].items = steps;
+            this.items[1].items[1].items[1].items = steps;
         }
 
         this.callParent(arguments);
@@ -212,6 +228,16 @@ Ext.define('Uni.view.window.Wizard', {
         this.checkNavigationState();
     },
 
+    initStepsTitle: function () {
+        var stepsContainer = this.getStepsContainerCmp(),
+            stepCmp = stepsContainer.getLayout().getActiveItem(),
+            stepsTitle = this.getStepsTitleCmp();
+
+        if (typeof stepCmp !== 'undefined' && stepCmp.hasOwnProperty('title')) {
+            stepsTitle.update('<h3>' + stepCmp.title + '</h3>');
+        }
+    },
+
     checkNavigationState: function () {
         var menu = this.getStepsMenuCmp(),
             layout = this.getStepsContainerCmp().getLayout(),
@@ -229,6 +255,7 @@ Ext.define('Uni.view.window.Wizard', {
             }
         }
 
+        this.initStepsTitle();
         prevButton.setDisabled(!prevCmp);
         nextButton.setDisabled(!nextCmp);
     },
@@ -268,6 +295,10 @@ Ext.define('Uni.view.window.Wizard', {
 
     getStepsMenuCmp: function () {
         return this.down('#stepsMenu');
+    },
+
+    getStepsTitleCmp: function () {
+        return this.down('#stepsTitle');
     },
 
     getStepsContainerCmp: function () {
