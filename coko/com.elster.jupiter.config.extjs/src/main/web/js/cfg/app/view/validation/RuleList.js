@@ -110,4 +110,6 @@ Ext.define('Cfg.view.validation.RuleList', {
         this.callParent(arguments);
     }
 
+
+
 });
