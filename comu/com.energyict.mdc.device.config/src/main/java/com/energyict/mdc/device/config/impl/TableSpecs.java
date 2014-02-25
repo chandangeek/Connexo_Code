@@ -114,7 +114,7 @@ public enum TableSpecs {
             Column obisCode = table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
             Column productSpec = table.column("PRODUCTSPECID").number().notNull().add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
-            table.column("CUMULATIVE").bool().notNull().map("cumulative").add();
+            table.column("CUMULATIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("cumulative").add();
             Column registerGroup = table.column("REGISTERGROUPID").number().add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
             table.foreignKey("FK_EISREGMAPREGGROUP").on(registerGroup).references(EISRTUREGISTERGROUP.name()).map("registerGroup").add();

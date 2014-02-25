@@ -37,7 +37,7 @@ public class InstallerTest{
     public static void cleanUpDataBase() throws SQLException {
         inMemoryPersistence.cleanUpDataBase();
     }
-    
+
     @Test
     @Transactional
     public void withoutInstallingTest() {
