@@ -178,7 +178,10 @@ public class MeterReadingsGenerator {
         return value;
     }
 
-    Reading createReading(MeterReading meterReading, BaseReading baseReading, Reading.ReadingType readingType, List<com.elster.jupiter.metering.ReadingQuality> relevantQualities) {
+    void createReading(MeterReading meterReading, BaseReading baseReading, Reading.ReadingType readingType, List<com.elster.jupiter.metering.ReadingQuality> relevantQualities) {
+        if (baseReading.getValue() == null) {
+            return;
+        }
         Reading reading = payloadObjectFactory.createReading();
         reading.setReadingType(readingType);
         reading.setReportedDateTime(baseReading.getTimeStamp());
@@ -204,7 +207,6 @@ public class MeterReadingsGenerator {
             reading.getReadingQualities().add(readingQuality);
         }
         meterReading.getReadings().add(reading);
-        return reading;
     }
 
     Reading.ReadingType createReadingType(ReadingType type) {
