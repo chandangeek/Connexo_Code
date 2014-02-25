@@ -48,7 +48,7 @@ public class EventTypeBuilderImplTest {
     @Before
     public void setUp() {
         when(dataModel.getInstance(EventTypeImpl.class)).thenReturn(new EventTypeImpl(dataModel, clock, jsonService, eventConfiguration, messageService, beanService, thesaurus));
-        eventTypeBuilder = new EventTypeBuilderImpl(dataModel, clock, jsonService, eventConfiguration, messageService, beanService, TOPIC)
+        eventTypeBuilder = new EventTypeBuilderImpl(dataModel, TOPIC)
                 .category(CATEGORY)
                 .component(COMPONENT)
                 .name(NAME)

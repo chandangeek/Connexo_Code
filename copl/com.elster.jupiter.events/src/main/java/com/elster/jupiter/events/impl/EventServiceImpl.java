@@ -68,17 +68,17 @@ public class EventServiceImpl implements EventService, InstallService {
     }
 
     @Override
-    public void install() {
+    public final void install() {
         new InstallerImpl(dataModel, messageService, thesaurus).install();
     }
 
     @Reference
-    public void setClock(Clock clock) {
+    public final void setClock(Clock clock) {
         this.clock = clock;
     }
 
     @Reference
-    public void setOrmService(OrmService ormService) {
+    public final void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel("EVT", "Events");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
@@ -86,21 +86,21 @@ public class EventServiceImpl implements EventService, InstallService {
     }
 
     @Reference(cardinality=ReferenceCardinality.OPTIONAL,policy=ReferencePolicy.DYNAMIC)
-    public void setEventAdmin(EventAdmin eventAdmin) {
+    public final void setEventAdmin(EventAdmin eventAdmin) {
         this.eventAdmin.set(eventAdmin);
     }
     
-    public void unsetEventAdmin(EventAdmin eventAdmin) {
+    public final void unsetEventAdmin(EventAdmin eventAdmin) {
     	this.eventAdmin.compareAndSet(eventAdmin, null);
     }
 
     @Reference
-    public void setPublisher(Publisher publisher) {
+    public final void setPublisher(Publisher publisher) {
         this.publisher = publisher;
     }
 
     @Reference
-    public void setBeanService(BeanService beanService) {
+    public final void setBeanService(BeanService beanService) {
         this.beanService = beanService;
     }
 
@@ -109,17 +109,17 @@ public class EventServiceImpl implements EventService, InstallService {
     }
 
     @Reference
-    public void setMessageService(MessageService messageService) {
+    public final void setMessageService(MessageService messageService) {
         this.messageService = messageService;
     }
 
     @Reference
-    public void setJsonService(JsonService jsonService) {
+    public final void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addTopicHandler(TopicHandler topicHandler) {
+    public final void addTopicHandler(TopicHandler topicHandler) {
         localEventDispatcher.addSubscription(topicHandler);
     }
 
@@ -128,12 +128,12 @@ public class EventServiceImpl implements EventService, InstallService {
     }
 
     @Reference
-    public void setNlsService(NlsService nlsService) {
+    public final void setNlsService(NlsService nlsService) {
         thesaurus = nlsService.getThesaurus(EventService.COMPONENTNAME, Layer.DOMAIN);
     }
 
     @Activate
-    public void activate(BundleContext context) {
+    public final void activate(BundleContext context) {
         localEventDispatcher.register(context);
         dataModel.register(new AbstractModule() {
             @Override
@@ -174,7 +174,7 @@ public class EventServiceImpl implements EventService, InstallService {
 
     @Override
     public EventTypeBuilder buildEventTypeWithTopic(String topic) {
-        return new EventTypeBuilderImpl(dataModel, clock, jsonService, eventConfiguration, messageService, beanService, topic);
+        return new EventTypeBuilderImpl(dataModel, topic);
     }
 
     @Override

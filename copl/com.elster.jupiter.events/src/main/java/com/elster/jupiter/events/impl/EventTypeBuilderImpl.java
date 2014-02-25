@@ -3,30 +3,14 @@ package com.elster.jupiter.events.impl;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.beans.BeanService;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Clock;
 
 public class EventTypeBuilderImpl implements EventTypeBuilder {
 
     private final EventTypeImpl underConstruction;
-    private final Clock clock;
-    private final JsonService jsonService;
-    private final EventConfiguration eventConfiguration;
-    private final MessageService messageService;
-    private final BeanService beanService;
-    private final DataModel dataModel;
 
-    public EventTypeBuilderImpl(DataModel dataModel, Clock clock, JsonService jsonService, EventConfiguration eventConfiguration, MessageService messageService, BeanService beanService, String topic) {
-        this.clock = clock;
-        this.jsonService = jsonService;
-        this.eventConfiguration = eventConfiguration;
-        this.messageService = messageService;
-        this.beanService = beanService;
-        this.dataModel = dataModel;
-        underConstruction = EventTypeImpl.from(this.dataModel, topic);
+    public EventTypeBuilderImpl(DataModel dataModel, String topic) {
+        underConstruction = EventTypeImpl.from(dataModel, topic);
     }
 
     @Override

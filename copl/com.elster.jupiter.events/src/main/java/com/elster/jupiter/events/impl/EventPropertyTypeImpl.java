@@ -1,16 +1,15 @@
 package com.elster.jupiter.events.impl;
 
-import javax.inject.Inject;
-
 import com.elster.jupiter.events.EventPropertyType;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
+import javax.inject.Inject;
+
 public class EventPropertyTypeImpl implements EventPropertyType {
 
-    private String eventTypeTopic;
     private String name;
     private ValueType valueType;
     private String accessPath;
@@ -24,7 +23,6 @@ public class EventPropertyTypeImpl implements EventPropertyType {
 
     EventPropertyTypeImpl(EventType eventType, String name, ValueType valueType, String accessPath, int position) {
         this.eventType.set(eventType);
-        this.eventTypeTopic = eventType.getTopic();
         this.name = name;
         this.valueType = valueType;
         this.accessPath = accessPath;
