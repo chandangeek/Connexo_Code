@@ -36,6 +36,10 @@
         </dependency>
     </dependencies>
 
+    <properties>
+        <resource.dir>../../</resource.dir>
+    </properties>
+
     <profiles>
         <profile>
             <id>sencha-build</id>
@@ -61,6 +65,7 @@
                                         <property name="build.temp.dir" value="${project.build.directory}/webtemp"/>
                                         <property name="cmd.dir" value="${sencha.cmd.dir}"/>
                                         <property name="ext.dir" value="${sencha.ext.dir}"/>
+                                        <property name="resource.dir" value="./Unifying/"/>
                                         <ant antfile="build.xml" target="build" dir="./src/main/web/js/uni/"/>
                                     </target>
                                 </configuration>
