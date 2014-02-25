@@ -34,7 +34,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.omg.CosNaming._NamingContextExtStub;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -67,6 +66,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Inject
     public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+        this(ormService, eventService, nlsService, meteringService, protocolPluggableService, mdcReadingTypeUtilService, false);
+    }
+
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, MdcReadingTypeUtilService mdcReadingTypeUtilService, boolean createMasterData) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -76,7 +79,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setReadingTypeUtilService(mdcReadingTypeUtilService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
-            this.install(true);
+            this.install(true, createMasterData);
         }
     }
 
@@ -300,6 +303,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public List<Phenomenon> findAllPhenomena() {
+        return this.getDataModel().mapper(Phenomenon.class).find();
+    }
+
+    @Override
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLoadProfileType(LoadProfileType loadProfileType) {
         return this.getDataModel().
                     query(DeviceConfiguration.class, LoadProfileSpec.class).
@@ -390,11 +398,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public void install() {
-        this.install(false);
+        this.install(false, true);
     }
 
-    private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(exeuteDdl, false, true);
+    private void install(boolean exeuteDdl, boolean createMasterData) {
+        new Installer(this.dataModel, this.eventService, this.thesaurus, this.meteringService, readingTypeUtilService, this).install(exeuteDdl, false, createMasterData);
     }
 
 }

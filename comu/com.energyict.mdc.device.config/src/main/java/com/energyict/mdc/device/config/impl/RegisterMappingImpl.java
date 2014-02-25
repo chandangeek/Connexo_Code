@@ -76,6 +76,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
 
     @Override
     public void save () {
+        validateUniqueObisCodeAndRegisterMapping();
         this.modificationDate = this.clock.now();
         super.save();
     }
@@ -85,6 +86,13 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
      */
     protected void postNew() {
         this.getDataMapper().persist(this);
+    }
+
+    private void validateUniqueObisCodeAndRegisterMapping() {
+        RegisterMapping otherRegisterMapping = this.findOtherByObisCodeAndProductSpec();
+        if (otherRegisterMapping != null) {
+            throw DuplicateObisCodeException.forRegisterMapping(this.getThesaurus(), obisCode, otherRegisterMapping);
+        }
     }
 
     /**
@@ -149,10 +157,6 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
             if (this.isInUse()) {
                 throw new CannotUpdateObisCodeWhenRegisterMappingIsInUseException(this.getThesaurus(), this);
             }
-            RegisterMapping otherRegisterMapping = this.findOtherByObisCode(obisCode);
-            if (otherRegisterMapping != null) {
-                throw DuplicateObisCodeException.forRegisterMapping(this.getThesaurus(), obisCode, otherRegisterMapping);
-            }
             this.obisCodeString = obisCode.toString();
             this.obisCode = obisCode;
         }
@@ -162,8 +166,8 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         return !is(this.obisCode).equalTo(obisCode);
     }
 
-    private RegisterMapping findOtherByObisCode(ObisCode obisCode) {
-        return this.getDataMapper().getUnique("obisCodeString", obisCode.toString()).orNull();
+    private RegisterMapping findOtherByObisCodeAndProductSpec() {
+        return this.getDataMapper().getUnique("obisCodeString", obisCode.toString(), "productSpec", getProductSpec()).orNull();
     }
 
     @Override

@@ -292,4 +292,5 @@ public interface DeviceConfigurationService {
 
     public LogBookType findLogBookTypeByName(String name);
 
+    public List<Phenomenon> findAllPhenomena();
 }

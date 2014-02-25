@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
@@ -9,42 +10,55 @@ import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Logger;
 
 /**
- * Insert your comments here.
+ * Represents the Installer for the DeviceConfiguration module
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:42)
  */
 public class Installer {
 
+    private final Logger logger = Logger.getLogger(Installer.class.getName());
+
     private final DataModel dataModel;
     private final EventService eventService;
     private final Thesaurus thesaurus;
+    private final MeteringService meteringService;
+    private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
+    private final DeviceConfigurationService deviceConfigurationService;
 
-    public Installer(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    public Installer(DataModel dataModel, EventService eventService, Thesaurus thesaurus, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, DeviceConfigurationService deviceConfigurationService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
+        this.meteringService = meteringService;
+        this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     public void install(boolean executeDdl, boolean updateOrm, boolean createMasterData) {
         try {
             this.dataModel.install(executeDdl, updateOrm);
-            if (createMasterData) {
-                this.createMasterData();
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.severe(e.getMessage());
         }
         createEventTypes();
         createTranslations();
+        try {
+            if (createMasterData) {
+                this.createMasterData();
+            }
+        } catch (Exception e) {
+            logger.severe(e.getMessage());
+        }
     }
 
     private void createTranslations() {
@@ -61,6 +75,21 @@ public class Installer {
     }
 
     private void createMasterData() {
+        createPhenomena();
+        createProductSpecs();
+        createRegisterMappings();
+    }
+
+    private void createRegisterMappings() {
+        MasterDataGenerator.generateRegisterMappings(meteringService, mdcReadingTypeUtilService, deviceConfigurationService);
+    }
+
+    private void createProductSpecs() {
+        MasterDataGenerator.generateProductSpecs(meteringService, deviceConfigurationService);
+    }
+
+    private void createPhenomena() {
+        MasterDataGenerator.generatePhenomena(meteringService, mdcReadingTypeUtilService, deviceConfigurationService);
     }
 
     private void createEventTypes() {

@@ -110,7 +110,7 @@ public enum TableSpecs {
             Table<RegisterMapping> table = dataModel.addTable(this.name(), RegisterMapping.class);
             table.map(RegisterMappingImpl.class);
             Column id = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar(80).notNull().map("name").add();
+            Column name = table.column("NAME").varChar(128).notNull().map("name").add();
             Column obisCode = table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
             Column productSpec = table.column("PRODUCTSPECID").number().notNull().add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();

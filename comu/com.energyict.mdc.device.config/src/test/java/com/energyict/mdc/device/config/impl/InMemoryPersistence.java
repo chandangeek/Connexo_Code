@@ -75,7 +75,7 @@ public class InMemoryPersistence {
     private ProtocolPluggableService protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
 
-    public void initializeDatabase(String testName, boolean showSqlLogging) {
+    public void initializeDatabase(String testName, boolean showSqlLogging, boolean createMasterData) {
         this.initializeMocks(testName);
         InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
         Injector injector = Guice.createInjector(
@@ -105,7 +105,7 @@ public class InMemoryPersistence {
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
-            this.dataModel = this.createNewDeviceConfigurationService();
+            this.dataModel = this.createNewDeviceConfigurationService(createMasterData);
             ctx.commit();
         }
         Environment environment = injector.getInstance(Environment.class);
@@ -113,8 +113,8 @@ public class InMemoryPersistence {
         environment.setApplicationContext(this.applicationContext);
     }
 
-    private DataModel createNewDeviceConfigurationService() {
-        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.protocolPluggableService, this.readingTypeUtilService);
+    private DataModel createNewDeviceConfigurationService(boolean createMasterData) {
+        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.protocolPluggableService, this.readingTypeUtilService, createMasterData);
         return this.deviceConfigurationService.getDataModel();
     }
 
