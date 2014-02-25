@@ -10,6 +10,7 @@ import javax.inject.Inject;
 
 public class EventPropertyTypeImpl implements EventPropertyType {
 
+    private String eventTypeTopic; // used for persistence TODO : replace with Reference to EventType
     private String name;
     private ValueType valueType;
     private String accessPath;
@@ -23,6 +24,7 @@ public class EventPropertyTypeImpl implements EventPropertyType {
 
     EventPropertyTypeImpl(EventType eventType, String name, ValueType valueType, String accessPath, int position) {
         this.eventType.set(eventType);
+        this.eventTypeTopic = eventType.getTopic();
         this.name = name;
         this.valueType = valueType;
         this.accessPath = accessPath;
