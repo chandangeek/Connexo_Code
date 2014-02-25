@@ -26,20 +26,10 @@
  * Note that the UnifyingJS (alias **UNI**) component translations are always loaded in as well.
  * This is to make sure that the components render correctly for all languages.
  *
- * # Short notation
+ * # General notation
  *
- * There are 2 ways of using the internationalization object, the most pragmatic one being the preferred way.
- * You can just call the global I18n variable that has a reference to a singleton {@link Uni.I18n}
- * instance.
- *
- *     @example
- *     Ext.create('Ext.panel.Panel' {
- *         title: I18n.translate('my.key', 'CMP', 'Fallback')
- *     });
- *
- * The main advantage of this way is that it can be used without having to declare separate variables,
- * take requirements into consideration, and improve code readability. The other way is to call the
- * fully qualified name of {@link Uni.I18n} instead, as shown below.
+ * In order to use the internationalization object you need to call the  fully qualified name of
+ * {@link Uni.I18n}, as shown below.
  *
  *     @example
  *     Ext.create('Ext.panel.Panel' {
@@ -57,7 +47,7 @@
  *
  *     @example
  *     Ext.create('Ext.panel.Panel' {
- *         title: I18n.translate('my.key', 'CMP', 'Fallback')
+ *         title: Uni.I18n.translate('my.key', 'CMP', 'Fallback')
  *     });
  *
  * More information and examples can be found at the {@link #translate} function.
@@ -82,7 +72,7 @@
  * [Moment.js documentation page](http://momentjs.com/docs/ 'Moment.js documentation').
  *
  *     @example
- *     var formattedNow = I18n.formatDate('long.date.format', new Date(), 'CMP', 'D MMMM YYYY LT');
+ *     var formattedNow = Uni.I18n.formatDate('long.date.format', new Date(), 'CMP', 'D MMMM YYYY LT');
  *     console.log(formattedNow); // January 28 2014 11:14 AM
  *
  * More information and examples can be found at the {@link #formatDate} function.
@@ -95,7 +85,7 @@
  * should be used.
  *
  *     @example
- *     var formattedNumber = I18n.formatNumber(130000.037, 'CMP');
+ *     var formattedNumber = Uni.I18n.formatNumber(130000.037, 'CMP');
  *     console.log(formattedNumber); // 130,000.04
  *
  * More information and examples can be found at the {@link #formatNumber} function.
@@ -107,7 +97,7 @@
  * create a complete formatted currency string.
  *
  *     @example
- *     var formattedCurrency = I18n.formatCurrency(130000.037, 'CMP');
+ *     var formattedCurrency = Uni.I18n.formatCurrency(130000.037, 'CMP');
  *     console.log(formattedCurrency); // €130,000.04
  *
  * More information and examples can be found at the {@link #formatCurrency} function.
