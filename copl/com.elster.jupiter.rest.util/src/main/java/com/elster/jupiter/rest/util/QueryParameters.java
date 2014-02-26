@@ -114,10 +114,17 @@ public final class QueryParameters implements MultivaluedMap<String, String> {
     }
 
     public int determineTotal(int resultSize) {
-        if (resultSize == getLimit()) {
-            return getStart() + resultSize + 1;
+        if (resultSize == getLimit() + 1) {
+            return getStart() + resultSize;
         }
         return getStart() + resultSize;
+    }
+
+    public <T> List<T> clipToLimit(List<T> result) {
+        if (getLimit() >= 0 && getLimit() < result.size()) {
+            return result.subList(0, getLimit());
+        }
+        return result;
     }
 
     private int getLastValue(MultivaluedMap<String, String> map, String key) {

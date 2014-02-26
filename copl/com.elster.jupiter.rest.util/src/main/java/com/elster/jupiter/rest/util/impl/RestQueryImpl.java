@@ -31,9 +31,9 @@ class RestQueryImpl<T> implements RestQuery<T> {
         int limit = map.getLimit();
         condition = condition.and(convert(map));
         if (limit >= 0) {
-            return query.select(condition, start + 1, start + limit,Order.from(orders));
+            return query.select(condition, start + 1, start + limit + 1, Order.from(orders));
         } else {
-            return query.select(condition,Order.from(orders));
+            return query.select(condition, Order.from(orders));
         }
     }
     
@@ -43,7 +43,7 @@ class RestQueryImpl<T> implements RestQuery<T> {
         int limit = map.getLimit();
         Condition condition = convert(map);
         if (limit >= 0) {
-            return query.select(condition, start + 1, start + limit,orders);
+            return query.select(condition, start + 1, start + limit + 1, orders);
         } else {
             return query.select(condition, orders);
         }

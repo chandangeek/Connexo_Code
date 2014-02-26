@@ -47,7 +47,7 @@ public class RestQueryImplTest {
         QueryParameters wrap = QueryParameters.wrap(map);
         restQuery.select(wrap, condition);
 
-        verify(query).select(conditionResolved, 1, 100);
+        verify(query).select(conditionResolved, 1, 101);
     }
 
 
