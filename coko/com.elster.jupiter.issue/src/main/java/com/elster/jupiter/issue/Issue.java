@@ -19,8 +19,6 @@ public interface Issue {
 
     EndDevice getDevice();
 
-    Meter getMeter();
-
     long getVersion();
 
     IssueAssignee getAssignee();

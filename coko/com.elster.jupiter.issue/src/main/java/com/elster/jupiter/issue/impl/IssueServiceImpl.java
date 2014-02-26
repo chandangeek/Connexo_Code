@@ -190,11 +190,50 @@ public class IssueServiceImpl implements IssueService, InstallService {
             return result.setFail(new String[]{MessageSeeds.ISSUE_ALREADY_CHANGED.getDefaultFormat(), issueForClose.getTitle()});
         }
         // TODO may be it will better to extract this code to separate method (update(Issue issue) for example)
-        IssueImpl.class.cast(issueForClose).setStatus(newStatus);
-        HistoricalIssue historicalIssue = new HistoricalIssueImpl(issueForClose);
+        IssueImpl issueImpl = IssueImpl.class.cast(issueForClose);
+        issueImpl.setStatus(newStatus);
+        HistoricalIssue historicalIssue = HistoricalIssueImpl.from(this.dataModel, issueImpl);
         dataModel.mapper(HistoricalIssue.class).persist(historicalIssue);
         dataModel.mapper(Issue.class).remove(issueForClose);
         return result;
+    }
+
+    private IssueAssigneeImpl buildIssueAssignee(IssueAssigneeType assigneeType, long assigneeId){
+        boolean correctAssignee = false;
+        IssueAssigneeImpl assignee = new IssueAssigneeImpl();
+        if (assigneeType != null){
+            switch (assigneeType){
+                case USER:
+                    User user = userService.getUser(assigneeId).orNull();
+                    if (user != null){
+                        correctAssignee = true;
+                        assignee.setType(IssueAssigneeType.USER);
+                        assignee.setUser(user);
+                    }
+                    break;
+                case ROLE:
+                    AssigneeRole role = this.getAssigneeRole(assigneeId);
+                    if (role != null){
+                        correctAssignee = true;
+                        assignee.setType(IssueAssigneeType.ROLE);
+                        assignee.setRole(role);
+                    }
+                    break;
+
+                case TEAM:
+                    AssigneeTeam team = this.getAssigneeTeam(assigneeId);
+                    if (team != null){
+                        correctAssignee = true;
+                        assignee.setType(IssueAssigneeType.TEAM);
+                        assignee.setTeam(team);
+                    }
+                    break;
+            }
+        }
+        if (!correctAssignee){
+            return null;
+        }
+        return assignee;
     }
 
     @Override
@@ -208,38 +247,8 @@ public class IssueServiceImpl implements IssueService, InstallService {
         if (version != issueForAssign.getVersion()){
             return result.setFail(new String[]{MessageSeeds.ISSUE_ALREADY_CHANGED.getDefaultFormat(), issueForAssign.getTitle()});
         }
-        boolean correctAssignee = false;
-        IssueAssigneeImpl newAssignee = new IssueAssigneeImpl();
-        if (type != null){
-            switch (type){
-                case USER:
-                    User user = userService.getUser(assignId).orNull();
-                    if (user != null){
-                        correctAssignee = true;
-                        newAssignee.setType(IssueAssigneeType.USER);
-                        newAssignee.setUser(user);
-                    }
-                    break;
-                case ROLE:
-                    AssigneeRole role = this.getAssigneeRole(assignId);
-                    if (role != null){
-                        correctAssignee = true;
-                        newAssignee.setType(IssueAssigneeType.ROLE);
-                        newAssignee.setRole(role);
-                    }
-                    break;
-
-                case TEAM:
-                    AssigneeTeam team = this.getAssigneeTeam(assignId);
-                    if (team != null){
-                        correctAssignee = true;
-                        newAssignee.setType(IssueAssigneeType.TEAM);
-                        newAssignee.setTeam(team);
-                    }
-                    break;
-            }
-        }
-        if (!correctAssignee){
+        IssueAssigneeImpl newAssignee = buildIssueAssignee(type, assignId);
+        if (newAssignee == null){
             return result.setFail(new String[]{MessageSeeds.ISSUE_ASSIGNEE_BAD.getDefaultFormat(), issueForAssign.getTitle()});
         }
         IssueImpl issueImpl = IssueImpl.class.cast(issueForAssign);

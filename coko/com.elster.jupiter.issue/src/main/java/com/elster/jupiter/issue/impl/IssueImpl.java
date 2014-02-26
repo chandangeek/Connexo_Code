@@ -2,7 +2,6 @@ package com.elster.jupiter.issue.impl;
 
 import com.elster.jupiter.issue.*;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -33,7 +32,6 @@ public class IssueImpl implements Issue {
     private Reference<AssigneeRole> role = ValueReference.absent();
 
     protected Reference<EndDevice> device = ValueReference.absent();
-    protected Reference<Meter> meter = ValueReference.absent();
 
     // Audit fields
     private long version;
@@ -44,6 +42,16 @@ public class IssueImpl implements Issue {
     @Inject
     IssueImpl(DataModel dataModel) {
         this.dataModel = dataModel;
+    }
+
+    Issue init(Issue issue){
+        this.setDueDate(new UtcInstant(issue.getDueDate().getTime()));
+        this.setReason(issue.getReason());
+        this.setStatus(issue.getStatus());
+        this.setAssignee(IssueAssigneeImpl.class.cast(issue.getAssignee()));
+        this.setDevice(issue.getDevice());
+        this.setDevice(issue.getDevice());
+        return this;
     }
 
     public long getVersion() {
@@ -90,12 +98,13 @@ public class IssueImpl implements Issue {
     @Override
     public String getTitle() {
         String title = getReason().getName();
-        EndDevice device = getDevice() != null ? getDevice() : getMeter();
+        EndDevice device = getDevice();
         if (device != null){
             StringBuilder titleWithDevice = new StringBuilder(title);
             titleWithDevice.append(" to ");
             titleWithDevice.append(device.getName()).append(" ");
-            titleWithDevice.append(device.getSerialNumber());            title = titleWithDevice.toString();
+            titleWithDevice.append(device.getSerialNumber());
+            title = titleWithDevice.toString();
         }
         return title;
     }
@@ -133,14 +142,6 @@ public class IssueImpl implements Issue {
 
     public void setDevice(EndDevice device){
         this.device.set(device);
-    }
-
-    public Meter getMeter() {
-        return meter.orNull();
-    }
-
-    public void setMeter(Meter meter) {
-        this.meter.set(meter);
     }
 
     public IssueAssignee getAssignee() {
