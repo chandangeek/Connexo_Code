@@ -75,7 +75,7 @@ public class UserResource {
     public UserInfos getUsers(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<User> list = getUserRestQuery().select(queryParameters);
-        UserInfos infos = new UserInfos(list);
+        UserInfos infos = new UserInfos(queryParameters.clipToLimit(list));
         infos.total = queryParameters.determineTotal(list.size());
         return infos;
     }
