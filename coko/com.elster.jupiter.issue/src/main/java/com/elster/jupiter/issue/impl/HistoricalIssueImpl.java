@@ -15,7 +15,7 @@ public class HistoricalIssueImpl extends IssueImpl implements HistoricalIssue {
     }
 
     HistoricalIssueImpl init(IssueImpl issue) {
-        init(issue);
+        super.init(issue);
         issueType = IssueImpl.TYPE_IDENTIFIER;
         return this;
     }
