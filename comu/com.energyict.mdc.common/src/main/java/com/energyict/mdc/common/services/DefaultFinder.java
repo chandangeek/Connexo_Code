@@ -56,7 +56,7 @@ public class DefaultFinder<T> implements Finder<T> {
         if (start==null || pageSize ==null) {
             return query.select(condition, sortingColumns.toArray(new Order[sortingColumns.size()]));
         } else {
-            return query.select(condition, sortingColumns.toArray(new Order[sortingColumns.size()]), true, new String[0], this.start + 1, this.start + this.pageSize);
+            return query.select(condition, sortingColumns.toArray(new Order[sortingColumns.size()]), true, new String[0], this.start + 1, this.start + this.pageSize + 1);
         }
     }
 
