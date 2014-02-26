@@ -17,6 +17,8 @@ public class RegisterMappingInfo {
     @JsonProperty("obisCode")
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
+    @JsonProperty("isInUse")
+    public boolean isInUse;
     @JsonUnwrapped
     public ReadingTypeInfo readingTypeInfo;
 
@@ -27,6 +29,14 @@ public class RegisterMappingInfo {
         id = registerMapping.getId();
         name = registerMapping.getName();
         obisCode = registerMapping.getObisCode();
+        isInUse = registerMapping.isInUse();
         readingTypeInfo = new ReadingTypeInfo(registerMapping.getReadingType());
+    }
+
+    public void writeTo(RegisterMapping registerMapping) {
+        registerMapping.setName(this.name);
+        registerMapping.setObisCode(this.obisCode);
+//        readingTypeInfo.writeTo(registerMapping.getReadingType());
+
     }
 }

@@ -148,10 +148,7 @@ public class DeviceTypeResource {
         } else {
             if (Boolean.parseBoolean(available)) {
                 if (Boolean.parseBoolean(available)) {
-                    Set<Long> deviceTypeRegisterMappingIds = new HashSet<>();
-                    for (RegisterMapping registerMapping : deviceType.getRegisterMappings()) {
-                        deviceTypeRegisterMappingIds.add(registerMapping.getId());
-                    }
+                    Set<Long> deviceTypeRegisterMappingIds = asIds(deviceType.getRegisterMappings());
                     for (RegisterMapping registerMapping : this.deviceConfigurationService.findAllRegisterMappings().find()) {
                         if (!deviceTypeRegisterMappingIds.contains(registerMapping.getId())) {
                             registerMappings.add(registerMapping);
@@ -197,8 +194,8 @@ public class DeviceTypeResource {
 
 
     private void updateRegisterMappingAssociations(DeviceType deviceType, List<RegisterMappingInfo> newRegisterMappings) {
-        List<Long> newRegisterMappingsIds = asIdz(newRegisterMappings);
-        List<Long> existingRegisterMappingsIds = asIds(deviceType.getRegisterMappings());
+        Set<Long> newRegisterMappingsIds = asIdz(newRegisterMappings);
+        Set<Long> existingRegisterMappingsIds = asIds(deviceType.getRegisterMappings());
 
         List<Long> toBeDeleted = new ArrayList<>(existingRegisterMappingsIds);
         toBeDeleted.removeAll(newRegisterMappingsIds);
@@ -236,16 +233,16 @@ public class DeviceTypeResource {
         return null;
     }
 
-    private List<Long> asIdz(List<RegisterMappingInfo> registerMappingInfos) {
-        List<Long> registerMappingIdList = new ArrayList<>();
+    private Set<Long> asIdz(List<RegisterMappingInfo> registerMappingInfos) {
+        Set<Long> registerMappingIdList = new HashSet<>();
         for (RegisterMappingInfo registerMappingInfo : registerMappingInfos) {
             registerMappingIdList.add(registerMappingInfo.id);
         }
         return registerMappingIdList;
     }
 
-    private List<Long> asIds(List<RegisterMapping> registerMappingShadows) {
-        List<Long> registerMappingIdList = new ArrayList<>();
+    private Set<Long> asIds(List<RegisterMapping> registerMappingShadows) {
+        Set<Long> registerMappingIdList = new HashSet<>();
         for (RegisterMapping registerMappingInfo : registerMappingShadows) {
             registerMappingIdList.add(registerMappingInfo.getId());
         }

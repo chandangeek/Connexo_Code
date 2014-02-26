@@ -94,6 +94,7 @@ public class RegisterTypeResourceTest extends JerseyTest {
         when(registerMapping.getId()).thenReturn(13L);
         when(registerMapping.getName()).thenReturn("register type");
         when(registerMapping.getObisCode()).thenReturn(new ObisCode(1,2,3,4,5,6));
+        when(registerMapping.isInUse()).thenReturn(true);
         ReadingType readingType = mock(ReadingType.class);
         when(registerMapping.getReadingType()).thenReturn(readingType);
         when(readingType.getMRID()).thenReturn("mrid");
@@ -117,10 +118,11 @@ public class RegisterTypeResourceTest extends JerseyTest {
         when(deviceConfigurationService.findRegisterMapping(13)).thenReturn(registerMapping);
 
         Map<String, Object> map = target("/registertypes/13").request().get(Map.class);
-        assertThat(map).hasSize(20)
+        assertThat(map).hasSize(21)
         .containsKey("id")
         .containsKey("name")
         .containsKey("obisCode")
+        .containsKey("isInUse")
         .containsKey("mrid")
         .containsKey("timePeriodOfInterest")
         .containsKey("dataQualifier")

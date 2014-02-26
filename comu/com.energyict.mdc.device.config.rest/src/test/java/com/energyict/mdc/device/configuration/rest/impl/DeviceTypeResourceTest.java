@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
@@ -363,9 +364,12 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
         DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
         RegisterMapping registerMapping101 = mock(RegisterMapping.class);
+        ReadingType readingType = mock(ReadingType.class);
         when(registerMapping101.getId()).thenReturn(RM_ID_1);
+        when(registerMapping101.getReadingType()).thenReturn(readingType);
         RegisterMapping registerMapping102 = mock(RegisterMapping.class);
         when(registerMapping102.getId()).thenReturn(RM_ID_2);
+        when(registerMapping102.getReadingType()).thenReturn(readingType);
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101, registerMapping102));
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
 
@@ -375,7 +379,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
     @Test
     public void testGetAllAvailableRegistersForDeviceType_Filtered() throws Exception {
-        // Backend has RM 101 and 102 for device type 31
+        // Backend has RM 101 for device type 31, while 101, 102 and 103 exist in the server.
         long deviceType_id=31;
         long RM_ID_1 = 101L;
         long RM_ID_2 = 102L;
@@ -384,10 +388,14 @@ public class DeviceTypeResourceTest extends JerseyTest {
         DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
         RegisterMapping registerMapping101 = mock(RegisterMapping.class);
         when(registerMapping101.getId()).thenReturn(RM_ID_1);
+        ReadingType readingType = mock(ReadingType.class);
+        when(registerMapping101.getReadingType()).thenReturn(readingType);
         RegisterMapping registerMapping102 = mock(RegisterMapping.class);
         when(registerMapping102.getId()).thenReturn(RM_ID_2);
+        when(registerMapping102.getReadingType()).thenReturn(readingType);
         RegisterMapping registerMapping103 = mock(RegisterMapping.class);
         when(registerMapping103.getId()).thenReturn(RM_ID_3);
+        when(registerMapping103.getReadingType()).thenReturn(readingType);
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101));
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
         Finder<RegisterMapping> registerMappingFinder = mockFinder(Arrays.asList(registerMapping101, registerMapping102, registerMapping103));
