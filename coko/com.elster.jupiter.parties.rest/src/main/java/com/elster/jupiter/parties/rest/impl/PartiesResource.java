@@ -71,7 +71,7 @@ public class PartiesResource {
     public PartyInfos getParties(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Party> parties = getPartyRestQuery().select(queryParameters);
-        PartyInfos infos = new PartyInfos(parties);
+        PartyInfos infos = new PartyInfos(queryParameters.clipToLimit(parties));
         infos.total = queryParameters.determineTotal(parties.size());
         return infos;
     }

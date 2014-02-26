@@ -80,7 +80,7 @@ public class OrganizationsResource {
         for (Party party : list) {
             organizations.add((Organization) party);
         }
-        OrganizationInfos infos = new OrganizationInfos(organizations);
+        OrganizationInfos infos = new OrganizationInfos(queryParameters.clipToLimit(organizations));
         infos.total = queryParameters.determineTotal(list.size());
         return infos;
     }
