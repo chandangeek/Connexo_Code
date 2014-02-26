@@ -5,211 +5,605 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
     extend: 'Uni.view.window.Wizard',
 
     requires: [
+        'Ext.form.RadioGroup'
     ],
 
-    minWidth: 400,
-    minHeight: 200,
+    width: 800,
+    height: 600,
 
-    title: Uni.I18n.translate('window.readingtypewizard.title', 'UNI', 'Reading type wizard'),
+    title: Uni.I18n.translate('window.readingtypewizard.title', 'UNI', 'Select a reading type'),
 
     description: {
-        xtype: 'component',
-        html: ''
+        xtype: 'container',
+        layout: 'vbox',
+        items: [
+            {
+                xtype: 'component',
+                html: Uni.I18n.translate('window.readingtypewizard.description', 'UNI',
+                    'Use the steps below to define a value for the different attributes of a reading type'
+                )
+            },
+            {
+                xtype: 'component',
+                html: 'TODO'
+            }
+        ]
     },
 
-    steps: [
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.introduction', 'UNI', 'Introduction'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: Uni.I18n.translate('window.readingtypewizard.introduction.content', 'UNI',
-                        '<h3>Introduction</h3>')
-                }
-            ]
-        },
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.macroperiod', 'UNI', 'Macro period'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h3>Macro period</h3>'
-                }
-            ]
-        },
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.dataaggregation', 'UNI', 'Data aggregation'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h3>Data aggregation</h3>'
-                }
-            ]
-        },
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.measurementperiod', 'UNI', 'Measurement period'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h3>Measurement period</h3>'
-                }
-            ]
-        },
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.dataaccumulation', 'UNI', 'Data accumulation'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h3>Data accumulation</h3>'
-                }
-            ]
-        },
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.directionofflow', 'UNI', 'Direction of flow'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h3>Direction of flow</h3>'
-                }
-            ]
-        },
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.commodity', 'UNI', 'Commodity'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h3>Commodity</h3>'
-                }
-            ]
-        },
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.measurementkind', 'UNI', 'Measurement kind'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h3>Measurement kind</h3>'
-                }
-            ]
-        },
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.interharmonics', 'UNI', 'Interharmonics'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h3>Interharmonics</h3>'
-                }
-            ]
-        },
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.argument', 'UNI', 'Argument'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h3>Argument</h3>'
-                }
-            ]
-        },
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.timeofuse', 'UNI', 'Time of use'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h3>Time of use</h3>'
-                }
-            ]
-        },
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.criticalpeakperiod', 'UNI', 'Critical peak period'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h3>Critical peak period</h3>'
-                }
-            ]
-        },
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.consumptiontier', 'UNI', 'Consumption tier'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h3>Consumption tier</h3>'
-                }
-            ]
-        },
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.phase', 'UNI', 'Phase'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h3>Phase</h3>'
-                }
-            ]
-        },
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.multiplier', 'UNI', 'Multiplier'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h3>Multiplier</h3>'
-                }
-            ]
-        },
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.unitofmeasure', 'UNI', 'Unit of measure'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h3>Unit of measure</h3>'
-                }
-            ]
-        },
-        {
-            title: Uni.I18n.translate('window.readingtypewizard.currency', 'UNI', 'Currency'),
-            xtype: 'container',
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h3>Currency</h3>'
-                }
-            ]
-        }
-    ],
-
     initComponent: function () {
+        var intervalMinuteStore = Ext.create('Ext.data.Store', {
+                fields: ['text', 'value']
+            }),
+            intervalHourStore = Ext.create('Ext.data.Store', {
+                fields: ['text', 'value']
+            }),
+            fixedBlockStore = Ext.create('Ext.data.Store', {
+                fields: ['text', 'value']
+            }),
+            rollingBlockStore = Ext.create('Ext.data.Store', {
+                fields: ['text', 'value']
+            });
+
+        this.populateMeasuringPeriodStore(intervalMinuteStore, 'window.readingtypewizard.minute', '{0} minutes', [
+            [1, 3], // value, enumeration
+            [2, 10],
+            [3, 14],
+            [5, 6],
+            [10, 1],
+            [12, 78],
+            [15, 2],
+            [20, 31],
+            [24, 4],
+            [30, 5],
+            [60, 7]
+        ]);
+
+        this.populateMeasuringPeriodStore(intervalHourStore, 'window.readingtypewizard.hour', '{0} hours', [
+            [2, 79], // value, enumeration
+            [3, 83],
+            [4, 80],
+            [6, 81],
+            [12, 82]
+        ]);
+
+        this.populateMeasuringPeriodStore(fixedBlockStore, 'window.readingtypewizard.minutefixed', '{0} minutes fixed block', [
+            [1, 56], // value, enumeration
+            [5, 55],
+            [10, 54],
+            [15, 53],
+            [20, 52],
+            [30, 51],
+            [60, 50]
+        ]);
+
+        this.populateRollingBlockStore(rollingBlockStore, 'window.readingtypewizard.minuterolling', '{0} minutes rolling block with {1} minute subintervals', [
+            [
+                [60, 30], // values
+                57 // enumeration
+            ],
+            [
+                [60, 20],
+                58
+            ],
+            [
+                [60, 15],
+                59
+            ],
+            [
+                [60, 12],
+                60
+            ],
+            [
+                [60, 10],
+                61
+            ],
+            [
+                [60, 6],
+                62
+            ],
+            [
+                [60, 5],
+                63
+            ],
+            [
+                [60, 4],
+                64
+            ],
+            [
+                [30, 15],
+                65
+            ],
+            [
+                [30, 10],
+                66
+            ],
+            [
+                [30, 6],
+                67
+            ],
+            [
+                [30, 5],
+                68
+            ],
+            [
+                [30, 3],
+                69
+            ],
+            [
+                [30, 2],
+                70
+            ],
+            [
+                [15, 5],
+                71
+            ],
+            [
+                [15, 3],
+                72
+            ],
+            [
+                [15, 1],
+                73
+            ]
+        ]);
+
+        this.steps = [
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.introduction', 'UNI', 'Introduction'),
+                xtype: 'container',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretchmax'
+                },
+                items: [
+                    {
+                        xtype: 'component',
+                        html: Uni.I18n.translate('window.readingtypewizard.introduction.content', 'UNI',
+                            '<p>A reading type provides a detailed description of a reading value. It is described in ' +
+                                'terms of 18 key attributes.</p>' +
+                                '<p>Every attribute that has a value of zero is not applicable to the description.</p>' +
+                                '<p>Step through this wizard to define a value for each attribute or compound attribute ' +
+                                'of the reading type. You can skip steps or jump to a specific step by using the ' +
+                                'navigation on the left.</p>'
+                        )
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.macroperiod', 'UNI', 'Macro period'),
+                xtype: 'container',
+                layout: {
+                    type: 'anchor'
+                },
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '<p>' + Uni.I18n.translate('window.readingtypewizard.macroperiod.description', 'UNI',
+                            'Reflects how the data is viewed or captured over a long period of time.') + '</p>'
+                    },
+                    {
+                        xtype: 'radiogroup',
+                        itemId: 'macroPeriod',
+                        columns: 1,
+                        anchor: '100%',
+                        items: [
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.notapplicable',
+                                'UNI', 'Not applicable (0)'), name: 'macroPeriod', inputValue: 0, checked: true},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.macroperiod.daily',
+                                'UNI', 'Daily (11)'), name: 'macroPeriod', inputValue: 11},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.macroperiod.weekly',
+                                'UNI', 'Weekly (24)'), name: 'macroPeriod', inputValue: 24},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.macroperiod.monthly',
+                                'UNI', 'Monthly (13)'), name: 'macroPeriod', inputValue: 13},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.macroperiod.seasonal',
+                                'UNI', 'Seasonal (22)'), name: 'macroPeriod', inputValue: 22},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.macroperiod.billingperiod',
+                                'UNI', 'Billing period (8)'), name: 'macroPeriod', inputValue: 8},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.macroperiod.specifiedperiod',
+                                'UNI', 'Specified period (32)'), name: 'macroPeriod', inputValue: 32}
+                        ]
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.dataaggregation', 'UNI', 'Data aggregation'),
+                xtype: 'container',
+                layout: {
+                    type: 'anchor'
+                },
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '<p>' + Uni.I18n.translate('window.readingtypewizard.dataaggregation.description',
+                            'UNI', 'Defines which value to take from the macro period, or which mathematical ' +
+                                'operation to carry out over the values in the macro period.') + '</p>'
+                    },
+                    {
+                        xtype: 'radiogroup',
+                        itemId: 'dataAggregation',
+                        columns: 1,
+                        anchor: '100%',
+                        items: [
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.notapplicable',
+                                'UNI', 'Not applicable (0)'), name: 'dataAggregation', inputValue: 0, checked: true},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.normal',
+                                'UNI', 'Normal (12)'), name: 'dataAggregation', inputValue: 12},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.nominal',
+                                'UNI', 'Nominal (11)'), name: 'dataAggregation', inputValue: 11},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.average',
+                                'UNI', 'Average (2)'), name: 'dataAggregation', inputValue: 2},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.sum',
+                                'UNI', 'Sum (26)'), name: 'dataAggregation', inputValue: 26},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.excess',
+                                'UNI', 'Excess (4)'), name: 'dataAggregation', inputValue: 4},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.lowthreshold',
+                                'UNI', 'Low threshold (7)'), name: 'dataAggregation', inputValue: 7},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.highthreshold',
+                                'UNI', 'High threshold (5)'), name: 'dataAggregation', inputValue: 5},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.low',
+                                'UNI', 'Low (28)'), name: 'dataAggregation', inputValue: 28},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.minimum',
+                                'UNI', 'Minimum (28)'), name: 'dataAggregation', inputValue: 9},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.secondminimum',
+                                'UNI', 'Second minimum (17)'), name: 'dataAggregation', inputValue: 17},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.maximum',
+                                'UNI', 'Maximum (16)'), name: 'dataAggregation', inputValue: 8},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.secondmaximum',
+                                'UNI', 'Second maximum (16)'), name: 'dataAggregation', inputValue: 16},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.thirdmaximum',
+                                'UNI', 'Third maximum (23)'), name: 'dataAggregation', inputValue: 23},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.fourthmaximum',
+                                'UNI', 'Fourth maximum (24)'), name: 'dataAggregation', inputValue: 24},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.fifthmaximum',
+                                'UNI', 'Fifth maximum (25)'), name: 'dataAggregation', inputValue: 25},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.high',
+                                'UNI', 'High (27)'), name: 'dataAggregation', inputValue: 27}
+                        ]
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.measuringperiod', 'UNI', 'Measuring period'),
+                xtype: 'container',
+                layout: {
+                    type: 'anchor'
+                },
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '<p>' + Uni.I18n.translate('window.readingtypewizard.measuringperiod.description', 'UNI',
+                            'Reflects how the data was captured over a small interval of time.') + '</p>'
+                    },
+                    {
+                        xtype: 'radiogroup',
+                        itemId: 'measuringPeriod',
+                        columns: 1,
+                        anchor: '100%',
+                        items: [
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.notapplicable',
+                                'UNI', 'Not applicable (0)'), name: 'measuringPeriod', inputValue: 0, checked: true},
+
+                            {
+                                xtype: 'component',
+                                html: '<p>' + Uni.I18n.translate('window.readingtypewizard.measuringperiod.interval',
+                                    'UNI', 'Interval') + '</p>'
+                            },
+                            {
+                                xtype: 'container',
+                                layout: 'hbox',
+                                items: [
+                                    {
+                                        xtype: 'radiofield',
+                                        name: 'measuringPeriod',
+                                        inputValue: 'intervalMinute'
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        itemId: 'intervalMinute',
+                                        displayField: 'text',
+                                        valueField: 'value',
+                                        queryMode: 'local',
+                                        store: intervalMinuteStore
+                                    }
+                                ]
+                            },
+                            {
+                                xtype: 'container',
+                                layout: 'hbox',
+                                items: [
+                                    {
+                                        xtype: 'radiofield',
+                                        name: 'measuringPeriod',
+                                        inputValue: 'intervalHour'
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        itemId: 'intervalHour',
+                                        displayField: 'text',
+                                        valueField: 'value',
+                                        queryMode: 'local',
+                                        store: intervalHourStore
+                                    }
+                                ]
+                            },
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaggregation.specifiedinterval',
+                                'UNI', 'Specified interval (100)'), name: 'measuringPeriod', inputValue: 100},
+
+                            {
+                                xtype: 'component',
+                                html: '<p>' + Uni.I18n.translate('window.readingtypewizard.measuringperiod.fixedblock',
+                                    'UNI', 'Fixed block') + '</p>'
+                            },
+                            {
+                                xtype: 'container',
+                                layout: 'hbox',
+                                items: [
+                                    {
+                                        xtype: 'radiofield',
+                                        name: 'measuringPeriod',
+                                        inputValue: 'fixedBlock'
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        itemId: 'fixedBlock',
+                                        displayField: 'text',
+                                        valueField: 'value',
+                                        queryMode: 'local',
+                                        store: fixedBlockStore
+                                    }
+                                ]
+                            },
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.measuringperiod.specifiedfixedblock',
+                                'UNI', 'Specified fixed block (101)'), name: 'measuringPeriod', inputValue: 101},
+
+                            {
+                                xtype: 'component',
+                                html: '<p>' + Uni.I18n.translate('window.readingtypewizard.measuringperiod.fixedblock',
+                                    'UNI', 'Fixed block') + '</p>'
+                            },
+                            {
+                                xtype: 'container',
+                                layout: 'hbox',
+                                items: [
+                                    {
+                                        xtype: 'radiofield',
+                                        name: 'measuringPeriod',
+                                        inputValue: 'rollingBlock'
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        itemId: 'rollingBlock',
+                                        displayField: 'text',
+                                        valueField: 'value',
+                                        queryMode: 'local',
+                                        store: rollingBlockStore
+                                    }
+                                ]
+                            },
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.measuringperiod.specifiedrollingblock',
+                                'UNI', 'Specified rolling block (102)'), name: 'measuringPeriod', inputValue: 102}
+                        ]
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.dataaccumulation', 'UNI', 'Data accumulation'),
+                xtype: 'container',
+                layout: {
+                    type: 'anchor'
+                },
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '<p>' + Uni.I18n.translate('window.readingtypewizard.dataaccumulation.description',
+                            'UNI', 'Some description.') + '</p>'
+                    },
+                    {
+                        xtype: 'radiogroup',
+                        itemId: 'dataAccumulation',
+                        columns: 1,
+                        anchor: '100%',
+                        items: [
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.notapplicable',
+                                'UNI', 'Not applicable (0)'), name: 'dataAccumulation', inputValue: 0, checked: true}
+                        ]
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.directionofflow', 'UNI', 'Direction of flow'),
+                xtype: 'container',
+                layout: {
+                    type: 'anchor'
+                },
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '<p>' + Uni.I18n.translate('window.readingtypewizard.directionofflow.description',
+                            'UNI', 'Some description.') + '</p>'
+                    },
+                    {
+                        xtype: 'radiogroup',
+                        itemId: 'directionOfFlow',
+                        columns: 1,
+                        anchor: '100%',
+                        items: [
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.notapplicable',
+                                'UNI', 'Not applicable (0)'), name: 'directionOfFlow', inputValue: 0, checked: true}
+                        ]
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.commodity', 'UNI', 'Commodity'),
+                xtype: 'container',
+                layout: {
+                    type: 'anchor'
+                },
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '<p>' + Uni.I18n.translate('window.readingtypewizard.commodity.description',
+                            'UNI', 'Some description.') + '</p>'
+                    },
+                    {
+                        xtype: 'radiogroup',
+                        itemId: 'commodity',
+                        columns: 1,
+                        anchor: '100%',
+                        items: [
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.notapplicable',
+                                'UNI', 'Not applicable (0)'), name: 'commodity', inputValue: 0, checked: true}
+                        ]
+                    }
+                ]
+            },
+            // TODO Continue here...
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.measurementkind', 'UNI', 'Measurement kind'),
+                xtype: 'container',
+                layout: 'vbox',
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '<h3>Measurement kind</h3>'
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.interharmonics', 'UNI', 'Interharmonics'),
+                xtype: 'container',
+                layout: 'vbox',
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '<h3>Interharmonics</h3>'
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.argument', 'UNI', 'Argument'),
+                xtype: 'container',
+                layout: 'vbox',
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '<h3>Argument</h3>'
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.timeofuse', 'UNI', 'Time of use'),
+                xtype: 'container',
+                layout: 'vbox',
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '<h3>Time of use</h3>'
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.criticalpeakperiod', 'UNI', 'Critical peak period'),
+                xtype: 'container',
+                layout: 'vbox',
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '<h3>Critical peak period</h3>'
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.consumptiontier', 'UNI', 'Consumption tier'),
+                xtype: 'container',
+                layout: 'vbox',
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '<h3>Consumption tier</h3>'
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.phase', 'UNI', 'Phase'),
+                xtype: 'container',
+                layout: 'vbox',
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '<h3>Phase</h3>'
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.multiplier', 'UNI', 'Multiplier'),
+                xtype: 'container',
+                layout: 'vbox',
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '<h3>Multiplier</h3>'
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.unitofmeasure', 'UNI', 'Unit of measure'),
+                xtype: 'container',
+                layout: 'vbox',
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '<h3>Unit of measure</h3>'
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('window.readingtypewizard.currency', 'UNI', 'Currency'),
+                xtype: 'container',
+                layout: 'vbox',
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '<h3>Currency</h3>'
+                    }
+                ]
+            }
+        ];
+
         this.callParent(arguments);
+    },
+
+    populateMeasuringPeriodStore: function (store, key, fallback, data) {
+        debugger;
+        for (var i = 0; i < data.length; i++) {
+            var obj = data[i],
+                value = obj[0],
+                enumeration = obj[1];
+
+            var addition = {
+                text: Uni.I18n.translatePlural(key, value, 'UNI', fallback) + ' (' + enumeration + ')',
+                value: enumeration
+            };
+
+            store.add(addition);
+        }
+    },
+
+    populateRollingBlockStore: function (store, key, fallback, data) {
+        debugger;
+        for (var i = 0; i < data.length; i++) {
+            var obj = data[i],
+                values = obj[0],
+                enumeration = obj[1];
+
+            var addition = {
+                text: Uni.I18n.translate(key, 'UNI', fallback, values) + ' (' + enumeration + ')',
+                value: enumeration
+            };
+
+            store.add(addition);
+        }
     }
 
 });
