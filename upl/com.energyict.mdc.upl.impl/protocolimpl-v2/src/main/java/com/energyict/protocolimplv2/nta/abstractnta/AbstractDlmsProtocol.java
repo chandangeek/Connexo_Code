@@ -1,12 +1,15 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
+import com.energyict.mdc.protocol.security.*;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -20,28 +23,29 @@ import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
+import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
+import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
- * Common functionality that is shared between the smart V2 DSMR protocols
+ * Common functionality that is shared between the smart V2 DLMS protocols
  * <p/>
  * Copyrights EnergyICT
  * Date: 18/10/13
  * Time: 13:30
  * Author: khe
  */
-public abstract class AbstractNtaProtocol implements DeviceProtocol {
+public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
 
     private Dsmr23RegisterFactory registerFactory = null;
     private ComposedMeterInfo meterInfo;
-    private DlmsProperties dlmsProperties;
+    protected DlmsProperties dlmsProperties;
     private DlmsConfigurationSupport dlmsConfigurationSupport;
     private DlmsSession dlmsSession;
     private LoadProfileBuilder loadProfileBuilder;
@@ -50,6 +54,7 @@ public abstract class AbstractNtaProtocol implements DeviceProtocol {
     private Dsmr23LogBookFactory logBookFactory;
     private Dsmr23Messaging dsmr23Messaging;
     protected OfflineDevice offlineDevice;
+    private DlmsSecuritySupport dlmsSecuritySupport;
 
     /**
      * Connect to the device, check the cached object lost and discover its MBus slaves.
@@ -59,6 +64,93 @@ public abstract class AbstractNtaProtocol implements DeviceProtocol {
         getDlmsSession().connect();
         checkCacheObjects();
         getMeterTopology().searchForSlaveDevices();
+    }
+
+    @Override
+    public Date getTime() {
+        try {
+            return getDlmsSession().getCosemObjectFactory().getClock().getDateTime();
+        } catch (IOException e) {
+            throw IOExceptionHandler.handle(e, getDlmsSession());
+        }
+    }
+
+    @Override
+    public void setTime(Date timeToSet) {
+        try {
+            getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(timeToSet, getTimeZone()));
+        } catch (IOException e) {
+            throw IOExceptionHandler.handle(e, getDlmsSession());
+        }
+    }
+
+    @Override
+    public String getSerialNumber() {
+        return getMeterInfo().getSerialNr();
+    }
+
+    /**
+     * General device properties, add them to the DLMS session properties
+     *
+     * @param properties properties to add
+     */
+    @Override
+    public void addProperties(TypedProperties properties) {
+        this.getDlmsSessionProperties().addProperties(properties);
+    }
+
+    /**
+     * Dialect properties, add them to the DLMS session properties
+     *
+     * @param dialectProperties the DeviceProtocolDialectProperties to add to the DeviceProtocol
+     */
+    @Override
+    public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
+        getDlmsSessionProperties().addProperties(dialectProperties);
+    }
+
+    /**
+     * Security related properties, add them to the DLMS session properties
+     *
+     * @param deviceProtocolSecurityPropertySet
+     *         the {@link DeviceProtocolSecurityPropertySet}to set
+     */
+    @Override
+    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        getDlmsSessionProperties().addProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+        getDlmsSessionProperties().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
+    }
+
+    private DeviceProtocolSecurityCapabilities getSecuritySupport() {
+        if (dlmsSecuritySupport == null) {
+            dlmsSecuritySupport = new DsmrSecuritySupport();
+        }
+        return dlmsSecuritySupport;
+    }
+
+    @Override
+    public List<PropertySpec> getSecurityProperties() {
+        return getSecuritySupport().getSecurityProperties();
+    }
+
+    @Override
+    public String getSecurityRelationTypeName() {
+        return getSecuritySupport().getSecurityRelationTypeName();
+    }
+
+    @Override
+    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        return getSecuritySupport().getAuthenticationAccessLevels();
+    }
+
+    @Override
+    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+        return getSecuritySupport().getEncryptionAccessLevels();
+    }
+
+    @Override
+    public PropertySpec getSecurityPropertySpec(String name) {
+        return getSecuritySupport().getSecurityPropertySpec(name);
     }
 
     public Dsmr23LogBookFactory getDeviceLogBookFactory() {
@@ -109,7 +201,7 @@ public abstract class AbstractNtaProtocol implements DeviceProtocol {
     /**
      * Request Association buffer list out of the meter.
      */
-    private void requestConfiguration() {
+    protected void readObjectList() {
         try {
             if (getDlmsSession().getReference() == ProtocolLink.LN_REFERENCE) {
                 getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDlmsSession().getCosemObjectFactory().getAssociationLN().getBuffer());
@@ -138,14 +230,14 @@ public abstract class AbstractNtaProtocol implements DeviceProtocol {
 
                 if (this.dlmsCache.getConfProgChange() != configNumber) {
                     getLogger().info("Meter configuration has changed, configuration is forced to be read.");
-                    requestConfiguration();
+                    readObjectList();
                     changed = true;
                 }
 
             } else { // cache does not exist
                 this.dlmsCache = new DLMSCache();
                 getLogger().info("Cache does not exist, configuration is forced to be read.");
-                requestConfiguration();
+                readObjectList();
                 configNumber = getMeterInfo().getConfigurationChanges();
                 changed = true;
             }

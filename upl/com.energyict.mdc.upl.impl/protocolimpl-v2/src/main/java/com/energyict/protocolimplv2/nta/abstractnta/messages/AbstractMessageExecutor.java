@@ -22,7 +22,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -35,17 +35,22 @@ import java.util.List;
  * @author sva
  * @since 29/11/13 - 15:20
  */
-public abstract class AbstractNtaMessageExecutor {
+public abstract class AbstractMessageExecutor {
 
-    private AbstractNtaProtocol protocol;
+    private AbstractDlmsProtocol protocol;
 
-    protected AbstractNtaMessageExecutor(AbstractNtaProtocol protocol) {
+    public AbstractMessageExecutor(AbstractDlmsProtocol protocol) {
         this.protocol = protocol;
     }
 
     public abstract CollectedMessageList executePendingMessages(final List<OfflineDeviceMessage> pendingMessages);
 
-    public abstract CollectedMessageList updateSentMessages(final List<OfflineDeviceMessage> sentMessages);
+    /**
+     * Nothing to do here. Sub classes can override.
+     */
+    public CollectedMessageList updateSentMessages(final List<OfflineDeviceMessage> sentMessages) {
+        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+    }
 
     protected CosemObjectFactory getCosemObjectFactory() {
         return getProtocol().getDlmsSession().getCosemObjectFactory();
@@ -55,7 +60,7 @@ public abstract class AbstractNtaMessageExecutor {
         return getProtocol().getDlmsSession().getMeterConfig();
     }
 
-    public AbstractNtaProtocol getProtocol() {
+    public AbstractDlmsProtocol getProtocol() {
         return protocol;
     }
 

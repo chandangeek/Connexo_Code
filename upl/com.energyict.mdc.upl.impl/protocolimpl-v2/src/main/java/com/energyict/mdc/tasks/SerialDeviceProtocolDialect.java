@@ -15,21 +15,21 @@ import java.util.List;
 import static com.energyict.dlms.common.DlmsProtocolProperties.*;
 
 /**
- * Models a {@link com.energyict.mdc.tasks.DeviceProtocolDialect} for an optical connection type (HDLC)
+ * Models a {@link com.energyict.mdc.tasks.DeviceProtocolDialect} for a serial HDLC connection type (optical/RS485/... interface)
  *
  * @author: khe
  * @since: 16/10/12 (113:25)
  */
-public class OpticalDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
+public class SerialDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.OPTICAL_DLMS_PROTOCOL_DIALECT_NAME.getName();
+        return DeviceProtocolDialectNameEnum.SERIAL_DLMS_PROTOCOL_DIALECT_NAME.getName();
     }
 
     @Override
     public String getDisplayName() {
-        return "Optical DLMS";
+        return "Serial DLMS";
     }
 
     @Override
@@ -58,7 +58,7 @@ public class OpticalDeviceProtocolDialect extends AbstractDeviceProtocolDialect 
         return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
     }
 
-    private PropertySpec serverLowerMacAddressPropertySpec() {
+    protected PropertySpec serverLowerMacAddressPropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, BigDecimal.ZERO);
     }
 

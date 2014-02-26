@@ -232,6 +232,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     EIMETER_FLEX_SLAVE_MODULE(198, "com.energyict.protocolimpl.modbus.energyict.EIMeterFlexSlaveModule"),
 
     WEB_RTU_KP_V2(199, "com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP", FamilyRule.EICT_NTA),
+    CX20009(200, "com.energyict.protocolimplv2.edp.CX20009", FamilyRule.EDP_DLMS),
+    JANZ_B280(201, "com.energyict.protocolimplv2.edp.JanzB280", FamilyRule.EDP_DLMS),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
@@ -249,24 +251,24 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     private String className;
     private Set<ProtocolFamily> families;
 
-    LicensedProtocolRule (int code, String className, ProtocolFamily... families) {
+    LicensedProtocolRule(int code, String className, ProtocolFamily... families) {
         this.code = code;
         this.className = className;
         this.families = new HashSet<>(Arrays.asList(families));
     }
 
     @Override
-    public int getCode () {
+    public int getCode() {
         return code;
     }
 
     @Override
-    public String getClassName () {
+    public String getClassName() {
         return className;
     }
 
     @Override
-    public Set<ProtocolFamily> getFamilies () {
+    public Set<ProtocolFamily> getFamilies() {
         return this.families;
     }
 
@@ -277,7 +279,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
      * @param code The code
      * @return The LicensedProtocolRule or <code>null</code> if no LicensedProtocolRule is uniquely identified by the code
      */
-    public static LicensedProtocol fromCode (int code) {
+    public static LicensedProtocol fromCode(int code) {
         for (LicensedProtocolRule protocol : values()) {
             if (code == protocol.code) {
                 return protocol;
@@ -293,7 +295,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
      * @param className The name of a protocol class
      * @return The LicensedProtocolRule or <code>null</code> if no LicensedProtocolRule is implemented by a class by that name
      */
-    public static LicensedProtocol fromClassName (String className) {
+    public static LicensedProtocol fromClassName(String className) {
         for (LicensedProtocolRule protocol : values()) {
             if (className.equals(protocol.className)) {
                 return protocol;

@@ -16,7 +16,7 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMbusSerialNumber;
 
@@ -37,7 +37,7 @@ public class MeterTopology {
     public static final int MaxMbusDevices = 4;
     private static String ignoreZombieMbusDevice = "@@@0000000000000";
 
-    private final AbstractNtaProtocol protocol;
+    private final AbstractDlmsProtocol protocol;
 
     /**
      * The <CODE>ComposedCosemObject</CODE> for requesting all serialNumbers in 1 request
@@ -59,7 +59,7 @@ public class MeterTopology {
      */
     private CollectedTopology deviceTopology;
 
-    public MeterTopology(final AbstractNtaProtocol protocol) {
+    public MeterTopology(final AbstractDlmsProtocol protocol) {
         this.protocol = protocol;
     }
 

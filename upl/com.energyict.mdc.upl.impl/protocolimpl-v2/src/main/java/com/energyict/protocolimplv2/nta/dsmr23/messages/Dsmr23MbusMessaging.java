@@ -13,7 +13,7 @@ import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
-import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractNtaMessaging;
+import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,7 +29,7 @@ import java.util.List;
  * @author sva
  * @since 29/11/13 - 14:17
  */
-public class Dsmr23MbusMessaging extends AbstractNtaMessaging implements DeviceMessageSupport {
+public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
     private final static List<DeviceMessageSpec> supportedMessages;
 

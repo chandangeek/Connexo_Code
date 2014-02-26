@@ -14,7 +14,7 @@ import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.DisconnectControlLog;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.EventsLog;
@@ -30,14 +30,14 @@ import java.util.List;
 
 public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
 
-    private AbstractNtaProtocol protocol;
+    private AbstractDlmsProtocol protocol;
 
     /**
      * List of obiscodes of the supported log books
      */
     private List<ObisCode> supportedLogBooks;
 
-    public Dsmr23LogBookFactory(AbstractNtaProtocol protocol) {
+    public Dsmr23LogBookFactory(AbstractDlmsProtocol protocol) {
         this.protocol = protocol;
         supportedLogBooks = new ArrayList<>();
         try {

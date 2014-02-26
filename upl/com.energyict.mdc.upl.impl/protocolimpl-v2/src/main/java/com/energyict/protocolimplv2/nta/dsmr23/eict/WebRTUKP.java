@@ -1,49 +1,26 @@
 package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
 import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdc.tasks.OpticalDeviceProtocolDialect;
-import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
-import com.energyict.mdw.offline.OfflineDevice;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.mdc.tasks.*;
+import com.energyict.mdw.offline.*;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
-import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
-import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * General error handling principle:
@@ -57,9 +34,7 @@ import java.util.List;
  * Time: 11:40
  * Author: khe
  */
-public class WebRTUKP extends AbstractNtaProtocol {
-
-    private DlmsSecuritySupport dlmsSecuritySupport;
+public class WebRTUKP extends AbstractDlmsProtocol {
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -105,20 +80,6 @@ public class WebRTUKP extends AbstractNtaProtocol {
     }
 
     @Override
-    public String getSerialNumber() {
-        return getMeterInfo().getSerialNr();
-    }
-
-    @Override
-    public void setTime(Date timeToSet) {
-        try {
-            getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(timeToSet, getTimeZone()));
-        } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
-        }
-    }
-
-    @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         return getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
     }
@@ -126,15 +87,6 @@ public class WebRTUKP extends AbstractNtaProtocol {
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
-    }
-
-    @Override
-    public Date getTime() {
-        try {
-            return getDlmsSession().getCosemObjectFactory().getClock().getDateTime();
-        } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
-        }
     }
 
     @Override
@@ -164,50 +116,7 @@ public class WebRTUKP extends AbstractNtaProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new OpticalDeviceProtocolDialect(), new TcpDeviceProtocolDialect());
-    }
-
-    @Override
-    public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        getDlmsSessionProperties().addProperties(dialectProperties);
-    }
-
-    @Override
-    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        getDlmsSessionProperties().addProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-        getDlmsSessionProperties().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
-    }
-
-    private DeviceProtocolSecurityCapabilities getSecuritySupport() {
-        if (dlmsSecuritySupport == null) {
-            dlmsSecuritySupport = new DsmrSecuritySupport();
-        }
-        return dlmsSecuritySupport;
-    }
-
-    @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return getSecuritySupport().getSecurityProperties();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return getSecuritySupport().getSecurityRelationTypeName();
-    }
-
-    @Override
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return getSecuritySupport().getAuthenticationAccessLevels();
-    }
-
-    @Override
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return getSecuritySupport().getEncryptionAccessLevels();
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return getSecuritySupport().getSecurityPropertySpec(name);
+        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(), new ExtendedTcpDeviceProtocolDialect());
     }
 
     @Override
@@ -223,11 +132,6 @@ public class WebRTUKP extends AbstractNtaProtocol {
     @Override
     public String getVersion() {
         return "$Date$";
-    }
-
-    @Override
-    public void addProperties(TypedProperties properties) {
-        this.getDlmsSessionProperties().addProperties(properties);
     }
 
     @Override

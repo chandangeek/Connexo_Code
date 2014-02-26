@@ -3,46 +3,24 @@ package com.energyict.protocolimplv2.nta.dsmr23.messages;
 import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.LoadProfile;
-import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.LookupEntry;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
-import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
-import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractNtaMessageExecutor;
-import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractNtaMessaging;
+import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
+import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -57,7 +35,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * Time: 11:32
  * Author: khe
  */
-public class Dsmr23Messaging extends AbstractNtaMessaging implements DeviceMessageSupport {
+public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
     private final static List<DeviceMessageSpec> supportedMessages;
     public static final String SEPARATOR = ";";
@@ -122,9 +100,9 @@ public class Dsmr23Messaging extends AbstractNtaMessaging implements DeviceMessa
         supportedMessages.add(DeviceActionMessage.ALARM_REGISTER_RESET);
     }
 
-    private final AbstractNtaMessageExecutor messageExecutor;
+    private final AbstractMessageExecutor messageExecutor;
 
-    public Dsmr23Messaging(AbstractNtaMessageExecutor messageExecutor) {
+    public Dsmr23Messaging(AbstractMessageExecutor messageExecutor) {
         super(messageExecutor.getProtocol());
         this.messageExecutor = messageExecutor;
     }
@@ -225,7 +203,7 @@ public class Dsmr23Messaging extends AbstractNtaMessaging implements DeviceMessa
     }
 
 
-    public AbstractNtaMessageExecutor getMessageExecutor() {
+    private AbstractMessageExecutor getMessageExecutor() {
         return messageExecutor;
     }
 }

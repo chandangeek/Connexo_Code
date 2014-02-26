@@ -39,7 +39,8 @@ public enum FamilyRule implements ProtocolFamily {
     ISKRA_PRE_NTA(19),
     DSMR(20),
     DSMR_NTA(21),
-    XEMEX(22);
+    XEMEX(22),
+    EDP_DLMS(23);
 
     private int code;
 

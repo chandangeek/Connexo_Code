@@ -34,7 +34,7 @@ import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject;
 
@@ -62,6 +62,9 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      * Hardcoded ObisCode for the status of the 15min profile
      */
     protected static final ObisCode QuarterlyHourStatusObisCode = ObisCode.fromString("0.0.96.10.1.255");
+
+    protected static final ObisCode EdpQuarterlyHourStatusObisCode = ObisCode.fromString("0.0.96.10.7.255");
+
     /**
      * Hardcoded ObisCode for the status of the daily profile
      */
@@ -74,7 +77,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     /**
      * The used meterProtocol
      */
-    private final AbstractNtaProtocol meterProtocol;
+    private final AbstractDlmsProtocol meterProtocol;
 
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a {@link ComposedProfileConfig}
@@ -124,7 +127,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      *
      * @param meterProtocol the {@link #meterProtocol}
      */
-    public LoadProfileBuilder(AbstractNtaProtocol meterProtocol, boolean supportsBulkRequests) {
+    public LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, boolean supportsBulkRequests) {
         this.meterProtocol = meterProtocol;
         this.supportsBulkRequests = supportsBulkRequests;
     }
@@ -399,6 +402,13 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             return false;
         }
 
+        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(EdpQuarterlyHourStatusObisCode, serialNumber);
+        if (testObisCode != null) {
+            isStatusObisCode |= testObisCode.equals(obisCode);
+        } else {
+            return false;
+        }
+
         testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(DailyStatusObisCode, serialNumber);
         if (testObisCode != null) {
             isStatusObisCode |= testObisCode.equals(obisCode);
@@ -512,7 +522,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         return statusMasksMap;
     }
 
-    protected AbstractNtaProtocol getMeterProtocol() {
+    protected AbstractDlmsProtocol getMeterProtocol() {
         return meterProtocol;
     }
 }

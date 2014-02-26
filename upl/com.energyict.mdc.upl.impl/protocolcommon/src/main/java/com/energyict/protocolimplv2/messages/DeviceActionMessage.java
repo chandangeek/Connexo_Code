@@ -21,6 +21,18 @@ import java.util.List;
 public enum DeviceActionMessage implements DeviceMessageSpec {
 
     BILLING_RESET,
+    BILLING_RESET_CONTRACT_1,
+    BILLING_RESET_CONTRACT_2,
+    SET_PASSIVE_EOB_DATETIME(
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.contractAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.year      ),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.month     ),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.day       ),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.dayOfWeek ),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.hour          ),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.minute            ),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.second            )
+    ),
     GLOBAL_METER_RESET,
     DEMAND_RESET,
     POWER_OUTAGE_RESET,

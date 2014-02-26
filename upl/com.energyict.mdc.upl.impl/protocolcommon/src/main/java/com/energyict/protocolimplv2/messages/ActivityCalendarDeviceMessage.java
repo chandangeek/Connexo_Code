@@ -8,6 +8,7 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.protocolimplv2.messages.enums.ActivityCalendarType;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,6 +35,11 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
             PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
             PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
+    ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT(
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(contractAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
+            PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
+            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
     ACTIVITY_CALENDER_SEND_WITH_DATE(PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
             PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
             PropertySpecFactory.datePropertySpec(activityCalendarActivationDateAttributeName)),
@@ -41,6 +47,10 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
     SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE(
             PropertySpecFactory.stringPropertySpecWithValues(activityCalendarTypeAttributeName, ActivityCalendarType.getAllDescriptions()),
             PropertySpecFactory.codeTableReferencePropertySpec(specialDaysCodeTableAttributeName)),
+    SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME(
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(contractAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
+            PropertySpecFactory.codeTableReferencePropertySpec(specialDaysCodeTableAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
     CLEAR_AND_DISABLE_PASSIVE_TARIFF(),
     ACTIVATE_PASSIVE_CALENDAR(PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName));
 

@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.nta.abstractnta.messages;
 import com.energyict.mdw.core.Code;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -13,15 +13,15 @@ import javax.xml.parsers.ParserConfigurationException;
  * Time: 14:16
  * Author: khe
  */
-public class AbstractNtaMessaging {
+public class AbstractDlmsMessaging {
 
-    private final AbstractNtaProtocol protocol;
+    private final AbstractDlmsProtocol protocol;
 
-    public AbstractNtaMessaging(AbstractNtaProtocol protocol) {
+    public AbstractDlmsMessaging(AbstractDlmsProtocol protocol) {
         this.protocol = protocol;
     }
 
-    protected AbstractNtaProtocol getProtocol() {
+    protected AbstractDlmsProtocol getProtocol() {
         return protocol;
     }
 

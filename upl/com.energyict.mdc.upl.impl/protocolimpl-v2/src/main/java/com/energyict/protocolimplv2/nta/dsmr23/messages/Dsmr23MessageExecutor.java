@@ -71,8 +71,8 @@ import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
-import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractNtaMessageExecutor;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -89,12 +89,12 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * @author sva
  * @since 29/11/13 - 16:04
  */
-public class Dsmr23MessageExecutor extends AbstractNtaMessageExecutor {
+public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     public static final String SEPARATOR = ";";
     private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
 
-    public Dsmr23MessageExecutor(AbstractNtaProtocol protocol) {
+    public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol);
     }
 
@@ -191,11 +191,6 @@ public class Dsmr23MessageExecutor extends AbstractNtaMessageExecutor {
             result.addCollectedMessage(collectedMessage);
         }
         return result;
-    }
-
-    @Override
-    public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     private void changeDefaultResetWindow(OfflineDeviceMessage pendingMessage) throws IOException {

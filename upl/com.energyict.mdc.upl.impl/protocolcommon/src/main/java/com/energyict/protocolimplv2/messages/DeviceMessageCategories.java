@@ -37,6 +37,15 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         }
     },
     /**
+     * The category for all messages that relate to configuring the public lighting objects
+     */
+    PUBLIC_LIGHTING {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(PublicLightingDeviceMessage.values());
+        }
+    },
+    /**
      * The category for all messages that relate to configuring alarms
      */
     ALARM_CONFIGURATION {

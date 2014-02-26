@@ -32,8 +32,8 @@ import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
-import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractNtaMessageExecutor;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -48,19 +48,14 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * @author sva
  * @since 29/11/13 - 15:18
  */
-public class Dsmr23MbusMessageExecutor extends AbstractNtaMessageExecutor {
+public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
 
     public static final OctetString MBUS_CLIENT_VALUE_INFORMATION_BLOCK_USE_CORRECTED = OctetString.fromByteArray(new byte[]{0x13});
     public static final OctetString MBUS_CLIENT_VALUE_INFORMATION_BLOCK_USE_UNCORRECTED = OctetString.fromByteArray(new byte[]{(byte) 0x93, (byte) 0x3A});
 
-    public Dsmr23MbusMessageExecutor(AbstractNtaProtocol protocol) {
+    public Dsmr23MbusMessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol);
 
-    }
-
-    @Override
-    public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     @Override

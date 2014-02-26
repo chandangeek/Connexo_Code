@@ -20,6 +20,8 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.*;
  * Class that holds all DLMS device properties (general, dialect & security related)
  * Based on these properties, a DLMS session and its connection layer can be fully configured.
  * <p/>
+ * The list of optional and required properties that is shown in EIServer is held in {@link DlmsConfigurationSupport}
+ * <p/>
  * Copyrights EnergyICT
  * Date: 14-jul-2011
  * Time: 11:26:48
@@ -252,7 +254,7 @@ public class DlmsProperties implements DlmsSessionProperties {
         return properties.<Boolean>getTypedProperty(FIX_MBUS_HEX_SHORT_ID, DEFAULT_FIX_MBUS_HEX_SHORT_ID);
     }
 
-    private int parseBigDecimalProperty(String key, BigDecimal defaultValue) {
+    protected int parseBigDecimalProperty(String key, BigDecimal defaultValue) {
         return properties.<BigDecimal>getTypedProperty(key, defaultValue).intValue();
     }
 }

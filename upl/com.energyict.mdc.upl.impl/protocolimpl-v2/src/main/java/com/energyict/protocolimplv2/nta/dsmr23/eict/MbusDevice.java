@@ -2,8 +2,8 @@ package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         super();
     }
 
-    public MbusDevice(AbstractNtaProtocol meterProtocol, String serialNumber, int physicalAddress) {
+    public MbusDevice(AbstractDlmsProtocol meterProtocol, String serialNumber, int physicalAddress) {
         super(meterProtocol, serialNumber, physicalAddress);
     }
 

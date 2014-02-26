@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
 
-    private final AbstractNtaProtocol meterProtocol;
+    private final AbstractDlmsProtocol meterProtocol;
 
     private final String serialNumber;
     private final int physicalAddress;
@@ -62,7 +62,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
         this.physicalAddress = -1;
     }
 
-    public AbstractNtaMbusDevice(AbstractNtaProtocol meterProtocol, String serialNumber, int physicalAddress) {
+    public AbstractNtaMbusDevice(AbstractDlmsProtocol meterProtocol, String serialNumber, int physicalAddress) {
         this.meterProtocol = meterProtocol;
         this.serialNumber = serialNumber;
         this.physicalAddress = physicalAddress;
@@ -140,11 +140,11 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     }
 
     /**
-     * Getter for the master {@link AbstractNtaProtocol}
+     * Getter for the master {@link AbstractDlmsProtocol}
      *
      * @return the protocol of the master
      */
-    public AbstractNtaProtocol getMeterProtocol() {
+    public AbstractDlmsProtocol getMeterProtocol() {
         return meterProtocol;
     }
 

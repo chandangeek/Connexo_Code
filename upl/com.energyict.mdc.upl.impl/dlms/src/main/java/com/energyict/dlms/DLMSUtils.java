@@ -123,7 +123,7 @@ public final class DLMSUtils {
      * @return
      * @throws IOException
      */
-    public static long parseValue2long(byte[] byteBuffer) throws IOException {
+    public static long parseValue2long(byte[] byteBuffer) throws ProtocolException {
         return parseValue2long(byteBuffer, 0);
     }
 

@@ -96,6 +96,10 @@
 	public *;
 	protected *;
 }
+-keep public class com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage {
+	public *;
+	protected *;
+}
 -keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.Mx382 {
 	public *;
 	protected *;

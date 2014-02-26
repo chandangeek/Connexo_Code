@@ -36,7 +36,7 @@ import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -78,10 +78,10 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
     private Map<OfflineRegister, ComposedRegister> composedRegisterMap = new HashMap<>();
     protected Map<OfflineRegister, DLMSAttribute> registerMap = new HashMap<>();
-    private final AbstractNtaProtocol protocol;
+    private final AbstractDlmsProtocol protocol;
     private final boolean supportsBulkRequests;
 
-    public Dsmr23RegisterFactory(final AbstractNtaProtocol protocol, boolean supportsBulkRequests) {
+    public Dsmr23RegisterFactory(final AbstractDlmsProtocol protocol, boolean supportsBulkRequests) {
         this.protocol = protocol;
         this.supportsBulkRequests = supportsBulkRequests;
     }

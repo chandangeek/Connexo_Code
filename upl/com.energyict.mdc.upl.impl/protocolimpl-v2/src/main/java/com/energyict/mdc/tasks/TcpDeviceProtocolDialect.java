@@ -8,19 +8,19 @@ import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.*;
 
 /**
- * Models a {@link DeviceProtocolDialect} for a TCP connection type
+ * Models a {@link com.energyict.mdc.tasks.DeviceProtocolDialect} for a TCP connection type
  *
  * @author: khe
  * @since: 16/10/12 (113:25)
  */
 public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
+
+    public static final int DEFAULT_TCP_TIMEOUT = 30;
 
     @Override
     public String getDeviceProtocolDialectName() {
@@ -41,30 +41,25 @@ public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     public List<PropertySpec> getOptionalProperties() {
         return Arrays.asList(
                 this.serverUpperMacAddressPropertySpec(),
-                this.wakeUpPropertySpec(),
                 this.timeoutPropertySpec(),
                 this.retriesPropertySpec(),
                 this.roundTripCorrectionPropertySpec()
         );
     }
 
-    private PropertySpec serverUpperMacAddressPropertySpec() {
+    protected PropertySpec serverUpperMacAddressPropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
     }
 
-    private PropertySpec wakeUpPropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(DlmsProtocolProperties.WAKE_UP);
-    }
-
-    private PropertySpec retriesPropertySpec() {
+    protected PropertySpec retriesPropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(RETRIES, DEFAULT_RETRIES);
     }
 
-    private PropertySpec timeoutPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(TIMEOUT, new TimeDuration(DEFAULT_TIMEOUT.intValue() / 1000));
+    protected PropertySpec timeoutPropertySpec() {
+        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(TIMEOUT, new TimeDuration(DEFAULT_TCP_TIMEOUT));
     }
 
-    private PropertySpec roundTripCorrectionPropertySpec() {
+    protected PropertySpec roundTripCorrectionPropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(ROUND_TRIP_CORRECTION, DEFAULT_ROUND_TRIP_CORRECTION);
     }
 
@@ -73,8 +68,6 @@ public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
         switch (name) {
             case DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS:
                 return this.serverUpperMacAddressPropertySpec();
-            case DlmsProtocolProperties.WAKE_UP:
-                return this.wakeUpPropertySpec();
             case DlmsProtocolProperties.RETRIES:
                 return this.retriesPropertySpec();
             case DlmsProtocolProperties.TIMEOUT:

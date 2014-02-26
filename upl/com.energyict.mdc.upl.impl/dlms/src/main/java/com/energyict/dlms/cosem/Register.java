@@ -11,6 +11,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -57,7 +58,7 @@ public class Register extends AbstractCosemObject implements CosemObject {
 			return (getValue(getResponseData(REGISTER_VALUE)));
 		}
     }
-    public long getValue(byte[] responseData) throws IOException {
+    public long getValue(byte[] responseData) throws ProtocolException {
         value = DLMSUtils.parseValue2long(responseData);
         return value;
     }

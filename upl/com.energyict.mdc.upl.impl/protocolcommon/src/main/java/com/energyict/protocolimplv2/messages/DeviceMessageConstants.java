@@ -15,6 +15,7 @@ public class DeviceMessageConstants {
     public static final String digitalOutputAttributeName = "ContactorDeviceMessage.digitaloutput";
     public static final String contactorModeAttributeName = "ContactorDeviceMessage.changemode.mode";
     public static final String relayNumberAttributeName = "ContactorDeviceMessage.relaynumber";
+    public static final String relayOperatingModeAttributeName = "ContactorDeviceMessage.relayoperatingmode";
     public static final String firmwareUpdateActivationDateAttributeName = "FirmwareDeviceMessage.upgrade.activationdate";
     public static final String meterTimeAttributeName = "ClockDeviceMessage.metertime";
     public static final String dstStartAlgorithmAttributeName = "ClockDeviceMessage.dststartalgorithm";
@@ -24,6 +25,7 @@ public class DeviceMessageConstants {
     public static final String resumeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.resume";
     public static final String plcTypeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.plc";
     public static final String firmwareUpdateURLAttributeName = "FirmwareDeviceMessage.upgrade.url";
+    public static final String contractAttributeName = "contract";
     public static final String activityCalendarTypeAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.type";
     public static final String activityCalendarNameAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.name";
     public static final String activityCalendarCodeTableAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
@@ -82,6 +84,12 @@ public class DeviceMessageConstants {
     public static final String DisplayMessageAttributeName = "DisplayDeviceMessage.displaymessage";
     public static final String DisplayMessageTimeDurationAttributeName = "DisplayMessage.timeduration";
     public static final String DisplayMessageActivationDate = "DisplayMessage.activationdate";
+
+    public static final String threshold = "Threshold"; //Can be reused
+    public static final String beginDatesAttributeName = "Begin dates";
+    public static final String endDatesAttributeName = "End dates";
+    public static final String offOffsetsAttributeName = "Off offsets";
+    public static final String onOffsetsAttributeName = "On offsets";
 
     public static final String DemandCloseToContractPowerThresholdAttributeName = "LoadBalanceDeviceMessage.demandclosetocontractpowerthreshold";
     public static final String readFrequencyInMinutesAttributeName = "LoadBalanceDeviceMessage.parameters.readfrequencyinminutes";
