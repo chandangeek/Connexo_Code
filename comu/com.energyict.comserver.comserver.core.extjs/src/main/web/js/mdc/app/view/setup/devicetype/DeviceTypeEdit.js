@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
     alias: 'widget.deviceTypeEdit',
     itemId: 'deviceTypeEdit',
     autoScroll: true,
@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
         type: 'vbox',
         align: 'stretch'
     },
-    cls: 'content-wrapper',
+    cls: 'content-container',
     edit: false,
     isEdit: function(){
         return this.edit
@@ -69,13 +69,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                             type: 'vbox',
                                             align: 'stretch'
                                         },
-//                    tbar: [
-//                        {
-//                            xtype: 'component',
-//                            html: '<h4>Overview</h4>',
-//                            itemId: 'deviceTypePreviewTitle'
-//                        }
-//                    ],
                                         defaults:{
                                             labelWidth: 250
                                         },

@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
     alias: 'widget.deviceTypesSetup',
     autoScroll: true,
     itemId: 'deviceTypeSetup',
@@ -12,40 +12,28 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
         type: 'vbox',
         align: 'stretch'
     },
-    cls: 'content-wrapper',
-//    border: 0,
-//    region: 'center',
-
+    cls: 'content-container',
     items: [
         {
-            xtype: 'container',
-            cls: 'content-container',
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
-            items: [
-                {
-                    xtype: 'breadcrumbTrail',
-                    region: 'north',
-                    padding: 6
-                },
-                {
-                    xtype: 'component',
-                    html: '<h1>'+ Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types')+'</h1>',
-                    margins: '10 10 10 10'
-                },
-                {
-                    xtype: 'deviceTypesGrid'
-                },
-                {
-                    xtype: 'component',
-                    height : 25
-                },
-                {
-                    xtype: 'deviceTypePreview'
-                }
-            ]}
+            xtype: 'breadcrumbTrail',
+            region: 'north',
+            padding: 6
+        },
+        {
+            xtype: 'component',
+            html: '<h1>' + Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types') + '</h1>',
+            margins: '10 10 10 10'
+        },
+        {
+            xtype: 'deviceTypesGrid'
+        },
+        {
+            xtype: 'component',
+            height: 25
+        },
+        {
+            xtype: 'deviceTypePreview'
+        }
     ],
 
 

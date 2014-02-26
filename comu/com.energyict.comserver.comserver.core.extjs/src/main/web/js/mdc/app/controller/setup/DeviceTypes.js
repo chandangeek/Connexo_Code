@@ -89,7 +89,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             var deviceTypeId = deviceTypes[0].get('id');
             this.getDeviceTypeRegisterLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/registertypes'});
             this.getDeviceTypeRegisterLink().getEl().setHTML(deviceTypes[0].get('registerCount') + ' ' + Uni.I18n.translate('devicetype.registers', 'MDC', 'registers'));
-            this.getDeviceTypeLogBookLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/logbooks'});
+            this.getDeviceTypeLogBookLink().getEl().set({hrbef: '#/setup/devicetypes/' + deviceTypeId + '/logbooks'});
             this.getDeviceTypeLogBookLink().getEl().setHTML(deviceTypes[0].get('logBookCount') + ' ' + Uni.I18n.translate('devicetype.logbooks', 'MDC', 'logbooks'));
             this.getDeviceTypeLoadProfilesLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/loadprofiles'});
             this.getDeviceTypeLoadProfilesLink().getEl().setHTML(deviceTypes[0].get('loadProfileCount') + ' ' + Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'loadprofiles'));

@@ -146,6 +146,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                         {
                                             xtype: 'component',
                                             name: 'registerCount',
+                                            cls: 'x-form-display-field',
                                             autoEl: {
                                                 tag: 'a',
                                                 href: '#',
@@ -158,6 +159,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                         {
                                             xtype: 'component',
                                             name: 'loadProfileCount',
+                                            cls: 'x-form-display-field',
                                             autoEl: {
                                                 tag: 'a',
                                                 href: '#',
@@ -169,6 +171,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                         {
                                             xtype: 'component',
                                             name: 'logBookCount',
+                                            cls: 'x-form-display-field',
                                             autoEl: {
                                                 tag: 'a',
                                                 href: '#',
@@ -190,6 +193,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                         {
                                             xtype: 'component',
                                             name: 'deviceConfigurationCount',
+                                            cls: 'x-form-display-field a',
                                             autoEl: {
                                                 tag: 'a',
                                                 href: '#',
@@ -199,17 +203,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                         }
                                     ]
                                 }
-
-
-//                                {
-//                                    xtype: 'displayfield',
-//                                    name: 'deviceConfigurationCount',
-//                                    fieldLabel: Uni.I18n.translate('devicetype.deviceConfigurationCount', 'MDC', 'Device configuration count'),
-//                                    renderer: function (item, b) {
-//                                        return '<a href="#' + item + '">' + item + ' ' + Uni.I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations')
-//                                        + '</a>';
-//                                    }
-//                                }
                             ]
                         }
 

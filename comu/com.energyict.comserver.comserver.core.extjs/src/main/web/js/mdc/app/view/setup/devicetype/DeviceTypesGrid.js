@@ -21,14 +21,16 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 renderer: function(value,b,record){
                     return '<a href="#/setup/devicetypes/' + record.get('id') + '">' + value + '</a>';;
                 },
-                flex: 1
+                fixed: true,
+                flex: 0.4
             },
             {
                 header: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Device communication protocol'),
                 dataIndex: 'communicationProtocolName',
                 sortable: false,
                 hideable: false,
-                flex: 1
+                fixed: true,
+                flex: 0.4
             },
 
             {
@@ -37,6 +39,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 header : Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
+                fixed: true,
+                flex: 0.1,
                 items: [{
                     icon: 'resources/images/gear-16x16.png',
                     handler: function(grid, rowIndex, colIndex,item,e) {

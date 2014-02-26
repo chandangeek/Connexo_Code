@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
     alias: 'widget.deviceTypeDetail',
     itemId: 'deviceTypeDetail',
     autoScroll: true,
@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
         type: 'vbox',
         align: 'stretch'
     },
-    cls: 'content-wrapper',
+    cls: 'content-container',
 
 
     items: [
