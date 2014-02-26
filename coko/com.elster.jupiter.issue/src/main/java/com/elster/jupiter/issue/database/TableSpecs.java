@@ -3,12 +3,13 @@ package com.elster.jupiter.issue.database;
 import com.elster.jupiter.issue.*;
 import com.elster.jupiter.issue.impl.*;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.users.UserService;
 
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2UTCINSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.*;
 
 public enum TableSpecs {
 
@@ -84,6 +85,7 @@ public enum TableSpecs {
             Column reasonRefIdColumn = table.column(DatabaseConst.ISSUE_COLUMN_REASON_ID).type("number").conversion(NUMBER2LONG).notNull().add();
 			Column statusRefIdColumn = table.column(DatabaseConst.ISSUE_COLUMN_STATUS_ID).type("number").conversion(NUMBER2LONG).notNull().add();
             Column deviceRefIdColumn = table.column(DatabaseConst.ISSUE_COLUMN_DEVICE_ID).type("number").conversion(NUMBER2LONG).add();
+            Column meterRefIdColumn = table.column(DatabaseConst.ISSUE_COLUMN_METER_ID).type("number").conversion(NUMBER2LONG).add();
             table.column(DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE).map("type").type("number").conversion(NUMBER2ENUM).add();
             Column userRefIdColumn = table.column(DatabaseConst.ISSUE_COLUMN_USER_ID).type("number").conversion(NUMBER2LONG).add();
             Column teamRefIdColumn = table.column(DatabaseConst.ISSUE_COLUMN_TEAM_ID).type("number").conversion(NUMBER2LONG).add();
@@ -97,6 +99,8 @@ public enum TableSpecs {
             table.foreignKey(DatabaseConst.ISSUE_FK_TO_STATUS).map("status").on(statusRefIdColumn).references(ISU_STATUS.name())
                     .onDelete(DeleteRule.CASCADE).add();
             table.foreignKey(DatabaseConst.ISSUE_FK_TO_DEVICE).map("device").on(deviceRefIdColumn).references(MeteringService.COMPONENTNAME, DatabaseConst.METERING_DEVICE_TABLE).
+                    onDelete(DeleteRule.RESTRICT).add();
+            table.foreignKey(DatabaseConst.ISSUE_FK_TO_METER).map("meter").on(meterRefIdColumn).references(MeteringService.COMPONENTNAME, DatabaseConst.METERING_DEVICE_TABLE).
                     onDelete(DeleteRule.RESTRICT).add();
             table.foreignKey(DatabaseConst.ISSUE_FK_TO_USER).map("user").on(userRefIdColumn).references(UserService.COMPONENTNAME, DatabaseConst.USER_DEVICE_TABLE).add();
             table.foreignKey(DatabaseConst.ISSUE_FK_TO_TEAM).map("team").on(teamRefIdColumn).references(ISU_ASSIGNEETEAM.name()).add();
