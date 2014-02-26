@@ -1,10 +1,14 @@
 package com.elster.jupiter.issue.rest.response;
 
-import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.*;
+import com.google.common.base.Optional;
 
 public class IssueDevice {
     private long id;
     private String sNumber;
+    private UsagePointPreviewInfo usagePoint;
+    private ServiceLocationPreviewInfo serviceLocation;
+    private ServiceCategoryPreviewInfo serviceCategory;
     private long version;
 
     public IssueDevice(EndDevice endDevice){
@@ -12,6 +16,21 @@ public class IssueDevice {
             this.setId(endDevice.getId());
             this.setsNumber(endDevice.getSerialNumber());
             this.setVersion(endDevice.getVersion());
+            if (Meter.class.isInstance(endDevice)) {
+                Meter meter = Meter.class.cast(endDevice);
+                Optional<MeterActivation> meterActivation = meter.getCurrentMeterActivation();
+                if (meterActivation.isPresent()) {
+                    Optional<UsagePoint> upRef = meterActivation.get().getUsagePoint();
+                    if (upRef.isPresent()) {
+                        UsagePoint up = upRef.get();
+                        this.setUsagePoint(up);
+                        ServiceLocation location = up.getServiceLocation();
+                        this.setServiceLocation(location);
+                        ServiceCategory category = up.getServiceCategory();
+                        this.setServiceCategory(category);
+                    }
+                }
+            }
         }
     }
 
@@ -37,5 +56,29 @@ public class IssueDevice {
 
     public void setVersion(long version) {
         this.version = version;
+    }
+
+    public ServiceCategoryPreviewInfo getServiceCategory() {
+        return serviceCategory;
+    }
+
+    public void setServiceCategory(ServiceCategory serviceCategory) {
+        this.serviceCategory = serviceCategory != null ? new ServiceCategoryPreviewInfo(serviceCategory) : null;
+    }
+
+    public ServiceLocationPreviewInfo getServiceLocation() {
+        return serviceLocation;
+    }
+
+    public void setServiceLocation(ServiceLocation serviceLocation) {
+        this.serviceLocation = serviceLocation != null ? new ServiceLocationPreviewInfo(serviceLocation) : null;
+    }
+
+    public UsagePointPreviewInfo getUsagePoint() {
+        return usagePoint;
+    }
+
+    public void setUsagePoint(UsagePoint usagePoint) {
+        this.usagePoint = new UsagePointPreviewInfo(usagePoint);
     }
 }
