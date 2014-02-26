@@ -46,7 +46,7 @@ public class MdcApplication extends Application {
                 ComPortResource.class,
                 ComPortPoolResource.class,
                 DeviceCommunicationProtocolsResource.class,
-                FieldResource.class,
+                ComServerFieldResource.class,
                 DeviceDiscoveryProtocolsResource.class,
                 LicensedProtocolResource.class,
                 TimeZoneInUseResource.class,
