@@ -6,11 +6,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import javax.inject.Inject;
+import javax.naming.Context;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorFactory;
+import javax.validation.MessageInterpolator;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
@@ -45,7 +48,7 @@ public class DataModelImpl implements DataModel {
 
     // associations
     private final List<TableImpl<?>> tables = new ArrayList<>();
-    
+
     // transient fields
     private Injector injector;
     private final OrmServiceImpl ormService;
@@ -55,7 +58,7 @@ public class DataModelImpl implements DataModel {
     DataModelImpl (OrmService ormService) {
     	this.ormService = (OrmServiceImpl) ormService;
     }
-    
+
     DataModelImpl init(String name, String description) {
         this.name = name;
         this.description = description;
@@ -65,7 +68,7 @@ public class DataModelImpl implements DataModel {
     static DataModelImpl from(OrmServiceImpl ormService, String name, String description) {
     	return new DataModelImpl(ormService).init(name, description);
     }
-    
+
     @Override
     public String getName() {
         return name;
@@ -95,7 +98,7 @@ public class DataModelImpl implements DataModel {
     public <T> Table<T> addTable(String tableName,Class<T> api) {
         return addTable(null, tableName,api);
     }
-    
+
     private void checkActiveBuilder() {
     	if (!getTables().isEmpty()) {
     		tables.get(getTables().size()-1).checkActiveBuilder();
@@ -133,16 +136,16 @@ public class DataModelImpl implements DataModel {
     		throw new IllegalArgumentException("Type " + api + " not configured in data model " + this.getName());
     	}
     }
-    
+
     private <T> Optional<DataMapperImpl<T>> optionalMapper(Class<T> api) {
     	for (TableImpl<?> table : tables) {
     		if (table.maps(api)) {
     			return Optional.of(table.getDataMapper(api));
     		}
-    	}	
+    	}
     	return Optional.absent();
     }
-    
+
     @Override
     @Deprecated
     public <T> DataMapperImpl<T> getDataMapper(Class<T> api, String tableName) {
@@ -185,7 +188,7 @@ public class DataModelImpl implements DataModel {
     }
 
     private void executeTableDdl(Statement statement, TableImpl<?> table) throws SQLException {
-        for (String each : table.getDdl()) {            
+        for (String each : table.getDdl()) {
             statement.execute(each);
         }
     }
@@ -211,7 +214,7 @@ public class DataModelImpl implements DataModel {
             throw new UnderlyingSQLFailedException(e);
         }
     }
-    
+
     public Optional<TableImpl<?>> getTable(Class<?> clazz) {
     	for (TableImpl<?> table : getTables()) {
     		if (table.maps(clazz)) {
@@ -220,7 +223,7 @@ public class DataModelImpl implements DataModel {
     	}
     	return Optional.absent();
     }
-    
+
     @Override
     public RefAny asRefAny(Object reference) {
     	checkRegistered();
@@ -230,26 +233,26 @@ public class DataModelImpl implements DataModel {
 			if (tableHolder.isPresent()) {
 				return getInstance(RefAnyImpl.class).init(reference,tableHolder.get());
 			}
-		} 
+		}
 		throw new IllegalArgumentException("No table defined that maps " + reference.getClass());
     }
-    
+
     Injector getInjector() {
     	return injector;
     }
-    
+
     private void checkRegistered() {
     	if (!registered) {
-    		throw new IllegalStateException("DataModel not registered"); 
+    		throw new IllegalStateException("DataModel not registered");
     	}
     }
-    
+
     private void checkNotRegistered() {
     	if (registered) {
-    		throw new IllegalStateException("DataModel already registered"); 
+    		throw new IllegalStateException("DataModel already registered");
     	}
     }
-    
+
     @Override
     public void register(Module ... modules) {
     	checkNotRegistered();
@@ -278,17 +281,17 @@ public class DataModelImpl implements DataModel {
 		DataMapperImpl<T> mapper = mapper(type);
 		mapper.update(mapper.cast(entity),columns);
 	}
-	
+
 	private <T> void touch(Class<T> type , Object entity) {
 		DataMapperImpl<T> mapper = mapper(type);
 		mapper.touch(mapper.cast(entity));
 	}
-	
+
 	private <T> void remove(Class<T> type, Object entity) {
 		DataMapperImpl<T> mapper = mapper(type);
 		mapper.remove(mapper.cast(entity));
 	}
-	
+
 	@Override
 	public void persist(Object entity) {
 		checkRegistered();
@@ -300,20 +303,20 @@ public class DataModelImpl implements DataModel {
 		checkRegistered();
 		update(Objects.requireNonNull(entity).getClass(),entity,columns);
 	}
-	
+
 	@Override
 	public void touch(Object entity) {
 		checkRegistered();
 		touch(Objects.requireNonNull(entity).getClass(),entity);
 	}
-	
-	
+
+
 	@Override
 	public void remove(Object entity) {
 		checkRegistered();
-		remove(Objects.requireNonNull(entity).getClass(),entity);	
+		remove(Objects.requireNonNull(entity).getClass(),entity);
 	}
-	
+
 	public Clock getClock() {
 		return ormService.getClock();
 	}
@@ -321,9 +324,9 @@ public class DataModelImpl implements DataModel {
 	public OrmServiceImpl getOrmService() {
 		return ormService;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
-	@Override 
+	@Override
 	public <T> QueryExecutor<T> query(Class<T> api, Class<?> ... eagers) {
 		checkRegistered();
 		DataMapperImpl<T> root = mapper(api);
@@ -354,11 +357,11 @@ public class DataModelImpl implements DataModel {
 		}
  		return root.with(mappers);
 	}
-	
+
 	Module getModule() {
 		return getOrmService().getModule(this);
-	} 
-	
+	}
+
 	Provider<? extends Reference<?>> getReferenceProvider() {
 		return new Provider<Reference<?>> () {
 
@@ -366,10 +369,10 @@ public class DataModelImpl implements DataModel {
 			public Reference<?> get() {
 				return ValueReference.absent();
 			}
-			
+
 		};
 	}
-    
+
 	Provider<? extends List<?>> getListProvider() {
 		return new Provider<List<?>> () {
 
@@ -377,7 +380,7 @@ public class DataModelImpl implements DataModel {
 			public List<?> get() {
 				return new ArrayList<>();
 			}
-			
+
 		};
 	}
 
@@ -387,23 +390,34 @@ public class DataModelImpl implements DataModel {
         	.providerResolver(ormService.getValidationProviderResolver())
         	.configure()
         	.constraintValidatorFactory(getConstraintValidatorFactory())
+                .messageInterpolator(new MessageInterpolator() {
+                    @Override
+                    public String interpolate(String message, Context context) {
+                        return message;
+                    }
+
+                    @Override
+                    public String interpolate(String message, Context context, Locale locale) {
+                        return message;
+                    }
+                })
         	.buildValidatorFactory();
 	}
-	
+
 	private ConstraintValidatorFactory getConstraintValidatorFactory() {
 		return new ConstraintValidatorFactory() {
-			
+
 			@Override
-			public void releaseInstance(ConstraintValidator<?, ?> arg0) {				
+			public void releaseInstance(ConstraintValidator<?, ?> arg0) {
 			}
-			
+
 			@Override
-			public <T extends ConstraintValidator<?, ?>> T getInstance(Class<T> arg0) {			
+			public <T extends ConstraintValidator<?, ?>> T getInstance(Class<T> arg0) {
 				return DataModelImpl.this.getInstance(arg0);
 			}
 		};
 	}
-	
+
 	public void renewCache(String tableName) {
 		checkRegistered();
 		TableImpl<?> table = getTable(tableName);
@@ -411,12 +425,12 @@ public class DataModelImpl implements DataModel {
 			table.renewCache();
 		}
 	}
-	
+
 	@Override
 	public boolean isInstalled() {
 		return ormService.isInstalled(this);
 	}
-	
+
 	@Override
 	public <T> void reorder(List<T> list , List<T> newOrder) {
 		if (list.size() != newOrder.size()) {
@@ -435,6 +449,6 @@ public class DataModelImpl implements DataModel {
 			}
 		}
 	}
-	
-	
+
+
 }
