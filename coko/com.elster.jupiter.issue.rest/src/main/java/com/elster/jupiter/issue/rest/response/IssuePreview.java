@@ -19,7 +19,7 @@ public class IssuePreview {
             this.setStatus(issue.getStatus().getName());
             this.setDueDate(issue.getDueDate().getTime());
             this.setAssignee(new IssueAssignee(issue.getAssignee()));
-            this.setDevice(new IssueDevice(issue.getDevice() != null ? issue.getDevice() : issue.getMeter()));
+            this.setDevice(new IssueDevice(issue.getDevice()));
             this.setCreationDate(issue.getCreateTime().getTime());
             this.setVersion(issue.getVersion());
         }
