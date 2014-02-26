@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.exceptions;
 
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.pluggable.PluggableService;
 
 import java.util.logging.Level;
@@ -160,7 +161,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return PluggableService.COMPONENTNAME;
+        return DeviceConfigurationService.COMPONENTNAME;
     }
 
 }
