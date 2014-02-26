@@ -65,7 +65,7 @@ public class UsagePointResource {
 	public UsagePointInfos getUsagePoints(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<UsagePoint> list = queryUsagePoints(maySeeAny(securityContext), params);
-        return toUsagePointInfos(list, params.getStart(), params.getLimit());
+        return toUsagePointInfos(params.clipToLimit(list), params.getStart(), params.getLimit());
 	  }
 
     private UsagePointInfos toUsagePointInfos(List<UsagePoint> list, int start, int limit) {
