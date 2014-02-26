@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -9,22 +10,23 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -119,7 +121,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
 
         Map<String, Object> map = target("/devicetypes/").queryParam("start", 100).queryParam("limit", 20).request().get(Map.class);
-        assertThat(map.get("total")).isEqualTo(0);
+        assertThat(map.get("total")).isEqualTo(100);
         assertThat((List)map.get("deviceTypes")).isEmpty();
         ArgumentCaptor<Integer> startArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<Integer> limitArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
@@ -388,7 +390,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(registerMapping103.getId()).thenReturn(RM_ID_3);
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101));
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
-        when(deviceConfigurationService.findAllRegisterMappings()).thenReturn(Arrays.asList(registerMapping101, registerMapping102, registerMapping103));
+        Finder<RegisterMapping> registerMappingFinder = mockFinder(Arrays.asList(registerMapping101, registerMapping102, registerMapping103));
+        when(deviceConfigurationService.findAllRegisterMappings()).thenReturn(registerMappingFinder);
 
         List response = target("/devicetypes/31/registertypes").queryParam("available","true").request().get(List.class);
         assertThat(response).hasSize(2);
@@ -398,6 +401,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         Finder<T> finder = mock(Finder.class);
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
         when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
         when(finder.find()).thenReturn(list);
         return finder;
     }

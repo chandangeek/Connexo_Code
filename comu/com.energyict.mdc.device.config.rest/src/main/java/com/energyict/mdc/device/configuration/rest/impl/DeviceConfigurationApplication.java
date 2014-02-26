@@ -7,15 +7,14 @@ import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableSet;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.ws.rs.core.Application;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
+import javax.ws.rs.core.Application;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.dtc.rest", service = Application.class, immediate = true, property = {"alias=/dtc"})
 public class DeviceConfigurationApplication extends Application {
@@ -33,6 +32,7 @@ public class DeviceConfigurationApplication extends Application {
                 TransactionWrapper.class,
                 ExceptionLogger.class,
                 DeviceTypeResource.class,
+                RegisterTypeResource.class,
                 DeviceProtocolResource.class
         );
     }

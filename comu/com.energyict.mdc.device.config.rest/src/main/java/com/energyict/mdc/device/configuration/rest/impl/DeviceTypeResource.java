@@ -10,7 +10,11 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.RegisterMapping;
-
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -25,11 +29,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
@@ -153,7 +152,7 @@ public class DeviceTypeResource {
                     for (RegisterMapping registerMapping : deviceType.getRegisterMappings()) {
                         deviceTypeRegisterMappingIds.add(registerMapping.getId());
                     }
-                    for (RegisterMapping registerMapping : this.deviceConfigurationService.findAllRegisterMappings()) {
+                    for (RegisterMapping registerMapping : this.deviceConfigurationService.findAllRegisterMappings().find()) {
                         if (!deviceTypeRegisterMappingIds.contains(registerMapping.getId())) {
                             registerMappings.add(registerMapping);
                         }
