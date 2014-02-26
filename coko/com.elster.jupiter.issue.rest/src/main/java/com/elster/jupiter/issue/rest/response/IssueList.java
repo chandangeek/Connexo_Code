@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IssueList {
-    private List<IssueListRow> issueList;
+    private List<IssueInfo> issueList;
 
     public IssueList() {
         issueList = new ArrayList<>();
     }
 
-    public List<IssueListRow> getIssueList() {
+    public List<IssueInfo> getIssueList() {
         return issueList;
     }
 
-    public void add(IssueListRow issue) {
+    public void add(IssueInfo issue) {
         getIssueList().add(issue);
     }
 }

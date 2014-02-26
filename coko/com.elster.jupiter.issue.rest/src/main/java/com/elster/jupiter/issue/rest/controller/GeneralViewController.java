@@ -95,7 +95,7 @@ public class    GeneralViewController {
         }
         IssueList resultList = new IssueList();
         for (Issue issue : list) {
-            IssueListRow rowIssue = new IssueListRow(issue);
+            IssueInfo rowIssue = new IssueInfo(issue);
             resultList.add(rowIssue);
         }
         return resultList;
@@ -104,12 +104,12 @@ public class    GeneralViewController {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public IssuePreview getIssueById(@PathParam("id") long id) {
+    public IssueInfo getIssueById(@PathParam("id") long id) {
         Optional<Issue> issue = issueService.getIssueById(id);
         if (!issue.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        return new IssuePreview(issue.get());
+        return new IssueInfo(issue.get());
     }
 
     private List<Order> convertSortListToOrderList(List<String> sortList, QueryParameters queryParameters) {

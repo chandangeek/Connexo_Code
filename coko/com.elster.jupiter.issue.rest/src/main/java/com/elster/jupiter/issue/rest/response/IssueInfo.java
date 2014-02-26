@@ -2,7 +2,7 @@ package com.elster.jupiter.issue.rest.response;
 
 import com.elster.jupiter.issue.Issue;
 
-public class IssuePreview {
+public class IssueInfo {
     private long id;
     private String reason;
     private String status;
@@ -12,7 +12,7 @@ public class IssuePreview {
     private long creationDate;
     private long version;
 
-    public IssuePreview(Issue issue){
+    public IssueInfo(Issue issue){
         if (issue != null) {
             this.setId(issue.getId());
             this.setReason(issue.getReason().getName());
