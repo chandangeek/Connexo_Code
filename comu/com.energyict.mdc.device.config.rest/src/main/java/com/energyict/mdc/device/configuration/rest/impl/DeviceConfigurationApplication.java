@@ -33,7 +33,8 @@ public class DeviceConfigurationApplication extends Application {
                 ExceptionLogger.class,
                 DeviceTypeResource.class,
                 RegisterTypeResource.class,
-                DeviceProtocolResource.class
+                DeviceProtocolResource.class,
+                DeviceConfigFieldResource.class
         );
     }
 
