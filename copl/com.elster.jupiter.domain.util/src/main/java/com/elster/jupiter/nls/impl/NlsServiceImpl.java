@@ -39,7 +39,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
     private volatile MessageInterpolator messageInterpolator;
 
     @Activate
-    public void activate() {
+    public final void activate() {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -75,7 +75,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
     }
 
     @Reference
-    public void setOrmService(OrmService ormService) {
+    public final void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(COMPONENTNAME, "CIM Metering");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
@@ -87,12 +87,12 @@ public class NlsServiceImpl implements NlsService, InstallService {
     }
 
     @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+    public final void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference
-    public void setValidationProviderResolver(ValidationProviderResolver validationProviderResolver) {
+    public final void setValidationProviderResolver(ValidationProviderResolver validationProviderResolver) {
     	this.messageInterpolator = Validation.byDefaultProvider()
             	.providerResolver(validationProviderResolver)
             	.configure()

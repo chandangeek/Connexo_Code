@@ -2,7 +2,7 @@ package com.elster.jupiter.nls;
 
 import java.util.Locale;
 
-public class SimpleTranslation implements Translation {
+public final class SimpleTranslation implements Translation {
 
     private final String translation;
     private final NlsKey nlsKey;
