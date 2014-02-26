@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.impl;
 
 import com.elster.jupiter.issue.*;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -10,7 +11,6 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
-import javax.validation.Valid;
 import java.util.Map;
 
 public class IssueImpl implements Issue {
@@ -33,6 +33,7 @@ public class IssueImpl implements Issue {
     private Reference<AssigneeRole> role = ValueReference.absent();
 
     protected Reference<EndDevice> device = ValueReference.absent();
+    protected Reference<Meter> meter = ValueReference.absent();
 
     // Audit fields
     private long version;
@@ -89,12 +90,12 @@ public class IssueImpl implements Issue {
     @Override
     public String getTitle() {
         String title = getReason().getName();
-        if (getDevice() != null){
+        EndDevice device = getDevice() != null ? getDevice() : getMeter();
+        if (device != null){
             StringBuilder titleWithDevice = new StringBuilder(title);
             titleWithDevice.append(" to ");
-            titleWithDevice.append(getDevice().getName()).append(" ");
-            titleWithDevice.append(getDevice().getSerialNumber());
-            title = titleWithDevice.toString();
+            titleWithDevice.append(device.getName()).append(" ");
+            titleWithDevice.append(device.getSerialNumber());            title = titleWithDevice.toString();
         }
         return title;
     }
@@ -132,6 +133,14 @@ public class IssueImpl implements Issue {
 
     public void setDevice(EndDevice device){
         this.device.set(device);
+    }
+
+    public Meter getMeter() {
+        return meter.orNull();
+    }
+
+    public void setMeter(Meter meter) {
+        this.meter.set(meter);
     }
 
     public IssueAssignee getAssignee() {
