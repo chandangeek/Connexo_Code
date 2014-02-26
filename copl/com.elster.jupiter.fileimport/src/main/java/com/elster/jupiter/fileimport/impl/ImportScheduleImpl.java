@@ -35,7 +35,7 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @SuppressWarnings("unused")
     @Inject
-	private ImportScheduleImpl(MessageService messageService, DataModel dataModel, CronExpressionParser cronExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem, Thesaurus thesaurus) {
+	ImportScheduleImpl(MessageService messageService, DataModel dataModel, CronExpressionParser cronExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem, Thesaurus thesaurus) {
         this.messageService = messageService;
         this.dataModel = dataModel;
         this.cronExpressionParser = cronExpressionParser;
@@ -44,8 +44,8 @@ class ImportScheduleImpl implements ImportSchedule {
         this.thesaurus = thesaurus;
     }
 
-    static ImportScheduleImpl from(MessageService messageService, DataModel dataModel, CronExpressionParser cronExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem, Thesaurus thesaurus, CronExpression cronExpression, DestinationSpec destination, File importDirectory, File inProcessDirectory, File failureDirectory, File successDirectory) {
-        return new ImportScheduleImpl(messageService, dataModel, cronExpressionParser, fileNameCollisionresolver, fileSystem, thesaurus).init(cronExpression, destination, importDirectory, inProcessDirectory, failureDirectory, successDirectory);
+    static ImportScheduleImpl from(DataModel dataModel, CronExpression cronExpression, DestinationSpec destination, File importDirectory, File inProcessDirectory, File failureDirectory, File successDirectory) {
+        return dataModel.getInstance(ImportScheduleImpl.class).init(cronExpression, destination, importDirectory, inProcessDirectory, failureDirectory, successDirectory);
     }
 
     private ImportScheduleImpl init(CronExpression cronExpression, DestinationSpec destination, File importDirectory, File inProcessDirectory, File failureDirectory, File successDirectory) {

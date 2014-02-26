@@ -37,7 +37,7 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
 
     @Override
     public ImportSchedule build() {
-        return ImportScheduleImpl.from(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus ,cronExpression, destination, importDirectory, inProcessDirectory, failureDirectory, successDirectory);
+        return ImportScheduleImpl.from(dataModel, cronExpression, destination, importDirectory, inProcessDirectory, failureDirectory, successDirectory);
     }
 
     @Override

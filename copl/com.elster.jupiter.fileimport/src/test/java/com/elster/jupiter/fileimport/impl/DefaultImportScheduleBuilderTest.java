@@ -7,6 +7,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -15,6 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultImportScheduleBuilderTest {
@@ -39,6 +42,16 @@ public class DefaultImportScheduleBuilderTest {
     private FileSystem fileSystem;
     @Mock
     private Thesaurus thesaurus;
+
+    @Before
+    public void setUp() {
+        when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(new ImportScheduleImpl(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus));
+    }
+
+    @After
+    public void tearDown() {
+
+    }
 
     @Test
     public void testDestination() {
