@@ -1,7 +1,6 @@
 package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
@@ -9,7 +8,6 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.units.Unit;
@@ -20,9 +18,19 @@ import com.elster.jupiter.validation.Validator;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import java.math.BigDecimal;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import java.util.List;
 import java.util.Set;
 
@@ -43,7 +51,7 @@ public class ValidationResource {
     public ValidationRuleSetInfos getValidationRuleSets(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<ValidationRuleSet> list = queryRuleSets(params);
-        return toRuleSetInfos(list, params.getStart(), params.getLimit());
+        return toRuleSetInfos(params.clipToLimit(list), params.getStart(), params.getLimit());
     }
 
     private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters) {
