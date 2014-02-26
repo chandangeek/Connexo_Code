@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.util.time.Clock;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -14,24 +15,24 @@ public class UsagePointInfos {
 	UsagePointInfos() {		
 	}
 	
-	UsagePointInfos(UsagePoint usagePoint) {
-		add(usagePoint);		
+	UsagePointInfos(UsagePoint usagePoint, Clock clock) {
+		add(usagePoint, clock);
 	}
 	
-	UsagePointInfos(Iterable<? extends UsagePoint> usagePoints) {
-		addAll(usagePoints);
+	UsagePointInfos(Iterable<? extends UsagePoint> usagePoints, Clock clock) {
+		addAll(usagePoints, clock);
 	}
 	
-	UsagePointInfo add(UsagePoint usagePoint) {
-		UsagePointInfo result = new UsagePointInfo(usagePoint);
+	UsagePointInfo add(UsagePoint usagePoint, Clock clock) {
+		UsagePointInfo result = new UsagePointInfo(usagePoint, clock);
 		usagePoints.add(result);
 		total++;
 		return result;
 	}
 	
-	void addAll(Iterable<? extends UsagePoint> usagePoints) {
+	void addAll(Iterable<? extends UsagePoint> usagePoints, Clock clock) {
 		for (UsagePoint each : usagePoints) {
-			add(each);
+			add(each, clock);
 		}
 	}
 	

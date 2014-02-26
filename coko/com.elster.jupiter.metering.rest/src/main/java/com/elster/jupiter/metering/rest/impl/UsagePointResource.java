@@ -69,7 +69,7 @@ public class UsagePointResource {
 	  }
 
     private UsagePointInfos toUsagePointInfos(List<UsagePoint> list, int start, int limit) {
-        UsagePointInfos infos = new UsagePointInfos(list);
+        UsagePointInfos infos = new UsagePointInfos(list, clock);
         infos.addServiceLocationInfo();
         infos.total = start + list.size();
         if (list.size() == limit) {
@@ -112,7 +112,7 @@ public class UsagePointResource {
 	public UsagePointInfos getUsagePoint(@PathParam("id") long id, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
 
-        UsagePointInfos result = new UsagePointInfos(usagePoint);
+        UsagePointInfos result = new UsagePointInfos(usagePoint, clock);
 		result.addServiceLocationInfo();
 		return result;
 	}
@@ -122,7 +122,7 @@ public class UsagePointResource {
 	@Consumes(MediaType.APPLICATION_JSON) 
 	public UsagePointInfos createUsagePoint(UsagePointInfo info) {
 		UsagePointInfos result = new UsagePointInfos();
-        result.add(transactionService.execute(new CreateUsagePointTransaction(info, meteringService)));
+        result.add(transactionService.execute(new CreateUsagePointTransaction(info, meteringService)), clock);
 		return result;
 	}
 

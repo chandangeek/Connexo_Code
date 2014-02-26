@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import java.util.Date;
-
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.ElectricityDetail;
@@ -10,18 +8,19 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.units.Quantity;
 import com.google.common.base.Optional;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown=true)
 
-public class UsagePointInfo {	
-	private UsagePoint usagePoint;
+public class UsagePointInfo {
+
+    private UsagePoint usagePoint;
 	
 	public long id;
 	public ServiceKind serviceCategory;
@@ -55,7 +54,7 @@ public class UsagePointInfo {
 	public UsagePointInfo() {
 	}
 	
-	public UsagePointInfo(UsagePoint usagePoint) {
+	public UsagePointInfo(UsagePoint usagePoint, Clock clock) {
 		this.usagePoint = usagePoint;		
 		id = usagePoint.getId();
 		mRID = usagePoint.getMRID();
@@ -73,7 +72,7 @@ public class UsagePointInfo {
 		version = usagePoint.getVersion();
 		createTime = usagePoint.getCreateDate().getTime();
 		modTime = usagePoint.getModificationDate().getTime();
-		Optional<? extends UsagePointDetail> detailHolder = usagePoint.getDetail(new Date());
+		Optional<? extends UsagePointDetail> detailHolder = usagePoint.getDetail(clock.now());
 		if (detailHolder.isPresent()) {
 			UsagePointDetail detail = detailHolder.get();
 			minimalUsageExpected = detail.isMinimalUsageExpected();
