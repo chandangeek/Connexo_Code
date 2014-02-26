@@ -581,7 +581,7 @@ public class ComServerResourceTest extends JerseyTest {
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
 
         final Response response = target("/comservers").request().post(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
