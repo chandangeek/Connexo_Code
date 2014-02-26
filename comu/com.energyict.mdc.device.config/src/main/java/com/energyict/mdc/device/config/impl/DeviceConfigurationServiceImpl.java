@@ -34,12 +34,11 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import java.util.List;
+import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -131,8 +130,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public List<RegisterMapping> findAllRegisterMappings() {
-        return this.getDataModel().mapper(RegisterMapping.class).find();
+    public Finder<RegisterMapping> findAllRegisterMappings() {
+        return DefaultFinder.of(RegisterMapping.class, this.getDataModel());
     }
 
     @Override
