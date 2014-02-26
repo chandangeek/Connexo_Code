@@ -1,9 +1,9 @@
 package com.elster.jupiter.issue;
 
 public enum IssueAssigneeType {
-    USER("User"),
-    TEAM("Group"),
-    ROLE("Role");
+    USER("USER"),
+    TEAM("GROUP"),
+    ROLE("ROLE");
 
     private String type;
 

@@ -25,7 +25,7 @@ public class Installer {
         this.issueService.createIssueReason("Unable to connect");
         this.issueService.createIssueReason("Failed to communicate");
         this.issueService.createIssueReason("Connection lost");
-        this.issueService.createIssueReason("Web import service down");
+        this.issueService.createIssueReason("Connection not authorized");
     }
 
     private void setDefaultStatuses(){

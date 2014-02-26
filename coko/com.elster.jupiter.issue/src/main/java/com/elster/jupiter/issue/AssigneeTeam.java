@@ -1,7 +1,5 @@
 package com.elster.jupiter.issue;
 
-public interface AssigneeTeam {
-    long getId();
-    String getName();
-    long getVersion();
+public interface AssigneeTeam extends  AssigneeBaseInformation{
+
 }

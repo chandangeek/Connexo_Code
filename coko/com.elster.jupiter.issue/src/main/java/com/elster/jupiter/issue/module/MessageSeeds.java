@@ -8,7 +8,8 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
     ISSUE_NOT_PRESENT(1001, "issue.not.present", "Issue doesn't exist", Level.SEVERE),
-    ISSUE_ALREADY_CHANGED(1002, "issue.already.changed", "Issue has been already changed", Level.SEVERE);
+    ISSUE_ALREADY_CHANGED(1002, "issue.already.changed", "Issue has been already changed", Level.SEVERE),
+    ISSUE_ASSIGNEE_BAD(1003, "issue.assignee.bad", "Bad assignee", Level.SEVERE);
 
     private final int number;
     private final String key;

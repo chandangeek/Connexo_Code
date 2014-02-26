@@ -92,6 +92,7 @@ public class IssueImpl implements Issue {
         if (getDevice() != null){
             StringBuilder titleWithDevice = new StringBuilder(title);
             titleWithDevice.append(" to ");
+            titleWithDevice.append(getDevice().getName()).append(" ");
             titleWithDevice.append(getDevice().getSerialNumber());
             title = titleWithDevice.toString();
         }
@@ -142,5 +143,15 @@ public class IssueImpl implements Issue {
             assignee.setRole(role.orNull());
         }
         return assignee;
+    }
+
+    public void setAssignee(IssueAssigneeImpl assignee){
+        this.assignee = null;
+        if (assignee != null){
+            type = assignee.getType();
+            user.set(assignee.getUser());
+            role.set(assignee.getRole());
+            team.set(assignee.getTeam());
+        }
     }
 }
