@@ -11,6 +11,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -34,5 +35,12 @@ public class RegisterTypeResource {
             registerTypeInfos.add(new RegisterMappingInfo(registerMapping));
         }
         return PagedInfoList.asJson("registerTypes", registerTypeInfos, queryParameters);
+    }
+
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public RegisterMappingInfo getRegisterType(@PathParam("id") Long id) {
+        return new RegisterMappingInfo(deviceConfigurationService.findRegisterMapping(id));
     }
 }
