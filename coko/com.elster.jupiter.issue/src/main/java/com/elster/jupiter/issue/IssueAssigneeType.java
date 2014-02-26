@@ -18,7 +18,7 @@ public enum IssueAssigneeType {
     public static IssueAssigneeType fromString(String assigneeType) {
         if (assigneeType != null) {
             for (IssueAssigneeType column : IssueAssigneeType.values()) {
-                if (column.name().equalsIgnoreCase(assigneeType)) {
+                if (column.getType().equalsIgnoreCase(assigneeType)) {
                     return column;
                 }
             }
