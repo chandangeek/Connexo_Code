@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.rest;
 
 
 import com.elster.jupiter.issue.IssueService;
+import com.elster.jupiter.issue.rest.controller.AssignHelpController;
 import com.elster.jupiter.issue.rest.controller.GeneralViewController;
 import com.elster.jupiter.issue.rest.controller.IssueActionController;
 import com.elster.jupiter.rest.util.BinderProvider;
@@ -43,7 +44,7 @@ public class IssueApplication extends Application implements BinderProvider {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(GeneralViewController.class, IssueActionController.class);
+        return ImmutableSet.<Class<?>>of(GeneralViewController.class, IssueActionController.class, AssignHelpController.class);
     }
 
     @Activate
