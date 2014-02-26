@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 public class NlsServiceImpl implements NlsService, InstallService {
 
 	private static final Pattern MESSAGE_PARAMETER_PATTERN = Pattern.compile( "(\\{[^\\}]+?\\})" );
-	
+
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MessageInterpolator messageInterpolator;
@@ -93,12 +93,18 @@ public class NlsServiceImpl implements NlsService, InstallService {
 
     @Reference
     public final void setValidationProviderResolver(ValidationProviderResolver validationProviderResolver) {
-    	this.messageInterpolator = Validation.byDefaultProvider()
-            	.providerResolver(validationProviderResolver)
-            	.configure()
-            	.getDefaultMessageInterpolator();
+    	this.messageInterpolator = new MessageInterpolator() {
+            @Override
+            public String interpolate(String message, Context context) {
+                return message;
+            }
+
+            @Override
+            public String interpolate(String message, Context context, Locale locale) {
+                return message;
+            }};
     }
-    
+
     @Override
     public void install() {
         dataModel.install(true, true);
@@ -120,12 +126,12 @@ public class NlsServiceImpl implements NlsService, InstallService {
     public void addTranslation(Object... args) {
         System.out.println("Usage : \n\n addTranslation componentName layerName key defaultMessage");
     }
-    
+
 	@Override
 	public String interpolate(ConstraintViolation<?> violation) {
 		return messageInterpolator.interpolate(interpolate(violation.getMessageTemplate()),interpolationContext(violation),threadPrincipalService.getLocale());
 	}
-	
+
 	private String interpolate(String messageTemplate) {
 		//
 		// copied from org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator
@@ -143,7 +149,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
 		matcher.appendTail( sb );
 		return sb.toString();
 	}
-	
+
 	private String resolveParameter(String parameter) {
 		String base = removeCurlyBrace(parameter);
 		String[] parts = base.split("\\.");
@@ -162,24 +168,24 @@ public class NlsServiceImpl implements NlsService, InstallService {
 			return parameter;
 		}
 	}
-	
+
 	private String removeCurlyBrace(String parameter) {
 		return parameter.substring(1,parameter.length() - 1);
 	}
-	
+
 	private MessageInterpolator.Context interpolationContext (final ConstraintViolation<?> violation) {
 		return new MessageInterpolator.Context() {
-			
+
 			@Override
 			public <T> T unwrap(Class<T> clazz) {
 				return clazz.cast(this);
 			}
-			
+
 			@Override
 			public Object getValidatedValue() {
 				return violation.getInvalidValue();
 			}
-			
+
 			@Override
 			public ConstraintDescriptor<?> getConstraintDescriptor() {
 				return violation.getConstraintDescriptor();
