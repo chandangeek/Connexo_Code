@@ -35,8 +35,11 @@ Ext.define('Uni.controller.Error', {
     },
 
     handleRequestError: function (conn, response, options) {
-        var message = response.responseText || response.statusText;
-        this.showError(message);
+        debugger;
+        if(response.status!==400){
+            var message = response.responseText || response.statusText;
+            this.showError(message);
+        }
     },
 
     showError: function (error) {

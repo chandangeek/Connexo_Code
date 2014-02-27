@@ -22,6 +22,7 @@ Ext.define('Uni.Loader', {
         'Uni.controller.Search',
         'Uni.view.form.field.Vtypes',
 
+        'Uni.override.ServerOverride',
         'Uni.override.ApplicationOverride',
         'Uni.override.CheckboxOverride',
         'Uni.override.FieldBaseOverride',
