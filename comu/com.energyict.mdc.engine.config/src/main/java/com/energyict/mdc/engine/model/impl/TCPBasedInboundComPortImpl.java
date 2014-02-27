@@ -2,13 +2,11 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.Provider;
-
 import javax.inject.Inject;
 
 /**
@@ -20,8 +18,8 @@ import javax.inject.Inject;
 public class TCPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements TCPBasedInboundComPort, IPBasedInboundComPort, ComPort, InboundComPort {
 
     @Inject
-    protected TCPBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
-        super(dataModel, comPortPoolMemberProvider);
+    protected TCPBasedInboundComPortImpl(DataModel dataModel) {
+        super(dataModel);
     }
 
     @Override

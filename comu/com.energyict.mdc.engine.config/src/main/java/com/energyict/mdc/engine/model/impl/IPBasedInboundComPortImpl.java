@@ -1,12 +1,14 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.google.inject.Provider;
+import javax.validation.Payload;
+import javax.validation.constraints.Min;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.IPBasedInboundComPort} interface.
@@ -14,12 +16,15 @@ import com.google.inject.Provider;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (13:30)
  */
-public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl implements IPBasedInboundComPort {
+@UniquePortNumber(groups = {Save.Create.class, Save.Update.class})
+public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl implements IPBasedInboundComPort, Payload {
 
+    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{MDC.ValueTooSmall}")
     private int portNumber;
+    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{MDC.ValueTooSmall}")
     private int numberOfSimultaneousConnections;
 
-    protected IPBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
+    protected IPBasedInboundComPortImpl(DataModel dataModel) {
         super(dataModel);
     }
 
@@ -30,7 +35,6 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
 
     @Override
     public void setPortNumber(int portNumber) {
-        validateGreaterThanZero(portNumber, "comport.portnumber");
         this.portNumber = portNumber;
     }
 
@@ -41,13 +45,11 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
 
     @Override
     public void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections) {
-        validateGreaterThanZero(numberOfSimultaneousConnections, "comport.numberofsimultaneousconnections");
         this.numberOfSimultaneousConnections = numberOfSimultaneousConnections;
     }
 
     protected void validateCreate() {
         super.validateCreate();
-        validateGreaterThanZero(portNumber, "comport.portnumber");
         validateDuplicatePortNumber();
     }
 

@@ -22,7 +22,9 @@ public enum MessageSeeds implements MessageSeed {
     OBSOLETE_COMSERVER_CANT_BE_UPDATED(103, "MDC.comserver.noUpdateAllowed", "Obsolete ComServers can no longer be updated", Level.SEVERE),
     ONLINE_COMSERVER_STILL_REFERENCED(104, "MDC.OnlineComServerXStillReferenced", "Online Comserver is still referenced by remote comserver(s)", Level.SEVERE),
     DUPLICATE_COMPORT(105, "MDC.DuplicateComPort", "A ComPort by this name already exists", Level.SEVERE),
-    OBSOLETE_COMPORT_CANT_BE_UPDATED(106, "MDC.comport.noUpdateAllowed", "Obsolete ComPorts can no longer be updated", Level.SEVERE);
+    OBSOLETE_COMPORT_CANT_BE_UPDATED(106, "MDC.comport.noUpdateAllowed", "Obsolete ComPorts can no longer be updated", Level.SEVERE),
+    COMPORTPOOL_DOES_NOT_MATCH_COMPORT(107, "MDC.ComPortTypeOfComPortDoesNotMatchWithComPortPool", "The type of the comPortPool does not match the comPort type", Level.SEVERE),
+    DUPLICATE_COM_PORT_NUMBER(108, "MDC.DuplicateComPortPerComServer", "The port number of a ComPort must be unique per ComServer", Level.SEVERE);
 
     private final int number;
     private final String key;

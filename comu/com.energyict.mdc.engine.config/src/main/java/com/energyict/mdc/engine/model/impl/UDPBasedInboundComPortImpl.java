@@ -2,11 +2,9 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.Provider;
-
 import javax.inject.Inject;
 
 /**
@@ -20,8 +18,8 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
     private int bufferSize;
 
     @Inject
-    protected UDPBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
-        super(dataModel, comPortPoolMemberProvider);
+    protected UDPBasedInboundComPortImpl(DataModel dataModel) {
+        super(dataModel);
     }
 
     @Override

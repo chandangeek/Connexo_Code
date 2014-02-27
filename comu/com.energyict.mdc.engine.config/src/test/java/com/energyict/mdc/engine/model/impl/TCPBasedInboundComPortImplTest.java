@@ -1,28 +1,26 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.Expected;
-import com.energyict.mdc.ExpectedErrorRule;
 import com.energyict.mdc.Transactional;
-import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.PersistenceTest;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.Provider;
-import org.junit.*;
-
 import java.sql.SQLException;
-import org.junit.rules.TestRule;
+import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for the {@link TCPBasedInboundComPortImpl} object
@@ -69,7 +67,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "name")
     public void testCreateWithoutName() throws BusinessException, SQLException {
         createOnlineComServer().newTCPBasedInboundComPort()
                 .description(DESCRIPTION)
@@ -83,7 +81,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "comPortPool")
     public void testCreateWithoutComPortPool() throws BusinessException, SQLException {
         createOnlineComServer().newTCPBasedInboundComPort()
                 .name(COMPORT_NAME)
@@ -98,7 +96,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "duplicateComPortX")
+    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComPort}", property = "uniqueName")
     public void testCreateWithExistingName() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
         TCPBasedInboundComPort comPort = this.createSimpleComPort(onlineComServer);
@@ -108,8 +106,8 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
                 .description(DESCRIPTION)
                 .active(ACTIVE)
                 .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER+10)
                 .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
-                .portNumber(PORT_NUMBER)
                 .add();
 
         // Expecting a BusinessException to be thrown because a ComPort with the same name already exists
@@ -117,7 +115,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEqualOrLessThanZero")
+    @ExpectedConstraintViolation(messageId = "{MDC.ValueTooSmall}", property = "numberOfSimultaneousConnections")
     public void testCreateWithZeroSimultaneousConnections() throws BusinessException, SQLException {
         createOnlineComServer().newTCPBasedInboundComPort()
                 .name(COMPORT_NAME)
@@ -133,7 +131,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEqualOrLessThanZero")
+    @ExpectedConstraintViolation(messageId = "{MDC.ValueTooSmall}", property = "portNumber")
     public void testCreateWithZeroPortNumber() throws BusinessException, SQLException {
         createOnlineComServer().newTCPBasedInboundComPort()
                 .name(COMPORT_NAME)
@@ -149,7 +147,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "duplicatecomportpercomserver")
+    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComPortPerComServer}", property = "portNumber")
     public void createWithExistingPortNumberTest() throws SQLException, BusinessException {
         OnlineComServer onlineComServer = createOnlineComServer();
         onlineComServer.newTCPBasedInboundComPort()

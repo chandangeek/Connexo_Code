@@ -1,9 +1,10 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.domain.util.NotNullReference;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -17,6 +18,8 @@ import com.google.inject.Provider;
  */
 public abstract class InboundComPortImpl extends ComPortImpl implements ComPort, InboundComPort {
 
+    @NotNullReference(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
+    @ComPortPoolTypeMatchesComPortType(groups = { Save.Create.class, Save.Update.class })
     private final Reference<InboundComPortPool> comPortPool = ValueReference.absent();
 
     protected InboundComPortImpl(DataModel dataModel) {
@@ -29,20 +32,6 @@ public abstract class InboundComPortImpl extends ComPortImpl implements ComPort,
 
     public void setComPortPool(InboundComPortPool comPortPool) {
         this.comPortPool.set(comPortPool);
-    }
-
-    private void validateComPortType(InboundComPortPool comPortPool) {
-        if (comPortPool.getComPortType()!=this.getComPortType()) {
-            throw new TranslatableApplicationException("comPortTypeOfComPortXDoesNotMatchWithComPortPoolY", "The ComPortType of ComPort {0} does not match with that of the ComPortPool {1}",
-                    new Object[] {this.getComPortType(), comPortPool.getComPortType()});
-        }
-    }
-
-    protected void validateCreate() {
-        super.validateCreate();
-        validateNotNull(this.getComPortType(), "type");
-        validateNotNull(comPortPool.orNull(), "inboundComPort.comPortPool");
-        validateComPortType(comPortPool.get());
     }
 
     @Override
