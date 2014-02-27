@@ -146,6 +146,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                                 {
                                                     xtype: 'component',
                                                     name: 'registerCount',
+                                                    cls: 'x-form-display-field a',
                                                     autoEl: {
                                                         tag: 'a',
                                                         href: '#',
@@ -158,6 +159,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                                 {
                                                     xtype: 'component',
                                                     name: 'loadProfileCount',
+                                                    cls: 'x-form-display-field a',
                                                     autoEl: {
                                                         tag: 'a',
                                                         href: '#',
@@ -169,6 +171,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                                 {
                                                     xtype: 'component',
                                                     name: 'logBookCount',
+                                                    cls: 'x-form-display-field a',
                                                     autoEl: {
                                                         tag: 'a',
                                                         href: '#',
@@ -189,6 +192,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                                 {
                                                     xtype: 'component',
                                                     name: 'deviceConfigurationCount',
+                                                    cls: 'x-form-display-field a',
                                                     autoEl: {
                                                         tag: 'a',
                                                         href: '#',

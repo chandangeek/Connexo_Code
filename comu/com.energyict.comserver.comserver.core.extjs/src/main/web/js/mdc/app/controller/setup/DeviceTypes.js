@@ -200,6 +200,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     createDeviceType: function () {
+        var me=this;
         var record = Ext.create(Mdc.model.DeviceType),
             values = this.getDeviceTypeEditForm().getValues();
         if (record) {
@@ -207,6 +208,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             record.save({
                 success: function (record) {
                     location.href = '#setup/devicetypes/' + record.get('id');
+                },
+                failure: function(record,operation){
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        me.getDeviceTypeEditForm().getForm().markInvalid(json.errors);
+                    }
                 }
             });
 

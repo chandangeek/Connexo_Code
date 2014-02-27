@@ -6,13 +6,11 @@ Ext.define('Mdc.widget.TimeInfoField', {
     stores: [
         'TimeUnits'
     ],
-
     mixins: {
         field: 'Ext.form.field.Field'
     },
     alias: 'widget.timeInfoField',
     layout: 'hbox',
-    combineErrors: true,
     msgTarget: 'side',
     submitFormat: 'c',
 
@@ -89,5 +87,18 @@ Ext.define('Mdc.widget.TimeInfoField', {
             data[me.getName()] = '' + value ? value : null;
         }
         return data;
+    },
+
+    markInvalid: function(fields){
+        debugger;
+        this.eachItem(function(field){
+            field.markInvalid(fields);
+        });
+    },
+
+    eachItem: function(fn, scope) {
+        if(this.items && this.items.each){
+            this.items.each(fn, scope || this);
+        }
     }
 });

@@ -323,7 +323,7 @@ Ext.define('Mdc.controller.setup.ComServers', {
     saveComServer: function (viewToClose) {
         var me = this;
         this.comserver.save({
-            callback: function (record) {
+            success: function (record) {
                 me.getComServersStore().reload(
                     {
                         callback: function () {
@@ -331,6 +331,12 @@ Ext.define('Mdc.controller.setup.ComServers', {
                             viewToClose && viewToClose.close();
                         }
                     });
+            },
+            failure: function(record,operation){
+                var json = Ext.decode(operation.response.responseText);
+                if (json && json.errors) {
+                    me.comServerEditView.down('form').getForm().markInvalid(json.errors);
+                }
             }
         });
     },

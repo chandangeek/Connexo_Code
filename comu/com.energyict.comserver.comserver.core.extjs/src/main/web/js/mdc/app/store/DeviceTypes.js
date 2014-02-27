@@ -6,11 +6,11 @@ Ext.define('Mdc.store.DeviceTypes',{
     model: 'Mdc.model.DeviceType',
     storeId: 'DeviceTypes',
     pageSize: 10,
-//    sorters: [{
-//        property: 'name',
-//        direction: 'ASC'
-//    }],
-//    remoteSort: true,
+    sorters: [{
+        property: 'name',
+        direction: 'ASC'
+    }],
+    remoteSort: true,
     proxy: {
         type: 'rest',
         url: '../../api/dtc/devicetypes',
@@ -18,6 +18,5 @@ Ext.define('Mdc.store.DeviceTypes',{
             type: 'json',
             root: 'deviceTypes'
         }
-//        simpleSortMode: true
     }
 });
