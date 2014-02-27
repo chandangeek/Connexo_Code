@@ -18,4 +18,5 @@ public interface DeviceFactory {
 
     public <C extends Channel, LP extends LoadProfile<C>, R extends Register> List<Device<C, LP, R>> findDevicesByNotInheritedProtocolProperty(PropertySpec propertySpec, Object propertyValue);
 
+    public Device findById(int id);
 }
