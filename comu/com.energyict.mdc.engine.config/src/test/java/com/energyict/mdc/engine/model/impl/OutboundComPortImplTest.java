@@ -1,11 +1,10 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.Expected;
 import com.energyict.mdc.Transactional;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
@@ -18,7 +17,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 /**
  * Tests for the OutboundComPortImpl object
@@ -59,7 +57,8 @@ public class OutboundComPortImplTest extends PersistenceTest {
         assertThat(comPort.getComPortType()).isEqualTo(COM_PORT_TYPE);
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "name")
     @Transactional
     public void testCreateWithoutName() throws BusinessException, SQLException {
         createOnlineComServer().newOutboundComPort()
@@ -72,7 +71,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
-    @Expected(expected = TranslatableApplicationException.class)
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "type")
     @Transactional
     public void testCreateWithoutComPortType() throws BusinessException, SQLException {
         createOnlineComServer().newOutboundComPort()
@@ -81,13 +80,11 @@ public class OutboundComPortImplTest extends PersistenceTest {
         .active(ACTIVE)
         .comPortType(null)
         .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS).add();
-
-        // Expecting a BusinessException to be thrown because the name is not set
     }
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XnotInAcceptableRange")
+    @ExpectedConstraintViolation(messageId = "{MDC.ValueNotInRange}", property = "numberOfSimultaneousConnections")
     public void testCreateWithZeroSimultaneousConnections() throws BusinessException, SQLException {
         createOnlineComServer().newOutboundComPort()
         .name(COMPORT_NAME)
@@ -95,12 +92,11 @@ public class OutboundComPortImplTest extends PersistenceTest {
         .active(ACTIVE)
         .comPortType(COM_PORT_TYPE)
         .numberOfSimultaneousConnections(0).add();
-        failBecauseExceptionWasNotThrown(TranslatableApplicationException.class);
     }
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XnotInAcceptableRange")
+    @ExpectedConstraintViolation(messageId = "{MDC.ValueNotInRange}", property = "numberOfSimultaneousConnections")
     public void testCreateWithTooManySimultaneousConnections() throws BusinessException, SQLException {
         createOnlineComServer().newOutboundComPort()
         .name(COMPORT_NAME)
@@ -108,10 +104,10 @@ public class OutboundComPortImplTest extends PersistenceTest {
         .active(ACTIVE)
         .comPortType(COM_PORT_TYPE)
         .numberOfSimultaneousConnections(OutboundComPort.MAXIMUM_NUMBER_OF_SIMULTANEOUS_CONNECTIONS + 1).add();
-        failBecauseExceptionWasNotThrown(TranslatableApplicationException.class);
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComPort}", property="uniqueName")
     @Transactional
     public void testCreateWithExistingName() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();

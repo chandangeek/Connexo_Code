@@ -14,7 +14,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validator;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -69,16 +73,14 @@ public abstract class ComPortImpl implements ComPort {
     }
 
     protected void validateCreate() {
-        validateNotNull(this.name, "name");
-        validateNotNull(this.type, "type");
-        validateName(this.name);
+        validate(Save.Create.class);
     }
 
-    private void validateName(String nameToValidate)  {
-        for (ComPort comPort : comServer.get().getComPorts()) {
-            if (comPort.getId()!=this.getId() && comPort.getName().equals(nameToValidate) && !comPort.isObsolete()) {
-                throw new TranslatableApplicationException("duplicateComPortX", "A ComPort by the name of \"{0}\" already exists", nameToValidate);
-            }
+    private void validate(Class<?> group) {
+        Validator validator = ComPortImpl.this.dataModel.getValidatorFactory().getValidator();
+        Set<ConstraintViolation<ComPortImpl>> constraintViolations = validator.validate(this, group);
+        if (!constraintViolations.isEmpty()) {
+            throw new ConstraintViolationException(constraintViolations);
         }
     }
 
@@ -213,7 +215,7 @@ public abstract class ComPortImpl implements ComPort {
         this.setDescription(source.getDescription());
     }
 
-    @AssertTrue(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.DuplicateComServer}")
+    @AssertTrue(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.DuplicateComPort}")
     private boolean isUniqueName() {
         for (ComPort comPort : comServer.get().getComPorts()) {
             if (comPort.getId()!=this.getId() && comPort.getName().equals(this.name) && !comPort.isObsolete()) {
@@ -260,13 +262,6 @@ public abstract class ComPortImpl implements ComPort {
             return comPort;
         }
 
-//        private void validate(Class<?> group) {
-//            Validator validator = dataModel.getValidatorFactory().getValidator();
-//            Set<ConstraintViolation<ComServerImpl>> constraintViolations = validator.validate(this, group);
-//            if (!constraintViolations.isEmpty()) {
-//                throw new ConstraintViolationException(constraintViolations);
-//            }
-//        }
 
     }
 }

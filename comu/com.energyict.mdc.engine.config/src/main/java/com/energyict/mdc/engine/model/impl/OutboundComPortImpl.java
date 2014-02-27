@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
@@ -8,11 +9,10 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.google.common.collect.Range;
 import com.google.inject.Provider;
 import java.util.List;
-
 import javax.inject.Inject;
+import org.hibernate.validator.constraints.Range;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.OutboundComPort} interface.
@@ -23,6 +23,8 @@ import javax.inject.Inject;
 public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort {
 
     private final EngineModelService engineModelService;
+
+    @Range(min = 1, max = MAXIMUM_NUMBER_OF_SIMULTANEOUS_CONNECTIONS, groups = {Save.Create.class, Save.Update.class}, message = "{MDC.ValueNotInRange}")
     private int numberOfSimultaneousConnections;
 
     @Inject
@@ -38,13 +40,6 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
     @Override
     public int getNumberOfSimultaneousConnections () {
         return numberOfSimultaneousConnections;
-    }
-
-    protected void validateCreate(){
-        super.validateCreate();
-        this.validateInRange(Range.<Integer>closed(1, MAXIMUM_NUMBER_OF_SIMULTANEOUS_CONNECTIONS),
-                this.getNumberOfSimultaneousConnections(),
-                "comport.numberofsimultaneousconnections");
     }
 
     @Override
