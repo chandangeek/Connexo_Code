@@ -90,7 +90,6 @@ Ext.define('Mdc.widget.TimeInfoField', {
     },
 
     markInvalid: function(fields){
-        debugger;
         this.eachItem(function(field){
             field.markInvalid(fields);
         });
