@@ -112,7 +112,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
 
         Map<String, Object> map = target("/devicetypes/").queryParam("start", 0).queryParam("limit", 4).request().get(Map.class);
-        assertThat(map.get("total")).isEqualTo(5);
+        assertThat(map.get("total")).isEqualTo(4);
         assertThat((List)map.get("deviceTypes")).hasSize(4);
     }
 

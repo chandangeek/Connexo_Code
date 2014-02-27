@@ -2,7 +2,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -30,7 +29,7 @@ public class DeviceConfigurationApplication extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                AutoCloseDatabaseConnection.class,
+//                AutoCloseDatabaseConnection.class,
                 TransactionWrapper.class,
                 ExceptionLogger.class,
                 DeviceTypeResource.class,
