@@ -69,6 +69,11 @@ public class    GeneralViewController {
             rIssue.setNumber(groupEntry.getValue());
             resultList.add(rIssue);
         }
+        long total = params.getStart() + resultMap.size();
+        if (resultMap.size() == params.getLimit()){
+            total++;
+        }
+        resultList.setTotal(total);
         return resultList;
     }
 
@@ -93,11 +98,7 @@ public class    GeneralViewController {
             RestQuery<Issue> restQuery = queryService.wrap(query);
             list = restQuery.select(queryParameters);
         }
-        IssueList resultList = new IssueList();
-        for (Issue issue : list) {
-            IssueInfo rowIssue = new IssueInfo(issue);
-            resultList.add(rowIssue);
-        }
+        IssueList resultList = new IssueList(list, queryParameters.getStart(), queryParameters.getLimit());
         return resultList;
     }
 
