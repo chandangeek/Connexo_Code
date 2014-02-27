@@ -8,6 +8,27 @@
                 "title": "Getting started",
                 "description": "This introduction to Unifying JS explains how you can get started.",
                 "icon": "../icons/icon-00.png"
+            },
+            {
+                "name": "adding_a_guide",
+                "url": "adding_a_guide",
+                "title": "How to add a guide",
+                "description": "This guide explains how a nw guide can be added.",
+                "icon": "../icons/icon-00.png"
+            },
+            {
+                "name": "development_guidelines",
+                "url": "development_guidelines",
+                "title": "Development guidelines",
+                "description": "This guide contains development guidelines.",
+                "icon": "../icons/icon-00.png"
+            },
+            {
+                "name": "ui_agreements",
+                "url": "ui_agreements",
+                "title": "UI Agreements",
+                "description": "This guides contains some UI agreements",
+                "icon": "../icons/icon-00.png"
             }
         ]
     }
