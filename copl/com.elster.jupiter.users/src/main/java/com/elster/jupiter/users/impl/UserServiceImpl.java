@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Override
-    public User createInternalUser(String name, String description){
+    public User createUser(String name, String description){
         UserImpl result = createInternalDirectory(getRealm()).newUser(name, description);
         result.save();
         return result;

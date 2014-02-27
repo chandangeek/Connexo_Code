@@ -9,7 +9,7 @@ public interface UserService {
 
     String COMPONENTNAME = "USR";
 
-    User createInternalUser(String name, String description);
+    User createUser(String name, String description);
 
     Group createGroup(String name);
 
