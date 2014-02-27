@@ -1,14 +1,14 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.nls.NlsService;
-import java.util.ArrayList;
-import java.util.List;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import java.util.ArrayList;
+import java.util.List;
 
 @Provider
 public class ConstraintViolationExceptionMapper implements ExceptionMapper<ConstraintViolationException>{
@@ -41,11 +41,11 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
         }
 
         class FieldError {
-            public String field;
+            public String id;
             public String msg;
 
             FieldError(String field, String msg) {
-                this.field = field;
+                this.id = field;
                 this.msg = msg;
             }
         }
