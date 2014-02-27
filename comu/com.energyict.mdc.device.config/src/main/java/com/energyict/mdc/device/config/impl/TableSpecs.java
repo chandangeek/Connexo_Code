@@ -185,7 +185,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.column("NAME").varChar(80).notNull().map("name").add();
             table.column("DESCRIPTION").varChar(4000).map("description").add();
-            table.column("PROTOTYPEID").number().map("prototype").add();
+            table.column("PROTOTYPEID").number().conversion(ColumnConversion.NUMBER2INT).map("prototypeId").add();
             Column deviceTypeId = table.column("DEVICETYPEID").number().notNull().add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();

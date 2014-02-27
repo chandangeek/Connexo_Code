@@ -30,9 +30,9 @@ import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeExcept
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
-import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.DeviceFactory;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -57,6 +57,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private String description;
 
     private boolean active;
+    private int prototypeId;
     private Device prototype;
 
     private final Reference<DeviceType> deviceType = ValueReference.absent();
@@ -116,6 +117,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     public Device getPrototypeDevice() {
+        if(this.prototype == null && prototypeId > 0){
+            List<DeviceFactory> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class);
+            if(!modulesImplementing.isEmpty()){
+                this.prototype = modulesImplementing.get(0).findById(prototypeId);
+            }
+        }
         return this.prototype;
     }
 
