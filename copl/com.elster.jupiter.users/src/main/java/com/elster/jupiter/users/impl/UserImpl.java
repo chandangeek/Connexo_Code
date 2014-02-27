@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -12,10 +13,7 @@ import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -243,5 +241,16 @@ public class UserImpl implements User {
     @Override
     public void setLocale(Locale locale) {
         languageTag = locale == null ? null : locale.toLanguageTag();
+    }
+
+    @Override
+    public Set<Privilege> getPrivileges() {
+        Set<Privilege> privileges = new HashSet<>();
+        List<Group> groups = getGroups();
+        for(Group group : groups){
+            privileges.addAll(group.getPrivileges());
+        }
+
+        return privileges;
     }
 }

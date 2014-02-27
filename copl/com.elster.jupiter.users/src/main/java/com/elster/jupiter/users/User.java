@@ -6,6 +6,7 @@ import com.google.common.base.Optional;
 import java.security.Principal;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public interface User extends Principal, HasName {
 
@@ -55,4 +56,6 @@ public interface User extends Principal, HasName {
     Optional<Locale> getLocale();
 
     void setLocale(Locale locale);
+
+    Set<Privilege> getPrivileges();
 }
