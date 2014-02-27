@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IssueGroupList {
+    private long total;
     private List<IssueGroupListRow> groups;
 
     public IssueGroupList() {
@@ -16,5 +17,13 @@ public class IssueGroupList {
 
     public void add(IssueGroupListRow row) {
         getGroups().add(row);
+    }
+
+    public long getTotal() {
+        return total;
+    }
+
+    public void setTotal(long total) {
+        this.total = total;
     }
 }
