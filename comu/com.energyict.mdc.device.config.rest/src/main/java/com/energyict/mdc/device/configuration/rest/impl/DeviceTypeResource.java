@@ -10,11 +10,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.RegisterMapping;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -29,6 +25,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
@@ -45,7 +46,7 @@ public class DeviceTypeResource {
     public PagedInfoList getAllDeviceTypes(@BeanParam QueryParameters queryParameters) {
         List<DeviceTypeInfo> deviceTypeInfos = new ArrayList<>();
         Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.findAllDeviceTypes();
-        List<DeviceType> allDeviceTypes = deviceTypeFinder.paged(queryParameters.getStart(), queryParameters.getLimit()).find();
+        List<DeviceType> allDeviceTypes = deviceTypeFinder.from(queryParameters).find();
         for (DeviceType deviceType : allDeviceTypes) {
             deviceTypeInfos.add(new DeviceTypeInfo(deviceType));
         }
