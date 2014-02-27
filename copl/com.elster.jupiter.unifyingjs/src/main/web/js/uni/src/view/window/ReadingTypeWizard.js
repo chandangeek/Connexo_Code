@@ -575,7 +575,6 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
     },
 
     populateMeasuringPeriodStore: function (store, key, fallback, data) {
-        debugger;
         for (var i = 0; i < data.length; i++) {
             var obj = data[i],
                 value = obj[0],
@@ -591,7 +590,6 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
     },
 
     populateRollingBlockStore: function (store, key, fallback, data) {
-        debugger;
         for (var i = 0; i < data.length; i++) {
             var obj = data[i],
                 values = obj[0],
