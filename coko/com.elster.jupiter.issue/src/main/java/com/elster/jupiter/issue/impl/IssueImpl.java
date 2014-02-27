@@ -10,7 +10,6 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
-import javax.validation.Valid;
 import java.util.Map;
 
 public class IssueImpl implements Issue {
