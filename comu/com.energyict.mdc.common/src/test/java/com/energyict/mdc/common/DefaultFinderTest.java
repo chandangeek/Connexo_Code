@@ -96,7 +96,7 @@ public class DefaultFinderTest extends JerseyTest {
         ArgumentCaptor<Integer> indexCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(query).select(Matchers.any(Condition.class), Matchers.any(Order[].class), anyBoolean(), Matchers.any(String[].class), startCaptor.capture(), indexCaptor.capture());
         assertThat(startCaptor.getValue()).isEqualTo(5+1); // start is 1 based in SQL
-        assertThat(indexCaptor.getValue()).isEqualTo(100 + 5);
+        assertThat(indexCaptor.getValue()).isEqualTo(100 + 5 + 1); // always ask for 1 more
     }
 
     @Test
@@ -138,7 +138,7 @@ public class DefaultFinderTest extends JerseyTest {
         assertThat(orderCaptor.getValue()[2].getName()).isEqualTo("field3");
         assertThat(orderCaptor.getValue()[2].ascending()).isEqualTo(false);
         assertThat(startCaptor.getValue()).isEqualTo(50 + 1); // start is 1 based in SQL
-        assertThat(indexCaptor.getValue()).isEqualTo(100 + 50);
+        assertThat(indexCaptor.getValue()).isEqualTo(100 + 50 + 1); // always ask for 1 more
     }
 
     private String sorting(String property, String direction, String ...fields) throws UnsupportedEncodingException {

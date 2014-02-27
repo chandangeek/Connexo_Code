@@ -1,5 +1,6 @@
 package com.energyict.mdc.common.rest;
 
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +31,18 @@ public class PagedInfoList {
         return total;
     }
 
+    List getInfos() {
+        return ImmutableList.copyOf(infos);
+    }
+
     private PagedInfoList(String jsonListName, List infos, QueryParameters queryParameters) {
         this.queryParameters = queryParameters;
         this.jsonListName = jsonListName;
         this.infos = infos;
-        couldHaveNextPage=queryParameters.getLimit()!=null && infos.size()==queryParameters.getLimit();
+        couldHaveNextPage=queryParameters.getLimit()!=null && infos.size()>queryParameters.getLimit();
+        if (couldHaveNextPage) {
+            this.infos=infos.subList(0,queryParameters.getLimit());
+        }
     }
 
     /**

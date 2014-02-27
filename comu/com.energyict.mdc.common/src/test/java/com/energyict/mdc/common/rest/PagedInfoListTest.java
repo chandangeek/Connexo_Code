@@ -1,6 +1,7 @@
 package com.energyict.mdc.common.rest;
 
 import java.util.Arrays;
+import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 
@@ -28,12 +29,44 @@ public class PagedInfoListTest {
         deviceTypeInfo2.loadProfileCount=5;
         deviceTypeInfo2.logBookCount=6;
         deviceTypeInfo2.registerCount=7;
+        BogusInfo deviceTypeInfo3 = new BogusInfo();
+        deviceTypeInfo3.name="new 3";
+        deviceTypeInfo3.canBeDirectlyAddressed =true;
+        deviceTypeInfo3.canBeGateway=false;
+        deviceTypeInfo3.deviceConfigurationCount=4;
+        deviceTypeInfo3.loadProfileCount=5;
+        deviceTypeInfo3.logBookCount=6;
+        deviceTypeInfo3.registerCount=7;
         ObjectMapper objectMapper = new ObjectMapper();
         QueryParameters queryParameters = mock(QueryParameters.class);
         when(queryParameters.getLimit()).thenReturn(2);
-        String response = objectMapper.writeValueAsString(PagedInfoList.asJson("deviceTypes", Arrays.asList(deviceTypeInfo1, deviceTypeInfo2), queryParameters));
+        String response = objectMapper.writeValueAsString(PagedInfoList.asJson("deviceTypes", Arrays.asList(deviceTypeInfo1, deviceTypeInfo2, deviceTypeInfo3), queryParameters));
         assertThat(response).contains("\"deviceTypes\":[{");
         assertThat(response).contains("\"total\":3");
+        assertThat(response).doesNotContain("\"new 3\"");
     }
 
+    @Test
+    public void testHasNextPage() throws Exception {
+        QueryParameters queryParameters = mock(QueryParameters.class);
+        when(queryParameters.getLimit()).thenReturn(5);
+        when(queryParameters.getStart()).thenReturn(80);
+        List<Object> infos = Arrays.asList(new Object(),new Object(),new Object(),new Object(),new Object(),new Object()); // 6 objects
+
+        PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters);
+        assertThat(list.getTotal()).isEqualTo(86);
+        assertThat(list.getInfos()).hasSize(5);
+    }
+
+    @Test
+    public void testHasNoNextPage() throws Exception {
+        QueryParameters queryParameters = mock(QueryParameters.class);
+        when(queryParameters.getLimit()).thenReturn(5);
+        when(queryParameters.getStart()).thenReturn(80);
+        List<Object> infos = Arrays.asList(new Object(),new Object(),new Object(),new Object(),new Object()); // 5 objects
+
+        PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters);
+        assertThat(list.getTotal()).isEqualTo(85);
+        assertThat(list.getInfos()).hasSize(5);
+    }
 }
