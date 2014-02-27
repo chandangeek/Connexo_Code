@@ -1,4 +1,4 @@
-# Getting started with Unifying JS
+# Development Guidelines
 
 * Avoid the use of "FieldContainer" xtype
 

@@ -1,5 +1,5 @@
-# Getting started with Unifying JS
+# UI Agreements
 
-This guide still needs some work, as you can see...
-
-Best way to get started, for now, is to use the Metering Application as an example.
+* Use fixed culumn widths: use percentages
+* Do not allow to change the column widths: use "fixed: true" property on every column
+* No frontend sorting on columns: provide a default backend sorting

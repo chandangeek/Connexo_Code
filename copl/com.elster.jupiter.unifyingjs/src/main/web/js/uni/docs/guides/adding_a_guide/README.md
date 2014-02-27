@@ -1,4 +1,4 @@
-# Getting started with Unifying JS
+# Adding a new guide
 
 Guides can be found here: /com.elster.jupiter.unifyingjs/src/main/web/js/uni/docs/guides
 To add a new guide please follow the following steps:
