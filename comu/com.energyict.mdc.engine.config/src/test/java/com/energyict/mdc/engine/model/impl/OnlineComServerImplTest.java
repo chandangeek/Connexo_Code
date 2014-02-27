@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.ExpectedConstraintViolation;
 import com.energyict.mdc.Transactional;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;

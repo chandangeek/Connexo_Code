@@ -65,6 +65,13 @@
             <artifactId>jackson-xc</artifactId>
             <version>1.9.9</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>devtools.persistence</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>
