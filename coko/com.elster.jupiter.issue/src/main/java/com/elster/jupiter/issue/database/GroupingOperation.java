@@ -84,22 +84,23 @@ public class GroupingOperation {
         statement.setLong(2, this.start);
         return statement;
     }
+
     /**
     SQL example with 'REASON' grouping column:
      <code>
-        SELECT col, num
-        FROM
-            (SELECT ROWNUM as rnum, r.REASON_NAME as col, intr.num
+         SELECT col, num
+         FROM
+            (SELECT ROWNUM as rnum, intr.*
              FROM
-                (SELECT DISTINCT isu.REASON_ID as reasonId, count(isu.REASON_ID) as num
-                 FROM ISU_ISSUE isu
-                 GROUP BY (isu.REASON_ID)
-                 ORDER BY num DESC, reasonId ASC
+                (SELECT DISTINCT r.REASON_NAME as col, count(isu.REASON_ID) as num
+                 FROM ISU_ISSUE isu, ISU_REASON r
+                 WHERE isu.REASON_ID = r.ID
+                 GROUP BY (r.REASON_NAME)
+                 ORDER BY num DESC, col ASC
                 ) intr
-             LEFT JOIN ISU_REASON r ON intr.reasonId = r.ID
-             WHERE ROWNUM <= 10
+             WHERE ROWNUM <= 5
             ) ext
-        WHERE ext.rnum > 0;
+         WHERE  ext.rnum > 0;
      </code>
     */
     private SqlBuilder buildSQL(){
@@ -107,12 +108,11 @@ public class GroupingOperation {
             throw new IllegalArgumentException("[ Grouping Operation ] Group By column can't be empty");
         }
         SqlBuilder builder = new SqlBuilder();
-        builder.append("SELECT " + GROUP_TITLE + ", " + GROUP_COUNT + " FROM " + "(SELECT ROWNUM as rnum, r.");
-        builder.append(DatabaseConst.ISSUE_REASON_COLUMN_NAME + " as " + GROUP_TITLE + ", intr." + GROUP_COUNT);
-        builder.append(" FROM (SELECT DISTINCT isu.REASON_ID as reasonId, count(isu.REASON_ID) as " + GROUP_COUNT);
-        builder.append(" FROM " + TableSpecs.ISU_ISSUE.name() + " isu GROUP BY (isu.REASON_ID)");
-        builder.append(" ORDER BY " + GROUP_COUNT + " " + (isAsc ? "ASC" : "DESC") + ", reasonId ASC) intr");
-        builder.append(" LEFT JOIN " + TableSpecs.ISU_REASON.name() + " r ON intr.reasonId = r.ID");
+        builder.append("SELECT " + GROUP_TITLE + ", " + GROUP_COUNT + " FROM " + "(SELECT ROWNUM as rnum, intr.*");
+        builder.append(" FROM (SELECT DISTINCT r.REASON_NAME as " + GROUP_TITLE + ", count(isu.REASON_ID) as " + GROUP_COUNT);
+        builder.append(" FROM " + TableSpecs.ISU_ISSUE.name() + " isu, " + TableSpecs.ISU_REASON.name());
+        builder.append(" r WHERE isu.REASON_ID = r.ID GROUP BY (r.REASON_NAME)");
+        builder.append(" ORDER BY " + GROUP_COUNT + " " + (isAsc ? "ASC" : "DESC") + ", " + GROUP_TITLE + " ASC ) intr");
         builder.append(" WHERE ROWNUM <= ? ) ext WHERE ext.rnum > ? ");
         return builder;
     }

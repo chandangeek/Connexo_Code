@@ -1,9 +1,9 @@
 package com.elster.jupiter.issue;
 
 public enum IssueAssigneeType {
-    USER("User"),
-    TEAM("Group"),
-    ROLE("Role");
+    USER("USER"),
+    TEAM("GROUP"),
+    ROLE("ROLE");
 
     private String type;
 
@@ -18,7 +18,7 @@ public enum IssueAssigneeType {
     public static IssueAssigneeType fromString(String assigneeType) {
         if (assigneeType != null) {
             for (IssueAssigneeType column : IssueAssigneeType.values()) {
-                if (column.name().equalsIgnoreCase(assigneeType)) {
+                if (column.getType().equalsIgnoreCase(assigneeType)) {
                     return column;
                 }
             }

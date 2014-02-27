@@ -44,6 +44,16 @@ public class IssueImpl implements Issue {
         this.dataModel = dataModel;
     }
 
+    Issue init(Issue issue){
+        this.setDueDate(new UtcInstant(issue.getDueDate().getTime()));
+        this.setReason(issue.getReason());
+        this.setStatus(issue.getStatus());
+        this.setAssignee(IssueAssigneeImpl.class.cast(issue.getAssignee()));
+        this.setDevice(issue.getDevice());
+        this.setDevice(issue.getDevice());
+        return this;
+    }
+
     public long getVersion() {
         return version;
     }
@@ -88,10 +98,12 @@ public class IssueImpl implements Issue {
     @Override
     public String getTitle() {
         String title = getReason().getName();
-        if (getDevice() != null){
+        EndDevice device = getDevice();
+        if (device != null){
             StringBuilder titleWithDevice = new StringBuilder(title);
             titleWithDevice.append(" to ");
-            titleWithDevice.append(getDevice().getSerialNumber());
+            titleWithDevice.append(device.getName()).append(" ");
+            titleWithDevice.append(device.getSerialNumber());
             title = titleWithDevice.toString();
         }
         return title;
@@ -141,5 +153,15 @@ public class IssueImpl implements Issue {
             assignee.setRole(role.orNull());
         }
         return assignee;
+    }
+
+    public void setAssignee(IssueAssigneeImpl assignee){
+        this.assignee = null;
+        if (assignee != null){
+            type = assignee.getType();
+            user.set(assignee.getUser());
+            role.set(assignee.getRole());
+            team.set(assignee.getTeam());
+        }
     }
 }

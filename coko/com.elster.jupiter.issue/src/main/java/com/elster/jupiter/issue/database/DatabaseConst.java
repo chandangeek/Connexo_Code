@@ -47,11 +47,12 @@ public class DatabaseConst {
     public static final String ISSUE_ASSIGNEE_ROLE_PK_NAME = "ISU_PK_ISSUE_ASSIGNEE_ROLE";
 
 // Issue Historical Table
-    public static final String ISSUE_HIST_COLUMN_DEVICE_ID = "DEVICE_ID";
-    public static final String ISSUE_HIST_COLUMN_ASSIGNEE_TYPE = "ASSIGNEE_TYPE";
-    public static final String ISSUE_HIST_COLUMN_ASSIGNEE_ID = "ASSIGNEE_ID";
-    public static final String ISSUE_HIST_COLUMN_REASON_ID = "REASON_ID";
-    public static final String ISSUE_HIST_COLUMN_CREATE_TIME = "CREATE_TIME";
-
     public static final String ISSUE_HIST_PK_NAME = "ISU_PK_HIST_ISSUE";
+
+    public static final String ISSUE_HIST_FK_TO_DEVICE = "ISU_HIST_FK_TO_DEVICE";
+    public static final String ISSUE_HIST_FK_TO_REASON = "ISU_HIST_FK_TO_REASON";
+    public static final String ISSUE_HIST_FK_TO_STATUS = "ISU_HIST_FK_TO_STATUS";
+    public static final String ISSUE_HIST_FK_TO_USER = "ISU_HIST_FK_TO_USER";
+    public static final String ISSUE_HIST_FK_TO_TEAM = "ISU_HIST_FK_TO_TEAM";
+    public static final String ISSUE_HIST_FK_TO_ROLE = "ISU_HIST_FK_TO_ROLE";
 }
