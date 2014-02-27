@@ -17,9 +17,9 @@ public class IssueInfo {
             this.setId(issue.getId());
             this.setReason(issue.getReason().getName());
             this.setStatus(issue.getStatus().getName());
-            this.setDueDate(issue.getDueDate().getTime());
-            this.setAssignee(new IssueAssignee(issue.getAssignee()));
-            this.setDevice(new IssueDevice(issue.getDevice()));
+            this.setDueDate(issue.getDueDate() != null ? issue.getDueDate().getTime() : null);
+            this.setAssignee(issue.getAssignee() != null ? new IssueAssignee(issue.getAssignee()) : null);
+            this.setDevice(issue.getDevice() != null ? new IssueDevice(issue.getDevice()) : null);
             this.setCreationDate(issue.getCreateTime().getTime());
             this.setVersion(issue.getVersion());
         }

@@ -4,6 +4,8 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.Issue;
 import com.elster.jupiter.issue.IssueService;
 import com.elster.jupiter.issue.rest.response.*;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.impl.MeterImpl;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -49,6 +51,16 @@ public class    GeneralViewController {
         }
         return Response.ok().entity(resultList).build();
     }
+
+    //TODO delete when events will be produced by MDC
+    @GET
+    @Path("/event")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Object getEvent() {
+        issueService.getEvent();
+        return true;
+    }
+    // END delete when events will be produced by MDC
 
     @GET
     @Path("/groupedlist")
