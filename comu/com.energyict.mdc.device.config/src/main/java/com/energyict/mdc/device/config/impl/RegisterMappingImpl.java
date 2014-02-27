@@ -205,8 +205,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
 
     @Override
     public ReadingType getReadingType() {
-        Optional<ReadingType> readingType = meteringService.getReadingType(mdcReadingTypeUtilService.getReadingTypeFrom(this.getObisCode(), this.getUnit()));
-        return readingType.get();
+        return getProductSpec().getReadingType();
     }
 
     public String getDescription() {
