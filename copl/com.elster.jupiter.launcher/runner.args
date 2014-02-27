@@ -1,6 +1,6 @@
---vmo=-Dcom.elster.jupiter.datasource.jdbcpassword=kore\
- -Dcom.elster.jupiter.datasource.jdbcuser=kore\
- -Dcom.elster.jupiter.datasource.jdbcurl=jdbc:oracle:thin:@localhost:1521:orcl
+--vmo=-Dcom.elster.jupiter.datasource.jdbcpassword=stella\
+ -Dcom.elster.jupiter.datasource.jdbcuser=jupiter\
+ -Dcom.elster.jupiter.datasource.jdbcurl=jdbc:oracle:thin:@vldbdb1.eict.local:1521:EISVLDB1
 --clean
 --systemPackages=javax.activation;version=1.1.1,\
  javax.xml.ws;version=2.2.0,\
@@ -19,7 +19,7 @@ mvn:org.apache.felix/org.apache.felix.eventadmin/1.3.2
 mvn:org.apache.felix/org.apache.felix.configadmin/1.6.0
 mvn:org.apache.felix/org.apache.felix.metatype/1.0.8
 mvn:org.apache.felix/org.apache.felix.http.jetty/2.2.1
-mvn:org.apache.felix/org.apache.felix.webconsole.all/4.2.0//all
+mvn:com.elster.jupiter/org.apache.felix.webconsole.all/4.2.0
 mvn:org.apache.felix/org.apache.felix.webconsole.plugins.ds/1.0.0
 mvn:org.apache.felix/org.apache.felix.webconsole.plugins.memoryusage/1.0.4
 mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.1.0
@@ -76,6 +76,7 @@ mvn:com.elster.jupiter/parties/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/cbo/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/metering/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/metering.groups/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/metering.cim/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/validation/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/validators/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/http.whiteboard/1.0.0-SNAPSHOT
@@ -93,6 +94,7 @@ mvn:com.elster.jupiter/extjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/unifyingjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/metering.extjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/soap.whiteboard/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/soap.whiteboard.cxf/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/fileimport/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/tasks/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/appserver/1.0.0-SNAPSHOT
