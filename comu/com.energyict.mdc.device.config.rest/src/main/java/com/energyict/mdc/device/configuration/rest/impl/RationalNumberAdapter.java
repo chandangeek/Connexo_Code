@@ -7,10 +7,11 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 public class RationalNumberAdapter extends XmlAdapter<String, RationalNumber> {
 
     public static final String SEPARATOR = "/";
+    static final String NOT_APPLICABLE = "Not applicable";
 
     @Override
     public RationalNumber unmarshal(String stringValue) throws Exception {
-        if (Checks.is(stringValue).emptyOrOnlyWhiteSpace()) {
+        if (Checks.is(stringValue).emptyOrOnlyWhiteSpace() || NOT_APPLICABLE.equals(stringValue)) {
             return RationalNumber.NOTAPPLICABLE;
         }
         try {
@@ -25,6 +26,9 @@ public class RationalNumberAdapter extends XmlAdapter<String, RationalNumber> {
 
     @Override
     public String marshal(RationalNumber rationalNumber) throws Exception {
+        if (rationalNumber.equals(RationalNumber.NOTAPPLICABLE)) {
+            return NOT_APPLICABLE;
+        }
         return rationalNumber.getNumerator()+"/"+rationalNumber.getDenominator();
     }
 }

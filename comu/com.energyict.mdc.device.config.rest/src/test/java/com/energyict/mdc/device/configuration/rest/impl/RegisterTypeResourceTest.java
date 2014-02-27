@@ -11,6 +11,7 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -43,17 +44,19 @@ import static org.mockito.Mockito.when;
 public class RegisterTypeResourceTest extends JerseyTest {
 
     private static DeviceConfigurationService deviceConfigurationService;
+    private static MeteringService meteringService;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         deviceConfigurationService = mock(DeviceConfigurationService.class);
+        meteringService = mock(MeteringService.class);
     }
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        reset(deviceConfigurationService);
+        reset(deviceConfigurationService, meteringService);
     }
 
     @Override
@@ -66,6 +69,7 @@ public class RegisterTypeResourceTest extends JerseyTest {
             @Override
             protected void configure() {
                 bind(deviceConfigurationService).to(DeviceConfigurationService.class);
+                bind(meteringService).to(MeteringService.class);
             }
         });
         return resourceConfig;

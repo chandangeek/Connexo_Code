@@ -73,14 +73,6 @@ public class RegisterTypeResource {
         return new RegisterMappingInfo(deviceConfigurationService.newRegisterMapping(registerMappingInfo.name, registerMappingInfo.obisCode, productSpecByReadingType));
     }
 
-    private ProductSpec findProductSpecOrThrowException(RegisterMappingInfo registerMappingInfo, ReadingType readingType) {
-        ProductSpec productSpecByReadingType = deviceConfigurationService.findProductSpecByReadingType(readingType);
-        if (productSpecByReadingType==null) {
-            throw new WebApplicationException("No product spec for reading type " + registerMappingInfo.readingTypeInfo.mrid, Response.Status.BAD_REQUEST);
-        }
-        return productSpecByReadingType;
-    }
-
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -93,6 +85,14 @@ public class RegisterTypeResource {
         registerMapping.setProductSpec(productSpecByReadingType);
         registerMapping.save();
         return new RegisterMappingInfo(registerMapping);
+    }
+
+    private ProductSpec findProductSpecOrThrowException(RegisterMappingInfo registerMappingInfo, ReadingType readingType) {
+        ProductSpec productSpecByReadingType = deviceConfigurationService.findProductSpecByReadingType(readingType);
+        if (productSpecByReadingType==null) {
+            throw new WebApplicationException("No product spec for reading type " + registerMappingInfo.readingTypeInfo.mrid, Response.Status.BAD_REQUEST);
+        }
+        return productSpecByReadingType;
     }
 
     private Optional<ReadingType> findReadingTypeOrThrowException(RegisterMappingInfo registerMappingInfo) {

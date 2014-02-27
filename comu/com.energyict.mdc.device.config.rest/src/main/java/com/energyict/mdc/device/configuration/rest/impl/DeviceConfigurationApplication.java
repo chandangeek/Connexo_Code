@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -24,11 +24,12 @@ public class DeviceConfigurationApplication extends Application {
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile TransactionService transactionService;
+    private volatile MeteringService meteringService;
 
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                AutoCloseDatabaseConnection.class,
+//                AutoCloseDatabaseConnection.class,
                 TransactionWrapper.class,
                 ExceptionLogger.class,
                 DeviceTypeResource.class,
@@ -61,14 +62,19 @@ public class DeviceConfigurationApplication extends Application {
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
         protected void configure() {
-            LOGGER.fine("Binding services using HK2");
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(transactionService).to(TransactionService.class);
+            bind(meteringService).to(MeteringService.class);
         }
     }
 
