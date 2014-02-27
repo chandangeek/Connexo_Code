@@ -10,5 +10,6 @@ To add a new guide please follow the following steps:
 
 * Fill in the correct name, url, title and description
 * Create a new directory in /guides with the same name as the one used in guides.json
-* Add the content in this folder ((use markdown syntax see http://daringfireball.net/projects/markdown/syntax)
+* Add the content in this folder (use markdown syntax see http://daringfireball.net/projects/markdown/syntax)
+* After commit & rebuild the new guide should be visible here: http://deitvs027.eict.local:9090/unifyingjs
 
