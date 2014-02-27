@@ -1,5 +1,9 @@
 # Getting started with Unifying JS
 
-This guide still needs some work, as you can see...
+* Avoid the use of "FieldContainer" xtype
 
-Best way to get started, for now, is to use the Metering Application as an example.
+Reason: fieldlabel is not alignd properly
+
+Solution: use multiple components instead of wrapping them in a "FieldContainer"
+
+Example:
