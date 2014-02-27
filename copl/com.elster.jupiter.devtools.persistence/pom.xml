@@ -12,7 +12,7 @@
     <artifactId>devtools.persistence</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>[Jupiter] com.elster.jupiter.devtools : use as test dependency only</name>
+    <name>[Jupiter] com.elster.jupiter.devtools.persistence : use as test dependency only</name>
 
 
     <dependencies>
