@@ -1,14 +1,15 @@
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.util.conditions.Order;
-import java.util.ArrayList;
-import java.util.List;
-import javax.inject.Inject;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.List;
 
 public class QueryParameters {
 
@@ -19,7 +20,7 @@ public class QueryParameters {
     private static final String EXTJS_SORT = "sort";
     private static final String EXTJS_DIR = "dir";
     private static final String EXTJS_DIRECTION = "direction";
-    private static final String EXTJS_FIELD = "field";
+    private static final String EXTJS_FIELD = "property";
 
     private final UriInfo uriInfo;
 
