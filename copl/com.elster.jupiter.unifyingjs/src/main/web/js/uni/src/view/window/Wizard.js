@@ -64,8 +64,6 @@ Ext.define('Uni.view.window.Wizard', {
             ]
         },
         {
-            flex: 1,
-            overflowY: true,
             layout: {
                 type: 'hbox',
                 align: 'stretch'
@@ -152,6 +150,7 @@ Ext.define('Uni.view.window.Wizard', {
                 steps = Ext.clone(steps);
             }
 
+            // Needs to be mapped to the non-rendered config object.
             this.items[1].items[1].items[1].items = steps;
         }
 
@@ -276,13 +275,12 @@ Ext.define('Uni.view.window.Wizard', {
     setDescription: function (htmlOrCmp) {
         this.getDescriptionCmp().removeAll();
 
-        if (htmlOrCmp instanceof Ext.Component) {
-            this.getDescriptionCmp().add(htmlOrCmp);
-        } else {
+        if (!(htmlOrCmp instanceof Ext.Component)) {
             // Never modify a passed config object, that could break the expectations of the using code.
             htmlOrCmp = Ext.clone(htmlOrCmp);
-            this.getDescriptionCmp().update(htmlOrCmp);
         }
+
+        this.getDescriptionCmp().add(htmlOrCmp);
     },
 
     getTitleCmp: function () {
