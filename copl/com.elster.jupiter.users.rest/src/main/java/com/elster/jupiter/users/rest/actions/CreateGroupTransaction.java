@@ -1,4 +1,4 @@
-package com.elster.jupiter.users.rest.impl;
+package com.elster.jupiter.users.rest.actions;
 
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.Group;
@@ -17,10 +17,6 @@ public class CreateGroupTransaction implements Transaction<Group> {
 
     @Override
     public Group perform() {
-        Group group = userService.newGroup(info.name);
-
-        group.save();
-
-        return group;
+        return userService.createGroup(info.name);
     }
 }

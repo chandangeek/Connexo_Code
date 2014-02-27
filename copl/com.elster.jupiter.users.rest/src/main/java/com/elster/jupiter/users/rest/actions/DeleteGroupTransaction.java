@@ -1,4 +1,4 @@
-package com.elster.jupiter.users.rest.impl;
+package com.elster.jupiter.users.rest.actions;
 
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.Group;
@@ -22,7 +22,7 @@ public class DeleteGroupTransaction extends VoidTransaction {
     @Override
     protected void doPerform() {
         Group group = fetchGroup();
-        validateDelete(group);
+        //validateDelete(group); TODO: check the reason for this validation
         doDelete(group);
     }
 

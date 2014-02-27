@@ -9,6 +9,9 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.UserInfo;
 import com.elster.jupiter.users.rest.UserInfos;
+import com.elster.jupiter.users.rest.actions.CreateUserTransaction;
+import com.elster.jupiter.users.rest.actions.DeleteUserTransaction;
+import com.elster.jupiter.users.rest.actions.UpdateUserTransaction;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
@@ -53,14 +56,15 @@ public class UserResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public UserInfos deleteUser(UserInfo info, @PathParam("id") long id) {
+    public UserInfos deleteUser(@PathParam("id") long id) {
+        UserInfo info = new UserInfo();
         info.id = id;
         transactionService.execute(new DeleteUserTransaction(info, userService));
         return new UserInfos();
     }
 
     @GET
-    @Path("/{id}/")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public UserInfos getUser(@PathParam("id") long id) {
         Optional<User> party = userService.getUser(id);
@@ -81,7 +85,7 @@ public class UserResource {
     }
 
     @PUT
-    @Path("/{id}/")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public UserInfos updateUser(UserInfo info, @PathParam("id") long id) {

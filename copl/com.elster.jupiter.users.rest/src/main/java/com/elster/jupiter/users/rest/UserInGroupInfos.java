@@ -13,14 +13,14 @@ public class UserInGroupInfos {
 
     public List<UserInGroupInfo> userInGroupInfos = new ArrayList<>();
 
-    UserInGroupInfos() {
+    public UserInGroupInfos() {
     }
 
-    UserInGroupInfos(User user, Group group) {
+    public UserInGroupInfos(User user, Group group) {
         add(user, group);
     }
 
-    UserInGroupInfo add(User user, Group group) {
+    public UserInGroupInfo add(User user, Group group) {
         UserInGroupInfo result = new UserInGroupInfo(user, group);
         userInGroupInfos.add(result);
         total++;
