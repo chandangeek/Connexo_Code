@@ -10,6 +10,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * Convenience class to wrap all supported ExtJS constructs regarding paging and sorting (both simple sort and multi sort)
+ * Can be passed as-is to the {@link com.energyict.mdc.common.services.Finder} who knows what to do with it
+ */
 public class QueryParameters {
 
     // Below are the fields as they are added to the query by ExtJS
