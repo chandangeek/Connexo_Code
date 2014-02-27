@@ -9,6 +9,9 @@ public class DatabaseConst {
     public static final String METERING_DEVICE_TABLE = "MTR_ENDDEVICE";
     public static final String USER_DEVICE_TABLE = "USR_USER";
 
+// MDC AMR system id
+    public static final Long MDC_AMR_SYSTEM_ID = 1L;
+
 // Issue table
     public static final String ISSUE_COLUMN_DISCRIMINATOR = "ISSUE_TYPE";
     public static final String ISSUE_COLUMN_DUE_DATE = "DUE_DATE";

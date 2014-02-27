@@ -1,9 +1,9 @@
 package com.elster.jupiter.issue.impl;
 
-import com.elster.jupiter.issue.IssueAssignee;
-import com.elster.jupiter.issue.IssueAssigneeType;
 import com.elster.jupiter.issue.AssigneeRole;
 import com.elster.jupiter.issue.AssigneeTeam;
+import com.elster.jupiter.issue.IssueAssignee;
+import com.elster.jupiter.issue.IssueAssigneeType;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
