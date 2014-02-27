@@ -6,4 +6,6 @@ public interface Privilege extends HasName {
 	String getComponentName();
 	String getName();
 	String getDescription();
+
+    void delete();
 }

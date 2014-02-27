@@ -9,15 +9,16 @@ import java.util.List;
 
 public class InstallerImpl {
 
-    public static final String DEFULT_DOMAIN_NAME = "Local";
     private DataModel dataModel;
+    private String defaultDomain;
 
     public InstallerImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    public void install() {
+    public void install(String defaultDomain) {
 		dataModel.install(true, true);
+        this.defaultDomain = defaultDomain;
 		createMasterData();
 	}
 	
@@ -29,7 +30,7 @@ public class InstallerImpl {
 	}
 
     private InternalDirectoryImpl createDirectory() {
-        InternalDirectoryImpl directory = InternalDirectoryImpl.from(dataModel, DEFULT_DOMAIN_NAME);
+        InternalDirectoryImpl directory = InternalDirectoryImpl.from(dataModel, defaultDomain);
         directory.setDefault(true);
         directory.save();
         return directory;

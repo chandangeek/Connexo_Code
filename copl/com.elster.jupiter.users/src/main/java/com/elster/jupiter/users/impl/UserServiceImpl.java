@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService, InstallService {
     private volatile TransactionService transactionService;
     private volatile QueryService queryService;
     private volatile Thesaurus thesaurus;
-    private static final String JUPITER_REALM = "Jupiter";
+    private static final String JUPITER_REALM = "Local";
 
     public UserServiceImpl() {
     }
@@ -102,7 +102,14 @@ public class UserServiceImpl implements UserService, InstallService {
             domain = items[0];
             userName = items[1];
         }
-        return authenticate(domain, userName, names.length > 0 ? null : names[1]);
+        return authenticate(domain, userName, names.length > 0 ? names[1] : null);
+    }
+
+    @Override
+    public User createInternalUser(String name, String description){
+        UserImpl result = createInternalDirectory(getRealm()).newUser(name, description);
+        result.save();
+        return result;
     }
 
     @Override
@@ -184,7 +191,7 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     public void install() {
-        new InstallerImpl(dataModel).install();
+        new InstallerImpl(dataModel).install(getRealm());
     }
 
     @Override

@@ -35,14 +35,14 @@ public class UserInGroup {
         return dataModel.getInstance(UserInGroup.class).init(user, group);
     }
 	
-	Group getGroup() {
+	public Group getGroup() {
 		if (group == null) {
 			group = dataModel.mapper(Group.class).getExisting(groupId);
 		}
 		return group;
 	}
 	
-	User getUser() {
+	public User getUser() {
 		if (user == null) {
 			user = dataModel.mapper(User.class).getExisting(userId);
 		}

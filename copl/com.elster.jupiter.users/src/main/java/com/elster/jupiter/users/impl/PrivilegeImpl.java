@@ -40,8 +40,13 @@ class PrivilegeImpl implements Privilege {
 	public String getDescription() {
 		return description;
 	}
-	
-	@Override
+
+    @Override
+    public void delete() {
+        dataModel.mapper(Privilege.class).remove(this);
+    }
+
+    @Override
 	public String getComponentName() {
 		return componentName;
 	}

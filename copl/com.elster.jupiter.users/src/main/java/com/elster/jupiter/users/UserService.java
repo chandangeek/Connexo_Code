@@ -9,6 +9,8 @@ public interface UserService {
 
     String COMPONENTNAME = "USR";
 
+    User createInternalUser(String name, String description);
+
     Group createGroup(String name);
 
     Privilege createPrivilege(String componentName, String name, String description);
