@@ -11,7 +11,7 @@ public class RationalNumberAdapter extends XmlAdapter<String, RationalNumber> {
 
     @Override
     public RationalNumber unmarshal(String stringValue) throws Exception {
-        if (Checks.is(stringValue).emptyOrOnlyWhiteSpace() || "Not applicable".equals(stringValue)) {
+        if (Checks.is(stringValue).emptyOrOnlyWhiteSpace() || NOT_APPLICABLE.equals(stringValue)) {
             return RationalNumber.NOTAPPLICABLE;
         }
         try {
