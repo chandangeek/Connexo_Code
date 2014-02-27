@@ -29,8 +29,8 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
         return true;
     }
 
-    protected void validate () {
-        super.validate();
+    protected void validateCreate() {
+        super.validateCreate();
         validateNotNull(this.bufferSize, "comport.datagrambuffersize");
     }
 

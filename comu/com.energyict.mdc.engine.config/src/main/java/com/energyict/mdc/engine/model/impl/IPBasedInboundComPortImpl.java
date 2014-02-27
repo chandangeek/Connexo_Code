@@ -45,8 +45,8 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
         this.numberOfSimultaneousConnections = numberOfSimultaneousConnections;
     }
 
-    protected void validate() {
-        super.validate();
+    protected void validateCreate() {
+        super.validateCreate();
         validateGreaterThanZero(portNumber, "comport.portnumber");
         validateDuplicatePortNumber();
     }

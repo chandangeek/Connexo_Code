@@ -40,8 +40,8 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
         return numberOfSimultaneousConnections;
     }
 
-    protected void validate (){
-        super.validate();
+    protected void validateCreate(){
+        super.validateCreate();
         this.validateInRange(Range.<Integer>closed(1, MAXIMUM_NUMBER_OF_SIMULTANEOUS_CONNECTIONS),
                 this.getNumberOfSimultaneousConnections(),
                 "comport.numberofsimultaneousconnections");

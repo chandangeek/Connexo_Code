@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -9,7 +10,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
-import com.energyict.mdc.ExpectedConstraintViolationRule;
 import com.energyict.mdc.ExpectedErrorRule;
 import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.impl.EnvironmentImpl;

@@ -7,7 +7,6 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.google.common.base.Optional;
 import com.google.inject.Provider;
 
 /**
@@ -39,8 +38,8 @@ public abstract class InboundComPortImpl extends ComPortImpl implements ComPort,
         }
     }
 
-    protected void validate() {
-        super.validate();
+    protected void validateCreate() {
+        super.validateCreate();
         validateNotNull(this.getComPortType(), "type");
         validateNotNull(comPortPool.orNull(), "inboundComPort.comPortPool");
         validateComPortType(comPortPool.get());

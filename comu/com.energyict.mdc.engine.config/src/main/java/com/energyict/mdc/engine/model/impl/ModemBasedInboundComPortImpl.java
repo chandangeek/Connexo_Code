@@ -190,8 +190,8 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
         return true;
     }
 
-    protected void validate() {
-        super.validate();
+    protected void validateCreate() {
+        super.validateCreate();
         validateNotNull(this.getRingCount(), "comport.ringcount");
         validateNotNull(this.getMaximumDialErrors(), "comport.maxnumberofdialerrors");
         validateNotNull(this.getConnectTimeout(), "comport.connecttimeout");

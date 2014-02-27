@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -11,10 +12,12 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
-
-import javax.inject.Inject;
 import java.util.Date;
 import java.util.Map;
+import javax.inject.Inject;
+import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
 /**
  * Serves as the root of class hierarchy that will provide
@@ -41,12 +44,15 @@ public abstract class ComPortImpl implements ComPort {
     private final DataModel dataModel;
 
     private long id=0;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
     private String name;
     private Date modificationDate;
     private final Reference<ComServer> comServer = ValueReference.absent();
     private boolean active;
     private String description;
+    @Null(groups = { Save.Update.class, Delete.class }, message = "{MDC.comport.noUpdateAllowed}")
     private Date obsoleteDate;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
     private ComPortType type;
 
     /**
@@ -59,20 +65,13 @@ public abstract class ComPortImpl implements ComPort {
     }
 
     public void setName(String name) {
-        this.validateName(name);
         this.name = name;
     }
 
-    protected void validate() {
+    protected void validateCreate() {
         validateNotNull(this.name, "name");
         validateNotNull(this.type, "type");
         validateName(this.name);
-    }
-
-    private void validateUpdateAllowed() {
-        if (this.isObsolete()) {
-            throw new TranslatableApplicationException("comport.noUpdateAllowed", "This comport is marked as deleted, no updates allowed.");
-        }
     }
 
     private void validateName(String nameToValidate)  {
@@ -184,12 +183,10 @@ public abstract class ComPortImpl implements ComPort {
 
     @Override
     public void save() {
-        validate();
         if (this.getId()==0) {
             throw new IllegalStateException("ComPort should have been created using the ComServer, how did you end up here?");
         } else {
-            validateUpdateAllowed();
-            dataModel.update(this);
+            Save.UPDATE.save(dataModel, this);
         }
     }
 
@@ -215,6 +212,20 @@ public abstract class ComPortImpl implements ComPort {
         this.setActive(source.isActive());
         this.setDescription(source.getDescription());
     }
+
+    @AssertTrue(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.DuplicateComServer}")
+    private boolean isUniqueName() {
+        for (ComPort comPort : comServer.get().getComPorts()) {
+            if (comPort.getId()!=this.getId() && comPort.getName().equals(this.name) && !comPort.isObsolete()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    interface Delete {}
+
+    interface Obsolete {}
 
     static protected class ComPortBuilderImpl<B extends ComPort.Builder<B, C>, C extends ComPort> implements ComPort.Builder<B, C> {
         C comPort;
@@ -245,8 +256,17 @@ public abstract class ComPortImpl implements ComPort {
 
         @Override
         public C add() {
-            ((ComPortImpl)comPort).validate();
+            ((ComPortImpl)comPort).validateCreate();
             return comPort;
         }
+
+//        private void validate(Class<?> group) {
+//            Validator validator = dataModel.getValidatorFactory().getValidator();
+//            Set<ConstraintViolation<ComServerImpl>> constraintViolations = validator.validate(this, group);
+//            if (!constraintViolations.isEmpty()) {
+//                throw new ConstraintViolationException(constraintViolations);
+//            }
+//        }
+
     }
 }

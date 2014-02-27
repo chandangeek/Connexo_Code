@@ -36,8 +36,8 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
         return true;
     }
 
-    protected void validate(){
-        super.validate();
+    protected void validateCreate(){
+        super.validateCreate();
         if (this.useHttps()) {
             this.validatePaths(this.getKeyStoreSpecsFilePath(), this.getKeyStoreSpecsPassword(), "keystore");
             this.validatePaths(this.getTrustStoreSpecsFilePath(), this.getTrustStoreSpecsPassword(), "truststore");
