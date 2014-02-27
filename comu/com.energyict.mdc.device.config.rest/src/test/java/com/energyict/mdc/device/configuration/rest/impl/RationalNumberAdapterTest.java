@@ -9,6 +9,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RationalNumberAdapterTest {
 
     @Test
+    public void testNotApplicableMarshal() throws Exception {
+        RationalNumberAdapter adapter = new RationalNumberAdapter();
+        String marshal = adapter.marshal(RationalNumber.NOTAPPLICABLE);
+        assertThat(marshal).isEqualTo(RationalNumberAdapter.NOT_APPLICABLE);
+    }
+
+    @Test
+    public void testNotApplicableUnmarshal() throws Exception {
+        RationalNumberAdapter adapter = new RationalNumberAdapter();
+        RationalNumber marshal = adapter.unmarshal(RationalNumberAdapter.NOT_APPLICABLE);
+        assertThat(marshal).isEqualTo(RationalNumber.NOTAPPLICABLE);
+    }
+
+    @Test
+    public void testEmptyStringUnmarshal() throws Exception {
+        RationalNumberAdapter adapter = new RationalNumberAdapter();
+        RationalNumber marshal = adapter.unmarshal("");
+        assertThat(marshal).isEqualTo(RationalNumber.NOTAPPLICABLE);
+    }
+
+    @Test
     public void testRationalNumberMarshal() throws Exception {
         RationalNumberAdapter adapter = new RationalNumberAdapter();
         String marshal = adapter.marshal(new RationalNumber(10L, 100L));
