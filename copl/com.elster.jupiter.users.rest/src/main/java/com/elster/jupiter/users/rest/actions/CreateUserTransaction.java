@@ -25,7 +25,7 @@ public class CreateUserTransaction implements Transaction<User> {
 
     @Override
     public User perform() {
-        User user = userService.createInternalUser(info.authenticationName, info.description);
+        User user = userService.createUser(info.authenticationName, info.description);
 
         for (GroupInfo groupInfo : info.groups) {
             Optional<Group> group = userService.getGroup(groupInfo.id);
