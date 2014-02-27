@@ -1,4 +1,4 @@
-package com.elster.jupiter.users.rest.actions;
+package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.User;
@@ -22,7 +22,7 @@ public class DeleteUserTransaction extends VoidTransaction {
     @Override
     protected void doPerform() {
         User user = fetchUser();
-        //validateDelete(user); TODO: check the reason for this validation
+        validateDelete(user);
         doDelete(user);
     }
 

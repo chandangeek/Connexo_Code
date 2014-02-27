@@ -2,12 +2,9 @@ package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
 import com.elster.jupiter.users.rest.GroupInfos;
-import com.elster.jupiter.users.rest.UserInGroupInfo;
-import com.elster.jupiter.users.rest.actions.*;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
@@ -49,15 +46,14 @@ public class GroupResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public GroupInfos deleteGroup(@PathParam("id") long id) {
-        GroupInfo info = new GroupInfo();
+    public GroupInfos deleteGroup(GroupInfo info, @PathParam("id") long id) {
         info.id = id;
         transactionService.execute(new DeleteGroupTransaction(info, userService));
         return new GroupInfos();
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     public GroupInfos getGroup(@PathParam("id") long id) {
         Optional<Group> group = userService.getGroup(id);
@@ -74,7 +70,7 @@ public class GroupResource {
     }
 
     @PUT
-    @Path("/{id}")
+    @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public GroupInfos updateGroup(GroupInfo info, @PathParam("id") long id) {
@@ -83,51 +79,6 @@ public class GroupResource {
         return getGroup(info.id);
     }
 
-    @POST
-    @Path("/{idgroup}/users/{iduser}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public GroupInfos joinGroup(@PathParam("idgroup") long idGroup, @PathParam("iduser") long idUser) {
-        UserInGroupInfo info = new UserInGroupInfo();
-        info.userId = idUser;
 
-        info.groupInfo = new GroupInfo();
-        info.groupInfo.id = idGroup;
-
-        GroupInfos result = new GroupInfos();
-        result.addAll(transactionService.execute(new AddUserToGroupTransaction(info, userService)));
-
-        return result;
-    }
-
-    @DELETE
-    @Path("/{idgroup}/users/{iduser}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public GroupInfos leaveGroup(@PathParam("idgroup") long idGroup, @PathParam("iduser") long idUser) {
-        UserInGroupInfo info = new UserInGroupInfo();
-        info.userId = idUser;
-
-        info.groupInfo = new GroupInfo();
-        info.groupInfo.id = idGroup;
-
-        GroupInfos result = new GroupInfos();
-        result.addAll(transactionService.execute(new DeleteUserFromGroupTransaction(info, userService)));
-
-        return result;
-    }
-
-    @GET
-    @Path("/users/{iduser}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public GroupInfos userMembership(@PathParam("iduser") long idUser) {
-        Optional<User> foundUser = userService.getUser(idUser);
-        if(!foundUser.isPresent()){
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-
-        GroupInfos result = new GroupInfos();
-        result.addAll(foundUser.get().getGroups());
-
-        return result;
-    }
 
 }

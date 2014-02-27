@@ -31,7 +31,7 @@ public class GroupInfos {
         return result;
     }
 
-   public void addAll(Iterable<? extends Group> groups) {
+    void addAll(Iterable<? extends Group> groups) {
         for (Group each : groups) {
             add(each);
         }

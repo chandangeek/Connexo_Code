@@ -1,4 +1,4 @@
-package com.elster.jupiter.users.rest.actions;
+package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.Group;
