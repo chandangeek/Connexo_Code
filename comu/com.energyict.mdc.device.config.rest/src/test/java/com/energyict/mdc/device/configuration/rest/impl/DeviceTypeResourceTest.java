@@ -11,13 +11,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -28,6 +21,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -124,11 +125,10 @@ public class DeviceTypeResourceTest extends JerseyTest {
         Map<String, Object> map = target("/devicetypes/").queryParam("start", 100).queryParam("limit", 20).request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(100);
         assertThat((List)map.get("deviceTypes")).isEmpty();
-        ArgumentCaptor<Integer> startArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Integer> limitArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(finder).paged(startArgumentCaptor.capture(), limitArgumentCaptor.capture());
-        assertThat(startArgumentCaptor.getValue()).isEqualTo(100);
-        assertThat(limitArgumentCaptor.getValue()).isEqualTo(20);
+        ArgumentCaptor<QueryParameters> queryParametersArgumentCaptor = ArgumentCaptor.forClass(QueryParameters.class);
+        verify(finder).from(queryParametersArgumentCaptor.capture());
+        assertThat(queryParametersArgumentCaptor.getValue().getStart()).isEqualTo(100);
+        assertThat(queryParametersArgumentCaptor.getValue().getLimit()).isEqualTo(20);
     }
 
     @Test
