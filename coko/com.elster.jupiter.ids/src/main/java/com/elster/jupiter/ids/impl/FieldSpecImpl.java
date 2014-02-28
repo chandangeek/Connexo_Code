@@ -1,19 +1,17 @@
 package com.elster.jupiter.ids.impl;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.ids.FieldDerivationRule;
 import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.RecordSpec;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.UtcInstant;
+
+import javax.inject.Inject;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class FieldSpecImpl implements FieldSpec {
 	
@@ -31,7 +29,7 @@ public class FieldSpecImpl implements FieldSpec {
 	private Reference<RecordSpec> recordSpec = ValueReference.absent();
 	
     @Inject
-	FieldSpecImpl(DataModel dataModel)  {
+	FieldSpecImpl()  {
 	}
 	
 	FieldSpecImpl init(RecordSpec recordSpec , String name , FieldType fieldType, FieldDerivationRule derivationRule) {

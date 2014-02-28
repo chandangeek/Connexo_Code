@@ -75,7 +75,7 @@ public class IdsServiceImpl implements IdsService, InstallService {
     }
 
     @Reference
-    public void setOrmService(OrmService ormService) {
+    public final void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(COMPONENTNAME, "TimeSeries Data Store");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
@@ -83,12 +83,12 @@ public class IdsServiceImpl implements IdsService, InstallService {
     }
    
     @Reference
-    public void setClock(Clock clock) {
+    public final void setClock(Clock clock) {
         this.clock = clock;
     }
     
     @Activate 
-    public void activate() {
+    public final void activate() {
     	dataModel.register(getModule());
     }
     

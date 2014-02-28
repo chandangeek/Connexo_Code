@@ -1,5 +1,16 @@
 package com.elster.jupiter.ids.impl;
 
+import com.elster.jupiter.ids.FieldSpec;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.StorerStats;
+import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.TimeSeriesDataStorer;
+import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.time.Clock;
+
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,17 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
-import com.elster.jupiter.ids.FieldSpec;
-import com.elster.jupiter.ids.RecordSpec;
-import com.elster.jupiter.ids.StorerStats;
-import com.elster.jupiter.ids.TimeSeries;
-import com.elster.jupiter.ids.TimeSeriesDataStorer;
-import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.time.Clock;
 
 @LiteralSql
 public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
@@ -339,15 +339,14 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 				last = previous;
 			}
 			for (TimeSeriesEntryImpl entry : oldEntries.values()) {
-				if (newEntries.containsKey(entry.getTimeStamp())) {
-					continue;
-				}
-				TimeSeriesEntryImpl previous = previous(entry, null);
-				if (previous != null) {
-					TimeSeriesEntryImpl current = entry.copy();
-					updateFromPrevious(current, previous);
-					newEntries.put(current.getTimeStamp(),current);
-				}
+				if (!newEntries.containsKey(entry.getTimeStamp())) {
+                    TimeSeriesEntryImpl previous = previous(entry, null);
+                    if (previous != null) {
+                        TimeSeriesEntryImpl current = entry.copy();
+                        updateFromPrevious(current, previous);
+                        newEntries.put(current.getTimeStamp(),current);
+                    }
+                }
 			}
 		}
 		
