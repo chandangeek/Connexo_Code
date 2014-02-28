@@ -1,0 +1,245 @@
+@font-face {
+    font-family: 'fontello';
+    src: url('../fonts/fontello/font/fontello.eot?93065969');
+    src: url('../fonts/fontello/font/fontello.eot?93065969#iefix') format('embedded-opentype'),
+    url('../fonts/fontello/font/fontello.woff?93065969') format('woff'),
+    url('../fonts/fontello/font/fontello.ttf?93065969') format('truetype'),
+    url('../fonts/fontello/font/fontello.svg?93065969#fontello') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+[class^="isu-icon-"]:before, [class*=" isu-icon-"]:before {
+    font-family: "fontello";
+    font-style: normal;
+    font-weight: normal;
+    speak: none;
+    display: inline-block;
+    text-decoration: inherit;
+    width: 1em;
+    margin-right: .2em;
+    text-align: center;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1em;
+    margin-left: .2em;
+}
+
+.isu-icon-cancel-circled2:before { content: '\e802'; } /* '' */
+.isu-icon-params:before { content: '\e81f'; } /* '' */
+.isu-icon-help-circled:before { content: '\e825'; } /* '' */
+.isu-icon-attention:before { content: '\e820'; } /* '' */
+.isu-icon-down-big:before { content: '\e803'; } /* '' */
+.isu-icon-left-big:before { content: '\e804'; } /* '' */
+.isu-icon-right-big:before { content: '\e805'; } /* '' */
+.isu-icon-up-big:before { content: '\e806'; } /* '' */
+.isu-icon-sort-alt-up:before { content: '\e809'; } /* '' */
+.isu-icon-sort-alt-down:before { content: '\e80a'; } /* '' */
+.isu-icon-sort-name-up:before { content: '\e80b'; } /* '' */
+.isu-icon-sort-name-down:before { content: '\e80c'; } /* '' */
+.isu-icon-sort-number-up:before { content: '\e80d'; } /* '' */
+.isu-icon-sort-number-down:before { content: '\e80e'; } /* '' */
+.isu-icon-gauge-1:before { content: '\e80f'; } /* '' */
+.isu-icon-user:before { content: '\e800'; } /* '' */
+.isu-icon-users:before { content: '\e801'; } /* '' */
+.isu-icon-check:before { content: '\e826'; } /* '' */
+.isu-icon-clock:before { content: '\e822'; } /* '' */
+.isu-icon-gauge-2:before { content: '\e810'; } /* '' */
+.isu-icon-ok-outline:before { content: '\e827'; } /* '' */
+.isu-icon-cancel-outline:before { content: '\e828'; } /* '' */
+.isu-icon-cancel:before { content: '\e829'; } /* '' */
+.isu-icon-help:before { content: '\e824'; } /* '' */
+.isu-icon-cancel-circled:before { content: '\e82b'; } /* '' */
+.isu-icon-warning-empty:before { content: '\e821'; } /* '' */
+.isu-icon-cog-outline:before { content: '\e807'; } /* '' */
+.isu-icon-chart-outline:before { content: '\e811'; } /* '' */
+.isu-icon-chart:before { content: '\e812'; } /* '' */
+.isu-icon-chart-alt-outline:before { content: '\e813'; } /* '' */
+.isu-icon-chart-alt:before { content: '\e814'; } /* '' */
+.isu-icon-chart-bar-outline:before { content: '\e815'; } /* '' */
+.isu-icon-chart-bar:before { content: '\e816'; } /* '' */
+.isu-icon-ok:before { content: '\e82d'; } /* '' */
+.isu-icon-ok-circle:before { content: '\e82c'; } /* '' */
+.isu-icon-equalizer:before { content: '\e817'; } /* '' */
+.isu-icon-chart-bar-1:before { content: '\e818'; } /* '' */
+.isu-icon-ok-1:before { content: '\e82e'; } /* '' */
+.isu-icon-signal:before { content: '\e819'; } /* '' */
+.isu-icon-chart-1:before { content: '\e81a'; } /* '' */
+.isu-icon-chart-bar-2:before { content: '\e81b'; } /* '' */
+.isu-icon-chart-bar-3:before { content: '\e81c'; } /* '' */
+.isu-icon-cog:before { content: '\e81d'; } /* '' */
+.isu-icon-filter:before { content: '\e823'; } /* '' */
+.isu-icon-gauge:before { content: '\e808'; } /* '' */
+.isu-icon-cog-1:before { content: '\e81e'; } /* '' */
+.isu-icon-cancel-circled-outline:before { content: '\e82a'; } /* '' */
+
+.isu-icon-white:before {
+    color: #fff;
+}
+
+.isu-action-icon {
+    background-image: url("../images/icons/actions.png");
+}
+
+span[class^=isu-assignee-] {
+    display: inline-block;
+    height: 16px;
+    vertical-align: middle;
+    width: 16px;
+}
+
+.isu-icon-USER:before {
+    content: '\e800';
+}
+
+.isu-icon-GROUP:before {
+    content: '\e801';
+}
+
+.isu-icon-ROLE:before {
+    content: '\e810';
+}
+
+.isu-button-close {
+    padding: 0 20px 0 0;
+    position: relative;
+}
+
+.isu-button-close:before {
+    font-size: 22px;
+    position: absolute;
+    right: -7px;
+    top: -3px;
+}
+
+.isu-error-panel {
+    border: 1px solid #CF4C35;
+    border-radius: 10px;
+    color: #CF4C35;
+    padding: 10px;
+}
+
+.isu-item-data-table {
+    border: none;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.isu-item-data-table td {
+    padding: 0 5px 15px 0;
+    vertical-align: top;
+}
+
+.isu-item-data-table tr td:nth-child(2n+1) {
+    text-align: right;
+    width: 200px;
+}
+
+.isu-item-data-table tr td:nth-child(2n) {
+    padding-left: 15px;
+}
+
+.isu-item-details-bottom {
+    text-align: right;
+}
+
+.isu-grid-action-btn {
+    background: url("../images/icons/actions.png") no-repeat scroll 2px 3px rgba(0, 0, 0, 0);
+    border-color: #fff;
+    margin: -9px 0 0 1px;
+}
+
+.issue-action-menu {
+    width: 50px !important;
+}
+
+
+
+
+
+
+
+
+/* Message Window */
+
+/* Window */
+.isu-msg-panel > .x-window-body,
+.isu-msg-window > .x-window-body {
+    background-color: transparent;
+}
+
+.isu-msg-window {
+    background-color: transparent;
+    border: 0;
+}
+
+/* Panel */
+.isu-msg-panel > .x-panel-body {
+    background-color: transparent;
+    border: 0;
+    padding: 5px;
+}
+
+.isu-msg-panel {
+    background-color: transparent;
+}
+
+/* Error*/
+.isu-msg-error {
+    background-color: rgba(255, 0, 0, 0.16);
+    border: 1px solid #FF0000;
+    border-radius: 5px;
+}
+
+.isu-msg-error-icon {
+    font-size: 28px;
+    color: #f00;
+}
+
+/* Attention*/
+.isu-msg-attention {
+    background-color: rgba(255, 128, 0, 0.4);
+    border: 1px solid #FF8800;
+    border-radius: 5px;
+}
+
+.isu-msg-attention-icon {
+    font-size: 28px;
+    color: #f00;
+}
+
+/* Question*/
+.isu-msg-question {
+    background-color: rgba(255, 255, 0, 0.4);
+    border: 1px solid #FF0000;
+    border-radius: 5px;
+}
+
+.isu-msg-question-icon {
+    font-size: 28px;
+    color: #EABA00;
+}
+
+/* Success*/
+.isu-msg-success {
+    background-color: rgba(0, 255, 0, 0.4);
+    border: 1px solid #00ff00;
+    border-radius: 5px;
+}
+
+.isu-msg-success-icon {
+    font-size: 28px;
+    color: #747474;
+}
+
+/* Notify*/
+.isu-msg-notify {
+    background-color: rgba(128, 128, 128, 0.4);
+    border: 1px solid #000;
+    border-radius: 5px;
+}
+
+.isu-msg-nitify-icon {
+    font-size: 28px;
+    color: #f00;
+}
+
