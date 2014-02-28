@@ -1,22 +1,37 @@
 package com.elster.jupiter.issue.impl;
 
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.*;
+import com.elster.jupiter.issue.database.DatabaseConst;
 import com.elster.jupiter.issue.database.GroupingOperation;
 import com.elster.jupiter.issue.database.TableSpecs;
 import com.elster.jupiter.issue.module.Installer;
 import com.elster.jupiter.issue.module.MessageSeeds;
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
+import org.joda.time.DateTime;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -34,17 +49,28 @@ public class IssueServiceImpl implements IssueService, InstallService {
     private volatile QueryService queryService;
     private volatile MeteringService meteringService;
     private volatile UserService userService;
+    private MessageService messageService;
+    private AppService appService;
+    private CronExpressionParser cronExpressionParser;
     private static Logger LOG = Logger.getLogger(IssueServiceImpl.class.getName());
+    // TODO delete eventService
+    private volatile EventService eventService;
 
     public IssueServiceImpl(){
     }
 
     @Inject
-    public IssueServiceImpl(OrmService ormService, QueryService queryService, MeteringService meteringService, UserService userService) {
+    public IssueServiceImpl(OrmService ormService, QueryService queryService, MeteringService meteringService,
+                            UserService userService, EventService eventService, MessageService messageService,
+                            AppService appService, CronExpressionParser cronExpressionParser) {
         setOrmService(ormService);
         setQueryService(queryService);
         setMeteringService(meteringService);
         setUserService(userService);
+        setMessageService(messageService);
+        //TODO delete when events will be defined by MDC
+        setEventService(eventService);
+        // --END delete when events will be defined by MDC
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -60,13 +86,22 @@ public class IssueServiceImpl implements IssueService, InstallService {
                 bind(QueryService.class).toInstance(queryService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(UserService.class).toInstance(userService);
+                bind(MessageService.class).toInstance(messageService);
+                bind(AppService.class).toInstance(appService);
+                bind(CronExpressionParser.class).toInstance(cronExpressionParser);
+                //TODO delete when events will be defined by MDC
+                bind(EventService.class).toInstance(eventService);
+                //---END delete when events will be defined by MDC
             }
         });
     }
 
     @Override
     public void install() {
-        new Installer(this, this.dataModel).install(true, false);
+        new Installer(this, this.dataModel, messageService, appService, cronExpressionParser).install(true, false);
+        //TODO delete when events will be defined by MDC
+        setEventTopics();
+
     }
 
     @Reference
@@ -93,6 +128,21 @@ public class IssueServiceImpl implements IssueService, InstallService {
         this.userService = userService;
     }
 
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public void setAppService(AppService appService) {
+        this.appService = appService;
+    }
+
+    @Reference
+    public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
+        this.cronExpressionParser = cronExpressionParser;
+    }
+
     @Override
     public Optional<Issue> getIssueById(long issueId) {
         Query<Issue> query = queryService.wrap(dataModel.query(Issue.class));
@@ -105,11 +155,37 @@ public class IssueServiceImpl implements IssueService, InstallService {
         return query.get(reasonId);
     }
 
-    public void createIssueReason(String reasonName){
-        if (reasonName != null && reasonName.length() > 0){
-            IssueReason newReason = IssueReasonImpl.from(this.dataModel, "", reasonName);
+    public void createIssueReason(String reasonName, String reasonTopic){
+        if (reasonName != null && reasonName.length() > 0 && reasonTopic != null && reasonTopic.length() > 0 ){
+            IssueReason newReason = IssueReasonImpl.from(this.dataModel, reasonTopic, reasonName);
             dataModel.mapper(IssueReason.class).persist(newReason);
         }
+    }
+
+    @Override
+    public IssueReason getIssueReasonFromTopic(String topic) {
+        if (topic != null && topic.length() > 0){
+            Query<IssueReason> query = queryService.wrap(dataModel.query(IssueReason.class));
+            Condition condition = Where.where("topic").isEqualToIgnoreCase(topic);
+            List<IssueReason> issueReasons = query.select(condition);
+            if (issueReasons != null && issueReasons.size() > 0){
+                return issueReasons.get(0);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public IssueReason getIssueReasonFromName(String name) {
+        if (name != null && name.length() > 0){
+            Query<IssueReason> query = queryService.wrap(dataModel.query(IssueReason.class));
+            Condition condition = Where.where("name").isEqualToIgnoreCase(name);
+            List<IssueReason> issueReasons = query.select(condition);
+            if (issueReasons != null && issueReasons.size() > 0){
+                return issueReasons.get(0);
+            }
+        }
+        return null;
     }
 
     @Override
@@ -256,4 +332,44 @@ public class IssueServiceImpl implements IssueService, InstallService {
         dataModel.mapper(Issue.class).update(issueImpl);
         return result;
     }
+
+    @Override
+    public void createIssue(Map<?, ?> map) {
+        IssueImpl newIssue = new IssueImpl(dataModel);
+        newIssue.setReason(getIssueReasonFromTopic(String.class.cast(map.get("event.topics"))));
+        newIssue.setStatus(getIssueStatusFromString("Open"));
+        newIssue.setDueDate(new UtcInstant(1400075425000L));
+        newIssue.setAssignee(buildIssueAssignee(IssueAssigneeType.USER, 1L));
+
+        String amrId = String.class.cast(map.get("deviceIdentifier"));
+        Optional<AmrSystem> amrSystemRef = meteringService.findAmrSystem(DatabaseConst.MDC_AMR_SYSTEM_ID);
+        if (amrSystemRef.isPresent()) {
+            Optional<Meter> meterRef =  amrSystemRef.get().findMeter(amrId);
+            if(meterRef.isPresent()) {
+                newIssue.setDevice(meterRef.get());
+            }
+        }
+        dataModel.mapper(Issue.class).persist(newIssue);
+    }
+
+    //TODO delete when events will be defined by MDC ----------------
+    @Reference
+    public  void  setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
+    private void setEventTopics() {
+        for (IssueEventType eventType : IssueEventType.values()) {
+            try {
+                eventType.install(eventService);
+            } catch (Exception e) {
+                System.out.println("Could not create event type : " + eventType.name());
+            }
+        }
+    }
+
+    public void getEvent() {
+        eventService.postEvent(IssueEventType.DEVICE_COMMUNICATION_FAILURE.topic(), new CreateIssueEvent());
+    }
+    //----END delete when events will be defined by MDC-------------------
 }

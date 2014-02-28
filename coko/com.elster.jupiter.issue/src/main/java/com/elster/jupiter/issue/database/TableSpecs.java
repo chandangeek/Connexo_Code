@@ -22,7 +22,7 @@ public enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
             table.column(DatabaseConst.ISSUE_REASON_COLUMN_NAME).map("name").type("varchar(200)").notNull().add();
-
+            table.column(DatabaseConst.ISSUE_REASON_COLUMN_TOPIC).map("topic").type("varchar(200)").notNull().add();
             table.addAuditColumns();
             table.primaryKey(DatabaseConst.ISSUE_REASON_PK_NAME).on(idColumn).add();
         }
@@ -33,6 +33,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<IssueStatus> table = dataModel.addTable(name(), IssueStatus.class);
             table.map(IssueStatusImpl.class);
+            table.cache();
             table.setJournalTableName(DatabaseConst.ISSUE_STATUS_JOURNAL_TABLE_NAME);
 
             Column idColumn = table.addAutoIdColumn();

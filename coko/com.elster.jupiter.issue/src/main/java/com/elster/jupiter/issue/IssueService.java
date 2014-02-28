@@ -14,7 +14,9 @@ public interface IssueService {
     Optional<Issue> getIssueById(long issueId);
 
     Optional<IssueReason> getIssueReasonById(long reasonId);
-    void createIssueReason(String reasonName);
+    void createIssueReason(String reasonName, String reasonTopic);
+    IssueReason getIssueReasonFromTopic(String topic);
+    IssueReason getIssueReasonFromName(String name);
 
     Optional<IssueStatus> getIssueStatusById(long statusId);
     IssueStatus getIssueStatusFromString(String status);
@@ -27,4 +29,8 @@ public interface IssueService {
 
     OperationResult<String, String[]> closeIssue(long issueId, long version, IssueStatus newStatus, String comment);
     OperationResult<String, String[]> assignIssue(long issueId, long version, IssueAssigneeType type, long assignId, String comment);
+    void createIssue(Map<?, ?> map);
+    //TODO delete this class when events will be sent by MDC
+    void getEvent();
+    // END delete this class when events will be sent by MDC
 }
