@@ -3,10 +3,12 @@ package com.elster.jupiter.cbo;
 import java.util.Objects;
 
 public final class RationalNumber {
-	private final long numerator;
+
+    public static final String NOT_APPLICABLE = "Not applicable";
+    private final long numerator;
 	private final long denominator;
 	
-	public static final RationalNumber NOTAPPLICABLE = new RationalNumber(); 
+	public static final RationalNumber NOTAPPLICABLE = new RationalNumber();
 	
 	private RationalNumber() {
 		this.numerator = 0;
@@ -35,6 +37,9 @@ public final class RationalNumber {
 	
 	@Override
 	public String toString() {
+        if (denominator == 0L) {
+            return NOT_APPLICABLE;
+        }
 		return "" + numerator + "/" + denominator;
 	}
 
