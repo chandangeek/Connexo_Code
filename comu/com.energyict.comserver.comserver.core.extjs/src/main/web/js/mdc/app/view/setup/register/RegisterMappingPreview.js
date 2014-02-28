@@ -12,6 +12,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
         align: 'stretch'
     },
 
+    deviceTypeId: null,
     initComponent: function () {
         var me = this;
         this.items = [

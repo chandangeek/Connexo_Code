@@ -232,13 +232,10 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
 
 
     },
-    removeRegisterMappingFromPreview: function (grid, selectionmodel,id) {
+    removeRegisterMappingFromPreview: function () {
            var me = this;
-           console.log('id');
-           console.log(id);
-
            var registerMappingToDelete = me.getRegisterMappingGrid().getSelectionModel().getSelection()[0];
-           Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
+           Ext.ModelManager.getModel('Mdc.model.DeviceType').load(this.getRegisterMappingPreview().deviceTypeId, {
                success: function (deviceType) {
                    Ext.MessageBox.show({
                        msg: 'Are you sure you want to remove register type "' + registerMappingToDelete.get('name') + '"? <br />This action cannot be undone.',
