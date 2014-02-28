@@ -115,8 +115,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                         text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
                                                         xtype: 'button',
                                                         action: 'createAction',
-                                                        itemId: 'createEditButton',
-                                                        formBind: true
+                                                        itemId: 'createEditButton'
+//                                                        formBind: true
                                                     },
                                                     {
                                                         xtype: 'component',
