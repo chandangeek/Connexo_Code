@@ -1,17 +1,22 @@
 package com.elster.jupiter.issue.tests;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.issue.IssueReason;
-import com.elster.jupiter.issue.IssueService;
-import com.elster.jupiter.issue.IssueStatus;
+import com.elster.jupiter.issue.*;
+import com.elster.jupiter.issue.impl.IssueImpl;
+import com.elster.jupiter.issue.impl.IssueServiceImpl;
+import com.elster.jupiter.issue.impl.IssueStatusImpl;
 import com.elster.jupiter.issue.module.IssueModule;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.*;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -39,6 +44,7 @@ import org.osgi.service.event.EventAdmin;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssueServiceImplTest {
@@ -46,12 +52,16 @@ public class IssueServiceImplTest {
     private static Injector injector;
 
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
     @Mock
     private static BundleContext bundleContext;
-
     @Mock
     private static EventAdmin eventAdmin;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private DataMapper<HistoricalIssue> dataModelFactory;
+    @Mock
+    private QueryService queryService;
 
     private class MockModule extends AbstractModule {
         @Override
@@ -82,6 +92,9 @@ public class IssueServiceImplTest {
                 new UserModule(),
                 new IssueModule()
         );
+
+        when(dataModel.mapper(HistoricalIssue.class)).thenReturn(dataModelFactory);
+
         try (TransactionContext ctx = getTransactionService().getContext() ) {
             injector.getInstance(IssueService.class);
             ctx.commit();
@@ -122,6 +135,37 @@ public class IssueServiceImplTest {
             assertThat(reason).isNotNull();
             assertThat(reason.getName()).isEqualTo("TestReason");
             context.commit();
+        }
+    }
+
+    @Test
+    public void testIssueStatusFromString()  {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            IssueService issueService = getIssueService();
+            IssueStatus statusCorrect = issueService.getIssueStatusFromString("Open");
+            assertThat(statusCorrect).isNotNull();
+            assertThat(statusCorrect.getName()).isEqualTo("Open");
+            statusCorrect = issueService.getIssueStatusFromString("oPEn");
+            assertThat(statusCorrect.getName()).isEqualTo("Open");
+            IssueStatus statusNonexistent = issueService.getIssueStatusFromString("NonexistentStatus");
+            assertThat(statusNonexistent).isNull();
+            IssueStatus statusEmptyString = issueService.getIssueStatusFromString("");
+            assertThat(statusEmptyString).isNull();
+            context.commit();
+        }
+    }
+
+    @Test
+    public void testCloseIssue()  {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            IssueService issueService = getIssueService();
+            IssueStatus status = issueService.getIssueStatusFromString("TestStatus");
+            Issue issueForClose = issueService.getIssueById(1).orNull();
+            assertThat(issueForClose).isNotNull();
+            IssueImpl.class.cast(issueForClose).setVersion(5);
+            issueService.closeIssue(issueForClose.getId(), 1, status, "");
+            issueForClose = issueService.getIssueById(issueForClose.getId()).orNull();
+            assertThat(issueForClose).isNull();
         }
     }
 

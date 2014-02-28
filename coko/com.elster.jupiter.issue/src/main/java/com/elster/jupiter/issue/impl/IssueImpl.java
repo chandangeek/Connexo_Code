@@ -45,7 +45,9 @@ public class IssueImpl implements Issue {
     }
 
     Issue init(Issue issue){
-        this.setDueDate(new UtcInstant(issue.getDueDate().getTime()));
+        if (issue.getDueDate() != null) {
+            this.setDueDate(new UtcInstant(issue.getDueDate().getTime()));
+        }
         this.setReason(issue.getReason());
         this.setStatus(issue.getStatus());
         this.setAssignee(IssueAssigneeImpl.class.cast(issue.getAssignee()));
