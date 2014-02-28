@@ -1,18 +1,17 @@
-Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
+Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.registerMappingsGrid',
+    alias: 'widget.registerTypeGrid',
     overflowY: 'auto',
-    deviceTypeId: null,
-    itemId: 'registermappinggrid',
+    itemId: 'registertypegrid',
     selModel: {
         mode: 'SINGLE'
     },
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.RegisterTypesOfDevicetype'
+        'Mdc.store.RegisterTypes'
     ],
-    store: 'RegisterTypesOfDevicetype',
+    store: 'RegisterTypes',
     padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
@@ -20,9 +19,12 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
             {
                 header: Uni.I18n.translate('registerMappings.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-                flex: 3,
                 sortable: false,
-                hideable: false
+                hideable: false,
+                renderer: function (value, b, record) {
+                    return '<a href="#setup/registertypes/' + record.get('id') + '">' + value + '</a>';
+                },
+                flex: 3
             },
             {
                 xtype: 'actioncolumn',
@@ -75,16 +77,30 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                                 items: [
                                     {
                                         xtype: 'menuitem',
-                                        text: Uni.I18n.translate('registerMappings.remove', 'MDC', 'Remove'),
+                                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                         listeners: {
                                             click: {
                                                 element: 'el',
                                                 fn: function () {
-                                                    console.log('Remove');
-                                                    this.fireEvent('removeItem', grid, grid.getSelectionModel().getSelection(), me.deviceTypeId);
+                                                    this.fireEvent('editItem', grid, grid.getSelectionModel().getSelection());
                                                 },
                                                 scope: this
                                             }
+
+                                        }
+                                    },
+                                    {
+                                        xtype: 'menuitem',
+                                        text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                                        listeners: {
+                                            click: {
+                                                element: 'el',
+                                                fn: function () {
+                                                    this.fireEvent('deleteItem', grid, grid.getSelectionModel().getSelection());
+                                                },
+                                                scope: this
+                                            }
+
                                         }
                                     }
                                 ]
@@ -110,13 +126,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                         flex: 1
                     },
                     {
-
-                        text: Uni.I18n.translate('registerMapping.addRegisterMapping', 'MDC', 'Add register types'),
-                        itemId: 'addRegisterMappingBtn',
+                        text: Uni.I18n.translate('devicetype.createRegisterType', 'MDC', 'Create register type'),
+                        itemId: 'createRegisterType',
                         xtype: 'button',
-                        href: '#setup/registertypes/add',
-                        hrefTarget: '_self',
-                        action: 'addRegisterMapping'
+                        action: 'createRegisterType'
                     },
                     {
                         text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk action'),
@@ -124,6 +137,11 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                         xtype: 'button'
                     }
                 ]
+            },
+            {
+                xtype: 'pagingtoolbarbottom',
+                store: this.store,
+                dock: 'bottom'
             }
         ];
 

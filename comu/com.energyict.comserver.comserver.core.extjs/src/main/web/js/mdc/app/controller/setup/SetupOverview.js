@@ -10,7 +10,8 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         'setup.devicecommunicationprotocol.List',
         'setup.licensedprotocol.List',
         'setup.devicetype.DeviceTypesSetup',
-        'setup.register.RegisterMappingsSetup'
+        'setup.register.RegisterMappingsSetup',
+        'setup.registertype.RegisterTypeSetup'
     ],
 
     init: function () {
@@ -52,8 +53,12 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         var widget = Ext.widget('registerMappingsSetup');
         Mdc.getApplication().getMainController().showContent(widget);
     },
-    showDeviceTypes: function(){
+    showDeviceTypes: function () {
         var widget = Ext.widget('deviceTypesSetup');
+        Mdc.getApplication().getMainController().showContent(widget);
+    },
+    showRegisterTypes: function () {
+        var widget = Ext.widget('registerTypeSetup');
         Mdc.getApplication().getMainController().showContent(widget);
     }
 

@@ -23,6 +23,7 @@ Ext.define('Mdc.Application', {
         'setup.DeviceCommunicationProtocol',
         'setup.LicensedProtocol',
         'setup.DeviceTypes',
+        'setup.RegisterTypes',
         'setup.RegisterMappings',
         'setup.DeviceConfigurations'
     ],

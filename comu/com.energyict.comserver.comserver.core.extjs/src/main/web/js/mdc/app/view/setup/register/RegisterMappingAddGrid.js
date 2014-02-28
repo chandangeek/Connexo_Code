@@ -11,6 +11,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.AvailableRegisterTypes'
+ //       'Ext.grid.plugin.BufferedRenderer'
     ],
     nbrOfSelectedItems: 0,
     listeners: {
@@ -21,6 +22,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
         }
     },
     store: 'AvailableRegisterTypes',
+ //   plugins: 'bufferedrenderer',
     padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
@@ -28,12 +30,9 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
             {
                 header: Uni.I18n.translate('registerMappings.name', 'MDC', 'Name'),
                 dataIndex: 'name',
+                flex: 3,
                 sortable: false,
-                hideable: false,
-                renderer: function (value, b, record) {
-                    return '<a href="#setup/devicetypes/' + me.deviceTypeId + '/registertypes/' + record.get('id') + '">' + value + '</a>';
-                },
-                flex: 2
+                hideable: false
             },
             {
                 xtype: 'actioncolumn',
@@ -46,7 +45,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 flex: 2,
                 items: [
                     {
-                        icon: 'resources/images/gear-16x16.png',
+                        icon: 'resources/images/information.png',
                         tooltip: 'Reading type info',
                         handler: function (grid, rowIndex, colIndex, item, e) {
                             var record = grid.getStore().getAt(rowIndex);
@@ -89,17 +88,9 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                         text: 'Manage register types',
                         itemId: 'manageRegisterMappingBtn',
                         xtype: 'button',
-                        href: '',
-                        hrefTarget: '_self',
-                        action: 'manageRegisters'
-                    },
-                    {
-                        text: 'Create register types',
-                        itemId: 'createRegisterMappingBtn',
-                        xtype: 'button',
-                        href: '',
-                        hrefTarget: '_self',
-                        action: 'createRegisterMapping'
+                        href: '#/setup/registertypes',
+                        hrefTarget: '_new'
+                        //action: 'manageRegisters'
                     }
                 ]
             }

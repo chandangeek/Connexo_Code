@@ -150,7 +150,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                             autoEl: {
                                                 tag: 'a',
                                                 href: '#',
-                                                html: Uni.I18n.translate('devicetype.registers', 'MDC', 'Registers')
+                                                html: Uni.I18n.translate('devicetype.registers', 'MDC', 'Register types')
                                             },
                                             itemId: 'deviceTypeRegistersLink'
                                         },
@@ -163,7 +163,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                             autoEl: {
                                                 tag: 'a',
                                                 href: '#',
-                                                html: Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'loadprofiles')
+                                                html: Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'loadprofile types')
                                             },
                                             itemId: 'deviceTypeLoadProfilesLink'
 

@@ -48,6 +48,10 @@ Ext.define('Mdc.view.setup.Browse', {
                         {
                             xtype: 'component',
                             html: '<a href="#/setup/devicetypes">devicetypes</a>'
+                        },
+                        {
+                            xtype: 'component',
+                            html: '<a href="#/setup/registertypes">Register types</a>'
                         }
                     ],
                     columnWidth: 0.5,
