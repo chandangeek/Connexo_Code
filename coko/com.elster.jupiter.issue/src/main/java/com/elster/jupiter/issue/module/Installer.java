@@ -44,7 +44,8 @@ public class Installer {
         this.issueService.createIssueReason("Unknown inbound device", IssueEventType.UNKNOWN_INBOUND_DEVICE.topic());
         this.issueService.createIssueReason("Unknown outbound device", IssueEventType.UNKNOWN_OUTBOUND_DEVICE.topic());
         this.issueService.createIssueReason("Failed to communicate", IssueEventType.DEVICE_COMMUNICATION_FAILURE.topic());
-        this.issueService.createIssueReason("Connection lost", IssueEventType.DEVICE_COMMUNICATION_FAILURE.topic());
+        this.issueService.createIssueReason("Connection setup failed", IssueEventType.DEVICE_CONNECTION_SETUP_FAILURE.topic());
+        this.issueService.createIssueReason("Connection failed", IssueEventType.DEVICE_CONNECTION_FAILURE.topic());
     }
 
     private void setDefaultStatuses(){
