@@ -5,6 +5,9 @@ Ext.define('Mdc.store.AvailableRegisterTypes', {
     ],
     model: 'Mdc.model.RegisterType',
     storeId: 'AvailableRegisterTypes',
+  //  buffered: true,
+  //  leadingBufferZone: 50,
+  //  pageSize: 20,
     proxy: {
         type: 'rest',
         url: '../../api/dtc/devicetypes/{deviceType}/registertypes?available=true',

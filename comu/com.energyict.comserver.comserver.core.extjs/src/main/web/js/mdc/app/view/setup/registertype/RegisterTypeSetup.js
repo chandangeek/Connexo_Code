@@ -1,12 +1,11 @@
-Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
+Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.registerMappingsSetup',
+    alias: 'widget.registerTypeSetup',
     autoScroll: true,
-    itemId: 'registerMappingSetup',
-    deviceTypeId: null,
+    itemId: 'registerTypeSetup',
     requires: [
-        'Mdc.view.setup.register.RegisterMappingsGrid',
-        'Mdc.view.setup.register.RegisterMappingPreview',
+        'Mdc.view.setup.registertype.RegisterTypeGrid',
+        'Mdc.view.setup.registertype.RegisterTypePreview',
         'Uni.view.breadcrumb.Trail'
     ],
     layout: {
@@ -33,26 +32,21 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                 },
                 {
                     xtype: 'component',
-                    html: Uni.I18n.translate('registerMapping.deviceType','MDC','Device type'),
-                    margins: '10 10 0 20'
-                },
-                {
-                    xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('registerMapping.registerTypes','MDC','Register types') + '</h1>',
+                    html: '<h1>' + Uni.I18n.translate('registerType.registerTypes','MDC','Register types') + '</h1>',
                     margins: '10 10 10 10',
                     itemId: 'registerTypeTitle'
                 },
                 {
                     xtype: 'container',
                     items: [],
-                    itemId: 'registerMappingGridContainer'
+                    itemId: 'registerTypeGridContainer'
                 },
                 {
                     xtype: 'component',
                     height: 25
                 },
                 {
-                    xtype: 'registerMappingPreview'
+                    xtype: 'registerTypePreview'
                 }
             ]}
     ],
@@ -60,10 +54,9 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
 
     initComponent: function () {
         this.callParent(arguments);
-        this.down('#registerMappingGridContainer').add(
+        this.down('#registerTypeGridContainer').add(
             {
-                xtype: 'registerMappingsGrid',
-                deviceTypeId: this.deviceTypeId
+                xtype: 'registerTypeGrid'
             }
         );
     }

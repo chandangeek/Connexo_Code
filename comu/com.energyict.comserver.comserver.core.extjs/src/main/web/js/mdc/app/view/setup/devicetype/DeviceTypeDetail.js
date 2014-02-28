@@ -150,7 +150,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                                     autoEl: {
                                                         tag: 'a',
                                                         href: '#',
-                                                        html: Uni.I18n.translate('devicetype.registers', 'MDC', 'Registers')
+                                                        html: Uni.I18n.translate('devicetype.registers', 'MDC', 'Register types')
                                                     },
                                                     itemId: 'deviceTypeDetailRegistersLink'
                                                 },
@@ -163,7 +163,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                                     autoEl: {
                                                         tag: 'a',
                                                         href: '#',
-                                                        html: Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'loadprofiles')
+                                                        html: Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'Loadprofile types')
                                                     },
                                                     itemId: 'deviceTypeDetailLoadProfilesLink'
 
@@ -175,7 +175,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                                     autoEl: {
                                                         tag: 'a',
                                                         href: '#',
-                                                        html: Uni.I18n.translate('devicetype.logbooks', 'MDC', 'logbooks')
+                                                        html: Uni.I18n.translate('devicetype.logbooks', 'MDC', 'logbook types')
                                                     },
                                                     itemId: 'deviceTypeDetailLogBooksLink'
                                                 }

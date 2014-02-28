@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
     alias: 'widget.registerMappingAdd',
     autoScroll: true,
     requires: [
@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
         align: 'stretch'
     },
     deviceTypeId: null,
-    cls: 'content-wrapper',
+    cls: 'content-container',
     items: [
         {
             xtype: 'container',

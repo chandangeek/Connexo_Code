@@ -11,13 +11,13 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
     ],
 
     requires: [
-        'Mdc.store.RegisterTypes',
+        'Mdc.store.RegisterTypesOfDevicetype',
         'Mdc.store.AvailableRegisterTypes',
         'Uni.model.BreadcrumbItem'
     ],
 
     stores: [
-        'RegisterTypes',
+        'RegisterTypesOfDevicetype',
         'AvailableRegisterTypes'
     ],
 
@@ -58,7 +58,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                 showReadingTypeInfo: this.showReadingType
             },
             '#registerMappingPreview menuitem[action=removeRegisterMapping]': {
-                click: this.removeRegisterMapping
+                click: this.removeRegisterMappingFromPreview
             }
         });
     },
@@ -86,8 +86,8 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
 
     showRegisterMappings: function (id) {
         var me = this;
-        this.getRegisterTypesStore().getProxy().setExtraParam('deviceType', id);
-        this.getRegisterTypesStore().load(
+        this.getRegisterTypesOfDevicetypeStore().getProxy().setExtraParam('deviceType', id);
+        this.getRegisterTypesOfDevicetypeStore().load(
             {
                 callback: function () {
                     var widget = Ext.widget('registerMappingsSetup', {deviceTypeId: id});
@@ -196,12 +196,12 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
             success: function (deviceType) {
-                console.log(deviceType.registerTypes());
+                console.log(deviceType);
                 deviceType.registerTypes().add(registerMappings);
                 deviceType.save({
                     callback: function () {
                         deviceType.commit();
-                        me.getRegisterTypesStore().add(registerMappings);
+                        me.getRegisterTypesOfDevicetypeStore().add(registerMappings);
                         location.href = '#setup/devicetypes/' + me.deviceTypeId + '/registertypes';
                     }
                 });
@@ -232,6 +232,32 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
 
 
     },
+    removeRegisterMappingFromPreview: function (grid, selectionmodel,id) {
+           var me = this;
+           console.log('id');
+           console.log(id);
+
+           var registerMappingToDelete = me.getRegisterMappingGrid().getSelectionModel().getSelection()[0];
+           Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
+               success: function (deviceType) {
+                   Ext.MessageBox.show({
+                       msg: 'Are you sure you want to remove register type "' + registerMappingToDelete.get('name') + '"? <br />This action cannot be undone.',
+                       title: 'Remove register type: "' + registerMappingToDelete.get('name') + '"',
+                       config: {
+                           registerMappingToDelete: registerMappingToDelete,
+                           deviceType: deviceType,
+                           me: me
+                       },
+                       buttons: Ext.MessageBox.YESNO,
+                       fn: me.removeRegisterMappingFromDeviceType,
+                       icon: Ext.MessageBox.WARNING
+                   });
+
+               }
+           });
+
+
+       },
 
     removeRegisterMappingFromDeviceType: function (btn, text, opt) {
         if (btn === 'yes') {
@@ -241,7 +267,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             deviceType.registerTypes().remove(registerMappingToDelete);
             deviceType.save({
                 callback: function () {
-                    me.getRegisterTypesStore().remove(registerMappingToDelete);
+                    me.getRegisterTypesOfDevicetypeStore().remove(registerMappingToDelete);
                     location.href = '#setup/devicetypes/' + deviceType.get('id') + '/registertypes';
                 }
             });

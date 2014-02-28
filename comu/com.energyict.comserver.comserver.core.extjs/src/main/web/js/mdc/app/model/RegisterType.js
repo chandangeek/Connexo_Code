@@ -20,12 +20,10 @@ Ext.define('Mdc.model.RegisterType', {
         {name:'directionOfFlow', type: 'string',useNull:true},
         {name:'interharmonics', type: 'string',useNull:true},
         {name:'powerOfTenMultiplier', type: 'string',useNull:true},
-        {name:'unitOfMeasure', type: 'string',useNull:true}/*,
-        {name:'hasOnlyDeactivatedDeviceConfigurations', type: 'boolean', useNull:true},
-        {name:'hasDeviceConfigugrations', type: 'boolean', useNull: true}*/
+        {name:'unitOfMeasure', type: 'string',useNull:true}
     ],
     proxy: {
             type: 'rest',
-            url: '../../api/dtc/devicetypes/{deviceType}/registertypes'
+            url: '../../api/dtc/registertypes'
     }
 });

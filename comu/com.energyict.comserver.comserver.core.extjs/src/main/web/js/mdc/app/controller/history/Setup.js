@@ -2,14 +2,14 @@ Ext.define('Mdc.controller.history.Setup', {
     extend: 'Uni.controller.history.Converter',
 
     rootToken: 'setup',
-    previousTokens:['setup'],
-    currentTokens:null,
+    previousTokens: ['setup'],
+    currentTokens: null,
 
     doConversion: function (tokens) {
-        if(this.currentTokens!==null){
-          this.previousTokens=this.currentTokens;
+        if (this.currentTokens !== null) {
+            this.previousTokens = this.currentTokens;
         }
-        this.currentTokens=tokens;
+        this.currentTokens = tokens;
         if (tokens.length > 1 && tokens[1] === 'comservers') {
             this.handleComServerTokens(tokens);
         } else if (tokens.length > 1 && tokens[1] === 'devicecommunicationprotocols') {
@@ -21,17 +21,19 @@ Ext.define('Mdc.controller.history.Setup', {
         } else if (tokens.length > 1 && tokens[1] === 'devicetypes') {
             if (tokens[3] === 'registertypes') {
                 this.handleRegisterMappingTokens(tokens);
-            } else if (tokens[3] === 'configurations'){
+            } else if (tokens[3] === 'configurations') {
                 this.handleConfigurationTokens(tokens);
             } else {
                 this.handleDeviceTypeTokens(tokens);
             }
+        } else if (tokens.length > 1 && tokens[1] === 'registertypes') {
+            this.handleRegisterTypeTokens(tokens);
         } else {
             this.unknownTokensReturnToOverview();
         }
     },
 
-    tokenizePreviousTokens: function(){
+    tokenizePreviousTokens: function () {
         return this.tokenize(this.previousTokens);
     },
 
@@ -92,12 +94,28 @@ Ext.define('Mdc.controller.history.Setup', {
             } else {
                 Mdc.getApplication().getSetupDeviceTypesController().showDeviceTypeDetailsView(tokens[2]);
             }
-        } else if (tokens.length === 4){
-            if (tokens[3] === 'edit'){
+        } else if (tokens.length === 4) {
+            if (tokens[3] === 'edit') {
                 Mdc.getApplication().getSetupDeviceTypesController().showDeviceTypeEditView(tokens[2]);
             }
         }
     },
+
+    handleRegisterTypeTokens: function (tokens) {
+            if (tokens.length === 2) {
+                Mdc.getApplication().getSetupRegisterTypesController().showRegisterTypes();
+            } else if (tokens.length === 3) {
+                if (tokens[2] === 'create') {
+                    Mdc.getApplication().getSetupRegisterTypesController().showRegisterTypeCreateView(null);
+                } else {
+                    Mdc.getApplication().getSetupRegisterTypesController().showRegisterTypeDetailsView(tokens[2]);
+                }
+            } else if (tokens.length === 4) {
+                if (tokens[3] === 'edit') {
+                    Mdc.getApplication().getSetupRegisterTypesController().showRegisterTypeEditView(tokens[2]);
+                }
+            }
+        },
 
     handleRegisterMappingTokens: function (tokens) {
         if (tokens.length === 4) {
