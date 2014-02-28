@@ -25,7 +25,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.LogService;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -37,7 +36,6 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     private static final String COMPONENTNAME = "FIS";
 
     private volatile DefaultFileSystem defaultFileSystem;
-    private volatile LogService logService;
     private volatile MessageService messageService;
     private volatile CronExpressionParser cronExpressionParser;
     private volatile Clock clock;
@@ -51,11 +49,6 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     @Override
     public void install() {
         new InstallerImpl(dataModel, thesaurus).install();
-    }
-
-    @Reference
-    public void setLogService(LogService logService) {
-        this.logService = logService;
     }
 
     @Reference
@@ -143,7 +136,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public ImportScheduleBuilder newBuilder() {
-        return new DefaultImportScheduleBuilder(messageService, dataModel, cronExpressionParser, getFileNameCollisionResolver(), defaultFileSystem, thesaurus);
+        return new DefaultImportScheduleBuilder(dataModel);
     }
 
     @Override

@@ -3,11 +3,8 @@ package com.elster.jupiter.fileimport.impl;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpression;
-import com.elster.jupiter.util.cron.CronExpressionParser;
 
 import java.io.File;
 
@@ -19,20 +16,10 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
     private File successDirectory;
     private File failureDirectory;
     private transient CronExpression cronExpression;
-    private final MessageService messageService;
     private final DataModel dataModel;
-    private final CronExpressionParser cronParser;
-    private final FileNameCollisionResolver nameResolver;
-    private final FileSystem fileSystem;
-    private final Thesaurus thesaurus;
 
-    DefaultImportScheduleBuilder(MessageService messageService, DataModel dataModel, CronExpressionParser cronParser, FileNameCollisionResolver nameResolver, FileSystem fileSystem, Thesaurus thesaurus) {
-        this.messageService = messageService;
+    DefaultImportScheduleBuilder(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.cronParser = cronParser;
-        this.nameResolver = nameResolver;
-        this.fileSystem = fileSystem;
-        this.thesaurus = thesaurus;
     }
 
     @Override

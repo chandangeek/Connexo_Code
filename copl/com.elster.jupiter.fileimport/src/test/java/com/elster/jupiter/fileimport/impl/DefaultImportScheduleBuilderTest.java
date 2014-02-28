@@ -55,7 +55,7 @@ public class DefaultImportScheduleBuilderTest {
 
     @Test
     public void testDestination() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
                 .setDestination(destination)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
@@ -69,7 +69,7 @@ public class DefaultImportScheduleBuilderTest {
 
     @Test
     public void testCronExpression() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
                 .setDestination(destination)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
@@ -83,7 +83,7 @@ public class DefaultImportScheduleBuilderTest {
 
     @Test
     public void testProcessingDirectory() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
                 .setDestination(destination)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
@@ -97,7 +97,7 @@ public class DefaultImportScheduleBuilderTest {
 
     @Test
     public void testImportDirectory() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
                 .setDestination(destination)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
@@ -111,7 +111,7 @@ public class DefaultImportScheduleBuilderTest {
 
     @Test
     public void testSuccessDirectory() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
                 .setDestination(destination)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
@@ -125,7 +125,7 @@ public class DefaultImportScheduleBuilderTest {
 
     @Test
     public void testFailureDirectory() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
                 .setDestination(destination)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
