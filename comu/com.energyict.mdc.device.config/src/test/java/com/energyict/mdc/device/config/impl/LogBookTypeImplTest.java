@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceType;
@@ -8,10 +10,10 @@ import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseE
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLogBookTypeIsInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +29,9 @@ public class LogBookTypeImplTest extends PersistenceTest {
 
     private static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.99.98.0.255");
     private static final ObisCode OBIS_CODE_2 = ObisCode.fromString("1.0.99.97.0.255");
+
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     @Test
     @Transactional
@@ -61,22 +66,24 @@ public class LogBookTypeImplTest extends PersistenceTest {
         assertThat(logBookType2).isNotNull();
     }
 
-    @Test(expected = NameIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = MessageSeeds.Constants.NAME_REQUIRED_KEY)
     public void testLogBookTypeCreationWithoutName() {
         // Business method
         inMemoryPersistence.getDeviceConfigurationService().newLogBookType(null, OBIS_CODE);
 
-        // Asserts: Should be getting a NameIsRequiredException
+        // Asserts: See ExpectedConstraintViolation rule
     }
 
-    @Test(expected = NameIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = MessageSeeds.Constants.NAME_REQUIRED_KEY)
     public void testLogBookTypeCreationWithEmptyName() {
         // Business method
         inMemoryPersistence.getDeviceConfigurationService().newLogBookType("", OBIS_CODE);
 
-        // Asserts: Should be getting a NameIsRequiredException
+        // Asserts: See ExpectedConstraintViolation rule
     }
 
     @Test(expected = DuplicateNameException.class)
@@ -108,7 +115,7 @@ public class LogBookTypeImplTest extends PersistenceTest {
         // Business method
         inMemoryPersistence.getDeviceConfigurationService().newLogBookType(logBookTypeName, null);
 
-        // Asserts: Should be getting a NameIsRequiredException
+        // Asserts: Should be getting a ObisCodeIsRequiredException
     }
 
     @Test

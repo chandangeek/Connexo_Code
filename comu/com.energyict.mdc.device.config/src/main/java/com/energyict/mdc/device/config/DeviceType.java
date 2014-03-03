@@ -98,6 +98,8 @@ public interface DeviceType {
 
     public DeviceUsageType getDeviceUsageType();
 
+    public void setDeviceUsageType(DeviceUsageType deviceUsageType);
+
     public Set<DeviceCommunicationFunction> getCommunicationFunctions();
 
     public boolean hasCommunicationFunction(DeviceCommunicationFunction function);

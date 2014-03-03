@@ -17,7 +17,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 public class CannotChangeDeviceProtocolWithActiveConfigurationsException extends LocalizedException{
 
     public CannotChangeDeviceProtocolWithActiveConfigurationsException(Thesaurus thesaurus, DeviceType deviceType) {
-        super(thesaurus, MessageSeeds.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_ACTIVE_CONFIGURATIONS, deviceType);
+        super(thesaurus, MessageSeeds.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS, deviceType);
         this.set("deviceType", deviceType);
     }
 

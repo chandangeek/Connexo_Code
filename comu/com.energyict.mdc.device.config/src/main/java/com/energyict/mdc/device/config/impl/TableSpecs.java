@@ -35,9 +35,7 @@ public enum TableSpecs {
             table.map(DeviceTypeImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(80).notNull().map("name").add();
-            table.column("CHANNELCOUNT").number().conversion(ColumnConversion.NUMBER2INT).notNull().map("channelCount").add();
             table.column("DESCRIPTION").varChar(4000).map("description").add();
-            table.column("PROTOTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).map("prototypeId").add();
             table.column("USECHANNELJOURNAL").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("useChannelJournal").add();
             table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2LONG).map("deviceProtocolPluggableClassId").add();
             table.column("DEVICEUSAGETYPE").number().conversion(ColumnConversion.NUMBER2INT).map("deviceUsageTypeId").add();

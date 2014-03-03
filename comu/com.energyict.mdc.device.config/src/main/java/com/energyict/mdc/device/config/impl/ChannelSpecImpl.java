@@ -16,7 +16,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
-import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceConfigurationReferenceException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLoadProfileSpecOfChannelSpec;
 import com.energyict.mdc.device.config.exceptions.CannotChangeRegisterMappingOfChannelSpecException;
@@ -27,7 +26,6 @@ import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.MultiplierIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.MultiplierModeIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.PhenomenonIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ReadingMethodIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredException;
@@ -351,11 +349,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     protected String getInvalidCharacters() {
         return "./";
-    }
-
-    @Override
-    protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
-        return NameIsRequiredException.channelSpecNameIsRequired(thesaurus);
     }
 
     @Override

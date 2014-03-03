@@ -8,7 +8,6 @@ import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -33,11 +32,6 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
 
     static RegisterGroupImpl from (DataModel dataModel, String name) {
         return dataModel.getInstance(RegisterGroupImpl.class).initialize(name);
-    }
-
-    @Override
-    protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
-        throw NameIsRequiredException.registerGroupNameIsRequired(thesaurus);
     }
 
     @Override

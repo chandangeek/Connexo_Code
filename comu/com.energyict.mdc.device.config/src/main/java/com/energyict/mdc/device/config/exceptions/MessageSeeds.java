@@ -13,9 +13,11 @@ import java.util.logging.Level;
  */
 public enum MessageSeeds implements MessageSeed {
     VETO_DEVICEPROTOCOLPLUGGABLECLASS_DELETION(999, "deviceProtocolPluggableClass.XstillInUseByDeviceTypesY", "The device protocol pluggable class {0} is still used by the following device types: {1}", Level.SEVERE),
-    REGISTER_GROUP_NAME_IS_REQUIRED(1001, "registerGroup.name.required", "The name of a register group is required", Level.SEVERE),
-    REGISTER_GROUP_ALREADY_EXISTS(1002, "registerGroup.duplicateNameX", "A register group with name '{0}' already exists", Level.SEVERE),
-    REGISTER_GROUP_STILL_IN_USE(1003, "registerGroup.XstillInUseByY", "The register group with name '{0}' cannot be deleted because it is still in use by the following register mappings: {1}", Level.SEVERE),
+    DEVICE_TYPE(1, "DTC.deviceType.with.article", "a device type", Level.SEVERE),
+    NAME_IS_REQUIRED(1000, Constants.NAME_REQUIRED_KEY, "The name of {0} is required", Level.SEVERE),
+    REGISTER_GROUP_NAME_IS_REQUIRED(1501, "registerGroup.name.required", "The name of a register group is required", Level.SEVERE),
+    REGISTER_GROUP_ALREADY_EXISTS(1502, "registerGroup.duplicateNameX", "A register group with name '{0}' already exists", Level.SEVERE),
+    REGISTER_GROUP_STILL_IN_USE(1503, "registerGroup.XstillInUseByY", "The register group with name '{0}' cannot be deleted because it is still in use by the following register mappings: {1}", Level.SEVERE),
     READING_TYPE_IS_REQUIRED(2001, "productSpec.readingType.required", "The reading type of a product spec is required", Level.SEVERE),
     READING_TYPE_ALREADY_EXISTS(2002, "productSpec.duplicateReadingTypeX", "The product spec with the reading type {0} already exists", Level.SEVERE),
     DEFAULT_PRODUCT_SPEC_CANNOT_BE_DELETED(2003, "productSpec.cannotDeleteDefault", "The default product spec cannot be deleted", Level.SEVERE),
@@ -64,12 +66,13 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_SPEC_REGISTER_MAPPING_IS_NOT_ON_DEVICE_TYPE(6011, "registerSpec.not.deviceType","The register spec contains a register mapping {0} which is not configured on the device type", Level.SEVERE),
     DEVICE_TYPE_NAME_IS_REQUIRED(7001, "deviceType.name.required", "The name of a device type is required", Level.SEVERE),
     DEVICE_TYPE_ALREADY_EXISTS(7002, "deviceType.duplicateNameX", "A device type with name '{0}' already exists", Level.SEVERE),
-    DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS(7003, "deviceType.XstillHasActiveConfigurations", "The device type {0} cannot be deleted because it still has active configurations", Level.SEVERE),
-    DEVICE_PROTOCOL_IS_REQUIRED(7004, "deviceType.protocol.required", "The protocol of a device type is required", Level.SEVERE),
+    DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS(7003, Constants.DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS_KEY, "The device type {0} cannot be deleted because it still has active configurations", Level.SEVERE),
+    DEVICE_PROTOCOL_IS_REQUIRED(7004, Constants.DEVICE_PROTOCOL_IS_REQUIRED_KEY, "The protocol of a device type is required", Level.SEVERE),
     DUPLICATE_LOAD_PROFILE_TYPE_IN_DEVICE_TYPE(7005, "deviceType.loadProfileType.duplicate", "The load profile type {0} was already added to the device type {1}", Level.SEVERE),
     DUPLICATE_LOG_BOOK_TYPE_IN_DEVICE_TYPE(7006, "deviceType.logBookType.duplicate", "The log book type {0} was already added to the device type {1}", Level.SEVERE),
-    DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_ACTIVE_CONFIGURATIONS(7007, "deviceType.protocol.noupdate", "The protocol of a device type cannot change when the device type has active configurations", Level.SEVERE),
+    DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS(7007, Constants.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS_KEY, "The protocol of a device type cannot change when the device type has configurations", Level.SEVERE),
     DUPLICATE_REGISTER_MAPPING_IN_DEVICE_TYPE(7008, "deviceType.registerMapping.duplicate", "The register mapping {0} was already added to the device type {1}", Level.SEVERE),
+    DUPLICATE_DEVICE_CONFIGURATION(7009, Constants.DUPLICATE_DEVICE_CONFIGURATION_KEY, "All device configurations must have a unique name", Level.SEVERE),
     LOAD_PROFILE_SPEC_DEVICE_CONFIG_IS_REQUIRED(8001, "loadProfileSpec.deviceConfig.required", "The device configuration of a load profile specification is required", Level.SEVERE),
     LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_NOT_ON_DEVICE_TYPE(8002, "loadProfileSpec.cannotAddLoadProfileSpecOfTypeXBecauseRtuTypeYDoesNotContainIt", "The load profile spec contains a load profile type {0} which is not configured on the device type", Level.SEVERE),
     LOAD_PROFILE_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(8003, "loadProfileSpec.active.configuration", "You can not add a load profile spec to an active device configuration", Level.SEVERE),
@@ -122,7 +125,6 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_REGISTER_SPEC(12008, "deviceConfig.duplicate.obisCode.registerSpec", "The device configuration '{0}' already contains a register specification this obis code '{1}'", Level.SEVERE),
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC_IN_LOAD_PROFILE_SPEC(12009, "deviceConfig.duplicate.obisCode.channelSpec.loadProfileSpec", "Load profile specification '{0}' in device configuration '{1}' already contains a channel specification this obis code '{2}'", Level.SEVERE),
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC(12010, "deviceConfig.duplicate.obisCode.channelSpec", "The device configuration '{0}' already contains a channel specification this obis code '{1}'", Level.SEVERE),
-    DEVICE_CONFIGURATION_ALREADY_EXISTS(12011, "deviceConfig.duplicateName", "A device configuration with the name '{0}' already exists for this device type.", Level.SEVERE),
 
     ;
 
@@ -161,6 +163,14 @@ public enum MessageSeeds implements MessageSeed {
     @Override
     public String getModule() {
         return PluggableService.COMPONENTNAME;
+    }
+
+    public static class Constants {
+        public static final String NAME_REQUIRED_KEY = "DTC.X.name.required";
+        public static final String DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS_KEY = "DTC.deviceType.XstillHasActiveConfigurations";
+        public static final String DUPLICATE_DEVICE_CONFIGURATION_KEY = "DTC.deviceType.deviceConfig.duplicateName";
+        public static final String DEVICE_PROTOCOL_IS_REQUIRED_KEY = "TC.deviceType.protocol.required";
+        public static final String DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS_KEY = "DTC.deviceType.protocol.noupdate";
     }
 
 }

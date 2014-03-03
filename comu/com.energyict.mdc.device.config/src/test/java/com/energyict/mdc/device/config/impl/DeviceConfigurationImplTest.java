@@ -3,6 +3,9 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
@@ -18,14 +21,14 @@ import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
-import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.*;
+
+import java.util.List;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -43,6 +46,9 @@ import static org.fest.assertions.api.Fail.fail;
  * Time: 10:21
  */
 public class DeviceConfigurationImplTest extends PersistenceTest {
+
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     @Test
     @Transactional
@@ -64,13 +70,12 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
         String deviceConfigurationName = "DeviceConfiguration";
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration(deviceConfigurationName);
 
+        // Business method
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
 
-
-        DeviceConfiguration reloaded = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfigurationByNameAndDeviceType(deviceConfigurationName, deviceType);
-
-        assertThat(reloaded.getId()).isNotEqualTo(0);
-        assertThat(reloaded.getDeviceType()).isEqualTo(this.deviceType);
+        // Asserts
+        List<DeviceConfiguration> reloaded = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfigurationsByDeviceType(deviceType);
+        assertThat(reloaded).isNotEmpty();
     }
 
     @Test
@@ -82,46 +87,35 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
 
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
 
+        // Business method
         deviceConfiguration.setName(updatedName);
         deviceConfiguration.save();
 
-        DeviceConfiguration reloaded1 = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfigurationByNameAndDeviceType(originalName, deviceType);
-        DeviceConfiguration reloaded2 = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfigurationByNameAndDeviceType(updatedName, deviceType);
+        // Asserts
+        List<DeviceConfiguration> deviceConfigurations = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfigurationsByDeviceType(deviceType);
 
-        assertThat(reloaded1).isNull();
-        assertThat(reloaded2).isNotNull();
+        assertThat(deviceConfigurations).hasSize(1);
+        DeviceConfiguration reloaded = deviceConfigurations.get(0);
+        assertThat(reloaded.getName()).isEqualTo(updatedName);
     }
 
-    @Test(expected = NameIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = MessageSeeds.Constants.NAME_REQUIRED_KEY)
     public void createWithoutANameTest() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration("");
-        try {
-            DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
-        } catch (NameIsRequiredException e) {
-            if (!e.getMessageSeed().equals(MessageSeeds.DEVICE_CONFIGURATION_NAME_IS_REQUIRED)) {
-                fail("Should have gotten the exception indicating that the name is a required attribute of a device configuration.");
-            } else {
-                throw e;
-            }
-        }
+        deviceConfigurationBuilder.add();
+        this.deviceType.save();
     }
 
-    @Test(expected = DuplicateNameException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = MessageSeeds.Constants.DUPLICATE_DEVICE_CONFIGURATION_KEY)
     public void duplicateNameTest() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder1 = this.deviceType.newConfiguration("DeviceConfiguration");
         deviceConfigurationBuilder1.add();
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder2 = this.deviceType.newConfiguration("DeviceConfiguration");
-        try {
-            deviceConfigurationBuilder2.add();
-        } catch (DuplicateNameException e) {
-            if (!e.getMessageSeed().equals(MessageSeeds.DEVICE_CONFIGURATION_ALREADY_EXISTS)) {
-                fail("Should have gotten the exception indicating that the name of the configuration already exists.");
-            } else {
-                throw e;
-            }
-        }
+        deviceConfigurationBuilder2.add();
     }
 
     @Test

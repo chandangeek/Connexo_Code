@@ -3,6 +3,8 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
@@ -19,11 +21,11 @@ import com.energyict.mdc.device.config.exceptions.CannotUpdateIntervalWhenLoadPr
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
@@ -50,6 +52,9 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
 
     private ReadingType readingType;
     private Phenomenon phenomenon;
+
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     @Test
     @Transactional
@@ -115,36 +120,25 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         }
     }
 
-    @Test(expected = NameIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = MessageSeeds.Constants.NAME_REQUIRED_KEY)
     public void testCreateWithoutName() {
         DeviceConfigurationServiceImpl deviceConfigurationService = inMemoryPersistence.getDeviceConfigurationService();
         TimeDuration interval = INTERVAL_15_MINUTES;
 
-        try {
-            // Business method
-            deviceConfigurationService.newLoadProfileType(null, OBIS_CODE, interval);
-        } catch (NameIsRequiredException e) {
-            // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_NAME_IS_REQUIRED);
-            throw e;
-        }
+        // Business method
+        deviceConfigurationService.newLoadProfileType(null, OBIS_CODE, interval);
     }
 
-    @Test(expected = NameIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = MessageSeeds.Constants.NAME_REQUIRED_KEY)
     public void testCreateWithEmptyName() {
         DeviceConfigurationServiceImpl deviceConfigurationService = inMemoryPersistence.getDeviceConfigurationService();
         TimeDuration interval = INTERVAL_15_MINUTES;
-
-        try {
-            // Business method
-            deviceConfigurationService.newLoadProfileType("", OBIS_CODE, interval);
-        } catch (NameIsRequiredException e) {
-            // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_NAME_IS_REQUIRED);
-            throw e;
-        }
+        // Business method
+        deviceConfigurationService.newLoadProfileType("", OBIS_CODE, interval);
     }
 
     @Test(expected = ObisCodeIsRequiredException.class)

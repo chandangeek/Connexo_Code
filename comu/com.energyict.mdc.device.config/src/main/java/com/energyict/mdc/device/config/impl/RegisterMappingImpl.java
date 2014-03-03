@@ -24,17 +24,17 @@ import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenRegist
 import com.energyict.mdc.device.config.exceptions.CannotUpdateProductSpecWhenRegisterMappingIsInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ProductSpecIsRequiredException;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.common.base.Optional;
+
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.inject.Inject;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -129,11 +129,6 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     @Override
     protected DeleteEventType deleteEventType() {
         return DeleteEventType.REGISTERMAPPING;
-    }
-
-    @Override
-    protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
-        return NameIsRequiredException.registerMappingNameIsRequired(thesaurus);
     }
 
     @Override

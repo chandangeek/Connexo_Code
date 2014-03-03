@@ -7,6 +7,8 @@ import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
@@ -24,14 +26,14 @@ import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenRegist
 import com.energyict.mdc.device.config.exceptions.CannotUpdateProductSpecWhenRegisterMappingIsInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ProductSpecIsRequiredException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,6 +49,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RegisterMappingImplTest extends PersistenceTest {
 
     private static final TimeDuration INTERVAL_15_MINUTES = new TimeDuration(15, TimeDuration.MINUTES);
+
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     private LoadProfileType loadProfileType;
     private ReadingType readingType;
@@ -99,40 +104,28 @@ public class RegisterMappingImplTest extends PersistenceTest {
         assertThat(registerMapping2.getObisCode()).isEqualTo(obisCode1);
     }
 
-    @Test(expected = NameIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = MessageSeeds.Constants.NAME_REQUIRED_KEY)
     public void testCreateWithoutName() {
-        RegisterMapping registerMapping;
-        try {
-            this.setupProductSpecsInExistingTransaction();
+        this.setupProductSpecsInExistingTransaction();
 
-            // Business method
-            registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(null, obisCode1, this.productSpec);
-            registerMapping.setDescription("For testing purposes only");
-            registerMapping.save();
-        } catch (NameIsRequiredException e) {
-            // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_NAME_IS_REQUIRED);
-            throw e;
-        }
+        // Business method
+        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(null, obisCode1, this.productSpec);
+        registerMapping.setDescription("For testing purposes only");
+        registerMapping.save();
     }
 
-    @Test(expected = NameIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = MessageSeeds.Constants.NAME_REQUIRED_KEY)
     public void testCreateWithEmptyName() {
-        RegisterMapping registerMapping;
-        try {
-            this.setupProductSpecsInExistingTransaction();
+        this.setupProductSpecsInExistingTransaction();
 
-            // Business method
-            registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("", obisCode1, this.productSpec);
-            registerMapping.setDescription("For testing purposes only");
-            registerMapping.save();
-        } catch (NameIsRequiredException e) {
-            // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_NAME_IS_REQUIRED);
-            throw e;
-        }
+        // Business method
+        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("", obisCode1, this.productSpec);
+        registerMapping.setDescription("For testing purposes only");
+        registerMapping.save();
     }
 
     @Test(expected = ObisCodeIsRequiredException.class)

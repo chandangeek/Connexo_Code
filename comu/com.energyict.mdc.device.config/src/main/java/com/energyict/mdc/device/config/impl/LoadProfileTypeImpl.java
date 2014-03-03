@@ -19,7 +19,6 @@ import com.energyict.mdc.device.config.exceptions.CannotUpdateIntervalWhenLoadPr
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingAlreadyInLoadProfileTypeException;
 import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
@@ -94,11 +93,6 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
             ServerDeviceConfiguration deviceConfiguration = (ServerDeviceConfiguration) each;
             deviceConfiguration.validateUpdateLoadProfileType(this);
         }
-    }
-
-    @Override
-    protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
-        throw NameIsRequiredException.loadProfileTypeNameIsRequired(thesaurus);
     }
 
     @Override

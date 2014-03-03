@@ -30,8 +30,6 @@ import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeExcept
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
-import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.protocol.api.device.Device;
 
 import javax.inject.Inject;
@@ -117,11 +115,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     public Device getPrototypeDevice() {
         return this.prototype;
-    }
-
-    @Override
-    protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
-        return NameIsRequiredException.deviceConfigurationNameIsRequired(this.thesaurus);
     }
 
     @Override
@@ -236,16 +229,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             availableObisCode = obisCode.toString();
         }
         return availableObisCode;
-    }
-
-    @Override
-    protected void validateName(String newName) {
-        super.validateName(newName);
-        ServerDeviceConfigurationService deviceConfigurationService = (ServerDeviceConfigurationService) this.deviceConfigurationService;
-        DeviceConfiguration deviceConfiguration = deviceConfigurationService.findDeviceConfigurationByNameAndDeviceType(newName, this.getDeviceType());
-        if (deviceConfiguration != null) {
-            throw DuplicateNameException.deviceConfigurationExists(thesaurus, newName);
-        }
     }
 
     public DeviceType getDeviceType() {

@@ -11,14 +11,11 @@ import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLogBookTypeIsInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
 
 import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -102,11 +99,6 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
     @Override
     protected DeleteEventType deleteEventType() {
         return DeleteEventType.LOGBOOKTYPE;
-    }
-
-    @Override
-    protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
-        throw NameIsRequiredException.logBookTypeNameIsRequired(thesaurus);
     }
 
     @Override
