@@ -12,7 +12,6 @@ Ext.define('Mtr.controller.Issues', {
         'workspace.issues.List',
         'workspace.issues.Item',
         'workspace.issues.IssueNoGroup',
-        'workspace.issues.bulk.Overview',
         'ext.button.IssuesGridAction',
         'ext.button.SortItemButton'
     ],
@@ -38,18 +37,18 @@ Ext.define('Mtr.controller.Issues', {
 
     init: function () {
         this.control({
-            'issues-list gridview': {
+            'issues-overview issues-list gridview': {
                 itemclick: this.loadIssuesItem,
                 itemmouseenter: this.onMouseEnter
             },
-            'issues-list actioncolumn': {
+            'issues-overview issues-list actioncolumn': {
                 click: this.showIssuesActions
             },
             'menu[name=issueactionmenu]': {
                 beforehide: this.hideIssuesActions,
                 click: this.chooseIssuesAction
             },
-            'issues-list button[name=bulk-change-issues]': {
+            'issues-overview issues-list button[name=bulk-change-issues]': {
                 click: this.bulkChangeIssues
             },
             // ====================================  IssueListFilter controls  ====================================
@@ -176,7 +175,7 @@ Ext.define('Mtr.controller.Issues', {
     },
 
     bulkChangeIssues: function () {
-        var widget = Ext.widget('bulkwizard');
+        var widget = Ext.widget('bulk-browse');
         Mtr.getApplication().getMainController().showContent(widget);
     },
 

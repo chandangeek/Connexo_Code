@@ -10,7 +10,6 @@ Ext.define('Mtr.view.workspace.issues.List', {
     ],
     alias: 'widget.issues-list',
     store: 'Mtr.store.Issues',
-    cls: 'content-wrapper',
     enableColumnHide: false,
     loadMask: false,
     height: 395,

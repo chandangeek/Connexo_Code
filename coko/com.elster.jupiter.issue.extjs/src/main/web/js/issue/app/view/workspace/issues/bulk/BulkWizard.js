@@ -1,6 +1,6 @@
-Ext.define('Mtr.view.workspace.issues.bulk.Overview', {
+Ext.define('Mtr.view.workspace.issues.bulk.BulkWizard', {
     extend: 'Mtr.view.workspace.issues.bulk.Wizard',
-    alias: 'widget.bulkwizard',
+    alias: 'widget.bulk-wizard',
     titlePrefix: 'Bulk action',
     includeSubTitle: true,
 
@@ -12,9 +12,16 @@ Ext.define('Mtr.view.workspace.issues.bulk.Overview', {
         'Mtr.view.workspace.issues.bulk.Step5'
     ],
 
+    header: {
+        title: 'Wizard',
+        cls: 'isu-wizard-header',
+        style: {
+            padding: '15px'
+        }
+    },
+
     defaults: {
-        border: false,
-        overflowY: 'auto'
+        border: false
     },
 
     items: [

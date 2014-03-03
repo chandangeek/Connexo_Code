@@ -4,7 +4,7 @@ Ext.define('Mtr.view.workspace.issues.Item', {
         'Ext.button.Split'
     ],
     alias: 'widget.issues-item',
-    height: 290,
+    height: 310,
  /*   items: [
         {
             html: '<h3>No issue selected</h3><p>Select an issue to view its detail.</p>',

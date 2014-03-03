@@ -18,23 +18,6 @@ Ext.define('Mtr.view.workspace.issues.Filter', {
         {
             xtype: 'panel',
             header: false,
-            border: 0,
-            margin: '20 10 10 10',
-            items: [{
-                xtype: 'label',
-                style: 'font: normal 20px Calibri',
-                html: '<h1>Issues</h1>',
-                margin: '20 10 10 10'
-            }]
-        },
-        {
-            xtype: 'label',
-            html: '<hr>',
-            margin: '0 10 0 10'
-        },
-        {
-            xtype: 'panel',
-            header: false,
             border: false,
             layout: {
                 type: 'hbox',
@@ -45,20 +28,19 @@ Ext.define('Mtr.view.workspace.issues.Filter', {
                     xtype: 'label',
                     style: 'font: normal 16px Calibri',
                     html: 'Filters',
-                    margin: '10 10 10 20'
+                    margin: '10 0 10 0'
                 }
             ]
         },
         {
             xtype: 'label',
-            html: '<hr>',
-            margin: '0 10 0 10'
+            html: '<hr>'
         },
         {
             xtype: 'panel',
             header: false,
             border: false,
-            margin: '10 10 10 20',
+            margin: '10 0 10 0',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -124,8 +106,7 @@ Ext.define('Mtr.view.workspace.issues.Filter', {
         },
         {
             xtype: 'label',
-            html: '<hr>',
-            margin: '0 10 0 10'
+            html: '<hr>'
         },
         {
             xtype: 'panel',
@@ -135,7 +116,7 @@ Ext.define('Mtr.view.workspace.issues.Filter', {
                 style: 'font: normal 16px Calibri',
                 border: 0
             },
-            margin: '10 10 10 20',
+            margin: '10 0 10 0',
             border: 0,
             hidden: true
         },
@@ -143,8 +124,7 @@ Ext.define('Mtr.view.workspace.issues.Filter', {
             xtype: 'label',
             name: 'forissuesline',
             html: '<hr>',
-            hidden: true,
-            margin: '0 10 0 10'
+            hidden: true
         },
         {
             xtype: 'panel',
@@ -161,7 +141,7 @@ Ext.define('Mtr.view.workspace.issues.Filter', {
                     xtype: 'label',
                     style: 'font: normal 16px Calibri',
                     html: 'Sort',
-                    margin: '10 10 10 20'
+                    margin: '10 0 10 0'
                 },
                 {
                     xtype: 'panel',
