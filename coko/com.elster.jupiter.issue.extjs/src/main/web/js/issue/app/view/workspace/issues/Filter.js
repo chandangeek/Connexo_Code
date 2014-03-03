@@ -18,23 +18,6 @@ Ext.define('Mtr.view.workspace.issues.Filter', {
         {
             xtype: 'panel',
             header: false,
-            border: 0,
-            margin: '20 10 10 10',
-            items: [{
-                xtype: 'label',
-                style: 'font: normal 20px Calibri',
-                html: '<h1>Issues</h1>',
-                margin: '20 10 10 10'
-            }]
-        },
-        {
-            xtype: 'label',
-            html: '<hr>',
-            margin: '0 10 0 10'
-        },
-        {
-            xtype: 'panel',
-            header: false,
             border: false,
             layout: {
                 type: 'hbox',

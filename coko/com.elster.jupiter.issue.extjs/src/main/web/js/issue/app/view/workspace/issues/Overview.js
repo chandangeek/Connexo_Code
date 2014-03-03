@@ -20,6 +20,10 @@ Ext.define('Mtr.view.workspace.issues.Overview', {
                 {
                     items: [
                         {
+                            html: '<h1>Issues</h1>',
+                            margin: '20 10 10 10'
+                        },
+                        {
                             xtype: 'issues-filter'
                         },
                         {
