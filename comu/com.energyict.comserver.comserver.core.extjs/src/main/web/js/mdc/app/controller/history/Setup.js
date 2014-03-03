@@ -112,6 +112,8 @@ Ext.define('Mdc.controller.history.Setup', {
                 }
             } else if (tokens.length === 4) {
                 if (tokens[3] === 'edit') {
+                    console.log('edit');
+                    console.log(tokens[2]);
                     Mdc.getApplication().getSetupRegisterTypesController().showRegisterTypeEditView(tokens[2]);
                 }
             }

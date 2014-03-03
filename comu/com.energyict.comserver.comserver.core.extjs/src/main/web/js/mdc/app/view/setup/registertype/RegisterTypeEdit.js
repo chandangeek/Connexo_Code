@@ -50,25 +50,20 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                         itemId: 'registerTypeEditCreateTitle',
                         margins: '10 10 10 10'
                     },
+
+
                     {
                         xtype: 'container',
-                        layout: {
-                            type: 'column'
-                        },
+                        columnWidth: 0.5,
                         items: [
                             {
-                                xtype: 'container',
-                                columnWidth: 0.5,
-                                items: [
-                                    {
-                                        xtype: 'form',
-                                        border: false,
-                                        itemId: 'registerTypeEditForm',
-                                        padding: '10 10 0 10',
-                                        layout: {
-                                            type: 'vbox',
-                                            align: 'stretch'
-                                        },
+                                xtype: 'form',
+                                border: false,
+                                itemId: 'registerTypeEditForm',
+                                padding: '10 10 0 10',
+                                layout: {
+                                    type: 'vbox'
+                                },
 //                    tbar: [
 //                        {
 //                            xtype: 'component',
@@ -76,118 +71,159 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
 //                            itemId: 'deviceTypePreviewTitle'
 //                        }
 //                    ],
-                                        defaults: {
-                                            labelWidth: 250
+                                defaults: {
+                                    labelWidth: 250
+                                },
+                                items: [
+                                    {
+                                        xtype: 'textfield',
+                                        name: 'obisCode',
+                                        msgTarget: 'under',
+                                        required: true,
+                                        fieldLabel: Uni.I18n.translate('registertype.obisCode', 'MDC', 'Obis code'),
+                                        itemId: 'editObisCodeField',
+                                        maxLength: 80,
+                                        enforceMaxLength: true,
+                                        cls: 'obisCode',
+                                        width: 650
+                                    },
+                                    {
+                                        xtype: 'fieldcontainer',
+                                        fieldLabel: '&nbsp',
+
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
                                         },
                                         items: [
                                             {
-                                                xtype: 'textfield',
-                                                name: 'obisCode',
-                                                msgTarget: 'under',
-                                                required: true,
-                                                fieldLabel: Uni.I18n.translate('registertype.obisCode', 'MDC', 'Obis code'),
-                                                itemId: 'editObisCodeField',
-                                                maxLength: 80,
-                                                enforceMaxLength: true
+                                                html: 'Provide this value for the 6 attributes of the Obis code.  Devide each value with a "."',
+                                                xtype: 'component'
+
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        name: 'unitOfMeasure',
+                                        fieldLabel: Uni.I18n.translate('registertype.measurementUnit', 'MDC', 'Unit of measure'),
+                                        itemId: 'measurementUnitComboBox',
+                                        store: this.unitOfMeasure,
+                                        queryMode: 'local',
+                                        displayField: 'unit',
+                                        valueField: 'unit',
+                                        required: true,
+                                        forceSelection: true,
+                                        editable: false,
+                                        cls: 'obisCode',
+                                        width: 650
+
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        name: 'timeOfUse',
+                                        fieldLabel: Uni.I18n.translate('registertype.timeOfUse', 'MDC', 'Time of use'),
+                                        itemId: 'timeOfUseComboBox',
+                                        store: this.timeOfUse,
+                                        queryMode: 'local',
+                                        displayField: 'timeOfUse',
+                                        valueField: 'timeOfUse',
+                                        required: true,
+                                        forceSelection: true,
+                                        editable: false,
+                                        width: 650
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        name: 'mrid',
+                                        msgTarget: 'under',
+                                        required: false,
+                                        fieldLabel: Uni.I18n.translate('registertype.mrid', 'MDC', 'Reading type'),
+                                        itemId: 'editMrIdField',
+                                        required: true,
+                                        readOnly: true,
+                                        disabled: true,
+                                        width: 650
+                                    },
+                                    {
+                                        xtype: 'fieldcontainer',
+                                        fieldLabel: '&nbsp',
+
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        items: [
+                                            {
+                                                html: 'Note about CIM reading type',
+                                                xtype: 'component'
+
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        name: 'name',
+                                        validator: function (currentValue) {
+                                            if (currentValue.length > 0) {
+                                                return true;
+                                            } else {
+                                                return Uni.I18n.translate('registertype.emptyName', 'MDC', 'The name of a register type can not be empty.')
+                                            }
+                                        },
+                                        msgTarget: 'under',
+                                        required: true,
+                                        fieldLabel: Uni.I18n.translate('registertype.name', 'MDC', 'Name'),
+                                        itemId: 'editRegisterTypeNameField',
+                                        maxLength: 80,
+                                        enforceMaxLength: true,
+                                        width: 650
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        name: 'measurementKind',
+                                        fieldLabel: Uni.I18n.translate('registertype.measurementKind', 'MDC', 'Type'),
+                                        itemId: 'measurementKindComboBox',
+                                        store: this.measurementKinds,
+                                        queryMode: 'local',
+                                        displayField: 'name',
+                                        valueField: 'name',
+                                        required: false,
+                                        forceSelection: true,
+                                        editable: false,
+                                        width: 650
+                                    },
+                                    {
+                                        xtype: 'fieldcontainer',
+                                        fieldLabel: '&nbsp',
+                                        //width: 430,
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        items: [
+                                            {
+                                                text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
+                                                xtype: 'button',
+                                                action: 'createAction',
+                                                itemId: 'createEditButton',
+                                                formBind: true
                                             },
                                             {
-                                                xtype: 'combobox',
-                                                name: 'measurementUnit',
-                                                fieldLabel: Uni.I18n.translate('registertype.measurementUnit', 'MDC', 'Unit of measure'),
-                                                itemId: 'measurementUnitComboBox',
-                                                store: this.unitOfMeasure,
-                                                queryMode: 'local',
-                                                displayField: 'unit',
-                                                valueField: 'unit',
-                                                required: true,
-                                                forceSelection: true,
-                                                editable: false
-                                            },
-                                            {
-                                                xtype: 'combobox',
-                                                name: 'timeOfUse',
-                                                fieldLabel: Uni.I18n.translate('registertype.timeOfUse', 'MDC', 'Time of use'),
-                                                itemId: 'timeOfUseComboBox',
-                                                store: this.unitOfMeasure,
-                                                queryMode: 'local',
-                                                displayField: 'timeOfUse',
-                                                valueField: 'timeOfUse',
-                                                required: true,
-                                                forceSelection: true,
-                                                editable: false
-                                            },
-                                            {
-                                                xtype: 'textfield',
-                                                name: 'mrId',
-                                                msgTarget: 'under',
-                                                required: false,
-                                                fieldLabel: Uni.I18n.translate('registertype.mrid', 'MDC', 'Reading type'),
-                                                itemId: 'editDeviceTypeNameField',
-                                                required: true,
-                                                readOnly: true
-                                            },
-                                            {
-                                                xtype: 'textfield',
-                                                name: 'name',
-                                                validator: function (currentValue) {
-                                                    if (currentValue.length > 0) {
-                                                        return true;
-                                                    } else {
-                                                        return Uni.I18n.translate('devicetype.emptyName', 'MDC', 'The name of a device type can not be empty.')
-                                                    }
-                                                },
-                                                msgTarget: 'under',
-                                                required: true,
-                                                fieldLabel: Uni.I18n.translate('devicetype.name', 'MDC', 'Name'),
-                                                itemId: 'editRegisterTypeNameField',
-                                                maxLength: 80,
-                                                enforceMaxLength: true
-                                            },
-                                            {
-                                                xtype: 'combobox',
-                                                name: 'measurementKind',
-                                                fieldLabel: Uni.I18n.translate('registertype.measurementKind', 'MDC', 'Type'),
-                                                itemId: 'measurementKindComboBox',
-                                                store: this.measurementKinds,
-                                                queryMode: 'local',
-                                                displayField: 'name',
-                                                valueField: 'name',
-                                                required: false,
-                                                forceSelection: true,
-                                                editable: false
-                                            },
-                                            {
-                                                xtype: 'fieldcontainer',
-                                                fieldLabel: '&nbsp',
-                                                //width: 430,
-                                                layout: {
-                                                    type: 'hbox',
-                                                    align: 'stretch'
-                                                },
-                                                items: [
-                                                    {
-                                                        text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
-                                                        xtype: 'button',
-                                                        action: 'createAction',
-                                                        itemId: 'createEditButton',
-                                                        formBind: true
-                                                    },
-                                                    {
-                                                        xtype: 'component',
-                                                        padding: '3 0 0 10',
-                                                        itemId: 'cancelLink',
-                                                        autoEl: {
-                                                            tag: 'a',
-                                                            href: '#setup/registertypes/',
-                                                            html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
-                                                        }
-                                                    }
-                                                ]
+                                                xtype: 'component',
+                                                padding: '3 0 0 10',
+                                                itemId: 'cancelLink',
+                                                autoEl: {
+                                                    tag: 'a',
+                                                    href: '#setup/registertypes/',
+                                                    html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
+                                                }
                                             }
                                         ]
                                     }
                                 ]
                             }
+
                         ]
                     }
 
