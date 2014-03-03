@@ -247,7 +247,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
     saveComPortPool: function(viewToClose){
         var me =this;
         this.comPortPool.save({
-            callback: function (record) {
+            success: function (record) {
                 me.getComPortPoolsStore().reload(
                     {
                         callback: function(){
@@ -255,6 +255,12 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
                             viewToClose && viewToClose.close();
                         }
                     });
+            },
+            failure: function(record,operation){
+                var json = Ext.decode(operation.response.responseText);
+                if (json && json.errors) {
+                    viewToClose.down('form').getForm().markInvalid(json.errors);
+                }
             }
         });
     }
