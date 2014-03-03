@@ -1,28 +1,24 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.Expected;
-import com.energyict.mdc.ExpectedErrorRule;
 import com.energyict.mdc.Transactional;
-import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.PersistenceTest;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
-
-import org.junit.*;
-
+import com.energyict.mdc.protocol.api.ComPortType;
 import java.sql.SQLException;
-import org.junit.rules.TestRule;
+import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test for the {@link UDPBasedInboundComPortImpl} object.
@@ -93,7 +89,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "comPortPool")
     public void testCreateWithoutComPortPool() throws BusinessException, SQLException {
         createOnlineComServer().newUDPBasedInboundComPort()
         .name(COMPORT_NAME)
@@ -109,7 +105,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "comPortPool")
     public void testCreateWithOutboundComPortPool() throws BusinessException, SQLException {
         createOnlineComServer().newUDPBasedInboundComPort()
         .name(COMPORT_NAME)
@@ -125,7 +121,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class)
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "name")
     public void testCreateWithoutName() throws BusinessException, SQLException {
         createOnlineComServer().newUDPBasedInboundComPort()
         .description(DESCRIPTION)
@@ -133,6 +129,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
         .portNumber(PORT_NUMBER)
         .bufferSize(DATAGRAM_BUFFER_SIZE)
+        .comPortPool(createComPortPool())
         .add();
 
         // Expecting a BusinessException to be thrown because the name is not set
@@ -140,7 +137,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "duplicateComPortX")
+    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComPort}", property = "name")
     public void testCreateWithExistingName() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
         UDPBasedInboundComPort comPort = this.createSimpleComPort(onlineComServer);
@@ -149,8 +146,9 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         .description(DESCRIPTION)
         .active(ACTIVE)
         .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
-        .portNumber(PORT_NUMBER)
+        .portNumber(PORT_NUMBER+1)
         .bufferSize(DATAGRAM_BUFFER_SIZE)
+        .comPortPool(createComPortPool())
         .add();
 
         // Expecting a BusinessException to be thrown because a ComPort with the same name already exists
@@ -158,7 +156,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEqualOrLessThanZero")
+    @ExpectedConstraintViolation(messageId = "{MDC.ValueTooSmall}", property = "numberOfSimultaneousConnections")
     public void testCreateWithZeroSimultaneousConnections() throws BusinessException, SQLException {
         createOnlineComServer().newUDPBasedInboundComPort()
         .name(COMPORT_NAME)
@@ -167,6 +165,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         .portNumber(PORT_NUMBER)
         .numberOfSimultaneousConnections(0)
         .bufferSize(DATAGRAM_BUFFER_SIZE)
+        .comPortPool(createComPortPool())
         .add();
 
         // Expecting a BusinessException to be thrown because the name is not set
@@ -174,7 +173,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEqualOrLessThanZero")
+    @ExpectedConstraintViolation(messageId = "{MDC.ValueTooSmall}", property = "portNumber")
     public void testCreateWithZeroPortNumber() throws BusinessException, SQLException {
         createOnlineComServer().newUDPBasedInboundComPort()
         .name(COMPORT_NAME)
@@ -183,6 +182,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         .portNumber(0)
         .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
         .bufferSize(DATAGRAM_BUFFER_SIZE)
+        .comPortPool(createComPortPool())
         .add();
 
         // Expecting a BusinessException to be thrown because the name is not set
@@ -190,7 +190,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class)
+    @ExpectedConstraintViolation(messageId = "{MDC.ValueTooSmall}", property = "bufferSize")
     public void testCreateWithZeroBufferSize() throws BusinessException, SQLException {
         createOnlineComServer().newUDPBasedInboundComPort()
         .name(COMPORT_NAME)
@@ -199,6 +199,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         .portNumber(PORT_NUMBER)
         .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
         .bufferSize(0)
+        .comPortPool(createComPortPool())
         .add();
 
         // Expecting a BusinessException to be thrown because the name is not set

@@ -1,11 +1,14 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.Provider;
 import javax.inject.Inject;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.UDPBasedInboundComPort} interface.
@@ -15,6 +18,8 @@ import javax.inject.Inject;
  */
 public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements UDPBasedInboundComPort {
 
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeNull}")
+    @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{MDC.ValueTooSmall}")
     private int bufferSize;
 
     @Inject
@@ -25,11 +30,6 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
     @Override
     public boolean isUDPBased() {
         return true;
-    }
-
-    protected void validateCreate() {
-        super.validateCreate();
-        validateNotNull(this.bufferSize, "comport.datagrambuffersize");
     }
 
     @Override
@@ -45,7 +45,6 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
 
     @Override
     public void setBufferSize(int bufferSize) {
-        validateGreaterThanZero(bufferSize, "comport.datagrambuffersize");
         this.bufferSize = bufferSize;
     }
     

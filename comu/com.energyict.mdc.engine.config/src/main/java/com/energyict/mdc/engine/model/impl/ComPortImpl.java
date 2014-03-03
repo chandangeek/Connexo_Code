@@ -19,7 +19,6 @@ import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
-import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
@@ -30,6 +29,7 @@ import javax.validation.constraints.Null;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (12:48)
  */
+@UniqueComPortName(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.DuplicateComPort}")
 public abstract class ComPortImpl implements ComPort {
 
     protected static final String MODEM_DISCRIMINATOR = "1";
@@ -213,16 +213,6 @@ public abstract class ComPortImpl implements ComPort {
         this.setName(source.getName());
         this.setActive(source.isActive());
         this.setDescription(source.getDescription());
-    }
-
-    @AssertTrue(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.DuplicateComPort}")
-    private boolean isUniqueName() {
-        for (ComPort comPort : comServer.get().getComPorts()) {
-            if (comPort.getId()!=this.getId() && comPort.getName().equals(this.name) && !comPort.isObsolete()) {
-                return false;
-            }
-        }
-        return true;
     }
 
     interface Delete {}
