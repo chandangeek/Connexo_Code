@@ -3,6 +3,7 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.FieldType;
+import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.associations.Reference;
@@ -413,16 +414,18 @@ public class TableImpl<T> implements Table<T> {
 	}
 	void checkActiveBuilder() {
 		if (activeBuilder) {
-			throw new IllegalStateException("Builder in progress. Invoke add() first");
+			throw new IllegalTableMappingException("Builder in progress for table " + getName() + ", invoke add() first.");
 		}
 	}
 	
 	@Override
 	public Column.Builder column(String name) {
 		checkActiveBuilder();
+        if (name == null) {
+            throw new IllegalTableMappingException("Table " + getName() + " : column names cannot be null.");
+        }
 		if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
-			throw new IllegalArgumentException(
-				Joiner.on(" ").join("Column name",name,"too long(",name.length()," > ",ColumnConversion.CATALOGNAMELIMIT,")")); 
+			throw new IllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name.length() + ".");
 		}
 		activeBuilder = true;
 		return new ColumnImpl.BuilderImpl(ColumnImpl.from(this,name));

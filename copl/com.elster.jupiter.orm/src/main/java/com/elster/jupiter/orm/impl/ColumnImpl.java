@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
@@ -34,7 +35,7 @@ public class ColumnImpl implements Column  {
 
 	private ColumnImpl init(TableImpl<?> table, String name) {
 		if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
-			throw new IllegalArgumentException("Name " + name + " too long" );
+            throw new IllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name.length() + ".");
 		}
 		this.table.set(table);
 		this.name = name;
@@ -50,10 +51,12 @@ public class ColumnImpl implements Column  {
 			throw new IllegalArgumentException("table must be present");
 		}
 		Objects.requireNonNull(name);
-		Objects.requireNonNull(dbType);
+		if (dbType == null) {
+            throw new IllegalTableMappingException("Table " + getTable().getName() + " : column " + getName() + " was not assigned a DB type.");
+        }
 		Objects.requireNonNull(conversion);
 		if (skipOnUpdate && updateValue != null) {
-			throw new IllegalArgumentException("updateValue must be null if skipOnUpdate");
+			throw new IllegalTableMappingException("Table " + getTable().getName() + " : field " + getName() + " : updateValue must be null if skipOnUpdate");
 		}
 	}
 	

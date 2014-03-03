@@ -1,17 +1,18 @@
 package com.elster.jupiter.orm.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public abstract class TableConstraintImpl implements TableConstraint {
 	
@@ -31,7 +32,7 @@ public abstract class TableConstraintImpl implements TableConstraint {
 
 	TableConstraintImpl init(TableImpl<?> table, String name) {
 		if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
-			throw new IllegalArgumentException("Name " + name + " too long" );
+			throw new IllegalTableMappingException("Table " + table.getName() + " : constraint name 'COL4567890123456789012345678901' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name.length() + ".");
 		}
 		this.table.set(table);
 		this.name = name;
