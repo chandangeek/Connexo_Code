@@ -31,6 +31,7 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
     },
 
     initComponent: function () {
+        // Sadly, the Ext.clone function is not enough to create a duplicate of a store.
         var intervalMinuteStore = Ext.create('Ext.data.Store', {
                 fields: ['text', 'value']
             }),
@@ -44,108 +45,36 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
                 fields: ['text', 'value']
             });
 
-        this.populateMeasuringPeriodStore(intervalMinuteStore, 'window.readingtypewizard.minute', '{0} minutes', [
-            [1, 3], // value, enumeration
-            [2, 10],
-            [3, 14],
-            [5, 6],
-            [10, 1],
-            [12, 78],
-            [15, 2],
-            [20, 31],
-            [24, 4],
-            [30, 5],
-            [60, 7]
-        ]);
+        this.initMeasuringPeriodForm(
+            intervalMinuteStore,
+            intervalHourStore,
+            fixedBlockStore,
+            rollingBlockStore
+        );
 
-        this.populateMeasuringPeriodStore(intervalHourStore, 'window.readingtypewizard.hour', '{0} hours', [
-            [2, 79], // value, enumeration
-            [3, 83],
-            [4, 80],
-            [6, 81],
-            [12, 82]
-        ]);
+        var commodityElecStore = Ext.create('Ext.data.Store', {
+                fields: ['text', 'value']
+            }),
+            commodityFluidStore = Ext.create('Ext.data.Store', {
+                fields: ['text', 'value']
+            }),
+            commodityGasStore = Ext.create('Ext.data.Store', {
+                fields: ['text', 'value']
+            }),
+            commodityMatterStore = Ext.create('Ext.data.Store', {
+                fields: ['text', 'value']
+            }),
+            commodityOtherStore = Ext.create('Ext.data.Store', {
+                fields: ['text', 'value']
+            });
 
-        this.populateMeasuringPeriodStore(fixedBlockStore, 'window.readingtypewizard.minutefixed', '{0} minutes fixed block', [
-            [1, 56], // value, enumeration
-            [5, 55],
-            [10, 54],
-            [15, 53],
-            [20, 52],
-            [30, 51],
-            [60, 50]
-        ]);
-
-        this.populateRollingBlockStore(rollingBlockStore, 'window.readingtypewizard.minuterolling', '{0} minutes rolling block with {1} minute subintervals', [
-            [
-                [60, 30], // values
-                57 // enumeration
-            ],
-            [
-                [60, 20],
-                58
-            ],
-            [
-                [60, 15],
-                59
-            ],
-            [
-                [60, 12],
-                60
-            ],
-            [
-                [60, 10],
-                61
-            ],
-            [
-                [60, 6],
-                62
-            ],
-            [
-                [60, 5],
-                63
-            ],
-            [
-                [60, 4],
-                64
-            ],
-            [
-                [30, 15],
-                65
-            ],
-            [
-                [30, 10],
-                66
-            ],
-            [
-                [30, 6],
-                67
-            ],
-            [
-                [30, 5],
-                68
-            ],
-            [
-                [30, 3],
-                69
-            ],
-            [
-                [30, 2],
-                70
-            ],
-            [
-                [15, 5],
-                71
-            ],
-            [
-                [15, 3],
-                72
-            ],
-            [
-                [15, 1],
-                73
-            ]
-        ]);
+        this.initCommodityForm(
+            commodityElecStore,
+            commodityFluidStore,
+            commodityGasStore,
+            commodityMatterStore,
+            commodityOtherStore
+        );
 
         this.steps = [
             {
@@ -215,8 +144,8 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
                     {
                         xtype: 'component',
                         html: '<p>' + Uni.I18n.translate('window.readingtypewizard.dataaggregation.description',
-                            'UNI', 'Defines which value to take from the macro period, or which mathematical ' +
-                                'operation to carry out over the values in the macro period.') + '</p>'
+                            'UNI', 'DMay be used to define a mathematical operation carried out over the ' +
+                                'time period (#1).') + '</p>'
                     },
                     {
                         xtype: 'radiogroup',
@@ -272,7 +201,8 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
                     {
                         xtype: 'component',
                         html: '<p>' + Uni.I18n.translate('window.readingtypewizard.measuringperiod.description', 'UNI',
-                            'Reflects how the data was captured over a small interval of time.') + '</p>'
+                            'Describes the way the value was originally measured. This doesn\'t represent the ' +
+                                'frequency at which it is reported or presented.') + '</p>'
                     },
                     {
                         xtype: 'radiogroup',
@@ -395,8 +325,8 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
                 items: [
                     {
                         xtype: 'component',
-                        html: '<p>' + Uni.I18n.translate('window.readingtypewizard.dataaccumulation.description',
-                            'UNI', 'Some description.') + '</p>'
+                        html: '<p>' + Uni.I18n.translate('window.readingtypewizard.dataaccumulation.description', 'UNI',
+                            'Indicates how the value is represented to accumulate over time.') + '</p>'
                     },
                     {
                         xtype: 'radiogroup',
@@ -405,13 +335,33 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
                         anchor: '100%',
                         items: [
                             {boxLabel: Uni.I18n.translate('window.readingtypewizard.notapplicable',
-                                'UNI', 'Not applicable (0)'), name: 'dataAccumulation', inputValue: 0, checked: true}
+                                'UNI', 'Not applicable (0)'), name: 'dataAccumulation', inputValue: 0, checked: true},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaccumulation.bulkquantity',
+                                'UNI', 'Bulk quantity (1)'), name: 'dataAccumulation', inputValue: 1},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaccumulation.deltadata',
+                                'UNI', 'Delta data (4)'), name: 'dataAccumulation', inputValue: 4},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaccumulation.cumulative',
+                                'UNI', 'Cumulative (3)'), name: 'dataAccumulation', inputValue: 3},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaccumulation.continiouscumulative',
+                                'UNI', 'Continious cumulative (2)'), name: 'dataAccumulation', inputValue: 2},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaccumulation.indicating',
+                                'UNI', 'Indicating (6)'), name: 'dataAccumulation', inputValue: 6},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaccumulation.summation',
+                                'UNI', 'Summation (9)'), name: 'dataAccumulation', inputValue: 9},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaccumulation.timedelay',
+                                'UNI', 'Time delay (10)'), name: 'dataAccumulation', inputValue: 10},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaccumulation.instantaneous',
+                                'UNI', 'Instantaneous (12)'), name: 'dataAccumulation', inputValue: 12},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaccumulation.latchingquantity',
+                                'UNI', 'Latching quantity (13)'), name: 'dataAccumulation', inputValue: 13},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.dataaccumulation.boundedquantity',
+                                'UNI', 'Bounded quantity (14)'), name: 'dataAccumulation', inputValue: 14}
                         ]
                     }
                 ]
             },
             {
-                title: Uni.I18n.translate('window.readingtypewizard.directionofflow', 'UNI', 'Direction of flow'),
+                title: Uni.I18n.translate('window.readingtypewizard.flowdirection', 'UNI', 'Flow direction'),
                 xtype: 'container',
                 layout: {
                     type: 'anchor'
@@ -419,17 +369,57 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
                 items: [
                     {
                         xtype: 'component',
-                        html: '<p>' + Uni.I18n.translate('window.readingtypewizard.directionofflow.description',
-                            'UNI', 'Some description.') + '</p>'
+                        html: '<p>' + Uni.I18n.translate('window.readingtypewizard.flowdirection.description', 'UNI',
+                            'Indicates how the value is represented to accumulate over time.') + '</p>'
                     },
                     {
                         xtype: 'radiogroup',
-                        itemId: 'directionOfFlow',
+                        itemId: 'flowDirection',
                         columns: 1,
                         anchor: '100%',
                         items: [
                             {boxLabel: Uni.I18n.translate('window.readingtypewizard.notapplicable',
-                                'UNI', 'Not applicable (0)'), name: 'directionOfFlow', inputValue: 0, checked: true}
+                                'UNI', 'Not applicable (0)'), name: 'flowDirection', inputValue: 0, checked: true},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.forward',
+                                'UNI', 'Forward (1)'), name: 'flowDirection', inputValue: 1},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.reverse',
+                                'UNI', 'Reverse (19)'), name: 'flowDirection', inputValue: 19},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.lagging',
+                                'UNI', 'Lagging (2)'), name: 'flowDirection', inputValue: 2},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.leading',
+                                'UNI', 'Leading (3)'), name: 'flowDirection', inputValue: 3},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.net',
+                                'UNI', 'Net (4)'), name: 'flowDirection', inputValue: 4},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.total',
+                                'UNI', 'Total (20)'), name: 'flowDirection', inputValue: 20},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.totalbyphase',
+                                'UNI', 'Total by phase (21)'), name: 'flowDirection', inputValue: 21},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.quadrant1',
+                                'UNI', 'Quadrant 1 (15)'), name: 'flowDirection', inputValue: 15},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.quadrants1and2',
+                                'UNI', 'Quadrants 1 and 2 (5)'), name: 'flowDirection', inputValue: 5},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.quadrants1and3',
+                                'UNI', 'Quadrants 1 and 3 (7)'), name: 'flowDirection', inputValue: 7},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.quadrants1and4',
+                                'UNI', 'Quadrants 1 and 4 (8)'), name: 'flowDirection', inputValue: 8},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.quadrants1minus4',
+                                'UNI', 'Quadrants 1 minus 4 (9)'), name: 'flowDirection', inputValue: 9},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.quadrant2',
+                                'UNI', 'Quadrant 2 (16)'), name: 'flowDirection', inputValue: 16},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.quadrants2and3',
+                                'UNI', 'Quadrant 2 and 3 (10)'), name: 'flowDirection', inputValue: 10},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.quadrants2and4',
+                                'UNI', 'Quadrant 2 and 4 (11)'), name: 'flowDirection', inputValue: 11},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.quadrants2minus3',
+                                'UNI', 'Quadrant 2 minus 3 (12)'), name: 'flowDirection', inputValue: 12},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.quadrant3',
+                                'UNI', 'Quadrant 3 (17)'), name: 'flowDirection', inputValue: 17},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.quadrants3and4',
+                                'UNI', 'Quadrants 3 and 4 (13)'), name: 'flowDirection', inputValue: 13},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.quadrants3minus2',
+                                'UNI', 'Quadrants 3 minus 2 (14)'), name: 'flowDirection', inputValue: 14},
+                            {boxLabel: Uni.I18n.translate('window.readingtypewizard.flowdirection.quadrant4',
+                                'UNI', 'Bounded quantity (18)'), name: 'flowDirection', inputValue: 18}
                         ]
                     }
                 ]
@@ -458,7 +448,6 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
                     }
                 ]
             },
-            // TODO Continue here...
             {
                 title: Uni.I18n.translate('window.readingtypewizard.measurementkind', 'UNI', 'Measurement kind'),
                 xtype: 'container',
@@ -574,7 +563,136 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
         this.callParent(arguments);
     },
 
-    populateMeasuringPeriodStore: function (store, key, fallback, data) {
+    initMeasuringPeriodForm: function (intervalMinuteStore, intervalHourStore, fixedBlockStore, rollingBlockStore) {
+        this.populateSimpleTypeStore(intervalMinuteStore, 'window.readingtypewizard.minute', '{0} minutes', [
+            [1, 3], // value, enumeration
+            [2, 10],
+            [3, 14],
+            [5, 6],
+            [10, 1],
+            [12, 78],
+            [15, 2],
+            [20, 31],
+            [30, 5],
+            [60, 7]
+        ]);
+
+        this.populateSimpleTypeStore(intervalHourStore, 'window.readingtypewizard.hour', '{0} hours', [
+            [2, 79], // value, enumeration
+            [3, 83],
+            [4, 80],
+            [6, 81],
+            [12, 82],
+            [24, 4]
+        ]);
+
+        this.populateSimpleTypeStore(fixedBlockStore, 'window.readingtypewizard.minutefixed', '{0} minutes fixed block', [
+            [1, 56], // value, enumeration
+            [5, 55],
+            [10, 54],
+            [15, 53],
+            [20, 52],
+            [30, 51],
+            [60, 50]
+        ]);
+
+        this.populateRollingBlockStore(rollingBlockStore, 'window.readingtypewizard.minuterolling', '{0} minutes rolling block with {1} minute subintervals', [
+            [
+                [60, 30], // values
+                57 // enumeration
+            ],
+            [
+                [60, 20],
+                58
+            ],
+            [
+                [60, 15],
+                59
+            ],
+            [
+                [60, 12],
+                60
+            ],
+            [
+                [60, 10],
+                61
+            ],
+            [
+                [60, 6],
+                62
+            ],
+            [
+                [60, 5],
+                63
+            ],
+            [
+                [60, 4],
+                64
+            ],
+            [
+                [30, 15],
+                65
+            ],
+            [
+                [30, 10],
+                66
+            ],
+            [
+                [30, 6],
+                67
+            ],
+            [
+                [30, 5],
+                68
+            ],
+            [
+                [30, 3],
+                69
+            ],
+            [
+                [30, 2],
+                70
+            ],
+            [
+                [15, 5],
+                71
+            ],
+            [
+                [15, 3],
+                72
+            ],
+            [
+                [15, 1],
+                73
+            ]
+        ]);
+    },
+
+    initCommodityForm: function (commodityElecStore, commodityFluidStore, commodityGasStore, commodityMatterStore, commodityOtherStore) {
+        var baseKey = 'window.readingtypewizard.commodity.';
+
+        this.populateKeyValueStore(commodityElecStore, [
+            [baseKey + 'electricityprimarymetered', 'fallback', 1]
+        ]);
+
+        this.populateKeyValueStore(commodityFluidStore, [
+            ['key', 'fallback', 1]
+        ]);
+
+        this.populateKeyValueStore(commodityGasStore, [
+            ['key', 'fallback', 1]
+        ]);
+
+        this.populateKeyValueStore(commodityMatterStore, [
+            ['key', 'fallback', 1]
+        ]);
+
+        this.populateKeyValueStore(commodityOtherStore, [
+            ['key', 'fallback', 1]
+        ]);
+    },
+
+    populateSimpleTypeStore: function (store, key, fallback, data) {
         for (var i = 0; i < data.length; i++) {
             var obj = data[i],
                 value = obj[0],
@@ -597,6 +715,22 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
 
             var addition = {
                 text: Uni.I18n.translate(key, 'UNI', fallback, values) + ' (' + enumeration + ')',
+                value: enumeration
+            };
+
+            store.add(addition);
+        }
+    },
+
+    populateKeyValueStore: function (store, data) {
+        for (var i = 0; i < data.length; i++) {
+            var obj = data[i],
+                key = obj[0],
+                fallback = obj[1],
+                enumeration = obj[2];
+
+            var addition = {
+                text: Uni.I18n.translate(key, 'UNI', fallback) + ' (' + enumeration + ')',
                 value: enumeration
             };
 
