@@ -1,4 +1,4 @@
-package com.elster.jupiter.issue.rest.response;
+package com.elster.jupiter.issue.rest.response.issue;
 
 public class IssueShortInfo {
     private long id;

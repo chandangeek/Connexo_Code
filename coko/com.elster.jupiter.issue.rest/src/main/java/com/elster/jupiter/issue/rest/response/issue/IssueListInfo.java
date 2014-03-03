@@ -1,23 +1,24 @@
-package com.elster.jupiter.issue.rest.response;
+package com.elster.jupiter.issue.rest.response.issue;
 
 import com.elster.jupiter.issue.Issue;
+import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class IssueList {
+public class IssueListInfo {
     private List<IssueInfo> issueList;
     private long total;
 
-    public IssueList() {
+    public IssueListInfo() {
         issueList = new ArrayList<>();
     }
 
-    public IssueList(List<Issue> allIssues, int start, int limit){
+    public IssueListInfo(List<Issue> allIssues, int start, int limit){
         this();
         if (allIssues != null && allIssues.size() > 0){
             for (Issue issue : allIssues) {
-                IssueInfo rowIssue = new IssueInfo(issue);
+                IssueInfo<DeviceShortInfo> rowIssue = new IssueInfo<>(issue, DeviceShortInfo.class);
                 issueList.add(rowIssue);
             }
             total = start + allIssues.size();

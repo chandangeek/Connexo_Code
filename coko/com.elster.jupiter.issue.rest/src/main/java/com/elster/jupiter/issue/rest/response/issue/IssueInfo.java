@@ -1,25 +1,31 @@
-package com.elster.jupiter.issue.rest.response;
+package com.elster.jupiter.issue.rest.response.issue;
 
 import com.elster.jupiter.issue.Issue;
+import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
+import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
+import com.elster.jupiter.metering.EndDevice;
 
-public class IssueInfo {
+public class IssueInfo<T extends DeviceInfo> {
     private long id;
     private String reason;
     private String status;
     private long dueDate;
-    private IssueAssignee assignee;
-    private IssueDevice device;
+    private IssueAssigneeInfo assignee;
+    private T device;
     private long creationDate;
     private long version;
 
-    public IssueInfo(Issue issue){
+    public IssueInfo(Issue issue, Class<T> deviceType){
         if (issue != null) {
             this.setId(issue.getId());
             this.setReason(issue.getReason().getName());
             this.setStatus(issue.getStatus().getName());
-            this.setDueDate(issue.getDueDate() != null ? issue.getDueDate().getTime() : null);
-            this.setAssignee(issue.getAssignee() != null ? new IssueAssignee(issue.getAssignee()) : null);
-            this.setDevice(issue.getDevice() != null ? new IssueDevice(issue.getDevice()) : null);
+            this.setDueDate(issue.getDueDate() != null ? issue.getDueDate().getTime() : 0);
+            this.setAssignee(issue.getAssignee() != null ? new IssueAssigneeInfo(issue.getAssignee()) : null);
+            try {
+                this.setDevice(issue.getDevice() != null ? deviceType.getConstructor(EndDevice.class).newInstance(issue.getDevice()) : null);
+            } catch (ReflectiveOperationException e) {
+            }
             this.setCreationDate(issue.getCreateTime().getTime());
             this.setVersion(issue.getVersion());
         }
@@ -57,19 +63,19 @@ public class IssueInfo {
         this.dueDate = dueDate;
     }
 
-    public IssueAssignee getAssignee() {
+    public IssueAssigneeInfo getAssignee() {
         return assignee;
     }
 
-    public void setAssignee(IssueAssignee assignee) {
+    public void setAssignee(IssueAssigneeInfo assignee) {
         this.assignee = assignee;
     }
 
-    public IssueDevice getDevice() {
+    public T getDevice() {
         return device;
     }
 
-    public void setDevice(IssueDevice device) {
+    public void setDevice(T device) {
         this.device = device;
     }
 

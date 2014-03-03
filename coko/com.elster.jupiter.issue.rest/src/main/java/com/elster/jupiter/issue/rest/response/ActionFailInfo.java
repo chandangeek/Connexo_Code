@@ -1,9 +1,11 @@
 package com.elster.jupiter.issue.rest.response;
 
+import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActionRequestFail {
+public class ActionFailInfo {
     private String reason;
     private List<IssueShortInfo> issues;
 

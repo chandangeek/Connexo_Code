@@ -6,9 +6,9 @@ import com.elster.jupiter.issue.IssueService;
 import com.elster.jupiter.issue.OperationResult;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
-import com.elster.jupiter.issue.rest.response.ActionRequestFail;
-import com.elster.jupiter.issue.rest.response.BaseActionResponse;
-import com.elster.jupiter.issue.rest.response.IssueShortInfo;
+import com.elster.jupiter.issue.rest.response.ActionFailInfo;
+import com.elster.jupiter.issue.rest.response.ActionInfo;
+import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
 import com.elster.jupiter.transaction.Transaction;
 
 import javax.ws.rs.WebApplicationException;
@@ -18,9 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AssignIssueTransaction  implements Transaction<BaseActionResponse> {
+public class AssignIssueTransaction  implements Transaction<ActionInfo> {
     private final IssueService issueService;
-    private AssignIssueRequest request;
+    private final AssignIssueRequest request;
 
     public AssignIssueTransaction(AssignIssueRequest request, IssueService issueService){
         this.request = request;
@@ -28,14 +28,14 @@ public class AssignIssueTransaction  implements Transaction<BaseActionResponse> 
     }
 
     @Override
-    public BaseActionResponse perform() {
-        BaseActionResponse response = new BaseActionResponse();
+    public ActionInfo perform() {
+        ActionInfo response = new ActionInfo();
 
         IssueAssigneeType newAssigneeType = IssueAssigneeType.fromString(
             request.getAssignee() != null ? request.getAssignee().getType() : null);
         if (request.getIssues() != null && newAssigneeType != null) {
             List<IssueShortInfo> success = new ArrayList<>();
-            Map<String, ActionRequestFail> allAssignFails = new HashMap<>();
+            Map<String, ActionFailInfo> allAssignFails = new HashMap<>();
             for (EntityReference issueForAssign : request.getIssues()) {
                 OperationResult<String, String[]> result = issueService.assignIssue(issueForAssign.getId(),
                     issueForAssign.getVersion(), newAssigneeType, request.getAssignee().getId(), request.getComment());
@@ -43,9 +43,9 @@ public class AssignIssueTransaction  implements Transaction<BaseActionResponse> 
                     String failReason = result.getFailReason()[0];
                     String issueTitle = result.getFailReason()[1];
 
-                    ActionRequestFail failsWithSameReason = allAssignFails.get(failReason);
+                    ActionFailInfo failsWithSameReason = allAssignFails.get(failReason);
                     if (failsWithSameReason == null) {
-                        failsWithSameReason = new ActionRequestFail();
+                        failsWithSameReason = new ActionFailInfo();
                         failsWithSameReason.setReason(failReason);
                         allAssignFails.put(failReason, failsWithSameReason);
                     }
@@ -56,7 +56,7 @@ public class AssignIssueTransaction  implements Transaction<BaseActionResponse> 
                 }
             }
             response.setSuccess(success);
-            response.setFailure(new ArrayList<ActionRequestFail>(allAssignFails.values()));
+            response.setFailure(new ArrayList<ActionFailInfo>(allAssignFails.values()));
         } else {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }

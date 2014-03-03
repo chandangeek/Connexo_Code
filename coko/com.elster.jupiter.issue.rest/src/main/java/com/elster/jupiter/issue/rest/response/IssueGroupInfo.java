@@ -1,6 +1,6 @@
 package com.elster.jupiter.issue.rest.response;
 
-public class IssueGroupListRow {
+public class IssueGroupInfo {
     private String reason;
     private long number;
 

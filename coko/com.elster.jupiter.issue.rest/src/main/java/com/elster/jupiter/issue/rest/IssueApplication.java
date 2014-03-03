@@ -2,9 +2,9 @@ package com.elster.jupiter.issue.rest;
 
 
 import com.elster.jupiter.issue.IssueService;
-import com.elster.jupiter.issue.rest.controller.AssignHelpController;
-import com.elster.jupiter.issue.rest.controller.GeneralViewController;
-import com.elster.jupiter.issue.rest.controller.IssueActionController;
+import com.elster.jupiter.issue.rest.controller.HelpController;
+import com.elster.jupiter.issue.rest.controller.IssueAssignController;
+import com.elster.jupiter.issue.rest.controller.IssueController;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -12,7 +12,6 @@ import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -44,15 +43,15 @@ public class IssueApplication extends Application implements BinderProvider {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(GeneralViewController.class, IssueActionController.class, AssignHelpController.class);
+        return ImmutableSet.<Class<?>>of(IssueController.class, IssueAssignController.class, HelpController.class);
     }
 
     @Activate
-    public void activate(ComponentContext context) {
+    public void activate() {
     }
 
     @Deactivate
-    public void deactivate(ComponentContext context) {
+    public void deactivate() {
     }
 
     @Reference

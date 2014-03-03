@@ -5,9 +5,9 @@ import com.elster.jupiter.issue.IssueStatus;
 import com.elster.jupiter.issue.OperationResult;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
-import com.elster.jupiter.issue.rest.response.ActionRequestFail;
-import com.elster.jupiter.issue.rest.response.BaseActionResponse;
-import com.elster.jupiter.issue.rest.response.IssueShortInfo;
+import com.elster.jupiter.issue.rest.response.ActionFailInfo;
+import com.elster.jupiter.issue.rest.response.ActionInfo;
+import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
 import com.elster.jupiter.transaction.Transaction;
 
 import javax.ws.rs.WebApplicationException;
@@ -17,9 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CloseIssuesTransaction implements Transaction<BaseActionResponse> {
+public class CloseIssuesTransaction implements Transaction<ActionInfo> {
     private final IssueService issueService;
-    private CloseIssueRequest request;
+    private final CloseIssueRequest request;
 
     public CloseIssuesTransaction(CloseIssueRequest request, IssueService issueService){
         this.request = request;
@@ -27,21 +27,21 @@ public class CloseIssuesTransaction implements Transaction<BaseActionResponse> {
     }
 
     @Override
-    public BaseActionResponse perform() {
-        BaseActionResponse response = new BaseActionResponse();
+    public ActionInfo perform() {
+        ActionInfo response = new ActionInfo();
         IssueStatus newIssueStatus = issueService.getIssueStatusFromString(request.getStatus());
         if (request.getIssues() != null && newIssueStatus != null) {
             List<IssueShortInfo> success = new ArrayList<>();
-            Map<String, ActionRequestFail> allCloseFails = new HashMap<>();
+            Map<String, ActionFailInfo> allCloseFails = new HashMap<>();
             for (EntityReference issueForClose : request.getIssues()) {
                 OperationResult<String, String[]> result = issueService.closeIssue(issueForClose.getId(), issueForClose.getVersion(), newIssueStatus, request.getComment());
                 if (result.isFailed()) {
                     String failReason = result.getFailReason()[0];
                     String issueTitle = result.getFailReason()[1];
 
-                    ActionRequestFail failsWithSameReason = allCloseFails.get(failReason);
+                    ActionFailInfo failsWithSameReason = allCloseFails.get(failReason);
                     if (failsWithSameReason == null) {
-                        failsWithSameReason = new ActionRequestFail();
+                        failsWithSameReason = new ActionFailInfo();
                         failsWithSameReason.setReason(failReason);
                         allCloseFails.put(failReason, failsWithSameReason);
                     }
@@ -52,7 +52,7 @@ public class CloseIssuesTransaction implements Transaction<BaseActionResponse> {
                 }
             }
             response.setSuccess(success);
-            response.setFailure(new ArrayList<ActionRequestFail>(allCloseFails.values()));
+            response.setFailure(new ArrayList<ActionFailInfo>(allCloseFails.values()));
         } else {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }

@@ -6,18 +6,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AssignListInfo {
-    private long total;
-    private List<AssignRecord> assignees;
+    private List<AssignInfo> assignees;
 
     public AssignListInfo() {
-        assignees = new ArrayList<AssignRecord>();
+        assignees = new ArrayList<AssignInfo>();
     }
 
     public AssignListInfo(List<? extends AssigneeBaseInformation> list) {
         this();
         if (list != null && list.size() > 0){
             for (AssigneeBaseInformation assignee : list){
-                assignees.add(new AssignRecord(assignee));
+                assignees.add(new AssignInfo(assignee));
             }
         }
     }
@@ -26,20 +25,20 @@ public class AssignListInfo {
         return assignees.size();
     }
 
-    public List<AssignRecord> getAssignees() {
+    public List<AssignInfo> getAssignees() {
         return assignees;
     }
 
-    public void setAssignees(List<AssignRecord> assignees) {
+    public void setAssignees(List<AssignInfo> assignees) {
         this.assignees = assignees;
     }
 
-    public static class AssignRecord{
+    public static class AssignInfo {
         private long id;
         private String name;
         private long version;
 
-        public AssignRecord(AssigneeBaseInformation info) {
+        public AssignInfo(AssigneeBaseInformation info) {
             if (info != null){
                 this.id = info.getId();
                 this.name = info.getName();

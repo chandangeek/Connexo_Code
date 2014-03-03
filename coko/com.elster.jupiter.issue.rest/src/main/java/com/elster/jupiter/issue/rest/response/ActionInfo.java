@@ -1,10 +1,12 @@
 package com.elster.jupiter.issue.rest.response;
 
+import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
+
 import java.util.List;
 
-public class BaseActionResponse {
+public class ActionInfo {
     private List<IssueShortInfo> success;
-    private List<ActionRequestFail> failure;
+    private List<ActionFailInfo> failure;
 
     public List<IssueShortInfo> getSuccess() {
         return success;
@@ -14,11 +16,11 @@ public class BaseActionResponse {
         this.success = success;
     }
 
-    public List<ActionRequestFail> getFailure() {
+    public List<ActionFailInfo> getFailure() {
         return failure;
     }
 
-    public void setFailure(List<ActionRequestFail> failure) {
+    public void setFailure(List<ActionFailInfo> failure) {
         this.failure = failure;
     }
 }
