@@ -1,6 +1,5 @@
 package com.elster.jupiter.orm.impl;
 
-import java.lang.reflect.Field;
 import java.security.Principal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -169,21 +168,21 @@ public class ColumnImpl implements Column  {
 		} 
 	}
 	
-	private Field getField() {
+	private Class<?> getType() {
 		if (fieldName != null) {
-			return getTable().getMapperType().getField(fieldName);
+			return getTable().getMapperType().getType(fieldName);
 		}
 		ForeignKeyConstraintImpl constraint = getForeignKeyConstraint();
 		int index = constraint.getColumns().indexOf(this);
 		ColumnImpl primaryKeyColumn = constraint.getReferencedTable().getPrimaryKeyColumns().get(index);
-		return primaryKeyColumn.getField();
-		
+		return primaryKeyColumn.getType();
 	}
+	
 	private Object createEnum(Object value) {
 		if (value == null) {
 			return null;
 		}
-		Enum<?>[] enumConstants = (Enum<?>[]) getField().getType().getEnumConstants();
+		Enum<?>[] enumConstants = (Enum<?>[]) getType().getEnumConstants();
 		if (value instanceof Integer) {
 			return enumConstants[(Integer) value];
 		} else {
@@ -193,7 +192,7 @@ public class ColumnImpl implements Column  {
 				}
 			}
 		}
-		throw new IllegalArgumentException("" + value + " not appropriate for enum " + getField().getType());
+		throw new IllegalArgumentException("" + value + " not appropriate for enum " + getType());
 	}
 	
 	
