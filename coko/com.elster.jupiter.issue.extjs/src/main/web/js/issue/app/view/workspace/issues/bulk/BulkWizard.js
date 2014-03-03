@@ -12,6 +12,14 @@ Ext.define('Mtr.view.workspace.issues.bulk.BulkWizard', {
         'Mtr.view.workspace.issues.bulk.Step5'
     ],
 
+    header: {
+        title: 'Wizard',
+        cls: 'isu-wizard-header',
+        style: {
+            padding: '15px'
+        }
+    },
+
     defaults: {
         border: false
     },

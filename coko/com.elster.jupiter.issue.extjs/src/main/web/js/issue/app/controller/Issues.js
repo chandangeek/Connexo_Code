@@ -33,18 +33,18 @@ Ext.define('Mtr.controller.Issues', {
 
     init: function () {
         this.control({
-            'issues-list gridview': {
+            'issues-overview issues-list gridview': {
                 itemclick: this.loadIssuesItem,
                 itemmouseenter: this.onMouseEnter
             },
-            'issues-list actioncolumn': {
+            'issues-overview issues-list actioncolumn': {
                 click: this.showIssuesActions
             },
             'menu[name=issueactionmenu]': {
                 beforehide: this.hideIssuesActions,
                 click: this.chooseIssuesAction
             },
-            'issues-list button[name=bulk-change-issues]': {
+            'issues-overview issues-list button[name=bulk-change-issues]': {
                 click: this.bulkChangeIssues
             },
             // ====================================  IssueListFilter controls  ====================================

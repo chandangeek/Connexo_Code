@@ -2,7 +2,6 @@ Ext.define('Mtr.view.workspace.issues.bulk.Wizard', {
     extend: 'Ext.form.Panel',
     alias: 'widget.wizard',
     cls: 'wizard',
-    title: 'Wizard',
     autoHeight: true,
     border: false,
     layout: 'card',
@@ -18,9 +17,9 @@ Ext.define('Mtr.view.workspace.issues.bulk.Wizard', {
     listeners: {
         render: function() {
             if (this.includeSubTitle) {
-                this.setTitle(this.titlePrefix + ' Step 1 of ' + this.items.length + ': ' + this.getActiveItem().title);
+                this.setTitle('<b>' + this.titlePrefix + ' &#62;</b>' + ' Step 1 of ' + this.items.length + ': ' + this.getActiveItem().title);
             } else {
-                this.setTitle(this.titlePrefix + ' Step 1 of ' + this.items.length);
+                this.setTitle('<b>' + this.titlePrefix + ' &#62;</b>' + ' Step 1 of ' + this.items.length);
             }
             this.inWizard = true;
             this.setButtonsState(this);
@@ -41,9 +40,9 @@ Ext.define('Mtr.view.workspace.issues.bulk.Wizard', {
     onWizardPageChangeEvent: function(wizard) {
         if (this.includeSubTitle) {
             wizard.getActiveItem().preventHeader = true;
-            wizard.setTitle(wizard.titlePrefix + ' Step ' + (wizard.activeItemId+1) + ' of ' + this.items.length + ': ' + this.getActiveItem().title);
+            wizard.setTitle('<b>' + wizard.titlePrefix + ' &#62;</b>' + ' Step ' + (wizard.activeItemId+1) + ' of ' + this.items.length + ': ' + this.getActiveItem().title);
         } else {
-            wizard.setTitle(wizard.titlePrefix + ' Step ' + (wizard.activeItemId+1) + ' of ' + this.items.length);
+            wizard.setTitle('<b>' + wizard.titlePrefix + ' &#62;</b>' + ' Step ' + (wizard.activeItemId+1) + ' of ' + this.items.length);
         }
 
         this.setButtonsState(wizard);
@@ -142,6 +141,7 @@ Ext.define('Mtr.view.workspace.issues.bulk.Wizard', {
                     name: 'wizar-toolbar',
                     dock: 'bottom',
                     border: false,
+                    padding: '0 15 20 15',
                     items: [
                         {
                             xtype: 'button',

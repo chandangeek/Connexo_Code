@@ -152,7 +152,14 @@ span[class^=isu-assignee-] {
     width: 50px !important;
 }
 
+.isu-wizard-header {
+    background-color: transparent;
+}
 
+.isu-wizard-header .x-panel-header-text-container-default {
+    color: #007DC3;
+    font: 32px/36px VAGRoundedStdThin,Arial,Helvetica,Sans-Serif;
+}
 
 
 

@@ -3,7 +3,8 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
 
     stores: [
         'Mtr.store.Issues',
-        'Mtr.store.IssuesGroups'
+        'Mtr.store.IssuesGroups',
+        'Mtr.store.BulkChangeIssues'
     ],
 
     views: [
@@ -63,7 +64,7 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
     },
 
     onBulkActionEvent: function () {
-        var widget = Ext.widget('bulkMain');
+        var widget = Ext.widget('bulk-browse');
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
@@ -162,7 +163,7 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
     },
 
     getBulkRecord: function() {
-        var bulkStore = Ext.getStore('Isu.store.bulk.Bulk');
+        var bulkStore = Ext.getStore('Mtr.store.BulkChangeIssues');
         var bulkRecord = bulkStore.getAt(0);
         if(!bulkRecord) {
             bulkStore.add({

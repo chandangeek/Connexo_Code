@@ -22,12 +22,15 @@ Ext.define('Mtr.view.workspace.issues.bulk.Browse', {
         },
         {
             xtype: 'container',
+            region: 'center',
             style: {
                 backgroundColor: '#fff'
             },
-            region: 'center',
             items: {
-                xtype: 'bulk-wizard'
+                xtype: 'bulk-wizard',
+                defaults: {
+                    cls: 'content-wrapper'
+                }
             }
 
         }
