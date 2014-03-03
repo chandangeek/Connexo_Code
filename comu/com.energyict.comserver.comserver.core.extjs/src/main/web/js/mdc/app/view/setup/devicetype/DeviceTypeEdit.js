@@ -82,6 +82,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                 queryMode: 'local',
                                                 displayField: 'name',
                                                 valueField: 'name',
+                                                emptyText: Uni.I18n.translate('devicetype.selectProtocol', 'MDC', 'Select a communication protocol...'),
                                                 required: true,
                                                 forceSelection: true,
                                                 typeAhead: true
