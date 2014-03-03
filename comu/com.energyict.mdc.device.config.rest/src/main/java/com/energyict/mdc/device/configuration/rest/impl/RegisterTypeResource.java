@@ -70,7 +70,10 @@ public class RegisterTypeResource {
         Optional<ReadingType> readingType = findReadingTypeOrThrowException(registerMappingInfo);
         ProductSpec productSpecByReadingType = findProductSpecOrThrowException(registerMappingInfo, readingType.get());
 
-        return new RegisterMappingInfo(deviceConfigurationService.newRegisterMapping(registerMappingInfo.name, registerMappingInfo.obisCode, productSpecByReadingType));
+        RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping(registerMappingInfo.name, registerMappingInfo.obisCode, productSpecByReadingType);
+        registerMappingInfo.writeTo(registerMapping);
+        registerMapping.save();
+        return new RegisterMappingInfo(registerMapping);
     }
 
     @PUT
