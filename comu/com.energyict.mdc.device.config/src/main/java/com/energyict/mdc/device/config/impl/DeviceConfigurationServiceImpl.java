@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -335,6 +336,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 query(DeviceConfiguration.class, ChannelSpec.class, RegisterSpec.class).
                 select(   where("channelSpecs.registerMapping").isEqualTo(registerMapping).
                        or(where("registerSpecs.registerMapping").isEqualTo(registerMapping)));
+    }
+
+    @Override
+    public Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType) {
+        return DefaultFinder.of(DeviceConfiguration.class, Where.where("deviceType").isEqualTo(deviceType), this.getDataModel());
     }
 
     @Reference
