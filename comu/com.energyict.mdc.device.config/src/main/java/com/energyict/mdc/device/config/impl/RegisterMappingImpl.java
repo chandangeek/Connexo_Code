@@ -172,7 +172,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
 
     @Override
     public RegisterGroup getRegisterGroup() {
-        return this.registerGroup.get();
+        return this.registerGroup.orNull();
     }
 
     @Override
