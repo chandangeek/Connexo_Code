@@ -16,12 +16,12 @@ import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static com.elster.jupiter.cbo.TimeAttribute.*;
 
 
-public class ReadingTypeGenerator {
+public final class ReadingTypeGenerator {
 
 	private static final TimeAttribute[] timeAttributes = {MINUTE1,MINUTE2,MINUTE3,MINUTE5,MINUTE10,MINUTE15,MINUTE20,MINUTE30,MINUTE60,HOUR24};
 	private static final String[] timeAttributeNames = {"1m","2m","3m","5m","10m","15m","20m","30m","Hourly","Daily"};
 
-    public ReadingTypeGenerator(MeteringServiceImpl meteringService) {
+    private ReadingTypeGenerator(MeteringServiceImpl meteringService) {
         this.meteringService = meteringService;
     }
 
