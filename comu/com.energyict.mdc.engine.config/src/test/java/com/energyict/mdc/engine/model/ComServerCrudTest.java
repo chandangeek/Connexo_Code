@@ -1,16 +1,11 @@
 package com.energyict.mdc.engine.model;
 
-import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.Transactional;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -123,8 +118,8 @@ public class ComServerCrudTest extends PersistenceTest {
         onlineComServer.setStoreTaskQueueSize(10);
         onlineComServer.setStoreTaskThreadPriority(3);
         onlineComServer.setNumberOfStoreTaskThreads(6);
-        onlineComServer.setEventRegistrationUri("/some/uri");
-        onlineComServer.setQueryAPIPostUri("/another/uri");
+        onlineComServer.setEventRegistrationUri("http://some/uri");
+        onlineComServer.setQueryAPIPostUri("http://another/uri");
 
         onlineComServer.save();
 
@@ -135,9 +130,9 @@ public class ComServerCrudTest extends PersistenceTest {
         assertThat(reloaded.getServerLogLevel()).isEqualTo(ComServer.LogLevel.DEBUG);
         assertThat(reloaded.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.INFO);
         assertThat(((OnlineComServer) reloaded).usesDefaultQueryApiPostUri()).isEqualTo(false);
-        assertThat(((OnlineComServer) reloaded).getQueryApiPostUri()).isEqualTo("/another/uri");
+        assertThat(((OnlineComServer) reloaded).getQueryApiPostUri()).isEqualTo("http://another/uri");
         assertThat(((OnlineComServer) reloaded).usesDefaultEventRegistrationUri()).isEqualTo(false);
-        assertThat(((OnlineComServer) reloaded).getEventRegistrationUri()).isEqualTo("/some/uri");
+        assertThat(((OnlineComServer) reloaded).getEventRegistrationUri()).isEqualTo("http://some/uri");
         assertThat(((OnlineComServer) reloaded).getNumberOfStoreTaskThreads()).isEqualTo(6);
         assertThat(((OnlineComServer) reloaded).getStoreTaskThreadPriority()).isEqualTo(3);
         assertThat(((OnlineComServer) reloaded).getStoreTaskQueueSize()).isEqualTo(10);
