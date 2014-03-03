@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,11 +26,11 @@ public class QueryParameters {
     private static final String EXTJS_DIRECTION = "direction";
     private static final String EXTJS_FIELD = "property";
 
-    private final UriInfo uriInfo;
+    private final MultivaluedMap<String,String> queryParameters;
 
     @Inject
     public QueryParameters(@Context UriInfo uriInfo)  {
-        this.uriInfo = uriInfo;
+         queryParameters=uriInfo.getQueryParameters();
     }
 
     public Integer getStart() {
@@ -43,8 +44,8 @@ public class QueryParameters {
     public List<Order> getSortingColumns()  {
         try {
             List<Order> sortingColumns = new ArrayList<>();
-            String singleSortDirection = uriInfo.getQueryParameters().getFirst(EXTJS_DIR);
-            String sort = uriInfo.getQueryParameters().getFirst(EXTJS_SORT);
+            String singleSortDirection = queryParameters.getFirst(EXTJS_DIR);
+            String sort = queryParameters.getFirst(EXTJS_SORT);
             if (singleSortDirection!=null && sort!=null) {
                 sortingColumns.add(EXTJS_ASCENDING.equals(singleSortDirection) ? Order.ascending(sort) : Order.descending(sort));
             } else if (sort!=null && !sort.isEmpty()){
@@ -61,7 +62,7 @@ public class QueryParameters {
     }
 
     private Integer getIntegerOrNull(String name) {
-        String start = uriInfo.getQueryParameters().getFirst(name);
+        String start = queryParameters.getFirst(name);
         if (start!=null) {
             return Integer.parseInt(start);
         }
