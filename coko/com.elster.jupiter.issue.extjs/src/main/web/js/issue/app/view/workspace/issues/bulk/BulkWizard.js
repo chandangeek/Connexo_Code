@@ -13,8 +13,7 @@ Ext.define('Mtr.view.workspace.issues.bulk.BulkWizard', {
     ],
 
     defaults: {
-        border: false,
-        overflowY: 'auto'
+        border: false
     },
 
     items: [

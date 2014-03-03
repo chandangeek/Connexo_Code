@@ -7,6 +7,7 @@ Ext.define('Mtr.view.workspace.issues.bulk.Browse', {
         'Uni.view.breadcrumb.Trail'
     ],
     layout: 'border',
+    overflowY: 'auto',
     items: [
         {
             xtype: 'breadcrumbTrail',
@@ -15,11 +16,20 @@ Ext.define('Mtr.view.workspace.issues.bulk.Browse', {
         },
         {
             xtype: 'bulk-navigation',
-            region: 'west'
+            region: 'west',
+            margin: '0 10',
+            width: 150
         },
         {
-            xtype: 'bulk-wizard',
-            region: 'center'
+            xtype: 'container',
+            style: {
+                backgroundColor: '#fff'
+            },
+            region: 'center',
+            items: {
+                xtype: 'bulk-wizard'
+            }
+
         }
     ]
 });

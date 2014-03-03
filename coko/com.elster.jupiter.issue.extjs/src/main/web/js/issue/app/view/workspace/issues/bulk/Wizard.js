@@ -141,7 +141,6 @@ Ext.define('Mtr.view.workspace.issues.bulk.Wizard', {
                     xtype: 'toolbar',
                     name: 'wizar-toolbar',
                     dock: 'bottom',
-                    ui: 'footer',
                     border: false,
                     items: [
                         {
