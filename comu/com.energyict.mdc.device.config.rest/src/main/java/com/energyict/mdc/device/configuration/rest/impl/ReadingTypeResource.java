@@ -2,6 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -30,7 +31,11 @@ public class ReadingTypeResource {
 //                readingTypeUtilService.getReadingTypeFrom(ObisCode.fromString(obisCode), readingTypeUnit.getUnit());
 //            }
         }
-        return null;
+
+        ReadingTypeInfo test = new ReadingTypeInfo();
+        test.mrid = "0.0.10.1.20.1.12.0.0.0.0.0.0.0.0.3.73.0";
+
+        return test;
     }
 
 }
