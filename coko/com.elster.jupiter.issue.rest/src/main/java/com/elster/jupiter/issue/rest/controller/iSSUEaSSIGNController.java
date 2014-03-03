@@ -17,7 +17,7 @@ import java.util.List;
 @Path("/assign")
 public class IssueAssignController extends BaseController {
 
-    public IssueAssignController() {
+    public IssueAssignController() { 
         super();
     }
 
