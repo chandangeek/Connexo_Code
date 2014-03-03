@@ -195,7 +195,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeNull}", property = "contextPath")
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "contextPath")
     @Transactional
     public void testCreateWithoutContextPath() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()

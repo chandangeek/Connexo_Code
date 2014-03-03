@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
  */
 public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements UDPBasedInboundComPort {
 
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeNull}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
     @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{MDC.ValueTooSmall}")
     private int bufferSize;
 

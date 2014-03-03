@@ -1,11 +1,10 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
@@ -17,12 +16,14 @@ import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import com.google.common.collect.Range;
 import com.google.inject.Provider;
-
-import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.ModemBasedInboundComPort} interface.
@@ -32,20 +33,27 @@ import java.util.List;
  */
 public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements ModemBasedInboundComPort, InboundComPort {
 
+    @Min(value = 1, groups = { Save.Create.class, Save.Update.class }, message = "{MDC.ValueTooSmall}")
     private int ringCount;
+    @Min(value = 1, groups = { Save.Create.class, Save.Update.class }, message = "{MDC.ValueTooSmall}")
     private int maximumDialErrors;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
     private TimeDuration connectTimeout;
     private TimeDuration delayAfterConnect;
     private TimeDuration delayBeforeSend;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
     private TimeDuration atCommandTimeout;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
     private BigDecimal atCommandTry;
     private String modemInitStrings;
     private String addressSelector;
     private String postDialCommands;
+    @Valid
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
     private LegacySerialPortConfiguration serialPortConfiguration;
 
     @Inject
-    protected ModemBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
+    protected ModemBasedInboundComPortImpl(DataModel dataModel) {
         super(dataModel);
     }
 
@@ -66,7 +74,6 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
 
     @Override
     public void setRingCount(int ringCount) {
-        validateGreaterThanZero(ringCount, "comport.ringcount");
         this.ringCount = ringCount;
     }
 
@@ -77,7 +84,6 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
 
     @Override
     public void setMaximumDialErrors(int maximumDialErrors) {
-        validateGreaterThanZero(maximumDialErrors, "comport.maxnumberofdialerrors");
         this.maximumDialErrors = maximumDialErrors;
     }
 
@@ -190,30 +196,13 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
         return true;
     }
 
-    protected void validateCreate() {
-        super.validateCreate();
-        validateNotNull(this.getRingCount(), "comport.ringcount");
-        validateNotNull(this.getMaximumDialErrors(), "comport.maxnumberofdialerrors");
-        validateNotNull(this.getConnectTimeout(), "comport.connecttimeout");
-        validateNotNull(this.getAtCommandTimeout(), "comport.atcommandtimeout");
-        validateNotNull(this.getAtCommandTry(), "comport.atcommandtry");
-        validateNotNull(this.getSerialPortConfiguration(), "comport.serailportconfiguration");
-        validateNotNull(this.getSerialPortConfiguration().getComPortName(), "comport.comportname");
-        validateSerialPortConfigurationComPortName();
-        validateNotNull(this.getSerialPortConfiguration().getBaudrate(), "comport.baudrate");
-        validateNotNull(this.getSerialPortConfiguration().getNrOfDataBits(), "comport.numberofdatabits");
-        validateNotNull(this.getSerialPortConfiguration().getNrOfStopBits(), "comport.numberofstopbits");
-        validateNotNull(this.getSerialPortConfiguration().getParity(), "comport.parity");
-        validateNotNull(this.getSerialPortConfiguration().getFlowControl(), "comport.flowcontrol");
-    }
-
-    private void validateSerialPortConfigurationComPortName() {
-        if (!this.getName().equals(this.getSerialPortConfiguration().getComPortName())) {
-            throw new TranslatableApplicationException("comport.serialportconfigurationcomportname", "The comport name of the serial port configuration ({0}) should match the name of the comport ({1}).",
-                    this.getSerialPortConfiguration().getComPortName(), this.getName());
-        }
-    }
-
+//    private void validateSerialPortConfigurationComPortName() {
+//        if (!this.getName().equals(this.getSerialPortConfiguration().getComPortName())) {
+//            throw new TranslatableApplicationException("comport.serialportconfigurationcomportname", "The comport name of the serial port configuration ({0}) should match the name of the comport ({1}).",
+//                    this.getSerialPortConfiguration().getComPortName(), this.getName());
+//        }
+//    }
+//
     @Override
     protected void copyFrom(ComPort source) {
         super.copyFrom(source);
@@ -307,11 +296,17 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
     }
 
     public static class LegacySerialPortConfiguration {
+        @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
         private String comPortName;
+        @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
         private BigDecimal baudrate;
+        @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
         private BigDecimal nrOfDataBits;
+        @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
         private BigDecimal nrOfStopBits;
+        @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
         private String flowControl;
+        @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
         private String parity;
 
         private LegacySerialPortConfiguration() {
