@@ -23,7 +23,7 @@ public class QueryParameters {
     private static final String EXTJS_SORT = "sort";
     private static final String EXTJS_DIR = "dir";
     private static final String EXTJS_DIRECTION = "direction";
-    private static final String EXTJS_FIELD = "field";
+    private static final String EXTJS_FIELD = "property";
 
     private final UriInfo uriInfo;
 

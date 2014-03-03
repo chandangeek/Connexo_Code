@@ -4,11 +4,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Collections;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -21,6 +16,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
+
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyBoolean;
@@ -142,9 +143,9 @@ public class DefaultFinderTest extends JerseyTest {
 
     private String sorting(String property, String direction, String ...fields) throws UnsupportedEncodingException {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(String.format("[{\"field\":\"%s\",\"direction\":\"%s\"}", property, direction));
+        stringBuilder.append(String.format("[{\"property\":\"%s\",\"direction\":\"%s\"}", property, direction));
         for (int i=0; i<fields.length; i+=2) {
-            stringBuilder.append(String.format(",{\"field\":\"%s\",\"direction\":\"%s\"}", fields[i], fields[i+1]));
+            stringBuilder.append(String.format(",{\"property\":\"%s\",\"direction\":\"%s\"}", fields[i], fields[i+1]));
         }
         stringBuilder.append("]");
         return URLEncoder.encode(stringBuilder.toString(), "UTF-8");
