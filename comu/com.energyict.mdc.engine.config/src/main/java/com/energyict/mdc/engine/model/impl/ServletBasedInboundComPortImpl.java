@@ -18,11 +18,7 @@ import javax.validation.constraints.Size;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-11 (11:32)
  */
-@NotEmptyIfOtherFieldHasValue.List({
-        @NotEmptyIfOtherFieldHasValue(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmptyIfHttps}", fieldName = "https", fieldValue = "true", dependFieldName = "keyStoreSpecsFilePath"),
-        @NotEmptyIfOtherFieldHasValue(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmptyIfHttps}", fieldName = "https", fieldValue = "true", dependFieldName = "keyStoreSpecsPassword"),
-        @NotEmptyIfOtherFieldHasValue(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmptyIfHttps}", fieldName = "https", fieldValue = "true", dependFieldName = "trustStoreSpecsFilePath"),
-        @NotEmptyIfOtherFieldHasValue(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmptyIfHttps}", fieldName = "https", fieldValue = "true", dependFieldName = "trustStoreSpecsPassword")})
+@NotEmptyFilePathAndPasswords(groups = {Save.Create.class, Save.Update.class})
 public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements ServletBasedInboundComPort, IPBasedInboundComPort, ComPort, InboundComPort {
 
     private boolean https;

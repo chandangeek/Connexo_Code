@@ -16,23 +16,13 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  **/
 @Target({TYPE, ANNOTATION_TYPE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = NotEmptyIfOtherFieldHasValueValidator.class)
+@Constraint(validatedBy = NotEmptyFilePathAndPasswordsValidator.class)
 @Documented
-public @interface NotEmptyIfOtherFieldHasValue {
+public @interface NotEmptyFilePathAndPasswords {
 
-    String fieldName();
-    String fieldValue();
-    String dependFieldName();
-
-    String message() default "{NotNullIfAnotherFieldHasValue.message}";
+    String message() default "{MDC.CanNotBeEmptyIfHttps}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 
-    @Target({TYPE, ANNOTATION_TYPE})
-    @Retention(RUNTIME)
-    @Documented
-    @interface List {
-        NotEmptyIfOtherFieldHasValue[] value();
-    }
 
 }
