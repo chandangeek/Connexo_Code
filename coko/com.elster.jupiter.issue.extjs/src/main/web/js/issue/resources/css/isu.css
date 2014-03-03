@@ -243,3 +243,10 @@ span[class^=isu-assignee-] {
     color: #f00;
 }
 
+#preloader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}

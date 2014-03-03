@@ -17,7 +17,8 @@ Ext.define('Mtr.store.Issues', {
         },
         extraParams: {
             sort: 'dueDate',
-            order: 'asc'
+            order: 'asc',
+
         }
     }
 });

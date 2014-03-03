@@ -29,6 +29,10 @@ Ext.define('Mtr.controller.Issues', {
         {
             ref: 'issueNoGroup',
             selector: 'issue-no-group'
+        },
+        {
+            ref: 'issuesOverview',
+            selector: 'issues-overview'
         }
     ],
 
@@ -202,7 +206,7 @@ Ext.define('Mtr.controller.Issues', {
             Ext.merge(extraParams, this.sortParams);
         }
         this.store.proxy.extraParams = extraParams;
-        //    this.store.load();;
+    //    this.store.load();;
         this.store.loadPage(1);
     },
 

@@ -134,6 +134,10 @@ Ext.define('Mtr.controller.MessageWindow', {
         Ext.Array.each(panel.btns, function (item) {
             item.xtype = 'button';
             item.margin = '0 0 0 5';
+            item.handler = function(){
+                item.hnd();
+                panel.collapseClose();
+            };
             buttons.push(item)
         });
         bottomPanel.add(buttons)
