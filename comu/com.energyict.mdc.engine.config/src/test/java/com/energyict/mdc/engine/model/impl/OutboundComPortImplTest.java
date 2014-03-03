@@ -107,7 +107,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComPort}", property="uniqueName")
+    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComPort}", property="name")
     @Transactional
     public void testCreateWithExistingName() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
