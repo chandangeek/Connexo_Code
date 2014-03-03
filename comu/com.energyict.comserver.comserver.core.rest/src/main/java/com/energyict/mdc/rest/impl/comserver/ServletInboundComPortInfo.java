@@ -13,7 +13,7 @@ public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedIn
 
     public ServletInboundComPortInfo(ServletBasedInboundComPort comPort) {
         super(comPort);
-        this.useHttps = comPort.useHttps();
+        this.useHttps = comPort.isHttps();
         this.keyStoreFilePath = comPort.getKeyStoreSpecsFilePath();
         this.keyStorePassword = comPort.getKeyStoreSpecsPassword();
         this.trustStoreFilePath = comPort.getTrustStoreSpecsFilePath();
