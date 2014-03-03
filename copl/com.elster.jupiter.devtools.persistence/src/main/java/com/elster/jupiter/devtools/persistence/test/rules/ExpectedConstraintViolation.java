@@ -23,4 +23,7 @@ public @interface ExpectedConstraintViolation {
     String messageId() default "";
 
     String property() default "";
+
+    /** Are other violations allowed in this assert? strict implies no other violations should be thrown */
+    boolean strict() default true;
 }

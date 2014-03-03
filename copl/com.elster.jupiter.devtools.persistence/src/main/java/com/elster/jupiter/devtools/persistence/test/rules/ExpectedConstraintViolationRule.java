@@ -71,9 +71,9 @@ public class ExpectedConstraintViolationRule implements TestRule {
                             , e);
 
                 }
-                if (encounteredViolations.size()>1) {
+                if (annotation.strict() && encounteredViolations.size()>1) {
                     throw new AssertionError("Multiple validation violations encountered, saw [" +
-                            Joiner.on(',').join(encounteredViolations)+"]"
+                            Joiner.on(',').join(encounteredViolations)+"]. Switch 'strict' to false if this is allowed in this test."
                             , e);
                 }
             } catch (Throwable e) {
