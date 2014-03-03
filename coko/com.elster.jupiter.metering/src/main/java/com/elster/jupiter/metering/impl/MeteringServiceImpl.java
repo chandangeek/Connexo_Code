@@ -207,7 +207,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     }
 
     @Reference
-    public void setOrmService(OrmService ormService) {
+    public final void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(COMPONENTNAME, "CIM Metering");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
@@ -215,22 +215,22 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     }
 
     @Reference
-    public void setIdsService(IdsService idsService) {
+    public final void setIdsService(IdsService idsService) {
         this.idsService = idsService;
     }
 
     @Reference
-    public void setQueryService(QueryService queryService) {
+    public final void setQueryService(QueryService queryService) {
         this.queryService = queryService;
     }
 
     @Reference
-    public void setPartyService(PartyService partyService) {
+    public final void setPartyService(PartyService partyService) {
         this.partyService = partyService;
     }
 
     @Reference
-    public void setUserService(UserService userService) {
+    public final void setUserService(UserService userService) {
     	this.userService = userService;
     }
 
@@ -239,12 +239,12 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     }
 
     @Reference
-    public void setEventService(EventService eventService) {
+    public final void setEventService(EventService eventService) {
         this.eventService = eventService;
     }
 
     @Activate
-    public void activate() {
+    public final void activate() {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -261,7 +261,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     }
 
     @Deactivate
-    public void deactivate() {
+    public final void deactivate() {
     }
 
     @Override
@@ -288,12 +288,12 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     }
 
     @Reference
-    public void setClock(Clock clock) {
+    public final void setClock(Clock clock) {
         this.clock = clock;
     }
 
     @Reference
-    public void setNlsService(NlsService nlsService) {
+    public final void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN);
     }
 

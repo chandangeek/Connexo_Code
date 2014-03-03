@@ -49,7 +49,7 @@ public class UsagePointAccountabilityImplTest {
         when(party.getId()).thenReturn(PARTY_ID);
         when(role.getMRID()).thenReturn(ROLE_MRID);
 
-        usagePointAccountability = new UsagePointAccountabilityImpl(dataModel, partyService, clock).init(usagePoint, party, role, START);
+        usagePointAccountability = new UsagePointAccountabilityImpl(clock).init(usagePoint, party, role, START);
     }
 
     @After

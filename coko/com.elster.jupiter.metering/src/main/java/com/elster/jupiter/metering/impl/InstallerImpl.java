@@ -38,6 +38,7 @@ public class InstallerImpl {
     private static final int SLOT_COUNT = 8;
     private static final int MONTHS_PER_YEAR = 12;
     private static final String IMPORT_FILE_NAME = "enddeviceeventtypes.csv";
+    private static final String NOT_APPLICABLE = "n/a";
 
     private final MeteringServiceImpl meteringService;
     private final IdsService idsService;
@@ -106,7 +107,7 @@ public class InstallerImpl {
     }
 
     private Iterable<EndDeviceEventorAction> eventOrActions(String field) {
-        return "*".equals(field) ? Arrays.asList(EndDeviceEventorAction.values()) : "n/a".equalsIgnoreCase(field) ? Arrays.asList(EndDeviceEventorAction.NA) : Arrays.asList(EndDeviceEventorAction.valueOf(sanitized(field)));
+        return "*".equals(field) ? Arrays.asList(EndDeviceEventorAction.values()) : NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays.asList(EndDeviceEventorAction.NA) : Arrays.asList(EndDeviceEventorAction.valueOf(sanitized(field)));
     }
 
     private String sanitized(String field) {
@@ -114,16 +115,16 @@ public class InstallerImpl {
     }
 
     private Iterable<EndDeviceSubDomain> subDomains(String field) {
-        Iterable<EndDeviceSubDomain> result = "n/a".equalsIgnoreCase(field) ? Arrays.asList(EndDeviceSubDomain.NA) : Arrays.asList(EndDeviceSubDomain.valueOf(sanitized(field)));
+        Iterable<EndDeviceSubDomain> result = NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays.asList(EndDeviceSubDomain.NA) : Arrays.asList(EndDeviceSubDomain.valueOf(sanitized(field)));
         return "*".equals(field) ? Arrays.asList(EndDeviceSubDomain.values()) : result;
     }
 
     private Iterable<EndDeviceDomain> domains(String field) {
-        return "*".equals(field) ? Arrays.asList(EndDeviceDomain.values()) : "n/a".equalsIgnoreCase(field) ? Arrays.asList(EndDeviceDomain.NA) : Arrays.asList(EndDeviceDomain.valueOf(sanitized(field)));
+        return "*".equals(field) ? Arrays.asList(EndDeviceDomain.values()) : NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays.asList(EndDeviceDomain.NA) : Arrays.asList(EndDeviceDomain.valueOf(sanitized(field)));
     }
 
     private Iterable<EndDeviceType> endDeviceTypes(String field) {
-        return "*".equals(field) ? Arrays.asList(EndDeviceType.values()) : "n/a".equalsIgnoreCase(field) ? Arrays.asList(EndDeviceType.NA) : Arrays.asList(EndDeviceType.valueOf(sanitized(field)));
+        return "*".equals(field) ? Arrays.asList(EndDeviceType.values()) : NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays.asList(EndDeviceType.NA) : Arrays.asList(EndDeviceType.valueOf(sanitized(field)));
     }
 
     private void createAmrSystems() {

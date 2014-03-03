@@ -9,6 +9,8 @@ import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.IntervalBuilder;
 
+import static org.joda.time.DateTimeConstants.MILLIS_PER_MINUTE;
+
 public class MeterReadingFacade {
 	private final MeterReading meterReading;
 	private final Interval interval;
@@ -25,7 +27,7 @@ public class MeterReadingFacade {
 		}
 		for (IntervalBlock block : meterReading.getIntervalBlocks()) {
 			TimeAttribute timeAttribute = ReadingTypeImpl.extractTimeAttribute(block.getReadingTypeCode());
-			long length = -timeAttribute.getMinutes() * 60000L;
+			long length = -timeAttribute.getMinutes() * MILLIS_PER_MINUTE;
 			for (IntervalReading reading : block.getIntervals()) {			
 				builder.add(reading.getTimeStamp(),length);
 			}

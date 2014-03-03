@@ -2,18 +2,15 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
-import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
-
 import java.util.Date;
 
 public class UsagePointAccountabilityImpl implements UsagePointAccountability {
@@ -29,14 +26,10 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 	private Reference<Party> party = ValueReference.absent();
 	private Reference<PartyRole> role = ValueReference.absent();
 
-    private final DataModel dataModel;
-    private final PartyService partyService;
     private final Clock clock;
 
     @Inject
-	UsagePointAccountabilityImpl(DataModel dataModel, PartyService partyService, Clock clock) {
-        this.dataModel = dataModel;
-        this.partyService = partyService;
+	UsagePointAccountabilityImpl(Clock clock) {
         this.clock = clock;
     }
 	

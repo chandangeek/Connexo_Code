@@ -8,7 +8,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -25,15 +24,12 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
-import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.Party;
@@ -42,8 +38,6 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.units.Quantity;
-import com.elster.jupiter.util.units.Unit;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -95,7 +89,7 @@ public class UsagePointImplTest {
         when(dataModel.getInstance(UsagePointAccountabilityImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new UsagePointAccountabilityImpl(dataModel, partyService, clock);
+                return new UsagePointAccountabilityImpl(clock);
             }
         });
         final Provider<ChannelBuilder> channelBuilderProvider = new Provider<ChannelBuilder>() {
@@ -113,7 +107,7 @@ public class UsagePointImplTest {
         when(accountabilityProvider.get()).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new UsagePointAccountabilityImpl(dataModel,partyService, clock);
+                return new UsagePointAccountabilityImpl(clock);
             }
         });
         when(representation1.getDelegate()).thenReturn(user1);
