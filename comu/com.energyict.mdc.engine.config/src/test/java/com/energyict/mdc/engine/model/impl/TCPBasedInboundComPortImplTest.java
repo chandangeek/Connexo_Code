@@ -96,7 +96,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComPort}", property = "uniqueName")
+    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComPort}", property = "name")
     public void testCreateWithExistingName() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
         TCPBasedInboundComPort comPort = this.createSimpleComPort(onlineComServer);
