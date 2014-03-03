@@ -10,7 +10,11 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.RegisterMapping;
-
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -25,11 +29,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
@@ -127,13 +126,14 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/deviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<DeviceConfigurationInfo> getDeviceConfigurationsForDeviceType(@PathParam("id") long id) {
+    public PagedInfoList getDeviceConfigurationsForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
         DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
+        List<DeviceConfiguration> deviceConfigurations = deviceConfigurationService.findDeviceConfigurationsUsingDeviceType(deviceType).from(queryParameters).find();
         List<DeviceConfigurationInfo> deviceConfigurationInfos = new ArrayList<>();
-        for (DeviceConfiguration deviceConfiguration : deviceType.getConfigurations()) {
+        for (DeviceConfiguration deviceConfiguration : deviceConfigurations) {
             deviceConfigurationInfos.add(new DeviceConfigurationInfo(deviceConfiguration));
         }
-        return deviceConfigurationInfos;
+        return PagedInfoList.asJson("deviceConfigurations", deviceConfigurationInfos, queryParameters);
     }
 
     @GET
