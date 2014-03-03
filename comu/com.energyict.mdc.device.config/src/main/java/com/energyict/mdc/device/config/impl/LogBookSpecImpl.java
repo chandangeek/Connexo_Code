@@ -13,7 +13,7 @@ import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceConfigurationReferenceException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLogbookTypeOfLogbookSpecException;
-import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogbookTypeIsRequiredException;
 
@@ -95,7 +95,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
 
     private void validateDeviceConfiguration() {
         if (!this.deviceConfiguration.isPresent()) {
-            throw DeviceConfigIsRequiredException.logBookSpecRequiresDeviceConfig(this.thesaurus);
+            throw DeviceConfigurationIsRequiredException.logBookSpecRequiresDeviceConfig(this.thesaurus);
         }
     }
 

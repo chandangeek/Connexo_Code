@@ -19,7 +19,7 @@ import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceConfigurationReferenceException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLoadProfileSpecOfChannelSpec;
 import com.energyict.mdc.device.config.exceptions.CannotChangeRegisterMappingOfChannelSpecException;
-import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.DuplicateRegisterMappingException;
 import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
@@ -30,7 +30,7 @@ import com.energyict.mdc.device.config.exceptions.PhenomenonIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ReadingMethodIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.UnitsNotCompatibleException;
+import com.energyict.mdc.device.config.exceptions.IncompatibleUnitsException;
 import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
 import com.energyict.mdc.device.config.exceptions.ValueCalculationMethodIsRequiredException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
@@ -242,14 +242,14 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         Phenomenon phenomenon = this.getPhenomenon();
         if (!phenomenon.isUndefined() && !registerMappingUnit.isUndefined()) {
             if (!phenomenon.getUnit().equalBaseUnit(registerMappingUnit)) {
-                throw UnitsNotCompatibleException.forChannelSpecPhenomenonAndRegisterMappingUnit(thesaurus, phenomenon, registerMappingUnit);
+                throw IncompatibleUnitsException.forChannelSpecPhenomenonAndRegisterMappingUnit(thesaurus, phenomenon, registerMappingUnit);
             }
         }
     }
 
     private void validateDeviceConfiguration() {
         if (!this.deviceConfiguration.isPresent()) {
-            throw DeviceConfigIsRequiredException.channelSpecRequiresDeviceConfig(this.thesaurus);
+            throw DeviceConfigurationIsRequiredException.channelSpecRequiresDeviceConfig(this.thesaurus);
         }
     }
 

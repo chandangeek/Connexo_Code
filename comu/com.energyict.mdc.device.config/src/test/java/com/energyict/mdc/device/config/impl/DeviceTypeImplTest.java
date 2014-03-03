@@ -631,7 +631,7 @@ public class DeviceTypeImplTest extends PersistenceTest {
         deviceType.setDeviceProtocolPluggableClass(this.deviceProtocolPluggableClass2);
         deviceType.save();
 
-        // Asserts: expected CannotChangeDeviceProtocolWithActiveConfigurationsException
+        // Asserts: see ExpectedConstraintViolation
     }
 
     @Test

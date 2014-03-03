@@ -15,7 +15,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.DuplicatePrimeRegisterSpecException;
 import com.energyict.mdc.device.config.exceptions.InCorrectDeviceConfigOfChannelSpecException;
 import com.energyict.mdc.device.config.exceptions.InvalidValueException;
@@ -202,7 +202,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     private void validateDeviceConfiguration(DeviceConfiguration deviceConfig) {
         if (deviceConfig == null) {
-            throw DeviceConfigIsRequiredException.registerSpecRequiresDeviceConfig(this.thesaurus);
+            throw DeviceConfigurationIsRequiredException.registerSpecRequiresDeviceConfig(this.thesaurus);
         }
     }
 
