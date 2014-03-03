@@ -1,6 +1,6 @@
-Ext.define('Mtr.view.workspace.issues.bulk.Overview', {
+Ext.define('Mtr.view.workspace.issues.bulk.BulkWizard', {
     extend: 'Mtr.view.workspace.issues.bulk.Wizard',
-    alias: 'widget.bulkwizard',
+    alias: 'widget.bulk-wizard',
     titlePrefix: 'Bulk action',
     includeSubTitle: true,
 

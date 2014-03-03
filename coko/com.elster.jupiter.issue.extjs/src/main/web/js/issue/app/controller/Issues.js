@@ -12,7 +12,6 @@ Ext.define('Mtr.controller.Issues', {
         'workspace.issues.List',
         'workspace.issues.Item',
         'workspace.issues.IssueNoGroup',
-        'workspace.issues.bulk.Overview',
         'ext.button.IssuesGridAction',
         'ext.button.SortItemButton'
     ],
@@ -172,7 +171,7 @@ Ext.define('Mtr.controller.Issues', {
     },
 
     bulkChangeIssues: function () {
-        var widget = Ext.widget('bulkwizard');
+        var widget = Ext.widget('bulk-browse');
         Mtr.getApplication().getMainController().showContent(widget);
     },
 
