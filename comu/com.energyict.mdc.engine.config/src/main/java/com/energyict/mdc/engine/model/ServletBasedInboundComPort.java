@@ -16,7 +16,7 @@ public interface ServletBasedInboundComPort extends IPBasedInboundComPort {
      *
      * @return A flag that indicates if the HTTPS protocol should be used
      */
-    public boolean useHttps ();
+    public boolean isHttps();
 
     public void setHttps(boolean https);
 

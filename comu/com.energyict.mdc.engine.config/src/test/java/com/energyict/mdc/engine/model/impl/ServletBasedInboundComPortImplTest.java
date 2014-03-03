@@ -1,11 +1,8 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.energyict.mdc.Expected;
-import com.energyict.mdc.ExpectedErrorRule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.energyict.mdc.Transactional;
-import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -14,15 +11,12 @@ import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import java.sql.SQLException;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Tests the {@link ServletBasedInboundComPortImpl} component.
@@ -91,11 +85,11 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         assertEquals("Incorrect number of simultaneous connections", NUMBER_OF_SIMULTANEOUS_CONNECTIONS, comPort.getNumberOfSimultaneousConnections());
         assertThat(comPort.getPortNumber()).describedAs("Incorrect PortNumber").isEqualTo(PORT_NUMBER);
         assertEquals("Incorrect context path", CONTEXT_PATH, comPort.getContextPath());
-        assertTrue("Incorrect https flag", comPort.useHttps());
+        assertTrue("Incorrect https flag", comPort.isHttps());
     }
 
     @Test
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "name")
     @Transactional
     public void testCreateWithoutName() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
@@ -115,7 +109,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
-    @Expected(expected = TranslatableApplicationException.class)
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "comPortPool")
     @Transactional
     public void testCreateWithoutComPortPool() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
@@ -135,7 +129,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
-    @Expected(expected = TranslatableApplicationException.class, messageId = "duplicateComPortX")
+    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComPort}", property = "name")
     @Transactional
     public void testCreateWithExistingName() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
@@ -147,7 +141,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .description(DESCRIPTION)
                 .active(ACTIVE)
                 .comPortPool(createComPortPool())
-                .portNumber(PORT_NUMBER)
+                .portNumber(PORT_NUMBER+1)
                 .contextPath(CONTEXT_PATH)
                 .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH)
@@ -159,7 +153,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
-    @Expected(expected = TranslatableApplicationException.class)
+    @ExpectedConstraintViolation(messageId = "{MDC.ValueTooSmall}", property = "numberOfSimultaneousConnections")
     @Transactional
     public void testCreateWithZeroSimultaneousConnections() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
@@ -180,7 +174,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
-    @Expected(expected = TranslatableApplicationException.class)
+    @ExpectedConstraintViolation(messageId = "{MDC.ValueTooSmall}", property = "portNumber")
     @Transactional
     public void testCreateWithZeroPortNumber() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
@@ -201,7 +195,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
-    @Expected(expected = TranslatableApplicationException.class)
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeNull}", property = "contextPath")
     @Transactional
     public void testCreateWithoutContextPath() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
@@ -222,7 +216,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
-    @Expected(expected = TranslatableApplicationException.class)
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "contextPath")
     @Transactional
     public void testCreateWithEmptyContextPath() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
@@ -270,10 +264,18 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         assertThat(comPort.getTrustStoreSpecsFilePath()).isNull();
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmptyIfHttps}", property = "trustStoreSpecsFilePath", strict = false)
     @Transactional
     public void testCreateWithOnlyKeyStore() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(null).trustStoreSpecsPassword(null).add();
@@ -281,10 +283,18 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         // Expected TranslatableApplicationException because trust store is not specified
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmptyIfHttps}", property = "keyStoreSpecsFilePath")
     @Transactional
     public void testCreateWithoutKeyStoreFilePath() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .https(true)
                 .keyStoreSpecsFilePath(null).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
@@ -292,10 +302,18 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         // Expected TranslatableApplicationException because key store file path is not specified
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmptyIfHttps}", property = "keyStoreSpecsFilePath")
     @Transactional
     public void testCreateWithEmptyKeyStoreFilePath() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .https(true)
                 .keyStoreSpecsFilePath("").keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
@@ -303,10 +321,18 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         // Expected TranslatableApplicationException because key store file path is empty
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmptyIfHttps}", property = "keyStoreSpecsPassword")
     @Transactional
     public void testCreateWithoutKeyStorePassword() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(null)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
@@ -314,10 +340,18 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         // Expected TranslatableApplicationException because key store password is not specified
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmptyIfHttps}", property = "keyStoreSpecsPassword")
     @Transactional
     public void testCreateWithEmptyKeyStorePassword() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword("")
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
@@ -325,10 +359,18 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         // Expected TranslatableApplicationException because key store password is empty
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmptyIfHttps}", property = "trustStoreSpecsFilePath")
     @Transactional
     public void testCreateWithoutTrustStoreFilePath() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(null).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
@@ -336,21 +378,37 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         // Expected TranslatableApplicationException because trust store file path is not specified
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmptyIfHttps}", property = "trustStoreSpecsFilePath")
     @Transactional
     public void testCreateWithEmptyTrustStoreFilePath() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
                 .https(true)
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath("").trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
 
         // Expected TranslatableApplicationException because trust store file path is empty
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmptyIfHttps}", property = "trustStoreSpecsPassword")
     @Transactional
     public void testCreateWithoutTrustStorePassword() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(null).add();
@@ -358,10 +416,18 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         // Expected TranslatableApplicationException because the trust store password is not specified
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmptyIfHttps}", property = "trustStoreSpecsPassword")
     @Transactional
     public void testCreateWithEmptyTrustStorePassword() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword("").add();
@@ -369,10 +435,18 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         // Expected TranslatableApplicationException because the trust store password is empty
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmptyIfHttps}", property = "keyStoreSpecsFilePath", strict = false)
     @Transactional
     public void testCreateWithOnlyTrustStore() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .https(true)
                 .keyStoreSpecsFilePath(null).keyStoreSpecsPassword(null)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
@@ -394,7 +468,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         assertEquals("Was NOT expecting the new com port to be active", comPort.isActive(), reloaded.isActive());
         assertEquals("Incorrect number of simultaneous connections", comPort.getNumberOfSimultaneousConnections(), reloaded.getNumberOfSimultaneousConnections());
         assertEquals("Incorrect PortNumber", comPort.getPortNumber(), reloaded.getPortNumber());
-        assertThat(reloaded.useHttps()).isTrue();
+        assertThat(reloaded.isHttps()).isTrue();
         assertThat(reloaded.getKeyStoreSpecsFilePath()).isEqualTo(KEY_STORE_FILE_PATH);
         assertThat(reloaded.getKeyStoreSpecsPassword()).isEqualTo(KEY_STORE_PASSWORD);
         assertThat(reloaded.getTrustStoreSpecsFilePath()).isEqualTo(TRUST_STORE_FILE_PATH);
@@ -430,10 +504,11 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         assertEquals("Incorrect number of simultaneous connections", newNumberOfSimultaneousConnections, comPort.getNumberOfSimultaneousConnections());
         assertEquals("Incorrect PortNumber", newPortNumber, comPort.getPortNumber());
         assertEquals("Incorrect context path", updatedContextPath, comPort.getContextPath());
-        assertFalse("Incorrect https flag", comPort.useHttps());
+        assertFalse("Incorrect https flag", comPort.isHttps());
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "name")
     @Transactional
     public void updateWithEmptyName() throws BusinessException, SQLException {
         ServletBasedInboundComPortImpl comPort = (ServletBasedInboundComPortImpl) this.createSimpleComPort();
@@ -455,15 +530,23 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         comPort.save();
 
         // Asserts
-        assertThat(comPort.useHttps()).isFalse();
+        assertThat(comPort.isHttps()).isFalse();
         assertThat(comPort.getKeyStoreSpecsFilePath()).isNull();
         assertThat(comPort.getTrustStoreSpecsFilePath()).isNull();
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmptyIfHttps}", property = "keyStoreSpecsFilePath", strict=false)
     @Transactional
     public void testUpdateWithoutKeyStore() throws SQLException, BusinessException {
         ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
@@ -476,11 +559,19 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         // Expected TranslatableApplicationException because the key store is null
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmptyIfHttps}", property = "keyStoreSpecsFilePath")
     @Transactional
     public void testUpdateWithoutKeyStoreFilePath() throws SQLException, BusinessException {
         ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
                 .https(true)
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
         comPort.setKeyStoreSpecsFilePath(null);
@@ -491,10 +582,18 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         // Expected TranslatableApplicationException because the key store file path is null
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmptyIfHttps}", property = "keyStoreSpecsFilePath")
     @Transactional
     public void testUpdateWithEmptyKeyStoreFilePath() throws SQLException, BusinessException {
         ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
@@ -506,10 +605,18 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         // Expected TranslatableApplicationException because the key store file path is empty
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmptyIfHttps}", property = "keyStoreSpecsPassword")
     @Transactional
     public void testUpdateWithoutKeyStorePassword() throws SQLException, BusinessException {
         ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
@@ -521,10 +628,18 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         // Expected TranslatableApplicationException because the key store password is null
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmptyIfHttps}", property = "keyStoreSpecsPassword")
     @Transactional
     public void testUpdateWithEmptyKeyStorePassword() throws SQLException, BusinessException {
         ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
@@ -536,10 +651,18 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         // Expected TranslatableApplicationException because the key store password is empty
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmptyIfHttps}", property = "trustStoreSpecsFilePath", strict = false)
     @Transactional
     public void testUpdateWithoutTrustStore() throws SQLException, BusinessException {
         ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();

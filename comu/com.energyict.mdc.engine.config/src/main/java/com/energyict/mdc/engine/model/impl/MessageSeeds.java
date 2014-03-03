@@ -16,7 +16,7 @@ public enum MessageSeeds implements MessageSeed {
     VALUE_NOT_IN_RANGE(3, "MDC.ValueNotInRange", "{value} not in range {min} to {max}", Level.SEVERE),
     INVALID_URL(4, "MDC.InvalidURL", "{value} is not a valid URL", Level.SEVERE),
     INVALID_CHARS(5, "MDC.InvalidChars", "contains invalid chars, should obey {regex}", Level.SEVERE),
-
+    REQUIRED_FOR_HTTPS(6, "MDC.CanNotBeEmptyIfHttps", "Field is mandatory in case https is chosen", Level.SEVERE),
 
     DUPLICATE_COMSERVER(101, "MDC.DuplicateComServer", "ComServer with name {value} already exists", Level.SEVERE),
     OBSOLETE_COMSERVER_CANT_BE_UPDATED(103, "MDC.comserver.noUpdateAllowed", "Obsolete ComServers can no longer be updated", Level.SEVERE),

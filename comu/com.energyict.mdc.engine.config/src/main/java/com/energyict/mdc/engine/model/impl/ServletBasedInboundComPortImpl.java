@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
@@ -8,6 +9,8 @@ import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.Provider;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.ServletBasedInboundComPort} interface.
@@ -15,6 +18,11 @@ import javax.inject.Inject;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-11 (11:32)
  */
+@NotEmptyIfOtherFieldHasValue.List({
+        @NotEmptyIfOtherFieldHasValue(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmptyIfHttps}", fieldName = "https", fieldValue = "true", dependFieldName = "keyStoreSpecsFilePath"),
+        @NotEmptyIfOtherFieldHasValue(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmptyIfHttps}", fieldName = "https", fieldValue = "true", dependFieldName = "keyStoreSpecsPassword"),
+        @NotEmptyIfOtherFieldHasValue(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmptyIfHttps}", fieldName = "https", fieldValue = "true", dependFieldName = "trustStoreSpecsFilePath"),
+        @NotEmptyIfOtherFieldHasValue(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmptyIfHttps}", fieldName = "https", fieldValue = "true", dependFieldName = "trustStoreSpecsPassword")})
 public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements ServletBasedInboundComPort, IPBasedInboundComPort, ComPort, InboundComPort {
 
     private boolean https;
@@ -22,6 +30,8 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     private String keyStoreSpecsPassword;
     private String trustStoreSpecsFilePath;
     private String trustStoreSpecsPassword;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeNull}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmpty}")
     private String contextPath;
 
     @Inject
@@ -36,20 +46,10 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
 
     protected void validateCreate(){
         super.validateCreate();
-        if (this.useHttps()) {
-            this.validatePaths(this.getKeyStoreSpecsFilePath(), this.getKeyStoreSpecsPassword(), "keystore");
-            this.validatePaths(this.getTrustStoreSpecsFilePath(), this.getTrustStoreSpecsPassword(), "truststore");
-        }
-        this.validateNotNull(this.getContextPath(), "servletbasedinboundcomport.contextpath");
-    }
-
-    private void validatePaths(Object filePath, Object password, String keyStoreType) {
-        this.validateNotNull(filePath, "servletbasedinboundcomport." + keyStoreType + ".filepath");
-        this.validateNotNull(password, "servletbasedinboundcomport." + keyStoreType + ".password");
     }
 
     @Override
-    public boolean useHttps () {
+    public boolean isHttps() {
         return https;
     }
 
@@ -112,7 +112,7 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     protected void copyFrom(ComPort source) {
         super.copyFrom(source);
         ServletBasedInboundComPort mySource = (ServletBasedInboundComPort) source;
-        this.setHttps(mySource.useHttps());
+        this.setHttps(mySource.isHttps());
         this.setKeyStoreSpecsFilePath(mySource.getKeyStoreSpecsFilePath());
         this.setKeyStoreSpecsPassword(mySource.getKeyStoreSpecsPassword());
         this.setTrustStoreSpecsFilePath(mySource.getTrustStoreSpecsFilePath());
