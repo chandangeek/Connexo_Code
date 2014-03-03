@@ -21,7 +21,6 @@ import com.energyict.mdc.device.config.exceptions.CannotUpdateIntervalWhenLoadPr
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
 import org.junit.*;
 import org.junit.rules.*;
@@ -113,7 +112,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
             LoadProfileType loadProfileType2 = deviceConfigurationService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
             loadProfileType2.setDescription("For testing purposes only");
             loadProfileType2.save();
-        } catch (DuplicateNameException e) {
+        }
+        catch (DuplicateNameException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_ALREADY_EXISTS);
             throw e;
@@ -122,39 +122,47 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = MessageSeeds.Constants.NAME_REQUIRED_KEY)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     public void testCreateWithoutName() {
         DeviceConfigurationServiceImpl deviceConfigurationService = inMemoryPersistence.getDeviceConfigurationService();
         TimeDuration interval = INTERVAL_15_MINUTES;
 
+        LoadProfileType loadProfileType = deviceConfigurationService.newLoadProfileType(null, OBIS_CODE, interval);
+
         // Business method
-        deviceConfigurationService.newLoadProfileType(null, OBIS_CODE, interval);
+        loadProfileType.save();
+
+        // Asserts: see ExpectedConstraintViolation rule
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = MessageSeeds.Constants.NAME_REQUIRED_KEY)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     public void testCreateWithEmptyName() {
         DeviceConfigurationServiceImpl deviceConfigurationService = inMemoryPersistence.getDeviceConfigurationService();
         TimeDuration interval = INTERVAL_15_MINUTES;
+
+        LoadProfileType loadProfileType = deviceConfigurationService.newLoadProfileType("", OBIS_CODE, interval);
+
         // Business method
-        deviceConfigurationService.newLoadProfileType("", OBIS_CODE, interval);
+        loadProfileType.save();
+
+        // Asserts: see ExpectedConstraintViolation rule
     }
 
-    @Test(expected = ObisCodeIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED_KEY + "}")
     public void testCreateWithoutObisCode() {
         DeviceConfigurationServiceImpl deviceConfigurationService = inMemoryPersistence.getDeviceConfigurationService();
         TimeDuration interval = INTERVAL_15_MINUTES;
 
-        try {
-            // Business method
-            deviceConfigurationService.newLoadProfileType("testCreateWithoutObisCode", null, interval);
-        } catch (ObisCodeIsRequiredException e) {
-            // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED);
-            throw e;
-        }
+        LoadProfileType loadProfileType = deviceConfigurationService.newLoadProfileType("testCreateWithoutObisCode", null, interval);
+
+        // Business method
+        loadProfileType.save();
+
+        // Asserts: see ExpectedConstraintViolation rule
     }
 
     @Test(expected = IntervalIsRequiredException.class)
@@ -165,7 +173,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         try {
             // Business method
             deviceConfigurationService.newLoadProfileType("testCreateWithoutInterval", OBIS_CODE, null);
-        } catch (IntervalIsRequiredException e) {
+        }
+        catch (IntervalIsRequiredException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED);
             throw e;
@@ -181,7 +190,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         try {
             // Business method
             deviceConfigurationService.newLoadProfileType("testCreateWithEmptyInterval", OBIS_CODE, interval);
-        } catch (IntervalIsRequiredException e) {
+        }
+        catch (IntervalIsRequiredException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED);
             throw e;
@@ -197,7 +207,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         try {
             // Business method
             deviceConfigurationService.newLoadProfileType("testCreateWithIntervalInWeeks", OBIS_CODE, interval);
-        } catch (UnsupportedIntervalException e) {
+        }
+        catch (UnsupportedIntervalException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_INTERVAL_IN_WEEKS_IS_NOT_SUPPORTED);
             throw e;
@@ -213,7 +224,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         try {
             // Business method
             deviceConfigurationService.newLoadProfileType("testCreateWithNegativeIntervalSeconds", OBIS_CODE, interval);
-        } catch (UnsupportedIntervalException e) {
+        }
+        catch (UnsupportedIntervalException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INTERVAL_MUST_BE_STRICTLY_POSITIVE);
             throw e;
@@ -229,7 +241,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         try {
             // Business method
             deviceConfigurationService.newLoadProfileType("testCreateWithMultipleDays", OBIS_CODE, interval);
-        } catch (UnsupportedIntervalException e) {
+        }
+        catch (UnsupportedIntervalException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INTERVAL_IN_DAYS_MUST_BE_ONE);
             throw e;
@@ -245,7 +258,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         try {
             // Business method
             deviceConfigurationService.newLoadProfileType("testCreateWithMultipleMonths", OBIS_CODE, interval);
-        } catch (UnsupportedIntervalException e) {
+        }
+        catch (UnsupportedIntervalException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INTERVAL_IN_MONTHS_MUST_BE_ONE);
             throw e;
@@ -261,7 +275,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         try {
             // Business method
             deviceConfigurationService.newLoadProfileType("testCreateWithMultipleYears", OBIS_CODE, interval);
-        } catch (UnsupportedIntervalException e) {
+        }
+        catch (UnsupportedIntervalException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INTERVAL_IN_YEARS_MUST_BE_ONE);
             throw e;
@@ -459,7 +474,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         try {
             // Business method
             loadProfileType.removeRegisterMapping(registerMapping);
-        } catch (CannotDeleteBecauseStillInUseException e) {
+        }
+        catch (CannotDeleteBecauseStillInUseException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_CHANNEL_SPEC);
             throw e;
@@ -557,7 +573,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         // Business method
         try {
             loadProfileType.delete();
-        } catch (CannotDeleteBecauseStillInUseException e) {
+        }
+        catch (CannotDeleteBecauseStillInUseException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES);
             throw e;
@@ -572,7 +589,10 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     }
 
     private void assertRegisterMappingsDoNotExist(LoadProfileType loadProfileType) throws SQLException {
-        List<LoadProfileTypeRegisterMappingUsage> usages = inMemoryPersistence.getDeviceConfigurationService().getDataModel().mapper(LoadProfileTypeRegisterMappingUsage.class).find("LOADPROFILETYPEID", loadProfileType.getId());
+        List<LoadProfileTypeRegisterMappingUsage> usages = inMemoryPersistence.getDeviceConfigurationService()
+                .getDataModel()
+                .mapper(LoadProfileTypeRegisterMappingUsage.class)
+                .find("LOADPROFILETYPEID", loadProfileType.getId());
         assertThat(usages).as("Was not expecting to find any register mapping usages for LoadProfileType {0} after deletion", loadProfileType.getName()).isEmpty();
     }
 
@@ -582,7 +602,13 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     }
 
     private void setupReadingTypeInExistingTransaction() {
-        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED)
+                .flow(FORWARD)
+                .measure(ENERGY)
+                .in(KILO, WATTHOUR)
+                .period(TimeAttribute.MINUTE15)
+                .accumulate(Accumulation.DELTADELTA)
+                .code();
         this.readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
     }
 

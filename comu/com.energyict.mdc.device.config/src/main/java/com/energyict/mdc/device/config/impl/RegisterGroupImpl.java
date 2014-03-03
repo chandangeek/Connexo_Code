@@ -45,20 +45,6 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
         super.save();
     }
 
-    /**
-     * Saves this object for the first time.
-     */
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
-    /**
-     * Updates the changes made to this object.
-     */
-    protected void post() {
-        this.getDataMapper().update(this);
-    }
-
     @Override
     protected void doDelete() {
         this.getDataMapper().remove(this);

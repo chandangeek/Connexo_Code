@@ -75,16 +75,6 @@ public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements
     }
 
     @Override
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
-    @Override
-    protected void post() {
-        this.getDataMapper().update(this);
-    }
-
-    @Override
     protected void doDelete() {
         this.getDataMapper().remove(this);
     }

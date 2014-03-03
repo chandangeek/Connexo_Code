@@ -286,16 +286,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     @Override
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
-    @Override
-    protected void post() {
-        this.getDataMapper().update(this);
-    }
-
-    @Override
     protected void doDelete() {
         getDeviceConfiguration().deleteChannelSpec(this);
     }

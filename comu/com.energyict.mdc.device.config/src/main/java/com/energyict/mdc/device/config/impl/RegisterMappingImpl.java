@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -24,12 +25,12 @@ import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenRegist
 import com.energyict.mdc.device.config.exceptions.CannotUpdateProductSpecWhenRegisterMappingIsInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
-import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.ProductSpecIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -44,8 +45,10 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     private final MeteringService meteringService;
     private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
-    private String obisCodeString;
     private ObisCode obisCode;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY + "}")
+    private String obisCodeString;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.PRODUCT_SPEC_IS_REQUIRED_KEY + "}")
     private Reference<ProductSpec> productSpec = ValueReference.absent();
     private boolean cumulative;
     private Reference<RegisterGroup> registerGroup = ValueReference.absent();
@@ -81,26 +84,18 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         super.save();
     }
 
-    /**
-     * Saves this object for the first time.
-     */
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
     private void validateUniqueObisCodeAndRegisterMapping() {
-        RegisterMapping otherRegisterMapping = this.findOtherByObisCodeAndProductSpec();
-        if (otherRegisterMapping != null) {
-            throw DuplicateObisCodeException.forRegisterMapping(this.getThesaurus(), obisCode, otherRegisterMapping);
+        if (this.productSpec.isPresent()) {
+            RegisterMapping otherRegisterMapping = this.findOtherByObisCodeAndProductSpec();
+            if (otherRegisterMapping != null) {
+                throw DuplicateObisCodeException.forRegisterMapping(this.getThesaurus(), obisCode, otherRegisterMapping);
+            }
         }
     }
 
-    /**
-     * Updates the changes made to this object.
-     */
     protected void post() {
         this.validateDeviceConfigurations();
-        this.getDataMapper().update(this);
+        super.post();
     }
 
     private void validateDeviceConfigurations() {
@@ -146,9 +141,11 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     @Override
     public void setObisCode(ObisCode obisCode) {
         if (obisCode == null) {
-            throw ObisCodeIsRequiredException.registerMappingRequiresObisCode(this.getThesaurus());
+            // javax.validation will throw ConstraintValidationException in the end
+            this.obisCodeString = null;
+            this.obisCode = null;
         }
-        if (this.obisCodeChanged(obisCode)) {
+        else if (this.obisCodeChanged(obisCode)) {
             if (this.isInUse()) {
                 throw new CannotUpdateObisCodeWhenRegisterMappingIsInUseException(this.getThesaurus(), this);
             }
@@ -162,7 +159,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     }
 
     private RegisterMapping findOtherByObisCodeAndProductSpec() {
-        return this.getDataMapper().getUnique("obisCodeString", obisCode.toString(), "productSpec", getProductSpec()).orNull();
+        return this.getDataMapper().getUnique("obisCodeString", obisCode.toString(), "productSpec", this.getProductSpec()).orNull();
     }
 
     @Override
@@ -183,9 +180,10 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     @Override
     public void setProductSpec(ProductSpec productSpec) {
         if (productSpec == null) {
-            throw new ProductSpecIsRequiredException(this.getThesaurus());
+            // javax.validation will throw ConstraintValidationException in the end
+            this.productSpec.set(null);
         }
-        if (this.productSpecChanged(productSpec)) {
+        else if (this.productSpecChanged(productSpec)) {
             if (this.isInUse()) {
                 throw new CannotUpdateProductSpecWhenRegisterMappingIsInUseException(this.getThesaurus(), this);
             }

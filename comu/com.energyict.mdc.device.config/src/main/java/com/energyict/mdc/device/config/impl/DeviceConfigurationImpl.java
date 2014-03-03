@@ -555,7 +555,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     protected void postNew() {
         validateRequiredFields();
-        this.getDataMapper().persist(this);
+        super.postNew();
     }
 
     private void validateRequiredFields() {
@@ -566,11 +566,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         if (!this.deviceType.isPresent()) {
             throw new DeviceTypeIsRequiredException(this.thesaurus);
         }
-    }
-
-    @Override
-    protected void post() {
-        this.getDataMapper().update(this);
     }
 
     @Override

@@ -170,26 +170,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         this.validateRequired();
     }
 
-    @Override
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
-    @Override
-    protected void post() {
-        this.getDataMapper().update(this);
-    }
-
-//    protected void deleteDependents() throws SQLException, BusinessException {
-//        super.deleteDependents();
-//        StringBuffer buffer = new StringBuffer("delete FROM eisrturegisterreading WHERE ");
-//        buffer.append("rturegisterid IN ");
-//        buffer.append("(select id FROM eisrturegister WHERE rturegspecid = ?)");
-//        bindAndExecute(buffer.toString(), getId());
-//        buffer = new StringBuffer("delete from eisrturegister where rturegspecid = ?");
-//        bindAndExecute(buffer.toString(), getId());
-//    }
-
     public String toString() {
         return getDeviceConfiguration().getName() + " - " + getRegisterMapping().getName();
     }

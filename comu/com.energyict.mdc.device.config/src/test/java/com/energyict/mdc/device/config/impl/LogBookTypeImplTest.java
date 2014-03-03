@@ -68,20 +68,24 @@ public class LogBookTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = MessageSeeds.Constants.NAME_REQUIRED_KEY)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     public void testLogBookTypeCreationWithoutName() {
+        LogBookType logBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(null, OBIS_CODE);
+
         // Business method
-        inMemoryPersistence.getDeviceConfigurationService().newLogBookType(null, OBIS_CODE);
+        logBookType.save();
 
         // Asserts: See ExpectedConstraintViolation rule
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = MessageSeeds.Constants.NAME_REQUIRED_KEY)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     public void testLogBookTypeCreationWithEmptyName() {
+        LogBookType logBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType("", OBIS_CODE);
+
         // Business method
-        inMemoryPersistence.getDeviceConfigurationService().newLogBookType("", OBIS_CODE);
+        logBookType.save();
 
         // Asserts: See ExpectedConstraintViolation rule
     }
@@ -101,15 +105,17 @@ public class LogBookTypeImplTest extends PersistenceTest {
             logBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(logBookTypeName, OBIS_CODE);
             logBookType.setDescription("For testing purposes only");
             logBookType.save();
-        } catch (DuplicateNameException e) {
+        }
+        catch (DuplicateNameException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOG_BOOK_TYPE_ALREADY_EXISTS);
             throw e;
         }
     }
 
-    @Test(expected = ObisCodeIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED_KEY + "}")
     public void testLogBookTypeCreationWithoutObisCode() {
         String logBookTypeName = "testDuplicateLogBookType";
         // Business method
@@ -196,7 +202,8 @@ public class LogBookTypeImplTest extends PersistenceTest {
         try {
             // Business method
             logBookType.delete();
-        } catch (CannotDeleteBecauseStillInUseException e) {
+        }
+        catch (CannotDeleteBecauseStillInUseException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS);
             throw e;

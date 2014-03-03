@@ -100,16 +100,6 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     @Override
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
-    @Override
-    protected void post() {
-        this.getDataMapper().update(this);
-    }
-
-    @Override
     protected void doDelete() {
         this.getDeviceConfiguration().deleteLogBookSpec(this);
     }

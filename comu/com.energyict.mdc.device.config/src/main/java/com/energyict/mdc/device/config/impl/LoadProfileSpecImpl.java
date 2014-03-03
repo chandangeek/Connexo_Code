@@ -93,16 +93,6 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     }
 
     @Override
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
-    @Override
-    protected void post() {
-        this.getDataMapper().update(this);
-    }
-
-    @Override
     protected void doDelete() {
         this.getDeviceConfiguration().deleteLoadProfileSpec(this);
     }

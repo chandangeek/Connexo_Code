@@ -26,8 +26,6 @@ import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenRegist
 import com.energyict.mdc.device.config.exceptions.CannotUpdateProductSpecWhenRegisterMappingIsInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.ProductSpecIsRequiredException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
@@ -106,49 +104,52 @@ public class RegisterMappingImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = MessageSeeds.Constants.NAME_REQUIRED_KEY)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     public void testCreateWithoutName() {
         this.setupProductSpecsInExistingTransaction();
 
-        // Business method
         RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(null, obisCode1, this.productSpec);
         registerMapping.setDescription("For testing purposes only");
+
+        // Business method
         registerMapping.save();
+
+        // Asserts: see ExpectedConstraintViolation rule
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = MessageSeeds.Constants.NAME_REQUIRED_KEY)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     public void testCreateWithEmptyName() {
         this.setupProductSpecsInExistingTransaction();
 
-        // Business method
         RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("", obisCode1, this.productSpec);
         registerMapping.setDescription("For testing purposes only");
+
+        // Business method
         registerMapping.save();
+
+        // Asserts: see ExpectedConstraintViolation rule
     }
 
-    @Test(expected = ObisCodeIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY + "}")
     public void testCreateWithoutObisCode() {
         String registerMappingName = "testCreateWithoutObisCode";
-        RegisterMapping registerMapping;
-        try {
-            this.setupProductSpecsInExistingTransaction();
+        this.setupProductSpecsInExistingTransaction();
 
-            // Business method
-            registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, null, this.productSpec);
-            registerMapping.setDescription("For testing purposes only");
-            registerMapping.save();
-        } catch (ObisCodeIsRequiredException e) {
-            // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED);
-            throw e;
-        }
+        // Business method
+        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, null, this.productSpec);
+        registerMapping.setDescription("For testing purposes only");
+        registerMapping.save();
+
+        // Asserts: see ExpectedConstraintViolation rule
     }
 
-    @Test(expected = ProductSpecIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.PRODUCT_SPEC_IS_REQUIRED_KEY + "}")
     public void testCreateWithoutProductSpec() {
         setupProductSpecsInExistingTransaction();
         String registerMappingName = "testCreateWithoutProductSpec";
@@ -158,7 +159,7 @@ public class RegisterMappingImplTest extends PersistenceTest {
         registerMapping.setDescription("For testing purposes only");
         registerMapping.save();
 
-        // Asserts: expected ProductSpecIsRequiredException
+        // Asserts: see ExpectedConstraintViolation rule
     }
 
     @Test

@@ -25,8 +25,8 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_MAPPING_NAME_IS_REQUIRED(3001, "registerMapping.name.required", "The name of a register mapping is required", Level.SEVERE),
     REGISTER_MAPPING_ALREADY_EXISTS(3002, "registerMapping.duplicateNameX", "A register mapping with name '{0}' already exists", Level.SEVERE),
     REGISTER_MAPPING_OBIS_CODE_ALREADY_EXISTS(3003, "registerMapping.duplicateObisCodeX", "A register mapping with obis code '{0}' already exists", Level.SEVERE),
-    REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED(3004, "registerMapping.obisCode.required", "The obis code of a register mapping is required", Level.SEVERE),
-    PRODUCT_SPEC_IS_REQUIRED(3005, "registerMapping.productSpec.required", "The product spec of a register mapping is required", Level.SEVERE),
+    REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED(3004, Constants.REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY, "The obis code of a register mapping is required", Level.SEVERE),
+    PRODUCT_SPEC_IS_REQUIRED(3005, Constants.PRODUCT_SPEC_IS_REQUIRED_KEY, "The product spec of a register mapping is required", Level.SEVERE),
     REGISTER_MAPPING_OBIS_CODE_CANNOT_BE_UPDATED(3006, "registerMapping.cannotUpdateObisCode", "The obis code of the register mapping '{0}' cannot be updated because it is in use", Level.SEVERE),
     REGISTER_MAPPING_PRODUCT_SPEC_CANNOT_BE_UPDATED(3007, "registerMapping.cannotUpdateProductSpec", "The product spec of the register mapping '{0}' cannot be updated because it is in use", Level.SEVERE),
     REGISTER_MAPPING_STILL_USED_BY_REGISTER_SPEC(3008, "registerMapping.usedBy.registerSpec", "The register mapping {0} cannot be deleted because it is still in use by the following register spec(s): {1}", Level.SEVERE),
@@ -45,11 +45,11 @@ public enum MessageSeeds implements MessageSeed {
     LOAD_PROFILE_TYPE_INTERVAL_CANNOT_BE_UPDATED(4010, "loadProfileType.cannotUpdateInterval", "The interval of the load profile type '{0}' cannot be updated because it is in use", Level.SEVERE),
     LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS(4011, "loadProfileType.XstillInUseByLoadProfileSpecsY", "The product spec with reading type {0} cannot be deleted because it is still in use by the following load profile spec(s): {1}", Level.SEVERE),
     LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(4012, "loadProfileType.XstillInUseByDeviceTypesY", "The product spec with reading type {0} cannot be deleted because it is still in use by the following device type(s): {1}", Level.SEVERE),
-    LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED(4013, "loadProfileType.obisCode.required", "The obis code of a load profile type is required", Level.SEVERE),
+    LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED(4013, Constants.LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED_KEY, "The obis code of a load profile type is required", Level.SEVERE),
     LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED(4014, "loadProfileType.interval.required", "The interval of a load profile type is required", Level.SEVERE),
     LOG_BOOK_TYPE_NAME_IS_REQUIRED(5001, "logBookType.name.required", "The name of a log book type is required", Level.SEVERE),
     LOG_BOOK_TYPE_ALREADY_EXISTS(5002, "logBookType.duplicateNameX", "A log book type with name '{0}' already exists", Level.SEVERE),
-    LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED(5003, "logBookType.obisCode.required", "The obis code of a log book type is required", Level.SEVERE),
+    LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED(5003, Constants.LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED_KEY, "The obis code of a log book type is required", Level.SEVERE),
     LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(5004, "logBookType.cannotUpdateObisCode", "The obis code of the log book type '{0}' cannot be updated because it is in use", Level.SEVERE),
     LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(5005, "logBookType.XstillInUseByLogBookSpecsY", "The log book type {0} cannot be deleted because it is still in use by the following log book spec(s): {1}", Level.SEVERE),
     LOG_BOOK_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(5006, "logBookType.XstillInUseByDeviceTypesY", "The log book type {0} cannot be deleted because it is still in use by the following device type(s): {1}", Level.SEVERE),
@@ -171,6 +171,10 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DUPLICATE_DEVICE_CONFIGURATION_KEY = "DTC.deviceType.deviceConfig.duplicateName";
         public static final String DEVICE_PROTOCOL_IS_REQUIRED_KEY = "TC.deviceType.protocol.required";
         public static final String DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS_KEY = "DTC.deviceType.protocol.noupdate";
+        public static final String REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY = "DTC.registerMapping.obisCode.required";
+        public static final String PRODUCT_SPEC_IS_REQUIRED_KEY = "DTC.registerMapping.productSpec.required";
+        public static final String LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED_KEY = "DTC.loadProfileType.obisCode.required";
+        public static final String LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED_KEY = "DTC.logBookType.obisCode.required";
     }
 
 }

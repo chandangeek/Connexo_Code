@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 
+import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.HashSet;
@@ -16,6 +18,14 @@ import java.util.Set;
  */
 public class AllConfigurationsHaveUniqueNameValidator implements ConstraintValidator<AllConfigurationsHaveUniqueName, DeviceTypeImpl> {
 
+    private DeviceConfigurationService deviceConfigurationService;
+
+    @Inject
+    public AllConfigurationsHaveUniqueNameValidator(DeviceConfigurationService deviceConfigurationService) {
+        super();
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
     @Override
     public void initialize(AllConfigurationsHaveUniqueName constraintAnnotation) {
         // No need to keep track of the annotation for now
@@ -24,7 +34,7 @@ public class AllConfigurationsHaveUniqueNameValidator implements ConstraintValid
     @Override
     public boolean isValid(DeviceTypeImpl deviceType, ConstraintValidatorContext context) {
         Set<String> configurationNames = new HashSet<>();
-        ServerDeviceConfigurationService deviceConfigurationService = (ServerDeviceConfigurationService) deviceType.getDeviceConfigurationService();
+        ServerDeviceConfigurationService deviceConfigurationService = (ServerDeviceConfigurationService) this.deviceConfigurationService;
         for (DeviceConfiguration deviceConfiguration : deviceConfigurationService.findDeviceConfigurationsByDeviceType(deviceType)) {
             if (configurationNames.contains(deviceConfiguration.getName())) {
                 context.disableDefaultConstraintViolation();

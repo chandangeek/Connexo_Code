@@ -91,16 +91,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    protected void postNew() {
-        Save.CREATE.save(this.dataModel, this);
-    }
-
-    @Override
-    protected void post() {
-        Save.UPDATE.save(this.dataModel, this, Save.Update.class);
-    }
-
-    @Override
     public void save() {
         super.save();
         this.deviceProtocolPluggableClassChanged = false;

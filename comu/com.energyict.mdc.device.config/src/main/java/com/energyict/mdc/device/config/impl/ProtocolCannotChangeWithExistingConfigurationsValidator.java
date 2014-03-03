@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 
+import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
@@ -15,6 +17,14 @@ import java.util.List;
  */
 public class ProtocolCannotChangeWithExistingConfigurationsValidator implements ConstraintValidator<ProtocolCannotChangeWithExistingConfigurations, DeviceTypeImpl> {
 
+    private DeviceConfigurationService deviceConfigurationService;
+
+    @Inject
+    public ProtocolCannotChangeWithExistingConfigurationsValidator(DeviceConfigurationService deviceConfigurationService) {
+        super();
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
     @Override
     public void initialize(ProtocolCannotChangeWithExistingConfigurations constraintAnnotation) {
         // No need to keep track of the annotation for now
@@ -23,13 +33,13 @@ public class ProtocolCannotChangeWithExistingConfigurationsValidator implements 
     @Override
     public boolean isValid(DeviceTypeImpl deviceType, ConstraintValidatorContext context) {
         if (deviceType.deviceProtocolPluggableClassChanged()) {
-            ServerDeviceConfigurationService deviceConfigurationService = (ServerDeviceConfigurationService) deviceType.getDeviceConfigurationService();
+            ServerDeviceConfigurationService deviceConfigurationService = (ServerDeviceConfigurationService) this.deviceConfigurationService;
             List<DeviceConfiguration> allConfigurations = deviceConfigurationService.findDeviceConfigurationsByDeviceType(deviceType);
             if (!allConfigurations.isEmpty()) {
                 context.disableDefaultConstraintViolation();
                 context
-                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS_KEY + "}")
-                        .addPropertyNode("deviceProtocolPluggableClass").addConstraintViolation();
+                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS_KEY + "}")
+                    .addPropertyNode("deviceProtocolPluggableClass").addConstraintViolation();
                 return false;
             }
             else {
