@@ -1,10 +1,9 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.energyict.mdc.Expected;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.energyict.mdc.Transactional;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -21,16 +20,15 @@ import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Fail.fail;
 import static org.junit.Assert.assertEquals;
@@ -269,7 +267,7 @@ public class ComServerComPortTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "duplicatecomportpercomserver")
+    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComPortPerComServer}", property = "portNumber")
     public void duplicateComPortsTest() throws SQLException, BusinessException {
         int duplicatePortNumber = 2222;
         OnlineComServer shadow = createOnlineComServer();
@@ -278,12 +276,14 @@ public class ComServerComPortTest extends PersistenceTest {
                 .name("TCP1")
                 .active(true)
                 .comPortPool(tcpBasedInboundComPortPool)
+                .numberOfSimultaneousConnections(1)
                 .portNumber(duplicatePortNumber).add();
 
         shadow.newTCPBasedInboundComPort()
                 .name("TCP2")
                 .active(true)
                 .comPortPool(tcpBasedInboundComPortPool)
+                .numberOfSimultaneousConnections(1)
                 .portNumber(duplicatePortNumber).add();
     }
 
@@ -320,6 +320,7 @@ public class ComServerComPortTest extends PersistenceTest {
                 .active(true)
                 .comPortPool(tcpBasedInboundComPortPool)
                 .portNumber(9000)
+                .numberOfSimultaneousConnections(1)
                 .add();
     }
 
@@ -331,6 +332,7 @@ public class ComServerComPortTest extends PersistenceTest {
                 .comPortPool(udpBasedInboundComPortPool)
                 .portNumber(9001)
                 .bufferSize(1024)
+                .numberOfSimultaneousConnections(1)
                 .add();
     }
     
