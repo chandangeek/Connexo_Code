@@ -90,6 +90,7 @@ public class ValidationResource {
     }
 
     @POST
+    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ValidationRuleSetInfos createValidationRuleSet(final ValidationRuleSetInfo info) {
         ValidationRuleSetInfos result = new ValidationRuleSetInfos();

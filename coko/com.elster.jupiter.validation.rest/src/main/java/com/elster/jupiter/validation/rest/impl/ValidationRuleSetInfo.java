@@ -15,7 +15,6 @@ public class ValidationRuleSetInfo {
 	public String description;
     public int numberOfInactiveRules;
     public int numberOfRules;
-    public List<ValidationRuleInfo> rules = new ArrayList<ValidationRuleInfo>();
 
 	public ValidationRuleSetInfo(ValidationRuleSet validationRuleSet) {
         id = validationRuleSet.getId();
