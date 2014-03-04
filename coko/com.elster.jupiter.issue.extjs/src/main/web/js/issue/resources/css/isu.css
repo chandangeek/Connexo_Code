@@ -161,6 +161,42 @@ span[class^=isu-assignee-] {
     font: 32px/36px VAGRoundedStdThin,Arial,Helvetica,Sans-Serif;
 }
 
+.isu-nav {
+    list-style: none outside none;
+    margin: 0;
+    padding: 0;
+}
+
+.isu-nav-item {
+
+}
+
+.isu-nav-item-link:before {
+    content: "-";
+    margin: 0 5px 0 0;
+}
+
+.isu-nav-item.current,
+.isu-nav-item.current:hover{
+    background-color: #BFF2FF;
+}
+
+.isu-nav-item-link {
+    color: #000;
+    display: block;
+    padding: 5px;
+    text-decoration: none;
+}
+
+.isu-nav-item-link:hover {
+    background-color: #00CCFF;
+}
+
+.isu-nav-item.current .isu-nav-item-link,
+.isu-nav-item.current .isu-nav-item-link:hover {
+    background-color: #BFF2FF;
+}
+
 
 
 
