@@ -25,7 +25,7 @@ public class UniqueComPortPoolNameValidator implements ConstraintValidator<Uniqu
         ComPortPool comPortPool = engineModelService.findComPortPool(comPortPoolUnderEvaluation.getName());
             if (comPortPool != null && comPortPool.getId()!=comPortPoolUnderEvaluation.getId() && !comPortPool.isObsolete()) {
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(message).addPropertyNode(ComPortPoolImpl.FIELD_NAME).addConstraintViolation();
                 return false;
             }
         return true;

@@ -21,6 +21,8 @@ import javax.validation.constraints.Min;
 @ComPortPoolTypeMatchesComPortType(groups = {Save.Create.class, Save.Update.class }, message = "{MDC.ComPortTypeOfComPortDoesNotMatchWithComPortPool}")
 public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundComPortPool {
 
+    public static final String FIELD_DISCOVEYPROTOCOL = "discoveryProtocolPluggableClassId";
+
     private final EngineModelService engineModelService;
     @Min(value =1, groups = {Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
     private long discoveryProtocolPluggableClassId;

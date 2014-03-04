@@ -25,6 +25,13 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     protected static final String INBOUND_COMPORTPOOL_DISCRIMINATOR = "0";
     protected static final String OUTBOUND_COMPORTPOOL_DISCRIMINATOR = "1";
 
+    // The field definitions below must match the exact name of the field in the class.
+    public static final String FIELD_NAME = "name";
+    public static final String FIELD_ACTIVE = "active";
+    public static final String FIELD_DESCRIPTION = "description";
+    public static final String FIELD_OBSOLETEDATE = "obsoleteDate";
+    public static final String FIELD_COMPORTTYPE = "comPortType";
+
     static final Map<String, Class<? extends ComPortPool>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends ComPortPool>>of(
                     INBOUND_COMPORTPOOL_DISCRIMINATOR, InboundComPortPoolImpl.class,

@@ -21,14 +21,14 @@ public enum TableSpecs {
             table.map(ComPortPoolImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
-            table.column("NAME").type("varchar2(80)").map("name").add();
-            table.column("ACTIVE").type("varchar2(1)").notNull().map("active").conversion(ColumnConversion.NUMBER2BOOLEAN).add();
-            table.column("DESCRIPTION").type("varchar2(80)").map("description").add();
-            table.column("OBSOLETE_DATE").type("DATE").map("obsoleteDate").add();
-            table.column("COMPORTTYPE").number().notNull().map("comPortType").conversion(ColumnConversion.NUMBER2ENUM).add();
-            table.column("TASKEXECUTIONTIMEOUTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("taskExecutionTimeout.count").add();
-            table.column("TASKEXECUTIONTIMEOUTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("taskExecutionTimeout.timeUnitCode").add();
-            table.column("DISCOVERYPROTOCOL").number().conversion(ColumnConversion.NUMBER2INT).map("discoveryProtocolPluggableClassId").add();
+            table.column("NAME").type("varchar2(80)").map(ComPortPoolImpl.FIELD_NAME).add();
+            table.column("ACTIVE").type("varchar2(1)").notNull().map(ComPortPoolImpl.FIELD_ACTIVE).conversion(ColumnConversion.NUMBER2BOOLEAN).add();
+            table.column("DESCRIPTION").type("varchar2(80)").map(ComPortPoolImpl.FIELD_DESCRIPTION).add();
+            table.column("OBSOLETE_DATE").type("DATE").map(ComPortPoolImpl.FIELD_OBSOLETEDATE).add();
+            table.column("COMPORTTYPE").number().notNull().map(ComPortPoolImpl.FIELD_COMPORTTYPE).conversion(ColumnConversion.NUMBER2ENUM).add();
+            table.column("TASKEXECUTIONTIMEOUTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT+".count").add();
+            table.column("TASKEXECUTIONTIMEOUTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT+".timeUnitCode").add();
+            table.column("DISCOVERYPROTOCOL").number().conversion(ColumnConversion.NUMBER2INT).map(InboundComPortPoolImpl.FIELD_DISCOVEYPROTOCOL).add();
             table.primaryKey("CEM_PK_COMPORTPOOL").on(idColumn).add();
         }
     },
