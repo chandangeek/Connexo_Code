@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FieldResourceTest extends JerseyTest {
+public class ComServerFieldResourceTest extends JerseyTest {
 
     @Override
     @Before
@@ -25,7 +25,7 @@ public class FieldResourceTest extends JerseyTest {
     protected Application configure() {
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
-        ResourceConfig resourceConfig = new ResourceConfig(FieldResource.class);
+        ResourceConfig resourceConfig = new ResourceConfig(ComServerFieldResource.class);
         resourceConfig.register(JacksonFeature.class); // Server side JSON processing
         return resourceConfig;
     }

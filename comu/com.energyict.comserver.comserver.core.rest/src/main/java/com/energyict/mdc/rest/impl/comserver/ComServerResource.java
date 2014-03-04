@@ -5,6 +5,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.sun.el.ExpressionFactoryImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -51,6 +52,8 @@ public class ComServerResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo getComServer(@PathParam("id") int id) {
+        ExpressionFactoryImpl expressionFactory = new ExpressionFactoryImpl();
+        System.out.println(expressionFactory.hashCode());
         ComServer comServer = engineModelService.findComServer(id);
         if (comServer == null) {
             throw new WebApplicationException("No ComServer with id "+id,
