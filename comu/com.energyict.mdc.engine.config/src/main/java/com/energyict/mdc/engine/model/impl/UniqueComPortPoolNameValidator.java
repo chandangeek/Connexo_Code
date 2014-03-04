@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.EngineModelService;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -8,10 +9,10 @@ import javax.validation.ConstraintValidatorContext;
 public class UniqueComPortPoolNameValidator implements ConstraintValidator<UniqueName, ComPortPool> {
 
     private String message;
-    private EngineModelServiceImpl engineModelService;
+    private EngineModelService engineModelService;
 
     @Inject
-    public UniqueComPortPoolNameValidator(EngineModelServiceImpl engineModelService) {
+    public UniqueComPortPoolNameValidator(EngineModelService engineModelService) {
         this.engineModelService = engineModelService;
     }
 

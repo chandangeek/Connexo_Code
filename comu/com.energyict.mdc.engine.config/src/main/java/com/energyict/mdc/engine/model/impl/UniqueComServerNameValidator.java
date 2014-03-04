@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -8,10 +9,10 @@ import javax.validation.ConstraintValidatorContext;
 public class UniqueComServerNameValidator implements ConstraintValidator<UniqueName, ComServer> {
 
     private String message;
-    private EngineModelServiceImpl engineModelService;
+    private EngineModelService engineModelService;
 
     @Inject
-    public UniqueComServerNameValidator(EngineModelServiceImpl engineModelService) {
+    public UniqueComServerNameValidator(EngineModelService engineModelService) {
         this.engineModelService = engineModelService;
     }
 

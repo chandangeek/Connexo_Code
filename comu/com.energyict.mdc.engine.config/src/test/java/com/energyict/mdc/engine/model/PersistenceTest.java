@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.model;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -19,7 +19,6 @@ import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import java.sql.SQLException;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -56,7 +55,6 @@ public class PersistenceTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
         	injector.getInstance(EnvironmentImpl.class); // fake call to make sure component is initialized
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
-            injector.getInstance(EngineModelService.class);
             ctx.commit();
         }
     }
@@ -66,29 +64,29 @@ public class PersistenceTest {
     	inMemoryBootstrapModule.deactivate();
     }
 
-    @After
-    public void tearDown() throws Exception {
-        clearDB();
-
-    }
-
-    private void clearDB() {
-        for (ComServer comServer : getEngineModelService().findAllRemoteComServers()) {
-            for (ComPort comPort : comServer.getComPorts()) {
-                comServer.removeComPort(comPort.getId());
-            }
-            comServer.delete();
-        }
-        for (ComServer comServer : getEngineModelService().findAllComServers().find()) {
-            for (ComPort comPort : comServer.getComPorts()) {
-                comServer.removeComPort(comPort.getId());
-            }
-            comServer.delete();
-        }
-        for (ComPortPool comPortPool : getEngineModelService().findAllComPortPools()) {
-            comPortPool.delete();
-        }
-    }
+//    @After
+//    public void tearDown() throws Exception {
+//        clearDB();
+//
+//    }
+//
+//    private void clearDB() {
+//        for (ComServer comServer : getEngineModelService().findAllRemoteComServers()) {
+//            for (ComPort comPort : comServer.getComPorts()) {
+//                comServer.removeComPort(comPort.getId());
+//            }
+//            comServer.delete();
+//        }
+//        for (ComServer comServer : getEngineModelService().findAllComServers().find()) {
+//            for (ComPort comPort : comServer.getComPorts()) {
+//                comServer.removeComPort(comPort.getId());
+//            }
+//            comServer.delete();
+//        }
+//        for (ComPortPool comPortPool : getEngineModelService().findAllComPortPools()) {
+//            comPortPool.delete();
+//        }
+//    }
 
 
     public static TransactionService getTransactionService() {
