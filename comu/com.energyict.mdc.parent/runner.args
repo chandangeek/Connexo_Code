@@ -2,6 +2,7 @@
 --vmo=-Dcom.elster.jupiter.datasource.jdbcpassword=zorro \
  -Dcom.elster.jupiter.datasource.jdbcuser=JP_MDC_DEV \
  -Dcom.elster.jupiter.datasource.jdbcurl=jdbc:oracle:thin:@doraps003.eict.vpdc:7137:DEVRD 
+# -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8998 
  --clean
  --systemPackages=javax.activation;version=1.1.1,\
  javax.xml.ws;version=2.2.0,\
