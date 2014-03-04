@@ -46,7 +46,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     public void testGetTypeDoesNotReturnServerBasedClassName () {
-        OfflineComServer onlineComServer = new OfflineComServerImpl(dataModel, getEngineModelService(), outboundComPortProvider, null, null, null, null);
+        OfflineComServer onlineComServer = new OfflineComServerImpl(dataModel, outboundComPortProvider, null, null, null, null);
 
         // Business method
         String type = onlineComServer.getType();
@@ -234,7 +234,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComServer}", property = "uniqueName")
+    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComServer}", property = "name")
     public void testCreateWithExistingName () throws BusinessException, SQLException {
         String serverName = "Candidate-for-duplicate";
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();

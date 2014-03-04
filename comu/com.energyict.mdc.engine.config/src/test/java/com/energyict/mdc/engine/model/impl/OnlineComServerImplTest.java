@@ -482,7 +482,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComServer}", property = "uniqueName")
+    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComServer}", property = "name")
     @Transactional
     public void testCreateWithExistingName () throws BusinessException, SQLException {
         String name = "DuplicateExceptionExpected";

@@ -7,7 +7,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
@@ -39,8 +38,8 @@ public class RemoteComServerImpl extends ComServerImpl implements RemoteComServe
     }
 
     @Inject
-    public RemoteComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider) {
-        super(dataModel, engineModelService, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider);
+    public RemoteComServerImpl(DataModel dataModel, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider) {
+        super(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider);
     }
 
     @Override

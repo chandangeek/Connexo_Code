@@ -11,7 +11,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = { UniqueComPortPoolNameValidator.class, UniqueComPortNameValidator.class })
+@Constraint(validatedBy = { UniqueComPortPoolNameValidator.class, UniqueComPortNameValidator.class, UniqueComServerNameValidator.class })
 public @interface UniqueName {
 
 	String message() default "";

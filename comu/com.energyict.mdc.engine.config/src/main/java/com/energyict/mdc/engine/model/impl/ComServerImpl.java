@@ -7,7 +7,6 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
@@ -27,7 +26,6 @@ import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
-import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
@@ -40,6 +38,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @since 2012-03-28 (10:20)
  */
 @XmlRootElement
+@UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.DuplicateComServer}")
 public abstract class ComServerImpl implements ComServer {
 
     protected static final String ONLINE_COMSERVER_DISCRIMINATOR = "0";
@@ -53,7 +52,6 @@ public abstract class ComServerImpl implements ComServer {
                     REMOTE_COMSERVER_DISCRIMINATOR, RemoteComServerImpl.class);
 
     private final DataModel dataModel;
-    private final EngineModelService engineModelService;
     private final Provider<OutboundComPortImpl> outboundComPortProvider;
 
     private final Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider;
@@ -82,10 +80,9 @@ public abstract class ComServerImpl implements ComServer {
     private Date obsoleteDate;
 
     @Inject
-    protected ComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider) {
+    protected ComServerImpl(DataModel dataModel, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider) {
         super();
         this.dataModel = dataModel;
-        this.engineModelService = engineModelService;
         this.outboundComPortProvider = outboundComPortProvider;
         this.servletBasedInboundComPortProvider = servletBasedInboundComPortProvider;
         this.modemBasedInboundComPortProvider = modemBasedInboundComPortProvider;
@@ -434,12 +431,6 @@ public abstract class ComServerImpl implements ComServer {
             return this.getName();
         }
 
-    }
-
-    @AssertTrue(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.DuplicateComServer}")
-    private boolean isUniqueName() {
-        ComServer comServerWithTheSameName = engineModelService.findComServer(name);
-        return !(comServerWithTheSameName != null && this.getId() != comServerWithTheSameName.getId() && !comServerWithTheSameName.isObsolete());
     }
 
     interface Delete {}
