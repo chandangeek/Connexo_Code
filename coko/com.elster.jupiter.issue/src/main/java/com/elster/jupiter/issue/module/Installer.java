@@ -6,6 +6,7 @@ import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.IssueEventType;
 import com.elster.jupiter.issue.IssueService;
+import com.elster.jupiter.issue.event.EventConst;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
@@ -19,16 +20,16 @@ public class Installer {
     private final DataModel dataModel;
     private final IssueService issueService;
     private MessageService messageService;
-    private AppService appService;
+    /*private AppService appService;
     private CronExpressionParser cronExpressionParser;
-    private AppServer appServer;
+    private AppServer appServer;*/
 
-    public Installer (IssueService issueService, DataModel dataModel, MessageService messageService,
-                      AppService appService, CronExpressionParser cronExpressionParser) {
+    public Installer (IssueService issueService, DataModel dataModel, MessageService messageService/*,
+                      AppService appService, CronExpressionParser cronExpressionParser*/) {
         this.issueService = issueService;
         this.messageService = messageService;
-        this.appService = appService;
-        this.cronExpressionParser = cronExpressionParser;
+        /*this.appService = appService;
+        this.cronExpressionParser = cronExpressionParser;*/
         this.dataModel = dataModel;
     }
 
@@ -36,8 +37,8 @@ public class Installer {
         dataModel.install(executeDDL, store);
         setDefaultReasons();
         setDefaultStatuses();
-        setAQSabscriber();
-        setAppServer();
+        setAQSubscriber();
+        //setAppServer();
     }
 
     private void setDefaultReasons(){
@@ -55,16 +56,16 @@ public class Installer {
         this.issueService.createIssueStatus("In progress");
     }
 
-    private void setAQSabscriber() {
+    private void setAQSubscriber() {
         DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
-        SubscriberSpec subscriberSpec = destinationSpec.subscribe("ISSUECREATOR");
+        SubscriberSpec subscriberSpec = destinationSpec.subscribe(EventConst.AQ_SUBSCRIBER_NAME);
     }
 
-    private void setAppServer() {
+    /*private void setAppServer() {
         this.appServer = appService.createAppServer("issueAppServer", cronExpressionParser.parse("0 0 * * * ? *"));
         int numberOfThreads = 1;
-        SubscriberSpec subscriberSpec = messageService.getSubscriberSpec(EventService.JUPITER_EVENTS, "ISSUECREATOR").get();
+        SubscriberSpec subscriberSpec = messageService.getSubscriberSpec(EventService.JUPITER_EVENTS, EventConst.AQ_SUBSCRIBER_NAME).get();
         SubscriberExecutionSpec subscriberExecutionSpec = appServer.createSubscriberExecutionSpec(subscriberSpec, numberOfThreads);
 
-    }
+    }*/
 }

@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.*;
 import com.elster.jupiter.issue.database.DatabaseConst;
 import com.elster.jupiter.issue.database.GroupingOperation;
 import com.elster.jupiter.issue.database.TableSpecs;
+import com.elster.jupiter.issue.event.EventConst;
 import com.elster.jupiter.issue.module.Installer;
 import com.elster.jupiter.issue.module.MessageSeeds;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -42,6 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.util.Checks.is;
+
 @Component(name = "com.elster.jupiter.issue", service = {IssueService.class, InstallService.class}, property = "name=" + IssueService.COMPONENT_NAME)
 public class IssueServiceImpl implements IssueService, InstallService {
     private volatile DataModel dataModel;
@@ -50,8 +53,8 @@ public class IssueServiceImpl implements IssueService, InstallService {
     private volatile MeteringService meteringService;
     private volatile UserService userService;
     private MessageService messageService;
-    private AppService appService;
-    private CronExpressionParser cronExpressionParser;
+   /* private AppService appService;
+    private CronExpressionParser cronExpressionParser;*/
     private static Logger LOG = Logger.getLogger(IssueServiceImpl.class.getName());
     // TODO delete eventService
     private volatile EventService eventService;
@@ -61,8 +64,8 @@ public class IssueServiceImpl implements IssueService, InstallService {
 
     @Inject
     public IssueServiceImpl(OrmService ormService, QueryService queryService, MeteringService meteringService,
-                            UserService userService, EventService eventService, MessageService messageService,
-                            AppService appService, CronExpressionParser cronExpressionParser) {
+                            UserService userService, EventService eventService, MessageService messageService/*,
+                            AppService appService, CronExpressionParser cronExpressionParser*/) {
         setOrmService(ormService);
         setQueryService(queryService);
         setMeteringService(meteringService);
@@ -87,8 +90,8 @@ public class IssueServiceImpl implements IssueService, InstallService {
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(UserService.class).toInstance(userService);
                 bind(MessageService.class).toInstance(messageService);
-                bind(AppService.class).toInstance(appService);
-                bind(CronExpressionParser.class).toInstance(cronExpressionParser);
+                /*bind(AppService.class).toInstance(appService);
+                bind(CronExpressionParser.class).toInstance(cronExpressionParser);*/
                 //TODO delete when events will be defined by MDC
                 bind(EventService.class).toInstance(eventService);
                 //---END delete when events will be defined by MDC
@@ -98,7 +101,7 @@ public class IssueServiceImpl implements IssueService, InstallService {
 
     @Override
     public void install() {
-        new Installer(this, this.dataModel, messageService, appService, cronExpressionParser).install(true, false);
+        new Installer(this, this.dataModel, messageService/*, appService, cronExpressionParser*/).install(true, false);
         //TODO delete when events will be defined by MDC
         setEventTopics();
 
@@ -133,7 +136,7 @@ public class IssueServiceImpl implements IssueService, InstallService {
         this.messageService = messageService;
     }
 
-    @Reference
+    /*@Reference
     public void setAppService(AppService appService) {
         this.appService = appService;
     }
@@ -141,7 +144,7 @@ public class IssueServiceImpl implements IssueService, InstallService {
     @Reference
     public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
         this.cronExpressionParser = cronExpressionParser;
-    }
+    }*/
 
     @Override
     public Optional<Issue> getIssueById(long issueId) {
@@ -156,19 +159,21 @@ public class IssueServiceImpl implements IssueService, InstallService {
     }
 
     public void createIssueReason(String reasonName, String reasonTopic){
-        if (reasonName != null && reasonName.length() > 0 && reasonTopic != null && reasonTopic.length() > 0 ){
-            IssueReason newReason = IssueReasonImpl.from(this.dataModel, reasonTopic, reasonName);
-            dataModel.mapper(IssueReason.class).persist(newReason);
+        if (is(reasonName).empty() || is(reasonTopic).empty()) {
+            LOG.severe("Reason creation failed. Please provide not null values for \'name\' and \'topic\' fields.");
+            return;
         }
+        IssueReason newReason = IssueReasonImpl.from(this.dataModel, reasonTopic, reasonName);
+        dataModel.mapper(IssueReason.class).persist(newReason);
     }
 
     @Override
     public IssueReason getIssueReasonFromTopic(String topic) {
-        if (topic != null && topic.length() > 0){
+        if (!is(topic).empty()) {
             Query<IssueReason> query = queryService.wrap(dataModel.query(IssueReason.class));
             Condition condition = Where.where("topic").isEqualToIgnoreCase(topic);
             List<IssueReason> issueReasons = query.select(condition);
-            if (issueReasons != null && issueReasons.size() > 0){
+            if (!issueReasons.isEmpty()){
                 return issueReasons.get(0);
             }
         }
@@ -177,11 +182,11 @@ public class IssueServiceImpl implements IssueService, InstallService {
 
     @Override
     public IssueReason getIssueReasonFromName(String name) {
-        if (name != null && name.length() > 0){
+        if (!is(name).empty()){
             Query<IssueReason> query = queryService.wrap(dataModel.query(IssueReason.class));
             Condition condition = Where.where("name").isEqualToIgnoreCase(name);
             List<IssueReason> issueReasons = query.select(condition);
-            if (issueReasons != null && issueReasons.size() > 0){
+            if (!issueReasons.isEmpty()){
                 return issueReasons.get(0);
             }
         }
@@ -196,11 +201,11 @@ public class IssueServiceImpl implements IssueService, InstallService {
 
     @Override
     public IssueStatus getIssueStatusFromString(String status) {
-        if (status != null && status.length() > 0){
+        if (!is(status).empty()){
             Query<IssueStatus> query = queryService.wrap(dataModel.query(IssueStatus.class));
             Condition condition = Where.where("name").isEqualToIgnoreCase(status);
             List<IssueStatus> allStatuses = query.select(condition);
-            if (allStatuses != null && allStatuses.size() > 0){
+            if (!allStatuses.isEmpty()){
                 return allStatuses.get(0);
             }
         }
@@ -208,10 +213,12 @@ public class IssueServiceImpl implements IssueService, InstallService {
     }
 
     public void createIssueStatus(String statusName){
-        if (statusName != null && statusName.length() > 0){
-            IssueStatus newStatus = IssueStatusImpl.from(this.dataModel, statusName);
-            dataModel.mapper(IssueStatus.class).persist(newStatus);
+        if (is(statusName).empty()) {
+            LOG.severe("Status creation failed. Please provide not null value for status \'name\' field.");
+            return;
         }
+        IssueStatus newStatus = IssueStatusImpl.from(this.dataModel, statusName);
+        dataModel.mapper(IssueStatus.class).persist(newStatus);
     }
 
     private AssigneeRole getAssigneeRole(long roleId){
@@ -336,12 +343,18 @@ public class IssueServiceImpl implements IssueService, InstallService {
     @Override
     public void createIssue(Map<?, ?> map) {
         IssueImpl newIssue = new IssueImpl(dataModel);
-        newIssue.setReason(getIssueReasonFromTopic(String.class.cast(map.get("event.topics"))));
+        IssueReason reason = getIssueReasonFromTopic(String.class.cast(map.get(EventConst.EVENT_TOPICS)));
+        if(reason == null) {
+            LOG.severe("Issue creation failed due to unexpected reason topic value: " +  String.class.cast(map.get(EventConst.EVENT_TOPICS)));
+            return;
+        }
+        newIssue.setReason(reason);
         newIssue.setStatus(getIssueStatusFromString("Open"));
+        //TODO specify due date setting rules
         newIssue.setDueDate(new UtcInstant(1400075425000L));
         newIssue.setAssignee(buildIssueAssignee(IssueAssigneeType.USER, 1L));
 
-        String amrId = String.class.cast(map.get("deviceIdentifier"));
+        String amrId = String.class.cast(map.get(EventConst.DEVICE_IDENTIFIER));
         Optional<AmrSystem> amrSystemRef = meteringService.findAmrSystem(DatabaseConst.MDC_AMR_SYSTEM_ID);
         if (amrSystemRef.isPresent()) {
             Optional<Meter> meterRef =  amrSystemRef.get().findMeter(amrId);
