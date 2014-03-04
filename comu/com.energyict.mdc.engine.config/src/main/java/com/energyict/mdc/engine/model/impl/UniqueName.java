@@ -11,10 +11,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = { UniqueComPortNameValidator.class })
-public @interface UniqueComPortName {
+@Constraint(validatedBy = { UniqueComPortPoolNameValidator.class, UniqueComPortNameValidator.class })
+public @interface UniqueName {
 
-	String message() default "{MDC.DuplicateComPort}";
+	String message() default "";
 
 	Class<?>[] groups() default { };
 

@@ -29,7 +29,7 @@ import javax.validation.constraints.Null;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (12:48)
  */
-@UniqueComPortName(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.DuplicateComPort}")
+@UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.DuplicateComPort}")
 public abstract class ComPortImpl implements ComPort {
 
     protected static final String MODEM_DISCRIMINATOR = "1";
@@ -54,7 +54,7 @@ public abstract class ComPortImpl implements ComPort {
     private final Reference<ComServer> comServer = ValueReference.absent();
     private boolean active;
     private String description;
-    @Null(groups = { Save.Update.class, Delete.class }, message = "{MDC.comport.noUpdateAllowed}")
+    @Null(groups = { Save.Update.class, Obsolete.class }, message = "{MDC.comport.noUpdateAllowed}")
     private Date obsoleteDate;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
     private ComPortType type;
@@ -199,13 +199,10 @@ public abstract class ComPortImpl implements ComPort {
         dataModel.update(this);
     }
 
-    protected void validateMakeObsolete() {
-        if (this.isObsolete()) {
-            throw new TranslatableApplicationException(
-                    "comPortIsAlreadyObsolete",
-                    "The ComPort with id {0} is already obsolete since {1,date,yyyy-MM-dd HH:mm:ss}",
-                    this.getId(),
-                    this.getObsoleteDate());
+    final protected void validateMakeObsolete() {
+        Set<ConstraintViolation<ComPortImpl>> constraintViolations = dataModel.getValidatorFactory().getValidator().validate(this, Obsolete.class);
+        if (!constraintViolations.isEmpty()) {
+            throw new ConstraintViolationException(constraintViolations);
         }
     }
 

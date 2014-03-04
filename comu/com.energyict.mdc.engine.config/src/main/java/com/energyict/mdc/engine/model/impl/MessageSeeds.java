@@ -24,7 +24,9 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_COMPORT(105, "MDC.DuplicateComPort", "ComPort by this name already exists", Level.SEVERE),
     OBSOLETE_COMPORT_CANT_BE_UPDATED(106, "MDC.comport.noUpdateAllowed", "Obsolete ComPorts can no longer be updated", Level.SEVERE),
     COMPORTPOOL_DOES_NOT_MATCH_COMPORT(107, "MDC.ComPortTypeOfComPortDoesNotMatchWithComPortPool", "The type of the comPortPool does not match the comPort type", Level.SEVERE),
-    DUPLICATE_COM_PORT_NUMBER(108, "MDC.DuplicateComPortPerComServer", "The port number of a ComPort must be unique per ComServer", Level.SEVERE);
+    DUPLICATE_COM_PORT_NUMBER(108, "MDC.DuplicateComPortPerComServer", "The port number of a ComPort must be unique per ComServer", Level.SEVERE),
+    DUPLICATE_COMPORTPOOL(109, "MDC.DuplicateComPortPool", "ComPortPool with name {value} already exists", Level.SEVERE),
+    OBSOLETE_COMPORTPOOL_CANT_BE_UPDATED(110, "MDC.comportpool.noUpdateAllowed", "Obsolete ComPortPool can no longer be updated", Level.SEVERE);
 
     private final int number;
     private final String key;

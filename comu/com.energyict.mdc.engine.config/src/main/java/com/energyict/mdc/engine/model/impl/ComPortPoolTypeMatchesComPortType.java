@@ -11,15 +11,16 @@ import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Verify the reference is not null.
  */
-@Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER })
+@Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE })
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = { ComPortPoolTypeValidator.class })
+@Constraint(validatedBy = { ComPortPoolTypeReferenceValidator.class, ComPortPoolTypeValidator.class })
 public @interface ComPortPoolTypeMatchesComPortType {
 
 	String message() default "{MDC.ComPortTypeOfComPortDoesNotMatchWithComPortPool}";
