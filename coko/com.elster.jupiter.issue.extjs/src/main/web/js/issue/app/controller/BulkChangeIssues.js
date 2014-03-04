@@ -37,6 +37,9 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
             },
             'bulk-browse bulk-wizard bulk-step2 radiogroup': {
                 change: this.onStep2RadiogroupChangeEvent
+            },
+            'bulk-browse bulk-step4': {
+                beforeactivate: this.beforeStep4
             }
         });
     },
@@ -68,26 +71,26 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
-    onWizardPrevEvent: function(wizard) {
+    onWizardPrevEvent: function (wizard) {
         var index = wizard.getActiveItemId();
         this.getBulkActionsList().setHyperLinkAction(index, false);
         this.setBulkActionListActiveItem(wizard);
     },
 
-    onWizardNextEvent: function(wizard) {
+    onWizardNextEvent: function (wizard) {
         var index = wizard.getActiveItemId();
         this.getBulkActionsList().setHyperLinkAction(index - 1, true);
         this.setBulkActionListActiveItem(wizard);
 
-        var functionName =  'processNextOnStep' + index;
+        var functionName = 'processNextOnStep' + index;
         this.processStep(functionName, wizard);
     },
 
-    onWizardStartedEvent: function(wizard) {
+    onWizardStartedEvent: function (wizard) {
         this.setBulkActionListActiveItem(wizard);
     },
 
-    onWizardFinishedEvent: function(wizard) {
+    onWizardFinishedEvent: function (wizard) {
         this.setBulkActionListActiveItem(wizard);
         this.getBulkActionsList().clearHyperLinkActions();
 
@@ -101,17 +104,17 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
             url: requestUrl,
             method: 'PUT',
             jsonData: requestData,
-            success: function(response, opts) {
+            success: function (response, opts) {
                 var obj = Ext.decode(response.responseText);
                 console.log(obj);
             },
-            failure: function(response, opts) {
+            failure: function (response, opts) {
                 console.log('server-side failure with status code ' + response.status);
             }
         });
     },
 
-    getRequestData: function(bulkStoreRecord) {
+    getRequestData: function (bulkStoreRecord) {
         var requestData = {
                 issues: []
             },
@@ -119,7 +122,7 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
             operation = bulkStoreRecord.get('operation');
 
         issues = bulkStoreRecord.get('issues');
-        Ext.iterate(issues, function(issue, index, issuesItSelf) {
+        Ext.iterate(issues, function (issue, index, issuesItSelf) {
             requestData.issues.push(
                 {
                     id: issue.id,
@@ -144,28 +147,28 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
         return requestData;
     },
 
-    onWizardCancelledEvent: function(wizard) {
+    onWizardCancelledEvent: function (wizard) {
         Ext.Msg.show({
             title: 'Operation',
             msg: 'Cancel has been pressed'
         });
     },
 
-    setBulkActionListActiveItem: function(wizard) {
+    setBulkActionListActiveItem: function (wizard) {
         var index = wizard.getActiveItemId();
         this.getBulkActionsList().setActiveAction(index);
     },
 
-    processStep: function(func, wizard) {
-        if(func in this) {
+    processStep: function (func, wizard) {
+        if (func in this) {
             this[func](wizard);
         }
     },
 
-    getBulkRecord: function() {
+    getBulkRecord: function () {
         var bulkStore = Ext.getStore('Mtr.store.BulkChangeIssues');
         var bulkRecord = bulkStore.getAt(0);
-        if(!bulkRecord) {
+        if (!bulkRecord) {
             bulkStore.add({
                 operation: 'assign'
             });
@@ -173,13 +176,13 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
         return bulkStore.getAt(0);
     },
 
-    onStep2RadiogroupChangeEvent: function(radiogroup, newValue, oldValue) {
+    onStep2RadiogroupChangeEvent: function (radiogroup, newValue, oldValue) {
         var record = this.getBulkRecord();
         record.set('operation', newValue.operation);
         record.commit();
     },
 
-    processNextOnStep1: function(wizard) {
+    processNextOnStep1: function (wizard) {
         var record = this.getBulkRecord();
 
         record.set('issues', [
@@ -196,7 +199,7 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
         record.commit();
     },
 
-    processNextOnStep2: function(wizard) {
+    processNextOnStep2: function (wizard) {
         var record = this.getBulkRecord(),
             step3Panel = wizard.down('bulk-step3'),
             operation = record.get('operation'),
@@ -214,38 +217,42 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
 
         widget = Ext.widget(view);
 
-        if(widget) {
+        if (widget) {
             step3Panel.removeAll(true);
             step3Panel.add(widget);
         }
     },
 
-    processNextOnStep3: function(wizard) {
+    processNextOnStep3: function (wizard) {
         var record = this.getBulkRecord(),
             step4Panel = wizard.down('bulk-step4'),
             message = '',
             operation = record.get('operation'),
-            form = Ext.ComponentQuery.query('bulk-step3 issues-assign-form')[0].getForm(),
             widget;
 
-        if (form.isValid()) {
-            switch (operation) {
-                case 'assign':
-                    message += 'Assign ';
-                    break
-                case 'close':
-                    message += 'Close ';
-                    break
-            }
 
-            message += 'issues?';
-            widget = Ext.widget('panel', {
-                html: message
-            });
-            if(widget) {
-                step4Panel.removeAll(true);
-                step4Panel.add(widget);
-            }
+        switch (operation) {
+            case 'assign':
+                message += 'Assign ';
+                break
+            case 'close':
+                message += 'Close ';
+                break
         }
+
+        message += 'issues?';
+        widget = Ext.widget('panel', {
+            html: message
+        });
+        if (widget) {
+            step4Panel.removeAll(true);
+            step4Panel.add(widget);
+        }
+    },
+
+    beforeStep4: function () {
+        var form = Ext.ComponentQuery.query('bulk-step3 issues-assign-form')[0].getForm();
+
+        return !form || form.isValid();
     }
 });

@@ -78,9 +78,6 @@ Ext.define('Mtr.controller.Issues', {
             'button[name=sortitembtn]': {
                 click: this.changeSortDirection,
                 arrowclick: this.removeSortItem
-            },
-            'button[name=saveviewbtn]': {
-                click: this.viewRules
             }
 
             // ====================================  END IssueListFilter controls  ================================
@@ -91,11 +88,6 @@ Ext.define('Mtr.controller.Issues', {
         this.groupParams = {};
         this.sortParams = {};
 
-    },
-
-    viewRules: function(btn){
-        var widget = Ext.widget('issues-assignment-rules', {});
-        Mtr.getApplication().getMainController().showContent(widget);
     },
 
     showOverview: function () {

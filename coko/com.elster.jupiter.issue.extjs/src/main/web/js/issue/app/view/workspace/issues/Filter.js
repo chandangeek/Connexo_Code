@@ -21,44 +21,6 @@ Ext.define('Mtr.view.workspace.issues.Filter', {
             border: false,
             layout: {
                 type: 'hbox',
-                align: 'stretch'
-            },
-            items: [
-                {
-                    html: '<h1>Issues</h1>',
-                    width: 200
-                },
-                {
-                    flex: 1,
-                    layout: {
-                        type: 'hbox',
-                        align: 'middle'
-                    },
-                    items: [
-                        {
-                            flex: 1
-                        },
-                        {
-                            html: '<a href="#/workspace/datacollection/issues/assignmentrules">View assignment rules</a>',
-                            width: 150
-                        },
-                        {
-                            xtype: 'button',
-                            text: 'Save view',
-                            name: 'saveviewbtn',
-                            margin: '5'
-                        }
-                    ]
-                }
-            ]
-        },
-
-        {
-            xtype: 'panel',
-            header: false,
-            border: false,
-            layout: {
-                type: 'hbox',
                 align: 'left'
             },
             items: [

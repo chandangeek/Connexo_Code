@@ -1,9 +1,9 @@
-Ext.define('Mtr.view.workspace.issues.AssignmentRulesList', {
+Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.List', {
     extend: 'Ext.grid.Panel',
     requires: [
     ],
     store: 'Mtr.store.AssignmentRules',
-    alias: 'widget.issues-assignment-rules',
+    alias: 'widget.issues-assignment-rules-list',
     emptyText: '',
     columns: [
         {
