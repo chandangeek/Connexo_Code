@@ -15,11 +15,10 @@ Ext.define('Mtr.view.workspace.issues.bulk.Step1', {
         },
         {
             xtype: 'issues-list',
+            height: 285,
             dockedItems: [],
             selType: 'checkboxmodel',
-            selModel: {
 
-            },
             columns: [
                 {
                     header: 'Title',

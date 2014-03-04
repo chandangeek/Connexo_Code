@@ -4,8 +4,8 @@ Ext.define('Mtr.view.workspace.issues.bulk.Step3', {
     title: 'Action details',
 
     requires: [
-//        'Isu.view.bulk.CloseIssue',
-//        'Isu.view.bulk.AssignIssue'
+        'Mtr.view.workspace.issues.Close',
+        'Mtr.view.workspace.issues.AssignForm'
     ],
 
     items: [],

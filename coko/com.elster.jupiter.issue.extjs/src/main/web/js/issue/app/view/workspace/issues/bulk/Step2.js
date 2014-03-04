@@ -10,7 +10,6 @@ Ext.define('Mtr.view.workspace.issues.bulk.Step2', {
     items: [
         {
             xtype: 'panel',
-            bodyPadding: 20,
             border: 0,
 
             items: [

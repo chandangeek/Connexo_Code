@@ -58,14 +58,28 @@ Ext.define('Mtr.controller.AssignIssues', {
 
         onSubmitForm: function () {
             var self = this.getController('Mtr.controller.AssignIssues'),
-                formPanel = Ext.ComponentQuery.query('issues-assign form')[0];
-            var form = formPanel.getForm(),
+                assignPanel = Ext.ComponentQuery.query('issues-assign')[0],
+                formPanel = assignPanel.down('issues-assign-form'),
+                activeCombo = formPanel.down('combobox[disabled=false]'),
+                form = formPanel.getForm(),
                 formValues = form.getValues(),
                 url = '/api/isu/issue/assign',
+                sendingData = {},
                 preloader;
 
-            formPanel.sendingData.comment = formValues.comment;
             if (form.isValid()) {
+                sendingData.issues = [
+                    {
+                        id: assignPanel.record.data.id,
+                        version: assignPanel.record.data.version
+                    }
+                ];
+                sendingData.assignee = {
+                    id: activeCombo.findRecordByValue(activeCombo.getValue()).data.id,
+                    type: activeCombo.name,
+                    title: activeCombo.rawValue
+                };
+                sendingData.comment = formValues.comment;
                 preloader = Ext.create('Ext.LoadMask', {
                     msg: "Assigning issue",
                     name: 'assign-issu-form-submit',
@@ -75,7 +89,7 @@ Ext.define('Mtr.controller.AssignIssues', {
                 Ext.Ajax.request({
                     url: url,
                     method: 'PUT',
-                    jsonData: formPanel.sendingData,
+                    jsonData: sendingData,
                     success: self.handleServerResponse,
                     controller: this
                 });
@@ -87,13 +101,12 @@ Ext.define('Mtr.controller.AssignIssues', {
         },
 
         handleServerResponse: function (resp, param) {
-            console.log(param);
             var response = Ext.JSON.decode(resp.responseText),
                 successArr = response.success,
                 failureArr = response.failure,
                 assignIssueView = Ext.ComponentQuery.query('issues-assign')[0],
                 preloader = Ext.ComponentQuery.query('loadmask[name=assign-issu-form-submit]')[0],
-                form = Ext.ComponentQuery.query('issues-assign form')[0],
+                activeCombo = assignIssueView.down('issues-assign-form combobox[disabled=false]'),
                 id = assignIssueView.record.data.id,
                 success,
                 msges = [];
@@ -107,7 +120,6 @@ Ext.define('Mtr.controller.AssignIssues', {
             if (success) {
                 console.log(success)
             }
-            ;
 
 
             if (failureArr.length > 0) {
@@ -115,7 +127,7 @@ Ext.define('Mtr.controller.AssignIssues', {
                     Ext.Array.each(item.issues, function (issue) {
                         var header = {},
                             bodyItem = {};
-                        header.text = 'Failed to assign issue ' + issue.title + ' to ' + form.sendingData.assignee.title;
+                        header.text = 'Failed to assign issue ' + issue.title + ' to ' + activeCombo.rawValue;
                         header.style = 'msgHeaderStyle';
                         msges.push(header);
                         bodyItem.text = item.reason;
@@ -148,7 +160,7 @@ Ext.define('Mtr.controller.AssignIssues', {
                 Ext.Array.each(successArr, function () {
                     var header = {};
                     header.style = 'msgHeaderStyle';
-                    header.text = 'Issue assigned to ' + form.sendingData.assignee.title;
+                    header.text = 'Issue assigned to ' + activeCombo.rawValue;
                     msges.push(header);
                 });
 

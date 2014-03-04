@@ -197,11 +197,23 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
     },
 
     processNextOnStep2: function(wizard) {
-        var record = this.getBulkRecord();
-        var step3Panel = wizard.down('bulk-step3');
+        var record = this.getBulkRecord(),
+            step3Panel = wizard.down('bulk-step3'),
+            operation = record.get('operation'),
+            view,
+            widget;
 
-        var operation = record.get('operation');
-        var widget = Ext.widget('bulk-' + operation + '-issue');
+        switch (operation) {
+            case 'assign':
+                view = 'issues-assign-form';
+                break;
+            case  'close':
+                view = 'issues-close';
+                break;
+        }
+
+        widget = Ext.widget(view);
+
         if(widget) {
             step3Panel.removeAll(true);
             step3Panel.add(widget);
@@ -211,26 +223,29 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
     processNextOnStep3: function(wizard) {
         var record = this.getBulkRecord(),
             step4Panel = wizard.down('bulk-step4'),
-            message = '';
+            message = '',
+            operation = record.get('operation'),
+            form = Ext.ComponentQuery.query('bulk-step3 issues-assign-form')[0].getForm(),
+            widget;
 
-        var operation = record.get('operation');
+        if (form.isValid()) {
+            switch (operation) {
+                case 'assign':
+                    message += 'Assign ';
+                    break
+                case 'close':
+                    message += 'Close ';
+                    break
+            }
 
-        switch (operation) {
-            case 'assign':
-                message += 'Assign ';
-                break
-            case 'close':
-                message += 'Close ';
-                break
-        }
-
-        message += 'issues?';
-        var widget = Ext.widget('panel', {
-            html: message
-        });
-        if(widget) {
-            step4Panel.removeAll(true);
-            step4Panel.add(widget);
+            message += 'issues?';
+            widget = Ext.widget('panel', {
+                html: message
+            });
+            if(widget) {
+                step4Panel.removeAll(true);
+                step4Panel.add(widget);
+            }
         }
     }
 });
