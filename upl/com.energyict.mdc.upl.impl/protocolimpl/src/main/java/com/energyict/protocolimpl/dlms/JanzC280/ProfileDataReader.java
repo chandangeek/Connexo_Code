@@ -163,10 +163,11 @@ public class ProfileDataReader {
         return events;
     }
 
-    protected ChannelInfo getChannelInfo(int iChannelNumber) throws IOException {
-        ObisCode obisCode = ObisCode.fromString("1.0.99.128." + (iChannelNumber + 1) + ".255");
+    protected ChannelInfo getChannelInfo(int index) throws IOException {
+        Integer chnNumber = janzC280.getEnabledChannelNumbers().get(index);
+        ObisCode obisCode = ObisCode.fromString("1.0.99.128." + chnNumber + ".255");
         RegisterValue registerValue = janzC280.readRegister(obisCode);
-        return new ChannelInfo(iChannelNumber, "1.0.99.1." + (iChannelNumber + 1) + ".255", registerValue.getQuantity().getUnit());
+        return new ChannelInfo(index, chnNumber - 1, "1.0.99.1." + chnNumber + ".255", registerValue.getQuantity().getUnit());
     }
 
     private int getEiServerStatus(byte[] eventDef) {

@@ -64,6 +64,8 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
     private static final int DEFAULT_CONNECTION_MODE = 0;
     private static final String HHUSIGNON_METERID = "CTR_EBOX";
 
+    private List<Integer> enabledChannelNumbers; // This list will contain the numbers of all enabled channels
+
     /**
      * Fixed static string for the forcedToReadCache property
      */
@@ -358,9 +360,10 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
      * @throws java.io.IOException thrown when something goes wrong
      */
     @Override
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         if (this.numberOfChannels == -1) {
             logger.info("Loading the number of channels, looping over all load diagrams...");
+            this.enabledChannelNumbers =  new ArrayList<>();
 
             /* Loop over all configuration registers. ( there are 12 'Configuration of the load diagram' registers).
              * If the channel is in use, the register value maps the definition/name of a load profile.
@@ -372,22 +375,18 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
              * cfr. Max 12 channels supported - a meter can support 6 channels, of which only 2 active.
             */
 
-            for (int i = 1; i < 7; i++) {
+            for (int i = 1; i < 13; i++) {
                 try {
                     ObisCode obisCode = ObisCode.fromString("1.0.99.128." + i + ".255");
                     RegisterValue registerValue = readRegister(obisCode);
-                    if (registerValue.getQuantity().getAmount().equals(new BigDecimal(0))) {
-                        this.numberOfChannels = i - 1;
-                        break;
+                    if (!registerValue.getQuantity().getAmount().equals(new BigDecimal(0))) {
+                        this.enabledChannelNumbers.add(new Integer(i));
                     }
                 } catch (DataAccessResultException e) {
-                    this.numberOfChannels = i - 1;
-                    break;
+                } catch (NoSuchRegisterException e) {
                 }
             }
-            if (this.numberOfChannels == -1) {
-                this.numberOfChannels = 0;
-            }
+            this.numberOfChannels = this.enabledChannelNumbers.size();
         }
         return this.numberOfChannels;
     }
@@ -417,12 +416,19 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
 
     public ObisCode[] getLoadProfileObisCodes() throws IOException {
         if (loadProfileObisCodes == null) {
-            loadProfileObisCodes = new ObisCode[getNumberOfChannels()];
-            for (int i = 0; i < getNumberOfChannels(); i++) {
-                loadProfileObisCodes[i] = ObisCode.fromString("1.0.99.1." + (i + 1) + ".255");
+            loadProfileObisCodes = new ObisCode[getEnabledChannelNumbers().size()];
+            for (int i = 0; i < getEnabledChannelNumbers().size(); i++) {
+                loadProfileObisCodes[i] = ObisCode.fromString("1.0.99.1." + getEnabledChannelNumbers().get(i) + ".255");
             }
         }
         return loadProfileObisCodes;
+    }
+
+    public List<Integer> getEnabledChannelNumbers() throws IOException {
+        if (enabledChannelNumbers == null) {
+            getNumberOfChannels();
+        }
+        return enabledChannelNumbers;
     }
 
     @Override
