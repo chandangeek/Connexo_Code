@@ -13,7 +13,7 @@ class IsPresentValidator implements ConstraintValidator<IsPresent, Object> {
 
 	@Override
 	public boolean isValid(Object in, ConstraintValidatorContext context) {  
-		if (in == null || !(in instanceof ValueReference) || !(in instanceof Optional)) {
+		if (in == null || !((in instanceof ValueReference) || (in instanceof Optional))) {
 			return false;
 		}
 		if (in instanceof ValueReference) {
