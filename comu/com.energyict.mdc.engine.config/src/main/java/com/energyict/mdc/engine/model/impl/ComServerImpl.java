@@ -54,16 +54,11 @@ public abstract class ComServerImpl implements ComServer {
 
     private final DataModel dataModel;
     private final EngineModelService engineModelService;
-    // TODO set @Valid
     private final Provider<OutboundComPortImpl> outboundComPortProvider;
 
-    // TODO set @Valid
     private final Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider;
-    // TODO set @Valid
     private final Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider;
-    // TODO set @Valid
     private final Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider;
-    // TODO set @Valid
     private final Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider;
 
     private long id;
