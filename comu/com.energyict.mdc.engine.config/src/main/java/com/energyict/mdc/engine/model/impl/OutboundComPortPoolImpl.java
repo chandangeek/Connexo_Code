@@ -1,19 +1,18 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableList;
-
 import com.google.inject.Provider;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.OutboundComPortPool} interface.
@@ -21,15 +20,17 @@ import javax.inject.Inject;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-26 (10:21)
  */
+@ComPortPoolTypeMatchesComPortType(groups = {Save.Create.class, Save.Create.class }, message = "{MDC.ComPortTypeOfComPortDoesNotMatchWithComPortPool}")
 public class OutboundComPortPoolImpl extends ComPortPoolImpl implements OutboundComPortPool {
 
     private final Provider<ComPortPoolMember> comPortPoolMemberProvider;
+    @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{MDC.CanNotBeEmpty}")
     private TimeDuration taskExecutionTimeout;
     private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>();
 
     @Inject
-    protected OutboundComPortPoolImpl(DataModel dataModel, EngineModelService engineModelService, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
-        super(dataModel, engineModelService);
+    protected OutboundComPortPoolImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
+        super(dataModel);
         this.comPortPoolMemberProvider = comPortPoolMemberProvider;
     }
 
@@ -76,25 +77,6 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
     @Override
     public void setTaskExecutionTimeout(TimeDuration taskExecutionTimeout) {
         this.taskExecutionTimeout = new TimeDuration(taskExecutionTimeout.getCount(), taskExecutionTimeout.getTimeUnitCode());
-    }
-
-    protected void validate() {
-        super.validate();
-        this.validateNotNull(this.taskExecutionTimeout, "outboundComPortPool.taskExecutionTimeout");
-        this.validateComPorts(this.getComPorts(), this.getComPortType());
-    }
-
-    /**
-     * Validates that all referenced {@link com.energyict.mdc.engine.model.ComPort} are effectively {@link com.energyict.mdc.engine.model.OutboundComPort}
-     * and that their {@link ComPortType type} corresponds with this pool's type.
-     *
-     * @param outboundComPortIds The ids of the referenced ComPorts
-     * @param comPortType The ComPortType of this OutboundComPortPool
-     */
-    private void validateComPorts(List<OutboundComPort> outboundComPortIds, ComPortType comPortType) {
-        for (OutboundComPort comPortId : outboundComPortIds) {
-            this.validateComPortForComPortType(comPortId, comPortType);
-        }
     }
 
     @Override

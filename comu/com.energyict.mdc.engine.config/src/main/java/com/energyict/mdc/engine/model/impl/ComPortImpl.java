@@ -4,8 +4,6 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
@@ -81,31 +79,6 @@ public abstract class ComPortImpl implements ComPort {
         Set<ConstraintViolation<ComPortImpl>> constraintViolations = validator.validate(this, group);
         if (!constraintViolations.isEmpty()) {
             throw new ConstraintViolationException(constraintViolations);
-        }
-    }
-
-    protected void validateNotNull(Object propertyValue, String propertyName) {
-        if (propertyValue == null) {
-            throw new TranslatableApplicationException("XcannotBeEmpty", "\"{0}\" is a required property", propertyName);
-        }
-    }
-
-    protected void validateNotNull(String propertyValue, String propertyName) {
-        if (Checks.is(propertyValue).emptyOrOnlyWhiteSpace()) {
-            throw new TranslatableApplicationException("XcannotBeEmpty", "\"{0}\" is a required property", propertyName);
-        }
-    }
-
-    /**
-     * Validate if the given propertyValue is greater then 0
-     *
-     * @param propertyValue the value to check
-     * @param propertyName  the name of the property which is validated
-     * @throws InvalidValueException if the given value is equal or below zero
-     */
-    protected void validateGreaterThanZero(int propertyValue, String propertyName) {
-        if (propertyValue <= 0) {
-            throw new TranslatableApplicationException("XcannotBeEqualOrLessThanZero", "\"{0}\" should have a value greater then 0", propertyName);
         }
     }
 

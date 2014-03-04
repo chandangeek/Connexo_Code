@@ -1,18 +1,16 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.validation.constraints.Min;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.InboundComPortPool} interface.
@@ -20,14 +18,16 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-26 (10:21)
  */
+@ComPortPoolTypeMatchesComPortType(groups = {Save.Create.class, Save.Update.class }, message = "{MDC.ComPortTypeOfComPortDoesNotMatchWithComPortPool}")
 public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundComPortPool {
 
     private final EngineModelService engineModelService;
+    @Min(value =1, groups = {Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
     private long discoveryProtocolPluggableClassId;
 
     @Inject
     protected InboundComPortPoolImpl(DataModel dataModel, EngineModelService engineModelService) {
-        super(dataModel, engineModelService);
+        super(dataModel);
         this.engineModelService = engineModelService;
     }
 
@@ -53,7 +53,6 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
 
     protected void validate() {
         super.validate();
-        this.validateComPorts(this.getComPorts(), this.getComPortType());
         this.validateDiscoveryProtocolPluggableClass(this.discoveryProtocolPluggableClassId);
     }
 
@@ -66,20 +65,6 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
 //            if (pluggableClass == null) {
 //                throw InvalidReferenceException.newForIdBusinessObject(discoveryProtocolPluggableClassId, this.getInboundDeviceProtocolPluggableClassFactory());
 //            }
-        }
-    }
-
-    /**
-     * Validates that all referenced {@link com.energyict.mdc.engine.model.ComPort} are effectively {@link com.energyict.mdc.engine.model.OutboundComPort}
-     * and that their {@link ComPortType type} corresponds with this pool's type.
-     *
-     * @param inboundComPorts The ids of the referenced ComPorts
-     * @param comPortType       The ComPortType of this OutboundComPortPool
-     */
-    private void validateComPorts(List<InboundComPort> inboundComPorts, ComPortType comPortType) {
-        for (InboundComPort comPort : inboundComPorts) {
-            this.validateComPortForComPortType(comPort, comPortType);
-
         }
     }
 

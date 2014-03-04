@@ -20,7 +20,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE })
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = { ComPortPoolTypeReferenceValidator.class, ComPortPoolTypeValidator.class })
+@Constraint(validatedBy = { ComPortPoolTypeValidator.class, ComPortTypeValidator.class })
 public @interface ComPortPoolTypeMatchesComPortType {
 
 	String message() default "{MDC.ComPortTypeOfComPortDoesNotMatchWithComPortPool}";

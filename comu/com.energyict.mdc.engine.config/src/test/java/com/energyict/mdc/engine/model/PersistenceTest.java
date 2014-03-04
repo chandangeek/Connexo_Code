@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.model;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -53,9 +54,10 @@ public class PersistenceTest {
                 new TransactionModule(true),
                 new EngineModelModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
-        	injector.getInstance(EngineModelService.class);
         	injector.getInstance(EnvironmentImpl.class); // fake call to make sure component is initialized
-        	ctx.commit();
+            injector.getInstance(NlsService.class); // fake call to make sure component is initialized
+            injector.getInstance(EngineModelService.class);
+            ctx.commit();
         }
     }
 

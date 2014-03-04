@@ -1,9 +1,8 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.energyict.mdc.Expected;
-import com.energyict.mdc.ExpectedErrorRule;
 import com.energyict.mdc.Transactional;
-import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -21,9 +20,7 @@ import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import java.math.BigDecimal;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 
 import static junit.framework.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +52,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "name")
     public void testCreateWithoutName() {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
         inboundComPortPool.setDescription(DESCRIPTION);
@@ -104,7 +101,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "duplicateComPortPoolX")
+    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComPortPool}", property = "name")
     public void testUpdateWithSameName() {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
         inboundComPortPool.setName("Test for duplication");
@@ -147,7 +144,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "name")
     public void testUpdateWithoutName() {
         InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
 
@@ -287,7 +284,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "comportpool.noUpdateAllowed")
+    @ExpectedConstraintViolation(messageId = "{MDC.comportpool.noUpdateAllowed}", property = "obsoleteDate")
     public void testUpdateAfterMakeObsolete() {
         InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
         comPortPool.makeObsolete();
@@ -311,7 +308,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "comPortType")
     public void testCreateWithoutComPortType() {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
         inboundComPortPool.setName("Unique comPortPool "+comPortPoolIndex++);
@@ -324,7 +321,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "comPortType")
     public void updateWithoutComPortType() {
         InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
 
@@ -335,7 +332,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "comPortTypeOfComPortXDoesNotMatchWithComPortPoolY")
+    @ExpectedConstraintViolation(messageId = "{MDC.ComPortTypeOfComPortDoesNotMatchWithComPortPool}", property = "comPortPool")
     public void testUpdateAddComPortsWithNonMatchingComPortType() {
         InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
         OnlineComServer onlineComServer = createOnlineComServer();
@@ -360,7 +357,8 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
                 .delayAfterConnect(new TimeDuration(60))
                 .delayBeforeSend(new TimeDuration(60))
                 .addressSelector("?")
-                .serialPortConfiguration(new SerialPortConfiguration("portC", BaudrateValue.BAUDRATE_115200, NrOfDataBits.EIGHT, NrOfStopBits.ONE, Parities.EVEN, FlowControl.RTSCTS)).add();
+                .serialPortConfiguration(new SerialPortConfiguration("portC", BaudrateValue.BAUDRATE_115200, NrOfDataBits.EIGHT, NrOfStopBits.ONE, Parities.EVEN, FlowControl.RTSCTS))
+                .add();
 
 
         // Expecting BusinessException because one of the ComPorts is not of type TCP
@@ -368,7 +366,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class)
+    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "discoveryProtocolPluggableClassId")
     public void updateWithoutDiscoveryProtocol() {
         InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
 

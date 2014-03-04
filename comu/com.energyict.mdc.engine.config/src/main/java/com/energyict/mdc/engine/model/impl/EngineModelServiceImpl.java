@@ -62,6 +62,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     private volatile DataModel dataModel;
     private Thesaurus thesaurus;
+    private NlsService nlsService;
 
     public EngineModelServiceImpl() {
         super();
@@ -104,6 +105,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(EngineModelService.COMPONENT_NAME,Layer.DOMAIN);
     }
 
@@ -112,6 +114,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
             @Override
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
+                bind(NlsService.class).toInstance(nlsService);
                 bind(EngineModelService.class).toInstance(EngineModelServiceImpl.this);
                 bind(ServletBasedInboundComPort.class).to(ServletBasedInboundComPortImpl.class);
                 bind(ModemBasedInboundComPort.class).to(ModemBasedInboundComPortImpl.class);

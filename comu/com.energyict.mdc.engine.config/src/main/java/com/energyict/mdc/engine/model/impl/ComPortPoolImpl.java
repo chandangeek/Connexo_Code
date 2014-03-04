@@ -1,18 +1,18 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.ComPortPoolMember;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableMap;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Size;
 
 /**
  * Serves as the root for all concrete {@link com.energyict.mdc.engine.model.ComPortPool} interfaces.
@@ -20,6 +20,7 @@ import javax.inject.Inject;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-26 (08:47)
  */
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.DuplicateComPortPool}")
 public abstract class ComPortPoolImpl implements ComPortPool {
     protected static final String INBOUND_COMPORTPOOL_DISCRIMINATOR = "0";
     protected static final String OUTBOUND_COMPORTPOOL_DISCRIMINATOR = "1";
@@ -30,19 +31,21 @@ public abstract class ComPortPoolImpl implements ComPortPool {
                     OUTBOUND_COMPORTPOOL_DISCRIMINATOR, OutboundComPortPoolImpl.class);
 
     private final DataModel dataModel;
-    private final EngineModelService engineModelService;
 
     private long id;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmpty}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmpty})")
     private String name;
     private boolean active;
     private String description;
+    @Null(groups = { Save.Update.class }, message = "{MDC.comportpool.noUpdateAllowed}")
     private Date obsoleteDate;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmpty}")
     private ComPortType comPortType;
 
     @Inject
-    protected ComPortPoolImpl(DataModel dataModel, EngineModelService engineModelService) {
+    protected ComPortPoolImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.engineModelService = engineModelService;
     }
 
     @Override
@@ -100,23 +103,6 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     }
 
     protected void validate() {
-        validateNotNull(this.getComPortType(), "comportpool.comporttype");
-        validateNotNull(this.getName(), "name");
-        validateUniqueName(this.getName());
-        validateNotNull(this.getComPortType(), "type");
-    }
-
-    protected void validateUniqueName(String name) {
-        ComPortPool comPortPool = engineModelService.findComPortPool(this.getName());
-        if (comPortPool != null && comPortPool.getId()!=this.getId() && !comPortPool.isObsolete()) {
-            throw new TranslatableApplicationException("duplicateComPortPoolX", "A ComPortPool by the name of \"{0}\" already exists", name);
-        }
-    }
-
-    protected void validateNotNull (Object propertyValue, String propertyName) {
-        if (propertyValue == null) {
-            throw new TranslatableApplicationException("XcannotBeEmpty", "\"{0}\" is a required property", propertyName);
-        }
     }
 
     @Override
@@ -127,13 +113,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
         dataModel.update(this);
     }
 
-    protected abstract void makeMembersObsolete ();
-
-    protected void validateUpdateAllowed () {
-        if (this.isObsolete()) {
-            throw new TranslatableApplicationException("comportpool.noUpdateAllowed", "This comport pool is marked as deleted, no updates allowed.");
-        }
-    }
+    protected abstract void makeMembersObsolete();
 
     protected void validateMakeObsolete () {
         if (this.isObsolete()) {
@@ -150,19 +130,13 @@ public abstract class ComPortPoolImpl implements ComPortPool {
             Object[] messageArguments = new Object[2];
             messageArguments[0] = comPort.getComPortType();
             messageArguments[1] = comPortType;
-            throw new TranslatableApplicationException("comPortTypeOfComPortXDoesNotMatchWithComPortPoolY", "The ComPortType of ComPort {0} does not match with that of the ComPortPool {1}", messageArguments);
+            throw new TranslatableApplicationException("MDC.ComPortTypeOfComPortDoesNotMatchWithComPortPool", "The ComPortType of ComPort {0} does not match with that of the ComPortPool {1}", messageArguments);
         }
     }
 
     @Override
     public void save() {
-        validate();
-        if (this.getId()==0) {
-            dataModel.persist(this);
-        } else {
-            validateUpdateAllowed();
-            dataModel.update(this);
-        }
+        Save.action(getId()).save(dataModel, this);
     }
 
     @Override
@@ -170,7 +144,6 @@ public abstract class ComPortPoolImpl implements ComPortPool {
         validateDelete();
         dataModel.remove(this);
     }
-
 
     protected abstract void validateDelete();
 }
