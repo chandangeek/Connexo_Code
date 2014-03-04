@@ -161,6 +161,7 @@ Ext.define('Mtr.view.workspace.issues.Filter', {
                             menu: {
                                 shadow: false,
                                 border: false,
+                                plain: true,
                                 name: 'addsortitemmenu'
                             }
                         }

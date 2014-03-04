@@ -17,7 +17,7 @@ Ext.define('Mtr.view.workspace.issues.List', {
         {
             header: 'Title',
             xtype: 'templatecolumn',
-            tpl: '{reason}<tpl if="device"> to {device.name} {device.sNumber}</tpl>',
+            tpl: '{reason}<tpl if="device"> to {device.name} {device.serialNumber}</tpl>',
             flex: 2,
             sortable: false
         },

@@ -44,10 +44,10 @@ Ext.define('Mtr.view.workspace.issues.Item', {
                         {
                             xtype: 'container',
                             flex: 1,
-                            html: record.data.reason + (record.data.device ? ' to ' + record.data.device.name + ' ' + record.data.device.sNumber : '')
+                            html: record.data.reason + (record.data.device ? ' to ' + record.data.device.name + ' ' + record.data.device.serialNumber : '')
                         },
                         {
-                            xtype: 'splitbutton',
+                            xtype: 'button',
                             text: 'Actions',
                             iconCls: 'isu-action-icon',
                             menu: {
@@ -65,9 +65,6 @@ Ext.define('Mtr.view.workspace.issues.Item', {
                                         text: 'Close'
                                     }
                                 ]
-                            },
-                            handler: function(btn){
-                                btn.showMenu()
                             }
                         }
                     ]
@@ -103,7 +100,7 @@ Ext.define('Mtr.view.workspace.issues.Item', {
                         '</tr>',
                         '<tr>',
                         '<td><b>Device:</b></td>',
-                        '<td colspan="3"><tpl if="device">{device.name} {device.sNumber} <span class="isu-icon-filter"></span></tpl></td>',
+                        '<td colspan="3"><tpl if="device">{device.name} {device.serialNumber} <span class="isu-icon-filter"></span></tpl></td>',
                         '</tr>',
                         '<tr>',
                         '<td><b>Service category:</b></td>',
