@@ -1,7 +1,8 @@
 Ext.define('Mtr.view.workspace.issues.Assign', {
     extend: 'Ext.container.Container',
     requires: [
-        'Mtr.view.workspace.issues.AssignForm',
+        'Ext.form.Panel',
+        'Ext.form.RadioGroup',
         'Ext.form.field.Hidden',
         'Uni.view.breadcrumb.Trail'
     ],
@@ -39,7 +40,7 @@ Ext.define('Mtr.view.workspace.issues.Assign', {
             },
             items: [
                 {
-                    html: '<h3>Assign issue ' + (self.record ? self.record.data.reason + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.sNumber : '') : '') + '</h3>',
+                    html: '<h3 class="isu-assign-text"><span>Assign issue </span><span>' + self.record.data.reason + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '') + '</span></h3>',
                     margin: '0 0 20 0'
                 },
                 {

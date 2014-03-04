@@ -54,7 +54,7 @@ Ext.define('Mtr.controller.CloseIssues', {
 
         if (form.isValid()) {
             preloader = Ext.create('Ext.LoadMask', {
-                msg: "Sending data...",
+                msg: "Closing issue",
                 name: 'assign-issu-form-submit',
                 target: formPanel
             });

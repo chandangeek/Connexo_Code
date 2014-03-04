@@ -293,3 +293,6 @@ span[class^=isu-assignee-] {
     bottom: 0;
     right: 0;
 }
+.isu-assign-text span:first-child {
+    color: #000;
+}
