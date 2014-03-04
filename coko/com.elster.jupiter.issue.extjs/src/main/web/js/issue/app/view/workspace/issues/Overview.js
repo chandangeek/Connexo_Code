@@ -23,9 +23,6 @@ Ext.define('Mtr.view.workspace.issues.Overview', {
                     },
                     items: [
                         {
-                            html: '<h1>Issues</h1>'
-                        },
-                        {
                             xtype: 'issues-filter'
                         },
                         {

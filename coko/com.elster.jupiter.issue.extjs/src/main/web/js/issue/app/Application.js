@@ -28,6 +28,7 @@ Ext.define('Mtr.Application', {
         'CloseIssues',
         'BulkChangeIssues',
         'MessageWindow',
+        'IssueAssignmentRules',
 
         'history.Dashboard',
         'history.Group',
