@@ -315,7 +315,7 @@ Ext.define('Cfg.controller.Validation', {
                 record.set(values);
                 record.save({
                     success: function (record, operation) {
-                        record.commit();
+                        //record.commit();
                         me.getValidationRuleSetsStore().reload(
                             {
                                 callback: function(){
@@ -326,6 +326,27 @@ Ext.define('Cfg.controller.Validation', {
             })
         }
     },
+
+
+    /*var me=this;
+var record = Ext.create(Mdc.model.DeviceType),
+    values = this.getDeviceTypeEditForm().getValues();
+if (record) {
+    record.set(values);
+    record.save({
+        success: function (record) {
+            location.href = '#setup/devicetypes/' + record.get('id');
+        },
+        failure: function(record,operation){
+            var json = Ext.decode(operation.response.responseText);
+            if (json && json.errors) {
+                me.getDeviceTypeEditForm().getForm().markInvalid(json.errors);
+            }
+        }
+    });   */
+
+
+
 
     initMenu: function () {
         Uni.store.MenuItems.removeAll();

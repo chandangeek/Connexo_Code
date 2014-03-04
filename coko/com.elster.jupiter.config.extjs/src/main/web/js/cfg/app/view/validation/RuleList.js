@@ -51,7 +51,11 @@ Ext.define('Cfg.view.validation.RuleList', {
                                         scope: this
                                     }
                                 }
-                            }, {
+                            },
+                            {
+                                    xtype: 'menuseparator'
+                            },
+                            {
                                 xtype: 'menuitem',
                                 text: Uni.I18n.translate('general.delete', 'CFG', 'Delete'),
                                 listeners: {
