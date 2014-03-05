@@ -27,7 +27,7 @@ public class DeviceConfigurationInfo {
     public DeviceConfigurationInfo(DeviceConfiguration deviceConfiguration) {
         id = deviceConfiguration.getId();
         name = deviceConfiguration.getName();
-        active = deviceConfiguration.getActive();
+        active = deviceConfiguration.isActive();
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass();
         if (deviceProtocolPluggableClass!=null) {
             this.deviceProtocolInfo=new DeviceProtocolInfo(deviceProtocolPluggableClass);
