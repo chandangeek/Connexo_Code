@@ -164,6 +164,26 @@ public class RegisterMappingImplTest extends PersistenceTest {
 
     @Test
     @Transactional
+    public void testUpdateName() {
+        String registerMappingName = "testUpdateObisCode";
+        RegisterMapping registerMapping;
+        this.setupProductSpecsInExistingTransaction();
+
+        registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, this.productSpec);
+        registerMapping.setDescription("For testing purposes only");
+        registerMapping.save();
+
+        // Business method
+        String updatedName = registerMappingName + "-Updated";
+        registerMapping.setName(updatedName);
+        registerMapping.save();
+
+        // Asserts
+        assertThat(registerMapping.getName()).isEqualTo(updatedName);
+    }
+
+    @Test
+    @Transactional
     public void testUpdateObisCodeAndProductSpec() {
         String registerMappingName = "testUpdateObisCode";
         RegisterMapping registerMapping;

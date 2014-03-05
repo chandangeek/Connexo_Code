@@ -160,7 +160,15 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     }
 
     private RegisterMapping findOtherByObisCodeAndProductSpec() {
-        return this.getDataMapper().getUnique("obisCodeString", obisCode.toString(), "productSpec", this.getProductSpec()).orNull();
+        RegisterMapping registerMapping = this.getDataMapper().getUnique("obisCodeString", obisCode.toString(), "productSpec", this.getProductSpec()).orNull();
+        if (registerMapping != null && this.getId() > 0 && registerMapping.getId() == this.getId()) {
+            // The RegisterMapping that was found is the one we are updating so ignore it
+            return null;
+        }
+        else {
+            // No other RegisterMapping found or this RegisterMapping is not peristent yet or the other is really different because the id does not match
+            return registerMapping;
+        }
     }
 
     @Override
