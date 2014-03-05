@@ -24,8 +24,7 @@ Ext.define('Mtr.view.workspace.issues.Close', {
     initComponent: function () {
         this.callParent(arguments);
         this.addForm();
-    },
-
+     },
     addForm: function () {
         var self = this;
         form_item = {
@@ -40,10 +39,12 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                 border: false
             },
             items: [
-                {},
+                {     
+                },
                 {
                     xype: 'container',
                     border: 0,
+                    padding: '30 50 0 50',
                     defaults: {
                         padding: '0 0 30 0'
                     },
@@ -57,7 +58,7 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                             submitValue: false,
                             items: [
                                 { boxLabel: 'Resolved', name: 'status', inputValue: 'CLOSED', checked: true },
-                                { boxLabel: 'Rejected', name: 'status', inputValue: 'REJECTED'}
+                                { boxLabel: 'Rejected', name: 'status', inputValue: 'REJECTED' }
                             ]
                         },
                         {
@@ -73,7 +74,7 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                 {}
             ]
         };
-        if (typeof this.bulk == 'undefined') {
+        if (Ext.isEmpty(this.bulk)) {
             self.add({
                 xtype: 'breadcrumbTrail',
                 padding: 6
