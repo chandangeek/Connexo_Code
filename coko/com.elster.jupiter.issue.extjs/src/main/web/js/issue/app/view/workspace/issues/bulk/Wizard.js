@@ -9,13 +9,14 @@ Ext.define('Mtr.view.workspace.issues.bulk.Wizard', {
     inWizard: false,
     includeSubTitle: false,
     buttonAlign: 'left',
+    bodyCls: 'isu-bulk-wizard-no-border',
 
     requires: [
         'Ext.layout.container.Card'
     ],
 
     listeners: {
-        render: function() {
+        render: function () {
             if (this.includeSubTitle) {
                 this.setTitle('<b>' + this.titlePrefix + ' &#62;</b>' + ' Step 1 of ' + this.items.length + ': ' + this.getActiveItem().title);
             } else {
@@ -26,29 +27,29 @@ Ext.define('Mtr.view.workspace.issues.bulk.Wizard', {
             this.fireEvent('wizardstarted', this);
         },
 
-        beforerender: function() {
-            Ext.each(this.getLayout().getLayoutItems(), function(card) {
+        beforerender: function () {
+            Ext.each(this.getLayout().getLayoutItems(), function (card) {
                 card.preventHeader = true;
             });
         },
 
-        wizardpagechange: function(wizard) {
+        wizardpagechange: function (wizard) {
             this.onWizardPageChangeEvent(wizard);
         }
     },
 
-    onWizardPageChangeEvent: function(wizard) {
+    onWizardPageChangeEvent: function (wizard) {
         if (this.includeSubTitle) {
             wizard.getActiveItem().preventHeader = true;
-            wizard.setTitle('<b>' + wizard.titlePrefix + ' &#62;</b>' + ' Step ' + (wizard.activeItemId+1) + ' of ' + this.items.length + ': ' + this.getActiveItem().title);
+            wizard.setTitle('<b>' + wizard.titlePrefix + ' &#62;</b>' + ' Step ' + (wizard.activeItemId + 1) + ' of ' + this.items.length + ': ' + this.getActiveItem().title);
         } else {
-            wizard.setTitle('<b>' + wizard.titlePrefix + ' &#62;</b>' + ' Step ' + (wizard.activeItemId+1) + ' of ' + this.items.length);
+            wizard.setTitle('<b>' + wizard.titlePrefix + ' &#62;</b>' + ' Step ' + (wizard.activeItemId + 1) + ' of ' + this.items.length);
         }
 
         this.setButtonsState(wizard);
     },
 
-    setButtonsState: function(wizard) {
+    setButtonsState: function (wizard) {
         var toolbar = wizard.down('toolbar[name="wizar-toolbar"]');
         var activeItem = wizard.getActiveItem();
 
@@ -63,34 +64,34 @@ Ext.define('Mtr.view.workspace.issues.bulk.Wizard', {
         toolbar.child('#finish').setVisible(activeItem.buttonsConfig.confirmbuttonVisible);
     },
 
-    onPrevButtonClick: function(prev) {
+    onPrevButtonClick: function (prev) {
         var wizard = prev.up('wizard');
         wizard.getLayout().setActiveItem(--wizard.activeItemId);
         wizard.fireEvent('wizardpagechange', wizard);
         wizard.fireEvent('wizardprev', wizard);
     },
 
-    onNextButtonClick: function(next) {
+    onNextButtonClick: function (next) {
         var wizard = next.up('wizard');
         wizard.getLayout().setActiveItem(++wizard.activeItemId);
         wizard.fireEvent('wizardpagechange', wizard);
         wizard.fireEvent('wizardnext', wizard);
     },
 
-    onConfirmButtonClick: function(finish) {
+    onConfirmButtonClick: function (finish) {
         var wizard = finish.up('wizard');
         if (!wizard.getForm().isValid()) {
             var invalidFields = 'Please correct the following errors before resumitting<br>';
-            wizard.getForm().getFields().each(function(field) {
+            wizard.getForm().getFields().each(function (field) {
                 if (!field.isValid()) {
                     invalidFields += '<br><b>' + field.getFieldLabel() + '</b>';
                     invalidFields += '<br>' + field.getErrors(field.getValue());
                     invalidFields += '<br>';
                 }
-            })
+            });
             Ext.Msg.show({
                 scope: this,
-                title:'Wizard Invalid',
+                title: 'Wizard Invalid',
                 msg: invalidFields,
                 buttons: Ext.Msg.OK,
                 icon: Ext.Msg.ERROR
@@ -101,16 +102,16 @@ Ext.define('Mtr.view.workspace.issues.bulk.Wizard', {
         }
     },
 
-    onCancelButtonClick: function(cancel) {
+    onCancelButtonClick: function (cancel) {
         var wizard = cancel.up('wizard');
         if (wizard.getForm().isDirty()) {
             Ext.Msg.show({
                 scope: this,
-                title:'Cancelling Wizard',
+                title: 'Cancelling Wizard',
                 msg: 'All changes will be lost. Are you sure you want to cancel?',
                 buttons: Ext.Msg.YESNO,
                 icon: Ext.Msg.QUESTION,
-                fn: function(buttonId, text, opt) {
+                fn: function (buttonId, text, opt) {
                     switch (buttonId) {
                         case 'yes':
                             wizard.fireEvent('wizardcancelled', wizard);
@@ -125,11 +126,11 @@ Ext.define('Mtr.view.workspace.issues.bulk.Wizard', {
         }
     },
 
-    getActiveItem: function() {
+    getActiveItem: function () {
         return this.items.items[this.activeItemId];
     },
 
-    getActiveItemId: function() {
+    getActiveItemId: function () {
         return this.activeItemId;
     },
 

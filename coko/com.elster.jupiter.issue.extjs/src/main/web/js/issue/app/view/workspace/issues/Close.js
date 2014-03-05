@@ -50,10 +50,10 @@ Ext.define('Mtr.view.workspace.issues.Close', {
             },
             items: [
                 {
-                    html: '<h3 class="isu-assign-text"><span>Close issue </span><span>'
+                    html: '<h3>Close issue '
                         + self.record.data.reason.charAt(0).toLowerCase() + self.record.data.reason.slice(1)
-                        + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '')
-                        + '</span></h3>'
+                        + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.sNumber : '')
+                        + '</h3>'
                 },
                 {
                     xype: 'container',

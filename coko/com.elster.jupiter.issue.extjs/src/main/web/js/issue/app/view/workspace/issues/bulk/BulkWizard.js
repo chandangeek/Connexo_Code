@@ -20,14 +20,10 @@ Ext.define('Mtr.view.workspace.issues.bulk.BulkWizard', {
         }
     },
 
-    defaults: {
-        border: false
-    },
-
     items: [
         {
             xtype: 'bulk-step1',
-            buttonsConfig : {
+            buttonsConfig: {
                 prevbuttonDisabled: true,
                 nextbuttonDisabled: false,
                 cancelbuttonDisabled: false,
@@ -41,7 +37,7 @@ Ext.define('Mtr.view.workspace.issues.bulk.BulkWizard', {
         },
         {
             xtype: 'bulk-step2',
-            buttonsConfig : {
+            buttonsConfig: {
                 prevbuttonDisabled: false,
                 nextbuttonDisabled: false,
                 cancelbuttonDisabled: false,
@@ -55,7 +51,7 @@ Ext.define('Mtr.view.workspace.issues.bulk.BulkWizard', {
         },
         {
             xtype: 'bulk-step3',
-            buttonsConfig : {
+            buttonsConfig: {
                 prevbuttonDisabled: false,
                 nextbuttonDisabled: false,
                 cancelbuttonDisabled: false,
@@ -69,7 +65,7 @@ Ext.define('Mtr.view.workspace.issues.bulk.BulkWizard', {
         },
         {
             xtype: 'bulk-step4',
-            buttonsConfig : {
+            buttonsConfig: {
                 prevbuttonDisabled: false,
                 nextbuttonDisabled: true,
                 cancelbuttonDisabled: false,
@@ -83,7 +79,7 @@ Ext.define('Mtr.view.workspace.issues.bulk.BulkWizard', {
         },
         {
             xtype: 'bulk-step5',
-            buttonsConfig : {
+            buttonsConfig: {
                 prevbuttonDisabled: true,
                 nextbuttonDisabled: true,
                 cancelbuttonDisabled: true,
@@ -101,7 +97,7 @@ Ext.define('Mtr.view.workspace.issues.bulk.BulkWizard', {
         this.callParent(arguments);
     },
 
-    onConfirmButtonClick: function(finish) {
+    onConfirmButtonClick: function (finish) {
         var wizard = finish.up('wizard');
         var docked = wizard.getDockedItems('toolbar[dock="bottom"]')[0];
         docked.setVisible(false);

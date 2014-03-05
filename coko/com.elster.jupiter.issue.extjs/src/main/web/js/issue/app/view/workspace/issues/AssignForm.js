@@ -1,5 +1,8 @@
 Ext.define('Mtr.view.workspace.issues.AssignForm', {
     extend: 'Ext.form.Panel',
+    defaults: {
+        border: false
+    },
     requires: [
         'Ext.form.Panel',
         'Ext.form.RadioGroup'
@@ -79,7 +82,6 @@ Ext.define('Mtr.view.workspace.issues.AssignForm', {
                                 forceSelection: true,
                                 anyMatch: true,
                                 msgTarget: 'under',
-                                disabled: true,
                                 validateOnChange: false,
                                 validateOnBlur: false,
                                 width: 300,
@@ -90,6 +92,12 @@ Ext.define('Mtr.view.workspace.issues.AssignForm', {
 
                                             form.comboOnError(combo, errEl);
                                         }
+                                    },
+                                    focus: {
+                                        fn: function (combo) {
+                                            var radiobutton = combo.up().previousNode('radiogroup').down('[inputValue=' + combo.name + ']');
+                                            radiobutton.setValue(true);
+                                        }
                                     }
                                 }
                             },
@@ -99,7 +107,6 @@ Ext.define('Mtr.view.workspace.issues.AssignForm', {
                                     store: 'Mtr.store.UserList',
                                     emptyText: 'Start typing for users',
                                     allowBlank: false,
-                                    disabled: false,
                                     displayField: 'authenticationName'
                                 },
                                 {
@@ -151,7 +158,7 @@ Ext.define('Mtr.view.workspace.issues.AssignForm', {
     assignToOnChange: function (radiogroup, newValue, oldValue) {
         var activeCombobox = radiogroup.next().down('[name=' + newValue.assignTo + ']'),
             inactiveCombobox = radiogroup.next().down('[name=' + oldValue.assignTo + ']');
-        inactiveCombobox.setDisabled(true);
+
         inactiveCombobox.allowBlank = true;
         activeCombobox.setDisabled(false);
         activeCombobox.allowBlank = false;
