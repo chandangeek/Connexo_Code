@@ -104,20 +104,20 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
             url: requestUrl,
             method: 'PUT',
             jsonData: requestData,
-            success: function (response, opts) {
+            success: function (response) {
                 var obj = Ext.decode(response.responseText);
                 console.log(obj);
             },
-            failure: function (response, opts) {
+            failure: function (response) {
                 console.log('server-side failure with status code ' + response.status);
             }
         });
     },
 
     getRequestData: function (bulkStoreRecord) {
-        var requestData = {issues: []};
-        var operation = bulkStoreRecord.get('operation');
-        var issues = bulkStoreRecord.get('issues');
+        var requestData = {issues: []},
+            operation = bulkStoreRecord.get('operation'),
+            issues = bulkStoreRecord.get('issues');
 
         Ext.iterate(issues, function (issue) {
             requestData.issues.push(
@@ -136,10 +136,11 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
                 };
                 break;
             case 'close':
-                requestData.comment = bulkStoreRecord.get('comment');
                 requestData.status = bulkStoreRecord.get('status');
                 break;
         }
+
+        requestData.comment = bulkStoreRecord.get('comment').trim();
 
         return requestData;
     },
@@ -213,48 +214,41 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
     },
 
     processNextOnStep3: function (wizard) {
-        var record = this.getBulkRecord(),
-            step4Panel = wizard.down('bulk-step4'),
-            message = '',
-            operation = record.get('operation'),
-            formPanel = Ext.ComponentQuery.query('bulk-step3 issues-assign-form')[0],
-            activeRadio = formPanel.down('radiogroup').down('radio[checked=true]').inputValue,
-            activeCombo = formPanel.down('combo[name=' + activeRadio + ']'),
-            form = formPanel.getForm(),
-            widget;
+        var formPanel = wizard.down('bulk-step3').down('form'),
+            form = formPanel.getForm();
 
         if (form.isValid()) {
-            record.set('assignee', {
-                id: activeCombo.findRecordByValue(activeCombo.getValue()).data.id,
-                type: activeCombo.name,
-                title: activeCombo.rawValue
-            });
+            var record = this.getBulkRecord(),
+                step4Panel = wizard.down('bulk-step4'),
+                operation = record.get('operation'),
+                message, widget;
 
             switch (operation) {
                 case 'assign':
-                    message += '<h3>Assign ';
+                    var activeRadio = formPanel.down('radiogroup').down('radio[checked=true]').inputValue,
+                        activeCombo = formPanel.down('combo[name=' + activeRadio + ']');
+                    record.set('assignee', {
+                        id: activeCombo.findRecordByValue(activeCombo.getValue()).data.id,
+                        type: activeCombo.name,
+                        title: activeCombo.rawValue
+                    });
+                    message = '<h3>Assign ' + record.get('issues').length + ' issues to ' + record.get('assignee').title + '?</h3><br>'
+                        + 'The selected issues will be assigned to ' + record.get('assignee').title;
                     break;
+
                 case 'close':
-                    message += '<h3>Close ';
+                    message += '<h3>Close ' + record.get('issues').length + ' issues?'
+                        + 'The selected issues will be closed with status <b>' + record.get('status') + '</b>';
                     break;
             }
-
-            message += record.get('issues').length;
-            message += ' issues to ';
-            message += record.get('assignee').title;
-            message += '?</h3><br>';
-            message += 'The selected issues will be assigned to ';
-            message += record.get('assignee').title;
 
             widget = Ext.widget('container', {
                 cls: 'isu-bulk-assign-confirmation-request-panel',
                 html: message
             });
 
-            if (widget) {
-                step4Panel.removeAll(true);
-                step4Panel.add(widget);
-            }
+            step4Panel.removeAll(true);
+            step4Panel.add(widget);
         }
     },
 
