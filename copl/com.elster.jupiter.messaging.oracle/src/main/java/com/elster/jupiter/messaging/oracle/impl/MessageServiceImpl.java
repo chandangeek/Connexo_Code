@@ -11,8 +11,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -30,9 +28,7 @@ import javax.inject.Inject;
 public class MessageServiceImpl implements MessageService, InstallService {
 
     private final DefaultAQFacade defaultAQMessageFactory = new DefaultAQFacade();
-	private volatile TransactionService transactionService;
     private volatile Publisher publisher;
-    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
 
@@ -40,31 +36,24 @@ public class MessageServiceImpl implements MessageService, InstallService {
     }
 
     @Inject
-    MessageServiceImpl(OrmService ormService, Publisher publisher, ThreadPrincipalService threadPrincipalService, TransactionService transactionService, NlsService nlsService) {
+    MessageServiceImpl(OrmService ormService, Publisher publisher, NlsService nlsService) {
         setOrmService(ormService);
         setPublisher(publisher);
-        setThreadPrincipalService(threadPrincipalService);
-        setTransactionService(transactionService);
         setNlsService(nlsService);
         activate();
         dataModel.install(true, true);
     }
 
     @Reference
-	public void setOrmService(OrmService ormService) {
+	public final void setOrmService(OrmService ormService) {
 		dataModel = ormService.newDataModel(MessageService.COMPONENTNAME, "Jupiter Messaging");
 		for (TableSpecs each : TableSpecs.values()) {
 			each.addTo(dataModel);
 		}
 	}
 	
-	@Reference
-	public void setTransactionService(TransactionService transactionService) {
-		this.transactionService = transactionService;
-	}
-	
 	@Activate
-	public void activate() {
+	public final void activate() {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -76,7 +65,7 @@ public class MessageServiceImpl implements MessageService, InstallService {
 	}
 	
 	@Deactivate
-	public void deactivate() {
+	public final void deactivate() {
 	}
 	
 	@Override
@@ -108,17 +97,12 @@ public class MessageServiceImpl implements MessageService, InstallService {
     }
 
     @Reference
-    public void setPublisher(Publisher publisher) {
+    public final void setPublisher(Publisher publisher) {
         this.publisher = publisher;
     }
 
     @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-        this.threadPrincipalService = threadPrincipalService;
-    }
-
-    @Reference
-    public void setNlsService(NlsService nlsService) {
+    public final void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(MessageService.COMPONENTNAME, Layer.DOMAIN);
     }
 }
