@@ -4,10 +4,9 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -32,13 +31,12 @@ import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-
+import java.math.BigDecimal;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 
-import static com.elster.jupiter.util.Checks.*;
+import static com.elster.jupiter.util.Checks.is;
 
 /**
  * Copyrights EnergyICT

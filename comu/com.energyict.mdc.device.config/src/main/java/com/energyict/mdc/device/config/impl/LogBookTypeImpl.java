@@ -13,11 +13,10 @@ import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseE
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLogBookTypeIsInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 
 import static com.elster.jupiter.util.Checks.is;
 

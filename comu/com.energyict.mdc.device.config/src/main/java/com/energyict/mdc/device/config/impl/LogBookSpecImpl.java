@@ -17,10 +17,8 @@ import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceConfiguratio
 import com.energyict.mdc.device.config.exceptions.CannotChangeLogbookTypeOfLogbookSpecException;
 import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.validation.constraints.NotNull;
 
 /**
  * Copyrights EnergyICT

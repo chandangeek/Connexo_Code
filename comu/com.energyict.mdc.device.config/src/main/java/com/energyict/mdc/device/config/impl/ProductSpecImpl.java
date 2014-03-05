@@ -16,10 +16,9 @@ import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseE
 import com.energyict.mdc.device.config.exceptions.CannotDeleteDefaultProductSpecException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-
-import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
+import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link ProductSpec} interace.

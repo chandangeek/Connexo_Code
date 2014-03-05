@@ -22,15 +22,15 @@ import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceCo
 import com.energyict.mdc.device.config.exceptions.DuplicateRegisterMappingException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.MultiplierIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-import org.junit.*;
-import org.junit.rules.*;
-
 import java.math.BigDecimal;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;

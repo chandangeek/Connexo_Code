@@ -28,15 +28,13 @@ import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.google.common.base.Optional;
-
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 
 import static com.elster.jupiter.util.Checks.is;
 

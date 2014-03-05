@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
@@ -17,7 +18,6 @@ import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.DuplicatePrimeRegisterSpecException;
@@ -26,10 +26,9 @@ import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumbe
 import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
+import java.math.BigDecimal;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.math.BigDecimal;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;

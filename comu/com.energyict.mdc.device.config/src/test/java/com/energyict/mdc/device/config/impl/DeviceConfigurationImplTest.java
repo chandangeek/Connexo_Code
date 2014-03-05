@@ -26,10 +26,10 @@ import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeExcept
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import org.junit.*;
-import org.junit.rules.*;
-
 import java.util.List;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;

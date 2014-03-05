@@ -25,12 +25,11 @@ import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumbe
 import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implements RegisterSpec {
 

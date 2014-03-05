@@ -8,9 +8,8 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
-
-import javax.inject.Inject;
 import java.util.Date;
+import javax.inject.Inject;
 
 import static com.elster.jupiter.util.Checks.is;
 

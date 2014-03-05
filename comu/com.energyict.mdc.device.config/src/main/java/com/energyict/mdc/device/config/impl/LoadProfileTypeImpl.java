@@ -21,16 +21,14 @@ import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLoadPr
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingAlreadyInLoadProfileTypeException;
 import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
-
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 
 import static com.elster.jupiter.util.Checks.is;
 

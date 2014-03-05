@@ -5,11 +5,10 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-
+import java.util.List;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.List;
 
 /**
  * Validates the {@link UniqueReadingType} constraint against a {@link ProductSpecImpl}.

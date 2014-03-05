@@ -20,12 +20,10 @@ import com.energyict.mdc.device.config.exceptions.CannotChangeLoadProfileTypeOfL
 import com.energyict.mdc.device.config.exceptions.CannotDeleteLoadProfileSpecLinkedChannelSpecsException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 /**
  * Copyrights EnergyICT

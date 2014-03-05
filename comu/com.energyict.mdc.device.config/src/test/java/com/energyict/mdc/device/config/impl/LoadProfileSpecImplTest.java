@@ -11,7 +11,8 @@ import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigu
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
