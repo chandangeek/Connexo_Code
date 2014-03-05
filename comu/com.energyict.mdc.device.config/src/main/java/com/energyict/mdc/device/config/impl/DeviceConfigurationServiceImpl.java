@@ -283,8 +283,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public DeviceConfiguration findDeviceConfigurationByNameAndDeviceType(String name, DeviceType deviceType) {
-        return this.getDataModel().mapper(DeviceConfiguration.class).getUnique("name", name, "deviceType", deviceType).orNull();
+    public List<DeviceConfiguration> findDeviceConfigurationsByDeviceType(DeviceType deviceType) {
+        return this.getDataModel().mapper(DeviceConfiguration.class).find("deviceType", deviceType);
     }
 
     @Override

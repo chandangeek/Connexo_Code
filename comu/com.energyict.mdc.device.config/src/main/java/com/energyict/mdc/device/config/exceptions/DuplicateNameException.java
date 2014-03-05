@@ -67,7 +67,7 @@ public class DuplicateNameException extends LocalizedException {
 
     /**
      * Creates a new DuplicateNameException that models the exceptional situation
-     * that occurs when an attempt is made to create a {@link com.energyict.mdc.device.config.Phenomenon}
+     * that occurs when an attempt is made to create a {@link com.energyict.mdc.common.interval.Phenomenon}
      * but another one with the same name already exists.
      *
      * @param thesaurus The Thesaurus
@@ -115,7 +115,7 @@ public class DuplicateNameException extends LocalizedException {
      * @return The DuplicateNameException
      */
     public static DuplicateNameException deviceConfigurationExists(Thesaurus thesaurus, String name) {
-        return new DuplicateNameException(thesaurus, MessageSeeds.DEVICE_CONFIGURATION_ALREADY_EXISTS, name);
+        return new DuplicateNameException(thesaurus, MessageSeeds.DUPLICATE_DEVICE_CONFIGURATION, name);
     }
 
     /**

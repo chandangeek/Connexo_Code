@@ -8,7 +8,6 @@ import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -36,11 +35,6 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     }
 
     @Override
-    protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
-        throw NameIsRequiredException.registerGroupNameIsRequired(thesaurus);
-    }
-
-    @Override
     protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
         return DuplicateNameException.registerGroupAlreadyExists(thesaurus, name);
     }
@@ -49,20 +43,6 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     public void save () {
         this.modificationDate = this.clock.now();
         super.save();
-    }
-
-    /**
-     * Saves this object for the first time.
-     */
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
-    /**
-     * Updates the changes made to this object.
-     */
-    protected void post() {
-        this.getDataMapper().update(this);
     }
 
     @Override

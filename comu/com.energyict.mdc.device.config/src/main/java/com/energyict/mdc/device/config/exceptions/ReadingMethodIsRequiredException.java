@@ -20,19 +20,4 @@ public class ReadingMethodIsRequiredException extends LocalizedException {
         super(thesaurus, messageSeed, args);
     }
 
-    /**
-     * Creates a new ReadingMethodIsRequiredException that models the
-     * exceptional situation that occurs when an attempt is made to create
-     * a {@link com.energyict.mdc.device.config.ChannelSpec} without a
-     * {@link com.energyict.mdc.protocol.api.device.ReadingMethod}
-     *
-     * @param thesaurus   The Thesaurus
-     * @param channelSpec The ChannelSpec
-     * @return the newly create ReadingMethodIsRequiredException
-     */
-    public static ReadingMethodIsRequiredException forChannelSpec(Thesaurus thesaurus, ChannelSpec channelSpec) {
-        ReadingMethodIsRequiredException readingMethodIsRequiredException = new ReadingMethodIsRequiredException(thesaurus, MessageSeeds.CHANNEL_SPEC_READING_METHOD_IS_REQUIRED);
-        readingMethodIsRequiredException.set("channelSpec", channelSpec);
-        return readingMethodIsRequiredException;
-    }
 }

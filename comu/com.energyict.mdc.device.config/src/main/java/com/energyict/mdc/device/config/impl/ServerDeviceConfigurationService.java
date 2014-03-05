@@ -18,7 +18,7 @@ import java.util.List;
  */
 public interface ServerDeviceConfigurationService extends DeviceConfigurationService {
 
-    public DeviceConfiguration findDeviceConfigurationByNameAndDeviceType(String name, DeviceType deviceType);
+    public List<DeviceConfiguration> findDeviceConfigurationsByDeviceType(DeviceType deviceType);
 
     public ChannelSpec findChannelSpecByDeviceConfigurationAndName(DeviceConfiguration deviceConfig, String name);
 

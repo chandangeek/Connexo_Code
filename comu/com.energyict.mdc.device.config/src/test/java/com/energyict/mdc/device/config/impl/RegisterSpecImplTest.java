@@ -424,7 +424,12 @@ public class RegisterSpecImplTest extends PersistenceTest {
         loadProfileType.addRegisterMapping(registerMapping);
         loadProfileType.save();
         this.deviceType.addLoadProfileType(loadProfileType);
-        this.deviceType.save();
+        try {
+            this.deviceType.save();
+        }
+        catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpecBuilder.add());
         channelSpec = channelSpecBuilder.add();

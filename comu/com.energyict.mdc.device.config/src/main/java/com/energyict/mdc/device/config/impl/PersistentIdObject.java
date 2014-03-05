@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -79,12 +80,17 @@ public abstract class PersistentIdObject<T> {
     /**
      * Saves this object for the first time.
      */
-    protected abstract void postNew();
+    protected void postNew() {
+        Save.CREATE.save(this.dataModel, this, Save.Create.class);
+    }
 
     /**
      * Updates the changes made to this object.
      */
-    protected abstract void post();
+    protected void post() {
+        Save.UPDATE.save(this.dataModel, this, Save.Update.class);
+    }
+
 
     /**
      * Deletes this object using the mapper.

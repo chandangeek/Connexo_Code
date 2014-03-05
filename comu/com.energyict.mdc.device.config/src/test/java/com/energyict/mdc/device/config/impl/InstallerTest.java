@@ -3,12 +3,13 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.transaction.TransactionService;
-import java.sql.SQLException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+
+import java.sql.SQLException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -19,7 +20,7 @@ import static org.fest.assertions.Assertions.assertThat;
  * Date: 24/02/14
  * Time: 11:54
  */
-public class InstallerTest{
+public class InstallerTest {
 
     static InMemoryPersistence inMemoryPersistence = new InMemoryPersistence();
 

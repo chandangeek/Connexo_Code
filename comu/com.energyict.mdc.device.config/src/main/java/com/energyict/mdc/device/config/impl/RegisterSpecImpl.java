@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
@@ -15,14 +17,13 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.DuplicatePrimeRegisterSpecException;
 import com.energyict.mdc.device.config.exceptions.InCorrectDeviceConfigOfChannelSpecException;
 import com.energyict.mdc.device.config.exceptions.InvalidValueException;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredOnDeviceTypeException;
-import com.energyict.mdc.device.config.exceptions.RegisterMappingIsRequiredException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 
 import javax.inject.Inject;
@@ -36,6 +37,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     private final DeviceConfigurationService deviceConfigurationService;
 
     private final Reference<DeviceConfiguration> deviceConfig = ValueReference.absent();
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY + "}")
     private final Reference<RegisterMapping> registerMapping = ValueReference.absent();
     private final Reference<ChannelSpec> linkedChannelSpec = ValueReference.absent();
     private int numberOfDigits;
@@ -125,7 +127,12 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         return multiplier;
     }
 
-    private void validateRequired() {
+    private void validateBeforeAddToConfiguration() {
+        Save.CREATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
+        this.validate();
+    }
+
+    private void validate() {
         validateLinkedChannelSpec();
         validateOverFlowAndNumberOfDigits();
         validateNumberOfFractionDigitsOfOverFlowValue();
@@ -167,28 +174,9 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     @Override
     public void validateUpdate() {
-        this.validateRequired();
+        Save.UPDATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
+        this.validate();
     }
-
-    @Override
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
-    @Override
-    protected void post() {
-        this.getDataMapper().update(this);
-    }
-
-//    protected void deleteDependents() throws SQLException, BusinessException {
-//        super.deleteDependents();
-//        StringBuffer buffer = new StringBuffer("delete FROM eisrturegisterreading WHERE ");
-//        buffer.append("rturegisterid IN ");
-//        buffer.append("(select id FROM eisrturegister WHERE rturegspecid = ?)");
-//        bindAndExecute(buffer.toString(), getId());
-//        buffer = new StringBuffer("delete from eisrturegister where rturegspecid = ?");
-//        bindAndExecute(buffer.toString(), getId());
-//    }
 
     public String toString() {
         return getDeviceConfiguration().getName() + " - " + getRegisterMapping().getName();
@@ -196,26 +184,12 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     @Override
     public void setDeviceConfig(DeviceConfiguration deviceConfig) {
-        validateDeviceConfiguration(deviceConfig);
         this.deviceConfig.set(deviceConfig);
-    }
-
-    private void validateDeviceConfiguration(DeviceConfiguration deviceConfig) {
-        if (deviceConfig == null) {
-            throw DeviceConfigIsRequiredException.registerSpecRequiresDeviceConfig(this.thesaurus);
-        }
     }
 
     @Override
     public void setRegisterMapping(RegisterMapping registerMapping) {
-        validateRegisterMapping(registerMapping);
         this.registerMapping.set(registerMapping);
-    }
-
-    private void validateRegisterMapping(RegisterMapping registerMapping) {
-        if (registerMapping == null) {
-            throw RegisterMappingIsRequiredException.registerSpecRequiresRegisterMapping(this.thesaurus);
-        }
     }
 
     @Override
@@ -328,7 +302,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
         final RegisterSpecImpl registerSpec;
 
-        public RegisterSpecBuilder(Provider<RegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping) {
+        RegisterSpecBuilder(Provider<RegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping) {
             registerSpec = registerSpecProvider.get().initialize(deviceConfiguration, registerMapping);
         }
 
@@ -388,7 +362,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
         @Override
         public RegisterSpec add() {
-            this.registerSpec.validateRequired();
+            this.registerSpec.validateBeforeAddToConfiguration();
             return this.registerSpec;
         }
     }
@@ -397,7 +371,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
         final RegisterSpec registerSpec;
 
-        public RegisterSpecUpdater(RegisterSpec registerSpec) {
+        RegisterSpecUpdater(RegisterSpec registerSpec) {
             this.registerSpec = registerSpec;
         }
 

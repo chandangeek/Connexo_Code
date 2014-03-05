@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -19,12 +20,13 @@ import com.energyict.mdc.device.config.exceptions.CannotUpdateIntervalWhenLoadPr
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingAlreadyInLoadProfileTypeException;
 import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -40,6 +42,7 @@ import static com.elster.jupiter.util.Checks.is;
 public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> implements LoadProfileType {
 
     private DeviceConfigurationService deviceConfigurationService;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED_KEY + "}")
     private String obisCodeString;
     private ObisCode obisCode;
     private TimeDuration interval;
@@ -73,19 +76,9 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         super.save();
     }
 
-    /**
-     * Saves this object for the first time.
-     */
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
-    /**
-     * Updates the changes made to this object.
-     */
     protected void post() {
         this.validateDeviceConfigurations();
-        this.getDataMapper().update(this);
+        super.post();
     }
 
     private void validateDeviceConfigurations() {
@@ -94,11 +87,6 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
             ServerDeviceConfiguration deviceConfiguration = (ServerDeviceConfiguration) each;
             deviceConfiguration.validateUpdateLoadProfileType(this);
         }
-    }
-
-    @Override
-    protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
-        throw NameIsRequiredException.loadProfileTypeNameIsRequired(thesaurus);
     }
 
     @Override
@@ -136,13 +124,17 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     @Override
     public void setObisCode(ObisCode obisCode) {
         if (obisCode == null) {
-            throw ObisCodeIsRequiredException.loadProfileTypeRequiresObisCode(this.getThesaurus());
+            // javax.validation will throw ConstraintValidationException in the end
+            this.obisCodeString = null;
+            this.obisCode = null;
         }
-        if (this.isInUse()) {
-            throw new CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException(this.getThesaurus(), this);
+        else {
+            if (this.isInUse()) {
+                throw new CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException(this.getThesaurus(), this);
+            }
+            this.obisCodeString = obisCode.toString();
+            this.obisCode = obisCode;
         }
-        this.obisCodeString = obisCode.toString();
-        this.obisCode = obisCode;
     }
 
     @Override

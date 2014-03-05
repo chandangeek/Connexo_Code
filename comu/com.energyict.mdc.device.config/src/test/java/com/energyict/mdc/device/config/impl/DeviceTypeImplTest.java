@@ -3,6 +3,9 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
@@ -19,23 +22,19 @@ import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceProtocolWithActiveConfigurationsException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
-import com.energyict.mdc.device.config.exceptions.DeviceProtocolIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingAlreadyInDeviceTypeException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -66,6 +65,9 @@ public class DeviceTypeImplTest extends PersistenceTest {
     private static final TimeDuration INTERVAL_15_MINUTES = new TimeDuration(15, TimeDuration.MINUTES);
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID_2 = 149;
+
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
@@ -155,7 +157,8 @@ public class DeviceTypeImplTest extends PersistenceTest {
             DeviceType deviceType2 = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
             deviceType2.setDescription("For testing purposes only");
             deviceType2.save();
-        } catch (DuplicateNameException e) {
+        }
+        catch (DuplicateNameException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.DEVICE_TYPE_ALREADY_EXISTS);
             throw e;
@@ -163,40 +166,52 @@ public class DeviceTypeImplTest extends PersistenceTest {
 
     }
 
-    @Test(expected = NameIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     public void testDeviceTypeCreationWithoutName() {
-        // Business method
-        inMemoryPersistence.getDeviceConfigurationService().newDeviceType(null, this.deviceProtocolPluggableClass);
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(null, this.deviceProtocolPluggableClass);
 
-        // Asserts: Should be getting a NameIsRequiredException
+        // Business method
+        deviceType.save();
+
+        // Asserts: See ExpectedConstraintViolation rule
     }
 
-    @Test(expected = NameIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     public void testDeviceTypeCreationWithEmptyName() {
-        // Business method
-        inMemoryPersistence.getDeviceConfigurationService().newDeviceType("", this.deviceProtocolPluggableClass);
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("", this.deviceProtocolPluggableClass);
 
-        // Asserts: Should be getting a NameIsRequiredException
+        // Business method
+        deviceType.save();
+
+        // Asserts: See the ExpectedConstraintViolation rule
     }
 
-    @Test(expected = DeviceProtocolIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DEVICE_PROTOCOL_IS_REQUIRED_KEY + "}")
     public void testDeviceTypeCreationWithoutProtocol() {
-        // Business method
-        inMemoryPersistence.getDeviceConfigurationService().newDeviceType("testDeviceTypeCreationWithoutProtocol", (DeviceProtocolPluggableClass) null);
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("testDeviceTypeCreationWithoutProtocol", (DeviceProtocolPluggableClass) null);
 
-        // Asserts: Should be getting a DeviceProtocolIsRequiredException
+        // Business method
+        deviceType.save();
+
+        // Asserts: See the ExpectedConstraintViolation rule
     }
 
-    @Test(expected = DeviceProtocolIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DEVICE_PROTOCOL_IS_REQUIRED_KEY + "}")
     public void testDeviceTypeCreationWithNonExistingProtocol() {
-        // Business method
-        inMemoryPersistence.getDeviceConfigurationService().newDeviceType("testDeviceTypeCreationWithNonExistingProtocol", "testDeviceTypeCreationWithNonExistingProtocol");
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("testDeviceTypeCreationWithNonExistingProtocol", "testDeviceTypeCreationWithNonExistingProtocol");
 
-        // Asserts: Should be getting a DeviceProtocolIsRequiredException
+        // Business method
+        deviceType.save();
+
+        // Asserts: See the ExpectedConstraintViolation rule
     }
 
     @Test
@@ -312,7 +327,8 @@ public class DeviceTypeImplTest extends PersistenceTest {
         try {
             // Business method
             deviceType.removeLogBookType(this.logBookType);
-        } catch (CannotDeleteBecauseStillInUseException e) {
+        }
+        catch (CannotDeleteBecauseStillInUseException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS);
             throw e;
@@ -427,7 +443,8 @@ public class DeviceTypeImplTest extends PersistenceTest {
         try {
             // Business method
             deviceType.removeLoadProfileType(this.loadProfileType);
-        } catch (CannotDeleteBecauseStillInUseException e) {
+        }
+        catch (CannotDeleteBecauseStillInUseException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS);
             throw e;
@@ -549,7 +566,8 @@ public class DeviceTypeImplTest extends PersistenceTest {
         try {
             // Business method
             deviceType.removeRegisterMapping(this.registerMapping);
-        } catch (CannotDeleteBecauseStillInUseException e) {
+        }
+        catch (CannotDeleteBecauseStillInUseException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_REGISTER_SPEC);
             throw e;
@@ -585,15 +603,17 @@ public class DeviceTypeImplTest extends PersistenceTest {
         try {
             // Business method
             deviceType.removeRegisterMapping(this.registerMapping);
-        } catch (CannotDeleteBecauseStillInUseException e) {
+        }
+        catch (CannotDeleteBecauseStillInUseException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_CHANNEL_SPEC);
             throw e;
         }
     }
 
-    @Test(expected = CannotChangeDeviceProtocolWithActiveConfigurationsException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS_KEY + "}")
     public void testProtocolChangeNotAllowedWhenConfigurationsExist() {
         String deviceTypeName = "testProtocolChangeNotAllowedWhenConfigurationsExist";
         DeviceType deviceType;
@@ -608,8 +628,9 @@ public class DeviceTypeImplTest extends PersistenceTest {
 
         // Business method
         deviceType.setDeviceProtocolPluggableClass(this.deviceProtocolPluggableClass2);
+        deviceType.save();
 
-        // Asserts: expected CannotChangeDeviceProtocolWithActiveConfigurationsException
+        // Asserts: see ExpectedConstraintViolation
     }
 
     @Test
@@ -664,7 +685,7 @@ public class DeviceTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testDeviceTypeDeletionRemovesLogBookTypes() throws SQLException {
+    public void testDeviceTypeDeletionRemovesLogBookTypes() {
         String deviceTypeName = "testDeviceTypeDeletionRemovesLogBookTypes";
         DeviceType deviceType;
         this.setupLogBookTypesInExistingTransaction(deviceTypeName);
@@ -686,7 +707,7 @@ public class DeviceTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testDeviceTypeDeletionRemovesLoadProfileTypes() throws SQLException {
+    public void testDeviceTypeDeletionRemovesLoadProfileTypes() {
         String deviceTypeName = "testDeviceTypeDeletionRemovesLoadProfileTypes";
         DeviceType deviceType;
         this.setupLoadProfileTypesInExistingTransaction(deviceTypeName);
@@ -709,7 +730,7 @@ public class DeviceTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testDeviceTypeDeletionRemovesRegisterMappings() throws SQLException {
+    public void testDeviceTypeDeletionRemovesRegisterMappings() {
         String deviceTypeName = "testDeviceTypeDeletionRemovesRegisterMappings";
         DeviceType deviceType;
         this.setupRegisterMappingTypesInExistingTransaction();
@@ -764,7 +785,13 @@ public class DeviceTypeImplTest extends PersistenceTest {
     }
 
     private void setupReadingTypeInExistingTransaction() {
-        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED)
+                .flow(FORWARD)
+                .measure(ENERGY)
+                .in(KILO, WATTHOUR)
+                .period(TimeAttribute.MINUTE15)
+                .accumulate(Accumulation.DELTADELTA)
+                .code();
         this.readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
     }
 
