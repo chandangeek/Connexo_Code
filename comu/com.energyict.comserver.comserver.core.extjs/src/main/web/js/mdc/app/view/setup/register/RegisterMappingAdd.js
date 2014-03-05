@@ -5,6 +5,9 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
     requires: [
         'Mdc.view.setup.register.RegisterMappingAddGrid'
     ],
+    controllers:[
+        'Mdc.controller.setup.RegisterMappings',
+    ],
     layout: {
         type: 'vbox',
         align: 'stretch'

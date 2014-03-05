@@ -122,7 +122,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
                 this.comPortDirection = 'outbound';
                 this.outboundComPortStore = this.comPortPool.outboundComPorts();
             }
-            Mdc.getApplication().getMainController().showContent(view);
+            me.getApplication().getMainController().showContent(view);
         }
     },
 
@@ -142,7 +142,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
 
     add: function (menuItem) {
         this.menuSelection = menuItem;
-        var url = Mdc.getApplication().getHistorySetupController().tokenizeAddComPortPool();
+        var url = this.getApplication().getHistorySetupController().tokenizeAddComPortPool();
         Ext.History.add(url);
     },
 

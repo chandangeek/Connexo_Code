@@ -6,6 +6,9 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
     requires: [
         'Mdc.store.DeviceCommunicationProtocols'
     ],
+    controllers: [
+        'Mdc.controller.setup.DeviceTypes'
+    ],
     layout: {
         type: 'vbox',
         align: 'stretch'

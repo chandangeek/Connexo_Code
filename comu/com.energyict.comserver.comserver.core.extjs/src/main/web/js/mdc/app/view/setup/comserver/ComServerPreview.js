@@ -4,6 +4,9 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
     requires: [
         'Mdc.store.ComServers'
     ],
+    controllers: [
+        'Mdc.controller.setup.ComServers'
+    ],
     itemId: 'comserverpreview',
     layout: 'fit',
     initComponent: function () {

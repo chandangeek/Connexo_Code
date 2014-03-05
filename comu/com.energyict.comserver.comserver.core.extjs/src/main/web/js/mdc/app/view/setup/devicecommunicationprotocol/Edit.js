@@ -15,6 +15,9 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.Edit', {
         'Mdc.view.setup.protocolfamily.List',
         'Mdc.view.setup.property.Edit'
     ],
+    controllers: [
+        'Mdc.controller.setup.DeviceCommunicationProtocol'
+    ],
     initComponent: function () {
         var licensedProtocols = Ext.create('Mdc.store.LicensedProtocols');
         this.items = [

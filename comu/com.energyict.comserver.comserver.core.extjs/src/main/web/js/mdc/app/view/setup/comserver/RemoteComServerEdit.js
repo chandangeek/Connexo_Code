@@ -20,6 +20,9 @@ Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
         'Mdc.view.setup.comport.OutboundComPorts',
         'Mdc.view.setup.comport.InboundComPorts'
     ],
+    controllers: [
+        'Mdc.controller.setup.ComServers'
+    ],
 
     initComponent: function () {
         var loglevels = Ext.create('Mdc.store.LogLevels');

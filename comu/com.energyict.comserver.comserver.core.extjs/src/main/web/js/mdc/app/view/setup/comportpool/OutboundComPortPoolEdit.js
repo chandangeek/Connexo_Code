@@ -10,6 +10,9 @@ Ext.define('Mdc.view.setup.comportpool.OutboundComPortPoolEdit', {
     requires: [
         'Mdc.view.setup.comport.PoolOutboundComPorts'
     ],
+    controllers: [
+        'Mdc.controller.setup.ComPortPools'
+    ],
 
     alias: 'widget.outboundComPortPoolEdit',
     autoScroll: true,

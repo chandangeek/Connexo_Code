@@ -7,6 +7,9 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
     requires: [
         'Mdc.model.DeviceType'
     ],
+    controllers: [
+        'Mdc.controller.setup.DeviceTypes'
+    ],
     layout: {
         type: 'card',
         align: 'stretch'

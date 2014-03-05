@@ -80,7 +80,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
                             view.down('#protocolfamilygrid').reconfigure(licensedProtocol.protocolFamiliesStore);
                             me.getPropertiesController().showProperties(deviceCommunicationProtocol, view);
                         }
-                        Mdc.getApplication().getMainController().showContent(view);
+                        me.getApplication().getMainController().showContent(view);
                     }
                 });
             }
@@ -104,7 +104,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
     },*/
 
     editDeviceCommunicationProtocol: function (grid, record) {
-        var url = Mdc.getApplication().getHistorySetupController().tokenizeBrowse('devicecommunicationprotocols', record.getId());
+        var url = this.getApplication().getHistorySetupController().tokenizeBrowse('devicecommunicationprotocols', record.getId());
         Ext.History.add(url);
     },
     updateDeviceCommunicationProtocol: function (button) {
@@ -135,7 +135,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
     },
 
     showDeviceCommunicationProtocolOverview: function () {
-        var url = Mdc.getApplication().getHistorySetupController().tokenizeBrowse('devicecommunicationprotocols');
+        var url = this.getApplication().getHistorySetupController().tokenizeBrowse('devicecommunicationprotocols');
         Ext.History.add(url);
     },
 
@@ -144,7 +144,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
     },
 
     add: function () {
-        var url = Mdc.getApplication().getHistorySetupController().tokenizeAddDeviceCommunicationProtocol();
+        var url = this.getApplication().getHistorySetupController().tokenizeAddDeviceCommunicationProtocol();
         Ext.History.add(url);
     },
 

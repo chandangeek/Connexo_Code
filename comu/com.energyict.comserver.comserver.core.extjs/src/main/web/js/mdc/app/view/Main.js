@@ -2,7 +2,9 @@ Ext.define('Mdc.view.Main', {
     extend: 'Ext.container.Container',
     requires:[
         'Ext.tab.Panel',
-        'Ext.layout.container.Border'
+        'Ext.layout.container.Border',
+        'Mdc.controller.setup.SetupOverview',
+        'Mdc.controller.history.Setup'
     ],
 
     

@@ -125,7 +125,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 me.getDeviceTypePreviewTitle().update('<h1>' + deviceType.get('name') + ' - ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
             }
         });
-        Mdc.getApplication().getMainController().showContent(widget);
+        this.getApplication().getMainController().showContent(widget);
     },
 
     createDeviceTypeHistory: function () {
@@ -156,12 +156,13 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
     showDeviceTypeEditView: function (deviceTypeId) {
         var protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols');
+        var me=this;
         var widget = Ext.widget('deviceTypeEdit', {
             edit: true,
-            returnLink: Mdc.getApplication().getHistorySetupController().tokenizePreviousTokens(),
+            returnLink: me.getApplication().getHistorySetupController().tokenizePreviousTokens(),
             deviceCommunicationProtocols: protocolStore
         });
-        Mdc.getApplication().getMainController().showContent(widget);
+        this.getApplication().getMainController().showContent(widget);
         widget.setLoading(true);
         var me = this;
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
@@ -188,7 +189,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             deviceCommunicationProtocols: protocolStore
         });
         var me= this;
-        Mdc.getApplication().getMainController().showContent(widget);
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
         widget.setLoading(true);
         protocolStore.load({
             callback: function (store) {
@@ -223,11 +224,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     editDeviceType: function () {
         var record = this.getDeviceTypeEditForm().getRecord(),
             values = this.getDeviceTypeEditForm().getValues();
+        var me=this;
         if (record) {
             record.set(values);
             record.save({
                 callback: function (record) {
-                    location.href = Mdc.getApplication().getHistorySetupController().tokenizePreviousTokens();
+                    location.href = me.getApplication().getHistorySetupController().tokenizePreviousTokens();
                 }
             });
 

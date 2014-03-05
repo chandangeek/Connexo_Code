@@ -109,7 +109,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 me.getRegisterTypePreviewTitle().update('<h4>' + registerType.get('name') + ' ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h4>');
             }
         });
-        Mdc.getApplication().getMainController().showContent(widget);
+        this.getApplication().getMainController().showContent(widget);
     },
 
     createRegisterTypeHistory: function () {
@@ -142,10 +142,10 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
         var widget = Ext.widget('registerTypeEdit', {
             edit: true,
-            returnLink: Mdc.getApplication().getHistorySetupController().tokenizePreviousTokens()
+            returnLink: this.getApplication().getHistorySetupController().tokenizePreviousTokens()
 
         });
-        Mdc.getApplication().getMainController().showContent(widget);
+        this.getApplication().getMainController().showContent(widget);
         widget.setLoading(true);
         var me = this;
         Ext.ModelManager.getModel('Mdc.model.RegisterRype').load(registerTypeId, {
@@ -167,7 +167,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 callback: function () {
                     var widget = Ext.widget('registerTypeSetup');
                     //console.log('store loaded');
-                    Mdc.getApplication().getMainController().showContent(widget);
+                    me.getApplication().getMainController().showContent(widget);
                     //me.overviewBreadCrumb(me.getBreadCrumbs);
                 }
             });
@@ -187,7 +187,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             timeOfUse: timeOfUseStore
         });
         var me = this;
-        Mdc.getApplication().getMainController().showContent(widget);
+        this.getApplication().getMainController().showContent(widget);
         widget.setLoading(true);
 
         timeOfUseStore.load({
@@ -220,12 +220,13 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
     editRegisterType: function () {
         var record = this.getRegisterTypeEditForm().getRecord(),
-            values = this.getRegisterTypeEditForm().getValues();
+            values = this.getRegisterTypeEditForm().getValues(),
+            me=this;
         if (record) {
             record.set(values);
             record.save({
                 callback: function (record) {
-                    location.href = Mdc.getApplication().getHistorySetupController().tokenizePreviousTokens();
+                    location.href = me.getApplication().getHistorySetupController().tokenizePreviousTokens();
                 }
             });
         }

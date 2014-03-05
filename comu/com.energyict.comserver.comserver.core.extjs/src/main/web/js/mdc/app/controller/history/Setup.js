@@ -39,12 +39,12 @@ Ext.define('Mdc.controller.history.Setup', {
 
     handleComServerTokens: function (tokens) {
         if (tokens.length == 2) {
-            Mdc.getApplication().getSetupSetupOverviewController().showComServers();
+            this.getApplication().getController('Mdc.controller.setup.SetupOverview').showComServers();
         } else if (tokens.length === 3) {
             if (tokens[2] === 'create') {
-                Mdc.getApplication().getSetupComServersController().showEditView();
+                this.getApplication().getController('Mdc.controller.setup.ComServers').showEditView();
             } else {
-                Mdc.getApplication().getSetupComServersController().showEditView(tokens[2]);
+                this.getApplication().getController('Mdc.controller.setup.ComServers').showEditView(tokens[2]);
             }
         } else {
             this.unknownTokensReturnToOverview();
@@ -53,12 +53,12 @@ Ext.define('Mdc.controller.history.Setup', {
 
     handleCommunicationProtocolTokens: function (tokens) {
         if (tokens.length === 2) {
-            Mdc.getApplication().getSetupSetupOverviewController().showDeviceCommunicationProtocols();
+            this.getApplication().getController('Mdc.controller.setup.SetupOverview').showDeviceCommunicationProtocols();
         } else if (tokens.length === 3) {
             if (tokens[2] === 'create') {
-                Mdc.getApplication().getSetupDeviceCommunicationProtocolController().showEditView();
+                this.getApplication().getController('Mdc.controller.setup.DeviceCommunicationProtocol').showEditView();
             } else {
-                Mdc.getApplication().getSetupDeviceCommunicationProtocolController().showEditView(tokens[2]);
+                this.getApplication().getController('Mdc.controller.setup.DeviceCommunicationProtocol').showEditView(tokens[2]);
             }
         } else {
             this.unknownTokensReturnToOverview();
@@ -67,7 +67,7 @@ Ext.define('Mdc.controller.history.Setup', {
 
     handleLicensedProtocolTokens: function (tokens) {
         if (tokens.length === 2) {
-            Mdc.getApplication().getSetupSetupOverviewController().showLicensedProtocols();
+            this.getApplication().getController('Mdc.controller.setup.SetupOverview').showLicensedProtocols();
         } else {
             this.unknownTokensReturnToOverview();
         }
@@ -75,66 +75,66 @@ Ext.define('Mdc.controller.history.Setup', {
 
     handleComPortPoolTokens: function (tokens) {
         if (tokens.length === 2) {
-            Mdc.getApplication().getSetupSetupOverviewController().showComPortPools();
+            this.getApplication().getController('Mdc.controller.setup.SetupOverview').showComPortPools();
         } else if (tokens.length === 3) {
             if (tokens[2] === 'create') {
-                Mdc.getApplication().getSetupComPortPoolsController().showEditView();
+                this.getApplication().getController('Mdc.controller.setup.ComPortPools').showEditView();
             } else {
-                Mdc.getApplication().getSetupComPortPoolsController().showEditView(tokens[2]);
+                this.getApplication().getController('Mdc.controller.setup.ComPortPools').showEditView(tokens[2]);
             }
         }
     },
 
     handleDeviceTypeTokens: function (tokens) {
         if (tokens.length === 2) {
-            Mdc.getApplication().getSetupSetupOverviewController().showDeviceTypes();
+            this.getApplication().getController('Mdc.controller.setup.SetupOverview').showDeviceTypes();
         } else if (tokens.length === 3) {
             if (tokens[2] === 'create') {
-                Mdc.getApplication().getSetupDeviceTypesController().showDeviceTypeCreateView(null);
+                this.getApplication().getController('Mdc.controller.setup.DeviceTypes').showDeviceTypeCreateView(null);
             } else {
-                Mdc.getApplication().getSetupDeviceTypesController().showDeviceTypeDetailsView(tokens[2]);
+                this.getApplication().getController('Mdc.controller.setup.DeviceTypes').showDeviceTypeDetailsView(tokens[2]);
             }
         } else if (tokens.length === 4) {
             if (tokens[3] === 'edit') {
-                Mdc.getApplication().getSetupDeviceTypesController().showDeviceTypeEditView(tokens[2]);
+                this.getApplication().getController('Mdc.controller.setup.DeviceTypes').showDeviceTypeEditView(tokens[2]);
             }
         }
     },
 
     handleRegisterTypeTokens: function (tokens) {
             if (tokens.length === 2) {
-                Mdc.getApplication().getSetupRegisterTypesController().showRegisterTypes();
+                this.getApplication().getController('Mdc.controller.setup.RegisterTypes').showRegisterTypes();
             } else if (tokens.length === 3) {
                 if (tokens[2] === 'create') {
-                    Mdc.getApplication().getSetupRegisterTypesController().showRegisterTypeCreateView(null);
+                    this.getApplication().getController('Mdc.controller.setup.RegisterTypes').showRegisterTypeCreateView(null);
                 } else {
-                    Mdc.getApplication().getSetupRegisterTypesController().showRegisterTypeDetailsView(tokens[2]);
+                    this.getApplication().getController('Mdc.controller.setup.RegisterTypes').showRegisterTypeDetailsView(tokens[2]);
                 }
             } else if (tokens.length === 4) {
                 if (tokens[3] === 'edit') {
-                    Mdc.getApplication().getSetupRegisterTypesController().showRegisterTypeEditView(tokens[2]);
+                    this.getApplication().getController('Mdc.controller.setup.RegisterTypes').showRegisterTypeEditView(tokens[2]);
                 }
             }
         },
 
     handleRegisterMappingTokens: function (tokens) {
         if (tokens.length === 4) {
-            Mdc.getApplication().getSetupRegisterMappingsController().showRegisterMappings(tokens[2]);
+            this.getApplication().getController('Mdc.controller.setup.RegisterMappings').showRegisterMappings(tokens[2]);
         } else if (tokens.length === 5) {
             if (tokens[4] === 'add') {
-                Mdc.getApplication().getSetupRegisterMappingsController().addRegisterMappings(tokens[2]);
+                this.getApplication().getController('Mdc.controller.setup.RegisterMappings').addRegisterMappings(tokens[2]);
             }
         }
     },
 
     handleConfigurationTokens: function (tokens) {
         if (tokens.length === 4) {
-            Mdc.getApplication().getSetupDeviceConfigurationsController().showDeviceConfigurations(tokens[2]);
+            this.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showDeviceConfigurations(tokens[2]);
         }
     },
 
     unknownTokensReturnToOverview: function () {
-        Mdc.getApplication().getSetupSetupOverviewController().showOverview();
+        this.getApplication().getController('Mdc.controller.setup.SetupOverview').showOverview();
     },
 
     tokenizeBrowse: function (item, id) {

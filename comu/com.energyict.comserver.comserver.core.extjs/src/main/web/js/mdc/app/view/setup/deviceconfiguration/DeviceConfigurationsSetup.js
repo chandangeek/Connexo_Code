@@ -6,6 +6,9 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
     requires: [
         'Uni.view.breadcrumb.Trail'
     ],
+    controllers:[
+        'Mdc.controller.setup.DeviceConfigurations'
+    ],
     layout: {
         type: 'vbox',
         align: 'stretch'

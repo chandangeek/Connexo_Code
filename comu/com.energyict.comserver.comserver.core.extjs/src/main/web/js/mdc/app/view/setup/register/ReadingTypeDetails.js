@@ -9,6 +9,9 @@ Ext.define('Mdc.view.setup.register.ReadingTypeDetails', {
     constrain: true,
     autoShow: true,
     modal:true,
+    controllers:[
+        'Mdc.controller.setup.RegisterMappings',
+    ],
     layout: {
         type: 'vbox',
         align: 'stretch'

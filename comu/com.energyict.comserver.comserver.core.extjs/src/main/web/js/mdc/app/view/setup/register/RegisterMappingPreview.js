@@ -7,6 +7,9 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
     requires: [
         'Mdc.model.RegisterType'
     ],
+    controllers:[
+        'Mdc.controller.setup.RegisterMappings',
+    ],
     layout: {
         type: 'card',
         align: 'stretch'

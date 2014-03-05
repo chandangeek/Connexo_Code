@@ -15,51 +15,41 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
     ],
 
     init: function () {
-        this.initMenu();
-    },
 
-    initMenu: function () {
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: 'Setup',
-            href: Mdc.getApplication().getHistorySetupController().tokenizeShowOverview(),
-            glyph: 'xe01d@icomoon'
-        });
-
-        Uni.store.MenuItems.add(menuItem);
     },
 
     showOverview: function () {
         var widget = Ext.widget('setupBrowse');
-        Mdc.getApplication().getMainController().showContent(widget);
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
     },
 
     showComServers: function () {
         var widget = Ext.widget('comServersSetup');
-        Mdc.getApplication().getMainController().showContent(widget);
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
     },
     showDeviceCommunicationProtocols: function () {
         var widget = Ext.widget('setupDeviceCommunicationProtocols');
-        Mdc.getApplication().getMainController().showContent(widget);
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
     },
     showLicensedProtocols: function () {
         var widget = Ext.widget('setupLicensedProtocols');
-        Mdc.getApplication().getMainController().showContent(widget);
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
     },
     showComPortPools: function () {
         var widget = Ext.widget('comPortPoolsSetup');
-        Mdc.getApplication().getMainController().showContent(widget);
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
     },
     showRegisterMappings: function () {
         var widget = Ext.widget('registerMappingsSetup');
-        Mdc.getApplication().getMainController().showContent(widget);
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
     },
     showDeviceTypes: function () {
         var widget = Ext.widget('deviceTypesSetup');
-        Mdc.getApplication().getMainController().showContent(widget);
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
     },
     showRegisterTypes: function () {
         var widget = Ext.widget('registerTypeSetup');
-        Mdc.getApplication().getMainController().showContent(widget);
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
     }
 
 });

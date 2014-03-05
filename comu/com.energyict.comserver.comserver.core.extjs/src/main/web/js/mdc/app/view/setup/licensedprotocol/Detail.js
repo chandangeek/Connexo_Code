@@ -13,6 +13,9 @@ Ext.define('Mdc.view.setup.licensedprotocol.Detail', {
     requires: [
         'Mdc.view.setup.protocolfamily.List'
     ],
+    controllers:[
+        'Mdc.controller.setup.LicensedProtocol',
+    ],
     initComponent: function () {
         this.items = [
             {
