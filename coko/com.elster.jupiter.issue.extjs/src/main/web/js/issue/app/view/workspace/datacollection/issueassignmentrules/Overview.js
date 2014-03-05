@@ -9,59 +9,59 @@ Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.Overview', {
         'Mtr.view.workspace.datacollection.issueassignmentrules.Item'
     ],
     alias: 'widget.issue-assignment-rules-overview',
-    layout: 'border',
     overflowY: 'auto',
 
     items: [
         {
             xtype: 'breadcrumbTrail',
-            region: 'north',
             padding: 6
         },
         {
             xtype: 'container',
-            region: 'west',
-            width: 170,
+            layout: 'column',
             items: [
                 {
-                    xtype: 'issues-assignment-rules-navigation'
-                },
-                {
-                    xtype: 'issues-assignment-rules-filter-action',
-                    margin: '15 10 0'
-                }
-            ]
-        },
-        {
-            xtype: 'container',
-            region: 'center',
-            items: [
-                {
-                    defaults: {
-                        cls: 'content-wrapper'
-                    },
+                    width: 170,
+                    xtype: 'container',
                     items: [
                         {
-                            html: '<h1>Issue assignment rules</h1>'
+                            xtype: 'issues-assignment-rules-navigation'
                         },
                         {
-                            xtype: 'issues-assignment-rules-filter-view'
-                        },
+                            xtype: 'issues-assignment-rules-filter-action',
+                            margin: '15 10 0'
+                        }
+                    ]
+                },
+                {
+                    columnWidth: 1,
+                    items: [
                         {
-                            html: '<hr>',
-                            cls: '',
-                            margin: '0 20'
-                        },
-                        {
-                            xtype: 'issues-assignment-rules-list'
-                        },
-                        {
-                            xtype: 'issues-assignment-rules-item'
+                            cls: 'content-wrapper',
+                            items: [
+                                {
+                                    html: '<h1>Issue assignment rules</h1>',
+                                    margin: '0 0 20 0'
+                                },
+                                {
+                                    xtype: 'issues-assignment-rules-filter-view'
+                                },
+                                {
+                                    html: '<hr>',
+                                    margin: '0 0 20 0'
+                                },
+                                {
+                                    xtype: 'issues-assignment-rules-list',
+                                    margin: '0 0 20 0'
+                                },
+                                {
+                                    xtype: 'issues-assignment-rules-item'
+                                }
+                            ]
                         }
                     ]
                 }
             ]
-
         }
     ]
 });
