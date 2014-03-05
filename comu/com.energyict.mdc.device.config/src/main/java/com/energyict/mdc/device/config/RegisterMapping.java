@@ -3,7 +3,7 @@ package com.energyict.mdc.device.config;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-
+import com.energyict.mdc.common.interval.Phenomenon;
 import java.util.Date;
 
 /**
@@ -101,4 +101,11 @@ public interface RegisterMapping {
 
     public void delete ();
 
+    /**
+     * return the register mapping's phenomenon
+     * @return the register mapping's phenomenon
+     */
+    public Phenomenon getPhenomenon();
+
+    void setPhenomenon(Phenomenon phenomenon);
 }

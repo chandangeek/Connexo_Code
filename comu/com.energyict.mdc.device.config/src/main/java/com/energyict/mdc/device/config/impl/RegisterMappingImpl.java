@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -49,6 +50,8 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     private String obisCodeString;
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.PRODUCT_SPEC_IS_REQUIRED_KEY + "}")
     private Reference<ProductSpec> productSpec = ValueReference.absent();
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.PHENOMENON_IS_REQUIRED_KEY + "}")
+    private Reference<Phenomenon> phenomenon = ValueReference.absent();
     private boolean cumulative;
     private Reference<RegisterGroup> registerGroup = ValueReference.absent();
     private String description;
@@ -201,6 +204,16 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     private boolean productSpecChanged(ProductSpec productSpec) {
         return ((!this.productSpec.isPresent() && productSpec != null)
             || (productSpec != null && (this.getProductSpec().getId() != productSpec.getId())));
+    }
+
+    @Override
+    public Phenomenon getPhenomenon() {
+        return phenomenon.get();
+    }
+
+    @Override
+    public void setPhenomenon(Phenomenon phenomenon) {
+        this.phenomenon.set(phenomenon);
     }
 
     @Override
