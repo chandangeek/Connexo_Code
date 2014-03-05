@@ -11,12 +11,13 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
+import java.sql.SQLException;
 import org.junit.Test;
 
-import java.sql.SQLException;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the {@link ServletBasedInboundComPortImpl} component.
@@ -85,7 +86,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         assertEquals("Incorrect number of simultaneous connections", NUMBER_OF_SIMULTANEOUS_CONNECTIONS, comPort.getNumberOfSimultaneousConnections());
         assertThat(comPort.getPortNumber()).describedAs("Incorrect PortNumber").isEqualTo(PORT_NUMBER);
         assertEquals("Incorrect context path", CONTEXT_PATH, comPort.getContextPath());
-        assertTrue("Incorrect https flag", comPort.useHttps());
+        assertTrue("Incorrect https flag", comPort.isHttps());
     }
 
     @Test
@@ -388,7 +389,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         assertEquals("Was NOT expecting the new com port to be active", comPort.isActive(), reloaded.isActive());
         assertEquals("Incorrect number of simultaneous connections", comPort.getNumberOfSimultaneousConnections(), reloaded.getNumberOfSimultaneousConnections());
         assertEquals("Incorrect PortNumber", comPort.getPortNumber(), reloaded.getPortNumber());
-        assertThat(reloaded.useHttps()).isTrue();
+        assertThat(reloaded.isHttps()).isTrue();
         assertThat(reloaded.getKeyStoreSpecsFilePath()).isEqualTo(KEY_STORE_FILE_PATH);
         assertThat(reloaded.getKeyStoreSpecsPassword()).isEqualTo(KEY_STORE_PASSWORD);
         assertThat(reloaded.getTrustStoreSpecsFilePath()).isEqualTo(TRUST_STORE_FILE_PATH);
@@ -424,7 +425,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         assertEquals("Incorrect number of simultaneous connections", newNumberOfSimultaneousConnections, comPort.getNumberOfSimultaneousConnections());
         assertEquals("Incorrect PortNumber", newPortNumber, comPort.getPortNumber());
         assertEquals("Incorrect context path", updatedContextPath, comPort.getContextPath());
-        assertFalse("Incorrect https flag", comPort.useHttps());
+        assertFalse("Incorrect https flag", comPort.isHttps());
     }
 
     @Test(expected = TranslatableApplicationException.class)
@@ -449,7 +450,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         comPort.save();
 
         // Asserts
-        assertThat(comPort.useHttps()).isFalse();
+        assertThat(comPort.isHttps()).isFalse();
         assertThat(comPort.getKeyStoreSpecsFilePath()).isNull();
         assertThat(comPort.getTrustStoreSpecsFilePath()).isNull();
     }

@@ -8,7 +8,6 @@ import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.Provider;
-
 import javax.inject.Inject;
 
 /**
@@ -38,7 +37,7 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
 
     protected void validate(){
         super.validate();
-        if (this.useHttps()) {
+        if (this.isHttps()) {
             this.validatePaths(this.getKeyStoreSpecsFilePath(), this.getKeyStoreSpecsPassword(), "keystore");
             this.validatePaths(this.getTrustStoreSpecsFilePath(), this.getTrustStoreSpecsPassword(), "truststore");
         }
@@ -51,7 +50,7 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     }
 
     @Override
-    public boolean useHttps () {
+    public boolean isHttps() {
         return https;
     }
 
@@ -114,7 +113,7 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     protected void copyFrom(ComPort source) {
         super.copyFrom(source);
         ServletBasedInboundComPort mySource = (ServletBasedInboundComPort) source;
-        this.setHttps(mySource.useHttps());
+        this.setHttps(mySource.isHttps());
         this.setKeyStoreSpecsFilePath(mySource.getKeyStoreSpecsFilePath());
         this.setKeyStoreSpecsPassword(mySource.getKeyStoreSpecsPassword());
         this.setTrustStoreSpecsFilePath(mySource.getTrustStoreSpecsFilePath());
