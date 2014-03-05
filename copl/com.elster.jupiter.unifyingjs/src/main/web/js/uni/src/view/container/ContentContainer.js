@@ -27,6 +27,13 @@ Ext.define('Uni.view.container.ContentContainer', {
     /**
      * @cfg {Object/Ext.Component}
      *
+     * Configuration of the side panel. Used just as if you would use the items configuration.
+     */
+    side: null,
+
+    /**
+     * @cfg {Object/Ext.Component}
+     *
      * Configuration of the content panel. Used just as if you would use the items configuration.
      */
     content: null,
@@ -65,16 +72,23 @@ Ext.define('Uni.view.container.ContentContainer', {
     ],
 
     initComponent: function () {
-        var content = this.content;
+        var side = this.side,
+            content = this.content;
 
-        if (content) {
-            if (!(content instanceof Ext.Component)) {
-                // Never modify a passed config object, that could break the expectations of the using code.
-                content = Ext.clone(content);
-            }
-
-            this.items[2].items = content;
+        if (!(side instanceof Ext.Component)) {
+            // Never modify a passed config object, that could break the expectations of the using code.
+            side = Ext.clone(side);
         }
+
+        this.items[1].items = side;
+
+        if (!(content instanceof Ext.Component)) {
+            // Never modify a passed config object, that could break the expectations of the using code.
+            content = Ext.clone(content);
+        }
+
+        this.items[2].items = content;
+
         // Else use the default config already in place.
 
         this.callParent(arguments);

@@ -401,16 +401,36 @@ $menu-width-collapsed: 55px;
 .uni-content-container {
 
     .north {
-
+        padding: 6px;
     }
 
     .west {
+        background-color: #ffffff;
 
+        .x-panel-header-default {
+            background-color: transparent;
+        }
+
+        .x-panel-header-text-container-default {
+            color: $ocean-blue;
+            font-size: 16px;
+        }
+
+        .x-panel-body {
+            padding: 5px;
+        }
+
+        .x-toolbar {
+            padding: 6px;
+        }
+
+        .x-toolbar-footer {
+            background-color: transparent;
+        }
     }
 
     .center {
-        padding: 16px;
-        background-color: #ffffff;
+        background-color: transparent;
     }
 }
 
@@ -624,10 +644,9 @@ $menu-width-collapsed: 55px;
     border: 1px solid grey;
 }
 
-a{
-  color: blue;
+a {
+    color: blue;
 }
-
 
 a.x-form-display-field {
     color: blue;
