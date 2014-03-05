@@ -112,7 +112,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(128).notNull().map("name").add();
             Column obisCode = table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
-            Column productSpec = table.column("PRODUCTSPECID").number().notNull().add();
+            Column productSpec = table.column("PRODUCTSPECID").number().conversion(ColumnConversion.NUMBER2INT).notNull().add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CUMULATIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("cumulative").add();
             Column registerGroup = table.column("REGISTERGROUPID").number().add();
