@@ -1,15 +1,12 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Logger;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Application;
-
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.rest.util.BinderProvider;
+import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -24,13 +21,14 @@ import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
-import com.elster.jupiter.pubsub.Publisher;
-import com.elster.jupiter.rest.util.BinderProvider;
-import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.UserService;
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Application;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
 
 @Component (name = "com.elster.jupiter.rest.whiteboard.implementation" , immediate = true , service = {}  )
 public class WhiteBoard {
@@ -132,15 +130,20 @@ public class WhiteBoard {
         if (configuration.debug()) {        	       
         	secureConfig.register(LoggingFilter.class);
         }
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
         try {
-        	ServletContainer container = new ServletContainer(secureConfig);
+            Thread.currentThread().setContextClassLoader(application.getClass().getClassLoader());
+            ServletContainer container = new ServletContainer(secureConfig);
         	HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container,threadPrincipalService),this);
         	httpService.registerServlet(alias.get(), wrapper, null, httpContext);
         } catch (ServletException | NamespaceException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
+        } finally {
+            Thread.currentThread().setContextClassLoader(loader);
         }
     }
+
 
     public void removeResource(Application application,Map<String,Object> properties) {
     	Optional<String> alias = getAlias(properties);
