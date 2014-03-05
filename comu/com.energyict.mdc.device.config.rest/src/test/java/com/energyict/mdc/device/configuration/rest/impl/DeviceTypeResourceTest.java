@@ -208,7 +208,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(113L);
         when(deviceConfiguration.getName()).thenReturn("defcon");
-        when(deviceConfiguration.getActive()).thenReturn(true);
+        when(deviceConfiguration.isActive()).thenReturn(true);
         when(deviceConfiguration.getDescription()).thenReturn("describe me");
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
