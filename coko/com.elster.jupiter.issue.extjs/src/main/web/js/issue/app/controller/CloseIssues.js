@@ -10,9 +10,6 @@ Ext.define('Mtr.controller.CloseIssues', {
             'issues-close button[name=close]': {
                 click: this.submitIssueClosing
             },
-            'issues-close button[name=cancel]': {
-                click: this.cancelIssueClosing
-            },
             'issues-close breadcrumbTrail': {
                 afterrender: this.setBreadcrumb
             }
@@ -116,9 +113,5 @@ Ext.define('Mtr.controller.CloseIssues', {
                 }
             });
         }
-    },
-
-    cancelIssueClosing: function () {
-        Ext.History.back();
     }
 });
