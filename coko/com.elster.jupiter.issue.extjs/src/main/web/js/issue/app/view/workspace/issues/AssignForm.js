@@ -1,5 +1,8 @@
 Ext.define('Mtr.view.workspace.issues.AssignForm', {
     extend: 'Ext.form.Panel',
+    defaults: {
+        border: false
+    },
     requires: [
         'Ext.form.Panel',
         'Ext.form.RadioGroup'
