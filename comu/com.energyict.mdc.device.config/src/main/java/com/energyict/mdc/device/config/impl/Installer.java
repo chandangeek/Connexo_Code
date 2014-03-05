@@ -52,22 +52,22 @@ public class Installer {
         }
         createEventTypes();
         createTranslations();
-        try {
-            if (createMasterData) {
-                this.createMasterData();
-            }
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+        if (createMasterData) {
+            this.createMasterData();
         }
     }
 
     private void createTranslations() {
-        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            SimpleNlsKey nlsKey = SimpleNlsKey.key(DeviceConfigurationService.COMPONENTNAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
-            translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
+        try {
+            List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
+            for (MessageSeeds messageSeed : MessageSeeds.values()) {
+                SimpleNlsKey nlsKey = SimpleNlsKey.key(DeviceConfigurationService.COMPONENTNAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
+                translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
+            }
+            thesaurus.addTranslations(translations);
+        } catch (Exception e) {
+            logger.severe(e.getMessage());
         }
-        thesaurus.addTranslations(translations);
     }
 
     private Translation toTranslation(SimpleNlsKey nlsKey, Locale locale, String translation) {
@@ -93,12 +93,17 @@ public class Installer {
     }
 
     private void createEventTypes() {
-        for (EventType eventType : EventType.values()) {
-            eventType.install(this.eventService);
+        try {
+            for (EventType eventType : EventType.values()) {
+                eventType.install(this.eventService);
+            }
+        } catch (Exception e) {
+            logger.severe(e.getMessage());
         }
     }
 
     private static class SimpleTranslation implements Translation {
+
         private final SimpleNlsKey nlsKey;
         private final Locale locale;
         private final String translation;

@@ -3,7 +3,11 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.transaction.TransactionService;
-import org.junit.*;
+import java.sql.SQLException;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import java.sql.SQLException;
@@ -39,7 +43,7 @@ public class InstallerTest {
     @Transactional
     public void withoutInstallingTest() {
         assertThat(inMemoryPersistence.getDeviceConfigurationService().findAllProductSpecs()).isNotEmpty();
-        assertThat(inMemoryPersistence.getDeviceConfigurationService().findAllRegisterMappings()).isNotEmpty();
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findAllRegisterMappings().find()).isNotEmpty();
         assertThat(inMemoryPersistence.getDeviceConfigurationService().findAllPhenomena()).isNotEmpty();
     }
 

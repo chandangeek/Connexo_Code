@@ -7,7 +7,6 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-
 import java.util.List;
 
 /**
@@ -96,7 +95,7 @@ public interface DeviceConfigurationService {
      */
     public RegisterGroup newRegisterGroup(String name);
 
-    public List<RegisterMapping> findAllRegisterMappings();
+    public Finder<RegisterMapping> findAllRegisterMappings();
 
     /**
      * Finds the {@link RegisterMapping} that is uniquely identified by the specified number.
@@ -293,4 +292,7 @@ public interface DeviceConfigurationService {
     public LogBookType findLogBookTypeByName(String name);
 
     public List<Phenomenon> findAllPhenomena();
+
+    public Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType);
+
 }

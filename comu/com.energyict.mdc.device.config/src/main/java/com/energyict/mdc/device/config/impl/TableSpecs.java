@@ -112,7 +112,7 @@ public enum TableSpecs {
             Column obisCode = table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
             Column productSpec = table.column("PRODUCTSPECID").number().notNull().add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
-            table.column("CUMULATIVE").bool().notNull().map("cumulative").add();
+            table.column("CUMULATIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("cumulative").add();
             Column registerGroup = table.column("REGISTERGROUPID").number().add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
             table.foreignKey("FK_EISREGMAPREGGROUP").on(registerGroup).references(EISRTUREGISTERGROUP.name()).map("registerGroup").add();
@@ -183,7 +183,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.column("NAME").varChar(80).notNull().map("name").add();
             table.column("DESCRIPTION").varChar(4000).map("description").add();
-            table.column("PROTOTYPEID").number().map("prototype").add();
+            table.column("PROTOTYPEID").number().conversion(ColumnConversion.NUMBER2INT).map("prototypeId").add();
             Column deviceTypeId = table.column("DEVICETYPEID").number().notNull().add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();

@@ -165,7 +165,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
 
     @Override
     public RegisterGroup getRegisterGroup() {
-        return this.registerGroup.get();
+        return this.registerGroup.orNull();
     }
 
     @Override
@@ -199,8 +199,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
 
     @Override
     public ReadingType getReadingType() {
-        Optional<ReadingType> readingType = meteringService.getReadingType(mdcReadingTypeUtilService.getReadingTypeFrom(this.getObisCode(), this.getUnit()));
-        return readingType.get();
+        return getProductSpec().getReadingType();
     }
 
     public String getDescription() {
