@@ -22,241 +22,53 @@
     margin-left: .2em;
 }
 
-.isu-icon-cancel-circled2:before {
-    content: '\e802';
-}
-
-/* '' */
-.isu-icon-params:before {
-    content: '\e81f';
-}
-
-/* '' */
-.isu-icon-help-circled:before {
-    content: '\e825';
-}
-
-/* '' */
-.isu-icon-attention:before {
-    content: '\e820';
-}
-
-/* '' */
-.isu-icon-down-big:before {
-    content: '\e803';
-}
-
-/* '' */
-.isu-icon-left-big:before {
-    content: '\e804';
-}
-
-/* '' */
-.isu-icon-right-big:before {
-    content: '\e805';
-}
-
-/* '' */
-.isu-icon-up-big:before {
-    content: '\e806';
-}
-
-/* '' */
-.isu-icon-sort-alt-up:before {
-    content: '\e809';
-}
-
-/* '' */
-.isu-icon-sort-alt-down:before {
-    content: '\e80a';
-}
-
-/* '' */
-.isu-icon-sort-name-up:before {
-    content: '\e80b';
-}
-
-/* '' */
-.isu-icon-sort-name-down:before {
-    content: '\e80c';
-}
-
-/* '' */
-.isu-icon-sort-number-up:before {
-    content: '\e80d';
-}
-
-/* '' */
-.isu-icon-sort-number-down:before {
-    content: '\e80e';
-}
-
-/* '' */
-.isu-icon-gauge-1:before {
-    content: '\e80f';
-}
-
-/* '' */
-.isu-icon-user:before {
-    content: '\e800';
-}
-
-/* '' */
-.isu-icon-users:before {
-    content: '\e801';
-}
-
-/* '' */
-.isu-icon-check:before {
-    content: '\e826';
-}
-
-/* '' */
-.isu-icon-clock:before {
-    content: '\e822';
-}
-
-/* '' */
-.isu-icon-gauge-2:before {
-    content: '\e810';
-}
-
-/* '' */
-.isu-icon-ok-outline:before {
-    content: '\e827';
-}
-
-/* '' */
-.isu-icon-cancel-outline:before {
-    content: '\e828';
-}
-
-/* '' */
-.isu-icon-cancel:before {
-    content: '\e829';
-}
-
-/* '' */
-.isu-icon-help:before {
-    content: '\e824';
-}
-
-/* '' */
-.isu-icon-cancel-circled:before {
-    content: '\e82b';
-}
-
-/* '' */
-.isu-icon-warning-empty:before {
-    content: '\e821';
-}
-
-/* '' */
-.isu-icon-cog-outline:before {
-    content: '\e807';
-}
-
-/* '' */
-.isu-icon-chart-outline:before {
-    content: '\e811';
-}
-
-/* '' */
-.isu-icon-chart:before {
-    content: '\e812';
-}
-
-/* '' */
-.isu-icon-chart-alt-outline:before {
-    content: '\e813';
-}
-
-/* '' */
-.isu-icon-chart-alt:before {
-    content: '\e814';
-}
-
-/* '' */
-.isu-icon-chart-bar-outline:before {
-    content: '\e815';
-}
-
-/* '' */
-.isu-icon-chart-bar:before {
-    content: '\e816';
-}
-
-/* '' */
-.isu-icon-ok:before {
-    content: '\e82d';
-}
-
-/* '' */
-.isu-icon-ok-circle:before {
-    content: '\e82c';
-}
-
-/* '' */
-.isu-icon-equalizer:before {
-    content: '\e817';
-}
-
-/* '' */
-.isu-icon-chart-bar-1:before {
-    content: '\e818';
-}
-
-/* '' */
-.isu-icon-ok-1:before {
-    content: '\e82e';
-}
-
-/* '' */
-.isu-icon-signal:before {
-    content: '\e819';
-}
-
-/* '' */
-.isu-icon-chart-1:before {
-    content: '\e81a';
-}
-
-/* '' */
-.isu-icon-chart-bar-2:before {
-    content: '\e81b';
-}
-
-/* '' */
-.isu-icon-chart-bar-3:before {
-    content: '\e81c';
-}
-
-/* '' */
-.isu-icon-cog:before {
-    content: '\e81d';
-}
-
-/* '' */
-.isu-icon-filter:before {
-    content: '\e823';
-}
-
-/* '' */
-.isu-icon-gauge:before {
-    content: '\e808';
-}
-
-/* '' */
-.isu-icon-cog-1:before {
-    content: '\e81e';
-}
-
-/* '' */
-.isu-icon-cancel-circled-outline:before {
-    content: '\e82a';
-}
-
-/* '' */
+.isu-icon-cancel-circled2:before { content: '\e802'; } /* '' */
+.isu-icon-params:before { content: '\e81f'; } /* '' */
+.isu-icon-help-circled:before { content: '\e825'; } /* '' */
+.isu-icon-attention:before { content: '\e820'; } /* '' */
+.isu-icon-down-big:before { content: '\e803'; } /* '' */
+.isu-icon-left-big:before { content: '\e804'; } /* '' */
+.isu-icon-right-big:before { content: '\e805'; } /* '' */
+.isu-icon-up-big:before { content: '\e806'; } /* '' */
+.isu-icon-sort-alt-up:before { content: '\e809'; } /* '' */
+.isu-icon-sort-alt-down:before { content: '\e80a'; } /* '' */
+.isu-icon-sort-name-up:before { content: '\e80b'; } /* '' */
+.isu-icon-sort-name-down:before { content: '\e80c'; } /* '' */
+.isu-icon-sort-number-up:before { content: '\e80d'; } /* '' */
+.isu-icon-sort-number-down:before { content: '\e80e'; } /* '' */
+.isu-icon-gauge-1:before { content: '\e80f'; } /* '' */
+.isu-icon-user:before { content: '\e800'; } /* '' */
+.isu-icon-users:before { content: '\e801'; } /* '' */
+.isu-icon-check:before { content: '\e826'; } /* '' */
+.isu-icon-clock:before { content: '\e822'; } /* '' */
+.isu-icon-gauge-2:before { content: '\e810'; } /* '' */
+.isu-icon-ok-outline:before { content: '\e827'; } /* '' */
+.isu-icon-cancel-outline:before { content: '\e828'; } /* '' */
+.isu-icon-cancel:before { content: '\e829'; } /* '' */
+.isu-icon-help:before { content: '\e824'; } /* '' */
+.isu-icon-cancel-circled:before { content: '\e82b'; } /* '' */
+.isu-icon-warning-empty:before { content: '\e821'; } /* '' */
+.isu-icon-cog-outline:before { content: '\e807'; } /* '' */
+.isu-icon-chart-outline:before { content: '\e811'; } /* '' */
+.isu-icon-chart:before { content: '\e812'; } /* '' */
+.isu-icon-chart-alt-outline:before { content: '\e813'; } /* '' */
+.isu-icon-chart-alt:before { content: '\e814'; } /* '' */
+.isu-icon-chart-bar-outline:before { content: '\e815'; } /* '' */
+.isu-icon-chart-bar:before { content: '\e816'; } /* '' */
+.isu-icon-ok:before { content: '\e82d'; } /* '' */
+.isu-icon-ok-circle:before { content: '\e82c'; } /* '' */
+.isu-icon-equalizer:before { content: '\e817'; } /* '' */
+.isu-icon-chart-bar-1:before { content: '\e818'; } /* '' */
+.isu-icon-ok-1:before { content: '\e82e'; } /* '' */
+.isu-icon-signal:before { content: '\e819'; } /* '' */
+.isu-icon-chart-1:before { content: '\e81a'; } /* '' */
+.isu-icon-chart-bar-2:before { content: '\e81b'; } /* '' */
+.isu-icon-chart-bar-3:before { content: '\e81c'; } /* '' */
+.isu-icon-cog:before { content: '\e81d'; } /* '' */
+.isu-icon-filter:before { content: '\e823'; } /* '' */
+.isu-icon-gauge:before { content: '\e808'; } /* '' */
+.isu-icon-cog-1:before { content: '\e81e'; } /* '' */
+.isu-icon-cancel-circled-outline:before { content: '\e82a'; } /* '' */
 
 .isu-icon-white:before {
     color: #fff;
@@ -438,7 +250,9 @@ span[class^=isu-assignee-] {
     bottom: 0;
     right: 0;
 }
-
+.isu-assign-text span:first-child {
+    color: #000;
+}
 .isu-bulk-wizard-no-border {
     border: none !important;
 }

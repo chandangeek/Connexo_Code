@@ -37,6 +37,9 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
             },
             'bulk-browse bulk-wizard bulk-step2 radiogroup': {
                 change: this.onStep2RadiogroupChangeEvent
+            },
+            'bulk-browse bulk-step4': {
+                beforeactivate: this.beforeStep4
             }
         });
     },
@@ -215,7 +218,8 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
             message = '',
             operation = record.get('operation'),
             formPanel = Ext.ComponentQuery.query('bulk-step3 issues-assign-form')[0],
-            activeCombo = formPanel.down('combobox[disabled=false]'),
+            activeRadio = formPanel.down('radiogroup').down('radio[checked=true]').inputValue,
+            activeCombo = formPanel.down('combo[name=' + activeRadio + ']'),
             form = formPanel.getForm(),
             widget;
 
@@ -252,5 +256,11 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
                 step4Panel.add(widget);
             }
         }
+    },
+
+    beforeStep4: function () {
+        var form = Ext.ComponentQuery.query('bulk-step3 issues-assign-form')[0].getForm();
+
+        return !form || form.isValid();
     }
 });

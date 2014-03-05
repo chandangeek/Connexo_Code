@@ -5,7 +5,9 @@ Ext.define('Mtr.controller.history.Workspace', {
 
     doConversion: function (tokens) {
         if (tokens.length > 1) {
-            if (tokens.length == 3 && tokens[2] == 'issues') {
+            if (tokens.length == 3 && tokens[2] == 'assignmentrules') {
+                this.showAssigmentRules();
+            } else if (tokens.length == 3 && tokens[2] == 'issues') {
                 this.showIssues();
             } else if (tokens.length == 2 && tokens[1] == 'datacollection') {
                 this.showDataCollection();
@@ -15,7 +17,7 @@ Ext.define('Mtr.controller.history.Workspace', {
         }
     },
 
-    showWorkspace: function() {
+    showWorkspace: function () {
         Mtr.getApplication().getWorkspaceController().showOverview();
     },
 
@@ -25,5 +27,9 @@ Ext.define('Mtr.controller.history.Workspace', {
 
     showIssues: function () {
         Mtr.getApplication().getIssuesController().showOverview();
+    },
+
+    showAssigmentRules: function () {
+        Mtr.getApplication().getIssueAssignmentRulesController().showOverview();
     }
 });

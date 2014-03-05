@@ -61,7 +61,7 @@ Ext.define('Mtr.view.workspace.issues.Filter', {
                         valueField: 'Value',
                         labelWidth: 60,
                         height: 20,
-                        onFocus: function() {
+                        onFocus: function () {
                             var me = this;
 
                             if (!me.isExpanded) {
@@ -161,6 +161,7 @@ Ext.define('Mtr.view.workspace.issues.Filter', {
                             menu: {
                                 shadow: false,
                                 border: false,
+                                plain: true,
                                 name: 'addsortitemmenu'
                             }
                         }

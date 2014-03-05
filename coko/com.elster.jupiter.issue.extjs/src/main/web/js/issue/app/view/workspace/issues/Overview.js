@@ -23,7 +23,32 @@ Ext.define('Mtr.view.workspace.issues.Overview', {
                     },
                     items: [
                         {
-                            html: '<h1>Issues</h1>'
+                            border: false,
+                            layout: {
+                                type: 'hbox',
+                                align: 'stretch'
+                            },
+                            items: [
+                                {
+                                    html: '<h1>Issues</h1>'
+                                },
+                                {
+                                    flex: 1,
+                                    layout: {
+                                        type: 'hbox',
+                                        align: 'middle'
+                                    },
+                                    items: [
+                                        {
+                                            flex: 1
+                                        },
+                                        {
+                                            html: '<a href="#/workspace/datacollection/assignmentrules">View assignment rules</a>',
+                                            width: 150
+                                        }
+                                    ]
+                                }
+                            ]
                         },
                         {
                             xtype: 'issues-filter'

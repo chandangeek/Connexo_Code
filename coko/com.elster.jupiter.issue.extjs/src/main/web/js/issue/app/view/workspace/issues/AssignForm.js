@@ -81,7 +81,6 @@ Ext.define('Mtr.view.workspace.issues.AssignForm', {
                                 valueField: 'id',
                                 forceSelection: true,
                                 anyMatch: true,
-                                disabled: true,
                                 msgTarget: 'under',
                                 validateOnChange: false,
                                 validateOnBlur: false,
@@ -93,6 +92,12 @@ Ext.define('Mtr.view.workspace.issues.AssignForm', {
 
                                             form.comboOnError(combo, errEl);
                                         }
+                                    },
+                                    focus: {
+                                        fn: function (combo) {
+                                            var radiobutton = combo.up().previousNode('radiogroup').down('[inputValue=' + combo.name + ']');
+                                            radiobutton.setValue(true);
+                                        }
                                     }
                                 }
                             },
@@ -102,7 +107,6 @@ Ext.define('Mtr.view.workspace.issues.AssignForm', {
                                     store: 'Mtr.store.UserList',
                                     emptyText: 'Start typing for users',
                                     allowBlank: false,
-                                    disabled: false,
                                     displayField: 'authenticationName'
                                 },
                                 {
@@ -155,9 +159,7 @@ Ext.define('Mtr.view.workspace.issues.AssignForm', {
         var activeCombobox = radiogroup.next().down('[name=' + newValue.assignTo + ']'),
             inactiveCombobox = radiogroup.next().down('[name=' + oldValue.assignTo + ']');
 
-        inactiveCombobox.setDisabled(true);
         inactiveCombobox.allowBlank = true;
-        activeCombobox.setDisabled(false);
         activeCombobox.allowBlank = false;
         activeCombobox.focus();
     },

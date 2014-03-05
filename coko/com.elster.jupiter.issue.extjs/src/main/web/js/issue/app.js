@@ -31,10 +31,6 @@ Ext.onReady(function () {
         Ext.application({
             name: 'Mtr',
 
-            /*"requires": [
-                "UnifyingJS"
-            ],*/
-
             extend: 'Mtr.Application',
 
             autoCreateViewport: true
