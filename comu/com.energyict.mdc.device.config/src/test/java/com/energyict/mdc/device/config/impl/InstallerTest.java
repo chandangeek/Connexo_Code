@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.transaction.TransactionService;
-import java.sql.SQLException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
