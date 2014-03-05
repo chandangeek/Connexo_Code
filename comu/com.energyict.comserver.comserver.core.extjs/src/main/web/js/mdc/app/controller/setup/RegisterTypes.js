@@ -18,7 +18,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     stores: [
         'RegisterTypes',
         'TimeOfUses',
-        'UnitOfMeasures'
+        'UnitOfMeasures',
+        'ReadingTypes'
     ],
 
     refs: [
@@ -31,7 +32,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         {ref: 'registerTypeEditForm', selector: '#registerTypeEditForm'},
         {ref: 'registerTypeDetailForm', selector: '#registerTypeDetailForm'},
         {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
+        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
+        {ref: 'registerTypeEditForm', selector: '#registerTypeEditForm'}
     ],
 
     init: function () {
@@ -73,6 +75,9 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             },
             '#registerTypeDetailForm button[action = showReadingTypeInfo]': {
                 showReadingTypeInfo: this.showReadingType
+            },
+            '#registerTypeEditForm textfield[cls=obisCode]': {
+                change: this.getReadingType
             }
 
         });
@@ -139,25 +144,51 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     showRegisterTypeEditView: function (registerTypeId) {
-
+        console.log(registerTypeId);
+        var timeOfUseStore = Ext.create('Mdc.store.TimeOfUses');
+        var unitOfMeasureStore = Ext.create('Mdc.store.UnitOfMeasures');
         var widget = Ext.widget('registerTypeEdit', {
             edit: true,
-            returnLink: this.getApplication().getHistorySetupController().tokenizePreviousTokens()
-
+            returnLink: this.getApplication().getHistorySetupController().tokenizePreviousTokens(),
+            unitOfMeasure: unitOfMeasureStore,
+            timeOfUse: timeOfUseStore
         });
         this.getApplication().getMainController().showContent(widget);
         widget.setLoading(true);
         var me = this;
-        Ext.ModelManager.getModel('Mdc.model.RegisterRype').load(registerTypeId, {
+        Ext.ModelManager.getModel('Mdc.model.RegisterType').load(registerTypeId, {
             success: function (registerType) {
                 me.editBreadCrumb(registerType.get('name'), registerTypeId)
-                widget.down('form').loadRecord(registerType);
-                widget.down('#registerTypeEditCreateTitle').update('<H2>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + registerType.get('name') + '</H2>');
-                widget.setLoading(false);
+                timeOfUseStore.load({
+                    callback: function (store) {
+                        unitOfMeasureStore.load({
+                            callback: function (store) {
+                                widget.down('form').loadRecord(registerType);
+                                widget.down('#registerTypeEditCreateTitle').update('<H2>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + registerType.get('name') + '</H2>');
+                                console.log(registerType.get('isInUse'));
+                                if (registerType.get('isInUse') === true) {
+                                    widget.down('#editObisCodeField').setDisabled(true);
+                                    widget.down('#editObisCodeField').setReadOnly(true);
+                                    widget.down('#measurementUnitComboBox').setDisabled(true);
+                                    widget.down('#measurementUnitComboBox').setReadOnly(true);
+                                    widget.down('#timeOfUseComboBox').setDisabled(true);
+                                    widget.down('#timeOfUseComboBox').setReadOnly(true);
+                                    widget.down('#editMrIdField').setDisabled(true);
+                                    widget.down('#editMrIdField').setReadOnly(true);
+                                    widget.down('#editRegisterTypeNameField').setDisabled(true);
+                                    widget.down('#editRegisterTypeNameField').setReadOnly(true);
+
+                                } else {
+                                    widget.down('#editMrIdField').setDisabled(false);
+                                    widget.down('#editMrIdField').setReadOnly(false);
+                                }
+                                widget.setLoading(false);
+                            }
+                        })
+                    }
+                })
             }
         });
-
-
     },
 
     showRegisterTypes: function () {
@@ -174,12 +205,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     showRegisterTypeCreateView: function () {
-
         var timeOfUseStore = Ext.create('Mdc.store.TimeOfUses');
-        console.log('store');
-        console.log(timeOfUseStore);
         var unitOfMeasureStore = Ext.create('Mdc.store.UnitOfMeasures');
-
         var widget = Ext.widget('registerTypeEdit', {
             edit: false,
             returnLink: '#setup/registertypes/',
@@ -194,7 +221,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             callback: function (store) {
                 unitOfMeasureStore.load({
                     callback: function (store) {
-                        widget.down('#registerTypeEditCreateTitle').update('<H2>' + Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Create register type') + ' ' + 'register type' + '</H2>');
+                        widget.down('#registerTypeEditCreateTitle').update('<H2>' + Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Create register type') + '</H2>');
                         me.createBreadCrumb();
                         widget.setLoading(false);
                     }
@@ -313,9 +340,34 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var widget = Ext.widget('readingTypeDetails');
         this.getReadingTypeDetailsForm().loadRecord(record);
         widget.show();
+    },
+
+    getReadingType: function (field, newValue, oldValue) {
+        var widget = this.getRegisterTypeEditForm();
+        var obisCode = widget.down('#editObisCodeField').getValue();
+        var measurementUnit = widget.down('#measurementUnitComboBox').getValue();
+
+        if (obisCode != '' && measurementUnit != null) {
+
+            var readingTypeStore = Ext.data.StoreManager.lookup('ReadingTypes');
+            /* readingTypeStore.filter([
+             {property: 'obisCode', value: obisCode},
+             {property: 'unit', value: measurementUnit}
+             ]);*/
+            readingTypeStore.load({
+                scope: this,
+                callback: function () {
+                    console.log(readingTypeStore);
+                    widget.down('#editMrIdField').setDisabled(false);
+                    widget.down('#editMrIdField').setReadOnly(false);
+                    widget.down('#editMrIdField').setValue(readingTypeStore.first().get('mrid'));
+                    console.log('updated');
+
+                }
+            });
+        }
+
     }
-
-
 
 
 });

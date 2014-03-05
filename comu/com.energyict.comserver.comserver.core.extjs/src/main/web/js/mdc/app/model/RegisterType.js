@@ -20,7 +20,8 @@ Ext.define('Mdc.model.RegisterType', {
         {name:'directionOfFlow', type: 'string',useNull:true},
         {name:'interharmonics', type: 'string',useNull:true},
         {name:'powerOfTenMultiplier', type: 'string',useNull:true},
-        {name:'unitOfMeasure', type: 'string',useNull:true}
+        {name:'unitOfMeasure', type: 'string',useNull:true},
+        {name:'isInUse', type: 'boolean', useNull:true}
     ],
     proxy: {
             type: 'rest',
