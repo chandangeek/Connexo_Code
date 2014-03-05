@@ -8,6 +8,6 @@ Ext.define('Cfg.controller.history.EventType', {
     },
 
     showOverview: function () {
-        Cfg.getApplication().getEventTypeController().showOverview();
+        this.getApplication().getEventTypeController().showOverview();
     }
 });

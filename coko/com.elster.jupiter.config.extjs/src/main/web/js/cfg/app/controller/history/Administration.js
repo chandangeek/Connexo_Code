@@ -8,6 +8,6 @@ Ext.define('Cfg.controller.history.Administration', {
     },
 
     showOverview: function () {
-        Cfg.getApplication().getAdministrationController().showOverview();
+        this.getApplication().getController('Cfg.controller.Administration').showOverview();
     }
 });

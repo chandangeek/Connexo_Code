@@ -4,7 +4,7 @@ Ext.define('Cfg.controller.history.Validation', {
     rootToken: 'validation',
 
     showOverview: function () {
-        Cfg.getApplication().getValidationController().showOverview();
+        this.getApplication().getController('Cfg.controller.Validation').showOverview();
     },
 
 
@@ -32,19 +32,19 @@ Ext.define('Cfg.controller.history.Validation', {
     },
 
     addRule: function(ruleSetId) {
-        Cfg.getApplication().getValidationController().addRule(ruleSetId);
+        this.getApplication().getController('Cfg.controller.Validation').addRule(ruleSetId);
     },
 
     showRules: function (ruleSetId) {
-        Cfg.getApplication().getValidationController().showRules(ruleSetId);
+        this.getApplication().getController('Cfg.controller.Validation').showRules(ruleSetId);
     },
 
     showRuleSetOverview: function (ruleSetId) {
-        Cfg.getApplication().getValidationController().showRuleSetOverview(ruleSetId);
+        this.getApplication().getController('Cfg.controller.Validation').showRuleSetOverview(ruleSetId);
     },
 
     newRuleSet: function () {
-        Cfg.getApplication().getValidationController().newRuleSet();
+        this.getApplication().getController('Cfg.controller.Validation').newRuleSet();
     }
 
 

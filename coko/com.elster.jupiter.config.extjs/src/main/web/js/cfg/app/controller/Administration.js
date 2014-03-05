@@ -9,26 +9,26 @@ Ext.define('Cfg.controller.Administration', {
     ],
 
 
-    init: function () {
-        this.initMenu();
-    },
+//    init: function () {
+//        this.initMenu();
+//    },
 
-    initMenu: function () {
-        Uni.store.MenuItems.removeAll();
-
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: 'Administration',
-            href: Cfg.getApplication().getHistoryAdministrationController().tokenizeShowOverview(),
-            glyph: 'xe01e@icomoon'
-        });
-
-        Uni.store.MenuItems.add(menuItem);
-    },
+//    initMenu: function () {
+//        Uni.store.MenuItems.removeAll();
+//        var me = this;
+//        var menuItem = Ext.create('Uni.model.MenuItem', {
+//            text: 'Administration',
+//            href: me.getApplication().getController('Cfg.controller.history.Administration').tokenizeShowOverview(),
+//            glyph: 'xe01e@icomoon'
+//        });
+//
+//        Uni.store.MenuItems.add(menuItem);
+//    },
 
     showOverview: function () {
-        this.initMenu();
+//        this.initMenu();
         var widget = Ext.create('Cfg.view.admin.Administration');
-        Cfg.getApplication().getMainController().showContent(widget);
+        this.getApplication().getController('Cfg.controller.Main').showContent(widget);
     }
 
 });

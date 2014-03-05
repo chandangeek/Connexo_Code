@@ -8,7 +8,8 @@ Ext.define('Cfg.controller.Validation', {
     ],
 
     requires: [
-        'Uni.model.BreadcrumbItem'
+        'Uni.model.BreadcrumbItem',
+        'Ext.ux.window.Notification'
     ],
 
     models: [
@@ -260,7 +261,7 @@ Ext.define('Cfg.controller.Validation', {
         var me = this;
         var view = Ext.create('Cfg.view.validation.AddRule');
         this.getCancelAddRuleLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation/rules/' + id + '">' + Uni.I18n.translate('general.cancel', 'CFG', 'Cancel') + '</a>');
-        Cfg.getApplication().getMainController().showContent(view);
+        this.getApplication().getController('Cfg.controller.Main').showContent(view);
         var ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
         ruleSetsStore.load({
             params: {
@@ -328,19 +329,20 @@ Ext.define('Cfg.controller.Validation', {
     },
 
     initMenu: function () {
-        Uni.store.MenuItems.removeAll();
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: 'Validation',
-            href: Cfg.getApplication().getHistoryValidationController().tokenizeShowOverview(),
-            glyph: 'xe01e@icomoon'
-        });
-
-        Uni.store.MenuItems.add(menuItem);
+//        Uni.store.MenuItems.removeAll();
+//        var me=this;
+//        var menuItem = Ext.create('Uni.model.MenuItem', {
+//            text: 'Validation',
+//            href: me.getApplication().getHistoryValidationController().tokenizeShowOverview(),
+//            glyph: 'xe01e@icomoon'
+//        });
+//
+//        Uni.store.MenuItems.add(menuItem);
     },
 
     newRuleSet: function () {
         var view = Ext.create('Cfg.view.validation.CreateRuleSet');
-        Cfg.getApplication().getMainController().showContent(view);
+        this.getApplication().getController('Cfg.controller.Main').showContent(view);
         this.createNewRuleSetBreadCrumbs();
 
     },
@@ -373,7 +375,7 @@ Ext.define('Cfg.controller.Validation', {
     showOverview: function () {
         this.initMenu();
         var widget = Ext.widget('validationrulesetBrowse');
-        Cfg.getApplication().getMainController().showContent(widget);
+        this.getApplication().getController('Cfg.controller.Main').showContent(widget);
         this.createRuleSetsBreadCrumbs();
     },
 
@@ -412,7 +414,7 @@ Ext.define('Cfg.controller.Validation', {
                 var selectedRuleSet = ruleSetsStore.getById(id);
                 var ruleSetName = selectedRuleSet.get("name");
                 var rulesContainerWidget = Ext.create('Cfg.view.validation.RulesContainer');
-                Cfg.getApplication().getMainController().showContent(rulesContainerWidget);
+                this.getApplication().getController('Cfg.controller.Main').showContent(rulesContainerWidget);
 
                 me.updateMenulinks(id);
                 me.highlightRulesButton();
@@ -517,7 +519,7 @@ Ext.define('Cfg.controller.Validation', {
                 me.getRulesetOverviewForm().loadRecord(selectedRuleSet);
 
                 var rulesContainerWidget = Ext.create('Cfg.view.validation.RulesContainer');
-                Cfg.getApplication().getMainController().showContent(rulesContainerWidget);
+                me.getApplication().getController('Cfg.controller.Main').showContent(rulesContainerWidget);
 
                 me.updateMenulinks(id);
                 me.highlightRuleSetOverviewButton();

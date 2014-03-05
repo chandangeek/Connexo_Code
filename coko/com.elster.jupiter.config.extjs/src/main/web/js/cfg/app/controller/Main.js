@@ -1,7 +1,11 @@
 Ext.define('Cfg.controller.Main', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Uni.controller.Navigation'
+        'Uni.controller.Navigation',
+    ],
+    controllers: [
+        'Cfg.controller.history.Validation',
+        'Cfg.controller.history.EventType'
     ],
     config: {
         navigationController: null
@@ -17,6 +21,14 @@ Ext.define('Cfg.controller.Main', {
         }
     ],
     init: function () {
+        var me=this;
+        var menuItem = Ext.create('Uni.model.MenuItem', {
+            text: 'Validation',
+            href: me.getApplication().getController('Cfg.controller.history.Administration').tokenizeShowOverview(),
+            glyph: 'xe01e@icomoon'
+        });
+
+        Uni.store.MenuItems.add(menuItem);
         this.initNavigation();
         this.initDefaultHistoryToken();
     },

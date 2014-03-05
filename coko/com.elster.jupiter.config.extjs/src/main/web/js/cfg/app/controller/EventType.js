@@ -34,18 +34,19 @@ Ext.define('Cfg.controller.EventType', {
     },
 
     initMenu: function () {
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: 'EventTypes',
-            href: Cfg.getApplication().getHistoryEventTypeController().tokenizeShowOverview(),
-            glyph: 'xe01e@icomoon'
-        });
-
-        Uni.store.MenuItems.add(menuItem);
+//        var me = this;
+//        var menuItem = Ext.create('Uni.model.MenuItem', {
+//            text: 'EventTypes',
+//            href: me.getApplication().getHistoryEventTypeController().tokenizeShowOverview(),
+//            glyph: 'xe01e@icomoon'
+//        });
+//
+//        Uni.store.MenuItems.add(menuItem);
     },
 
     showOverview: function () {
         var widget = Ext.widget('eventtypeBrowse');
-        Cfg.getApplication().getMainController().showContent(widget);
+        this.getApplication().getController('Cfg.controller.Main').showContent(widget);
     }
 
 });
