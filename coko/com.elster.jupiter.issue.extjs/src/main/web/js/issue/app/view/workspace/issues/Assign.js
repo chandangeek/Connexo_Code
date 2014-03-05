@@ -34,6 +34,7 @@ Ext.define('Mtr.view.workspace.issues.Assign', {
             minHeight: 305,
             border: false,
             header: false,
+            recordTitle: self.record.data.reason + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : ''),
             bodyPadding: 10,
             defaults: {
                 border: false

@@ -98,12 +98,12 @@ Ext.define('Mtr.controller.AssignIssues', {
                 successArr = response.success,
                 failureArr = response.failure,
                 assignIssueView = Ext.ComponentQuery.query('issues-assign')[0],
+                assignPanel = assignIssueView.down('panel'),
                 preloader = Ext.ComponentQuery.query('loadmask[name=assign-issu-form-submit]')[0],
                 activeCombo = assignIssueView.down('issues-assign-form combobox[disabled=false]'),
                 id = assignIssueView.record.data.id,
                 success,
                 msges = [];
-
             preloader.destroy();
             success = Ext.Array.findBy(successArr, function (item) {
                 return item == id;
@@ -116,7 +116,11 @@ Ext.define('Mtr.controller.AssignIssues', {
                     Ext.Array.each(item.issues, function (issue) {
                         var header = {},
                             bodyItem = {};
-                        header.text = 'Failed to assign issue ' + issue.title + ' to ' + activeCombo.rawValue;
+                        if (issue.title == assignPanel.recordTitle) {
+                            header.text = 'Failed to assign issue ' + issue.title + ' to ' + activeCombo.rawValue;
+                        } else {
+                            header.text = 'Failed to assign issue' + ' to ' + activeCombo.rawValue;
+                        }
                         header.style = 'msgHeaderStyle';
                         msges.push(header);
                         bodyItem.text = item.reason;
@@ -141,6 +145,8 @@ Ext.define('Mtr.controller.AssignIssues', {
                             {
                                 text: 'Cancel',
                                 cls: 'isu-btn-link',
+                                hrefTarget: '',
+                                href: '#/workspace/datacollection/issues',
                                 // this function is necessary and MUST be empty
                                 hnd: function () {
 
