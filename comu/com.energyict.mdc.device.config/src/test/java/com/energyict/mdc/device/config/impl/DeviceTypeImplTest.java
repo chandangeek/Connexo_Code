@@ -38,7 +38,6 @@ import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.validation.ConstraintViolationException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -686,7 +685,7 @@ public class DeviceTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testDeviceTypeDeletionRemovesLogBookTypes() throws SQLException {
+    public void testDeviceTypeDeletionRemovesLogBookTypes() {
         String deviceTypeName = "testDeviceTypeDeletionRemovesLogBookTypes";
         DeviceType deviceType;
         this.setupLogBookTypesInExistingTransaction(deviceTypeName);
@@ -708,7 +707,7 @@ public class DeviceTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testDeviceTypeDeletionRemovesLoadProfileTypes() throws SQLException {
+    public void testDeviceTypeDeletionRemovesLoadProfileTypes() {
         String deviceTypeName = "testDeviceTypeDeletionRemovesLoadProfileTypes";
         DeviceType deviceType;
         this.setupLoadProfileTypesInExistingTransaction(deviceTypeName);
@@ -731,7 +730,7 @@ public class DeviceTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testDeviceTypeDeletionRemovesRegisterMappings() throws SQLException {
+    public void testDeviceTypeDeletionRemovesRegisterMappings() {
         String deviceTypeName = "testDeviceTypeDeletionRemovesRegisterMappings";
         DeviceType deviceType;
         this.setupRegisterMappingTypesInExistingTransaction();

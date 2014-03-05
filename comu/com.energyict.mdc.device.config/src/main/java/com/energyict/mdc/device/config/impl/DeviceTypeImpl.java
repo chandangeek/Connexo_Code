@@ -30,6 +30,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -37,7 +38,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-@AllConfigurationsHaveUniqueName(groups = {Save.Create.class, Save.Update.class})
 @ProtocolCannotChangeWithExistingConfigurations(groups = {Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements DeviceType {
 
@@ -47,6 +47,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private DeviceUsageType deviceUsageType;
     private int communicationFunctionMask;
     private Set<DeviceCommunicationFunction> deviceCommunicationFunctions;
+    @Valid
     private List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
     private List<DeviceTypeLogBookTypeUsage> logBookTypeUsages = new ArrayList<>();
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
@@ -135,7 +136,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     private boolean hasActiveConfigurations() {
         for (DeviceConfiguration configuration : this.getConfigurations()) {
-            if (configuration.getActive()) {
+            if (configuration.isActive()) {
                 return true;
             }
         }

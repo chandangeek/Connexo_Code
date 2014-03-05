@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.protocol.api.device.MultiplierMode;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -10,18 +11,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Models the constraint that all {@link com.energyict.mdc.device.config.DeviceConfiguration}s
- * in a {@link com.energyict.mdc.device.config.DeviceType} must have a unique name.
+ * Models the constraint that the reading type of a {@link com.energyict.mdc.device.config.ProductSpec}
+ * should be unique for all ProductSpecs, i.e. there cannot be 2 ProductSpecs with the same reading type.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2014-02-28 (11:37)
+ * @since 2014-03-04 (16:39)
  */
 @Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = { AllConfigurationsHaveUniqueNameValidator.class })
-public @interface AllConfigurationsHaveUniqueName {
+@Constraint(validatedBy = { UniqueReadingTypeValidator.class })
+public @interface UniqueReadingType {
 
-    String message() default "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_CONFIGURATION_KEY + "}";
+    String message() default "{" + MessageSeeds.Constants.READING_TYPE_ALREADY_EXISTS_KEY + "}";
 
     Class<?>[] groups() default { };
 

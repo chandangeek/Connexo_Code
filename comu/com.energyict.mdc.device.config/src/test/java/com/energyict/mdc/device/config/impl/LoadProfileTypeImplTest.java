@@ -583,12 +583,12 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         this.assertLoadProfileTypeDoesNotExist(loadProfileType);
     }
 
-    private void assertLoadProfileTypeDoesNotExist(LoadProfileType loadProfileType) throws SQLException {
+    private void assertLoadProfileTypeDoesNotExist(LoadProfileType loadProfileType) {
         List<LoadProfileType> loadProfileTypes = inMemoryPersistence.getDeviceConfigurationService().getDataModel().mapper(LoadProfileType.class).find("id", loadProfileType.getId());
         assertThat(loadProfileTypes).as("Was not expecting to find any LoadProfileTypes after deletinon.").isEmpty();
     }
 
-    private void assertRegisterMappingsDoNotExist(LoadProfileType loadProfileType) throws SQLException {
+    private void assertRegisterMappingsDoNotExist(LoadProfileType loadProfileType) {
         List<LoadProfileTypeRegisterMappingUsage> usages = inMemoryPersistence.getDeviceConfigurationService()
                 .getDataModel()
                 .mapper(LoadProfileTypeRegisterMappingUsage.class)

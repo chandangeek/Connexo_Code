@@ -10,7 +10,6 @@ import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseE
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLogBookTypeIsInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
 import org.junit.*;
 import org.junit.rules.*;
 import org.junit.runner.*;
@@ -118,10 +117,12 @@ public class LogBookTypeImplTest extends PersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED_KEY + "}")
     public void testLogBookTypeCreationWithoutObisCode() {
         String logBookTypeName = "testDuplicateLogBookType";
-        // Business method
-        inMemoryPersistence.getDeviceConfigurationService().newLogBookType(logBookTypeName, null);
+        LogBookType logBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(logBookTypeName, null);
 
-        // Asserts: Should be getting a ObisCodeIsRequiredException
+        // Business method
+        logBookType.save();
+
+        // Asserts: see ExpectedConstraintViolation rule
     }
 
     @Test

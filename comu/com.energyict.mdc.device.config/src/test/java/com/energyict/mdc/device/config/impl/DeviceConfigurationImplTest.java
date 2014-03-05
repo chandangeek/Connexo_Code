@@ -24,6 +24,7 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
+import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import org.junit.*;
 import org.junit.rules.*;
@@ -101,16 +102,15 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = MessageSeeds.Constants.NAME_REQUIRED_KEY)
-    public void createWithoutANameTest() {
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    public void createWithoutNameTest() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration("");
         deviceConfigurationBuilder.add();
         this.deviceType.save();
     }
 
-    @Test
+    @Test(expected = DuplicateNameException.class)
     @Transactional
-    @ExpectedConstraintViolation(messageId = MessageSeeds.Constants.DUPLICATE_DEVICE_CONFIGURATION_KEY)
     public void duplicateNameTest() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder1 = this.deviceType.newConfiguration("DeviceConfiguration");
         deviceConfigurationBuilder1.add();

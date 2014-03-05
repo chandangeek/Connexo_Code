@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
@@ -48,7 +49,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     private ObisCode obisCode;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY + "}")
     private String obisCodeString;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.PRODUCT_SPEC_IS_REQUIRED_KEY + "}")
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.PRODUCT_SPEC_IS_REQUIRED_KEY + "}")
     private Reference<ProductSpec> productSpec = ValueReference.absent();
     private boolean cumulative;
     private Reference<RegisterGroup> registerGroup = ValueReference.absent();
@@ -85,7 +86,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     }
 
     private void validateUniqueObisCodeAndRegisterMapping() {
-        if (this.productSpec.isPresent()) {
+        if (this.productSpec.isPresent() && this.obisCode != null) {
             RegisterMapping otherRegisterMapping = this.findOtherByObisCodeAndProductSpec();
             if (otherRegisterMapping != null) {
                 throw DuplicateObisCodeException.forRegisterMapping(this.getThesaurus(), obisCode, otherRegisterMapping);

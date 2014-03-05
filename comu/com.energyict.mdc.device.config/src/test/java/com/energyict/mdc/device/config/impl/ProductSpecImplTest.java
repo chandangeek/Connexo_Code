@@ -3,17 +3,16 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
-import com.energyict.mdc.device.config.exceptions.DuplicateReadingTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.ReadingTypeIsRequiredException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
@@ -66,19 +65,21 @@ public class ProductSpecImplTest extends PersistenceTest {
         assertThat(productSpec2).isNotNull();
     }
 
-    @Test(expected = ReadingTypeIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.READING_TYPE_IS_REQUIRED_KEY + "}", property = "readingType")
     public void testCreationWithoutReadingType() {
         ProductSpec productSpec;
         // Business method
         productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(null);
         productSpec.save();
 
-        // Asserts: expected ReadingTypeIsRequiredException
+        // Asserts: see ExpectedConstraintViolation
     }
 
-    @Test(expected = DuplicateReadingTypeException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.READING_TYPE_ALREADY_EXISTS_KEY + "}", property = "readingType")
     public void testDuplicateReadingType() {
         ProductSpec productSpec;
         this.setupReadingTypeInExistingTransaction();
@@ -91,7 +92,7 @@ public class ProductSpecImplTest extends PersistenceTest {
         productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(this.readingType);
         productSpec.save();
 
-        // Asserts: expected DuplicateReadingTypeException
+        // Asserts: see ExpectedConstraintViolation
     }
 
     @Test

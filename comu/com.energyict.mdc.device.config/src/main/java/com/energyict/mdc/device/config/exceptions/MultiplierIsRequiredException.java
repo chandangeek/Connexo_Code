@@ -20,21 +20,4 @@ public class MultiplierIsRequiredException extends LocalizedException {
         super(thesaurus, messageSeed, args);
     }
 
-    /**
-     * Creates a new MultiplierIsRequiredException that models the
-     * exceptional situation that occurs when an attempt is made to create
-     * a {@link com.energyict.mdc.device.config.ChannelSpec} without a
-     * Multiplier
-     *
-     * @param thesaurus      The Thesaurus
-     * @param channelSpec    The ChannelSpec which lacks the Multiplier
-     * @param multiplierMode The MultiplierMode of the ChannelSpec
-     * @return the newly created MultiplierIsRequiredException
-     */
-    public static MultiplierIsRequiredException onChannelSpecWhenModeIsOnObject(Thesaurus thesaurus, ChannelSpec channelSpec, MultiplierMode multiplierMode) {
-        MultiplierIsRequiredException multiplierIsRequiredException = new MultiplierIsRequiredException(thesaurus, MessageSeeds.CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN, channelSpec, multiplierMode);
-        multiplierIsRequiredException.set("channelSpec", channelSpec);
-        multiplierIsRequiredException.set("multiplierMode", multiplierMode);
-        return multiplierIsRequiredException;
-    }
 }

@@ -88,8 +88,6 @@ public interface ChannelSpec extends HasId {
 
     void validateDelete();
 
-    void validateUpdate();
-
     void save();
 
     /**

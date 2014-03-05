@@ -3,6 +3,8 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
@@ -19,15 +21,14 @@ import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateRegisterMappingException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.MultiplierIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.MultiplierModeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredException;
-import com.energyict.mdc.device.config.exceptions.ValueCalculationMethodIsRequiredException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.*;
 
 import java.math.BigDecimal;
 
@@ -55,12 +56,12 @@ public class ChannelSpecImplTest extends PersistenceTest {
     private final ObisCode loadProfileTypeObisCode = ObisCode.fromString("1.0.99.1.0.255");
     private final ObisCode overruledChannelSpecObisCode = ObisCode.fromString("1.0.1.8.2.255");
 
-    private final String PHENOMENON_NAME = "BasicPhenomenon";
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     private TimeDuration interval = TimeDuration.days(1);
     private DeviceConfiguration deviceConfiguration;
     private LoadProfileType loadProfileType;
-    private ReadingType readingType;
     private ProductSpec productSpec;
     private RegisterMapping registerMapping;
     private Phenomenon phenomenon;
@@ -74,7 +75,7 @@ public class ChannelSpecImplTest extends PersistenceTest {
 
     private void initializeDeviceTypeWithRegisterMappingAndLoadProfileTypeAndDeviceConfiguration() {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
-        this.readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
+        ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
         this.productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(readingType);
         this.productSpec.save();
         this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME, registerMappingObisCode, productSpec);
@@ -83,8 +84,7 @@ public class ChannelSpecImplTest extends PersistenceTest {
         loadProfileType.addRegisterMapping(registerMapping);
         loadProfileType.save();
 
-
-        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(PHENOMENON_NAME, phenomenonUnit);
+        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("BasicPhenomenon", phenomenonUnit);
         this.phenomenon.save();
 
         // Business method
@@ -415,19 +415,17 @@ public class ChannelSpecImplTest extends PersistenceTest {
     @Test(expected = RegisterMappingIsNotConfiguredException.class)
     @Transactional
     public void createWithRegisterMappingFromOtherDeviceTypeTest() {
-        ChannelSpec channelSpec;
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
         RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME + "Other", overruledChannelSpecObisCode, productSpec);
         registerMapping.save();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
-        channelSpec = channelSpecBuilder.add();
+        channelSpecBuilder.add();
     }
 
     @Test(expected = RegisterMappingIsNotConfiguredException.class)
     @Transactional
     public void createWithRegisterMappingNotInLoadProfileTypeTest() {
-        ChannelSpec channelSpec;
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
         RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME + "Other", overruledChannelSpecObisCode, productSpec);
@@ -435,14 +433,12 @@ public class ChannelSpecImplTest extends PersistenceTest {
         this.deviceType.addRegisterMapping(registerMapping);
         this.deviceType.save();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
-        channelSpec = channelSpecBuilder.add();
+        channelSpecBuilder.add();
     }
 
     @Test(expected = LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException.class)
     @Transactional
     public void createWithLoadProfileSpecFromOtherConfigTest() {
-        ChannelSpec channelSpec;
-
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME + "Other");
         DeviceConfiguration otherDeviceConfiguration = deviceConfigurationBuilder.add();
         deviceType.save();
@@ -452,7 +448,7 @@ public class ChannelSpecImplTest extends PersistenceTest {
         LoadProfileSpec otherLoadProfileSpec = loadProfileSpecBuilder.add();
 
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, otherLoadProfileSpec);
-        channelSpec = channelSpecBuilder.add();
+        channelSpecBuilder.add();
     }
 
     @Test(expected = DuplicateRegisterMappingException.class)
@@ -460,40 +456,39 @@ public class ChannelSpecImplTest extends PersistenceTest {
     public void createWithSameRegisterMappingTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         createDefaultChannelSpec(loadProfileSpec);
-        ChannelSpec channelSpec;
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setName(DEFAULT_CHANNEL_SPEC_NAME);
-        channelSpec = channelSpecBuilder.add();
+        channelSpecBuilder.add();
     }
 
-    @Test(expected = ValueCalculationMethodIsRequiredException.class)
+    @Test
     @Transactional
-    public void createWithNoValueCalculationMethodTest() {
-        ChannelSpec channelSpec;
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED_KEY + "}")
+    public void createWithoutValueCalculationMethodTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setValueCalculationMethod(null);
-        channelSpec = channelSpecBuilder.add();
+        channelSpecBuilder.add();
     }
 
-    @Test(expected = MultiplierModeIsRequiredException.class)
+    @Test
     @Transactional
-    public void createWithNoMultiplierModeTest() {
-        ChannelSpec channelSpec;
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED_KEY + "}")
+    public void createWithoutMultiplierModeTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setMultiplierMode(null);
-        channelSpec = channelSpecBuilder.add();
+        channelSpecBuilder.add();
     }
 
-    @Test(expected = MultiplierIsRequiredException.class)
+    @Test
     @Transactional
-    public void createWithNoMultiplierTest() {
-        ChannelSpec channelSpec;
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN_KEY + "}")
+    public void createWithoutMultiplierTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setMultiplier(null);
-        channelSpec = channelSpecBuilder.add();
+        channelSpecBuilder.add();
     }
 
     @Test
