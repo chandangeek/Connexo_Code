@@ -213,7 +213,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     private String unSubscribeSql() {
         return
                 "declare subscriber sys.aq$_agent;  " +
-                        "begin subscriber := sys.aq$_agent(?,null,null); + " +
+                        "begin subscriber := sys.aq$_agent(?,null,null); " +
                         "dbms_aqadm.remove_subscriber(?,subscriber); end;";
     }
 
