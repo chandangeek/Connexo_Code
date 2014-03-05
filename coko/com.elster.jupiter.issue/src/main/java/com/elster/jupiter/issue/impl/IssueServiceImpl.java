@@ -68,6 +68,8 @@ public class IssueServiceImpl implements IssueService, InstallService {
         setMeteringService(meteringService);
         setUserService(userService);
         setMessageService(messageService);
+        setAppService(appService);
+        setCronExpressionParser(cronExpressionParser);
         //TODO delete when events will be defined by MDC
         setEventService(eventService);
         // --END delete when events will be defined by MDC

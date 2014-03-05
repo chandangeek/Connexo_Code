@@ -1,5 +1,7 @@
 package com.elster.jupiter.issue.tests;
 
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
@@ -28,6 +30,8 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -42,6 +46,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -62,6 +68,12 @@ public class IssueServiceImplTest {
     private DataMapper<HistoricalIssue> dataModelFactory;
     @Mock
     private QueryService queryService;
+    @Mock
+    private AppServer appServer;
+    @Mock
+    private AppService appService;
+    @Mock
+    private CronExpressionParser cronExpressionParser;
 
     private class MockModule extends AbstractModule {
         @Override
@@ -69,10 +81,16 @@ public class IssueServiceImplTest {
 
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(AppService.class).toInstance(appService);
+            bind(CronExpressionParser.class).toInstance(cronExpressionParser);
+
         }
     }
     @Before
     public void setUp() throws SQLException {
+
+        when(appService.getAppServer()).thenReturn(Optional.of(appServer));
+        when(appService.createAppServer("issueAppServer", cronExpressionParser.parse("0 0 * * * ? *"))).thenReturn(appServer);
 
         injector = Guice.createInjector(
                 new MockModule(),
@@ -130,7 +148,7 @@ public class IssueServiceImplTest {
     public void testIssueReason()  {
         try (TransactionContext context = getTransactionService().getContext()) {
             IssueService issueService = getIssueService();
-            issueService.createIssueReason("TestReason");
+            issueService.createIssueReason("TestReason", "TestTopic");
             IssueReason reason = issueService.getIssueReasonById(5).orNull();
             assertThat(reason).isNotNull();
             assertThat(reason.getName()).isEqualTo("TestReason");
@@ -156,10 +174,36 @@ public class IssueServiceImplTest {
     }
 
     @Test
+    public void testCreateIssue()  {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            IssueService issueService = getIssueService();
+            Issue issueNull = issueService.getIssueById(1).orNull();
+            assertThat(issueNull).isNull();
+            Map<String, String> map = new HashMap<String, String>();
+            String topic = "com/energyict/mdc/isu/comtask/FAILURE";
+            String device = "1";
+            map.put("timestamp", "1");
+            map.put("event.topics", topic);
+            map.put("deviceIdentifier", device);
+            issueService.createIssue(map);
+            IssueStatus status = issueService.getIssueStatusFromString("Open");
+            Issue issueCreate = issueService.getIssueById(1).orNull();
+            assertThat(issueCreate).isNotNull();
+            assertThat(issueCreate.getReason().getTopic()).isEqualTo(topic);
+            assertThat(issueCreate.getStatus().getName()).isEqualTo("Open");
+        }
+    }
+
+    @Test
     public void testCloseIssue()  {
         try (TransactionContext context = getTransactionService().getContext()) {
             IssueService issueService = getIssueService();
-            IssueStatus status = issueService.getIssueStatusFromString("TestStatus");
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("timestamp", "1");
+            map.put("event.topics", "com/energyict/mdc/isu/comtask/FAILURE");
+            map.put("deviceIdentifier", "1");
+            issueService.createIssue(map);
+            IssueStatus status = issueService.getIssueStatusFromString("Open");
             Issue issueForClose = issueService.getIssueById(1).orNull();
             assertThat(issueForClose).isNotNull();
             IssueImpl.class.cast(issueForClose).setVersion(5);
