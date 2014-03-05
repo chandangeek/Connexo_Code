@@ -1,16 +1,14 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.Provider;
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.ServletBasedInboundComPort} interface.
@@ -18,7 +16,6 @@ import javax.validation.constraints.Size;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-11 (11:32)
  */
-@NotEmptyFilePathAndPasswords(groups = {Save.Create.class, Save.Update.class})
 public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements ServletBasedInboundComPort, IPBasedInboundComPort, ComPort, InboundComPort {
 
     private boolean https;
@@ -26,13 +23,11 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     private String keyStoreSpecsPassword;
     private String trustStoreSpecsFilePath;
     private String trustStoreSpecsPassword;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmpty}")
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmpty}")
     private String contextPath;
 
     @Inject
-    protected ServletBasedInboundComPortImpl(DataModel dataModel) {
-        super(dataModel);
+    protected ServletBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
+        super(dataModel, comPortPoolMemberProvider);
     }
 
     @Override
@@ -40,8 +35,18 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
         return true;
     }
 
-    protected void validateCreate(){
-        super.validateCreate();
+    protected void validate(){
+        super.validate();
+        if (this.isHttps()) {
+            this.validatePaths(this.getKeyStoreSpecsFilePath(), this.getKeyStoreSpecsPassword(), "keystore");
+            this.validatePaths(this.getTrustStoreSpecsFilePath(), this.getTrustStoreSpecsPassword(), "truststore");
+        }
+        this.validateNotNull(this.getContextPath(), "servletbasedinboundcomport.contextpath");
+    }
+
+    private void validatePaths(Object filePath, Object password, String keyStoreType) {
+        this.validateNotNull(filePath, "servletbasedinboundcomport." + keyStoreType + ".filepath");
+        this.validateNotNull(password, "servletbasedinboundcomport." + keyStoreType + ".password");
     }
 
     @Override
