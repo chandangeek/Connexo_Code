@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.domain.util.NotNullReference;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
@@ -25,7 +25,7 @@ import org.hibernate.validator.constraints.URL;
  */
 public class RemoteComServerImpl extends ComServerImpl implements RemoteComServer {
 
-    @NotNullReference(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmpty}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmpty}")
     private final Reference<OnlineComServer> onlineComServer = ValueReference.absent();
     private String queryAPIUsername;
     private String queryAPIPassword;

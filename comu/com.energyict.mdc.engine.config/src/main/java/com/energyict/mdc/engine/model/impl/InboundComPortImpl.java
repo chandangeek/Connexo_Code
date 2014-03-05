@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.domain.util.NotNullReference;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.engine.model.ComPort;
@@ -19,7 +19,7 @@ import com.google.inject.Provider;
 @ComPortPoolTypeMatchesComPortType(groups = { Save.Create.class, Save.Update.class })
 public abstract class InboundComPortImpl extends ComPortImpl implements ComPort, InboundComPort {
 
-    @NotNullReference(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
     private final Reference<InboundComPortPool> comPortPool = ValueReference.absent();
 
     protected InboundComPortImpl(DataModel dataModel) {
