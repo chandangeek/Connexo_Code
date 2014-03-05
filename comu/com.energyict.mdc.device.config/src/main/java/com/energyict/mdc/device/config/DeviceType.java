@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-
 import java.util.List;
 import java.util.Set;
 
@@ -203,6 +202,7 @@ public interface DeviceType {
          */
         public DeviceConfiguration add ();
 
+        DeviceConfigurationBuilder description(String description);
     }
 
 }

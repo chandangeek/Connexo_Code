@@ -33,9 +33,6 @@ import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,6 +42,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 /**
  *     //TODO the creation of the CommunicationConfiguration is currently skipped ...
@@ -110,6 +109,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     public String getDescription() {
         return this.description;
+    }
+
+    public void setDescription(String description) {
+        this.description=description;
     }
 
     public int getPrototypeId() {

@@ -29,13 +29,12 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableList;
-
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import javax.inject.Inject;
 
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements DeviceType {
 
@@ -580,6 +579,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             super();
             this.mode = BuildingMode.UNDERCONSTRUCTION;
             this.underConstruction = underConstruction;
+        }
+
+        @Override
+        public DeviceConfigurationBuilder description(String description) {
+            underConstruction.setDescription(description);
+            return this;
         }
 
         @Override

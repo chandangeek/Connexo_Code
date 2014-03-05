@@ -2,7 +2,6 @@ package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.protocol.api.device.Device;
-
 import java.util.List;
 
 /**
@@ -34,7 +33,7 @@ public interface DeviceConfiguration extends HasId {
      * @return description
      */
     String getDescription();
-
+    public void setDescription(String description);
     /**
      * Returns the prototype device for this device config
      *
