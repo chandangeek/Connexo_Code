@@ -68,11 +68,10 @@
  * a value to format, a component for which it applies, and a fallback format. The date format needs
  * to conform to the Moment.js library.
  *
- * A full list of supported formats can be found on the
- * [Moment.js documentation page](http://momentjs.com/docs/ 'Moment.js documentation').
+ * A full list of supported formats can be found at the {Ext.Date} documentation.
  *
  *     @example
- *     var formattedNow = Uni.I18n.formatDate('long.date.format', new Date(), 'CMP', 'D MMMM YYYY LT');
+ *     var formattedNow = Uni.I18n.formatDate('long.date.format', new Date(), 'CMP', ''F j Y g:i A'');
  *     console.log(formattedNow); // January 28 2014 11:14 AM
  *
  * More information and examples can be found at the {@link #formatDate} function.
@@ -257,8 +256,7 @@ Ext.define('Uni.I18n', {
     /**
      * Formats a date based on a translation key. If no date has been given, the current date is used.
      *
-     * The used parse syntax is that of Moment.js which can be found in the
-     * [Moment.js documentation](http://www.momentjs.com/docs/#/parsing/string-format/ 'Moment.js documentation')
+     * The used parse syntax is that of ExtJS which can be found at the {Ext.Date} documentation.
      *
      * @param {String} key Translation key to format the date with
      * @param {Date} [date=new Date()] Date to format
@@ -271,7 +269,7 @@ Ext.define('Uni.I18n', {
 
         var format = this.translate(key, component, fallback);
 
-        return moment(date).format(format);
+        return Ext.Date.format(date, format);
     },
 
     /**
