@@ -5,14 +5,13 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.ArrayList;
-import java.util.List;
 
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "comServerType")
@@ -29,8 +28,10 @@ public abstract class ComServerInfo<S extends ComServer> {
     @JsonProperty("active")
     public boolean active;
     @XmlJavaTypeAdapter(LogLevelAdapter.class)
+    @JsonProperty("serverLogLevel")
     public ComServer.LogLevel serverLogLevel;
     @XmlJavaTypeAdapter(LogLevelAdapter.class)
+    @JsonProperty("communicationLogLevel")
     public ComServer.LogLevel communicationLogLevel;
     @JsonProperty("changesInterPollDelay")
     public TimeDurationInfo changesInterPollDelay;
