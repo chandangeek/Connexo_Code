@@ -136,6 +136,16 @@ public class DeviceTypeResource {
         return PagedInfoList.asJson("deviceConfigurations", deviceConfigurationInfos, queryParameters);
     }
 
+    @POST
+    @Path("/{id}/deviceconfigurations")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DeviceConfigurationInfo createDeviceConfiguration(@PathParam("id") long id, DeviceConfigurationInfo deviceConfigurationInfo) {
+        DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration(deviceConfigurationInfo.name).description(deviceConfigurationInfo.description).add();
+        return new DeviceConfigurationInfo(deviceConfiguration);
+    }
+
     @GET
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON)
@@ -253,8 +263,7 @@ public class DeviceTypeResource {
     private DeviceType findDeviceTypeByIdOrThrowException(long id) {
         DeviceType deviceType = deviceConfigurationService.findDeviceType(id);
         if (deviceType == null) {
-            throw new WebApplicationException("No device type with id " + id,
-                    Response.Status.NOT_FOUND);
+            throw new WebApplicationException("No device type with id " + id, Response.Status.NOT_FOUND);
         }
         return deviceType;
     }

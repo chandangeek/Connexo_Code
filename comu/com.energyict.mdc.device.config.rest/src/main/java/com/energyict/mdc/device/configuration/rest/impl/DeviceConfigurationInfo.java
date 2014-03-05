@@ -16,6 +16,8 @@ public class DeviceConfigurationInfo {
     public long id;
     @JsonProperty("name")
     public String name;
+    @JsonProperty("description")
+    public String description;
     @JsonProperty("active")
     public boolean active;
     @JsonUnwrapped // As requested by ExtJS people
@@ -24,10 +26,15 @@ public class DeviceConfigurationInfo {
     @XmlJavaTypeAdapter(DeviceFunctionAdapter.class)
     public DeviceFunction deviceFunction;
 
+    public DeviceConfigurationInfo() {
+    }
+
     public DeviceConfigurationInfo(DeviceConfiguration deviceConfiguration) {
         id = deviceConfiguration.getId();
         name = deviceConfiguration.getName();
         active = deviceConfiguration.getActive();
+        description = deviceConfiguration.getDescription();
+
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass();
         if (deviceProtocolPluggableClass!=null) {
             this.deviceProtocolInfo=new DeviceProtocolInfo(deviceProtocolPluggableClass);

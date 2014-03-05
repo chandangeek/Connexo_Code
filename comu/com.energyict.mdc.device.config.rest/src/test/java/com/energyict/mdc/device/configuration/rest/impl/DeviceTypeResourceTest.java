@@ -209,6 +209,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceConfiguration.getId()).thenReturn(113L);
         when(deviceConfiguration.getName()).thenReturn("defcon");
         when(deviceConfiguration.getActive()).thenReturn(true);
+        when(deviceConfiguration.getDescription()).thenReturn("describe me");
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
 
@@ -227,10 +228,11 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(map.get("total")).describedAs("JSon representation of a field, JavaScript impact if it changed").isEqualTo(1);
         assertThat((List)map.get("deviceConfigurations")).hasSize(1).describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("deviceConfigurations")).get(0);
-        assertThat(jsonDeviceConfiguration).hasSize(5);
+        assertThat(jsonDeviceConfiguration).hasSize(6);
         assertThat(jsonDeviceConfiguration.get("id")).isEqualTo(113).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("active")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("description")).isEqualTo("describe me").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("communicationProtocolName")).isEqualTo("device protocol name").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("deviceFunction")).isEqualTo("Meter").describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
