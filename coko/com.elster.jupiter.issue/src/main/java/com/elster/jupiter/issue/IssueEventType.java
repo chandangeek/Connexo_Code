@@ -10,11 +10,8 @@ public enum IssueEventType {
     UNKNOWN_INBOUND_DEVICE("inboundcommunication/UNKNOWNDEVICE"),
     UNKNOWN_OUTBOUND_DEVICE("outboundcommunication/UNKNOWNSLAVEDEVICE"),
     DEVICE_COMMUNICATION_FAILURE("comtask/FAILURE"),
-    DEVICE_CONNECTION_SETUP_FAILURE("connectiontask/FAILURE");
-    //DEVICE_CONNECTION_FAILURE("");
-    /* didn't find topic name for DEVICE_CONNECTION_FAILURE in Confluence
-     http://confluence.eict.vpdc/display/JUPMDC/Events+produced+by+MDC */
-
+    DEVICE_CONNECTION_SETUP_FAILURE("connectiontasksetup/FAILURE"),
+    DEVICE_CONNECTION_FAILURE("connectiontask/FAILURE");
 
     private static final String NAMESPACE = "com/energyict/mdc/isu/";
     private final String topic;
