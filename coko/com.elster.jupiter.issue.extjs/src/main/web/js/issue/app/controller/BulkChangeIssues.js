@@ -188,7 +188,7 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
                 break;
         }
 
-        requestData.comment = bulkStoreRecord.get('comment').trim();
+        requestData.comment = bulkStoreRecord.get('comment');
 
         return requestData;
     },
@@ -305,6 +305,8 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
                         + 'The selected issues will be closed with status <b>' + record.get('status') + '</b>';
                     break;
             }
+
+            record.set('comment',formPanel.down('textarea').getValue().trim());
 
             widget = Ext.widget('container', {
                 cls: 'isu-bulk-assign-confirmation-request-panel',
