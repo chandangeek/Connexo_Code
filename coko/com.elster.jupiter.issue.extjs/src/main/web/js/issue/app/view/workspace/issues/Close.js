@@ -12,34 +12,27 @@ Ext.define('Mtr.view.workspace.issues.Close', {
         align: 'stretch'
     },
     overflowY: 'auto',
-    items: [
-        {
-            xtype: 'breadcrumbTrail',
-            padding: 6
-        }
-    ],
-    listeners: {
-        render: {
-            fn: function (self) {
-                self.addForm();
-            }
-        }
+
+//    listeners: {
+//        render: {
+//            fn: function (self) {
+//                self.addForm();
+//            }
+//        }
+//    },
+
+    initComponent: function () {
+        this.callParent(arguments);
+        this.addForm();
     },
+
     addForm: function () {
         var self = this;
-        self.add({
+        form_item = {
             xtype: 'form',
             flex: 1,
             minHeight: 305,
-            sendingData: {
-                issues: [
-                    {
-                        id: self.record.data.id,
-                        version: self.record.data.version
-//                        version: null
-                    }
-                ]
-            },
+            sendingData: {},
             border: false,
             header: false,
             bodyPadding: 10,
@@ -47,16 +40,10 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                 border: false
             },
             items: [
-                {
-                    html: '<h3 class="isu-assign-text"><span>Close issue </span><span>'
-                        + self.record.data.reason.charAt(0).toLowerCase() + self.record.data.reason.slice(1)
-                        + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '')
-                        + '</span></h3>'
-                },
+                {},
                 {
                     xype: 'container',
                     border: 0,
-                    padding: '30 50 0 50',
                     defaults: {
                         padding: '0 0 30 0'
                     },
@@ -70,7 +57,7 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                             submitValue: false,
                             items: [
                                 { boxLabel: 'Resolved', name: 'status', inputValue: 'CLOSED', checked: true },
-                                { boxLabel: 'Rejected', name: 'status', inputValue: 'REJECTED' }
+                                { boxLabel: 'Rejected', name: 'status', inputValue: 'REJECTED'}
                             ]
                         },
                         {
@@ -83,26 +70,48 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                         }
                     ]
                 },
-                {
-                    xtype: 'container',
-                    padding: '0 155',
-                    items: [
-                        {
-                            xtype: 'button',
-                            name: 'close',
-                            text: 'Close',
-                            formBind: true,
-                            disabled: true
-                        },
-                        {
-                            xtype: 'button',
-                            name: 'cancel',
-                            text: 'Cancel',
-                            cls: Ext.baseCSSPrefix + 'btn-plain-toolbar-medium'
-                        }
-                    ]
-                }
+                {}
             ]
-        })
+        };
+        if (typeof this.bulk == 'undefined') {
+            self.add({
+                xtype: 'breadcrumbTrail',
+                padding: 6
+            });
+            form_item.sendingData = {
+                issues: [
+                    {
+                        id: self.record.data.id,
+                        version: self.record.data.version
+//                        version: null
+                    }
+                ]
+            };
+            form_item.items[0] = { html: '<h3 class="isu-assign-text"><span>Close issue </span><span>'
+                + self.record.data.reason.charAt(0).toLowerCase() + self.record.data.reason.slice(1)
+                + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '')
+                + '</span></h3>'};
+            form_item.items[1].padding = '30 50 0 50';
+            form_item.items[2] = {
+                xtype: 'container',
+                padding: '0 155',
+                items: [
+                    {
+                        xtype: 'button',
+                        name: 'close',
+                        text: 'Close',
+                        formBind: true,
+                        disabled: true
+                    },
+                    {
+                        xtype: 'button',
+                        name: 'cancel',
+                        text: 'Cancel',
+                        cls: Ext.baseCSSPrefix + 'btn-plain-toolbar-medium'
+                    }
+                ]
+            }
+        }
+        self.add(form_item)
     }
 });

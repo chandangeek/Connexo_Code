@@ -38,6 +38,10 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
             'bulk-browse bulk-wizard bulk-step2 radiogroup': {
                 change: this.onStep2RadiogroupChangeEvent
             },
+            'bulk-browse bulk-wizard bulk-step3 issues-close radiogroup': {
+                change: this.onStep3RadiogroupCloseChangeEvent,
+                afterrender: this.getDefaultCloseStatus
+            },
             'bulk-browse bulk-step4': {
                 beforeactivate: this.beforeStep4
             }
@@ -182,6 +186,20 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
         record.commit();
     },
 
+    onStep3RadiogroupCloseChangeEvent: function (radiogroup, newValue, oldValue) {
+        var record = this.getBulkRecord();
+        record.set('status', newValue.status);
+        record.commit();
+    },
+
+    getDefaultCloseStatus: function () {
+        var formPanel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step3').down('issues-close'),
+            default_status = formPanel.down('radiogroup').getValue().status,
+            record = this.getBulkRecord();
+        record.set('status', default_status);
+        record.commit();
+    },
+
     processNextOnStep1: function (wizard) {
         var record = this.getBulkRecord();
 
@@ -215,7 +233,7 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
                 break;
         }
 
-        widget = Ext.widget(view);
+        widget = Ext.widget(view, {bulk: true});
 
         if (widget) {
             step3Panel.removeAll(true);
@@ -228,16 +246,21 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
             step4Panel = wizard.down('bulk-step4'),
             message = '',
             operation = record.get('operation'),
+            status = record.get('status'),
             widget;
 
 
-        switch (operation) {
-            case 'assign':
-                message += 'Assign ';
-                break
-            case 'close':
-                message += 'Close ';
-                break
+        if (operation == 'assign') {
+            message += 'Assign '
+        } else if (operation == 'close') {
+            switch (status) {
+                case 'CLOSED':
+                    message += 'Close ';
+                    break
+                case 'REJECTED':
+                    message += 'Reject ';
+                    break
+            }
         }
 
         message += 'issues?';
@@ -251,8 +274,9 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
     },
 
     beforeStep4: function () {
-        var form = Ext.ComponentQuery.query('bulk-step3 issues-assign-form')[0].getForm();
-
-        return !form || form.isValid();
+        if (this.getBulkRecord().get('operation') == 'assign') {
+            var form = Ext.ComponentQuery.query('bulk-step3 issues-assign-form')[0].getForm();
+            return !form || form.isValid();
+        }
     }
 });
