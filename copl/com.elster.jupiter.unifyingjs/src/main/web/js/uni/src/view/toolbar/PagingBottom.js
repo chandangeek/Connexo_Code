@@ -27,8 +27,21 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
     totalCount: 0,
     totalPages: 0,
     isFullTotalCount: false,
+
+    /**
+     * @cfg {String} Limit parameter
+     *
+     * The limit parameter is used in the URL to define the amount of items that are visible per page.
+     */
     pageSizeParam: 'limit',
+
+    /**
+     * @cfg {String} Start parameter
+     *
+     * The start parameter is used in the URL to define the start of the current paging options.
+     */
     pageStartParam: 'start',
+
     itemsPerPageMsg: 'Items per page',
 
     firstText : 'First page',
