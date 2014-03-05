@@ -109,7 +109,51 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
             method: 'PUT',
             jsonData: requestData,
             success: function (response) {
-                var obj = Ext.decode(response.responseText);
+                var obj = Ext.decode(response.responseText),
+                    step5panel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step5'),
+                    successCount = obj.success.length,
+                    failedCount = obj.failure.length,
+                    successMessage,
+                    successWidget,
+                    failedMessage,
+                    failedWidget;
+
+                switch (operation) {
+                    case 'assign':
+                        if (successCount > 0) {
+                            successMessage = 'Successfully assigned ' + successCount + ' issue(s) to';
+                        }
+                        if (failedCount > 0) {
+                            failedMessage = 'Failed to assign ' + failedCount + 'issue(s)'
+                        }
+                        break;
+                    case 'close':
+                        if (successCount > 0) {
+                            successMessage = 'Successfully closed ' + successCount + ' issue(s)';
+                        }
+                        if (failedCount > 0) {
+                            failedMessage = 'Failed to close ' + failedCount + 'issue(s)'
+                        }
+                        break;
+                }
+
+                step5panel.removeAll(true);
+
+                if (successCount > 0) {
+                    successWidget = Ext.widget('container', {
+                        cls: 'isu-bulk-close-success-panel',
+                        html: successMessage
+                    });
+                    step5panel.add(successWidget);
+                }
+
+                if (failedCount > 0) {
+                    failedWidget = Ext.widget('container', {
+                        cls: 'isu-bulk-close-failed-panel',
+                        html: successMessage
+                    });
+                    step5panel.add(failedWidget);
+                }
                 console.log(obj);
             },
             failure: function (response) {
@@ -277,5 +321,10 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
             var form = Ext.ComponentQuery.query('bulk-step3 issues-assign-form')[0].getForm();
             return !form || form.isValid();
         }
+    },
+
+    afterStep5: function (result) {
+
     }
+
 });
