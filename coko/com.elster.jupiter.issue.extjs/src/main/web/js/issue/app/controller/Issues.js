@@ -182,6 +182,7 @@ Ext.define('Mtr.controller.Issues', {
     // ====================================  IssueListFilter controls  ====================================
 
     setDefaults: function (sortPanel) {
+        this.groupParams = {};
         var fakeItem = {
                 text: 'Due date',
                 value: 'dueDate'
@@ -196,6 +197,7 @@ Ext.define('Mtr.controller.Issues', {
                 }
             };
         this.addSortItem(fakeMenu, fakeItem);
+
     },
 
     updateIssueList: function () {

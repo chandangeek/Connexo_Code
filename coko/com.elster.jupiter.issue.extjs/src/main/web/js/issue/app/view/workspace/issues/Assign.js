@@ -62,7 +62,9 @@ Ext.define('Mtr.view.workspace.issues.Assign', {
                         {
                             text: 'Cancel',
                             name: 'cancel',
-                            cls: Ext.baseCSSPrefix + 'btn-plain-toolbar-medium'
+                            cls: 'isu-btn-link',
+                            hrefTarget: '',
+                            href: '#/workspace/datacollection/issues'
                         }
                     ]
                 }

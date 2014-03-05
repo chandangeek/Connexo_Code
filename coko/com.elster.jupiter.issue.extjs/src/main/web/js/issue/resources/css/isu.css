@@ -260,3 +260,14 @@ span[class^=isu-assignee-] {
 .isu-assign-text span:first-child {
     color: #000;
 }
+
+.isu-btn-link {
+    background: none repeat scroll 0 0 transparent;
+    border: medium none;
+    color: #3A7CFF;
+    text-decoration: underline;
+}
+
+.isu-btn-link .x-btn-inner {
+    color: #3A7CFF;
+}

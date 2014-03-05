@@ -27,6 +27,7 @@ Ext.define('Mtr.view.workspace.issues.Close', {
     },
     addForm: function () {
         var self = this;
+
         self.add({
             xtype: 'form',
             flex: 1,
@@ -41,6 +42,7 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                 ]
             },
             border: false,
+            recordTitle: self.record.data.reason + ' ' + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : ''),
             header: false,
             bodyPadding: 10,
             defaults: {
@@ -98,7 +100,9 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                             xtype: 'button',
                             name: 'cancel',
                             text: 'Cancel',
-                            cls: Ext.baseCSSPrefix + 'btn-plain-toolbar-medium'
+                            cls: 'isu-btn-link',
+                            hrefTarget: '',
+                            href: '#/workspace/datacollection/issues'
                         }
                     ]
                 }

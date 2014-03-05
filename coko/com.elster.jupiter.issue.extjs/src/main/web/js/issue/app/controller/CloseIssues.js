@@ -17,6 +17,7 @@ Ext.define('Mtr.controller.CloseIssues', {
                 afterrender: this.setBreadcrumb
             }
         });
+        this.getApplication().on('closeissue', this.submitIssueClosing)
     },
 
     setBreadcrumb: function (breadcrumbs) {
@@ -43,12 +44,12 @@ Ext.define('Mtr.controller.CloseIssues', {
 
     submitIssueClosing: function (button) {
         var self = this,
-            formPanel = button.up('form'),
+            closeView = Ext.ComponentQuery.query('issues-close')[0],
+            formPanel = closeView.down('form'),
             form = formPanel.getForm(),
             formValues = form.getValues(),
             url = '/api/isu/issue/close',
             preloader;
-
         formPanel.sendingData.status = formValues.status;
         formPanel.sendingData.comment = formValues.comment.trim();
 
@@ -79,12 +80,34 @@ Ext.define('Mtr.controller.CloseIssues', {
                             showTime: 5000
                         });
                     } else {
-                        header.text = result.failure[0].reason;
+                        var msges = [];
+                        var bodyItem = {};
+                        header.text = 'Failed to close issue ' + formPanel.recordTitle;
+                        msges.push(header);
+                        bodyItem.text = result.failure[0].reason;
+                        bodyItem.style = 'msgItemStyle';
+                        msges.push(bodyItem);
                         self.getApplication().fireEvent('isushowmsg', {
                             type: 'error',
-                            msgBody: [header],
+                            msgBody: msges,
                             y: 10,
-                            closeBtn: true
+                            closeBtn: true,
+                            btns: [
+                                {
+                                    text: 'Retry',
+                                    hnd: function () {
+                                        self.getApplication().fireEvent('closeissue')
+                                    }
+                                },
+                                {
+                                    text: 'Cancel',
+                                    cls: 'isu-btn-link',
+                                    // this function is necessary and MUST be empty
+                                    hnd: function () {
+
+                                    }
+                                }
+                            ]
                         });
                     }
                 },

@@ -23,9 +23,6 @@ Ext.define('Mtr.controller.AssignIssues', {
                 'issues-assign button[name=assign]': {
                     click: this.onSubmitForm
                 },
-                'issues-assign button[name=cancel]': {
-                    click: this.onCancel
-                },
                 'issues-assign breadcrumbTrail': {
                     afterrender: this.setBreadcrumb
                 }
@@ -96,10 +93,6 @@ Ext.define('Mtr.controller.AssignIssues', {
             }
         },
 
-        onCancel: function () {
-            Ext.History.back();
-        },
-
         handleServerResponse: function (resp, param) {
             var response = Ext.JSON.decode(resp.responseText),
                 successArr = response.success,
@@ -112,16 +105,12 @@ Ext.define('Mtr.controller.AssignIssues', {
                 msges = [];
 
             preloader.destroy();
-
             success = Ext.Array.findBy(successArr, function (item) {
                 return item == id;
             });
-
             if (success) {
                 console.log(success)
             }
-
-
             if (failureArr.length > 0) {
                 Ext.Array.each(failureArr, function (item) {
                     Ext.Array.each(item.issues, function (issue) {
@@ -147,6 +136,14 @@ Ext.define('Mtr.controller.AssignIssues', {
                                 text: 'Retry',
                                 hnd: function () {
                                     param.controller.getApplication().fireEvent('assignissue')
+                                }
+                            },
+                            {
+                                text: 'Cancel',
+                                cls: 'isu-btn-link',
+                                // this function is necessary and MUST be empty
+                                hnd: function () {
+
                                 }
                             }
                         ]
