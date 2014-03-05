@@ -60,11 +60,12 @@ Ext.define('Mtr.controller.AssignIssues', {
                 activeCombo = formPanel.down('combobox[disabled=false]'),
                 form = formPanel.getForm(),
                 formValues = form.getValues(),
-                url = '/api/isu/issue/assign',
+                url = '/api/isu/issue/assign++',
                 sendingData = {},
                 preloader;
 
-            if (form.isValid()) {
+            if (!form.isValid()) {
+            } else {
                 sendingData.issues = [
                     {
                         id: assignPanel.record.data.id,
@@ -88,7 +89,8 @@ Ext.define('Mtr.controller.AssignIssues', {
                     method: 'PUT',
                     jsonData: sendingData,
                     success: self.handleServerResponse,
-                    controller: this
+                    controller: this,
+                    autoAbort: true
                 });
             }
         },

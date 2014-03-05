@@ -2,21 +2,23 @@ Ext.define('Mtr.view.workspace.issues.bulk.Step1', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.bulk-step1',
     title: 'Select issues',
+    border: false,
     requires: [
         'Mtr.view.workspace.issues.List'
     ],
 
     items: [
         {
-            xtype: 'issues-filter'
+            xtype: 'issues-filter',
+            bodyCls: 'isu-bulk-wizard-no-border'
         },
         {
-            xtype: 'issue-no-group'
+            xtype: 'issue-no-group',
+            bodyCls: 'isu-bulk-wizard-no-border'
         },
         {
             xtype: 'issues-list',
             height: 285,
-            dockedItems: [],
             selType: 'checkboxmodel',
 
             columns: [

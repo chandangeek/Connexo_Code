@@ -119,18 +119,15 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
     },
 
     getRequestData: function (bulkStoreRecord) {
-        var requestData = {
-                issues: []
-            },
-            issues,
-            operation = bulkStoreRecord.get('operation');
+        var requestData = {issues: []};
+        var operation = bulkStoreRecord.get('operation');
+        var issues = bulkStoreRecord.get('issues');
 
-        issues = bulkStoreRecord.get('issues');
-        Ext.iterate(issues, function (issue, index, issuesItSelf) {
+        Ext.iterate(issues, function (issue) {
             requestData.issues.push(
                 {
-                    id: issue.id,
-                    version: issue.version
+                    id: issue.get('id'),
+                    version: issue.get('version')
                 }
             );
         });
@@ -138,14 +135,14 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
         switch (operation) {
             case 'assign':
                 requestData.assignee = {
-                    id: bulkStoreRecord.get('assigneeId'),
-                    type: bulkStoreRecord.get('assigneeType')
+                    id: bulkStoreRecord.get('assignee').id,
+                    type: bulkStoreRecord.get('assignee').type
                 };
-                break
+                break;
             case 'close':
                 requestData.comment = bulkStoreRecord.get('comment');
                 requestData.status = bulkStoreRecord.get('status');
-                break
+                break;
         }
 
         return requestData;
@@ -201,19 +198,10 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
     },
 
     processNextOnStep1: function (wizard) {
-        var record = this.getBulkRecord();
+        var record = this.getBulkRecord(),
+            grid = wizard.down('bulk-step1').down('issues-list');
 
-        record.set('issues', [
-            {
-                id: '1',
-                version: '1'
-            },
-            {
-                id: '2',
-                version: '1'
-            }
-        ]);
-
+        record.set('issues', grid.getSelectionModel().getSelection());
         record.commit();
     },
 
@@ -238,6 +226,7 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
         if (widget) {
             step3Panel.removeAll(true);
             step3Panel.add(widget);
+            step3Panel.fireEvent('removechildborder', step3Panel);
         }
     },
 
@@ -247,29 +236,48 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
             message = '',
             operation = record.get('operation'),
             status = record.get('status'),
+            formPanel = Ext.ComponentQuery.query('bulk-step3 issues-assign-form')[0],
+            activeRadio = formPanel.down('radiogroup').down('radio[checked=true]').inputValue,
+            activeCombo = formPanel.down('combo[name=' + activeRadio + ']'),
+            form = formPanel.getForm(),
             widget;
 
+        if (form.isValid()) {
+            record.set('assignee', {
+                id: activeCombo.findRecordByValue(activeCombo.getValue()).data.id,
+                type: activeCombo.name,
+                title: activeCombo.rawValue
+            });
 
         if (operation == 'assign') {
-            message += 'Assign '
+            message += '<h3>Assign '
         } else if (operation == 'close') {
             switch (status) {
                 case 'CLOSED':
-                    message += 'Close ';
-                    break
+                    message += '<h3>Close ';
+                    break;
                 case 'REJECTED':
-                    message += 'Reject ';
-                    break
+                    message += '<h3>Reject ';
+                    break;
             }
         }
 
-        message += 'issues?';
-        widget = Ext.widget('panel', {
-            html: message
-        });
-        if (widget) {
-            step4Panel.removeAll(true);
-            step4Panel.add(widget);
+            message += record.get('issues').length;
+            message += ' issues to ';
+            message += record.get('assignee').title;
+            message += '?</h3><br>';
+            message += 'The selected issues will be assigned to ';
+            message += record.get('assignee').title;
+
+            widget = Ext.widget('container', {
+                cls: 'isu-bulk-assign-confirmation-request-panel',
+                html: message
+            });
+
+            if (widget) {
+                step4Panel.removeAll(true);
+                step4Panel.add(widget);
+            }
         }
     },
 

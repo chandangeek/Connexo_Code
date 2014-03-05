@@ -39,7 +39,7 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                 border: false
             },
             items: [
-                {     
+                { 
                 },
                 {
                     xype: 'container',
@@ -79,6 +79,7 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                 xtype: 'breadcrumbTrail',
                 padding: 6
             });
+            form_item.recordTitle = self.record.data.reason + ' ' + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '')  
             form_item.sendingData = {
                 issues: [
                     {
@@ -88,10 +89,10 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                     }
                 ]
             };
-            form_item.items[0] = { html: '<h3 class="isu-assign-text"><span>Close issue </span><span>'
+            form_item.items[0] = { html: '<h3>Close issue '
                 + self.record.data.reason.charAt(0).toLowerCase() + self.record.data.reason.slice(1)
-                + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '')
-                + '</span></h3>'};
+                + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.sNumber : '')
+                + '</h3>'};
             form_item.items[1].padding = '30 50 0 50';
             form_item.items[2] = {
                 xtype: 'container',
