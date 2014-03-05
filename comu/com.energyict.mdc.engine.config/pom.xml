@@ -13,7 +13,7 @@
     <artifactId>mdc-engine-config</artifactId>
     <packaging>bundle</packaging>
     <version>${comserver.version}</version>
-    <name>[MDC] mdc-engine-config</name>
+    <name>[MDC] mdc.engine.model</name>
     <description>contains the configuration aspects of the components that implement the engine of data collection</description>
 
     <dependencies>
