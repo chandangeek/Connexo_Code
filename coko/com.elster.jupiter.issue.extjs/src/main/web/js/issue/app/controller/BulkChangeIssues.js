@@ -38,6 +38,10 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
             'bulk-browse bulk-wizard bulk-step2 radiogroup': {
                 change: this.onStep2RadiogroupChangeEvent
             },
+            'bulk-browse bulk-wizard bulk-step3 issues-close radiogroup': {
+                change: this.onStep3RadiogroupCloseChangeEvent,
+                afterrender: this.getDefaultCloseStatus
+            },
             'bulk-browse bulk-step4': {
                 beforeactivate: this.beforeStep4
             }
@@ -180,6 +184,20 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
         record.commit();
     },
 
+    onStep3RadiogroupCloseChangeEvent: function (radiogroup, newValue, oldValue) {
+        var record = this.getBulkRecord();
+        record.set('status', newValue.status);
+        record.commit();
+    },
+
+    getDefaultCloseStatus: function () {
+        var formPanel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step3').down('issues-close'),
+            default_status = formPanel.down('radiogroup').getValue().status,
+            record = this.getBulkRecord();
+        record.set('status', default_status);
+        record.commit();
+    },
+
     processNextOnStep1: function (wizard) {
         var record = this.getBulkRecord(),
             grid = wizard.down('bulk-step1').down('issues-list');
@@ -204,12 +222,14 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
                 break;
         }
 
-        widget = Ext.widget(view);
+        widget = Ext.widget(view, {bulk: true});
 
         if (widget) {
             step3Panel.removeAll(true);
             step3Panel.add(widget);
-            step3Panel.fireEvent('removechildborder', step3Panel);
+            if (view === 'issues-assign-form') {
+                step3Panel.fireEvent('removechildborder', step3Panel);
+            }
         }
     },
 
@@ -237,7 +257,7 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
                     break;
 
                 case 'close':
-                    message += '<h3>Close ' + record.get('issues').length + ' issues?'
+                    message = '<h3>Close ' + record.get('issues').length + ' issues?</h3><br>'
                         + 'The selected issues will be closed with status <b>' + record.get('status') + '</b>';
                     break;
             }
@@ -253,8 +273,9 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
     },
 
     beforeStep4: function () {
-        var form = Ext.ComponentQuery.query('bulk-step3 issues-assign-form')[0].getForm();
-
-        return !form || form.isValid();
+        if (this.getBulkRecord().get('operation') == 'assign') {
+            var form = Ext.ComponentQuery.query('bulk-step3 issues-assign-form')[0].getForm();
+            return !form || form.isValid();
+        }
     }
 });

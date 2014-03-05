@@ -4,7 +4,7 @@ Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.Item', {
         'Ext.button.Split'
     ],
     alias: 'widget.issues-assignment-rules-item',
-    height: 225,
+    height: 150,
 
     initComponent: function () {
         var self = this;
@@ -37,7 +37,6 @@ Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.Item', {
             items: [
                 {
                     xtype: 'toolbar',
-                    padding: 10,
                     ui: 'footer',
                     layout: {
                         type: 'hbox',
