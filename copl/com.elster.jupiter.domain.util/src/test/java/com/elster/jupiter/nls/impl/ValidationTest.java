@@ -17,19 +17,20 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -87,7 +88,7 @@ public class ValidationTest {
     		if (violation.getConstraintDescriptor().getAnnotation().annotationType().equals(NotNull.class)) {
     			assertThat(message).isEqualTo("vide (ne peut pas \u00eatre nul)");
     		} else {
-    			assertThat(message).isEqualTo("svp ne laisser pas vide (ne peut pas \u00eatre nul), valeur minimal: 10"); 
+    			assertThat(message).isEqualTo("svp ne laissez pas vide (ne peut pas \u00eatre nul), valeur minimal: 10");
     		}
     	}
     }
