@@ -30,7 +30,6 @@ Ext.ClassManager.addNameAlternateMappings({
   "Cfg.controller.EventType": [],
   "Cfg.controller.Main": [],
   "Cfg.controller.Validation": [],
-  "Cfg.controller.history.Administration": [],
   "Cfg.controller.history.EventType": [],
   "Cfg.controller.history.Validation": [],
   "Cfg.model.EventType": [],

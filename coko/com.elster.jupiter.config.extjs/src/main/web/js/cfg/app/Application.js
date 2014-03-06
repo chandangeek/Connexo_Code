@@ -7,11 +7,10 @@ Ext.define('Cfg.Application', {
     ],
 
     controllers: [
-        'Main',
-        'Validation',
-        'history.Validation',
-        'Administration',
-        'history.Administration'
+        'Cfg.controller.Main',
+        'Cfg.controller.Validation',
+        'Cfg.controller.history.Validation',
+        'Cfg.controller.Administration'
     ],
 
     stores: [

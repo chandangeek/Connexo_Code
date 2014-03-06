@@ -20,7 +20,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
         items: [
             { header: Uni.I18n.translate('general.name', 'CFG', 'Name'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true,
                 renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                    return '<a style="color:#007dc3" href="#/validation/overview/' + record.getId() + '">' + value + '</a>'
+                    return '<a style="color:#007dc3" href="#administration/validation/overview/' + record.getId() + '">' + value + '</a>'
                 }
             },
             { header: Uni.I18n.translate('validation.numberOfRules', 'CFG', 'Number of rules'), dataIndex: 'numberOfRules', flex: 0.3, align: 'center', sortable: false, fixed: true  },
@@ -93,7 +93,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
                         text: Uni.I18n.translate('validation.createRuleSet', 'CFG', 'Create rule set'),
                         itemId: 'newRuleset',
                         xtype: 'button',
-                        href: '#/validation/createset',
+                        href: '#administration/validation/createset',
                         hrefTarget: '_self'
                     },
                     {
