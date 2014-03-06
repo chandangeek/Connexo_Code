@@ -75,7 +75,7 @@
 }
 
 .isu-action-icon {
-    background-image: url("../images/icons/actions.png");
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABBElEQVQ4jaXTvU4CURAF4K9ZRYI8hiYkWlgoRn0FC7TUwoRCjbL4WhQigcZoDRXvZLGz5GZZTNCTTDI/Z+buPXeWzRjiPWzwC2+FJh7QiniU1Ep/Pzh7dc1jPGKKZyyS+gJPmAVnHD0r3KMffgfXyJJ6FrlOxH3cpQPacfJBkmuhG9ZK8ofBbVev8Yqb8M/xGblB+GdRu8VL2jjEF5bYUQg0w27CaUSuEZxl9OQwqXzJZZxcRY6LSm5CoWiKqy0GjMsrjDDf4grz6MnTaamIXYXSpYhTnEZtTUTqnzHDSVi6E7XPmC7SMXrWF6mHo4jXFqmJD/9Y5XLIn3+mOrzhOyzfRPoBNLA3bjmGIeAAAAAASUVORK5CYII=");
 }
 
 span[class^=isu-assignee-] {
@@ -205,6 +205,13 @@ span[class^=isu-assignee-] {
     width: 90%;
 }
 
+.isu-item-action-icon:before {
+    color: #fff;
+    font-size: 14px;
+    margin-left: 1px;
+    margin-top: 1px;
+}
+
 /* Message Window */
 
 /* Window */
@@ -313,7 +320,7 @@ span[class^=isu-assignee-] {
     border-radius: 25px;
     padding: 20px;
     width: 50%;
-}}
+}
 
 .isu-btn-link {
     background: none repeat scroll 0 0 transparent;

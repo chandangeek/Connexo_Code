@@ -1,7 +1,8 @@
 Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.Item', {
     extend: 'Ext.panel.Panel',
     requires: [
-        'Ext.button.Split'
+        'Mtr.view.ext.button.ItemAction',
+        'Mtr.view.workspace.datacollection.issueassignmentrules.ActionMenu'
     ],
     alias: 'widget.issues-assignment-rules-item',
     height: 150,
@@ -44,36 +45,11 @@ Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.Item', {
                     },
                     items: [
                         {
-                            xtype: 'button',
-                            text: 'Actions',
-                            iconCls: 'isu-action-icon',
+                            xtype: 'item-action',
                             menu: {
-                                xtype: 'menu',
-                                plain: true,
-                                border: false,
-                                record: record,
-                                shadow: false,
+                                xtype: 'rule-action-menu',
                                 name: 'ruleactionmenu',
-                                items: [
-                                    {
-                                        text: 'Enable'
-                                    },
-                                    {
-                                        text: 'Disable'
-                                    },
-                                    {
-                                        text: 'Edit'
-                                    },
-                                    {
-                                        text: 'Delete'
-                                    },
-                                    {
-                                        text: 'Move up'
-                                    },
-                                    {
-                                        text: 'Move down'
-                                    }
-                                ]
+                                record: record
                             }
                         }
                     ]

@@ -5,7 +5,8 @@ Ext.define('Mtr.controller.IssueAssignmentRules', {
         'Mtr.store.AssignmentRules'
     ],
     views: [
-        'workspace.datacollection.issueassignmentrules.Overview'
+        'workspace.datacollection.issueassignmentrules.Overview',
+        'ext.button.GridAction'
     ],
 
     refs: [
@@ -22,6 +23,13 @@ Ext.define('Mtr.controller.IssueAssignmentRules', {
             },
             'issue-assignment-rules-overview issues-assignment-rules-list gridview': {
                 itemclick: this.loadRule
+            },
+            'issue-assignment-rules-overview issues-assignment-rules-list actioncolumn': {
+                click: this.showRuleActions
+            },
+            'menu[name=ruleactionmenu]': {
+                beforehide: this.hideRuleActions,
+                click: this.chooseRuleAction
             }
         });
 
@@ -92,5 +100,53 @@ Ext.define('Mtr.controller.IssueAssignmentRules', {
             itemPanel.fireEvent('change', itemPanel, data);
             preloader.destroy();
         }, 1000);
+    },
+
+    showRuleActions: function (grid, cell, rowIndex, colIndex, e, record) {
+        var cellEl = Ext.get(cell);
+
+        this.hideRuleActions();
+
+        this.gridActionIcon = cellEl.first();
+
+        this.gridActionIcon.hide();
+        this.gridActionIcon.setHeight(0);
+        this.gridActionBtn = Ext.create('widget.grid-action', {
+            renderTo: cell,
+            menu: {
+                xtype: 'rule-action-menu',
+                name: 'ruleactionmenu',
+                record: record
+            }
+        });
+        this.gridActionBtn.showMenu();
+    },
+
+    hideRuleActions: function () {
+        if (this.gridActionBtn) {
+            this.gridActionBtn.destroy();
+        }
+
+        if (this.gridActionIcon) {
+            this.gridActionIcon.show();
+            this.gridActionIcon.setHeight(22);
+        }
+    },
+
+    chooseRuleAction: function (menu, item) {
+        switch (item.text) {
+            case 'Enable':
+                break;
+            case  'Disable':
+                break;
+            case  'Edit':
+                break;
+            case  'Delete':
+                break;
+            case  'Move up':
+                break;
+            case  'Move down':
+                break;
+        }
     }
 });

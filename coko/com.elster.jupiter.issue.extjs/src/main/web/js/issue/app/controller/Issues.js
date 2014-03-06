@@ -12,7 +12,7 @@ Ext.define('Mtr.controller.Issues', {
         'workspace.issues.List',
         'workspace.issues.Item',
         'workspace.issues.IssueNoGroup',
-        'ext.button.IssuesGridAction',
+        'ext.button.GridAction',
         'ext.button.SortItemButton'
     ],
 
@@ -142,10 +142,15 @@ Ext.define('Mtr.controller.Issues', {
 
         this.gridActionIcon.hide();
         this.gridActionIcon.setHeight(0);
-        this.gridActionBtn = Ext.create('Mtr.view.ext.button.IssuesGridAction', {
-            renderTo: cell
+        this.gridActionBtn = Ext.create('widget.grid-action', {
+            renderTo: cell,
+            menu: {
+                xtype: 'issue-action-menu',
+                name: 'issueactionmenu',
+                cls: 'issue-action-menu',
+                record: record
+            }
         });
-        this.gridActionBtn.down('menu').record = record;
         this.gridActionBtn.showMenu();
     },
 
