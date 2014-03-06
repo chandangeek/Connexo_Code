@@ -36,7 +36,8 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
                 wizardcancelled: this.onWizardCancelledEvent
             },
             'bulk-browse bulk-wizard bulk-step2 radiogroup': {
-                change: this.onStep2RadiogroupChangeEvent
+                change: this.onStep2RadiogroupChangeEvent,
+                afterrender: this.getDefaultStep2Operation
             },
             'bulk-browse bulk-wizard bulk-step3 issues-close radiogroup': {
                 change: this.onStep3RadiogroupCloseChangeEvent,
@@ -238,6 +239,14 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
     onStep3RadiogroupCloseChangeEvent: function (radiogroup, newValue, oldValue) {
         var record = this.getBulkRecord();
         record.set('status', newValue.status);
+        record.commit();
+    },
+
+    getDefaultStep2Operation: function () {
+        var formPanel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step2').down('panel'),
+            default_operation = formPanel.down('radiogroup').getValue().operation,
+            record = this.getBulkRecord();
+        record.set('operation', default_operation);
         record.commit();
     },
 

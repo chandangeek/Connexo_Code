@@ -24,8 +24,8 @@ Ext.define('Mtr.view.workspace.issues.bulk.Step2', {
                     },
 
                     items: [
-                        { boxLabel: 'Assign issues', checked: true, inputValue: 'assign' },
-                        { boxLabel: 'Close issues', inputValue: 'close' }
+                        { boxLabel: 'Assign issues', name: 'operation', inputValue: 'assign', checked: true },
+                        { boxLabel: 'Close issues', name: 'operation', inputValue: 'close'}
                     ]
                 }
             ]
