@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
@@ -70,7 +69,7 @@ public class RegisterTypeResource {
         ReadingType readingType = findReadingTypeOrThrowException(registerMappingInfo);
 
         RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping(registerMappingInfo.name, registerMappingInfo.obisCode, registerMappingInfo.unit, readingType, registerMappingInfo.timeOfUse);
-        registerMappingInfo.writeTo(registerMapping);
+        registerMappingInfo.writeTo(registerMapping, findReadingTypeOrThrowException(registerMappingInfo));
         registerMapping.save();
         return new RegisterMappingInfo(registerMapping);
     }
@@ -81,19 +80,9 @@ public class RegisterTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterMappingInfo updateRegisterMapping(@PathParam("id") Long id, RegisterMappingInfo registerMappingInfo) {
         RegisterMapping registerMapping = findRegisterTypeOrThrowException(id);
-        ReadingType readingType = findReadingTypeOrThrowException(registerMappingInfo);
-        ProductSpec productSpecByReadingType = findProductSpecOrThrowException(registerMappingInfo, readingType); // TODO Complete
-        registerMappingInfo.writeTo(registerMapping);
+        registerMappingInfo.writeTo(registerMapping, findReadingTypeOrThrowException(registerMappingInfo));
         registerMapping.save();
         return new RegisterMappingInfo(registerMapping);
-    }
-
-    private ProductSpec findProductSpecOrThrowException(RegisterMappingInfo registerMappingInfo, ReadingType readingType) {
-        ProductSpec productSpecByReadingType = deviceConfigurationService.findProductSpecByReadingType(readingType);
-        if (productSpecByReadingType==null) {
-            throw new WebApplicationException("No product spec for reading type " + registerMappingInfo.readingTypeInfo.mrid, Response.Status.BAD_REQUEST);
-        }
-        return productSpecByReadingType;
     }
 
     private ReadingType findReadingTypeOrThrowException(RegisterMappingInfo registerMappingInfo) {

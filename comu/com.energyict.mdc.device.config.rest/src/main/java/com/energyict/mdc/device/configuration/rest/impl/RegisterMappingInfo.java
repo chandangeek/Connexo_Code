@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.RegisterMapping;
@@ -39,13 +40,11 @@ public class RegisterMappingInfo {
         readingTypeInfo = new ReadingTypeInfo(registerMapping.getReadingType());
     }
 
-    public void writeTo(RegisterMapping registerMapping) {
+    public void writeTo(RegisterMapping registerMapping, ReadingType readingType) {
         registerMapping.setName(this.name);
         registerMapping.setObisCode(this.obisCode);
         registerMapping.setTimeOfUse(this.timeOfUse);
         registerMapping.setUnit(this.unit);
-        registerMapping.getReadingType();
-//        readingTypeInfo.writeTo(registerMapping.getReadingType());  TODO Complete
-
+        registerMapping.setReadingType(readingType);
     }
 }
