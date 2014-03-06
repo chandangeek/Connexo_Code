@@ -7,6 +7,8 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
+import java.util.Arrays;
+
 /**
  * Copyrights EnergyICT
  * Date: 28/10/13
@@ -18,12 +20,10 @@ public class Activator implements BundleActivator {
 
     public void start(BundleContext bundleContext) throws Exception {
         String alias = "/mdc";
-//        HttpResource resource = new HttpResource(alias, "/js/mdc" , new BundleResolver(bundleContext), new DefaultStartPage("Meter data collection"));
-//        Comment above and uncomment next line for file based javascript serving, changing second argument as appropriate
 //        List<Script> scripts = new ArrayList<>();
 //        scripts.add(new Script("jquery","/bla/bla/bla"));
 //        DefaultStartPage mdc = new DefaultStartPage("Mdc", "", "/index.html", "Mdc.controller.Main",scripts);
-        DefaultStartPage mdc = new DefaultStartPage("Mdc", "", "/index.html", "Mdc.controller.Main");
+        DefaultStartPage mdc = new DefaultStartPage("Mdc", "", "/index.html", "Mdc.controller.Main",null,Arrays.asList("MDC"));
         HttpResource resource = new HttpResource(alias, "/js/mdc" , new BundleResolver(bundleContext), mdc);
 //        HttpResource resource = new HttpResource(alias, "C:/jupiterrepo/comserver-all/com.energyict.comserver.comserver.core.extjs/src/main/web/js/mdc" , new FileResolver(), mdc);
         registration = bundleContext.registerService(HttpResource.class, resource , null);
