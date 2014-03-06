@@ -146,10 +146,6 @@ span[class^=isu-assignee-] {
     margin: -9px 0 0 1px;
 }
 
-.issue-action-menu {
-    width: 50px !important;
-}
-
 .isu-wizard-header {
     background-color: transparent;
 }

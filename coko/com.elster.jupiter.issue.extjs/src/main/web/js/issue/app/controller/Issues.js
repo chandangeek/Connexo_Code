@@ -16,6 +16,10 @@ Ext.define('Mtr.controller.Issues', {
         'ext.button.SortItemButton'
     ],
 
+    mixins: [
+        'Mtr.util.IsuGrid'
+    ],
+
     refs: [
         {
             ref: 'itemPanel',
@@ -38,14 +42,14 @@ Ext.define('Mtr.controller.Issues', {
     init: function () {
         this.control({
             'issues-overview issues-list gridview': {
-                itemclick: this.loadIssuesItem,
-                itemmouseenter: this.onMouseEnter
+                itemclick: this.loadGridItemDetail,
+                itemmouseenter: this.onUserTypeIconHover
             },
             'issues-overview issues-list actioncolumn': {
-                click: this.showIssuesActions
+                click: this.showItemAction
             },
-            'menu[name=issueactionmenu]': {
-                beforehide: this.hideIssuesActions,
+            'issue-action-menu': {
+                beforehide: this.hideItemAction,
                 click: this.chooseIssuesAction
             },
             'issues-overview issues-list button[name=bulk-change-issues]': {
@@ -87,7 +91,8 @@ Ext.define('Mtr.controller.Issues', {
         this.store = this.getStore('Mtr.store.Issues');
         this.groupParams = {};
         this.sortParams = {};
-
+        this.actionMenuXtype = 'issue-action-menu';
+        this.gridItemModel = this.getModel('Mtr.model.Issues');
     },
 
     showOverview: function () {
@@ -125,21 +130,12 @@ Ext.define('Mtr.controller.Issues', {
             preloader.show();
         }
         this.lastId = record.id;
-        Ext.Ajax.request({
-            url: '/api/isu/issue/' + record.get('id'),
-            method: 'GET',
-            success: function (response) {
-                var resp = Ext.JSON.decode(response.responseText);
-                model.load(record.get('id'), {
-                    success: function () {
-                        itemPanel.fireEvent('change', itemPanel, resp);
-                        preloader.destroy();
-                    }
-                });
+        model.load(record.data.id, {
+            success: function () {
+                itemPanel.fireEvent('change', itemPanel, record);
+                preloader.destroy();
             }
         });
-
-
     },
 
     showIssuesActions: function (grid, cell, rowIndex, colIndex, e, record) {
@@ -221,7 +217,6 @@ Ext.define('Mtr.controller.Issues', {
             Ext.merge(extraParams, this.sortParams);
         }
         this.store.proxy.extraParams = extraParams;
-        //    this.store.load();;
         this.store.loadPage(1);
     },
 
@@ -390,52 +385,6 @@ Ext.define('Mtr.controller.Issues', {
                 border: false
             });
         }
-    },
-    // ====================================  END IssueListFilter controls  ====================================
-    onMouseEnter: function (me, record, item) {
-        var rowEl = Ext.get(item),
-            iconElem = rowEl.select('span').elements[0],
-            toolTip;
-        if (iconElem) {
-            var icon = iconElem.getAttribute('class'),
-                domIconElem = Ext.get(iconElem);
-            switch (icon) {
-                case 'isu-icon-USER':
-                    toolTip = Ext.create('Ext.tip.ToolTip', {
-                        target: domIconElem,
-                        html: 'User',
-                        style: {
-                            borderColor: 'black'
-                        }
-                    });
-                    break;
-                case 'isu-icon-GROUP':
-                    toolTip = Ext.create('Ext.tip.ToolTip', {
-                        target: domIconElem,
-                        html: 'User group',
-                        style: {
-                            borderColor: 'black'
-                        }
-                    });
-                    break;
-                case 'isu-icon-ROLE':
-                    toolTip = Ext.create('Ext.tip.ToolTip', {
-                        target: domIconElem,
-                        html: 'User role',
-                        style: {
-                            borderColor: 'black'
-                        }
-                    });
-                    break;
-                default:
-                    break;
-            }
-            domIconElem.on('mouseenter', function () {
-                toolTip.show();
-            });
-            domIconElem.on('mouseleave', function () {
-                toolTip.hide();
-            });
-        }
     }
+    // ====================================  END IssueListFilter controls  ====================================
 });

@@ -13,14 +13,6 @@ Ext.define('Mtr.view.workspace.issues.Close', {
     },
     overflowY: 'auto',
 
-//    listeners: {
-//        render: {
-//            fn: function (self) {
-//                self.addForm();
-//            }
-//        }
-//    },
-
     initComponent: function () {
         this.callParent(arguments);
         this.addForm();
@@ -81,7 +73,6 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                     {
                         id: self.record.data.id,
                         version: self.record.data.version
-//                        version: null
                     }
                 ]
             };

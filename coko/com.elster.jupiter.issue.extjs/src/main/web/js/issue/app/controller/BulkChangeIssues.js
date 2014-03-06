@@ -99,11 +99,21 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
         this.setBulkActionListActiveItem(wizard);
         this.getBulkActionsList().clearHyperLinkActions();
 
-        var record = this.getBulkRecord();
-        var requestData = this.getRequestData(record);
+        var step5panel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step5'),
+            record = this.getBulkRecord(),
+            requestData = this.getRequestData(record),
+            operation = record.get('operation'),
+            requestUrl = '/api/isu/issue/' + operation;
 
-        var operation = record.get('operation');
-        var requestUrl = '/api/isu/issue/' + operation;
+        var pb = Ext.create('Ext.ProgressBar', {width: '50%'});
+        step5panel.removeAll(true);
+        step5panel.add(
+            pb.wait({
+                interval: 50,
+                increment: 20,
+                text: (operation === 'assign' ? 'Assigning ' : 'Closing ') + requestData.issues.length + ' issue(s). Please wait...'
+            })
+        );
 
         Ext.Ajax.request({
             url: requestUrl,
@@ -111,7 +121,6 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
             jsonData: requestData,
             success: function (response) {
                 var obj = Ext.decode(response.responseText),
-                    step5panel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step5'),
                     successCount = obj.success.length,
                     failedCount = obj.failure.length,
                     successMessage,
@@ -122,7 +131,8 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
                 switch (operation) {
                     case 'assign':
                         if (successCount > 0) {
-                            successMessage = 'Successfully assigned ' + successCount + ' issue(s) to';
+                            successMessage = 'Successfully assigned ' + successCount + ' issue(s) to '
+                                + '<b>' + record.get('assignee').title + '</b>';
                         }
                         if (failedCount > 0) {
                             failedMessage = 'Failed to assign ' + failedCount + 'issue(s)'
@@ -155,9 +165,9 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
                     });
                     step5panel.add(failedWidget);
                 }
-                console.log(obj);
             },
             failure: function (response) {
+                step5panel.removeAll(true);
                 console.log('server-side failure with status code ' + response.status);
             }
         });
@@ -195,10 +205,7 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
     },
 
     onWizardCancelledEvent: function (wizard) {
-        Ext.Msg.show({
-            title: 'Operation',
-            msg: 'Cancel has been pressed'
-        });
+        Ext.History.back();
     },
 
     setBulkActionListActiveItem: function (wizard) {
@@ -305,17 +312,17 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
                         type: activeCombo.name,
                         title: activeCombo.rawValue
                     });
-                    message = '<h3>Assign ' + record.get('issues').length + ' issues to ' + record.get('assignee').title + '?</h3><br>'
-                        + 'The selected issues will be assigned to ' + record.get('assignee').title;
+                    message = '<h3>Assign ' + record.get('issues').length + ' issue(s) to ' + record.get('assignee').title + '?</h3><br>'
+                        + 'The selected issue(s) will be assigned to ' + record.get('assignee').title;
                     break;
 
                 case 'close':
-                    message = '<h3>Close ' + record.get('issues').length + ' issues?</h3><br>'
-                        + 'The selected issues will be closed with status <b>' + record.get('status') + '</b>';
+                    message = '<h3>Close ' + record.get('issues').length + ' issue(s)?</h3><br>'
+                        + 'The selected issue(s) will be closed with status <b>' + record.get('status') + '</b>';
                     break;
             }
 
-            record.set('comment',formPanel.down('textarea').getValue().trim());
+            record.set('comment', formPanel.down('textarea').getValue().trim());
 
             widget = Ext.widget('container', {
                 cls: 'isu-bulk-assign-confirmation-request-panel',
