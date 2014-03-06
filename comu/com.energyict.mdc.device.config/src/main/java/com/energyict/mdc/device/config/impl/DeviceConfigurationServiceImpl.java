@@ -29,6 +29,7 @@ import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.exceptions.UnitHasNoMatchingPhenomenonException;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -127,6 +128,9 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse) {
         Phenomenon phenomenon = unit==null?null:findPhenomenonByUnit(unit.dbString());
+        if (phenomenon==null) {
+            throw new UnitHasNoMatchingPhenomenonException(this.thesaurus, unit);
+        }
         return this.getDataModel().getInstance(RegisterMappingImpl.class).initialize(name, obisCode, phenomenon, readingType, timeOfUse);
     }
 

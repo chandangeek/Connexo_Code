@@ -26,15 +26,19 @@ import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFract
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import java.math.BigDecimal;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import org.junit.Before;
 import org.junit.Test;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
+import static com.elster.jupiter.cbo.FlowDirection.REVERSE;
 import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 /**
  * Tests the {@link RegisterSpecImpl} component
@@ -53,12 +57,14 @@ public class RegisterSpecImplTest extends PersistenceTest {
     private final int numberOfDigits = 9;
     private final int numberOfFractionDigits = 3;
 
-    private TimeDuration interval = TimeDuration.days(1);
-
     private DeviceConfiguration deviceConfiguration;
     private RegisterMapping registerMapping;
-    private ReadingType readingType;
-    private Unit unit = Unit.get("KWh");
+    private ReadingType readingType1;
+    private ReadingType readingType2;
+    private Unit unit1 = Unit.get("kWh");
+    private Unit unit2 = Unit.get("MWh");
+    private Phenomenon phenomenon1;
+    private Phenomenon phenomenon2;
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -66,10 +72,24 @@ public class RegisterSpecImplTest extends PersistenceTest {
     }
 
     private void initializeDeviceTypeWithRegisterSpecAndDeviceConfiguration() {
-        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
-        this.readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME, registerMappingObisCode, unit, readingType, readingType.getTou());
-        this.registerMapping.save();
+        this.phenomenon1 = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(RegisterSpecImplTest.class.getSimpleName(), unit1);
+        this.phenomenon1.save();
+        this.phenomenon2 = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(RegisterSpecImplTest.class.getSimpleName()+"2", unit2);
+        this.phenomenon2.save();
+
+        try {
+            String code2 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+            this.readingType2 = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
+            String code1 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+            this.readingType1 = inMemoryPersistence.getMeteringService().getReadingType(code1).get();
+            this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME, registerMappingObisCode, unit1, readingType1, readingType1.getTou());
+            this.registerMapping.save();
+        } catch (ConstraintViolationException e) {
+            for (ConstraintViolation<?> constraintViolation : e.getConstraintViolations()) {
+                System.err.println(constraintViolation.getPropertyPath() + ": " + constraintViolation.getMessage());
+            }
+            fail("exception");
+        }
 
         // Business method
         this.deviceType.setDescription("For registerSpec Test purposes only");
@@ -264,7 +284,7 @@ public class RegisterSpecImplTest extends PersistenceTest {
     public void updateWithSameObisCodeTest() {
         RegisterSpec registerSpec1 = createDefaultRegisterSpec();
         RegisterSpec registerSpec2;
-        RegisterMapping otherMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("OtherMapping", ObisCode.fromString("1.2.3.1.5.6"), unit, readingType, readingType.getTou());
+        RegisterMapping otherMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("OtherMapping", ObisCode.fromString("1.2.3.1.5.6"), unit2, readingType2, readingType2.getTou());
         otherMapping.save();
         this.deviceType.addRegisterMapping(otherMapping);
         this.deviceType.save();
@@ -282,7 +302,7 @@ public class RegisterSpecImplTest extends PersistenceTest {
     public void addTwoSpecsWithDifferentMappingButSameObisCodeTest() {
         RegisterSpec registerSpec1 = createDefaultRegisterSpec();
         RegisterSpec registerSpec2;
-        RegisterMapping otherMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("OtherMapping", registerMappingObisCode, unit, readingType, readingType.getTou());
+        RegisterMapping otherMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("OtherMapping", registerMappingObisCode, unit1, readingType1, readingType1.getTou());
         otherMapping.save();
         this.deviceType.addRegisterMapping(otherMapping);
         this.deviceType.save();
@@ -295,7 +315,7 @@ public class RegisterSpecImplTest extends PersistenceTest {
     @Transactional
     public void addSpecForMappingWhichIsNotOnDeviceTypeTest() {
         RegisterSpec registerSpec;
-        RegisterMapping otherMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("OtherMapping", ObisCode.fromString("32.12.32.5.12.32"), unit, readingType, readingType.getTou());
+        RegisterMapping otherMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("OtherMapping", ObisCode.fromString("32.12.32.5.12.32"), unit2, readingType2, readingType2.getTou());
         otherMapping.save();
         RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(otherMapping);
         setRegisterSpecDefaultFields(registerSpecBuilder);
@@ -385,15 +405,13 @@ public class RegisterSpecImplTest extends PersistenceTest {
     @Transactional
     public void updateWithChannelSpecTest() {
         ChannelSpec channelSpec;
-        Phenomenon phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("BasicPhenomenon", Unit.get("kWh"));
-        phenomenon.save();
         LoadProfileType loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType("LoadProfileType", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1));
         loadProfileType.addRegisterMapping(registerMapping);
         loadProfileType.save();
         this.deviceType.addLoadProfileType(loadProfileType);
         this.deviceType.save();
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpecBuilder.add());
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon1, loadProfileSpecBuilder.add());
         channelSpec = channelSpecBuilder.add();
 
         RegisterSpec defaultRegisterSpec;
@@ -414,8 +432,6 @@ public class RegisterSpecImplTest extends PersistenceTest {
     public void cannotCreateDoublePrimeRegisterForChannelTest() {
         RegisterSpec defaultRegisterSpec = createDefaultRegisterSpec();
         ChannelSpec channelSpec;
-        Phenomenon phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("BasicPhenomenon", Unit.get("kWh"));
-        phenomenon.save();
         LoadProfileType loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType("LoadProfileType", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1));
         loadProfileType.addRegisterMapping(registerMapping);
         loadProfileType.save();
@@ -427,7 +443,7 @@ public class RegisterSpecImplTest extends PersistenceTest {
             e.printStackTrace(System.err);
         }
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpecBuilder.add());
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon1, loadProfileSpecBuilder.add());
         channelSpec = channelSpecBuilder.add();
 
         RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(defaultRegisterSpec);
@@ -449,15 +465,13 @@ public class RegisterSpecImplTest extends PersistenceTest {
     public void cannotUpdateDoublePrimeRegisterForChannelTest() {
         RegisterSpec defaultRegisterSpec = createDefaultRegisterSpec();
         ChannelSpec channelSpec;
-        Phenomenon phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("BasicPhenomenon", Unit.get("kWh"));
-        phenomenon.save();
         LoadProfileType loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType("LoadProfileType", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1));
         loadProfileType.addRegisterMapping(registerMapping);
         loadProfileType.save();
         this.deviceType.addLoadProfileType(loadProfileType);
         this.deviceType.save();
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpecBuilder.add());
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon1, loadProfileSpecBuilder.add());
         channelSpec = channelSpecBuilder.add();
 
         RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(defaultRegisterSpec);

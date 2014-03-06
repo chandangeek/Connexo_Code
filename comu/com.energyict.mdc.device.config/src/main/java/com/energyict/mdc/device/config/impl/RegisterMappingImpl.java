@@ -52,7 +52,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     private Reference<RegisterGroup> registerGroup = ValueReference.absent();
     private String description;
     private Date modificationDate;
-    @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.READING_TYPE_IS_REQUIRED_KEY + "}")
+    @Min(value=0, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.TIMEOFUSE_TOO_SMALL + "}")
     private int timeOfUse;
 
     private Clock clock;
