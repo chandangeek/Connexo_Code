@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
+import com.elster.jupiter.domain.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -14,7 +15,6 @@ import com.energyict.mdc.engine.model.RemoteComServer;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
-import com.energyict.mdc.rest.impl.comserver.ConstraintViolationExceptionMapper;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.ModemInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OfflineComServerInfo;
