@@ -2,6 +2,7 @@ Ext.define('Mtr.view.workspace.issues.bulk.Step2', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.bulk-step2',
     title: 'Select action',
+    border: false,
 
     requires: [
         'Ext.form.RadioGroup'
@@ -10,7 +11,7 @@ Ext.define('Mtr.view.workspace.issues.bulk.Step2', {
     items: [
         {
             xtype: 'panel',
-            border: 0,
+            border: false,
 
             items: [
                 {
@@ -23,8 +24,8 @@ Ext.define('Mtr.view.workspace.issues.bulk.Step2', {
                     },
 
                     items: [
-                        { boxLabel: 'Assign issues', checked: true, inputValue: 'assign' },
-                        { boxLabel: 'Close issues', inputValue: 'close' }
+                        { boxLabel: 'Assign issues', name: 'operation', inputValue: 'assign', checked: true },
+                        { boxLabel: 'Close issues', name: 'operation', inputValue: 'close'}
                     ]
                 }
             ]

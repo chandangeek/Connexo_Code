@@ -1,7 +1,8 @@
 Ext.define('Mtr.view.workspace.issues.Item', {
     extend: 'Ext.panel.Panel',
     requires: [
-        'Ext.button.Split'
+        'Mtr.view.ext.button.ItemAction',
+        'Mtr.view.workspace.issues.ActionMenu'
     ],
     alias: 'widget.issues-item',
     height: 310,
@@ -47,24 +48,11 @@ Ext.define('Mtr.view.workspace.issues.Item', {
                             html: record.reason + (record.device ? ' to ' + record.device.name + ' ' + record.device.serialNumber : '')
                         },
                         {
-                            xtype: 'button',
-                            text: 'Actions',
-                            iconCls: 'isu-action-icon',
+                            xtype: 'item-action',
                             menu: {
-                                xtype: 'menu',
-                                plain: true,
-                                border: false,
-                                record: record,
-                                shadow: false,
+                                xtype: 'issue-action-menu',
                                 name: 'issueactionmenu',
-                                items: [
-                                    {
-                                        text: 'Assign'
-                                    },
-                                    {
-                                        text: 'Close'
-                                    }
-                                ]
+                                record: record
                             }
                         }
                     ]

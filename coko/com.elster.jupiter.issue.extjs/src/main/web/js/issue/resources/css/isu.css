@@ -1,13 +1,11 @@
 @font-face {
     font-family: 'fontello';
     src: url('../fonts/fontello/font/fontello.eot?93065969');
-    src: url('../fonts/fontello/font/fontello.eot?93065969#iefix') format('embedded-opentype'),
-    url('../fonts/fontello/font/fontello.woff?93065969') format('woff'),
-    url('../fonts/fontello/font/fontello.ttf?93065969') format('truetype'),
-    url('../fonts/fontello/font/fontello.svg?93065969#fontello') format('svg');
+    src: url('../fonts/fontello/font/fontello.eot?93065969#iefix') format('embedded-opentype'), url('../fonts/fontello/font/fontello.woff?93065969') format('woff'), url('../fonts/fontello/font/fontello.ttf?93065969') format('truetype'), url('../fonts/fontello/font/fontello.svg?93065969#fontello') format('svg');
     font-weight: normal;
     font-style: normal;
 }
+
 [class^="isu-icon-"]:before, [class*=" isu-icon-"]:before {
     font-family: "fontello";
     font-style: normal;
@@ -77,7 +75,7 @@
 }
 
 .isu-action-icon {
-    background-image: url("../images/icons/actions.png");
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABBElEQVQ4jaXTvU4CURAF4K9ZRYI8hiYkWlgoRn0FC7TUwoRCjbL4WhQigcZoDRXvZLGz5GZZTNCTTDI/Z+buPXeWzRjiPWzwC2+FJh7QiniU1Ep/Pzh7dc1jPGKKZyyS+gJPmAVnHD0r3KMffgfXyJJ6FrlOxH3cpQPacfJBkmuhG9ZK8ofBbVev8Yqb8M/xGblB+GdRu8VL2jjEF5bYUQg0w27CaUSuEZxl9OQwqXzJZZxcRY6LSm5CoWiKqy0GjMsrjDDf4grz6MnTaamIXYXSpYhTnEZtTUTqnzHDSVi6E7XPmC7SMXrWF6mHo4jXFqmJD/9Y5XLIn3+mOrzhOyzfRPoBNLA3bjmGIeAAAAAASUVORK5CYII=");
 }
 
 span[class^=isu-assignee-] {
@@ -158,13 +156,61 @@ span[class^=isu-assignee-] {
 
 .isu-wizard-header .x-panel-header-text-container-default {
     color: #007DC3;
-    font: 32px/36px VAGRoundedStdThin,Arial,Helvetica,Sans-Serif;
+    font: 32px/36px VAGRoundedStdThin, Arial, Helvetica, Sans-Serif;
 }
 
+.isu-nav {
+    list-style: none outside none;
+    margin: 0;
+    padding: 0;
+}
 
+.isu-nav-item-link {
+    color: #000;
+    display: block;
+    padding: 5px 5px 5px 11px;
+    text-decoration: none;
+}
 
+.isu-nav-item-link:before {
+    content: "-";
+    margin: 0 3px 0 0;
+}
 
+.isu-nav-item-link:hover {
+    background-color: #00CCFF;
+}
 
+.isu-nav-item.current .isu-nav-item-link,
+.isu-nav-item.current .isu-nav-item-link:hover {
+    background-color: #BFF2FF;
+}
+
+.isu-header-filter {
+    font-size: 18px;
+}
+
+.isu-assign-rules-item-data-table {
+    border: none;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.isu-assign-rules-item-data-table td {
+    padding: 0 5px 10px 0;
+    vertical-align: top;
+}
+
+.isu-assign-rules-item-data-table tr td + td {
+    width: 90%;
+}
+
+.isu-item-action-icon:before {
+    color: #fff;
+    font-size: 14px;
+    margin-left: 1px;
+    margin-top: 1px;
+}
 
 /* Message Window */
 
@@ -259,6 +305,38 @@ span[class^=isu-assignee-] {
 }
 .isu-assign-text span:first-child {
     color: #000;
+}
+.isu-bulk-wizard-no-border {
+    border: none !important;
+}
+
+.active-bulk-list-action {
+    background-color: #fff;
+}
+
+.isu-bulk-assign-confirmation-request-panel {
+    background-color: #FFFFCC;
+    border: 4px solid #FFFF66;
+    border-radius: 25px;
+    padding: 20px;
+    width: 50%;
+}
+
+
+.isu-bulk-close-success-panel {
+    background-color: #9CBA7F;
+    border: 4px solid #3B5323;
+    border-radius: 25px;
+    padding: 20px;
+    width: 50%;
+}
+
+.isu-bulk-close-failed-panel {
+    background-color: #ff9999;
+    border: 4px solid #280000;
+    border-radius: 25px;
+    padding: 20px;
+    width: 50%;
 }
 
 .isu-btn-link {
