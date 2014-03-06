@@ -99,6 +99,7 @@ public class AppServerImpl implements AppServer {
         return recurrentTaskActive;
     }
 
+    @Override
     public void setRecurrentTaskActive(boolean recurrentTaskActive) {
         this.recurrentTaskActive = recurrentTaskActive;
     }

@@ -16,4 +16,6 @@ public interface AppServer {
 	SubscriberExecutionSpec createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount);
 
     void sendCommand(AppServerCommand command);
+
+    void setRecurrentTaskActive(boolean recurrentTaskActive);
 }
