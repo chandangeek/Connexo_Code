@@ -57,7 +57,8 @@ Ext.define('Mtr.controller.AssignIssues', {
             var self = this.getController('Mtr.controller.AssignIssues'),
                 assignPanel = Ext.ComponentQuery.query('issues-assign')[0],
                 formPanel = assignPanel.down('issues-assign-form'),
-                activeCombo = formPanel.down('combobox[disabled=false]'),
+                activeRadio = formPanel.down('radiogroup').down('radio[checked=true]').inputValue,
+                activeCombo = formPanel.down('combo[name=' + activeRadio + ']'),
                 form = formPanel.getForm(),
                 formValues = form.getValues(),
                 url = '/api/isu/issue/assign',
@@ -102,7 +103,8 @@ Ext.define('Mtr.controller.AssignIssues', {
                 assignIssueView = Ext.ComponentQuery.query('issues-assign')[0],
                 assignPanel = assignIssueView.down('panel'),
                 preloader = Ext.ComponentQuery.query('loadmask[name=assign-issu-form-submit]')[0],
-                activeCombo = assignIssueView.down('issues-assign-form combobox[disabled=false]'),
+                activeRadio = assignPanel.down('radiogroup').down('radio[checked=true]').inputValue,
+                activeCombo = assignPanel.down('combo[name=' + activeRadio + ']'),
                 id = assignIssueView.record.data.id,
                 success,
                 msges = [];
@@ -150,9 +152,7 @@ Ext.define('Mtr.controller.AssignIssues', {
                                 hrefTarget: '',
                                 href: '#/workspace/datacollection/issues',
                                 // this function is necessary and MUST be empty
-                                hnd: function () {
-
-                                }
+                                hnd: function () {}
                             }
                         ]
                     });

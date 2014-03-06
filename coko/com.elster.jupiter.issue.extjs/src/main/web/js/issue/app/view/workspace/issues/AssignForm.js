@@ -97,6 +97,7 @@ Ext.define('Mtr.view.workspace.issues.AssignForm', {
                                         fn: function (combo) {
                                             var radiobutton = combo.up().previousNode('radiogroup').down('[inputValue=' + combo.name + ']');
                                             radiobutton.setValue(true);
+                                            combo.expand();
                                         }
                                     }
                                 }

@@ -16,7 +16,7 @@ Ext.define('Mtr.view.workspace.issues.Close', {
     initComponent: function () {
         this.callParent(arguments);
         this.addForm();
-     },
+    },
     addForm: function () {
         var self = this;
         form_item = {
@@ -67,7 +67,7 @@ Ext.define('Mtr.view.workspace.issues.Close', {
             });
             form_item.bodyPadding = 10;
             form_item.minHeight = 305;
-            form_item.recordTitle = self.record.data.reason + ' ' + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '')  
+            form_item.recordTitle = self.record.data.reason + ' ' + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '')
             form_item.sendingData = {
                 issues: [
                     {
@@ -82,26 +82,30 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                 + '</h3>'};
             form_item.items[1].padding = '30 50 0 50';
             form_item.items[1].defaults = { padding: '0 0 30 0' },
-            form_item.items[1].margin = '0',
-            form_item.items[2] = {
-                xtype: 'container',
-                padding: '0 155',
-                items: [
-                    {
+                form_item.items[1].margin = '0',
+                form_item.items[2] = {
+                    xtype: 'container',
+                    padding: '0 155',
+                    defaults: {
                         xtype: 'button',
-                        name: 'close',
-                        text: 'Close',
-                        formBind: true,
-                        disabled: true
+                        margin: '0 10 0 0'
                     },
-                    {
-                        xtype: 'button',
-                        name: 'cancel',
-                        text: 'Cancel',
-                        cls: Ext.baseCSSPrefix + 'btn-plain-toolbar-medium'
-                    }
-                ]
-            }
+                    items: [
+                        {
+                            name: 'close',
+                            text: 'Close',
+                            formBind: true,
+                            disabled: true
+                        },
+                        {
+                            text: 'Cancel',
+                            name: 'cancel',
+                            cls: 'isu-btn-link',
+                            hrefTarget: '',
+                            href: '#/workspace/datacollection/issues'
+                        }
+                    ]
+                }
         }
         self.add(form_item)
     }
