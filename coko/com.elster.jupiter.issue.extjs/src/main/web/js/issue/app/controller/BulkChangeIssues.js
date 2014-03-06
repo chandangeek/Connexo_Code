@@ -123,16 +123,12 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
                 var obj = Ext.decode(response.responseText),
                     successCount = obj.success.length,
                     failedCount = obj.failure.length,
-                    successMessage,
-                    successWidget,
-                    failedMessage,
-                    failedWidget;
+                    successMessage, failedMessage;
 
                 switch (operation) {
                     case 'assign':
                         if (successCount > 0) {
-                            successMessage = 'Successfully assigned ' + successCount + ' issue(s) to '
-                                + '<b>' + record.get('assignee').title + '</b>';
+                            successMessage = 'Successfully assigned ' + successCount + ' issue(s) to ' + record.get('assignee').title;
                         }
                         if (failedCount > 0) {
                             failedMessage = 'Failed to assign ' + failedCount + 'issue(s)'
@@ -151,24 +147,44 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
                 step5panel.removeAll(true);
 
                 if (successCount > 0) {
-                    successWidget = Ext.widget('container', {
-                        cls: 'isu-bulk-close-success-panel',
-                        html: successMessage
-                    });
-                    step5panel.add(successWidget);
+                    var successMsgParams = {
+                        type: 'success',
+                        msgBody: [
+                            {text: successMessage}
+                        ],
+                        btns: [
+                            {text: "OK", hnd: function () {
+                                Ext.History.back();
+                            }}
+                        ],
+                        closeBtn: false
+                    };
+                    step5panel.add(Ext.widget('message-panel', successMsgParams));
                 }
 
                 if (failedCount > 0) {
-                    failedWidget = Ext.widget('container', {
-                        cls: 'isu-bulk-close-failed-panel',
-                        html: successMessage
-                    });
-                    step5panel.add(failedWidget);
+                    var failedMessageParams = {
+                        type: 'error',
+                        msgBody: [
+                            {text: failedMessage}
+                        ],
+                        btns: [
+                            {text: "Retry", hnd: function () {
+                                console.log('Retry');
+                            }},
+                            {text: "Finish", hnd: function () {
+                                console.log('Finish');
+                            }}
+                        ],
+                        closeBtn: false
+                    };
+                    step5panel.add(Ext.widget('message-panel', failedMessageParams));
                 }
             },
             failure: function (response) {
                 step5panel.removeAll(true);
-                console.log('server-side failure with status code ' + response.status);
+                Ext.Msg.alert('Server communication error', response.status);
+                Ext.History.back();
             }
         });
     },
