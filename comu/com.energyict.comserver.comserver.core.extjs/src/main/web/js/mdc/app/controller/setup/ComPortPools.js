@@ -122,7 +122,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
                 this.comPortDirection = 'outbound';
                 this.outboundComPortStore = this.comPortPool.outboundComPorts();
             }
-            me.getApplication().getMainController().showContent(view);
+            me.getApplication().getController('Mdc.controller.Main').showContent(view);
         }
     },
 

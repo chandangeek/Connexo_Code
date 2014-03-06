@@ -80,7 +80,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
                             view.down('#protocolfamilygrid').reconfigure(licensedProtocol.protocolFamiliesStore);
                             me.getPropertiesController().showProperties(deviceCommunicationProtocol, view);
                         }
-                        me.getApplication().getMainController().showContent(view);
+                        me.getApplication().getController('Mdc.controller.Main').showContent(view);
                     }
                 });
             }

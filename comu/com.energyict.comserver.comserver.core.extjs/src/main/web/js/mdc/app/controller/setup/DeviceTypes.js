@@ -125,7 +125,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 me.getDeviceTypePreviewTitle().update('<h1>' + deviceType.get('name') + ' - ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
             }
         });
-        this.getApplication().getMainController().showContent(widget);
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
     },
 
     createDeviceTypeHistory: function () {
@@ -162,7 +162,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             returnLink: me.getApplication().getHistorySetupController().tokenizePreviousTokens(),
             deviceCommunicationProtocols: protocolStore
         });
-        this.getApplication().getMainController().showContent(widget);
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
         widget.setLoading(true);
         var me = this;
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {

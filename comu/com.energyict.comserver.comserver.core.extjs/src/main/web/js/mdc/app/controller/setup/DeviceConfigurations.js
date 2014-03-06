@@ -37,7 +37,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 //            success: function (deviceType) {
 //                var deviceTypeName = deviceType.get('name');
 //                widget.down('#registerTypeTitle').html = '<h1>' + deviceTypeName + ' > ' + 'Register types' + '</h1>';
-                me.getApplication().getMainController().showContent(widget);
+                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
 //                me.createBreadCrumbs(id, deviceTypeName);
 //            }
 //        });
