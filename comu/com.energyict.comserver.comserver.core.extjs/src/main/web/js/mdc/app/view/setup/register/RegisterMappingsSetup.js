@@ -9,9 +9,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
         'Mdc.view.setup.register.RegisterMappingPreview',
         'Uni.view.breadcrumb.Trail'
     ],
-    controllers:[
-        'Mdc.controller.setup.RegisterMappings',
-    ],
     layout: {
         type: 'vbox',
         align: 'stretch'

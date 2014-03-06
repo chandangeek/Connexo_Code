@@ -12,9 +12,6 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsSetup', {
         'Mdc.view.setup.comportpool.ComPortPoolsGrid',
         'Mdc.view.setup.comportpool.ComPortPoolPreview'
     ],
-    controllers: [
-        'Mdc.controller.setup.ComPortPools'
-    ],
 
     initComponent: function () {
         this.items = [

@@ -9,9 +9,6 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.List', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
     ],
-    controllers: [
-        'Mdc.controller.setup.DeviceCommunicationProtocol'
-    ],
 
     columns: {
         defaults: {

@@ -4,9 +4,6 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolPreview', {
     requires: [
         'Mdc.store.ComPortPools'
     ],
-    controllers: [
-        'Mdc.controller.setup.ComPortPools'
-    ],
     itemId: 'comportpoolpreview',
     layout: 'fit',
     initComponent: function () {

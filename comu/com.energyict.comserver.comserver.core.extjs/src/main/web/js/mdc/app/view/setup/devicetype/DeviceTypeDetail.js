@@ -7,9 +7,9 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
         'Mdc.view.setup.devicetype.DeviceTypesGrid',
         'Mdc.view.setup.devicetype.DeviceTypePreview'
     ],
-    controllers: [
-        'Mdc.controller.setup.DeviceTypes'
-    ],
+//    controllers: [
+//        'Mdc.controller.setup.DeviceTypes'
+//    ],
     layout: {
         type: 'vbox',
         align: 'stretch'

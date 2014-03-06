@@ -3,11 +3,10 @@ Ext.define('Mdc.view.Main', {
     requires:[
         'Ext.tab.Panel',
         'Ext.layout.container.Border',
-        'Mdc.controller.setup.SetupOverview',
-        'Mdc.controller.history.Setup'
+        'Mdc.controller.setup.SetupOverview'
+
     ],
 
-    
     xtype: 'app-main',
 
     layout: {

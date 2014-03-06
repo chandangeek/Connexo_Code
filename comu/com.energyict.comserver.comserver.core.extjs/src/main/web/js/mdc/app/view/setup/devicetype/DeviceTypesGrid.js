@@ -8,9 +8,9 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.DeviceTypes'
     ],
-    controllers: [
-        'Mdc.controller.setup.DeviceTypes'
-    ],
+//    controllers: [
+//        'Mdc.controller.setup.DeviceTypes'
+//    ],
     store: 'DeviceTypes',
     padding: '10 10 10 10',
     initComponent: function () {

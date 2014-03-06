@@ -12,9 +12,6 @@ Ext.define('Mdc.view.setup.comportpool.InboundComPortPoolEdit', {
         'Mdc.view.setup.comport.PoolInboundComPorts',
         'Mdc.store.DeviceDiscoveryProtocols'
     ],
-    controllers: [
-        'Mdc.controller.setup.ComPortPools'
-    ],
 
     layout: {
         type: 'vbox',

@@ -8,9 +8,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
         'Mdc.view.setup.devicetype.DeviceTypePreview',
         'Uni.view.breadcrumb.Trail'
     ],
-//    controllers: [
-//        'Mdc.controller.setup.DeviceTypes'
-//    ],
     layout: {
         type: 'vbox',
         align: 'stretch'

@@ -12,9 +12,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.RegisterTypesOfDevicetype'
     ],
-    controllers:[
-        'Mdc.controller.setup.RegisterMappings',
-    ],
     store: 'RegisterTypesOfDevicetype',
     padding: '10 10 10 10',
     initComponent: function () {

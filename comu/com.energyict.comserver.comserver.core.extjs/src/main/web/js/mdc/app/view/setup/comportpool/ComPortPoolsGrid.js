@@ -7,9 +7,6 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
     ],
-    controllers: [
-        'Mdc.controller.setup.ComPortPools'
-    ],
     overflowY: 'auto',
     layout: 'fit',
     itemId: 'comportpoolgrid',

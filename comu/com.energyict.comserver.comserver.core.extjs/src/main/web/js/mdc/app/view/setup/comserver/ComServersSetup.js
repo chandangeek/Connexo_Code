@@ -12,9 +12,6 @@ Ext.define('Mdc.view.setup.comserver.ComServersSetup', {
         'Mdc.view.setup.comserver.ComServersGrid',
         'Mdc.view.setup.comserver.ComServerPreview'
     ],
-    controllers: [
-        'Mdc.controller.setup.ComServers'
-    ],
 
     initComponent: function () {
         this.items = [

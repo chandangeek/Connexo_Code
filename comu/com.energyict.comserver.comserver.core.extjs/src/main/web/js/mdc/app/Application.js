@@ -15,17 +15,17 @@ Ext.define('Mdc.Application', {
     ],
 
     controllers: [
-        'Main',
-        'setup.SetupOverview',
-        'setup.ComServers',
-        'setup.ComPortPools',
-        'history.Setup',
-        'setup.DeviceCommunicationProtocol',
-        'setup.LicensedProtocol',
-        'setup.DeviceTypes',
-        'setup.RegisterTypes',
-        'setup.RegisterMappings',
-        'setup.DeviceConfigurations'
+        'Mdc.controller.Main'
+//        'setup.SetupOverview',
+//        'setup.ComServers',
+//        'setup.ComPortPools',
+//        'history.Setup',
+//        'setup.DeviceCommunicationProtocol',
+//        'setup.LicensedProtocol',
+//        'setup.DeviceTypes',
+//        'setup.RegisterTypes',
+//        'setup.RegisterMappings',
+//        'setup.DeviceConfigurations'
     ],
 
     stores: [

@@ -12,9 +12,6 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
     ],
-    controllers: [
-        'Mdc.controller.setup.ComServers'
-    ],
     selType: 'checkboxmodel',
     initComponent: function () {
         var me = this;
