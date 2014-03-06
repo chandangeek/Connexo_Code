@@ -180,7 +180,7 @@ public class RegisterMappingImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.READING_TYPE_IS_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.TIMEOFUSE_TOO_SMALL + "}")
     public void testCreateWithInvalidTimeOfUse() {
         setupProductSpecsInExistingTransaction();
         String registerMappingName = "testCreateWithoutProductSpec";
