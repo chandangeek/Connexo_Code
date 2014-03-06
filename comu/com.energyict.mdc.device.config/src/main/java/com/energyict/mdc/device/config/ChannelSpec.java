@@ -6,7 +6,6 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-
 import java.math.BigDecimal;
 
 /**
@@ -87,8 +86,6 @@ public interface ChannelSpec extends HasId {
     ProductSpec getProductSpec();
 
     void validateDelete();
-
-    void validateUpdate();
 
     void save();
 

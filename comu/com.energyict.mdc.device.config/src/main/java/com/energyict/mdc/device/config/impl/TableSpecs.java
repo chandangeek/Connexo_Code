@@ -35,9 +35,7 @@ public enum TableSpecs {
             table.map(DeviceTypeImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(80).notNull().map("name").add();
-            table.column("CHANNELCOUNT").number().conversion(ColumnConversion.NUMBER2INT).notNull().map("channelCount").add();
             table.column("DESCRIPTION").varChar(4000).map("description").add();
-            table.column("PROTOTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).map("prototypeId").add();
             table.column("USECHANNELJOURNAL").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("useChannelJournal").add();
             table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2LONG).map("deviceProtocolPluggableClassId").add();
             table.column("DEVICEUSAGETYPE").number().conversion(ColumnConversion.NUMBER2INT).map("deviceUsageTypeId").add();
@@ -112,7 +110,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(128).notNull().map("name").add();
             Column obisCode = table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
-            Column productSpec = table.column("PRODUCTSPECID").number().notNull().add();
+            Column productSpec = table.column("PRODUCTSPECID").number().conversion(ColumnConversion.NUMBER2INT).notNull().add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CUMULATIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("cumulative").add();
             Column registerGroup = table.column("REGISTERGROUPID").number().add();

@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
@@ -13,18 +15,15 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceConfigurationReferenceException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLoadProfileTypeOfLoadProfileSpecException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteLoadProfileSpecLinkedChannelSpecsException;
-import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
-import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsRequiredException;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 /**
  * Copyrights EnergyICT
@@ -34,6 +33,7 @@ import java.util.List;
 public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements LoadProfileSpec {
 
     private final DeviceConfigurationService deviceConfigurationService;
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED_KEY + "}")
     private final Reference<LoadProfileType> loadProfileType = ValueReference.absent();
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
@@ -80,10 +80,9 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         return getLoadProfileType().getInterval();
     }
 
-    private void validateRequiredFields() {
-        validateDeviceConfiguration();
-        validateLoadProfileType();
-        validateDeviceTypeContainsLoadProfileType();
+    void validateBeforeAddToDeviceConfiguration () {
+        this.validateDeviceTypeContainsLoadProfileType();
+        Save.CREATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
     }
 
     private void validateDeviceTypeContainsLoadProfileType() {
@@ -93,14 +92,8 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         }
     }
 
-    @Override
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
-    @Override
-    protected void post() {
-        this.getDataMapper().update(this);
+    void validateUpdate () {
+        Save.UPDATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
     }
 
     @Override
@@ -110,7 +103,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     @Override
     public void validateDelete() {
-        if (this.deviceConfigurationService.findChannelSpecsForLoadProfileSpec(this).size() > 0) {
+        if (!this.deviceConfigurationService.findChannelSpecsForLoadProfileSpec(this).isEmpty()) {
             throw new CannotDeleteLoadProfileSpecLinkedChannelSpecsException(this.thesaurus);
         }
     }
@@ -147,12 +140,6 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         }
     }
 
-    private void validateLoadProfileType() {
-        if (this.loadProfileType == null) {
-            throw LoadProfileTypeIsRequiredException.loadProfileSpecRequiresLoadProfileType(this.thesaurus);
-        }
-    }
-
     @Override
     public void setOverruledObisCode(ObisCode overruledObisCode) {
         if (overruledObisCode != null) {
@@ -176,13 +163,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         }
     }
 
-    private void validateDeviceConfiguration() {
-        if (!this.deviceConfiguration.isPresent()) {
-            throw DeviceConfigIsRequiredException.loadProfileSpecRequiresDeviceConfig(this.thesaurus);
-        }
-    }
-
-    static abstract class LoadProfileSpecBuilder implements LoadProfileSpec.LoadProfileSpecBuilder {
+    abstract static class LoadProfileSpecBuilder implements LoadProfileSpec.LoadProfileSpecBuilder {
 
         private final LoadProfileSpecImpl loadProfileSpec;
         private final List<BuildingCompletionListener> buildingCompletionListeners = new ArrayList<>();
@@ -204,7 +185,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
         @Override
         public LoadProfileSpec add() {
-            this.loadProfileSpec.validateRequiredFields();
+            this.loadProfileSpec.validateBeforeAddToDeviceConfiguration();
             this.notifyListeners();
             return this.loadProfileSpec;
         }
@@ -216,11 +197,11 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         }
     }
 
-    static abstract class LoadProfileSpecUpdater implements LoadProfileSpec.LoadProfileSpecUpdater {
+    abstract static class LoadProfileSpecUpdater implements LoadProfileSpec.LoadProfileSpecUpdater {
 
-        final LoadProfileSpec loadProfileSpec;
+        final LoadProfileSpecImpl loadProfileSpec;
 
-        protected LoadProfileSpecUpdater(LoadProfileSpec loadProfileSpec) {
+        protected LoadProfileSpecUpdater(LoadProfileSpecImpl loadProfileSpec) {
             this.loadProfileSpec = loadProfileSpec;
         }
 
@@ -232,6 +213,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
         @Override
         public void update() {
+            this.loadProfileSpec.validateUpdate();
             this.loadProfileSpec.save();
         }
     }

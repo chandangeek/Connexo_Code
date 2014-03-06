@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
@@ -13,10 +15,8 @@ import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceConfigurationReferenceException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLogbookTypeOfLogbookSpecException;
-import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
-import com.energyict.mdc.device.config.exceptions.LogbookTypeIsRequiredException;
-
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
@@ -28,6 +28,7 @@ import javax.inject.Provider;
 public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements LogBookSpec {
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED_KEY + "}")
     private final Reference<LogBookType> logBookType = ValueReference.absent();
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
@@ -69,15 +70,13 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
 
     @Override
     public void save() {
-        validateRequiredFields();
+        validateDeviceTypeContainsLogbookType();
         super.save();
     }
 
-    private void validateRequiredFields() {
-        validateDeviceConfiguration();
-        validateLogbookType();
-        validateDeviceTypeContainsLogbookType();
-
+    private void validateBeforeAddToConfiguration () {
+        Save.CREATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
+        this.validateDeviceTypeContainsLogbookType();
     }
 
     private void validateDeviceTypeContainsLogbookType() {
@@ -87,26 +86,8 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
         }
     }
 
-    private void validateLogbookType() {
-        if (!this.logBookType.isPresent()) {
-            throw LogbookTypeIsRequiredException.logBookSpecRequiresLoadProfileType(this.thesaurus);
-        }
-    }
-
-    private void validateDeviceConfiguration() {
-        if (!this.deviceConfiguration.isPresent()) {
-            throw DeviceConfigIsRequiredException.logBookSpecRequiresDeviceConfig(this.thesaurus);
-        }
-    }
-
-    @Override
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
-    @Override
-    protected void post() {
-        this.getDataMapper().update(this);
+    private void validateUpdate () {
+        Save.UPDATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
     }
 
     @Override
@@ -175,7 +156,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
         }
     }
 
-    static abstract class LogBookSpecBuilder implements LogBookSpec.LogBookSpecBuilder {
+    abstract static class LogBookSpecBuilder implements LogBookSpec.LogBookSpecBuilder {
 
         final LogBookSpecImpl logBookSpec;
 
@@ -191,16 +172,16 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
 
         @Override
         public LogBookSpecImpl add(){
-            this.logBookSpec.validateRequiredFields();
+            this.logBookSpec.validateBeforeAddToConfiguration();
             return this.logBookSpec;
         }
     }
 
-    static abstract class LogBookSpecUpdater implements LogBookSpec.LogBookSpecUpdater {
+    abstract static class LogBookSpecUpdater implements LogBookSpec.LogBookSpecUpdater {
 
-        final LogBookSpec logBookSpec;
+        final LogBookSpecImpl logBookSpec;
 
-        public LogBookSpecUpdater(LogBookSpec logBookSpec) {
+        LogBookSpecUpdater(LogBookSpecImpl logBookSpec) {
             this.logBookSpec = logBookSpec;
         }
 
@@ -212,6 +193,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
 
         @Override
         public void update() {
+            this.logBookSpec.validateUpdate();
             this.logBookSpec.save();
         }
     }

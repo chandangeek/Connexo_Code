@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -16,44 +17,45 @@ import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceProtocolWithActiveConfigurationsException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
-import com.energyict.mdc.device.config.exceptions.DeviceProtocolIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingAlreadyInDeviceTypeException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableList;
-
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
+@ProtocolCannotChangeWithExistingConfigurations(groups = {Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements DeviceType {
 
-    private int channelCount;
     private String description;
     private boolean useChannelJournal;
     private int deviceUsageTypeId;
     private DeviceUsageType deviceUsageType;
     private int communicationFunctionMask;
     private Set<DeviceCommunicationFunction> deviceCommunicationFunctions;
+    @Valid
     private List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
     private List<DeviceTypeLogBookTypeUsage> logBookTypeUsages = new ArrayList<>();
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterMappingUsage> registerMappingUsages = new ArrayList<>();
-    private long prototypeId;
-
     private long deviceProtocolPluggableClassId;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.DEVICE_PROTOCOL_IS_REQUIRED_KEY + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    private boolean deviceProtocolPluggableClassChanged = false;
+
     private ProtocolPluggableService protocolPluggableService;
     private DeviceConfigurationService deviceConfigurationService;
 
@@ -79,9 +81,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         return dataModel.getInstance(DeviceTypeImpl.class).initialize(name, deviceProtocolPluggableClass);
     }
 
-    @Override
-    protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
-        return NameIsRequiredException.deviceTypeNameIsRequired(thesaurus);
+    DeviceConfigurationService getDeviceConfigurationService() {
+        return deviceConfigurationService;
     }
 
     @Override
@@ -90,13 +91,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
-    @Override
-    protected void post() {
-        this.getDataMapper().update(this);
+    public void save() {
+        super.save();
+        this.deviceProtocolPluggableClassChanged = false;
     }
 
     @Override
@@ -138,7 +135,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     private boolean hasActiveConfigurations() {
         for (DeviceConfiguration configuration : this.getConfigurations()) {
-            if (configuration.getActive()) {
+            if (configuration.isActive()) {
                 return true;
             }
         }
@@ -160,6 +157,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             this.deviceUsageType = PersistentDeviceUsageType.fromDb(this.deviceUsageTypeId).toActualType();
         }
         return this.deviceUsageType;
+    }
+
+    @Override
+    public void setDeviceUsageType(DeviceUsageType deviceUsageType) {
+        this.deviceUsageType = deviceUsageType;
+        this.deviceUsageTypeId = PersistentDeviceUsageType.fromActual(deviceUsageType).getCode();
     }
 
     @Override
@@ -216,14 +219,18 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        if (deviceProtocolPluggableClass == null) {
-            throw new DeviceProtocolIsRequiredException(this.getThesaurus());
+        // Test for null because javax.validation only kicks @ save time
+        if (deviceProtocolPluggableClass != null) {
+            this.deviceProtocolPluggableClassChanged =
+                    (   (this.deviceProtocolPluggableClass == null)
+                     || (this.deviceProtocolPluggableClass.getId() != deviceProtocolPluggableClass.getId()));
+            this.deviceProtocolPluggableClassId = deviceProtocolPluggableClass.getId();
+            this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
         }
-        if (this.hasActiveConfigurations()) {
-            throw new CannotChangeDeviceProtocolWithActiveConfigurationsException(this.thesaurus, this);
-        }
-        this.deviceProtocolPluggableClassId = deviceProtocolPluggableClass.getId();
-        this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
+    }
+
+    boolean deviceProtocolPluggableClassChanged() {
+        return deviceProtocolPluggableClassChanged;
     }
 
     public List<RegisterSpec> getRegisterSpecs() {
@@ -580,6 +587,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             super();
             this.mode = BuildingMode.UNDERCONSTRUCTION;
             this.underConstruction = underConstruction;
+        }
+
+        @Override
+        public DeviceConfigurationBuilder description(String description) {
+            underConstruction.setDescription(description);
+            return this;
         }
 
         @Override

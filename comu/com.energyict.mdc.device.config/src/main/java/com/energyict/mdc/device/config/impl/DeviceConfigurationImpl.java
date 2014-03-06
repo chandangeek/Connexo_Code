@@ -13,7 +13,6 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceCommunicationConfigurationFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.HasId;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -45,6 +44,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
 
 /**
  *     //TODO the creation of the CommunicationConfiguration is currently skipped ...
@@ -59,9 +61,13 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private boolean active;
 
     private final Reference<DeviceType> deviceType = ValueReference.absent();
+    @Valid
     private List<RegisterSpec> registerSpecs = new ArrayList<>();
+    @Valid
     private List<ChannelSpec> channelSpecs = new ArrayList<>();
+    @Valid
     private List<LoadProfileSpec> loadProfileSpecs = new ArrayList<>();
+    @Valid
     private List<LogBookSpec> logBookSpecs = new ArrayList<>();
     private DeviceCommunicationConfiguration communicationConfiguration;
     private Date modificationDate;
@@ -70,15 +76,13 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private final Provider<RegisterSpecImpl> registerSpecProvider;
     private final Provider<LogBookSpecImpl> logBookSpecProvider;
     private final Provider<ChannelSpecImpl> channelSpecProvider;
-    private final DeviceConfigurationService deviceConfigurationService;
 
     @Inject
     protected DeviceConfigurationImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock,
                                       Provider<LoadProfileSpecImpl> loadProfileSpecProvider,
                                       Provider<RegisterSpecImpl> registerSpecProvider,
                                       Provider<LogBookSpecImpl> logBookSpecProvider,
-                                      Provider<ChannelSpecImpl> channelSpecProvider,
-                                      DeviceConfigurationService deviceConfigurationService) {
+                                      Provider<ChannelSpecImpl> channelSpecProvider) {
         super(DeviceConfiguration.class, dataModel, eventService, thesaurus);
         this.clock = clock;
 
@@ -86,7 +90,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.registerSpecProvider = registerSpecProvider;
         this.logBookSpecProvider = logBookSpecProvider;
         this.channelSpecProvider = channelSpecProvider;
-        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     DeviceConfigurationImpl initialize(DeviceType deviceType, String name){
@@ -106,14 +109,16 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         return this.communicationConfiguration;
     }
 
+    @Override
     public String getDescription() {
         return this.description;
     }
 
     @Override
-    protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
-        return NameIsRequiredException.deviceConfigurationNameIsRequired(this.thesaurus);
+    public void setDescription(String description) {
+        this.description = description;
     }
+
 
     @Override
     protected void validateUniqueName(String name) {
@@ -230,19 +235,11 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    protected void validateName(String newName) {
-        super.validateName(newName);
-        ServerDeviceConfigurationService deviceConfigurationService = (ServerDeviceConfigurationService) this.deviceConfigurationService;
-        DeviceConfiguration deviceConfiguration = deviceConfigurationService.findDeviceConfigurationByNameAndDeviceType(newName, this.getDeviceType());
-        if (deviceConfiguration != null) {
-            throw DuplicateNameException.deviceConfigurationExists(thesaurus, newName);
-        }
-    }
-
     public DeviceType getDeviceType() {
         return this.deviceType.get();
     }
 
+    @Override
     public List<RegisterSpec> getRegisterSpecs() {
         return Collections.unmodifiableList(this.registerSpecs);
     }
@@ -275,7 +272,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     class RegisterSpecUpdaterForConfig extends RegisterSpecImpl.RegisterSpecUpdater {
 
-        public RegisterSpecUpdaterForConfig(RegisterSpec registerSpec) {
+        RegisterSpecUpdaterForConfig(RegisterSpec registerSpec) {
             super(registerSpec);
         }
 
@@ -301,7 +298,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 //            throw new BusinessException("deleteRegisterSpecsFromActiveDeviceConfigIsNotAllowed",
 //                    "It's not allowed to delete register specifications of an active device configuration");
 //        }
-        if (getActive()) {
+        if (isActive()) {
             throw CannotDeleteFromActiveDeviceConfigurationException.canNotDeleteRegisterSpec(this.thesaurus, this, registerSpec);
         }
         registerSpec.validateDelete();
@@ -309,6 +306,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),registerSpec);
     }
 
+    @Override
     public List<ChannelSpec> getChannelSpecs() {
         return Collections.unmodifiableList(this.channelSpecs);
     }
@@ -345,12 +343,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public ChannelSpec.ChannelSpecUpdater getChannelSpecUpdaterFor(ChannelSpec channelSpec) {
-        return new ChannelSpecUpdaterForConfig(channelSpec);
+        return new ChannelSpecUpdaterForConfig((ChannelSpecImpl) channelSpec);
     }
 
     class ChannelSpecUpdaterForConfig extends ChannelSpecImpl.ChannelSpecUpdater {
 
-        protected ChannelSpecUpdaterForConfig(ChannelSpec channelSpec) {
+        protected ChannelSpecUpdaterForConfig(ChannelSpecImpl channelSpec) {
             super(channelSpec);
         }
 
@@ -378,7 +376,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     public void deleteChannelSpec(ChannelSpec channelSpec) {
-        if (getActive()) {
+        if (isActive()) {
             throw CannotDeleteFromActiveDeviceConfigurationException.forChannelSpec(this.thesaurus, channelSpec, this);
         }
         channelSpec.validateDelete();
@@ -386,6 +384,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),channelSpec);
     }
 
+    @Override
     public List<LoadProfileSpec> getLoadProfileSpecs() {
         return Collections.unmodifiableList(this.loadProfileSpecs);
     }
@@ -413,12 +412,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public LoadProfileSpec.LoadProfileSpecUpdater getLoadProfileSpecUpdaterFor(LoadProfileSpec loadProfileSpec) {
-        return new LoadProfileSpecUpdater(loadProfileSpec);
+        return new LoadProfileSpecUpdater((LoadProfileSpecImpl) loadProfileSpec);
     }
 
     private class LoadProfileSpecUpdater extends LoadProfileSpecImpl.LoadProfileSpecUpdater {
 
-        protected LoadProfileSpecUpdater(LoadProfileSpec loadProfileSpec) {
+        protected LoadProfileSpecUpdater(LoadProfileSpecImpl loadProfileSpec) {
             super(loadProfileSpec);
         }
 
@@ -448,7 +447,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public void deleteLoadProfileSpec(LoadProfileSpec loadProfileSpec) {
-        if (getActive()) {
+        if (isActive()) {
             throw CannotDeleteFromActiveDeviceConfigurationException.forLoadProfileSpec(this.thesaurus, loadProfileSpec, this);
         }
         loadProfileSpec.validateDelete();
@@ -484,19 +483,19 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     private void validateActiveDeviceConfiguration(CannotAddToActiveDeviceConfigurationException specException) {
-        if (getActive()) {
+        if (isActive()) {
             throw specException;
         }
     }
 
     @Override
     public LogBookSpec.LogBookSpecUpdater getLogBookSpecUpdaterFor(LogBookSpec logBookSpec) {
-        return new LogBookSpecUpdaterForConfig(logBookSpec);
+        return new LogBookSpecUpdaterForConfig((LogBookSpecImpl) logBookSpec);
     }
 
     private class LogBookSpecUpdaterForConfig extends LogBookSpecImpl.LogBookSpecUpdater {
 
-        public LogBookSpecUpdaterForConfig(LogBookSpec logBookSpec) {
+        private LogBookSpecUpdaterForConfig(LogBookSpecImpl logBookSpec) {
             super(logBookSpec);
         }
 
@@ -529,7 +528,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     public void deleteLogBookSpec(LogBookSpec logBookSpec) {
-        if (getActive()) {
+        if (isActive()) {
             throw CannotDeleteFromActiveDeviceConfigurationException.forLogbookSpec(this.thesaurus, logBookSpec, this);
         }
         logBookSpec.validateDelete();
@@ -537,7 +536,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),logBookSpec);
     }
 
-    public boolean getActive() {
+    @Override
+    public boolean isActive() {
         return active;
     }
 
@@ -563,7 +563,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     protected void postNew() {
         validateRequiredFields();
-        this.getDataMapper().persist(this);
+        super.postNew();
     }
 
     private void validateRequiredFields() {
@@ -574,11 +574,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         if (!this.deviceType.isPresent()) {
             throw new DeviceTypeIsRequiredException(this.thesaurus);
         }
-    }
-
-    @Override
-    protected void post() {
-        this.getDataMapper().update(this);
     }
 
     @Override
@@ -603,7 +598,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     protected void validateDelete() {
-        if (getActive()) {
+        if (isActive()) {
             throw new DeviceConfigurationIsActiveException(this.thesaurus, this);
         }
     }

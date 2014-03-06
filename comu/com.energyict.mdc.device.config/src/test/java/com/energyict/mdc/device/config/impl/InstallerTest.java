@@ -19,7 +19,7 @@ import static org.fest.assertions.Assertions.assertThat;
  * Date: 24/02/14
  * Time: 11:54
  */
-public class InstallerTest{
+public class InstallerTest {
 
     static InMemoryPersistence inMemoryPersistence = new InMemoryPersistence();
 

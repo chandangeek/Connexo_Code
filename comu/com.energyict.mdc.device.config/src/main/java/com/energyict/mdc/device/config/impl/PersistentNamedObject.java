@@ -1,10 +1,15 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import static com.elster.jupiter.util.Checks.is;
 
 /**
  * Provides code reuse opportunities for entities in this bundle
@@ -15,6 +20,8 @@ import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
  */
 public abstract class PersistentNamedObject<T> extends PersistentIdObject<T> {
 
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @Size(min = 1, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private String name;
 
     protected PersistentNamedObject(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
@@ -26,23 +33,11 @@ public abstract class PersistentNamedObject<T> extends PersistentIdObject<T> {
     }
 
     public void setName(String name) {
-        this.validateName(name);
-        if (!name.equals(this.getName())) {
+        if (!is(name).equalTo(this.getName())) {
             this.validateUniqueName(name);
         }
         this.name = name;
     }
-
-    protected void validateName(String newName) {
-        if (newName == null) {
-            throw nameIsRequiredException(this.getThesaurus());
-        }
-        if (newName.trim().isEmpty()) {
-            throw nameIsRequiredException(this.getThesaurus());
-        }
-    }
-
-    protected abstract NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus);
 
     protected void validateUniqueName(String name) {
         if (this.findOtherByName(name) != null) {

@@ -1,11 +1,12 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -16,32 +17,26 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
-import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceConfigurationReferenceException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLoadProfileSpecOfChannelSpec;
 import com.energyict.mdc.device.config.exceptions.CannotChangeRegisterMappingOfChannelSpecException;
-import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.DuplicateRegisterMappingException;
+import com.energyict.mdc.device.config.exceptions.IncompatibleUnitsException;
 import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException;
-import com.energyict.mdc.device.config.exceptions.MultiplierIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.MultiplierModeIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.PhenomenonIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.ReadingMethodIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredException;
-import com.energyict.mdc.device.config.exceptions.RegisterMappingIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.UnitsNotCompatibleException;
 import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
-import com.energyict.mdc.device.config.exceptions.ValueCalculationMethodIsRequiredException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-
+import java.math.BigDecimal;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
+
+import static com.elster.jupiter.util.Checks.is;
 
 /**
  * Copyrights EnergyICT
@@ -53,13 +48,19 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     private final DeviceConfigurationService deviceConfigurationService;
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.CHANNEL_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY + "}")
     private final Reference<RegisterMapping> registerMapping = ValueReference.absent();
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.CHANNEL_SPEC_PHENOMENON_IS_REQUIRED_KEY + "}")
     private final Reference<Phenomenon> phenomenon = ValueReference.absent();
     private final Reference<LoadProfileSpec> loadProfileSpec = ValueReference.absent();
     private final Reference<ProductSpec> productSpec = ValueReference.absent();
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.CHANNEL_SPEC_READING_METHOD_IS_REQUIRED_KEY + "}")
     private ReadingMethod readingMethod = ReadingMethod.ENGINEERING_UNIT;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED_KEY + "}")
     private ValueCalculationMethod valueCalculationMethod = ValueCalculationMethod.AUTOMATIC;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED_KEY + "}")
     private MultiplierMode multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN_KEY + "}")
     private BigDecimal multiplier = BigDecimal.ONE;
     private int nbrOfFractionDigits = 0;
     private String overruledObisCodeString;
@@ -94,7 +95,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public ObisCode getDeviceObisCode() {
-        if (!Checks.is(this.overruledObisCodeString).empty()) {
+        if (!is(this.overruledObisCodeString).empty()) {
             this.overruledObisCode = ObisCode.fromString(this.overruledObisCodeString);
             return overruledObisCode;
         }
@@ -158,34 +159,27 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public void save() {
-        validateRequiredFields();
+        this.applyDefaultMultiplierForConfiguredOnObjectMode();
+        validate();
         super.save();
     }
 
-    private void validateRequiredFields() {
-        validateDeviceConfiguration();
-        validateRegisterMapping();
+    private void applyDefaultMultiplierForConfiguredOnObjectMode() {
+        if (!this.multiplierMode.equals(MultiplierMode.CONFIGURED_ON_OBJECT)) {
+            this.multiplier = BigDecimal.ONE;
+        }
+    }
+
+    private void validate() {
+        validateInterval();
         validateDeviceTypeContainsRegisterMapping();
         validateChannelSpecsForDuplicateRegisterMappings();
         validateDeviceConfigurationContainsLoadProfileSpec();
-        validatePhenomenon();
         validatePhenomenonAndRegisterMappingUnitCompatibility();
-        validateReadingMethod();
-        validateMultiplier();
-        validateValueCalculationMethod();
-        validateInterval();
-        validateForCollectionMethod();
     }
 
-    private void validateForCollectionMethod() {
-        // TODO Check if this is still required as CollectionMethod is not on DeviceType anymore ...
-
-//        if (DeviceCollectionMethodType.COMSERVER.equals(getDeviceConfig().getDeviceType().getC)) {
-//            if (spec == null) {
-//                throw new BusinessException("loadProfileSpecForChannelXCannotBeNull",
-//                        "Channel '{0}' cannot have an undefined load profile specification when the collection method of its device type = ComServer", name);
-//            }
-//        }
+    private void validateBeforeAdd () {
+        Save.CREATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
     }
 
     private void validateInterval() {
@@ -215,49 +209,15 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         }
     }
 
-    private void validateValueCalculationMethod() {
-        if (this.valueCalculationMethod == null) {
-            throw ValueCalculationMethodIsRequiredException.forChannelSpec(this.thesaurus, this);
-        }
-    }
-
-    private void validateMultiplierMode(MultiplierMode multiplierMode) {
-        if (multiplierMode == null) {
-            throw MultiplierModeIsRequiredException.forChannelSpec(this.thesaurus, this);
-        }
-    }
-
-    private void validateMultiplier(){
-        if(this.multiplier == null){
-            throw MultiplierIsRequiredException.onChannelSpecWhenModeIsOnObject(thesaurus, this, this.multiplierMode);
-        }
-    }
-
-    private void validateReadingMethod() {
-        if (readingMethod == null) {
-            throw ReadingMethodIsRequiredException.forChannelSpec(this.thesaurus, this);
-        }
-    }
-
     private void validatePhenomenonAndRegisterMappingUnitCompatibility() {
-        Unit registerMappingUnit = getRegisterMapping().getUnit();
-        Phenomenon phenomenon = this.getPhenomenon();
-        if (!phenomenon.isUndefined() && !registerMappingUnit.isUndefined()) {
-            if (!phenomenon.getUnit().equalBaseUnit(registerMappingUnit)) {
-                throw UnitsNotCompatibleException.forChannelSpecPhenomenonAndRegisterMappingUnit(thesaurus, phenomenon, registerMappingUnit);
+        if (this.registerMapping.isPresent() && this.phenomenon.isPresent()) {
+            Unit registerMappingUnit = getRegisterMapping().getUnit();
+            Phenomenon phenomenon = this.getPhenomenon();
+            if (!phenomenon.isUndefined() && !registerMappingUnit.isUndefined()) {
+                if (!phenomenon.getUnit().equalBaseUnit(registerMappingUnit)) {
+                    throw IncompatibleUnitsException.forChannelSpecPhenomenonAndRegisterMappingUnit(thesaurus, phenomenon, registerMappingUnit);
+                }
             }
-        }
-    }
-
-    private void validateDeviceConfiguration() {
-        if (!this.deviceConfiguration.isPresent()) {
-            throw DeviceConfigIsRequiredException.channelSpecRequiresDeviceConfig(this.thesaurus);
-        }
-    }
-
-    private void validateRegisterMapping() {
-        if (!this.registerMapping.isPresent()) {
-            throw RegisterMappingIsRequiredException.channelSpecRequiresRegisterMapping(this.thesaurus);
         }
     }
 
@@ -281,30 +241,14 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         }
     }
 
-    private void validatePhenomenon() {
-        if (phenomenon == null) {
-            throw PhenomenonIsRequiredException.forChannelSpec(thesaurus, this);
-        }
-    }
-
-    @Override
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
-    @Override
-    protected void post() {
-        this.getDataMapper().update(this);
-    }
-
     @Override
     protected void doDelete() {
         getDeviceConfiguration().deleteChannelSpec(this);
     }
 
-    @Override
-    public void validateUpdate() {
-        this.validateRequiredFields();
+    private void validateUpdate() {
+        Save.UPDATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
+        this.validate();
     }
 
     @Override
@@ -354,11 +298,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     @Override
-    protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
-        return NameIsRequiredException.channelSpecNameIsRequired(thesaurus);
-    }
-
-    @Override
     public void setDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
         if (this.deviceConfiguration.isPresent()) {
             validateDeviceConfigurationForUpdate(deviceConfiguration);
@@ -384,7 +323,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     private void validateRegisterMappingForUpdate(RegisterMapping registerMapping) {
         DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
         RegisterMapping myRegisterMapping = this.getRegisterMapping();
-        if (deviceConfiguration != null && deviceConfiguration.getActive() && myRegisterMapping != null && myRegisterMapping.getId() != registerMapping.getId()) {
+        if (deviceConfiguration != null && deviceConfiguration.isActive() && myRegisterMapping != null && myRegisterMapping.getId() != registerMapping.getId()) {
             throw new CannotChangeRegisterMappingOfChannelSpecException(this.thesaurus);
         }
     }
@@ -420,9 +359,8 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public void setMultiplierMode(MultiplierMode multiplierMode) {
-        validateMultiplierMode(multiplierMode);
         this.multiplierMode = multiplierMode;
-        if (!this.multiplierMode.equals(MultiplierMode.CONFIGURED_ON_OBJECT)) {
+        if (!is(MultiplierMode.CONFIGURED_ON_OBJECT).equalTo(multiplierMode)) {
             this.multiplier = BigDecimal.ONE;
         }
     }
@@ -446,7 +384,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private void validateLoadProfileSpecForUpdate(LoadProfileSpec loadProfileSpec) {
-        if (deviceConfiguration.isPresent() && getDeviceConfiguration().getActive() && this.getLoadProfileSpec().getId() != loadProfileSpec.getId()) {
+        if (deviceConfiguration.isPresent() && getDeviceConfiguration().isActive() && this.getLoadProfileSpec().getId() != loadProfileSpec.getId()) {
             throw new CannotChangeLoadProfileSpecOfChannelSpec(this.thesaurus);
         }
     }
@@ -466,16 +404,16 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         return productSpec.get();
     }
 
-    static abstract class ChannelSpecBuilder implements ChannelSpec.ChannelSpecBuilder {
+    abstract static class ChannelSpecBuilder implements ChannelSpec.ChannelSpecBuilder {
 
         final ChannelSpecImpl channelSpec;
         String tempName;
 
-        public ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+        ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
             this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, registerMapping, phenomenon, loadProfileSpec);
         }
 
-        public ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+        ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
             this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, registerMapping, phenomenon);
             loadProfileSpecBuilder.notifyOnAdd(this);
         }
@@ -541,21 +479,22 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
         @Override
         public ChannelSpec add() {
-            if(Checks.is(tempName).empty()){
+            if(is(tempName).empty()){
                 this.channelSpec.setName(this.channelSpec.getRegisterMapping().getName());
             } else {
                 this.channelSpec.setName(tempName);
             }
-            this.channelSpec.validateRequiredFields();
+            this.channelSpec.validateBeforeAdd();
+            this.channelSpec.validate();
             return this.channelSpec;
         }
     }
 
-    static abstract class ChannelSpecUpdater implements ChannelSpec.ChannelSpecUpdater{
+    abstract static class ChannelSpecUpdater implements ChannelSpec.ChannelSpecUpdater{
 
-        final ChannelSpec channelSpec;
+        final ChannelSpecImpl channelSpec;
 
-        protected ChannelSpecUpdater(ChannelSpec channelSpec) {
+        protected ChannelSpecUpdater(ChannelSpecImpl channelSpec) {
             this.channelSpec = channelSpec;
         }
 
@@ -591,7 +530,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
         @Override
         public ChannelSpec.ChannelSpecUpdater setMultiplier(BigDecimal multiplier) {
-            this.setMultiplier(multiplier);
+            this.channelSpec.setMultiplier(multiplier);
             return this;
         }
 

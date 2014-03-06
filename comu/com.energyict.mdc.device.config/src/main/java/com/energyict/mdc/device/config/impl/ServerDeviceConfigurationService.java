@@ -6,7 +6,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
-
 import java.util.List;
 
 /**
@@ -18,7 +17,7 @@ import java.util.List;
  */
 public interface ServerDeviceConfigurationService extends DeviceConfigurationService {
 
-    public DeviceConfiguration findDeviceConfigurationByNameAndDeviceType(String name, DeviceType deviceType);
+    public List<DeviceConfiguration> findDeviceConfigurationsByDeviceType(DeviceType deviceType);
 
     public ChannelSpec findChannelSpecByDeviceConfigurationAndName(DeviceConfiguration deviceConfig, String name);
 

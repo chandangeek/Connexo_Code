@@ -44,4 +44,13 @@ public enum PersistentDeviceUsageType {
         throw new RuntimeException("No applicable PersistentDeviceUsageType found for db value" + persistentValue);
     }
 
+    public static PersistentDeviceUsageType fromActual (DeviceUsageType actualType) {
+        for (PersistentDeviceUsageType persistentType : values()) {
+            if (persistentType.toActualType().equals(actualType)) {
+                return persistentType;
+            }
+        }
+        throw new RuntimeException("No applicable PersistentDeviceUsageType found for actual type " + actualType);
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -11,14 +12,11 @@ import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLogBookTypeIsInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
-
-import javax.inject.Inject;
-
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -29,10 +27,12 @@ import static com.elster.jupiter.util.Checks.is;
  */
 public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implements LogBookType {
 
-    private DeviceConfigurationService deviceConfigurationService;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED_KEY + "}")
     private String obisCodeString;
     private ObisCode obisCode;
     private String description;
+
+    private DeviceConfigurationService deviceConfigurationService;
 
     @Inject
     public LogBookTypeImpl(DataModel dataModel, EventService eventService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus) {
@@ -50,19 +50,9 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
         return dataModel.getInstance(LogBookTypeImpl.class).initialize(name, obisCode);
     }
 
-    /**
-     * Saves this object for the first time.
-     */
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
-    /**
-     * Updates the changes made to this object.
-     */
     protected void post() {
         this.validateDeviceConfigurations();
-        this.getDataMapper().update(this);
+        super.post();
     }
 
     private void validateDeviceConfigurations() {
@@ -105,11 +95,6 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
     }
 
     @Override
-    protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
-        throw NameIsRequiredException.logBookTypeNameIsRequired(thesaurus);
-    }
-
-    @Override
     protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
         return DuplicateNameException.logBookTypeAlreadyExists(this.getThesaurus(), name);
     }
@@ -125,15 +110,19 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
     @Override
     public void setObisCode(ObisCode obisCode) {
         if (obisCode == null) {
-            throw ObisCodeIsRequiredException.logBookTypeRequiresObisCode(this.getThesaurus());
+            // javax.validation will throw ConstraintValidationException in the end
+            this.obisCodeString = null;
+            this.obisCode = null;
         }
-        if (!is(this.obisCodeString).equalTo(obisCode.toString())) {
-            if (!canChangeObisCode()) {
-                throw new CannotUpdateObisCodeWhenLogBookTypeIsInUseException(this.getThesaurus(), this);
+        else {
+            if (!is(this.obisCodeString).equalTo(obisCode.toString())) {
+                if (!canChangeObisCode()) {
+                    throw new CannotUpdateObisCodeWhenLogBookTypeIsInUseException(this.getThesaurus(), this);
+                }
             }
+            this.obisCodeString = obisCode.toString();
+            this.obisCode = obisCode;
         }
-        this.obisCodeString = obisCode.toString();
-        this.obisCode = obisCode;
     }
 
     private boolean canChangeObisCode() {

@@ -3,18 +3,15 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
-import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
-
-import javax.inject.Inject;
 import java.util.Date;
+import javax.inject.Inject;
 
-import static com.elster.jupiter.util.Checks.*;
+import static com.elster.jupiter.util.Checks.is;
 
 /**
  * @author Karel
@@ -77,16 +74,6 @@ public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements
     }
 
     @Override
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
-    @Override
-    protected void post() {
-        this.getDataMapper().update(this);
-    }
-
-    @Override
     protected void doDelete() {
         this.getDataMapper().remove(this);
     }
@@ -125,11 +112,6 @@ public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements
 
     public boolean isUnitless() {
         return getUnit().isUndefined();
-    }
-
-    @Override
-    protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
-        return NameIsRequiredException.phenomenonNameIsRequired(thesaurus);
     }
 
     @Override

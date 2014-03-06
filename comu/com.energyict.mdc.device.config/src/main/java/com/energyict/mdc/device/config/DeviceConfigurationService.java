@@ -292,4 +292,7 @@ public interface DeviceConfigurationService {
     public LogBookType findLogBookTypeByName(String name);
 
     public List<Phenomenon> findAllPhenomena();
+
+    public Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType);
+
 }

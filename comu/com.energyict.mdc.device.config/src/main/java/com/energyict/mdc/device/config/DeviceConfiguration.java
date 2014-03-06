@@ -77,11 +77,11 @@ public interface DeviceConfiguration extends HasId {
     void deleteLogBookSpec(LogBookSpec logBookSpec);
 
     /**
-     * tests if the receiver is active
+     * Tests if the receiver is active.
      *
      * @return true if active, false otherwise
      */
-    boolean getActive();
+    boolean isActive();
 
     void activate();
 
