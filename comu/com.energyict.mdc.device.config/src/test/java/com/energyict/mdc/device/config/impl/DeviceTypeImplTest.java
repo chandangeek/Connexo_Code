@@ -19,7 +19,6 @@ import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
@@ -89,7 +88,6 @@ public class DeviceTypeImplTest extends PersistenceTest {
     private LoadProfileType loadProfileType2;
     private RegisterMapping registerMapping;
     private RegisterMapping registerMapping2;
-    private ProductSpec productSpec;
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -782,8 +780,6 @@ public class DeviceTypeImplTest extends PersistenceTest {
 
     private void setupProductSpecsInExistingTransaction() {
         this.setupReadingTypeInExistingTransaction();
-        this.productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(this.readingType);
-        this.productSpec.save();
     }
 
     private void setupReadingTypeInExistingTransaction() {

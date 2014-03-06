@@ -57,6 +57,8 @@ public interface RegisterMapping {
 
     public ReadingType getReadingType ();
 
+    public void setReadingType(ReadingType readingType);
+
     /**
      * Returns the <code>RegisterGroup</code> the receiver belongs to
      *
@@ -95,5 +97,4 @@ public interface RegisterMapping {
     public int getTimeOfUse();
 
     public void setTimeOfUse(int timeOfUse);
-
 }

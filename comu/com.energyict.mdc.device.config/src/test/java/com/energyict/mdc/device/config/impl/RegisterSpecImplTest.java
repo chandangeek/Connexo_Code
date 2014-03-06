@@ -15,7 +15,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
@@ -59,7 +58,6 @@ public class RegisterSpecImplTest extends PersistenceTest {
     private DeviceConfiguration deviceConfiguration;
     private RegisterMapping registerMapping;
     private ReadingType readingType;
-    private ProductSpec productSpec;
     private Unit unit = Unit.get("KWh");
 
     @Before
@@ -70,8 +68,6 @@ public class RegisterSpecImplTest extends PersistenceTest {
     private void initializeDeviceTypeWithRegisterSpecAndDeviceConfiguration() {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
         this.readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        this.productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(readingType);
-        this.productSpec.save();
         this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME, registerMappingObisCode, unit, readingType, readingType.getTou());
         this.registerMapping.save();
 

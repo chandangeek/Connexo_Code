@@ -11,8 +11,8 @@ import java.util.List;
 
 /**
  * Provides services that relate to {@link DeviceType}s, {@link DeviceConfiguration}s
- * and the related master data such as {@link LogBookType}, {@link LoadProfileType},
- * {@link RegisterMapping} and {@link ProductSpec}.
+ * and the related master data such as {@link LogBookType}, {@link LoadProfileType} and
+ * {@link RegisterMapping}
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:34)
@@ -42,37 +42,6 @@ public interface DeviceConfigurationService {
      * @return the DeviceType or <code>null</code> if there is no such DeviceType
      */
     public DeviceType findDeviceTypeByName(String name);
-
-    /**
-     * Finds the {@link ProductSpec} that is uniquely identified by the specified number.
-     *
-     * @param id The unique identifier
-     * @return The ProductSpec or <code>null</code> if there is no such ProductSpec
-     */
-    public ProductSpec findProductSpec(long id);
-
-    /**
-     * Finds the {@link ProductSpec} that is uniquely identified by the specified {@link ReadingType}.
-     *
-     * @param readingType The ReadingType
-     * @return The ProductSpec or <code>null</code> if there is no such ProductSpec
-     */
-    public ProductSpec findProductSpecByReadingType(ReadingType readingType);
-
-    public List<ProductSpec> findAllProductSpecs();
-
-    /**
-     * Creates a new {@link ProductSpec} for the specified {@link ReadingType}.
-     * Note the ReadingType uniquely identifies a ProductSpec,
-     * i.e. there can only be 1 ProductSpec for every ReadingType.
-     * Note that the ProductSpec is only saved in the database
-     * after a call to the "save" method.
-     *
-     * @param readingType The ReadingType
-     * @return The new ProductSpec
-     * @see ProductSpec#save()
-     */
-    public ProductSpec newProductSpec(ReadingType readingType);
 
     /**
      * Finds the {@link RegisterGroup} that is uniquely identified by the specified number.
@@ -112,15 +81,6 @@ public interface DeviceConfigurationService {
      * @return The RegisterMapping or <code>null</code> if there is no such RegisterMapping
      */
     public RegisterMapping findRegisterMappingByName(String name);
-
-    /**
-     * Finds the {@link RegisterMapping} that is uniquely identified by the name.
-     *
-     * @param obisCode    The ObisCode
-     * @param productSpec The ProductSpec
-     * @return The RegisterMapping or <code>null</code> if there is no such RegisterMapping
-     */
-    public RegisterMapping findRegisterMappingByObisCodeAndProductSpec(ObisCode obisCode, ProductSpec productSpec);
 
     /**
      * Creates a new {@link RegisterMapping} with the specified required properties.

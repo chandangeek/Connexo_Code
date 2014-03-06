@@ -14,7 +14,6 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateIntervalWhenLoadProfileTypeIsInUseException;
@@ -50,6 +49,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     private static final ObisCode OBIS_CODE = ObisCode.fromString("1.0.99.1.0.255");
 
     private ReadingType readingType;
+    private Unit unit;
     private Phenomenon phenomenon;
 
     @Rule
@@ -346,12 +346,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         long registerMappingId;
         this.setupReadingTypeInExistingTransaction();
 
-        // Setup ProductSpec
-        ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
-        productSpec.save();
-
         // Setup RegisterMapping
-        RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, productSpec.getUnit(), readingType, readingType.getTou());
+        RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, unit, readingType, readingType.getTou());
         registerMapping.save();
 
         // Setup LoadProfileType with RegisterMapping
@@ -381,12 +377,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         LoadProfileType loadProfileType;
         this.setupReadingTypeInExistingTransaction();
 
-        // Setup ProductSpec
-        ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
-        productSpec.save();
-
         // Setup RegisterMapping
-        registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, productSpec.getUnit(), readingType, readingType.getTou());
+        registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, unit, readingType, readingType.getTou());
         registerMapping.save();
 
         // Setup LoadProfileType without RegisterMapping
@@ -413,12 +405,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         LoadProfileType loadProfileType;
         this.setupReadingTypeInExistingTransaction();
 
-        // Setup ProductSpec
-        ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
-        productSpec.save();
-
         // Setup RegisterMapping
-        registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, productSpec.getUnit(), readingType, readingType.getTou());
+        registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, unit, readingType, readingType.getTou());
         registerMapping.save();
 
         // Setup LoadProfileType with RegisterMapping
@@ -447,12 +435,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
-        // Setup ProductSpec
-        ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
-        productSpec.save();
-
         // Setup RegisterMapping
-        registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, productSpec.getUnit(), readingType, readingType.getTou());
+        registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, unit, readingType, readingType.getTou());
         registerMapping.save();
 
         // Setup LoadProfileType with RegisterMapping
@@ -512,12 +496,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         LoadProfileType loadProfileType;
         this.setupReadingTypeInExistingTransaction();
 
-        // Setup ProductSpec
-        ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
-        productSpec.save();
-
         // Setup RegisterMapping
-        registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, productSpec.getUnit(), readingType, readingType.getTou());
+        registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, unit, readingType, readingType.getTou());
         registerMapping.save();
 
         // Setup LoadProfileType with RegisterMapping
@@ -545,12 +525,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
-        // Setup ProductSpec
-        ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
-        productSpec.save();
-
         // Setup RegisterMapping
-        RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, productSpec.getUnit(), readingType, readingType.getTou());
+        RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, unit, readingType, readingType.getTou());
         registerMapping.save();
 
         // Setup LoadProfileType
@@ -610,6 +586,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
                 .accumulate(Accumulation.DELTADELTA)
                 .code();
         this.readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
+        this.unit = Unit.get("KWh");
     }
 
 }

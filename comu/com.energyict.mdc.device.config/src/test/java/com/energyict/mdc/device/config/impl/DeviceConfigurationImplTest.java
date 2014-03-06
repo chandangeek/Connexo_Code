@@ -18,7 +18,6 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
@@ -256,8 +255,6 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
         Unit unit = Unit.get("KWh");
         ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        ProductSpec productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(readingType);
-        productSpec.save();
         RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RMName", ObisCode.fromString("1.0.1.8.0.255"), unit, readingType, readingType.getTou());
         registerMapping.save();
         this.deviceType.addRegisterMapping(registerMapping);

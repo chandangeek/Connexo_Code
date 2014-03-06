@@ -26,7 +26,6 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -111,26 +110,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public ProductSpec findProductSpec(long id) {
-        return this.getDataModel().mapper(ProductSpec.class).getUnique("id", id).orNull();
-    }
-
-    @Override
-    public ProductSpec findProductSpecByReadingType(ReadingType readingType) {
-        return this.getDataModel().mapper(ProductSpec.class).getUnique("readingType", readingType).orNull();
-    }
-
-    @Override
-    public List<ProductSpec> findAllProductSpecs() {
-        return this.getDataModel().mapper(ProductSpec.class).find();
-    }
-
-    @Override
-    public ProductSpec newProductSpec(ReadingType readingType) {
-        return ProductSpecImpl.from(this.getDataModel(), readingType);
-    }
-
-    @Override
     public Finder<RegisterMapping> findAllRegisterMappings() {
         return DefaultFinder.of(RegisterMapping.class, this.getDataModel());
     }
@@ -143,11 +122,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public RegisterMapping findRegisterMappingByName(String name) {
         return this.getDataModel().mapper((RegisterMapping.class)).getUnique("name", name).orNull();
-    }
-
-    @Override
-    public RegisterMapping findRegisterMappingByObisCodeAndProductSpec(ObisCode obisCode, ProductSpec productSpec) {
-        return this.getDataModel().mapper((RegisterMapping.class)).getUnique("obisCodeString", obisCode.toString(), "productSpec", productSpec).orNull();
     }
 
     @Override

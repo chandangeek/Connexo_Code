@@ -14,7 +14,6 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -89,19 +88,6 @@ public enum TableSpecs {
         }
     },
 
-    EISPRODUCTSPEC {
-        @Override
-        public void addTo(DataModel dataModel) {
-            Table<ProductSpec> table = dataModel.addTable(this.name(), ProductSpec.class);
-            table.map(ProductSpecImpl.class);
-            Column id = table.addAutoIdColumn();
-            Column readingType = table.column("READINGTYPE").varChar(100).add();
-            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
-            table.primaryKey("PK_PRODUCTSPEC").on(id).add();
-            table.foreignKey("FK_PRODUCTSPEC_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
-        }
-    },
-
     EISRTUREGISTERMAPPING {
         @Override
         public void addTo(DataModel dataModel) {
@@ -120,7 +106,6 @@ public enum TableSpecs {
             table.column("TIMEOFUSE").number().map("timeOfUse").conversion(ColumnConversion.NUMBER2INT).add();
             table.foreignKey("FK_EISREGMAP_REGGROUP").on(registerGroup).references(EISRTUREGISTERGROUP.name()).map("registerGroup").add();
             table.foreignKey("FK_EISREGMAP_PHENOMENON").on(phenomenon).references(EISRTUREGISTERGROUP.name()).map("phenomenon").add();
-            table.foreignKey("FK_EISREGMAP_PRODSPEC").on(productSpec).references(EISPRODUCTSPEC.name()).map("productSpec").add();
             table.foreignKey("FK_EISREGMAP_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
             table.unique("UK_RTUREGMAPPINGNAME").on(name).add();
             table.unique("UK_RTUREGMREADINGTYPE").on(readingType).add();

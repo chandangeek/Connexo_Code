@@ -11,7 +11,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -76,16 +75,11 @@ public class Installer {
 
     private void createMasterData() {
         createPhenomena();
-        createProductSpecs();
         createRegisterMappings();
     }
 
     private void createRegisterMappings() {
         MasterDataGenerator.generateRegisterMappings(meteringService, mdcReadingTypeUtilService, deviceConfigurationService);
-    }
-
-    private void createProductSpecs() {
-        MasterDataGenerator.generateProductSpecs(meteringService, deviceConfigurationService);
     }
 
     private void createPhenomena() {

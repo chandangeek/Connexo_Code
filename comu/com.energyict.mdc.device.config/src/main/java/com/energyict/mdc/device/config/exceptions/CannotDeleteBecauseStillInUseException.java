@@ -9,7 +9,6 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -35,18 +34,6 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      */
     public static CannotDeleteBecauseStillInUseException registerGroupIsStillInUse(Thesaurus thesaurus, RegisterGroup registerGroup, List<RegisterMapping> registerMappings) {
         return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_GROUP_STILL_IN_USE, registerGroup.getName(), namesToStringListForRegisterMappings(registerMappings));
-    }
-
-    /**
-     * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
-     * situation that occurs when an attempt is made to delete a {@link ProductSpec}
-     * while it is still used by the specified {@link RegisterMapping}s.
-     *
-     * @param thesaurus The Thesaurus
-     * @return The CannotDeleteBecauseStillInUseException
-     */
-    public static CannotDeleteBecauseStillInUseException productSpecIsStillInUse (Thesaurus thesaurus, ProductSpec productSpec, List<RegisterMapping> registerMappings) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.PRODUCT_SPEC_STILL_IN_USE, productSpec.getDescription(), namesToStringListForRegisterMappings(registerMappings));
     }
 
     /**

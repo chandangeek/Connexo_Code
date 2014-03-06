@@ -40,7 +40,6 @@ public class InstallerTest {
     @Test
     @Transactional
     public void withoutInstallingTest() {
-        assertThat(inMemoryPersistence.getDeviceConfigurationService().findAllProductSpecs()).isNotEmpty();
         assertThat(inMemoryPersistence.getDeviceConfigurationService().findAllRegisterMappings().find()).isNotEmpty();
         assertThat(inMemoryPersistence.getDeviceConfigurationService().findAllPhenomena()).isNotEmpty();
     }
