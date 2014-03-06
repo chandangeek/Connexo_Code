@@ -276,6 +276,8 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
         }
 
         widget = Ext.widget(view, {bulk: true});
+        widget.items.items[1].margin = '0 0 0 20';
+
 
         if (widget) {
             step3Panel.removeAll(true);
