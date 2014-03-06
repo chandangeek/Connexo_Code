@@ -67,10 +67,9 @@ public class RegisterTypeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterMappingInfo createRegisterMapping(RegisterMappingInfo registerMappingInfo) {
-        Optional<ReadingType> readingType = findReadingTypeOrThrowException(registerMappingInfo);
-        ProductSpec productSpecByReadingType = findProductSpecOrThrowException(registerMappingInfo, readingType.get());
+        ReadingType readingType = findReadingTypeOrThrowException(registerMappingInfo);
 
-        RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping(registerMappingInfo.name, registerMappingInfo.obisCode, productSpecByReadingType);
+        RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping(registerMappingInfo.name, registerMappingInfo.obisCode, registerMappingInfo.unit, readingType, registerMappingInfo.timeOfUse);
         registerMappingInfo.writeTo(registerMapping);
         registerMapping.save();
         return new RegisterMappingInfo(registerMapping);
@@ -82,10 +81,9 @@ public class RegisterTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterMappingInfo updateRegisterMapping(@PathParam("id") Long id, RegisterMappingInfo registerMappingInfo) {
         RegisterMapping registerMapping = findRegisterTypeOrThrowException(id);
+        ReadingType readingType = findReadingTypeOrThrowException(registerMappingInfo);
+        ProductSpec productSpecByReadingType = findProductSpecOrThrowException(registerMappingInfo, readingType); // TODO Complete
         registerMappingInfo.writeTo(registerMapping);
-        Optional<ReadingType> readingType = findReadingTypeOrThrowException(registerMappingInfo);
-        ProductSpec productSpecByReadingType = findProductSpecOrThrowException(registerMappingInfo, readingType.get());
-        registerMapping.setProductSpec(productSpecByReadingType);
         registerMapping.save();
         return new RegisterMappingInfo(registerMapping);
     }
@@ -98,12 +96,12 @@ public class RegisterTypeResource {
         return productSpecByReadingType;
     }
 
-    private Optional<ReadingType> findReadingTypeOrThrowException(RegisterMappingInfo registerMappingInfo) {
+    private ReadingType findReadingTypeOrThrowException(RegisterMappingInfo registerMappingInfo) {
         Optional<ReadingType> readingType = meteringService.getReadingType(registerMappingInfo.readingTypeInfo.mrid);
         if (!readingType.isPresent()) {
             throw new WebApplicationException("No reading type " + registerMappingInfo.readingTypeInfo.mrid, Response.Status.BAD_REQUEST);
         }
-        return readingType;
+        return readingType.get();
     }
 
     private RegisterMapping findRegisterTypeOrThrowException(Long id) {

@@ -16,7 +16,7 @@ public class DeviceConfigFieldResource extends FieldResource{
 
     @GET
     @Path("/unitOfMeasure")
-    public Object getLogLevelValues() {
+    public Object getUnitValues() {
         return asJsonArrayObject("units", "unit", new ReadingTypeUnitAdapter().getClientSideValues());
     }
 

@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.RegisterMapping;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -19,6 +20,11 @@ public class RegisterMappingInfo {
     public ObisCode obisCode;
     @JsonProperty("isInUse")
     public boolean isInUse;
+    @JsonProperty("timeOfUse")
+    public int timeOfUse;
+    @JsonProperty("unit")
+    @XmlJavaTypeAdapter(UnitAdapter.class)
+    public Unit unit;
     @JsonUnwrapped
     public ReadingTypeInfo readingTypeInfo;
 
@@ -36,7 +42,10 @@ public class RegisterMappingInfo {
     public void writeTo(RegisterMapping registerMapping) {
         registerMapping.setName(this.name);
         registerMapping.setObisCode(this.obisCode);
-//        readingTypeInfo.writeTo(registerMapping.getReadingType());
+        registerMapping.setTimeOfUse(this.timeOfUse);
+        registerMapping.setUnit(this.unit);
+        registerMapping.getReadingType();
+//        readingTypeInfo.writeTo(registerMapping.getReadingType());  TODO Complete
 
     }
 }
