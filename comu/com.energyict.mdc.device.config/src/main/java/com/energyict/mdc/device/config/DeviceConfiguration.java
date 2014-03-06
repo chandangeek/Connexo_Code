@@ -35,6 +35,7 @@ public interface DeviceConfiguration extends HasId {
      */
     String getDescription();
 
+    void setDescription(String description);
     /**
      * Returns the <code>DeviceType</code> this device config belongs to
      *
