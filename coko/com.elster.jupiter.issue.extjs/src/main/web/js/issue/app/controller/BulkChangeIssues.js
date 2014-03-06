@@ -38,6 +38,10 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
             'bulk-browse bulk-wizard bulk-step2 radiogroup': {
                 change: this.onStep2RadiogroupChangeEvent
             },
+            'bulk-browse bulk-wizard bulk-step3 issues-close radiogroup': {
+                change: this.onStep3RadiogroupCloseChangeEvent,
+                afterrender: this.getDefaultCloseStatus
+            },
             'bulk-browse bulk-step4': {
                 beforeactivate: this.beforeStep4
             }
@@ -104,20 +108,64 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
             url: requestUrl,
             method: 'PUT',
             jsonData: requestData,
-            success: function (response, opts) {
-                var obj = Ext.decode(response.responseText);
+            success: function (response) {
+                var obj = Ext.decode(response.responseText),
+                    step5panel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step5'),
+                    successCount = obj.success.length,
+                    failedCount = obj.failure.length,
+                    successMessage,
+                    successWidget,
+                    failedMessage,
+                    failedWidget;
+
+                switch (operation) {
+                    case 'assign':
+                        if (successCount > 0) {
+                            successMessage = 'Successfully assigned ' + successCount + ' issue(s) to';
+                        }
+                        if (failedCount > 0) {
+                            failedMessage = 'Failed to assign ' + failedCount + 'issue(s)'
+                        }
+                        break;
+                    case 'close':
+                        if (successCount > 0) {
+                            successMessage = 'Successfully closed ' + successCount + ' issue(s)';
+                        }
+                        if (failedCount > 0) {
+                            failedMessage = 'Failed to close ' + failedCount + 'issue(s)'
+                        }
+                        break;
+                }
+
+                step5panel.removeAll(true);
+
+                if (successCount > 0) {
+                    successWidget = Ext.widget('container', {
+                        cls: 'isu-bulk-close-success-panel',
+                        html: successMessage
+                    });
+                    step5panel.add(successWidget);
+                }
+
+                if (failedCount > 0) {
+                    failedWidget = Ext.widget('container', {
+                        cls: 'isu-bulk-close-failed-panel',
+                        html: successMessage
+                    });
+                    step5panel.add(failedWidget);
+                }
                 console.log(obj);
             },
-            failure: function (response, opts) {
+            failure: function (response) {
                 console.log('server-side failure with status code ' + response.status);
             }
         });
     },
 
     getRequestData: function (bulkStoreRecord) {
-        var requestData = {issues: []};
-        var operation = bulkStoreRecord.get('operation');
-        var issues = bulkStoreRecord.get('issues');
+        var requestData = {issues: []},
+            operation = bulkStoreRecord.get('operation'),
+            issues = bulkStoreRecord.get('issues');
 
         Ext.iterate(issues, function (issue) {
             requestData.issues.push(
@@ -136,10 +184,11 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
                 };
                 break;
             case 'close':
-                requestData.comment = bulkStoreRecord.get('comment');
                 requestData.status = bulkStoreRecord.get('status');
                 break;
         }
+
+        requestData.comment = bulkStoreRecord.get('comment');
 
         return requestData;
     },
@@ -179,6 +228,20 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
         record.commit();
     },
 
+    onStep3RadiogroupCloseChangeEvent: function (radiogroup, newValue, oldValue) {
+        var record = this.getBulkRecord();
+        record.set('status', newValue.status);
+        record.commit();
+    },
+
+    getDefaultCloseStatus: function () {
+        var formPanel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step3').down('issues-close'),
+            default_status = formPanel.down('radiogroup').getValue().status,
+            record = this.getBulkRecord();
+        record.set('status', default_status);
+        record.commit();
+    },
+
     processNextOnStep1: function (wizard) {
         var record = this.getBulkRecord(),
             grid = wizard.down('bulk-step1').down('issues-list');
@@ -203,64 +266,67 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
                 break;
         }
 
-        widget = Ext.widget(view);
+        widget = Ext.widget(view, {bulk: true});
 
         if (widget) {
             step3Panel.removeAll(true);
             step3Panel.add(widget);
-            step3Panel.fireEvent('removechildborder', step3Panel);
+            if (view === 'issues-assign-form') {
+                step3Panel.fireEvent('removechildborder', step3Panel);
+            }
         }
     },
 
     processNextOnStep3: function (wizard) {
-        var record = this.getBulkRecord(),
-            step4Panel = wizard.down('bulk-step4'),
-            message = '',
-            operation = record.get('operation'),
-            formPanel = Ext.ComponentQuery.query('bulk-step3 issues-assign-form')[0],
-            activeRadio = formPanel.down('radiogroup').down('radio[checked=true]').inputValue,
-            activeCombo = formPanel.down('combo[name=' + activeRadio + ']'),
-            form = formPanel.getForm(),
-            widget;
+        var formPanel = wizard.down('bulk-step3').down('form'),
+            form = formPanel.getForm();
 
         if (form.isValid()) {
-            record.set('assignee', {
-                id: activeCombo.findRecordByValue(activeCombo.getValue()).data.id,
-                type: activeCombo.name,
-                title: activeCombo.rawValue
-            });
+            var record = this.getBulkRecord(),
+                step4Panel = wizard.down('bulk-step4'),
+                operation = record.get('operation'),
+                message, widget;
 
             switch (operation) {
                 case 'assign':
-                    message += '<h3>Assign ';
+                    var activeRadio = formPanel.down('radiogroup').down('radio[checked=true]').inputValue,
+                        activeCombo = formPanel.down('combo[name=' + activeRadio + ']');
+                    record.set('assignee', {
+                        id: activeCombo.findRecordByValue(activeCombo.getValue()).data.id,
+                        type: activeCombo.name,
+                        title: activeCombo.rawValue
+                    });
+                    message = '<h3>Assign ' + record.get('issues').length + ' issues to ' + record.get('assignee').title + '?</h3><br>'
+                        + 'The selected issues will be assigned to ' + record.get('assignee').title;
                     break;
+
                 case 'close':
-                    message += '<h3>Close ';
+                    message = '<h3>Close ' + record.get('issues').length + ' issues?</h3><br>'
+                        + 'The selected issues will be closed with status <b>' + record.get('status') + '</b>';
                     break;
             }
 
-            message += record.get('issues').length;
-            message += ' issues to ';
-            message += record.get('assignee').title;
-            message += '?</h3><br>';
-            message += 'The selected issues will be assigned to ';
-            message += record.get('assignee').title;
+            record.set('comment',formPanel.down('textarea').getValue().trim());
 
             widget = Ext.widget('container', {
                 cls: 'isu-bulk-assign-confirmation-request-panel',
                 html: message
             });
 
-            if (widget) {
-                step4Panel.removeAll(true);
-                step4Panel.add(widget);
-            }
+            step4Panel.removeAll(true);
+            step4Panel.add(widget);
         }
     },
 
     beforeStep4: function () {
-        var form = Ext.ComponentQuery.query('bulk-step3 issues-assign-form')[0].getForm();
+        if (this.getBulkRecord().get('operation') == 'assign') {
+            var form = Ext.ComponentQuery.query('bulk-step3 issues-assign-form')[0].getForm();
+            return !form || form.isValid();
+        }
+    },
 
-        return !form || form.isValid();
+    afterStep5: function (result) {
+
     }
+
 });
