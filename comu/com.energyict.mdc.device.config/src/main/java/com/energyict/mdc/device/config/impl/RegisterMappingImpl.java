@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -43,7 +44,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     private ObisCode obisCode;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY + "}")
     private String obisCodeString;
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.PHENOMENON_IS_REQUIRED_KEY + "}")
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.UNIT_IS_REQUIRED_KEY + "}")
     private Reference<Phenomenon> phenomenon = ValueReference.absent();
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.READING_TYPE_IS_REQUIRED_KEY + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
@@ -51,6 +52,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     private Reference<RegisterGroup> registerGroup = ValueReference.absent();
     private String description;
     private Date modificationDate;
+    @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.READING_TYPE_IS_REQUIRED_KEY + "}")
     private int timeOfUse;
 
     private Clock clock;
@@ -73,14 +75,14 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
 
     @Override
     public void save () {
-        validateUniqueObisCodeAndRegisterMapping();
+        validateUniqueObisCodeAndPhenomenonAndTimeOfUse();
         this.modificationDate = this.clock.now();
         super.save();
     }
 
-    private void validateUniqueObisCodeAndRegisterMapping() {
+    private void validateUniqueObisCodeAndPhenomenonAndTimeOfUse() {
         if (this.phenomenon.isPresent() && this.obisCode != null) {
-            RegisterMapping otherRegisterMapping = this.findOtherByObisCodeAndPhenomenon();
+            RegisterMapping otherRegisterMapping = this.findOtherByObisCodeAndPhenomenonAndTimeOfUse();
             if (otherRegisterMapping != null) {
                 throw DuplicateObisCodeException.forRegisterMapping(this.getThesaurus(), obisCode, otherRegisterMapping);
             }
@@ -152,8 +154,10 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         return !is(this.obisCode).equalTo(obisCode);
     }
 
-    private RegisterMapping findOtherByObisCodeAndPhenomenon() {
-        RegisterMapping registerMapping = this.getDataMapper().getUnique("obisCodeString", obisCode.toString(), "phenomenon", this.getPhenomenon()).orNull();
+    private RegisterMapping findOtherByObisCodeAndPhenomenonAndTimeOfUse() {
+        RegisterMapping registerMapping = this.getDataMapper().getUnique(
+                new String[] { "obisCodeString",    "phenomenon",         "timeOfUse" },
+                new Object[] {  obisCode.toString(), this.getPhenomenon(), this.getTimeOfUse()} ).orNull();
         if (registerMapping != null && this.getId() > 0 && registerMapping.getId() == this.getId()) {
             // The RegisterMapping that was found is the one we are updating so ignore it
             return null;
@@ -288,7 +292,8 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
 
     @Override
     public void setUnit(Unit unit) {
-        setPhenomenon(dataModel.mapper(Phenomenon.class).getUnique("unitString", unit).orNull());
+        Phenomenon phenomenon = dataModel.mapper(Phenomenon.class).getUnique("unitString", unit.dbString()).orNull();
+        setPhenomenon(phenomenon);
     }
 
     public Date getModificationDate() {

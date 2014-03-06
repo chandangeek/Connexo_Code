@@ -126,7 +126,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse) {
-        Phenomenon phenomenon = findPhenomenonByUnit(unit.dbString());
+        Phenomenon phenomenon = unit==null?null:findPhenomenonByUnit(unit.dbString());
         return this.getDataModel().getInstance(RegisterMappingImpl.class).initialize(name, obisCode, phenomenon, readingType, timeOfUse);
     }
 
