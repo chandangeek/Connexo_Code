@@ -12,4 +12,5 @@ public class PageInfo {
 	public String icon;
     public String mainController;
     public List<Script> scripts;
+    public List<String> translationComponents;
 }

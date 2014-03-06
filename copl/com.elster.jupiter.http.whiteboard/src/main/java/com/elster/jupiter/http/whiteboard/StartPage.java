@@ -8,4 +8,5 @@ public interface StartPage {
 	String getName();
     String getMainController();
     List<Script> getScripts();
+    List<String> getTranslationComponents();
 }

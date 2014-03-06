@@ -9,13 +9,19 @@ public final class DefaultStartPage implements StartPage {
     private final String name;
     private final String mainController;
     private final List<Script> scripts;
+    private final List<String> translationComponents;
 
-    public DefaultStartPage(String name, String iconPath, String htmlPath, String mainController, List<Script> scripts) {
+    public DefaultStartPage(String name, String iconPath, String htmlPath, String mainController, List<Script> scripts, List<String> translationComponents) {
         this.htmlPath = htmlPath;
         this.iconPath = iconPath;
         this.name = name;
         this.mainController = mainController;
         this.scripts = scripts;
+        this.translationComponents = translationComponents;
+    }
+
+    public DefaultStartPage(String name, String iconPath, String htmlPath, String mainController, List<Script> scripts) {
+        this(name, iconPath, htmlPath, mainController, scripts,null);
     }
 
     public DefaultStartPage(String name, String iconPath, String htmlPath, String mainController) {
@@ -57,5 +63,10 @@ public final class DefaultStartPage implements StartPage {
     @Override
     public List<Script> getScripts() {
         return scripts;
+    }
+
+    @Override
+    public List<String> getTranslationComponents() {
+        return translationComponents;
     }
 }

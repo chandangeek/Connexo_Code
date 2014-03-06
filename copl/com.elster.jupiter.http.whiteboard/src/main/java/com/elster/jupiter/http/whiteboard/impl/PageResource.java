@@ -36,6 +36,9 @@ public class PageResource {
                 if(startPage.getScripts()!=null && !startPage.getScripts().isEmpty()){
                     info.scripts = startPage.getScripts();
                 }
+                if(startPage.getTranslationComponents()!=null && !startPage.getTranslationComponents().isEmpty()){
+                    info.translationComponents = startPage.getTranslationComponents();
+                }
 				result.add(info);
 			}				
 		}
