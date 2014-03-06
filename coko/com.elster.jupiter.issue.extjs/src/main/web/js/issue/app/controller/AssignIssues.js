@@ -60,7 +60,7 @@ Ext.define('Mtr.controller.AssignIssues', {
                 activeCombo = formPanel.down('combobox[disabled=false]'),
                 form = formPanel.getForm(),
                 formValues = form.getValues(),
-                url = '/api/isu/issue/assign++',
+                url = '/api/isu/issue/assign',
                 sendingData = {},
                 preloader;
 
