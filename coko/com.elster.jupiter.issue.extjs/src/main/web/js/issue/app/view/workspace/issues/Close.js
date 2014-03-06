@@ -41,7 +41,7 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                 {
                     xype: 'container',
                     border: 0,
-
+                    margin: '0 0 0 -25',
                     items: [
                         {
                             xtype: 'radiogroup',
@@ -91,6 +91,7 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                 + '</h3>'};
             form_item.items[1].padding = '30 50 0 50';
             form_item.items[1].defaults = { padding: '0 0 30 0' },
+            form_item.items[1].margin = '0',
             form_item.items[2] = {
                 xtype: 'container',
                 padding: '0 155',
