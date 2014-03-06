@@ -97,6 +97,11 @@ Ext.define('Mtr.view.workspace.issues.bulk.BulkWizard', {
         this.callParent(arguments);
     },
 
+    onCancelButtonClick: function (cancel) {
+        var wizard = cancel.up('wizard');
+        wizard.fireEvent('wizardcancelled', wizard);
+    },
+
     onConfirmButtonClick: function (finish) {
         var wizard = finish.up('wizard');
         var docked = wizard.getDockedItems('toolbar[dock="bottom"]')[0];
