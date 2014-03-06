@@ -8,6 +8,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -94,8 +95,9 @@ public class AppServiceConsoleService {
                 return "console";
             }
         });
-        try {
+        try (TransactionContext context = transactionService.getContext()) {
             appService.createAppServer(name, cronExpressionParser.parse(cronString));
+            context.commit();
         } finally {
             threadPrincipalService.clear();
         }
