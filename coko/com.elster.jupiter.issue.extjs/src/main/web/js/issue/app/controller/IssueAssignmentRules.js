@@ -9,6 +9,10 @@ Ext.define('Mtr.controller.IssueAssignmentRules', {
         'ext.button.GridAction'
     ],
 
+    mixins: [
+        'Mtr.util.IsuGrid'
+    ],
+
     refs: [
         {
             ref: 'itemPanel',
@@ -22,14 +26,14 @@ Ext.define('Mtr.controller.IssueAssignmentRules', {
                 afterrender: this.setBreadcrumb
             },
             'issue-assignment-rules-overview issues-assignment-rules-list gridview': {
-                itemclick: this.loadRule,
+                itemclick: this.loadRule, // TEMP: must to use 'IsuGrid' mixin method 'loadGridItemDetail'
                 itemmouseenter: this.onUserTypeIconHover
             },
             'issue-assignment-rules-overview issues-assignment-rules-list actioncolumn': {
-                click: this.showRuleActions
+                click: this.showItemAction
             },
-            'menu[name=ruleactionmenu]': {
-                beforehide: this.hideRuleActions,
+            'rule-action-menu': {
+                beforehide: this.hideItemAction,
                 click: this.chooseRuleAction
             },
             'button[name=create-issues-assignment-rules]': {
@@ -37,6 +41,7 @@ Ext.define('Mtr.controller.IssueAssignmentRules', {
             }
         });
 
+        this.actionMenuXtype = 'rule-action-menu';
     },
 
     showOverview: function () {
@@ -62,9 +67,9 @@ Ext.define('Mtr.controller.IssueAssignmentRules', {
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
+    // TEMP: must to delete
     loadRule: function (grid, record) {
         var itemPanel = this.getItemPanel(),
-            model = this.getModel('Mtr.model.Rules'),
             preloader = Ext.create('Ext.LoadMask', {
                 msg: "Loading...",
                 target: itemPanel
@@ -74,14 +79,7 @@ Ext.define('Mtr.controller.IssueAssignmentRules', {
             preloader.show();
         }
         this.lastId = record.id;
-        /*model.load(record.data.id, {
-         success: function () {
-         itemPanel.fireEvent('change', itemPanel, record);
-         preloader.destroy();
-         }
-         });*/
 
-        /*=========== TEMP ===========*/
         setTimeout(function () {
             var data = {};
             data.data = {
@@ -105,84 +103,7 @@ Ext.define('Mtr.controller.IssueAssignmentRules', {
             preloader.destroy();
         }, 1000);
     },
-
-    onUserTypeIconHover: function (me, record, item) {
-        var rowEl = Ext.get(item),
-            iconElem = rowEl.select('span').elements[0],
-            toolTip;
-        if (iconElem) {
-            var icon = iconElem.getAttribute('class'),
-                domIconElem = Ext.get(iconElem);
-            switch (icon) {
-                case 'isu-icon-USER':
-                    toolTip = Ext.create('Ext.tip.ToolTip', {
-                        target: domIconElem,
-                        html: 'User',
-                        style: {
-                            borderColor: 'black'
-                        }
-                    });
-                    break;
-                case 'isu-icon-GROUP':
-                    toolTip = Ext.create('Ext.tip.ToolTip', {
-                        target: domIconElem,
-                        html: 'User group',
-                        style: {
-                            borderColor: 'black'
-                        }
-                    });
-                    break;
-                case 'isu-icon-ROLE':
-                    toolTip = Ext.create('Ext.tip.ToolTip', {
-                        target: domIconElem,
-                        html: 'User role',
-                        style: {
-                            borderColor: 'black'
-                        }
-                    });
-                    break;
-                default:
-                    break;
-            }
-            domIconElem.on('mouseenter', function () {
-                toolTip.show();
-            });
-            domIconElem.on('mouseleave', function () {
-                toolTip.hide();
-            });
-        }
-    },
-
-    showRuleActions: function (grid, cell, rowIndex, colIndex, e, record) {
-        var cellEl = Ext.get(cell);
-
-        this.hideRuleActions();
-
-        this.gridActionIcon = cellEl.first();
-
-        this.gridActionIcon.hide();
-        this.gridActionIcon.setHeight(0);
-        this.gridActionBtn = Ext.create('widget.grid-action', {
-            renderTo: cell,
-            menu: {
-                xtype: 'rule-action-menu',
-                name: 'ruleactionmenu',
-                record: record
-            }
-        });
-        this.gridActionBtn.showMenu();
-    },
-
-    hideRuleActions: function () {
-        if (this.gridActionBtn) {
-            this.gridActionBtn.destroy();
-        }
-
-        if (this.gridActionIcon) {
-            this.gridActionIcon.show();
-            this.gridActionIcon.setHeight(22);
-        }
-    },
+    // end TEMP
 
     chooseRuleAction: function (menu, item) {
         switch (item.text) {

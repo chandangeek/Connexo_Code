@@ -51,7 +51,6 @@ Ext.define('Mtr.view.workspace.issues.Item', {
                             xtype: 'item-action',
                             menu: {
                                 xtype: 'issue-action-menu',
-                                name: 'issueactionmenu',
                                 record: record
                             }
                         }
