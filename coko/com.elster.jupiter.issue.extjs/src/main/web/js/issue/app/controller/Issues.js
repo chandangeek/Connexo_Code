@@ -125,12 +125,21 @@ Ext.define('Mtr.controller.Issues', {
             preloader.show();
         }
         this.lastId = record.id;
-        model.load(record.data.id, {
-            success: function () {
-                itemPanel.fireEvent('change', itemPanel, record);
-                preloader.destroy();
+        Ext.Ajax.request({
+            url: '/api/isu/issue/' + record.get('id'),
+            method: 'GET',
+            success: function (response) {
+                var resp = Ext.JSON.decode(response.responseText);
+                model.load(record.get('id'), {
+                    success: function () {
+                        itemPanel.fireEvent('change', itemPanel, resp);
+                        preloader.destroy();
+                    }
+                });
             }
         });
+
+
     },
 
     showIssuesActions: function (grid, cell, rowIndex, colIndex, e, record) {
@@ -207,7 +216,7 @@ Ext.define('Mtr.controller.Issues', {
             Ext.merge(extraParams, this.sortParams);
         }
         this.store.proxy.extraParams = extraParams;
-    //    this.store.load();;
+        //    this.store.load();;
         this.store.loadPage(1);
     },
 
