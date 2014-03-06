@@ -254,10 +254,11 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
 
     private RegisterMapping createDefaultRegisterMapping() {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        Unit unit = Unit.get("KWh");
         ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
         ProductSpec productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(readingType);
         productSpec.save();
-        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RMName", ObisCode.fromString("1.0.1.8.0.255"), productSpec);
+        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RMName", ObisCode.fromString("1.0.1.8.0.255"), unit, readingType, readingType.getTou());
         registerMapping.save();
         this.deviceType.addRegisterMapping(registerMapping);
         return registerMapping;

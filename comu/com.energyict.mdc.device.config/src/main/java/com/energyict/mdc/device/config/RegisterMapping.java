@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
 import java.util.Date;
 
 /**
@@ -47,14 +46,6 @@ public interface RegisterMapping {
 
     public void setCumulative(boolean cumulative);
 
-    /**
-     * Returns the product spec for this mapping
-     *
-     * @return the product spec
-     * @deprecated use getReadingType() instead
-     */
-    public ProductSpec getProductSpec();
-
     /** @deprecated use getReadingType() instead */
     public void setProductSpec(ProductSpec productSpec);
 
@@ -64,6 +55,8 @@ public interface RegisterMapping {
      * @return the mapping's unit
      */
     public Unit getUnit();
+
+    public void setUnit(Unit unit);
 
     public ReadingType getReadingType ();
 
@@ -102,11 +95,8 @@ public interface RegisterMapping {
 
     public void delete ();
 
-    /**
-     * return the register mapping's phenomenon
-     * @return the register mapping's phenomenon
-     */
-    public Phenomenon getPhenomenon();
+    public int getTimeOfUse();
 
-    void setPhenomenon(Phenomenon phenomenon);
+    public void setTimeOfUse(int timeOfUse);
+
 }

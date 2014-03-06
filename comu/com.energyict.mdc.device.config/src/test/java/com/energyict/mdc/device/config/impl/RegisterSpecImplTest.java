@@ -60,6 +60,7 @@ public class RegisterSpecImplTest extends PersistenceTest {
     private RegisterMapping registerMapping;
     private ReadingType readingType;
     private ProductSpec productSpec;
+    private Unit unit = Unit.get("KWh");
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -71,7 +72,7 @@ public class RegisterSpecImplTest extends PersistenceTest {
         this.readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
         this.productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(readingType);
         this.productSpec.save();
-        this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME, registerMappingObisCode, productSpec);
+        this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME, registerMappingObisCode, unit, readingType, readingType.getTou());
         this.registerMapping.save();
 
         // Business method
@@ -267,7 +268,7 @@ public class RegisterSpecImplTest extends PersistenceTest {
     public void updateWithSameObisCodeTest() {
         RegisterSpec registerSpec1 = createDefaultRegisterSpec();
         RegisterSpec registerSpec2;
-        RegisterMapping otherMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("OtherMapping", ObisCode.fromString("1.2.3.1.5.6"), this.productSpec);
+        RegisterMapping otherMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("OtherMapping", ObisCode.fromString("1.2.3.1.5.6"), unit, readingType, readingType.getTou());
         otherMapping.save();
         this.deviceType.addRegisterMapping(otherMapping);
         this.deviceType.save();
@@ -285,7 +286,7 @@ public class RegisterSpecImplTest extends PersistenceTest {
     public void addTwoSpecsWithDifferentMappingButSameObisCodeTest() {
         RegisterSpec registerSpec1 = createDefaultRegisterSpec();
         RegisterSpec registerSpec2;
-        RegisterMapping otherMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("OtherMapping", registerMappingObisCode, this.productSpec);
+        RegisterMapping otherMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("OtherMapping", registerMappingObisCode, unit, readingType, readingType.getTou());
         otherMapping.save();
         this.deviceType.addRegisterMapping(otherMapping);
         this.deviceType.save();
@@ -298,7 +299,7 @@ public class RegisterSpecImplTest extends PersistenceTest {
     @Transactional
     public void addSpecForMappingWhichIsNotOnDeviceTypeTest() {
         RegisterSpec registerSpec;
-        RegisterMapping otherMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("OtherMapping", ObisCode.fromString("32.12.32.5.12.32"), this.productSpec);
+        RegisterMapping otherMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("OtherMapping", ObisCode.fromString("32.12.32.5.12.32"), unit, readingType, readingType.getTou());
         otherMapping.save();
         RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(otherMapping);
         setRegisterSpecDefaultFields(registerSpecBuilder);

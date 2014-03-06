@@ -773,9 +773,10 @@ public class DeviceTypeImplTest extends PersistenceTest {
     private void setupRegisterMappingTypesInExistingTransaction() {
         this.setupProductSpecsInExistingTransaction();
         String registerMappingTypeBaseName = DeviceTypeImplTest.class.getSimpleName();
-        this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingTypeBaseName + "-1", ObisCode.fromString("1.0.99.1.0.255"), this.productSpec);
+        Unit unit = Unit.get("KWh");
+        this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingTypeBaseName + "-1", ObisCode.fromString("1.0.99.1.0.255"), unit, readingType, readingType.getTou());
         this.registerMapping.save();
-        this.registerMapping2 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingTypeBaseName + "-2", ObisCode.fromString("1.0.99.2.0.255"), this.productSpec);
+        this.registerMapping2 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingTypeBaseName + "-2", ObisCode.fromString("1.0.99.2.0.255"), unit, readingType, readingType.getTou());
         this.registerMapping2.save();
     }
 

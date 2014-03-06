@@ -16,7 +16,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateRegisterMappingException;
@@ -62,7 +61,6 @@ public class ChannelSpecImplTest extends PersistenceTest {
     private TimeDuration interval = TimeDuration.days(1);
     private DeviceConfiguration deviceConfiguration;
     private LoadProfileType loadProfileType;
-    private ProductSpec productSpec;
     private RegisterMapping registerMapping;
     private Phenomenon phenomenon;
     private Unit phenomenonUnit = Unit.get("kWh");
@@ -76,9 +74,7 @@ public class ChannelSpecImplTest extends PersistenceTest {
     private void initializeDeviceTypeWithRegisterMappingAndLoadProfileTypeAndDeviceConfiguration() {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
         ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        this.productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(readingType);
-        this.productSpec.save();
-        this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME, registerMappingObisCode, productSpec);
+        this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME, registerMappingObisCode, phenomenonUnit, readingType, readingType.getTou());
         this.registerMapping.save();
         loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval);
         loadProfileType.addRegisterMapping(registerMapping);
@@ -121,7 +117,6 @@ public class ChannelSpecImplTest extends PersistenceTest {
         assertThat(channelSpec.getName()).isEqualTo(REGISTER_MAPPING_NAME);
         assertThat(channelSpec.getRegisterMapping()).isEqualTo(this.registerMapping);
         assertThat(channelSpec.getPhenomenon()).isEqualTo(this.phenomenon);
-        assertThat(channelSpec.getProductSpec()).isEqualTo(this.productSpec);
     }
 
     private ChannelSpec createDefaultChannelSpec(LoadProfileSpec loadProfileSpec) {
@@ -416,8 +411,10 @@ public class ChannelSpecImplTest extends PersistenceTest {
     @Transactional
     public void createWithRegisterMappingFromOtherDeviceTypeTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
 
-        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME + "Other", overruledChannelSpecObisCode, productSpec);
+        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME + "Other", overruledChannelSpecObisCode, phenomenonUnit, readingType, readingType.getTou());
         registerMapping.save();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.add();
@@ -427,8 +424,10 @@ public class ChannelSpecImplTest extends PersistenceTest {
     @Transactional
     public void createWithRegisterMappingNotInLoadProfileTypeTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
 
-        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME + "Other", overruledChannelSpecObisCode, productSpec);
+        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME + "Other", overruledChannelSpecObisCode, phenomenonUnit, readingType, readingType.getTou());
         registerMapping.save();
         this.deviceType.addRegisterMapping(registerMapping);
         this.deviceType.save();

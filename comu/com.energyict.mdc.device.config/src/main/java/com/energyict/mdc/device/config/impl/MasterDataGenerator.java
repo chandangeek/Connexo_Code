@@ -9,7 +9,6 @@ import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.ReadingTypeInformation;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -76,7 +75,7 @@ public class MasterDataGenerator {
                 ProductSpec productSpec = deviceConfigurationService.findProductSpecByReadingType(readingType);
                 if(productSpec != null && productSpec.getUnit() != null){
                     ReadingTypeInformation readingTypeInformation = readingTypeUtilService.getReadingTypeInformationFor(readingType);
-                    RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping(readingType.getName(), readingTypeInformation.getObisCode(), productSpec);
+                    RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping(readingType.getName(), readingTypeInformation.getObisCode(), readingTypeInformation.getUnit(), readingType , readingType.getTou());
                     registerMapping.save();
                     registerMappings.add(registerMapping);
                 }

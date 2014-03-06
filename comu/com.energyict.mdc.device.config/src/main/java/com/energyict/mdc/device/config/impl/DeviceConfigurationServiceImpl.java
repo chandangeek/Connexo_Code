@@ -151,8 +151,9 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, ProductSpec productSpec) {
-        return RegisterMappingImpl.from(this.getDataModel(), name, obisCode, productSpec);
+    public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse) {
+        Phenomenon phenomenon = findPhenomenonByUnit(unit.dbString());
+        return this.getDataModel().getInstance(RegisterMappingImpl.class).initialize(name, obisCode, phenomenon, readingType, timeOfUse);
     }
 
     @Override
@@ -270,6 +271,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Phenomenon findPhenomenonByNameAndUnit(String name, String unit) {
         return this.getDataModel().mapper(Phenomenon.class).getUnique("name", name, "unitString", unit).orNull();
+    }
+
+    private Phenomenon findPhenomenonByUnit(String unit) {
+        return this.getDataModel().mapper(Phenomenon.class).getUnique("unitString", unit).orNull();
     }
 
     @Override

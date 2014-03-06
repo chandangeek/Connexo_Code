@@ -126,16 +126,16 @@ public interface DeviceConfigurationService {
      * Creates a new {@link RegisterMapping} with the specified required properties.
      * Note that {@link ObisCode} uniquely identifies the RegisterMapping,
      * i.e. there can only be 1 RegisterMapping for every ObisCode.
-     * Note that the ProductSpec is only saved in the database
-     * after a call to the "save" method.
      *
      * @param name        The RegisterMapping name
      * @param obisCode    The ObisCode
-     * @param productSpec The ProductSpec
+     * @param unit        The unit
+     * @param readingType The reading type
+     * @param timeOfUse   Customer specif timeOfUse id
      * @return The new RegisterMapping
      * @see RegisterMapping#save()
      */
-    public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, ProductSpec productSpec);
+    public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse);
 
     /**
      * Finds all the {@link LoadProfileType LoadProfileTypes} in the systesm
