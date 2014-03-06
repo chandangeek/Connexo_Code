@@ -48,7 +48,6 @@ Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.Item', {
                             xtype: 'item-action',
                             menu: {
                                 xtype: 'rule-action-menu',
-                                name: 'ruleactionmenu',
                                 record: record
                             }
                         }
