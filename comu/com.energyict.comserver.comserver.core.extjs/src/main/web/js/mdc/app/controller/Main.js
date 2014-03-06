@@ -51,7 +51,6 @@ Ext.define('Mdc.controller.Main', {
             href: me.getApplication().getController('Mdc.controller.history.Setup').tokenizeShowOverview(),
             glyph: 'xe01d@icomoon'
         });
-        debugger;
         Uni.store.MenuItems.add(menuItem);
         this.initNavigation();
         this.initDefaultHistoryToken();
