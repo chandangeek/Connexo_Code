@@ -51,7 +51,6 @@ Ext.define('Mtr.view.workspace.issues.AssignForm', {
                                 change: {
                                     fn: function (radiogroup, newValue, oldValue) {
                                         var form = radiogroup.up('issues-assign-form');
-
                                         form.assignToOnChange(radiogroup, newValue, oldValue);
                                     }
                                 }
@@ -89,7 +88,6 @@ Ext.define('Mtr.view.workspace.issues.AssignForm', {
                                     errorchange: {
                                         fn: function (combo, errEl) {
                                             var form = combo.up('issues-assign-form');
-
                                             form.comboOnError(combo, errEl);
                                         }
                                     },
@@ -97,6 +95,11 @@ Ext.define('Mtr.view.workspace.issues.AssignForm', {
                                         fn: function (combo) {
                                             var radiobutton = combo.up().previousNode('radiogroup').down('[inputValue=' + combo.name + ']');
                                             radiobutton.setValue(true);
+                                            var arrCombo = Ext.ComponentQuery.query('issues-assign-form combobox');
+                                            Ext.Array.each(arrCombo, function (item) {
+                                                item.allowBlank = true;
+                                            });
+                                            combo.allowBlank = false;
                                         }
                                     }
                                 }
@@ -158,7 +161,6 @@ Ext.define('Mtr.view.workspace.issues.AssignForm', {
     assignToOnChange: function (radiogroup, newValue, oldValue) {
         var activeCombobox = radiogroup.next().down('[name=' + newValue.assignTo + ']'),
             inactiveCombobox = radiogroup.next().down('[name=' + oldValue.assignTo + ']');
-
         inactiveCombobox.allowBlank = true;
         activeCombobox.setDisabled(false);
         activeCombobox.allowBlank = false;
@@ -173,7 +175,6 @@ Ext.define('Mtr.view.workspace.issues.AssignForm', {
 
         initMargin[2] = errEl ? parseInt(initMargin[2]) + addMargin : parseInt(initMargin[2]) - addMargin;
         finMargin = initMargin.join(' ');
-
         radiobutton.setMargin(finMargin);
         radiobutton.margin = finMargin;
     },
@@ -189,9 +190,10 @@ Ext.define('Mtr.view.workspace.issues.AssignForm', {
                     html: 'There are errors on this page that require your attention.'
                 });
                 formErrorsPanel.show();
-            } else {
+             } else {
                 formErrorsPanel.hide();
                 formErrorsPanel.removeAll();
+
             }
         }
     }

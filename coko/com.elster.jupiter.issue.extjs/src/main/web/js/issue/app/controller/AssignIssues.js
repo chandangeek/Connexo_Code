@@ -57,7 +57,7 @@ Ext.define('Mtr.controller.AssignIssues', {
             var self = this.getController('Mtr.controller.AssignIssues'),
                 assignPanel = Ext.ComponentQuery.query('issues-assign')[0],
                 formPanel = assignPanel.down('issues-assign-form'),
-                activeCombo = formPanel.down('combobox[disabled=false]'),
+                activeCombo = formPanel.down('combobox[allowBlank=false]'),
                 form = formPanel.getForm(),
                 formValues = form.getValues(),
                 url = '/api/isu/issue/assign',
@@ -84,6 +84,7 @@ Ext.define('Mtr.controller.AssignIssues', {
                     target: formPanel
                 });
                 preloader.show();
+
                 Ext.Ajax.request({
                     url: url,
                     method: 'PUT',
@@ -102,10 +103,11 @@ Ext.define('Mtr.controller.AssignIssues', {
                 assignIssueView = Ext.ComponentQuery.query('issues-assign')[0],
                 assignPanel = assignIssueView.down('panel'),
                 preloader = Ext.ComponentQuery.query('loadmask[name=assign-issu-form-submit]')[0],
-                activeCombo = assignIssueView.down('issues-assign-form combobox[disabled=false]'),
+                activeCombo = assignIssueView.down('issues-assign-form combobox[allowBlank=false]'),
                 id = assignIssueView.record.data.id,
                 success,
                 msges = [];
+
             preloader.destroy();
             success = Ext.Array.findBy(successArr, function (item) {
                 return item == id;
@@ -118,11 +120,7 @@ Ext.define('Mtr.controller.AssignIssues', {
                     Ext.Array.each(item.issues, function (issue) {
                         var header = {},
                             bodyItem = {};
-                        if (issue.title == assignPanel.recordTitle) {
-                            header.text = 'Failed to assign issue ' + issue.title + ' to ' + activeCombo.rawValue;
-                        } else {
-                            header.text = 'Failed to assign issue' + ' to ' + activeCombo.rawValue;
-                        }
+                        header.text = 'Failed to assign issue ' + assignPanel.recordTitle + ' to ' + activeCombo.rawValue;
                         header.style = 'msgHeaderStyle';
                         msges.push(header);
                         bodyItem.text = item.reason;
@@ -177,7 +175,7 @@ Ext.define('Mtr.controller.AssignIssues', {
                         showTime: 5000
                     });
                 }
-                Ext.History.back();
+                window.location.href = '#/workspace/datacollection/issues';
             }
         }
     }

@@ -81,8 +81,8 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                 + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.sNumber : '')
                 + '</h3>'};
             form_item.items[1].padding = '30 50 0 50';
-            form_item.items[1].defaults = { padding: '0 0 30 0' },
-            form_item.items[1].margin = '0',
+            form_item.items[1].defaults = { padding: '0 0 30 0' };
+            form_item.items[1].margin = '0';
             form_item.items[2] = {
                 xtype: 'container',
                 padding: '0 155',
@@ -98,7 +98,9 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                         xtype: 'button',
                         name: 'cancel',
                         text: 'Cancel',
-                        cls: Ext.baseCSSPrefix + 'btn-plain-toolbar-medium'
+                        cls: 'isu-btn-link',
+                        hrefTarget: '',
+                        href: '#/workspace/datacollection/issues'
                     }
                 ]
             }
