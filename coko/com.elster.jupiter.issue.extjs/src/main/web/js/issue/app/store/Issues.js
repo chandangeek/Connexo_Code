@@ -8,7 +8,6 @@ Ext.define('Mtr.store.Issues', {
     autoLoad: false,
 
     proxy: {
-
         type: 'rest',
         url: '/api/isu/issue',
         reader: {
@@ -17,8 +16,7 @@ Ext.define('Mtr.store.Issues', {
         },
         extraParams: {
             sort: 'dueDate',
-            order: 'asc',
-
+            order: 'asc'
         }
     }
 });
