@@ -46,9 +46,6 @@ public interface RegisterMapping {
 
     public void setCumulative(boolean cumulative);
 
-    /** @deprecated use getReadingType() instead */
-    public void setProductSpec(ProductSpec productSpec);
-
     /**
      * Returns the mapping's unit
      *

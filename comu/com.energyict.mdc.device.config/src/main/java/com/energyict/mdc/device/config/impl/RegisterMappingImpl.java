@@ -177,11 +177,6 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         this.registerGroup.set(registerGroup);
     }
 
-    @Override
-    public void setProductSpec(ProductSpec productSpec) {
-        // TODO remove
-    }
-
     private boolean phenomenonChanged(Phenomenon phenomenon) {
         return ((!this.phenomenon.isPresent() && phenomenon != null)
             || (phenomenon != null && (this.getPhenomenon().getId() != phenomenon.getId())));
