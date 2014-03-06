@@ -58,6 +58,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     private Reference<RegisterGroup> registerGroup = ValueReference.absent();
     private String description;
     private Date modificationDate;
+    private int timeOfUse;
 
     private Clock clock;
 
@@ -306,11 +307,18 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     }
 
     public Unit getUnit() {
-        return getProductSpec().getUnit();
+        return this.phenomenon.get().getUnit();
     }
 
     public Date getModificationDate() {
         return this.modificationDate;
     }
 
+    public int getTimeOfUse() {
+        return timeOfUse;
+    }
+
+    public void setTimeOfUse(int timeOfUse) {
+        this.timeOfUse = timeOfUse;
+    }
 }

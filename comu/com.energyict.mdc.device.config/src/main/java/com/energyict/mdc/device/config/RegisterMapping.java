@@ -55,6 +55,7 @@ public interface RegisterMapping {
      */
     public ProductSpec getProductSpec();
 
+    /** @deprecated use getReadingType() instead */
     public void setProductSpec(ProductSpec productSpec);
 
     /**

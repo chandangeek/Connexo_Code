@@ -117,6 +117,7 @@ public enum TableSpecs {
             table.column("CUMULATIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("cumulative").add();
             Column registerGroup = table.column("REGISTERGROUPID").number().add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
+            table.column("TIMEOFUSE").number().map("timeOfUse").conversion(ColumnConversion.NUMBER2INT).add();
             table.foreignKey("FK_EISREGMAP_REGGROUP").on(registerGroup).references(EISRTUREGISTERGROUP.name()).map("registerGroup").add();
             table.foreignKey("FK_EISREGMAP_PHENOMENON").on(phenomenon).references(EISRTUREGISTERGROUP.name()).map("phenomenon").add();
             table.foreignKey("FK_EISREGMAP_PRODSPEC").on(productSpec).references(EISPRODUCTSPEC.name()).map("productSpec").add();
