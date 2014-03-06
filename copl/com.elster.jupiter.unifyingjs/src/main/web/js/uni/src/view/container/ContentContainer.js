@@ -28,7 +28,7 @@
  * # Breadcrumbs
  *
  * You can use the built-in breadcrumbs component by either fetching it via query selector with
- * the id '#breadcrumbTrail' or call the method {#getBreadcrumbTrail}.
+ * the id '#breadcrumbTrail' or call the method #getBreadcrumbTrail.
  *
  * # Changing the side or content dynamically
  *
@@ -36,9 +36,9 @@
  * component you will have to refer to it as you would with any component. There are methods to request
  * each separate wrapper:
  *
- *     * North container {#getNorthContainer}
- *     * Center container {#getCenterContainer}
- *     * West container {#getWestContainer}
+ *     * North container #getNorthContainer
+ *     * Center container #getCenterContainer
+ *     * West container #getWestContainer
  *
  * Try to get as much done before rendering in the {#side} and {#content} properties. Otherwise future changes
  * to the content container might impact your application.
