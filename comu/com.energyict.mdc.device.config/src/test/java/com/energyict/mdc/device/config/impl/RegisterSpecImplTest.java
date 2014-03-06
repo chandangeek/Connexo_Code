@@ -26,8 +26,6 @@ import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFract
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import java.math.BigDecimal;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,7 +36,6 @@ import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 
 /**
  * Tests the {@link RegisterSpecImpl} component
@@ -77,19 +74,12 @@ public class RegisterSpecImplTest extends PersistenceTest {
         this.phenomenon2 = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(RegisterSpecImplTest.class.getSimpleName()+"2", unit2);
         this.phenomenon2.save();
 
-        try {
-            String code2 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
-            this.readingType2 = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
-            String code1 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
-            this.readingType1 = inMemoryPersistence.getMeteringService().getReadingType(code1).get();
-            this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME, registerMappingObisCode, unit1, readingType1, readingType1.getTou());
-            this.registerMapping.save();
-        } catch (ConstraintViolationException e) {
-            for (ConstraintViolation<?> constraintViolation : e.getConstraintViolations()) {
-                System.err.println(constraintViolation.getPropertyPath() + ": " + constraintViolation.getMessage());
-            }
-            fail("exception");
-        }
+        String code2 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        this.readingType2 = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
+        String code1 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        this.readingType1 = inMemoryPersistence.getMeteringService().getReadingType(code1).get();
+        this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME, registerMappingObisCode, unit1, readingType1, readingType1.getTou());
+        this.registerMapping.save();
 
         // Business method
         this.deviceType.setDescription("For registerSpec Test purposes only");
