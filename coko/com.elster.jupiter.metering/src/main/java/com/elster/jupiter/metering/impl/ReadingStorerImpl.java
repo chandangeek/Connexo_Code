@@ -35,6 +35,7 @@ public class ReadingStorerImpl implements ReadingStorer {
 		entries[1] = profileStatus.getBits();
         System.arraycopy(values, 0, entries, 2, values.length);
 		this.storer.add(channel.getTimeSeries(), dateTime, entries);
+        addScope(channel, dateTime);
 	}
 
 	@Override
