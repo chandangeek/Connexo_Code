@@ -45,7 +45,7 @@ Ext.define('Mtr.view.workspace.issues.Item', {
                         {
                             xtype: 'container',
                             flex: 1,
-                            html: record.reason + (record.device ? ' to ' + record.device.name + ' ' + record.device.serialNumber : '')
+                            html: record.data.reason + (record.data.device ? ' to ' + record.data.device.name + ' ' + record.data.device.serialNumber : '')
                         },
                         {
                             xtype: 'item-action',
@@ -58,7 +58,7 @@ Ext.define('Mtr.view.workspace.issues.Item', {
                 },
                 {
                     bodyPadding: '20 10 0',
-                    data: record,
+                    data: record.data,
                     tpl: new Ext.XTemplate(
                         '<table class="isu-item-data-table">',
                         '<tr>',
@@ -97,13 +97,12 @@ Ext.define('Mtr.view.workspace.issues.Item', {
                         '<div class="isu-item-details-bottom"><a href="javascript:void(0)">View details</a></div>',
                         {
                             formatCreationDate: function (date) {
-                                return Ext.Date.format(new Date(date), 'M d, Y h:m');
-
+                                return Ext.Date.format(date, 'M d, Y h:m');
                             }
                         },
                         {
                             formatDueDate: function (date) {
-                                return Ext.Date.format(new Date(date), 'M d, Y');
+                                return Ext.Date.format(date, 'M d, Y');
                             }
                         }
                     )

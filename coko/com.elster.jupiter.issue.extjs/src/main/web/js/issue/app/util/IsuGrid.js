@@ -125,8 +125,8 @@ Ext.define('Mtr.util.IsuGrid', {
         }
         this.displayedItemId = record.id;
         this.gridItemModel.load(record.data.id, {
-            success: function () {
-                itemPanel.fireEvent('change', itemPanel, record);
+            success: function (rec) {
+                itemPanel.fireEvent('change', itemPanel, rec);
                 preloader.destroy();
             }
         });
