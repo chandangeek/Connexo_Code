@@ -112,14 +112,17 @@ public enum TableSpecs {
             Column obisCode = table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
             Column productSpec = table.column("PRODUCTSPECID").number().conversion(ColumnConversion.NUMBER2INT).notNull().add();
             Column phenomenon = table.column("PHENOMENONID").number().conversion(ColumnConversion.NUMBER2INT).notNull().add();
+            Column readingType = table.column("READINGTYPE").varChar(100).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CUMULATIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("cumulative").add();
             Column registerGroup = table.column("REGISTERGROUPID").number().add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
-            table.foreignKey("FK_EISREGMAPREGGROUP").on(registerGroup).references(EISRTUREGISTERGROUP.name()).map("registerGroup").add();
-            table.foreignKey("FK_EISREGMAPPHENOMENON").on(phenomenon).references(EISRTUREGISTERGROUP.name()).map("phenomenon").add();
-            table.foreignKey("FK_EISREGMAPPRODSPEC").on(productSpec).references(EISPRODUCTSPEC.name()).map("productSpec").add();
+            table.foreignKey("FK_EISREGMAP_REGGROUP").on(registerGroup).references(EISRTUREGISTERGROUP.name()).map("registerGroup").add();
+            table.foreignKey("FK_EISREGMAP_PHENOMENON").on(phenomenon).references(EISRTUREGISTERGROUP.name()).map("phenomenon").add();
+            table.foreignKey("FK_EISREGMAP_PRODSPEC").on(productSpec).references(EISPRODUCTSPEC.name()).map("productSpec").add();
+            table.foreignKey("FK_EISREGMAP_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
             table.unique("UK_RTUREGMAPPINGNAME").on(name).add();
+            table.unique("UK_RTUREGMREADINGTYPE").on(readingType).add();
             table.unique("UK_RTUREGMAPPINGOBISPROD").on(obisCode, productSpec).add();
             table.primaryKey("PK_RTUREGISTERMAPPING").on(id).add();
         }

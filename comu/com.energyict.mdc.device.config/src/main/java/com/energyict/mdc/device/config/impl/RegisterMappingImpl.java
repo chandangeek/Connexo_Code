@@ -52,6 +52,8 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     private Reference<ProductSpec> productSpec = ValueReference.absent();
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.PHENOMENON_IS_REQUIRED_KEY + "}")
     private Reference<Phenomenon> phenomenon = ValueReference.absent();
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.READING_TYPE_IS_REQUIRED_KEY + "}")
+    private Reference<ReadingType> readingType = ValueReference.absent();
     private boolean cumulative;
     private Reference<RegisterGroup> registerGroup = ValueReference.absent();
     private String description;
@@ -216,9 +218,13 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         this.phenomenon.set(phenomenon);
     }
 
+    public void setReadingType(ReadingType readingType) {
+        this.readingType.set(readingType);
+    }
+
     @Override
     public ReadingType getReadingType() {
-        return getProductSpec().getReadingType();
+        return this.readingType.get();
     }
 
     public String getDescription() {
