@@ -22,7 +22,8 @@ Ext.define('Mtr.controller.IssueAssignmentRules', {
                 afterrender: this.setBreadcrumb
             },
             'issue-assignment-rules-overview issues-assignment-rules-list gridview': {
-                itemclick: this.loadRule
+                itemclick: this.loadRule,
+                itemmouseenter: this.onUserTypeIconHover
             },
             'issue-assignment-rules-overview issues-assignment-rules-list actioncolumn': {
                 click: this.showRuleActions
@@ -30,6 +31,9 @@ Ext.define('Mtr.controller.IssueAssignmentRules', {
             'menu[name=ruleactionmenu]': {
                 beforehide: this.hideRuleActions,
                 click: this.chooseRuleAction
+            },
+            'button[name=create-issues-assignment-rules]': {
+                click: this.createRule
             }
         });
 
@@ -102,6 +106,53 @@ Ext.define('Mtr.controller.IssueAssignmentRules', {
         }, 1000);
     },
 
+    onUserTypeIconHover: function (me, record, item) {
+        var rowEl = Ext.get(item),
+            iconElem = rowEl.select('span').elements[0],
+            toolTip;
+        if (iconElem) {
+            var icon = iconElem.getAttribute('class'),
+                domIconElem = Ext.get(iconElem);
+            switch (icon) {
+                case 'isu-icon-USER':
+                    toolTip = Ext.create('Ext.tip.ToolTip', {
+                        target: domIconElem,
+                        html: 'User',
+                        style: {
+                            borderColor: 'black'
+                        }
+                    });
+                    break;
+                case 'isu-icon-GROUP':
+                    toolTip = Ext.create('Ext.tip.ToolTip', {
+                        target: domIconElem,
+                        html: 'User group',
+                        style: {
+                            borderColor: 'black'
+                        }
+                    });
+                    break;
+                case 'isu-icon-ROLE':
+                    toolTip = Ext.create('Ext.tip.ToolTip', {
+                        target: domIconElem,
+                        html: 'User role',
+                        style: {
+                            borderColor: 'black'
+                        }
+                    });
+                    break;
+                default:
+                    break;
+            }
+            domIconElem.on('mouseenter', function () {
+                toolTip.show();
+            });
+            domIconElem.on('mouseleave', function () {
+                toolTip.hide();
+            });
+        }
+    },
+
     showRuleActions: function (grid, cell, rowIndex, colIndex, e, record) {
         var cellEl = Ext.get(cell);
 
@@ -148,5 +199,9 @@ Ext.define('Mtr.controller.IssueAssignmentRules', {
             case  'Move down':
                 break;
         }
+    },
+
+    createRule: function () {
+
     }
 });
