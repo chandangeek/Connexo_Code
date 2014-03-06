@@ -85,6 +85,7 @@ Ext.define('Mtr.controller.AssignIssues', {
                     target: formPanel
                 });
                 preloader.show();
+
                 Ext.Ajax.request({
                     url: url,
                     method: 'PUT',
@@ -108,6 +109,7 @@ Ext.define('Mtr.controller.AssignIssues', {
                 id = assignIssueView.record.data.id,
                 success,
                 msges = [];
+
             preloader.destroy();
             success = Ext.Array.findBy(successArr, function (item) {
                 return item == id;
@@ -120,11 +122,7 @@ Ext.define('Mtr.controller.AssignIssues', {
                     Ext.Array.each(item.issues, function (issue) {
                         var header = {},
                             bodyItem = {};
-                        if (issue.title == assignPanel.recordTitle) {
-                            header.text = 'Failed to assign issue ' + issue.title + ' to ' + activeCombo.rawValue;
-                        } else {
-                            header.text = 'Failed to assign issue' + ' to ' + activeCombo.rawValue;
-                        }
+                        header.text = 'Failed to assign issue ' + assignPanel.recordTitle + ' to ' + activeCombo.rawValue;
                         header.style = 'msgHeaderStyle';
                         msges.push(header);
                         bodyItem.text = item.reason;
@@ -177,7 +175,7 @@ Ext.define('Mtr.controller.AssignIssues', {
                         showTime: 5000
                     });
                 }
-                Ext.History.back();
+                window.location.href = '#/workspace/datacollection/issues';
             }
         }
     }

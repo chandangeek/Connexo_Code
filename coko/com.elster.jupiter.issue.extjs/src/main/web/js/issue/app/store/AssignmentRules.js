@@ -5,6 +5,7 @@ Ext.define('Mtr.store.AssignmentRules', {
     ],
     model: 'Mtr.model.AssignmentRules',
     pageSize: 100,
+//    buffered: true,
     autoLoad: false,
 
     /* proxy: {

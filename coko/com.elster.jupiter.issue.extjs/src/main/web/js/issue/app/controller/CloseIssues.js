@@ -68,7 +68,7 @@ Ext.define('Mtr.controller.CloseIssues', {
                         style: 'msgHeaderStyle'
                     };
                     if (Ext.isEmpty(result.failure)) {
-                        Ext.History.back();
+                        window.location.href = '#/workspace/datacollection/issues';
                         header.text = 'Issue closed';
                         self.getApplication().fireEvent('isushowmsg', {
                             type: 'notify',
