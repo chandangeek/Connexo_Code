@@ -177,29 +177,6 @@ public class ValidationResource {
         return validationRuleSet;
     }
 
-    /*@GET
-     @Path("/propertyspecsforrule/{id}")
-     @Produces(MediaType.APPLICATION_JSON)
-     public ValidationRulePropertySpecInfos getAvailableProperties(@PathParam("id") String id) {
-        ValidationRulePropertySpecInfos infos = new ValidationRulePropertySpecInfos();
-        Optional<ValidationRule> optional =
-                Bus.getValidationService().getValidationRule(Long.parseLong(id));
-        if (optional.isPresent()) {
-            ValidationRule rule = optional.get();
-            List<String> requiredKeys = rule.getValidator().getRequiredKeys();
-            List<String> optionalKeys = rule.getValidator().getOptionalKeys();
-            for (String key : requiredKeys) {
-                infos.add(key, false, rule.getImplementation());
-            }
-            for (String key : optionalKeys) {
-                infos.add(key, true, rule.getImplementation());
-            }
-            return infos;
-        }
-        else {
-            return infos;
-        }
-    }     */
 
     @GET
     @Path("/propertyspecs")
