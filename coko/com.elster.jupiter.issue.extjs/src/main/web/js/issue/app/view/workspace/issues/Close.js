@@ -13,14 +13,6 @@ Ext.define('Mtr.view.workspace.issues.Close', {
     },
     overflowY: 'auto',
 
-//    listeners: {
-//        render: {
-//            fn: function (self) {
-//                self.addForm();
-//            }
-//        }
-//    },
-
     initComponent: function () {
         this.callParent(arguments);
         this.addForm();
@@ -30,24 +22,18 @@ Ext.define('Mtr.view.workspace.issues.Close', {
         form_item = {
             xtype: 'form',
             flex: 1,
-            minHeight: 305,
-            sendingData: {},
             border: false,
             header: false,
-            bodyPadding: 10,
             defaults: {
                 border: false
             },
             items: [
-                { 
+                {
                 },
                 {
                     xype: 'container',
                     border: 0,
-                    padding: '30 50 0 50',
-                    defaults: {
-                        padding: '0 0 30 0'
-                    },
+
                     items: [
                         {
                             xtype: 'radiogroup',
@@ -79,13 +65,14 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                 xtype: 'breadcrumbTrail',
                 padding: 6
             });
+            form_item.bodyPadding = 10;
+            form_item.minHeight = 305;
             form_item.recordTitle = self.record.data.reason + ' ' + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '')  
             form_item.sendingData = {
                 issues: [
                     {
                         id: self.record.data.id,
                         version: self.record.data.version
-//                        version: null
                     }
                 ]
             };
@@ -94,6 +81,7 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                 + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.sNumber : '')
                 + '</h3>'};
             form_item.items[1].padding = '30 50 0 50';
+            form_item.items[1].defaults = { padding: '0 0 30 0' },
             form_item.items[2] = {
                 xtype: 'container',
                 padding: '0 155',
