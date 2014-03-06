@@ -118,58 +118,6 @@ Ext.define('Mtr.controller.Issues', {
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
-    loadIssuesItem: function (grid, record) {
-        var itemPanel = this.getItemPanel(),
-            model = this.getModel('Mtr.model.Issues'),
-            preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
-                target: itemPanel
-            });
-        if ((this.lastId != undefined) && (this.lastId != record.id)) {
-            grid.clearHighlight();
-            preloader.show();
-        }
-        this.lastId = record.id;
-        model.load(record.data.id, {
-            success: function () {
-                itemPanel.fireEvent('change', itemPanel, record);
-                preloader.destroy();
-            }
-        });
-    },
-
-    showIssuesActions: function (grid, cell, rowIndex, colIndex, e, record) {
-        var cellEl = Ext.get(cell);
-
-        this.hideIssuesActions();
-
-        this.gridActionIcon = cellEl.first();
-
-        this.gridActionIcon.hide();
-        this.gridActionIcon.setHeight(0);
-        this.gridActionBtn = Ext.create('widget.grid-action', {
-            renderTo: cell,
-            menu: {
-                xtype: 'issue-action-menu',
-                name: 'issueactionmenu',
-                cls: 'issue-action-menu',
-                record: record
-            }
-        });
-        this.gridActionBtn.showMenu();
-    },
-
-    hideIssuesActions: function () {
-        if (this.gridActionBtn) {
-            this.gridActionBtn.destroy();
-        }
-
-        if (this.gridActionIcon) {
-            this.gridActionIcon.show();
-            this.gridActionIcon.setHeight(22);
-        }
-    },
-
     chooseIssuesAction: function (menu, item) {
         var widget;
         if (item.text == 'Assign') {
