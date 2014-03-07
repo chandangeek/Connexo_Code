@@ -5,3 +5,7 @@ target/
 generated/.index
 generated/buildfiles
 generated/
+/bin
+.gitignore
+
+
