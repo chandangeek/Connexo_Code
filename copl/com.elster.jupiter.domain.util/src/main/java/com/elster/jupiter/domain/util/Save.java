@@ -46,6 +46,10 @@ public enum Save {
 		validate(dataModel.getValidatorFactory().getValidator(),object,groups);
 		doSave(dataModel,object);
 	}
+
+	public final <T> void validate(DataModel dataModel, T object, Class<?>... groups) {
+		validate(dataModel.getValidatorFactory().getValidator(),object,groups);
+	}
 	
 	abstract <T> void doSave(DataModel dataModel, T object);
 

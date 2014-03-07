@@ -99,6 +99,12 @@ class QueryImpl<T> implements Query<T> {
 	public List<T> select(Condition condition, int from, int to, Order... orders) {
 		return  queryExecutor.select(condition, orders, isEager(), exceptions, from, to);
 	}
+
+	@Override
+	public void setRestriction(Condition condition) {
+		queryExecutor.setRestriction(condition);
+		
+	}
 	
 
 }
