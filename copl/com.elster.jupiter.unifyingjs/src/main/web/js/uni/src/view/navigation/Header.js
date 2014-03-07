@@ -32,14 +32,14 @@ Ext.define('Uni.view.navigation.Header', {
 //        },
         {
             xtype: 'navigationLogo'
-        },
-        {
-            xtype: 'component',
-            flex: 1
-        },
-        {
-            xtype: 'searchBasic'
         }
+//        {
+//            xtype: 'component',
+//            flex: 1
+//        },
+//        {
+//            xtype: 'searchBasic'
+//        }
 //        {
 //            xtype: 'searchQuick',
 //            flex: 1
