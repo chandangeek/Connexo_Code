@@ -14,6 +14,7 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
@@ -287,6 +288,20 @@ public enum TableSpecs {
             table.primaryKey("PK_EISLOGBOOKSPECID").on(id).add();
             table.foreignKey("FK_EISLGBSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("logBookSpecs").composition().onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("FK_EISLGBSPEC_LOGBOOKTYPE").on(logbooktypeid).references(EISLOGBOOKTYPE.name()).map("logBookType").add();
+        }
+    },
+
+    MDCNEXTEXECUTIONSPEC {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<NextExecutionSpecs> table = dataModel.addTable(name(), NextExecutionSpecs.class);
+            table.map(NextExecutionSpecsImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.column("FREQUENCYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.every.count").add();
+            table.column("FREQUENCYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.every.timeUnitCode").add();
+            table.column("OFFSETVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.offset.count").add();
+            table.column("OFFSETUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.offset.timeUnitCode").add();
+            table.primaryKey("PK_MDCNEXTEXEC_SPEC").on(id).add();
         }
     },
 

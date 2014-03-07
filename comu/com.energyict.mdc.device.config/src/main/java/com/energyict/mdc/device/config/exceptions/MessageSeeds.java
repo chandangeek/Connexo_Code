@@ -121,6 +121,11 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_REGISTER_SPEC(12008, "deviceConfig.duplicate.obisCode.registerSpec", "The device configuration '{0}' already contains a register specification this obis code '{1}'", Level.SEVERE),
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC_IN_LOAD_PROFILE_SPEC(12009, "deviceConfig.duplicate.obisCode.channelSpec.loadProfileSpec", "Load profile specification '{0}' in device configuration '{1}' already contains a channel specification this obis code '{2}'", Level.SEVERE),
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC(12010, "deviceConfig.duplicate.obisCode.channelSpec", "The device configuration '{0}' already contains a channel specification this obis code '{1}'", Level.SEVERE),
+    NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED(13000, Constants.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY, "The temporal expression of a NextExecutionSpec is required", Level.SEVERE),
+    TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED(13001, Constants.TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED_KEY, "The frequency of a temporal expression is required", Level.SEVERE),
+    TEMPORAL_EXPRESSION_UNKNOWN_UNIT(13002, Constants.TEMPORAL_EXPRESSION_UNKNOWN_UNIT_KEY, "The unit {0} is unknown or unsupported for temporal expressions", Level.SEVERE),
+    TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE(13003, Constants.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY, "The frequency value of a temporal expression must be a strictly positive number", Level.SEVERE),
+    TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE(13004, Constants.TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY, "The offset value of a temporal expression must be a positive number", Level.SEVERE),
 
     ;
 
@@ -165,7 +170,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NAME_REQUIRED_KEY = "DTC.X.name.required";
         public static final String DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS_KEY = "DTC.deviceType.XstillHasActiveConfigurations";
         public static final String DUPLICATE_DEVICE_CONFIGURATION_KEY = "DTC.deviceType.deviceConfig.duplicateName";
-        public static final String DEVICE_PROTOCOL_IS_REQUIRED_KEY = "TC.deviceType.protocol.required";
+        public static final String DEVICE_PROTOCOL_IS_REQUIRED_KEY = "DTC.deviceType.protocol.required";
         public static final String DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS_KEY = "DTC.deviceType.protocol.noupdate";
         public static final String REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY = "DTC.registerMapping.obisCode.required";
         public static final String PRODUCT_SPEC_IS_REQUIRED_KEY = "DTC.registerMapping.productSpec.required";
@@ -182,6 +187,11 @@ public enum MessageSeeds implements MessageSeed {
         public static final String REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY = "DTC.registerSpec.registerMapping.required";
         public static final String READING_TYPE_IS_REQUIRED_KEY = "DTC.productSpec.readingType.required";
         public static final String READING_TYPE_ALREADY_EXISTS_KEY = "DTC.productSpec.duplicateReadingTypeX";
+        public static final String NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY = "DTC.nextExecutionSpecs.temporalExpression.required";
+        public static final String TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED_KEY = "DTC.temporalExpression.every.required";
+        public static final String TEMPORAL_EXPRESSION_UNKNOWN_UNIT_KEY = "DTC.temporalExpression.unknown.unit";
+        public static final String TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY = "DTC.temporalExpression.every.count.positive";
+        public static final String TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY = "DTC.temporalExpression.offset.count.positive";
     }
 
 }
