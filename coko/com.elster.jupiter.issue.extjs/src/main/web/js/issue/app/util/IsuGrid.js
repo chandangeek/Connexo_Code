@@ -50,7 +50,7 @@ Ext.define('Mtr.util.IsuGrid', {
                 toolTip.show();
             });
             domIconElem.on('mouseleave', function () {
-                toolTip.hide();
+                toolTip.destroy();
             });
         }
     },
