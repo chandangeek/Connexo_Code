@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.FieldType;
 import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Delayed;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.util.Checks.is;
@@ -355,6 +357,9 @@ public class TableImpl<T> implements Table<T> {
 
 	@Override
 	public void setJournalTableName(String journalTableName) {
+		if (hasAutoChange()) {
+			throw new IllegalStateException(" A table with foreign key using cascading or set null delete rule cannot have a journal table ");
+		}
 		this.journalTableName = journalTableName;
 	}
 	
@@ -742,6 +747,16 @@ public class TableImpl<T> implements Table<T> {
 	
 	Class<? extends T> classCast(Class<?> in) {
 		return in.asSubclass(api);
+	}
+	
+	private boolean hasAutoChange() {
+		for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
+			DeleteRule rule = constraint.getDeleteRule();
+			if (!rule.equals(DeleteRule.RESTRICT)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 	
