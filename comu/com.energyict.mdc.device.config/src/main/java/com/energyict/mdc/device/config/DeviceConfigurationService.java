@@ -257,4 +257,8 @@ public interface DeviceConfigurationService {
 
     public Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType);
 
+    public NextExecutionSpecs newNextExecutionSpecs (TemporalExpression temporalExpression);
+
+    public NextExecutionSpecs findNextExecutionSpecs (long id);
+
 }

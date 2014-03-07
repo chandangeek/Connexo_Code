@@ -26,20 +26,23 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.config.exceptions.UnitHasNoMatchingPhenomenonException;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import java.util.List;
-import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -334,6 +337,16 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return DefaultFinder.of(DeviceConfiguration.class, Where.where("deviceType").isEqualTo(deviceType), this.getDataModel());
     }
 
+    @Override
+    public NextExecutionSpecs newNextExecutionSpecs(TemporalExpression temporalExpression) {
+        return new NextExecutionSpecsImpl(this.dataModel, this.eventService, this.thesaurus).initialize(temporalExpression);
+    }
+
+    @Override
+    public NextExecutionSpecs findNextExecutionSpecs(long id) {
+        return this.dataModel.mapper(NextExecutionSpecs.class).getUnique("id", id).orNull();
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "DeviceType and configurations");
@@ -343,7 +356,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.dataModel = dataModel;
     }
 
-    public DataModel getDataModel() {
+    DataModel getDataModel() {
         return dataModel;
     }
 
@@ -355,6 +368,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     @Reference
