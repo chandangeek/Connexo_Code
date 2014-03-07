@@ -24,6 +24,7 @@ public class TypedProperties {
 
     private Map<String, Object> props = new HashMap<>();
     private TypedProperties inheritedProperties;
+    private UnmodifiableTypedProperties unmodifiableView;
 
     /**
      * Returns a new empty TypedProperties.
@@ -431,6 +432,13 @@ public class TypedProperties {
             this.inheritedProperties = TypedProperties.empty();
             this.inheritedProperties.doCopy(source.getInheritedProperties());
         }
+    }
+
+    public TypedProperties getUnmodifiableView() {
+        if (unmodifiableView == null) {
+            unmodifiableView = new UnmodifiableTypedProperties(this);
+        }
+        return unmodifiableView;
     }
 
 }
