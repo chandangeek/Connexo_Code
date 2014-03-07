@@ -10,7 +10,6 @@ import java.util.Locale;
 import java.util.Objects;
 
 import javax.inject.Inject;
-import javax.naming.Context;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorFactory;
 import javax.validation.MessageInterpolator;
@@ -137,7 +136,7 @@ public class DataModelImpl implements DataModel {
     	}
     }
 
-    private <T> Optional<DataMapperImpl<T>> optionalMapper(Class<T> api) {
+    <T> Optional<DataMapperImpl<T>> optionalMapper(Class<T> api) {
     	for (TableImpl<?> table : tables) {
     		if (table.maps(api)) {
     			return Optional.of(table.getDataMapper(api));
@@ -325,34 +324,20 @@ public class DataModelImpl implements DataModel {
 		return ormService;
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public <T> QueryExecutor<T> query(Class<T> api, Class<?> ... eagers) {
 		checkRegistered();
 		DataMapperImpl<T> root = mapper(api);
 		DataMapperImpl<?>[] mappers = new DataMapperImpl[eagers.length];
-		DataModelImpl lastDataModel = this;
 		for (int i = 0; i < eagers.length; i++) {
-			Optional mapper = optionalMapper(eagers[i]);
+			Optional<?> mapper = optionalMapper(eagers[i]);
+			if (!mapper.isPresent()) {
+				mapper = ormService.optionalMapper(eagers[i]);
+			}
 			if (mapper.isPresent()) {
-				mappers[i] = mapper(eagers[i]);
-				lastDataModel = this;
+				mappers[i] = (DataMapperImpl<?>) mapper.get();
 			} else {
-				if (lastDataModel == this) {
-					DataMapperImpl<?> previousMapper = (DataMapperImpl<?>) ((i == 0) ? root : mappers[i-1]);
-					for (ForeignKeyConstraintImpl constraint : previousMapper.getTable().getForeignKeyConstraints()) {
-						if (constraint.getReferencedTable().getApi().isAssignableFrom(eagers[i])) {
-							lastDataModel = constraint.getReferencedTable().getDataModel();
-							mappers[i] = constraint.getReferencedTable().getDataMapper(eagers[i]);
-							break;
-						}
-					}
-					if (mappers[i] == null) {
-						throw new IllegalArgumentException("" + eagers[i]);
-					}
-				} else {
-					mappers[i] = lastDataModel.mapper(eagers[i]);
-				}
+				throw new IllegalArgumentException("" + eagers[i]);
 			}
 		}
  		return root.with(mappers);

@@ -5,6 +5,7 @@ import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.IllegalTableMappingException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -157,6 +158,7 @@ public class CorruptedOrmMappingTest {
 
 
     public static class Dummy {
-        private Dummy field;
+        @SuppressWarnings("unused")
+		private Dummy field;
     }
 }

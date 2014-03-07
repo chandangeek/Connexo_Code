@@ -2,7 +2,9 @@ package com.elster.jupiter.orm;
 
 public class IllegalTableMappingException extends RuntimeException {
 
-    public IllegalTableMappingException(String message) {
+	private static final long serialVersionUID = 1L;
+
+	public IllegalTableMappingException(String message) {
         super(message);
     }
 }

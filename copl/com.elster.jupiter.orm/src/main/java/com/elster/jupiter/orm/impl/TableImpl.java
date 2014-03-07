@@ -1,12 +1,28 @@
 package com.elster.jupiter.orm.impl;
 
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2CURRENCY;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2PRINCIPAL;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2UNIT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INTWRAPPER;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2NOW;
+import static com.elster.jupiter.util.Checks.is;
+
+import java.lang.reflect.Field;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.FieldType;
 import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
-import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
@@ -17,17 +33,6 @@ import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-
-import java.lang.reflect.Field;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.Delayed;
-
-import static com.elster.jupiter.orm.ColumnConversion.*;
-import static com.elster.jupiter.util.Checks.is;
 
 public class TableImpl<T> implements Table<T> {
 	
