@@ -125,7 +125,6 @@ public enum TableSpecs {
             table.foreignKey("FK_EISREGMAP_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
             table.unique("UK_RTUREGMAPPINGNAME").on(name).add();
             table.unique("UK_RTUREGMREADINGTYPE").on(readingType).add();
-            table.unique("UK_RTUREGMAPPINGOBISPROD").on(obisCode, phenomenon, timeOfUse).add();
             table.primaryKey("PK_RTUREGISTERMAPPING").on(id).add();
         }
     },
