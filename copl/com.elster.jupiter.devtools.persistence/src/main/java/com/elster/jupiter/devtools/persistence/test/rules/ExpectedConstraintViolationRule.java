@@ -52,7 +52,7 @@ public class ExpectedConstraintViolationRule implements TestRule {
                 boolean expectedViolationIsPresentForProperty=false;
                 List<String> encounteredViolations = new ArrayList<>();
                 for (ConstraintViolation<?> constraintViolation : e.getConstraintViolations()) {
-                    encounteredViolations.add(constraintViolation.getMessageTemplate()+"(->"+constraintViolation.getPropertyPath()+")");
+                    encounteredViolations.add(constraintViolation.getMessageTemplate()+(constraintViolation.getPropertyPath().toString().isEmpty()?"(global)":"(->"+constraintViolation.getPropertyPath()+")"));
                     if (constraintViolation.getMessageTemplate().equals(annotation.messageId())) {
                         expectedViolationIsPresent=true;
                         if (!annotation.property().isEmpty() && annotation.property().equals(constraintViolation.getPropertyPath().toString())) {
