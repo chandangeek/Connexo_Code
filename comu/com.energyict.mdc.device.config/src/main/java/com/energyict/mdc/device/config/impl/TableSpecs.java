@@ -15,6 +15,7 @@ import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.ProductSpec;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -287,6 +288,34 @@ public enum TableSpecs {
             table.primaryKey("PK_EISLOGBOOKSPECID").on(id).add();
             table.foreignKey("FK_EISLGBSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("logBookSpecs").composition().onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("FK_EISLGBSPEC_LOGBOOKTYPE").on(logbooktypeid).references(EISLOGBOOKTYPE.name()).map("logBookType").add();
+        }
+    },
+
+    MDCDIALECTCONFIGPROPERTIES {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ProtocolDialectConfigurationProperties> table = dataModel.addTable(name(), ProtocolDialectConfigurationProperties.class);
+            table.map(ProtocolDialectConfigurationPropertiesImpl.class);
+            Column id = table.addAutoIdColumn();
+            //Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().map("deviceCommunicationConfiguration").add(); // TODO remove map when enabling foreign key constraint
+            table.column("DEVICEPROTOCOLDIALECT").varChar(255).notNull().map("protocolDialectName").add();
+            table.column("MOD_DATE").type("DATE").map("modDate").add();
+            table.column("NAME").varChar(255).notNull().map("name").add();
+//            table.foreignKey("FK_MDCDEVICECONFIG_CONFIGID").on(deviceConfiguration).references(MDCDEVICECOMMCONFIG.name()).map("deviceCommunicationConfiguration").add();
+            table.primaryKey("PK_MDCDIALECTCONFIGPROPS").on(id).add();
+        }
+    },
+
+    MDCDIALECTCONFIGPROPERTIESATTR {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ProtocolDialectConfigurationProperty> table = dataModel.addTable(name(), ProtocolDialectConfigurationProperty.class);
+            table.map(ProtocolDialectConfigurationProperty.class);
+            Column id = table.column("ID").number().notNull().add();
+            Column name = table.column("NAME").varChar(255).notNull().map("name").add();
+            table.column("VALUE").varChar(4000).notNull().map("value").add();
+            table.foreignKey("FK_MDCDCONFPROPSATTR_CONFIGID").on(id).references(MDCDIALECTCONFIGPROPERTIES.name()).map("properties").composition().reverseMap("propertyList").add();
+            table.primaryKey("PK_MDCDIALECTCONFIGPROPSATTR").on(id,name).add();
         }
     },
 

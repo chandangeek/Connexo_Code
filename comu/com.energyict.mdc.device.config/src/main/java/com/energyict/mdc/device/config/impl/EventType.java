@@ -44,6 +44,9 @@ public enum EventType {
     REGISTERGROUP_CREATED("registergroup/CREATED"),
     REGISTERGROUP_UPDATED("registergroup/UPDATED"),
     REGISTERGROUP_DELETED("registergroup/DELETED"),
+    PROTOCOLCONFIGURATIONPROPS_CREATED("protocolconfigurationprops/CREATED"),
+    PROTOCOLCONFIGURATIONPROPS_UPDATED("protocolconfigurationprops/UPDATED"),
+    PROTOCOLCONFIGURATIONPROPS_DELETED("protocolconfigurationprops/DELETED"),
     PHENOMENON_CREATED("phenomenon/CREATED"),
     PHENOMENON_UPDATED("phenomenon/UPDATED"),
     PHENOMENON_DELETED("phenomenon/DELETED");

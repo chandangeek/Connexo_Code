@@ -136,4 +136,8 @@ public class DuplicateNameException extends LocalizedException {
         super(thesaurus, messageSeeds, name);
         this.set("name", name);
     }
+
+    public static DuplicateNameException protocolConfigurationPropertiesAlreadyExists(Thesaurus thesaurus, String name) {
+        return new DuplicateNameException(thesaurus, MessageSeeds.DUPLICATE_PROTOCOL_CONFIGURATION_PROPERTIES, name);
+    }
 }

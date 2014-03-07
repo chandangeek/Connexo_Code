@@ -121,8 +121,9 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_REGISTER_SPEC(12008, "deviceConfig.duplicate.obisCode.registerSpec", "The device configuration '{0}' already contains a register specification this obis code '{1}'", Level.SEVERE),
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC_IN_LOAD_PROFILE_SPEC(12009, "deviceConfig.duplicate.obisCode.channelSpec.loadProfileSpec", "Load profile specification '{0}' in device configuration '{1}' already contains a channel specification this obis code '{2}'", Level.SEVERE),
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC(12010, "deviceConfig.duplicate.obisCode.channelSpec", "The device configuration '{0}' already contains a channel specification this obis code '{1}'", Level.SEVERE),
-
-    ;
+    DUPLICATE_PROTOCOL_CONFIGURATION_PROPERTIES(13001, "protocolConfigurationProperties.duplicateName", "A protocolDialectConfigurationProperties with the name {0} already exists.", Level.SEVERE),
+    PROTOCOL_DIALECT_REQUIRED(13002, Constants.PROTOCOLDIALECT_REQUIRED_KEY, "The protocol dialect name is required for a protocolDialectConfigurationProperties", Level.SEVERE),
+    PROTOCOL_DIALECT_HAS_NO_SUCH_PROPERTY(13003, "protocolDialectConfigurationProperties.noSuchProperty", "The protocol dialect {0} does not have a configuration property with name {1}", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -161,7 +162,8 @@ public enum MessageSeeds implements MessageSeed {
         return DeviceConfigurationService.COMPONENTNAME;
     }
 
-    public static class Constants {
+    public static enum Constants {
+        ;
         public static final String NAME_REQUIRED_KEY = "DTC.X.name.required";
         public static final String DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS_KEY = "DTC.deviceType.XstillHasActiveConfigurations";
         public static final String DUPLICATE_DEVICE_CONFIGURATION_KEY = "DTC.deviceType.deviceConfig.duplicateName";
@@ -182,6 +184,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY = "DTC.registerSpec.registerMapping.required";
         public static final String READING_TYPE_IS_REQUIRED_KEY = "DTC.productSpec.readingType.required";
         public static final String READING_TYPE_ALREADY_EXISTS_KEY = "DTC.productSpec.duplicateReadingTypeX";
+        public static final String PROTOCOLDIALECT_REQUIRED_KEY = "DTC.protocolDialectConfigurationProperties.dialectName.required";
     }
 
 }

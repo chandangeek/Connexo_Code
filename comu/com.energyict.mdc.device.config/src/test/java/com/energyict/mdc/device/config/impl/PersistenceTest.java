@@ -4,7 +4,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import org.junit.AfterClass;
@@ -23,9 +22,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public abstract class PersistenceTest {
 
-    static final String DEVICE_TYPE_NAME = PersistenceTest.class.getName() + "Type";
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
-    protected DeviceType deviceType;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -63,7 +60,6 @@ public abstract class PersistenceTest {
     public void initializeMocks() {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
-        deviceType.save();
     }
+
 }

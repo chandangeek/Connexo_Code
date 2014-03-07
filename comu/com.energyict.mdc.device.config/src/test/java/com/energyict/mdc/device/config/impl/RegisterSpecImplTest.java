@@ -26,9 +26,10 @@ import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumbe
 import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import java.math.BigDecimal;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.math.BigDecimal;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -44,7 +45,7 @@ import static org.fest.assertions.Assertions.assertThat;
  * Date: 17/02/14
  * Time: 15:51
  */
-public class RegisterSpecImplTest extends PersistenceTest {
+public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     private static final String DEVICE_CONFIGURATION_NAME = RegisterSpecImplTest.class.getName() + "Config";
     private static final String REGISTER_MAPPING_NAME = RegisterSpecImplTest.class.getSimpleName() + "RegisterMapping";
