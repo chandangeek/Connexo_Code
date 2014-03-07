@@ -1,10 +1,12 @@
 package com.elster.jupiter.issue.rest.response;
 
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+
 public class IssueAssigneeInfo {
     private String type;
     private String title;
 
-    public IssueAssigneeInfo(com.elster.jupiter.issue.IssueAssignee assignee){
+    public IssueAssigneeInfo(IssueAssignee assignee){
         if (assignee != null) {
             this.setType(assignee.getType().getType());
             switch (assignee.getType()){

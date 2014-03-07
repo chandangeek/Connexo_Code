@@ -1,7 +1,6 @@
-package com.elster.jupiter.issue.rest.controller;
+package com.elster.jupiter.issue.rest.resource;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.Issue;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
@@ -11,7 +10,10 @@ import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueListInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.rest.transactions.CloseIssuesTransaction;
+import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
 
@@ -25,9 +27,9 @@ import java.util.Map;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/issue")
-public class IssueController extends BaseController{
+public class IssueResource extends BaseResource {
 
-    public IssueController() {
+    public IssueResource() {
         super();
     }
 
@@ -35,7 +37,8 @@ public class IssueController extends BaseController{
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllIssues(@BeanParam StandardParametersBean params) {
         Condition condition = Condition.TRUE;
-        Query<Issue> query = getIssueService().getIssueListQuery();
+        Query<Issue> query = getIssueMainService().query(Issue.class, EndDevice.class, Issue.class, User.class,
+                IssueReason.class, IssueStatus.class, AssigneeRole.class, AssigneeTeam.class);
         if (params.get("reason") != null) {
             condition = where("reason.name").isEqualTo(params.get("reason").get(0));
         }
@@ -62,7 +65,7 @@ public class IssueController extends BaseController{
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public IssueInfo getIssueById(@PathParam("id") long id) {
-        Optional<Issue> issue = getIssueService().getIssueById(id);
+        Optional<Issue> issue = getIssueMainService().get(Issue.class, id);
         if (!issue.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
@@ -74,7 +77,7 @@ public class IssueController extends BaseController{
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ActionInfo closeIssues(CloseIssueRequest request){
-        return getTransactionService().execute(new CloseIssuesTransaction(request, getIssueService()));
+        return getTransactionService().execute(new CloseIssuesTransaction(request, getIssueService(), getIssueMainService()));
     }
 
     @PUT

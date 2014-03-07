@@ -1,6 +1,6 @@
 package com.elster.jupiter.issue.rest.response;
 
-import com.elster.jupiter.issue.AssigneeBaseInformation;
+import com.elster.jupiter.issue.share.entity.AssigneeBaseInformation;
 
 import java.util.ArrayList;
 import java.util.List;

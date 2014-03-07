@@ -1,8 +1,8 @@
 package com.elster.jupiter.issue.rest.response.issue;
 
-import com.elster.jupiter.issue.Issue;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.EndDevice;
 
 public class IssueInfo<T extends DeviceInfo> {

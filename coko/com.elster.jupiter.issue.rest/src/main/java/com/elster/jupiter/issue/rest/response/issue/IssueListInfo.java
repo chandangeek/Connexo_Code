@@ -1,7 +1,7 @@
 package com.elster.jupiter.issue.rest.response.issue;
 
-import com.elster.jupiter.issue.Issue;
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
+import com.elster.jupiter.issue.share.entity.Issue;
 
 import java.util.ArrayList;
 import java.util.List;

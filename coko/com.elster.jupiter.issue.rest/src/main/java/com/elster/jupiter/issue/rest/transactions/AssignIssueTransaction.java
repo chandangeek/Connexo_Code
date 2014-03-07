@@ -1,14 +1,14 @@
 package com.elster.jupiter.issue.rest.transactions;
 
 
-import com.elster.jupiter.issue.IssueAssigneeType;
-import com.elster.jupiter.issue.IssueService;
-import com.elster.jupiter.issue.OperationResult;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.response.ActionFailInfo;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
+import com.elster.jupiter.issue.share.entity.IssueAssigneeType;
+import com.elster.jupiter.issue.share.entity.OperationResult;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.transaction.Transaction;
 
 import javax.ws.rs.WebApplicationException;
@@ -30,37 +30,56 @@ public class AssignIssueTransaction  implements Transaction<ActionInfo> {
     @Override
     public ActionInfo perform() {
         ActionInfo response = new ActionInfo();
-
-        IssueAssigneeType newAssigneeType = IssueAssigneeType.fromString(
-            request.getAssignee() != null ? request.getAssignee().getType() : null);
+        IssueAssigneeType newAssigneeType = getAssigneeForIssue();
         if (request.getIssues() != null && newAssigneeType != null) {
             List<IssueShortInfo> success = new ArrayList<>();
-            Map<String, ActionFailInfo> allAssignFails = new HashMap<>();
-            for (EntityReference issueForAssign : request.getIssues()) {
-                OperationResult<String, String[]> result = issueService.assignIssue(issueForAssign.getId(),
-                    issueForAssign.getVersion(), newAssigneeType, request.getAssignee().getId(), request.getComment());
-                if (result.isFailed()) {
-                    String failReason = result.getFailReason()[0];
-                    String issueTitle = result.getFailReason()[1];
-
-                    ActionFailInfo failsWithSameReason = allAssignFails.get(failReason);
-                    if (failsWithSameReason == null) {
-                        failsWithSameReason = new ActionFailInfo();
-                        failsWithSameReason.setReason(failReason);
-                        allAssignFails.put(failReason, failsWithSameReason);
-                    }
-                    IssueShortInfo issueFail = new IssueShortInfo(issueForAssign.getId(), issueTitle);
-                    failsWithSameReason.getIssues().add(issueFail);
-                } else {
-                    success.add(new IssueShortInfo(issueForAssign.getId()));
-                }
+            Map<String, ActionFailInfo> allFails = new HashMap<>();
+            for (EntityReference issue : request.getIssues()) {
+                OperationResult<String, String[]> result = issueService.assignIssue(issue.getId(),
+                        issue.getVersion(), newAssigneeType, request.getAssignee().getId(), request.getComment());
+                checkForFails(result, allFails, issue);
+                checkForSuccess(result, success, issue);
             }
-            response.setSuccess(success);
-            response.setFailure(new ArrayList<ActionFailInfo>(allAssignFails.values()));
+            buildResponse(response, success, allFails);
         } else {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
-
         return response;
+    }
+
+    private IssueAssigneeType getAssigneeForIssue(){
+        if (request.getAssignee() != null){
+            return IssueAssigneeType.fromString(request.getAssignee().getType());
+        }
+        return null;
+    }
+
+    private void checkForFails(OperationResult<String, String[]> result,  Map<String, ActionFailInfo> allFails, EntityReference issue){
+        if (result != null && result.isFailed()){
+            String failReason = result.getFailReason()[0];
+            String issueTitle = result.getFailReason()[1];
+
+            ActionFailInfo failsWithSameReason = allFails.get(failReason);
+            if (failsWithSameReason == null) {
+                failsWithSameReason = new ActionFailInfo();
+                failsWithSameReason.setReason(failReason);
+                allFails.put(failReason, failsWithSameReason);
+            }
+            IssueShortInfo issueFail = new IssueShortInfo(issue.getId(), issueTitle);
+            failsWithSameReason.getIssues().add(issueFail);
+        }
+    }
+
+    private void checkForSuccess(OperationResult<String, String[]> result,  List<IssueShortInfo> success, EntityReference issue){
+        if (result != null && !result.isFailed()){
+            success.add(new IssueShortInfo(issue.getId()));
+        }
+    }
+
+    private void buildResponse(ActionInfo response, List<IssueShortInfo> success, Map<String, ActionFailInfo> allFails){
+        if (response != null){
+            response.setSuccess(success);
+            response.setFailure(new ArrayList<ActionFailInfo>(allFails.values()));
+        }
     }
 }

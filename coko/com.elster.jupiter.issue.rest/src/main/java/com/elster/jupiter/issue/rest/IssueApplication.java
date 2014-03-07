@@ -1,10 +1,12 @@
 package com.elster.jupiter.issue.rest;
 
 
-import com.elster.jupiter.issue.IssueService;
-import com.elster.jupiter.issue.rest.controller.HelpController;
-import com.elster.jupiter.issue.rest.controller.IssueAssignController;
-import com.elster.jupiter.issue.rest.controller.IssueController;
+import com.elster.jupiter.issue.rest.resource.HelpResource;
+import com.elster.jupiter.issue.rest.resource.IssueAssignResource;
+import com.elster.jupiter.issue.rest.resource.IssueResource;
+import com.elster.jupiter.issue.share.service.IssueHelpService;
+import com.elster.jupiter.issue.share.service.IssueMainService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -27,6 +29,8 @@ public class IssueApplication extends Application implements BinderProvider {
     private volatile RestQueryService restQueryService;
     private volatile UserService userService;
     private volatile IssueService issueService;
+    private volatile IssueMainService issueMainService;
+    private volatile IssueHelpService issueHelpService;
 
     @Override
     public Binder getBinder() {
@@ -34,6 +38,8 @@ public class IssueApplication extends Application implements BinderProvider {
             @Override
             protected void configure() {
                 bind(issueService).to(IssueService.class);
+                bind(issueMainService).to(IssueMainService.class);
+                bind(issueHelpService).to(IssueHelpService.class);
                 bind(userService).to(UserService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(restQueryService).to(RestQueryService.class);
@@ -43,7 +49,7 @@ public class IssueApplication extends Application implements BinderProvider {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(IssueController.class, IssueAssignController.class, HelpController.class);
+        return ImmutableSet.<Class<?>>of(IssueResource.class, IssueAssignResource.class, HelpResource.class);
     }
 
     @Activate
@@ -71,6 +77,12 @@ public class IssueApplication extends Application implements BinderProvider {
     public void setRestQueryService(RestQueryService restQueryService) {
         this.restQueryService = restQueryService;
     }
-
-
+    @Reference
+    public void setIssueMainService(IssueMainService issueMainService) {
+        this.issueMainService = issueMainService;
+    }
+    @Reference
+    public void setIssueHelpService(IssueHelpService issueHelpService) {
+        this.issueHelpService = issueHelpService;
+    }
 }

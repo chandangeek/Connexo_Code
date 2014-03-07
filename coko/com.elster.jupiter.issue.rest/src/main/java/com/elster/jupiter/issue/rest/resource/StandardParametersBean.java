@@ -1,4 +1,4 @@
-package com.elster.jupiter.issue.rest.controller;
+package com.elster.jupiter.issue.rest.resource;
 
 import com.elster.jupiter.util.conditions.Order;
 

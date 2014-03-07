@@ -1,13 +1,14 @@
 package com.elster.jupiter.issue.rest.transactions;
 
-import com.elster.jupiter.issue.IssueService;
-import com.elster.jupiter.issue.IssueStatus;
-import com.elster.jupiter.issue.OperationResult;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.response.ActionFailInfo;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.OperationResult;
+import com.elster.jupiter.issue.share.service.IssueMainService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.transaction.Transaction;
 
 import javax.ws.rs.WebApplicationException;
@@ -19,44 +20,65 @@ import java.util.Map;
 
 public class CloseIssuesTransaction implements Transaction<ActionInfo> {
     private final IssueService issueService;
+    private final IssueMainService issueMainService;
     private final CloseIssueRequest request;
 
-    public CloseIssuesTransaction(CloseIssueRequest request, IssueService issueService){
+
+    public CloseIssuesTransaction(CloseIssueRequest request, IssueService issueService, IssueMainService issueMainService) {
         this.request = request;
         this.issueService = issueService;
+        this.issueMainService = issueMainService;
     }
 
     @Override
     public ActionInfo perform() {
         ActionInfo response = new ActionInfo();
-        IssueStatus newIssueStatus = issueService.getIssueStatusFromString(request.getStatus());
+
+        IssueStatus newIssueStatus = new IssueStatus();
+        newIssueStatus.setName(request.getStatus());
+        newIssueStatus = issueMainService.searchFirst(newIssueStatus).orNull();
         if (request.getIssues() != null && newIssueStatus != null) {
             List<IssueShortInfo> success = new ArrayList<>();
-            Map<String, ActionFailInfo> allCloseFails = new HashMap<>();
-            for (EntityReference issueForClose : request.getIssues()) {
-                OperationResult<String, String[]> result = issueService.closeIssue(issueForClose.getId(), issueForClose.getVersion(), newIssueStatus, request.getComment());
-                if (result.isFailed()) {
-                    String failReason = result.getFailReason()[0];
-                    String issueTitle = result.getFailReason()[1];
-
-                    ActionFailInfo failsWithSameReason = allCloseFails.get(failReason);
-                    if (failsWithSameReason == null) {
-                        failsWithSameReason = new ActionFailInfo();
-                        failsWithSameReason.setReason(failReason);
-                        allCloseFails.put(failReason, failsWithSameReason);
-                    }
-                    IssueShortInfo issueFail = new IssueShortInfo(issueForClose.getId(), issueTitle);
-                    failsWithSameReason.getIssues().add(issueFail);
-                } else {
-                    success.add(new IssueShortInfo(issueForClose.getId()));
-                }
+            Map<String, ActionFailInfo> allFails = new HashMap<>();
+            for (EntityReference issue : request.getIssues()) {
+                OperationResult<String, String[]> result = issueService.closeIssue(issue.getId(), issue.getVersion(), newIssueStatus, request.getComment());
+                checkForFails(result, allFails, issue);
+                checkForSuccess(result, success, issue);
             }
-            response.setSuccess(success);
-            response.setFailure(new ArrayList<ActionFailInfo>(allCloseFails.values()));
+            buildResponse(response, success, allFails);
         } else {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
-
         return response;
+    }
+
+
+    private void checkForFails(OperationResult<String, String[]> result,  Map<String, ActionFailInfo> allFails, EntityReference issue){
+        if (result != null && result.isFailed()){
+            String failReason = result.getFailReason()[0];
+            String issueTitle = result.getFailReason()[1];
+
+            ActionFailInfo failsWithSameReason = allFails.get(failReason);
+            if (failsWithSameReason == null) {
+                failsWithSameReason = new ActionFailInfo();
+                failsWithSameReason.setReason(failReason);
+                allFails.put(failReason, failsWithSameReason);
+            }
+            IssueShortInfo issueFail = new IssueShortInfo(issue.getId(), issueTitle);
+            failsWithSameReason.getIssues().add(issueFail);
+        }
+    }
+
+    private void checkForSuccess(OperationResult<String, String[]> result,  List<IssueShortInfo> success, EntityReference issue){
+        if (result != null && !result.isFailed()){
+            success.add(new IssueShortInfo(issue.getId()));
+        }
+    }
+
+    private void buildResponse(ActionInfo response, List<IssueShortInfo> success, Map<String, ActionFailInfo> allFails){
+        if (response != null){
+            response.setSuccess(success);
+            response.setFailure(new ArrayList<ActionFailInfo>(allFails.values()));
+        }
     }
 }
