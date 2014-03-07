@@ -1,22 +1,10 @@
 package com.elster.jupiter.ids.impl;
 
-import com.elster.jupiter.ids.IntervalLengthUnit;
-import com.elster.jupiter.ids.RecordSpec;
-import com.elster.jupiter.ids.TimeSeries;
-import com.elster.jupiter.ids.TimeSeriesEntry;
-import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
-import org.joda.time.DateTimeZone;
+import static com.elster.jupiter.ids.IntervalLengthUnit.MINUTE;
+import static com.elster.jupiter.ids.IntervalLengthUnit.MONTH;
+import static org.joda.time.DateTimeConstants.MILLIS_PER_MINUTE;
+import static org.joda.time.DateTimeConstants.MINUTES_PER_HOUR;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,10 +12,22 @@ import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
 
-import static com.elster.jupiter.ids.IntervalLengthUnit.MINUTE;
-import static com.elster.jupiter.ids.IntervalLengthUnit.MONTH;
-import static org.joda.time.DateTimeConstants.MILLIS_PER_MINUTE;
-import static org.joda.time.DateTimeConstants.MINUTES_PER_HOUR;
+import javax.inject.Inject;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.DateTimeZone;
+
+import com.elster.jupiter.ids.IntervalLengthUnit;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.base.Optional;
 
 public final class TimeSeriesImpl implements TimeSeries {
 
@@ -48,7 +48,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 	private String userName;
 	
 	// association
-	private Reference<Vault> vault = ValueReference.absent();
+	private Reference<VaultImpl> vault = ValueReference.absent();
 	private Reference<RecordSpec> recordSpec = ValueReference.absent();
 	
 	// cached values
@@ -61,7 +61,7 @@ public final class TimeSeriesImpl implements TimeSeries {
     	this.dataModel = dataModel;
 	}
 
-	TimeSeriesImpl init(Vault vault , RecordSpec recordSpec, TimeZone timeZone) {
+	TimeSeriesImpl init(VaultImpl vault , RecordSpec recordSpec, TimeZone timeZone) {
 		this.vault.set(Objects.requireNonNull(vault));
 		this.recordSpec.set(Objects.requireNonNull(recordSpec));
 		this.timeZone = timeZone;
@@ -70,7 +70,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 		return this;
 	}
 
-    TimeSeriesImpl init(Vault vault , RecordSpec recordSpec, TimeZone timeZone, int intervalLength, IntervalLengthUnit intervalLengthUnit, int offsetInHours) {
+    TimeSeriesImpl init(VaultImpl vault , RecordSpec recordSpec, TimeZone timeZone, int intervalLength, IntervalLengthUnit intervalLengthUnit, int offsetInHours) {
 		init(vault,recordSpec,timeZone);
         this.regular = true;
         validate(intervalLength, intervalLengthUnit);
@@ -140,7 +140,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 	}
 
 	@Override
-	public Vault getVault() {
+	public VaultImpl getVault() {
 		return vault.get();
 	}
 	
@@ -171,7 +171,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 		if (!isValid(dateTime)) {
 			throw new IllegalArgumentException();
 		}
-		boolean result = ((VaultImpl) getVault()).add(this,dateTime,overrule,values);
+		boolean result = getVault().add(this,dateTime,overrule,values);
 		if (result) {
 			updateRange(dateTime,dateTime);
 		}
@@ -241,13 +241,13 @@ public final class TimeSeriesImpl implements TimeSeries {
 
     @Override
 	public List<TimeSeriesEntry> getEntries(Interval interval) {
-		return ImmutableList.copyOf(((VaultImpl) getVault()).getEntries(this, interval));
+		return getVault().getEntries(this, interval);
 	}
 	
     
     @Override 
     public Optional<TimeSeriesEntry> getEntry(Date when) {
-    	return ((VaultImpl) getVault()).getEntry(this,when);
+    	return getVault().getEntry(this,when);
     }
     
     TimeSeriesImpl lock() {
@@ -284,5 +284,10 @@ public final class TimeSeriesImpl implements TimeSeries {
 		cal.setTime(date);
 		cal.add(getIntervalLengthUnit().getCalendarCode(), numberOfEntries * getIntervalLength());
 		return cal.getTime();
+	}
+
+	@Override
+	public List<TimeSeriesEntry> getEntriesBefore(Date when,int entryCount) {
+		return getVault().getEntriesBefore(this,when,entryCount);
 	}
 }

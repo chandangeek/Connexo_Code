@@ -18,14 +18,13 @@ import org.junit.Test;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.ids.IntervalLengthUnit;
 import com.elster.jupiter.ids.RecordSpec;
-import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableList;
 
 public class TimeSeriesImplTest extends EqualsContractTest {
 
     private static final long ID = 15L;
-    private Vault vault = mock(Vault.class);
+    private VaultImpl vault = mock(VaultImpl.class);
     private RecordSpec recordSpec = mock(RecordSpec.class);
     private DataModel dataModel = mock(DataModel.class);
 

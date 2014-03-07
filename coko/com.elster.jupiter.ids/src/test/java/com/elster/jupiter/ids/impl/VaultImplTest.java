@@ -3,6 +3,7 @@ package com.elster.jupiter.ids.impl;
 import org.mockito.Mock;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.collect.ImmutableList;
@@ -40,11 +41,19 @@ public class VaultImplTest extends EqualsContractTest {
 
     @Override
     protected boolean canBeSubclassed() {
-        return false;
+        return true;
     }
 
     @Override
     protected Object getInstanceOfSubclassEqualToA() {
-        return null;
+        return new SubVault(dataModel,clock,provider).init(COMPONENT_NAME, ID, DESCRIPTION, SLOT_COUNT, true);
+    }
+    
+    private class SubVault extends VaultImpl {
+
+		SubVault(DataModel dataModel, Clock clock,Provider<TimeSeriesImpl> timeSeriesProvider) {
+			super(dataModel, clock, timeSeriesProvider);
+		}
+    	
     }
 }

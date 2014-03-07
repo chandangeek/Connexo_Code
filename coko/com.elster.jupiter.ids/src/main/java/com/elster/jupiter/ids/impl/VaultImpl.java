@@ -34,7 +34,7 @@ import java.util.Objects;
 import java.util.TimeZone;
 
 @LiteralSql
-public final class VaultImpl implements Vault {
+public class VaultImpl implements Vault {
 
     private static final int ID_COLUMN_INDEX = 1;
     private static final int FROM_COLUMN_INDEX = 2;
@@ -552,7 +552,7 @@ public final class VaultImpl implements Vault {
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public final boolean equals(Object other) {
         if (this == other) {
             return true;
         }
@@ -564,7 +564,7 @@ public final class VaultImpl implements Vault {
     }
 	
 	@Override
-	public int hashCode() {
+	public final int hashCode() {
         return Objects.hash(componentName, id);
 	}
 		
@@ -578,5 +578,39 @@ public final class VaultImpl implements Vault {
 	
 	private boolean isOracle() {
 		return dataModel.getSqlDialect().equals(SqlDialect.ORACLE);
+	}
+
+	List<TimeSeriesEntry> getEntriesBefore(TimeSeriesImpl timeSeries, Date when, int entryCount) {
+		try {
+			return doGetEntriesBefore(timeSeries,when,entryCount);
+		} catch (SQLException ex) {
+			throw new UnderlyingSQLFailedException(ex);
+		}
+	}
+	
+	private List<TimeSeriesEntry> doGetEntriesBefore(TimeSeriesImpl timeSeries, Date when, int entryCount) throws SQLException {
+		List<TimeSeriesEntry> result = new ArrayList<>();
+		try (Connection connection = getConnection(false)) {
+			try (PreparedStatement statement = connection.prepareStatement(entriesBeforeSql(timeSeries))) {
+				statement.setLong(ID_COLUMN_INDEX,timeSeries.getId());
+				statement.setLong(WHEN_COLUMN_INDEX, when.getTime());
+				statement.setInt(3, entryCount);
+				try (ResultSet rs = statement.executeQuery()) {
+					while (rs.next()) {
+						result.add(new TimeSeriesEntryImpl(timeSeries, rs));
+					}
+				}
+			}
+		}
+		return result;
+	}
+	
+	private String entriesBeforeSql(TimeSeries timeSeries) {
+		StringBuilder base = selectSql(timeSeries);
+		base.append(" AND UTCSTAMP < ? ORDER BY UTCSTAMP DESC ");
+		StringBuilder builder = new StringBuilder ("SELECT * from (");
+		builder.append(base.toString());
+		builder.append(") where ROWNUM <= ? ");
+		return builder.toString();
 	}
 }
