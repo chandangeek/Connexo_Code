@@ -259,6 +259,7 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
         byte[] binaryImage = decoder.decodeBuffer(userFileContents);
 
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
+        imageTransfer.setBooleanValue(0x01);    //Meter only takes 0x01 as boolean value "true"
         imageTransfer.setUsePollingVerifyAndActivate(true);         //Use polling to check the result of the image verification
         imageTransfer.upgrade(binaryImage, false);
         imageTransfer.setUsePollingVerifyAndActivate(false);    //Don't use polling for the activation, the meter reboots immediately!
@@ -266,8 +267,8 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
         try {
             imageTransfer.imageActivation();
         } catch (IOException e) {
-            if (isTemporaryFailure(e) || isTemporaryFailure(e.getCause())) {
-                //Move on in case of temporary failure
+            if (isTemporaryFailure(e) || isTemporaryFailure(e.getCause()) || isHardwareFault(e) || isHardwareFault(e.getCause())) {
+                //Move on in case of temporary failure/hardware fault,
                 return;
             } else {
                 throw e;
@@ -280,6 +281,16 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
             return false;
         } else if (e instanceof DataAccessResultException) {
             return (((DataAccessResultException) e).getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
+        } else {
+            return false;
+        }
+    }
+
+    private boolean isHardwareFault(Throwable e) {
+        if (e == null) {
+            return false;
+        } else if (e instanceof DataAccessResultException) {
+            return ((DataAccessResultException) e).getDataAccessResult() == DataAccessResultCode.HARDWARE_FAULT.getResultCode();
         } else {
             return false;
         }
