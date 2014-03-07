@@ -1,15 +1,7 @@
 package com.elster.jupiter.parties.rest.impl;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.parties.Organization;
-import com.elster.jupiter.parties.Party;
-import com.elster.jupiter.parties.PartyService;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.conditions.Operator;
-import com.google.common.base.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -25,8 +17,17 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.List;
+
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.parties.Organization;
+import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.Where;
+import com.google.common.base.Optional;
 
 @Path("/organizations")
 public class OrganizationsResource {
@@ -75,7 +76,7 @@ public class OrganizationsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public OrganizationInfos getOrganizations(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<Party> list = getPartyRestQuery().select(queryParameters, Operator.EQUAL.compare("class", Organization.TYPE_IDENTIFIER));
+        List<Party> list = getPartyRestQuery().select(queryParameters);
         List<Organization> organizations = new ArrayList<>(list.size());
         for (Party party : list) {
             organizations.add((Organization) party);
@@ -97,6 +98,7 @@ public class OrganizationsResource {
 
     private RestQuery<Party> getPartyRestQuery() {
         Query<Party> query = partyService.getPartyQuery();
+        query.setRestriction(Where.where("class").isEqualTo(Organization.TYPE_IDENTIFIER));
         return restQueryService.wrap(query);
     }
 

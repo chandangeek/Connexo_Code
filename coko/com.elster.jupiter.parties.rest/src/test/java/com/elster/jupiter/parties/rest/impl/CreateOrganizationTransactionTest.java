@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CreateOrganizationTransactionTest {
 
-    private static final int ID = 1656;
     private static final Date DATE = new Date(3516161L);
     private static final TelephoneNumber PHONE1 = new TelephoneNumber("32", "9", "555 55 55 55");
     private static final TelephoneNumber PHONE2 = new TelephoneNumber("32", "9", "666 66 66 66");
