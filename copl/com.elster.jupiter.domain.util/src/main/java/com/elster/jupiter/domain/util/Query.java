@@ -72,4 +72,5 @@ public interface Query<T> {
 	Class<?> getType(String fieldName);
 	Date getEffectiveDate();
 	void  setEffectiveDate(Date date);
+	void setRestriction(Condition condition);
 }
