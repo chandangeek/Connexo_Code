@@ -1,11 +1,11 @@
 package com.elster.jupiter.domain.util;
 
 import com.elster.jupiter.orm.DataModel;
-import java.util.Set;
+
 import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 import javax.validation.groups.Default;
+import java.util.Set;
 
 public enum Save {
 	CREATE(Create.class) {
@@ -38,7 +38,7 @@ public enum Save {
 		System.arraycopy(groups, 0, interfaces, 2, groups.length);
 		Set<ConstraintViolation<T>> failures = validator.validate(object, interfaces);
 		if (!failures.isEmpty()) {
-			throw new ConstraintViolationException(failures);
+			throw new VerboseConstraintViolationException(failures);
 		}
 	}
 	
