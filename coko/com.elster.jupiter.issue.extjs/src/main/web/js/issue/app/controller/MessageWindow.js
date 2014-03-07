@@ -74,7 +74,7 @@ Ext.define('Mtr.controller.MessageWindow', {
             }
         });
 
-        panel.collapseClose = function (time) {
+        panel.collapseClose = function () {
             panel.isClosing = true;
             panel.collapse(me.randomDirection(), true);
         };
@@ -123,7 +123,9 @@ Ext.define('Mtr.controller.MessageWindow', {
                 },
                 width: 28,
                 height: 24,
-                handler: panel.collapseClose
+                handler: function () {
+                    panel.close()
+                }
             });
         }
     },
@@ -136,7 +138,7 @@ Ext.define('Mtr.controller.MessageWindow', {
             item.margin = '0 0 0 5';
             item.handler = function(){
                 item.hnd();
-                panel.collapseClose();
+                panel.close();
             };
             buttons.push(item)
         });

@@ -39,7 +39,8 @@ Ext.define('Mtr.controller.CloseIssues', {
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
-    submitIssueClosing: function (button) {
+    submitIssueClosing: function () {
+
         var self = this,
             closeView = Ext.ComponentQuery.query('issues-close')[0],
             formPanel = closeView.down('form'),
@@ -47,6 +48,7 @@ Ext.define('Mtr.controller.CloseIssues', {
             formValues = form.getValues(),
             url = '/api/isu/issue/close',
             preloader;
+
         formPanel.sendingData.status = formValues.status;
         formPanel.sendingData.comment = formValues.comment.trim();
 
@@ -77,8 +79,8 @@ Ext.define('Mtr.controller.CloseIssues', {
                             showTime: 5000
                         });
                     } else {
-                        var msges = [];
-                        var bodyItem = {};
+                        var msges = [],
+                            bodyItem = {};
                         header.text = 'Failed to close issue ' + formPanel.recordTitle;
                         msges.push(header);
                         bodyItem.text = result.failure[0].reason;
@@ -93,7 +95,8 @@ Ext.define('Mtr.controller.CloseIssues', {
                                 {
                                     text: 'Retry',
                                     hnd: function () {
-                                        self.getApplication().fireEvent('closeissue')
+                                        formPanel.enable();
+                                        self.getApplication().fireEvent('closeissue');
                                     }
                                 },
                                 {
@@ -106,8 +109,16 @@ Ext.define('Mtr.controller.CloseIssues', {
 
                                     }
                                 }
-                            ]
+                            ],
+                            listeners: {
+                               close: {
+                                   fn: function() {
+                                       formPanel.enable();
+                                   }
+                               }
+                            }
                         });
+                        formPanel.disable();
                     }
                 },
                 callback: function () {

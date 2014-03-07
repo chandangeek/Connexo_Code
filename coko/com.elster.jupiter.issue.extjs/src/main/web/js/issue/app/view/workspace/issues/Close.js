@@ -76,10 +76,10 @@ Ext.define('Mtr.view.workspace.issues.Close', {
                     }
                 ]
             };
-            form_item.items[0] = { html: '<h3>Close issue '
+            form_item.items[0] = { html: '<h3 class="isu-assign-text"><span>Close issue </span><span>'
                 + self.record.data.reason.charAt(0).toLowerCase() + self.record.data.reason.slice(1)
-                + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.sNumber : '')
-                + '</h3>'};
+                + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '')
+                + '</span></h3>'};
             form_item.items[1].padding = '30 50 0 50';
             form_item.items[1].defaults = { padding: '0 0 30 0' },
                 form_item.items[1].margin = '0',

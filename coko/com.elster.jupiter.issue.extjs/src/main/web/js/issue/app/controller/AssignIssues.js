@@ -54,19 +54,17 @@ Ext.define('Mtr.controller.AssignIssues', {
 
 
         onSubmitForm: function () {
-            var self = this.getController('Mtr.controller.AssignIssues'),
+            var self = this,
                 assignPanel = Ext.ComponentQuery.query('issues-assign')[0],
                 formPanel = assignPanel.down('issues-assign-form'),
-                activeRadio = formPanel.down('radiogroup').down('radio[checked=true]').inputValue,
-                activeCombo = formPanel.down('combo[name=' + activeRadio + ']'),
+                activeCombo = formPanel.down('combobox[allowBlank=false]'),
                 form = formPanel.getForm(),
                 formValues = form.getValues(),
                 url = '/api/isu/issue/assign',
                 sendingData = {},
                 preloader;
 
-            if (!form.isValid()) {
-            } else {
+            if (form.isValid()) {
                 sendingData.issues = [
                     {
                         id: assignPanel.record.data.id,
@@ -82,100 +80,96 @@ Ext.define('Mtr.controller.AssignIssues', {
                 preloader = Ext.create('Ext.LoadMask', {
                     msg: "Assigning issue",
                     name: 'assign-issu-form-submit',
-                    target: formPanel
+                    target: assignPanel
                 });
                 preloader.show();
-
                 Ext.Ajax.request({
                     url: url,
                     method: 'PUT',
                     jsonData: sendingData,
-                    success: self.handleServerResponse,
-                    controller: this,
-                    autoAbort: true
-                });
-            }
-        },
+                    autoAbort: true,
+                    success: function (resp) {
+                        var response = Ext.JSON.decode(resp.responseText),
+                            successArr = response.success,
+                            failureArr = response.failure,
+                            activeCombo = assignPanel.down('issues-assign-form combobox[allowBlank=false]'),
+                            msges = [];
+                        if (failureArr.length > 0) {
+                            Ext.Array.each(failureArr, function (item) {
+                                Ext.Array.each(item.issues, function (issue) {
+                                    var header = {},
+                                        bodyItem = {};
+                                    header.text = 'Failed to assign issue ' + assignPanel.recordTitle + ' to ' + activeCombo.rawValue;
+                                    header.style = 'msgHeaderStyle';
+                                    msges.push(header);
+                                    bodyItem.text = item.reason;
+                                    bodyItem.style = 'msgItemStyle';
+                                    msges.push(bodyItem);
+                                })
+                            });
 
-        handleServerResponse: function (resp, param) {
-            var response = Ext.JSON.decode(resp.responseText),
-                successArr = response.success,
-                failureArr = response.failure,
-                assignIssueView = Ext.ComponentQuery.query('issues-assign')[0],
-                assignPanel = assignIssueView.down('panel'),
-                preloader = Ext.ComponentQuery.query('loadmask[name=assign-issu-form-submit]')[0],
-                activeRadio = assignPanel.down('radiogroup').down('radio[checked=true]').inputValue,
-                activeCombo = assignPanel.down('combo[name=' + activeRadio + ']'),
-                id = assignIssueView.record.data.id,
-                success,
-                msges = [];
+                            if (msges.length > 0) {
+                                self.getApplication().fireEvent('isushowmsg', {
+                                    type: 'error',
+                                    closeBtn: true,
+                                    msgBody: msges,
+                                    y: 10,
+                                    btns: [
+                                        {
+                                            text: 'Retry',
+                                            hnd: function () {
+                                                assignPanel.enable();
+                                                self.getApplication().fireEvent('assignissue')
+                                            }
+                                        },
+                                        {
+                                            text: 'Cancel',
+                                            cls: 'isu-btn-link',
+                                            hrefTarget: '',
+                                            href: '#/workspace/datacollection/issues',
+                                            // this function is necessary and MUST be empty
+                                            hnd: function () {
 
-            preloader.destroy();
-            success = Ext.Array.findBy(successArr, function (item) {
-                return item == id;
-            });
-            if (success) {
-                console.log(success)
-            }
-            if (failureArr.length > 0) {
-                Ext.Array.each(failureArr, function (item) {
-                    Ext.Array.each(item.issues, function (issue) {
-                        var header = {},
-                            bodyItem = {};
-                        header.text = 'Failed to assign issue ' + assignPanel.recordTitle + ' to ' + activeCombo.rawValue;
-                        header.style = 'msgHeaderStyle';
-                        msges.push(header);
-                        bodyItem.text = item.reason;
-                        bodyItem.style = 'msgItemStyle';
-                        msges.push(bodyItem);
-                    })
-                });
-
-                if (msges.length > 0) {
-                    param.controller.getApplication().fireEvent('isushowmsg', {
-                        type: 'error',
-                        closeBtn: true,
-                        msgBody: msges,
-                        y: 10,
-                        btns: [
-                            {
-                                text: 'Retry',
-                                hnd: function () {
-                                    param.controller.getApplication().fireEvent('assignissue')
-                                }
-                            },
-                            {
-                                text: 'Cancel',
-                                cls: 'isu-btn-link',
-                                hrefTarget: '',
-                                href: '#/workspace/datacollection/issues',
-                                // this function is necessary and MUST be empty
-                                hnd: function () {}
+                                            }
+                                        }
+                                    ],
+                                    listeners: {
+                                        close: {
+                                            fn: function () {
+                                                assignPanel.enable();
+                                            }
+                                        }
+                                    }
+                                });
+                                assignPanel.disable();
                             }
-                        ]
-                    });
-                }
-            }
+                        }
 
-            msges = [];
+                        msges = [];
 
-            if (successArr.length > 0) {
-                Ext.Array.each(successArr, function () {
-                    var header = {};
-                    header.style = 'msgHeaderStyle';
-                    header.text = 'Issue assigned to ' + activeCombo.rawValue;
-                    msges.push(header);
+                        if (successArr.length > 0) {
+                            Ext.Array.each(successArr, function () {
+                                var header = {};
+                                header.style = 'msgHeaderStyle';
+                                header.text = 'Issue assigned to ' + activeCombo.rawValue;
+                                msges.push(header);
+                            });
+
+                            if (msges.length > 0) {
+                                self.getApplication().fireEvent('isushowmsg', {
+                                    type: 'notify',
+                                    msgBody: msges,
+                                    y: 10,
+                                    showTime: 5000
+                                });
+                            }
+                            window.location.href = '#/workspace/datacollection/issues';
+                        }
+                    },
+                    callback: function () {
+                        preloader.destroy();
+                    }
                 });
-
-                if (msges.length > 0) {
-                    param.controller.getApplication().fireEvent('isushowmsg', {
-                        type: 'notify',
-                        msgBody: msges,
-                        y: 10,
-                        showTime: 5000
-                    });
-                }
-                window.location.href = '#/workspace/datacollection/issues';
             }
         }
     }
