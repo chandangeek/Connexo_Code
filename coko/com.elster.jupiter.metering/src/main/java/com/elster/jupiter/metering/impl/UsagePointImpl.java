@@ -328,6 +328,17 @@ public class UsagePointImpl implements UsagePoint {
         touch();
         return toUpdate;
     }
+    
+    @Override
+	public List<? extends BaseReadingRecord> getReadings(Interval interval, ReadingType readingType) {
+		List<BaseReadingRecord> result = new ArrayList<>();
+		for (MeterActivation activation : getMeterActivations()) {
+			if (activation.getInterval().overlaps(interval)) {
+				result.addAll(activation.getReadings(interval, readingType));
+			}
+		}
+		return result;
+	}
 
     private void validateAddingDetail(UsagePointDetail candidate) {
         for (UsagePointDetail usagePointDetail : detail.effective(candidate.getInterval())) {

@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
 import java.util.Date;
@@ -17,4 +18,6 @@ public interface Meter extends EndDevice {
     MeterActivation activate(Date date);
 
     Optional<MeterActivation> getCurrentMeterActivation();
+    
+    List<? extends BaseReadingRecord> getReadings(Interval interval, ReadingType readingType);
 }

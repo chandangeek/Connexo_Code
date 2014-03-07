@@ -20,6 +20,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -28,6 +29,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -305,13 +307,13 @@ public final class ChannelImpl implements Channel {
     @Override
     public List<ReadingQuality> findReadingQuality(ReadingQualityType type, Interval interval) {
         Condition ofTypeAndInInterval = inInterval(interval).and(Operator.EQUAL.compare("typeCode", type.getCode()));
-        return dataModel.mapper(ReadingQuality.class).select(ofTypeAndInInterval,"readingTimestamp");
+        return dataModel.mapper(ReadingQuality.class).select(ofTypeAndInInterval,Order.ascending("readingTimestamp"));
     }
 
     @Override
     public List<ReadingQuality> findReadingQuality(Date timestamp) {
         Condition atTimestamp = withTimestamp(timestamp);
-        return dataModel.mapper(ReadingQuality.class).select(atTimestamp, "readingTimestamp");
+        return dataModel.mapper(ReadingQuality.class).select(atTimestamp, Order.ascending("readingTimestamp"));
     }
 
     @Override
@@ -333,5 +335,16 @@ public final class ChannelImpl implements Channel {
     public boolean isRegular() {
     	return getIntervalLength().isPresent();
     }
+
+	@Override
+	public List<BaseReadingRecord> getReadingsBefore(Date when, int readingCount) {
+		boolean regular = isRegular();
+		List<TimeSeriesEntry> entries = getTimeSeries().getEntriesBefore(when,readingCount);
+		ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
+		for (TimeSeriesEntry entry : entries) {
+			builder.add(createReading(regular,entry));
+		}
+		return builder.build();
+	}
     
 }

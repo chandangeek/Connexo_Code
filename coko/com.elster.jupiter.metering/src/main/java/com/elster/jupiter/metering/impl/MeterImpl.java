@@ -2,20 +2,25 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -68,4 +73,15 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
         return Optional.absent();
     }
 
+	@Override
+	public List<? extends BaseReadingRecord> getReadings(Interval interval, ReadingType readingType) {
+		List<BaseReadingRecord> result = new ArrayList<>();
+		for (MeterActivation activation : getMeterActivations()) {
+			if (activation.getInterval().overlaps(interval)) {
+				result.addAll(activation.getReadings(interval, readingType));
+			}
+		}
+		return result;
+	}
+    
 }

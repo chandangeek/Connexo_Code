@@ -31,4 +31,5 @@ public interface Channel {
     List<ReadingQuality> findReadingQuality(Interval interval);
 
     boolean isRegular();
+    List<BaseReadingRecord> getReadingsBefore(Date when, int readingCount);
 }

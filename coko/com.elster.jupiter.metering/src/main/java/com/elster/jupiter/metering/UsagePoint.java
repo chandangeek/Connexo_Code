@@ -58,4 +58,5 @@ public interface UsagePoint extends IdentifiedObject {
     void addDetail(UsagePointDetail usagePointDetail);
 
     UsagePointDetail terminateDetail(UsagePointDetail detail, Date date);
+	List<? extends BaseReadingRecord> getReadings(Interval interval, ReadingType readingType);
 }

@@ -263,7 +263,7 @@ public enum TableSpecs {
 			List<Column> intervalColumns = table.addIntervalColumns("interval");
 			table.addAuditColumns();
 			table.primaryKey("MTR_PK_UPACCOUNTABILITY").on(usagePointIdColumn , partyIdColumn , roleMRIDColumn , intervalColumns.get(0)).add();
-			table.foreignKey("MTR_FK_UPACCOUNTUP").on(usagePointIdColumn).references(MTR_USAGEPOINT.name()).onDelete(CASCADE).map("usagePoint").reverseMap("accountabilities").composition().add();
+			table.foreignKey("MTR_FK_UPACCOUNTUP").on(usagePointIdColumn).references(MTR_USAGEPOINT.name()).onDelete(RESTRICT).map("usagePoint").reverseMap("accountabilities").composition().add();
 			table.foreignKey("MTR_FK_UPACCOUNTPARTY").on(partyIdColumn).references("PRT", "PRT_PARTY").onDelete(RESTRICT).map("party").add();
 			table.foreignKey("MTR_FK_UPACCOUNTPARTYROLE").on(roleMRIDColumn).references("PRT", "PRT_PARTYROLE").onDelete(RESTRICT).map("role").add();
  		}
@@ -367,7 +367,7 @@ public enum TableSpecs {
 
             table.addAuditColumns();
             table.primaryKey("MTR_PK_USAGEPOINTDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
-            table.foreignKey("MTR_FK_USAGEPOINTDETAILUP").on(usagePointIdColumn).references(MTR_USAGEPOINT.name()).onDelete(CASCADE).map("usagePoint").reverseMap("detail").composition().add();
+            table.foreignKey("MTR_FK_USAGEPOINTDETAILUP").on(usagePointIdColumn).references(MTR_USAGEPOINT.name()).onDelete(RESTRICT).map("usagePoint").reverseMap("detail").composition().add();
         }
     };
 
