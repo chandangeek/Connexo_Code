@@ -49,6 +49,7 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+    private Phenomenon phenomenon;
 
     @Test
     @Transactional
@@ -226,7 +227,6 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
     @Transactional
     public void cannotAddChannelSpecToActiveDeviceConfigTest() {
         RegisterMapping registerMapping = createDefaultRegisterMapping();
-        Phenomenon phenomenon = createDefaultPhenomenon();
         LoadProfileType loadProfileType = createDefaultLoadProfileType();
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder1 = this.deviceType.newConfiguration("DevConfName");
 
@@ -245,15 +245,11 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
         }
     }
 
-    private Phenomenon createDefaultPhenomenon() {
-        Phenomenon phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("DefPhenom", Unit.get("kWh"));
-        phenomenon.save();
-        return phenomenon;
-    }
-
     private RegisterMapping createDefaultRegisterMapping() {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
-        Unit unit = Unit.get("KWh");
+        Unit unit = Unit.get("kWh");
+        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("baseUnit", unit);
+        this.phenomenon.save();
         ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
         RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RMName", ObisCode.fromString("1.0.1.8.0.255"), unit, readingType, readingType.getTou());
         registerMapping.save();
