@@ -182,7 +182,7 @@ public abstract class EqualsContractTest {
         }
         try {
             Method hashCode = a.getClass().getMethod("equals", new Class[]{Object.class});
-            assertThat(Modifier.isFinal(hashCode.getModifiers())).describedAs("hashCode() is not final, yet the class is designed for extension. To guard against LSP violations this class should prohibit overriding hashCode()").isTrue();
+            assertThat(Modifier.isFinal(hashCode.getModifiers())).describedAs("equals() is not final, yet the class is designed for extension. To guard against LSP violations this class should prohibit overriding hashCode()").isTrue();
         } catch (NoSuchMethodException e) {
             throw new AssertionError("Class does not have hashCode() method");
         }
