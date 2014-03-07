@@ -29,7 +29,7 @@ public interface PluggableClassUsage
     public PC getPluggableClass ();
 
     /**
-     * Get the {@link PluggableClassUsageProperty} with the provided name
+     * Gets the {@link PluggableClassUsageProperty} with the provided name.
      *
      * @param propertyName the name of the property
      * @return the requested property or <code>null</code> when property is not found
