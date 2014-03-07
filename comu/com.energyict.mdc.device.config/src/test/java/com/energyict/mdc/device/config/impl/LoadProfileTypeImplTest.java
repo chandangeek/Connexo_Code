@@ -344,6 +344,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
 
         LoadProfileType loadProfileType;
         long registerMappingId;
+        this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
         // Setup RegisterMapping
@@ -375,6 +376,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
 
         RegisterMapping registerMapping;
         LoadProfileType loadProfileType;
+        this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
         // Setup RegisterMapping
@@ -404,6 +406,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         RegisterMapping registerMapping;
         LoadProfileType loadProfileType;
         this.setupReadingTypeInExistingTransaction();
+        this.setupPhenomenaInExistingTransaction();
 
         // Setup RegisterMapping
         registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, unit, readingType, readingType.getTou());
@@ -495,6 +498,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         RegisterMapping registerMapping;
         LoadProfileType loadProfileType;
         this.setupReadingTypeInExistingTransaction();
+        this.setupPhenomenaInExistingTransaction();
 
         // Setup RegisterMapping
         registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, unit, readingType, readingType.getTou());
@@ -573,7 +577,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     }
 
     private void setupPhenomenaInExistingTransaction() {
-        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(DeviceTypeImplTest.class.getSimpleName(), Unit.get("kWh"));
+        this.unit = Unit.get("kWh");
+        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(DeviceTypeImplTest.class.getSimpleName(), unit);
         this.phenomenon.save();
     }
 
@@ -586,7 +591,6 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
                 .accumulate(Accumulation.DELTADELTA)
                 .code();
         this.readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        this.unit = Unit.get("KWh");
     }
 
 }
