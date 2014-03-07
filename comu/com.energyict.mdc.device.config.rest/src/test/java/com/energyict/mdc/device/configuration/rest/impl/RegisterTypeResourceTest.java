@@ -14,6 +14,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -99,6 +100,7 @@ public class RegisterTypeResourceTest extends JerseyTest {
         when(registerMapping.getName()).thenReturn("register type");
         when(registerMapping.getObisCode()).thenReturn(new ObisCode(1,2,3,4,5,6));
         when(registerMapping.isInUse()).thenReturn(true);
+        when(registerMapping.getUnit()).thenReturn(Unit.get("kWh"));
         ReadingType readingType = mock(ReadingType.class);
         when(registerMapping.getReadingType()).thenReturn(readingType);
         when(readingType.getMRID()).thenReturn("mrid");
@@ -122,11 +124,13 @@ public class RegisterTypeResourceTest extends JerseyTest {
         when(deviceConfigurationService.findRegisterMapping(13)).thenReturn(registerMapping);
 
         Map<String, Object> map = target("/registertypes/13").request().get(Map.class);
-        assertThat(map).hasSize(21)
+        assertThat(map).hasSize(22)
         .containsKey("id")
         .containsKey("name")
         .containsKey("obisCode")
         .containsKey("isInUse")
+        .containsKey("timeOfUse")
+        .containsKey("unit")
         .containsKey("mrid")
         .containsKey("timePeriodOfInterest")
         .containsKey("dataQualifier")
