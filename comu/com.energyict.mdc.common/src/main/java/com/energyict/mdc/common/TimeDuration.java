@@ -1,14 +1,9 @@
-/*
- * TimeDuration.java
- *
- * Created on 21 februari 2003, 12:05
- */
-
 package com.energyict.mdc.common;
 
 import org.joda.time.DateTimeConstants;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.io.Serializable;
 import java.util.Calendar;
 
 /**
@@ -20,7 +15,7 @@ import java.util.Calendar;
  * @author Karel
  */
 @XmlJavaTypeAdapter(TimeDurationXmlMarshallAdapter.class)
-public class TimeDuration implements Comparable, java.io.Serializable {
+public class TimeDuration implements Comparable, Serializable {
 
     private static final String MILLISECONDS_STRING = "milliseconds";
     private static final String SECONDS_STRING = "seconds";
@@ -191,22 +186,39 @@ public class TimeDuration implements Comparable, java.io.Serializable {
         String countAsString = stringValue.substring(0, stringValue.indexOf(" "));
         String timeUnitAsString = stringValue.substring(stringValue.indexOf(" ")+1);
         this.count = Integer.parseInt(countAsString);
-        if (MILLISECONDS_STRING.equals(timeUnitAsString)) {
-            this.timeUnitCode = MILLISECONDS;
-        } else if (SECONDS_STRING.equals(timeUnitAsString)) {
-            this.timeUnitCode = SECONDS;
-        } else if (MINUTES_STRING.equals(timeUnitAsString)) {
-            this.timeUnitCode = MINUTES;
-        } else if (HOURS_STRING.equals(timeUnitAsString)) {
-            this.timeUnitCode = HOURS;
-        } else if (DAYS_STRING.equals(timeUnitAsString)) {
-            this.timeUnitCode = DAYS;
-        } else if (WEEKS_STRING.equals(timeUnitAsString)) {
-            this.timeUnitCode = WEEKS;
-        } else if (MONTHS_STRING.equals(timeUnitAsString)) {
-            this.timeUnitCode = MONTHS;
-        } else if (YEARS_STRING.equals(timeUnitAsString)) {
-            this.timeUnitCode = YEARS;
+        switch (timeUnitAsString) {
+            case MILLISECONDS_STRING: {
+                this.timeUnitCode = MILLISECONDS;
+                break;
+            }
+            case SECONDS_STRING: {
+                this.timeUnitCode = SECONDS;
+                break;
+            }
+            case MINUTES_STRING: {
+                this.timeUnitCode = MINUTES;
+                break;
+            }
+            case HOURS_STRING: {
+                this.timeUnitCode = HOURS;
+                break;
+            }
+            case DAYS_STRING: {
+                this.timeUnitCode = DAYS;
+                break;
+            }
+            case WEEKS_STRING: {
+                this.timeUnitCode = WEEKS;
+                break;
+            }
+            case MONTHS_STRING: {
+                this.timeUnitCode = MONTHS;
+                break;
+            }
+            case YEARS_STRING: {
+                this.timeUnitCode = YEARS;
+                break;
+            }
         }
     }
 
@@ -454,7 +466,12 @@ public class TimeDuration implements Comparable, java.io.Serializable {
         if (thisSeconds == otherSeconds) {
             return 0;
         } else {
-            return thisSeconds > otherSeconds ? 1 : -1;
+            if (thisSeconds > otherSeconds) {
+                return 1;
+            }
+            else {
+                return -1;
+            }
         }
     }
 
@@ -484,28 +501,6 @@ public class TimeDuration implements Comparable, java.io.Serializable {
      */
     public int hashCode() {
         return getSeconds();
-    }
-
-    /**
-     * This method should only be used by the XML deserialisation process
-     * For all practical reasons , TimeDuration objects should be immutable
-     *
-     * @param value new count value
-     * @deprecated should be immutable
-     */
-    public void setCount(int value) {
-        this.count = value;
-    }
-
-    /**
-     * This method should only be used by the XML deserialisation process
-     * For all practical reasons , TimeDuration objects should be immutable
-     *
-     * @param value new unit code
-     * @deprecated should be immutable
-     */
-    public void setTimeUnitCode(int value) {
-        this.timeUnitCode = value;
     }
 
     private boolean causesIntOverflow(int count, int timeUnitCode) {
@@ -541,7 +536,7 @@ public class TimeDuration implements Comparable, java.io.Serializable {
     private static String VALUE_UNIT_SEPARATOR = "-";
 
     public static TimeDuration fromSystemParameterString(String timeDurationSystemParameterString) {
-        if (timeDurationSystemParameterString.indexOf(VALUE_UNIT_SEPARATOR)==-1) {
+        if (!timeDurationSystemParameterString.contains(VALUE_UNIT_SEPARATOR)) {
             // Previously the number of seconds were stored, so
             return new TimeDuration(Integer.valueOf(timeDurationSystemParameterString), TimeDuration.SECONDS);
         }
