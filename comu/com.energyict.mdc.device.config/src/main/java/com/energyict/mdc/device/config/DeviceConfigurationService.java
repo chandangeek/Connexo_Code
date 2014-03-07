@@ -82,6 +82,8 @@ public interface DeviceConfigurationService {
      */
     public RegisterMapping findRegisterMappingByName(String name);
 
+    public RegisterMapping findRegisterMappingByReadingType(ReadingType readingType);
+
     /**
      * Creates a new {@link RegisterMapping} with the specified required properties.
      * Note that {@link ObisCode} uniquely identifies the RegisterMapping,

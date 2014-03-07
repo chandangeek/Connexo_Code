@@ -75,7 +75,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
 
     @Override
     public void save () {
-        validateUniqueObisCodeAndPhenomenonAndTimeOfUse();
+//        validateUniqueObisCodeAndPhenomenonAndTimeOfUse();
         this.modificationDate = this.clock.now();
         super.save();
     }
@@ -84,7 +84,8 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         if (this.phenomenon.isPresent() && this.obisCode != null) {
             RegisterMapping otherRegisterMapping = this.findOtherByObisCodeAndPhenomenonAndTimeOfUse();
             if (otherRegisterMapping != null) {
-                throw DuplicateObisCodeException.forRegisterMapping(this.getThesaurus(), obisCode, otherRegisterMapping);
+                throw DuplicateObisCodeException.forRegisterMapping(this.getThesaurus(), obisCode, phenomenon.get()
+                        , timeOfUse, otherRegisterMapping);
             }
         }
     }

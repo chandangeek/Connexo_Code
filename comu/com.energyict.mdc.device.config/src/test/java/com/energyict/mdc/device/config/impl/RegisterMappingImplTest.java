@@ -23,7 +23,6 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenRegisterMappingIsInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdatePhenomenonWhenRegisterMappingIsInUseException;
-import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
@@ -236,30 +235,30 @@ public class RegisterMappingImplTest extends PersistenceTest {
         assertThat(((RegisterMappingImpl)registerMapping).getPhenomenon()).isEqualToComparingOnlyGivenFields(this.phenomenon2, "name", "unit");
     }
 
-    @Test(expected = DuplicateObisCodeException.class)
-    @Transactional
-    public void testUpdateObisCodeWithDuplicate() {
-        String registerMappingName = "testUpdateObisCodeWithDuplicate";
-        RegisterMapping updateCandidate;
-        this.setupProductSpecsInExistingTransaction();
-
-        updateCandidate = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1,  unit1, readingType1, 1);
-        updateCandidate.setDescription("For testing purposes only");
-        updateCandidate.save();
-
-        RegisterMapping other = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("other", obisCode2,  unit1, readingType2, 1);
-        other.save();
-
-        try {
-            // Business method
-            updateCandidate.setObisCode(obisCode2);
-            updateCandidate.save();
-        } catch (DuplicateObisCodeException e) {
-            // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_OBIS_CODE_ALREADY_EXISTS);
-            throw e;
-        }
-    }
+//    @Test(expected = DuplicateObisCodeException.class)
+//    @Transactional
+//    public void testUpdateObisCodeWithDuplicate() {
+//        String registerMappingName = "testUpdateObisCodeWithDuplicate";
+//        RegisterMapping updateCandidate;
+//        this.setupProductSpecsInExistingTransaction();
+//
+//        updateCandidate = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1,  unit1, readingType1, 1);
+//        updateCandidate.setDescription("For testing purposes only");
+//        updateCandidate.save();
+//
+//        RegisterMapping other = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("other", obisCode2,  unit1, readingType2, 1);
+//        other.save();
+//
+//        try {
+//            // Business method
+//            updateCandidate.setObisCode(obisCode2);
+//            updateCandidate.save();
+//        } catch (DuplicateObisCodeException e) {
+//            // Asserts
+//            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_OBIS_CODE_TOU_PEHNOMENON_ALREADY_EXISTS);
+//            throw e;
+//        }
+//    }
 
     @Test(expected = CannotUpdateObisCodeWhenRegisterMappingIsInUseException.class)
     @Transactional

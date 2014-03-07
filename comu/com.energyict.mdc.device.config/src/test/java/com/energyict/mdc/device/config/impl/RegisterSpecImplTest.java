@@ -287,19 +287,19 @@ public class RegisterSpecImplTest extends PersistenceTest {
         registerSpecUpdater.update();
     }
 
-    @Test(expected = DuplicateObisCodeException.class)
-    @Transactional
-    public void addTwoSpecsWithDifferentMappingButSameObisCodeTest() {
-        RegisterSpec registerSpec1 = createDefaultRegisterSpec();
-        RegisterSpec registerSpec2;
-        RegisterMapping otherMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("OtherMapping", registerMappingObisCode, unit1, readingType1, readingType1.getTou());
-        otherMapping.save();
-        this.deviceType.addRegisterMapping(otherMapping);
-        this.deviceType.save();
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(otherMapping);
-        setRegisterSpecDefaultFields(registerSpecBuilder);
-        registerSpec2 = registerSpecBuilder.add();
-    }
+//    @Test(expected = DuplicateObisCodeException.class)
+//    @Transactional
+//    public void addTwoSpecsWithDifferentMappingButSameObisCodeTest() {
+//        RegisterSpec registerSpec1 = createDefaultRegisterSpec();
+//        RegisterSpec registerSpec2;
+//        RegisterMapping otherMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("OtherMapping", registerMappingObisCode, unit1, readingType1, readingType1.getTou());
+//        otherMapping.save();
+//        this.deviceType.addRegisterMapping(otherMapping);
+//        this.deviceType.save();
+//        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(otherMapping);
+//        setRegisterSpecDefaultFields(registerSpecBuilder);
+//        registerSpec2 = registerSpecBuilder.add();
+//    }
 
     @Test(expected = RegisterMappingIsNotConfiguredOnDeviceTypeException.class)
     @Transactional

@@ -126,6 +126,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public RegisterMapping findRegisterMappingByReadingType(ReadingType readingType) {
+        return this.getDataModel().mapper((RegisterMapping.class)).getUnique("readingType", readingType).orNull();
+    }
+
+    @Override
     public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse) {
         Phenomenon phenomenon = null;
         if (unit!=null) {

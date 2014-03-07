@@ -56,10 +56,12 @@ public class MasterDataGenerator {
         List<RegisterMapping> registerMappings = new ArrayList<>();
         for (ReadingType readingType : meteringService.getAvailableReadingTypes()) {
             try {
-                ReadingTypeInformation readingTypeInformation = readingTypeUtilService.getReadingTypeInformationFor(readingType);
-                RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping(readingType.getName(), readingTypeInformation.getObisCode(), readingTypeInformation.getUnit(), readingType , readingType.getTou());
-                registerMapping.save();
-                registerMappings.add(registerMapping);
+                if (deviceConfigurationService.findRegisterMappingByReadingType(readingType)==null) {
+                    ReadingTypeInformation readingTypeInformation = readingTypeUtilService.getReadingTypeInformationFor(readingType);
+                    RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping(readingType.getName(), readingTypeInformation.getObisCode(), readingTypeInformation.getUnit(), readingType , readingType.getTou());
+                    registerMapping.save();
+                    registerMappings.add(registerMapping);
+                }
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
