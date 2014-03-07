@@ -650,7 +650,7 @@ public class TableImpl<T> implements Table<T> {
 				return;
 			}
 		}
-		throw new IllegalStateException("Column " + column.getName() + " has no mapping");
+		throw new IllegalTableMappingException("Table " + getName() + " : Column " + column.getName() + " has no mapping");
 	}
 	
 	private void buildReferenceConstraints() {
