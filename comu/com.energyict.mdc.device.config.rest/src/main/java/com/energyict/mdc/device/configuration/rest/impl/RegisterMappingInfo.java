@@ -7,7 +7,6 @@ import com.energyict.mdc.device.config.RegisterMapping;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonUnwrapped;
 
 @XmlRootElement
 public class RegisterMappingInfo {
@@ -26,7 +25,7 @@ public class RegisterMappingInfo {
     @JsonProperty("unit")
     @XmlJavaTypeAdapter(UnitAdapter.class)
     public Unit unit;
-    @JsonUnwrapped
+    @JsonProperty("readingType")
     public ReadingTypeInfo readingTypeInfo;
 
     public RegisterMappingInfo() {
@@ -37,6 +36,7 @@ public class RegisterMappingInfo {
         name = registerMapping.getName();
         obisCode = registerMapping.getObisCode();
         isInUse = registerMapping.isInUse();
+        timeOfUse = registerMapping.getTimeOfUse();
         unit = registerMapping.getUnit();
         readingTypeInfo = new ReadingTypeInfo(registerMapping.getReadingType());
     }

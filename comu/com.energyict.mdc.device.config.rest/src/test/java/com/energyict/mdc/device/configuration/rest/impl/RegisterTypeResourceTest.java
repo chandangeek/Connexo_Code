@@ -124,13 +124,15 @@ public class RegisterTypeResourceTest extends JerseyTest {
         when(deviceConfigurationService.findRegisterMapping(13)).thenReturn(registerMapping);
 
         Map<String, Object> map = target("/registertypes/13").request().get(Map.class);
-        assertThat(map).hasSize(22)
+        assertThat(map).hasSize(7)
         .containsKey("id")
         .containsKey("name")
         .containsKey("obisCode")
         .containsKey("isInUse")
         .containsKey("timeOfUse")
         .containsKey("unit")
+        .containsKey("readingType");
+        assertThat((Map)map.get("readingType")).hasSize(17)
         .containsKey("mrid")
         .containsKey("timePeriodOfInterest")
         .containsKey("dataQualifier")
