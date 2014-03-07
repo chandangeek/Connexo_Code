@@ -1,0 +1,39 @@
+package com.energyict.mdc.device.configuration.rest.impl;
+
+import com.energyict.mdc.common.Unit;
+import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class UnitAdapterTest {
+
+    private final UnitAdapter unitAdapter = new UnitAdapter();
+    
+    @Test
+    public void testNormalMarshal() throws Exception {
+        assertThat(unitAdapter.marshal(Unit.get("kWh"))).isEqualTo("kWh");
+    }
+
+    @Test
+    public void testNormalUnmarshal() throws Exception {
+        assertThat(unitAdapter.unmarshal("kWh")).isEqualTo(Unit.get("kWh"));
+    }
+
+    @Test
+    public void testMarshalUndefined() throws Exception {
+        assertThat(unitAdapter.marshal(Unit.getUndefined())).isEqualTo("");
+
+    }
+
+    @Test
+    public void testUnmarshalEmptyString() throws Exception {
+        assertThat(unitAdapter.unmarshal("")).isEqualTo(Unit.getUndefined());
+
+    }
+
+    @Test
+    public void testUnmarshalIllegalUnit() throws Exception {
+        assertThat(unitAdapter.unmarshal("XYZ")).isNull();
+
+    }
+}

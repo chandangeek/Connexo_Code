@@ -9,7 +9,7 @@ public class UnitAdapter extends XmlAdapter<String, Unit> {
     @Override
     public Unit unmarshal(String unitString) throws Exception {
         if (Checks.is(unitString).emptyOrOnlyWhiteSpace()) {
-            return null;
+            return Unit.getUndefined();
         }
         return Unit.get(unitString);
     }
