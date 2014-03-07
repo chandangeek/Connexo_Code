@@ -82,7 +82,7 @@ public class PersonsResource {
         for (Party party : list) {
             persons.add((Person) party);
         }
-        PersonInfos infos = new PersonInfos(persons);
+        PersonInfos infos = new PersonInfos(queryParameters.clipToLimit(persons));
         infos.total = queryParameters.determineTotal(list.size());
         return infos;
     }
