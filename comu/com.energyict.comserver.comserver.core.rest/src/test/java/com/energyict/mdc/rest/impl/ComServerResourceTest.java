@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl;
 
-import com.elster.jupiter.domain.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
