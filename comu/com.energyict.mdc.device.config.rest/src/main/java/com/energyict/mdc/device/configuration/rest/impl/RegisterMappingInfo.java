@@ -37,6 +37,7 @@ public class RegisterMappingInfo {
         name = registerMapping.getName();
         obisCode = registerMapping.getObisCode();
         isInUse = registerMapping.isInUse();
+        unit = registerMapping.getUnit();
         readingTypeInfo = new ReadingTypeInfo(registerMapping.getReadingType());
     }
 
