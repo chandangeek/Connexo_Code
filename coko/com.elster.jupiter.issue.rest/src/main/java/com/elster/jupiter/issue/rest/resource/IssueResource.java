@@ -37,8 +37,7 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllIssues(@BeanParam StandardParametersBean params) {
         Condition condition = Condition.TRUE;
-        Query<Issue> query = getIssueMainService().query(Issue.class, EndDevice.class, Issue.class, User.class,
-                IssueReason.class, IssueStatus.class, AssigneeRole.class, AssigneeTeam.class);
+        Query<Issue> query = getIssueMainService().query(Issue.class, EndDevice.class, IssueReason.class, IssueStatus.class, AssigneeRole.class, AssigneeTeam.class);
         if (params.get("reason") != null) {
             condition = where("reason.name").isEqualTo(params.get("reason").get(0));
         }
