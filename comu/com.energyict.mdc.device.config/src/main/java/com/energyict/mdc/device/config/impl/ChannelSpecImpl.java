@@ -15,7 +15,6 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceConfigurationReferenceException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLoadProfileSpecOfChannelSpec;
@@ -53,7 +52,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.CHANNEL_SPEC_PHENOMENON_IS_REQUIRED_KEY + "}")
     private final Reference<Phenomenon> phenomenon = ValueReference.absent();
     private final Reference<LoadProfileSpec> loadProfileSpec = ValueReference.absent();
-    private final Reference<ProductSpec> productSpec = ValueReference.absent();
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.CHANNEL_SPEC_READING_METHOD_IS_REQUIRED_KEY + "}")
     private ReadingMethod readingMethod = ReadingMethod.ENGINEERING_UNIT;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED_KEY + "}")
@@ -83,7 +81,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon) {
         setDeviceConfiguration(deviceConfiguration);
         setRegisterMapping(registerMapping);
-        setProductSpec(registerMapping.getProductSpec());
         setPhenomenon(phenomenon);
         return this;
     }
@@ -392,16 +389,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     @Override
     public void setInterval(TimeDuration interval) {
         this.interval = interval;
-    }
-
-    @Override
-    public void setProductSpec(ProductSpec productSpec) {
-        this.productSpec.set(productSpec);
-    }
-
-    @Override
-    public ProductSpec getProductSpec() {
-        return productSpec.get();
     }
 
     abstract static class ChannelSpecBuilder implements ChannelSpec.ChannelSpecBuilder {

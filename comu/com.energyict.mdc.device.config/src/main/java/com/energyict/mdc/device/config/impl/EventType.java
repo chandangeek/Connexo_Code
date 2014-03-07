@@ -49,7 +49,10 @@ public enum EventType {
     PROTOCOLCONFIGURATIONPROPS_DELETED("protocolconfigurationprops/DELETED"),
     PHENOMENON_CREATED("phenomenon/CREATED"),
     PHENOMENON_UPDATED("phenomenon/UPDATED"),
-    PHENOMENON_DELETED("phenomenon/DELETED");
+    PHENOMENON_DELETED("phenomenon/DELETED"),
+    NEXTEXECUTIONSPECS_CREATED("nextexecutionspecs/CREATED"),
+    NEXTEXECUTIONSPECS_UPDATED("nextexecutionspecs/UPDATED"),
+    NEXTEXECUTIONSPECS_DELETED("nextexecutionspecs/DELETED");
 
     private static final String NAMESPACE = "com/energyict/mdc/device/config/";
     private final String topic;

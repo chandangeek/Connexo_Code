@@ -26,20 +26,23 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.ProductSpec;
+import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.TemporalExpression;
+import com.energyict.mdc.device.config.exceptions.UnitHasNoMatchingPhenomenonException;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import java.util.List;
-import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -111,26 +114,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public ProductSpec findProductSpec(long id) {
-        return this.getDataModel().mapper(ProductSpec.class).getUnique("id", id).orNull();
-    }
-
-    @Override
-    public ProductSpec findProductSpecByReadingType(ReadingType readingType) {
-        return this.getDataModel().mapper(ProductSpec.class).getUnique("readingType", readingType).orNull();
-    }
-
-    @Override
-    public List<ProductSpec> findAllProductSpecs() {
-        return this.getDataModel().mapper(ProductSpec.class).find();
-    }
-
-    @Override
-    public ProductSpec newProductSpec(ReadingType readingType) {
-        return ProductSpecImpl.from(this.getDataModel(), readingType);
-    }
-
-    @Override
     public Finder<RegisterMapping> findAllRegisterMappings() {
         return DefaultFinder.of(RegisterMapping.class, this.getDataModel());
     }
@@ -146,13 +129,20 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public RegisterMapping findRegisterMappingByObisCodeAndProductSpec(ObisCode obisCode, ProductSpec productSpec) {
-        return this.getDataModel().mapper((RegisterMapping.class)).getUnique("obisCodeString", obisCode.toString(), "productSpec", productSpec).orNull();
+    public RegisterMapping findRegisterMappingByReadingType(ReadingType readingType) {
+        return this.getDataModel().mapper((RegisterMapping.class)).getUnique("readingType", readingType).orNull();
     }
 
     @Override
-    public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, ProductSpec productSpec) {
-        return RegisterMappingImpl.from(this.getDataModel(), name, obisCode, productSpec);
+    public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse) {
+        Phenomenon phenomenon = null;
+        if (unit!=null) {
+            phenomenon = findPhenomenonByUnit(unit.dbString());
+            if (phenomenon==null) {
+                throw new UnitHasNoMatchingPhenomenonException(this.thesaurus, unit);
+            }
+        }
+        return this.getDataModel().getInstance(RegisterMappingImpl.class).initialize(name, obisCode, phenomenon, readingType, timeOfUse);
     }
 
     @Override
@@ -272,6 +262,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return this.getDataModel().mapper(Phenomenon.class).getUnique("name", name, "unitString", unit).orNull();
     }
 
+    private Phenomenon findPhenomenonByUnit(String unit) {
+        return this.getDataModel().mapper(Phenomenon.class).getUnique("unitString", unit).orNull();
+    }
+
     @Override
     public ChannelSpec findChannelSpecForLoadProfileSpecAndRegisterMapping(LoadProfileSpec loadProfileSpec, RegisterMapping registerMapping) {
         return this.getDataModel().mapper(ChannelSpec.class).getUnique("loadProfileSpec", loadProfileSpec, "registerMapping", registerMapping).orNull();
@@ -343,6 +337,16 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return DefaultFinder.of(DeviceConfiguration.class, Where.where("deviceType").isEqualTo(deviceType), this.getDataModel());
     }
 
+    @Override
+    public NextExecutionSpecs newNextExecutionSpecs(TemporalExpression temporalExpression) {
+        return new NextExecutionSpecsImpl(this.dataModel, this.eventService, this.thesaurus).initialize(temporalExpression);
+    }
+
+    @Override
+    public NextExecutionSpecs findNextExecutionSpecs(long id) {
+        return this.dataModel.mapper(NextExecutionSpecs.class).getUnique("id", id).orNull();
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "DeviceType and configurations");
@@ -352,7 +356,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.dataModel = dataModel;
     }
 
-    public DataModel getDataModel() {
+    DataModel getDataModel() {
         return dataModel;
     }
 
@@ -364,6 +368,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     @Reference

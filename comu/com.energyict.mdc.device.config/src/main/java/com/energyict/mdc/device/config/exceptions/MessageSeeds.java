@@ -23,15 +23,17 @@ public enum MessageSeeds implements MessageSeed {
     PRODUCT_SPEC_STILL_IN_USE(2004, "productSpec.XstillInUseByY", "The product spec with reading type {0} cannot be deleted because it is still in use by the following register mappings: {1}", Level.SEVERE),
     REGISTER_MAPPING_NAME_IS_REQUIRED(3001, "registerMapping.name.required", "The name of a register mapping is required", Level.SEVERE),
     REGISTER_MAPPING_ALREADY_EXISTS(3002, "registerMapping.duplicateNameX", "A register mapping with name '{0}' already exists", Level.SEVERE),
-    REGISTER_MAPPING_OBIS_CODE_ALREADY_EXISTS(3003, "registerMapping.duplicateObisCodeX", "A register mapping with obis code '{0}' already exists", Level.SEVERE),
+    REGISTER_MAPPING_OBIS_CODE_TOU_PEHNOMENON_ALREADY_EXISTS(3003, "registerMapping.duplicateObisCodeX", "A register mapping with obis code '{0}', unit '{1}' and time of use '{2}' already exists", Level.SEVERE),
     REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED(3004, Constants.REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY, "The obis code of a register mapping is required", Level.SEVERE),
     PRODUCT_SPEC_IS_REQUIRED(3005, Constants.PRODUCT_SPEC_IS_REQUIRED_KEY, "The product spec of a register mapping is required", Level.SEVERE),
     REGISTER_MAPPING_OBIS_CODE_CANNOT_BE_UPDATED(3006, "registerMapping.cannotUpdateObisCode", "The obis code of the register mapping '{0}' cannot be updated because it is in use", Level.SEVERE),
-    REGISTER_MAPPING_PRODUCT_SPEC_CANNOT_BE_UPDATED(3007, "registerMapping.cannotUpdateProductSpec", "The product spec of the register mapping '{0}' cannot be updated because it is in use", Level.SEVERE),
+    REGISTER_MAPPING_PHENOMENON_CANNOT_BE_UPDATED(3007, "registerMapping.cannotUpdatePhenomenon", "The phenomenon of the register mapping '{0}' cannot be updated because it is in use", Level.SEVERE),
     REGISTER_MAPPING_STILL_USED_BY_REGISTER_SPEC(3008, "registerMapping.usedBy.registerSpec", "The register mapping {0} cannot be deleted because it is still in use by the following register spec(s): {1}", Level.SEVERE),
     REGISTER_MAPPING_STILL_USED_BY_CHANNEL_SPEC(3009, "registerMapping.usedBy.channelSpec", "The register mapping {0} cannot be deleted because it is still in use by the following channel spec(s): {1}", Level.SEVERE),
     REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE(3010, "registerMapping.usedBy.loadProfileType", "The register mapping {0} cannot be deleted because it is still in use by the following load profile type(s): {1}", Level.SEVERE),
     REGISTER_MAPPING_STILL_USED_BY_DEVICE_TYPE(3011, "registerMapping.usedBy.deviceType", "The register mapping {0} cannot be deleted because it is still in use by the following device type(s): {1}", Level.SEVERE),
+    UNIT_IS_REQUIRED(3013, Constants.UNIT_IS_REQUIRED_KEY, "The unit of a register mapping is required", Level.SEVERE),
+    TOME_OF_USE_TOO_SMALL(3014, Constants.TIMEOFUSE_TOO_SMALL, "The time of use must be a positive number", Level.SEVERE),
     LOAD_PROFILE_TYPE_NAME_IS_REQUIRED(4001, "loadProfileType.name.required", "The name of a load profile type is required", Level.SEVERE),
     LOAD_PROFILE_TYPE_ALREADY_EXISTS(4002, "loadProfileType.duplicateNameX", "A load profile type with name '{0}' already exists", Level.SEVERE),
     LOAD_PROFILE_TYPE_INTERVAL_IN_WEEKS_IS_NOT_SUPPORTED(4003, "loadProfileType.interval.notsupported.weeks", "The interval of a load profile type cannot be expressed in number of weeks", Level.SEVERE),
@@ -121,6 +123,12 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_REGISTER_SPEC(12008, "deviceConfig.duplicate.obisCode.registerSpec", "The device configuration '{0}' already contains a register specification this obis code '{1}'", Level.SEVERE),
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC_IN_LOAD_PROFILE_SPEC(12009, "deviceConfig.duplicate.obisCode.channelSpec.loadProfileSpec", "Load profile specification '{0}' in device configuration '{1}' already contains a channel specification this obis code '{2}'", Level.SEVERE),
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC(12010, "deviceConfig.duplicate.obisCode.channelSpec", "The device configuration '{0}' already contains a channel specification this obis code '{1}'", Level.SEVERE),
+    UNIT_DOES_NOT_MATCH_PHENOMENON(12011, "registerMapping.unit.noMatchingPhenomenon" , "The unit {0} could not be associated with an existing phenomenon", Level.SEVERE),
+    NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED(13000, Constants.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY, "The temporal expression of a NextExecutionSpec is required", Level.SEVERE),
+    TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED(13001, Constants.TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED_KEY, "The frequency of a temporal expression is required", Level.SEVERE),
+    TEMPORAL_EXPRESSION_UNKNOWN_UNIT(13002, Constants.TEMPORAL_EXPRESSION_UNKNOWN_UNIT_KEY, "The unit {0} is unknown or unsupported for temporal expressions", Level.SEVERE),
+    TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE(13003, Constants.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY, "The frequency value of a temporal expression must be a strictly positive number", Level.SEVERE),
+    TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE(13004, Constants.TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY, "The offset value of a temporal expression must be a positive number", Level.SEVERE),
     DUPLICATE_PROTOCOL_CONFIGURATION_PROPERTIES(13001, "protocolConfigurationProperties.duplicateName", "A protocolDialectConfigurationProperties with the name {0} already exists.", Level.SEVERE),
     PROTOCOL_DIALECT_REQUIRED(13002, Constants.PROTOCOLDIALECT_REQUIRED_KEY, "The protocol dialect name is required for a protocolDialectConfigurationProperties", Level.SEVERE),
     PROTOCOL_DIALECT_HAS_NO_SUCH_PROPERTY(13003, "protocolDialectConfigurationProperties.noSuchProperty", "The protocol dialect {0} does not have a configuration property with name {1}", Level.SEVERE);
@@ -167,10 +175,11 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NAME_REQUIRED_KEY = "DTC.X.name.required";
         public static final String DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS_KEY = "DTC.deviceType.XstillHasActiveConfigurations";
         public static final String DUPLICATE_DEVICE_CONFIGURATION_KEY = "DTC.deviceType.deviceConfig.duplicateName";
-        public static final String DEVICE_PROTOCOL_IS_REQUIRED_KEY = "TC.deviceType.protocol.required";
+        public static final String DEVICE_PROTOCOL_IS_REQUIRED_KEY = "DTC.deviceType.protocol.required";
         public static final String DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS_KEY = "DTC.deviceType.protocol.noupdate";
         public static final String REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY = "DTC.registerMapping.obisCode.required";
         public static final String PRODUCT_SPEC_IS_REQUIRED_KEY = "DTC.registerMapping.productSpec.required";
+        public static final String UNIT_IS_REQUIRED_KEY = "DTC.registerMapping.unit.required";
         public static final String LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED_KEY = "DTC.loadProfileType.obisCode.required";
         public static final String LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED_KEY = "DTC.logBookType.obisCode.required";
         public static final String LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED_KEY = "DTC.logBookSpec.logbookType.required";
@@ -184,6 +193,12 @@ public enum MessageSeeds implements MessageSeed {
         public static final String REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY = "DTC.registerSpec.registerMapping.required";
         public static final String READING_TYPE_IS_REQUIRED_KEY = "DTC.productSpec.readingType.required";
         public static final String READING_TYPE_ALREADY_EXISTS_KEY = "DTC.productSpec.duplicateReadingTypeX";
+        public static final String TIMEOFUSE_TOO_SMALL = "DTC.timeOfUse.tooSmall";
+        public static final String NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY = "DTC.nextExecutionSpecs.temporalExpression.required";
+        public static final String TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED_KEY = "DTC.temporalExpression.every.required";
+        public static final String TEMPORAL_EXPRESSION_UNKNOWN_UNIT_KEY = "DTC.temporalExpression.unknown.unit";
+        public static final String TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY = "DTC.temporalExpression.every.count.positive";
+        public static final String TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY = "DTC.temporalExpression.offset.count.positive";
         public static final String PROTOCOLDIALECT_REQUIRED_KEY = "DTC.protocolDialectConfigurationProperties.dialectName.required";
     }
 

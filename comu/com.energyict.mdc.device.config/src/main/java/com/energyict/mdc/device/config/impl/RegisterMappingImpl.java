@@ -2,7 +2,6 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -12,28 +11,28 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenRegisterMappingIsInUseException;
-import com.energyict.mdc.device.config.exceptions.CannotUpdateProductSpecWhenRegisterMappingIsInUseException;
+import com.energyict.mdc.device.config.exceptions.CannotUpdatePhenomenonWhenRegisterMappingIsInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -41,53 +40,52 @@ import static com.elster.jupiter.util.Checks.is;
 public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> implements RegisterMapping {
 
     private final DeviceConfigurationService deviceConfigurationService;
-    private final MeteringService meteringService;
-    private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
     private ObisCode obisCode;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY + "}")
     private String obisCodeString;
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.PRODUCT_SPEC_IS_REQUIRED_KEY + "}")
-    private Reference<ProductSpec> productSpec = ValueReference.absent();
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.UNIT_IS_REQUIRED_KEY + "}")
+    private Reference<Phenomenon> phenomenon = ValueReference.absent();
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.READING_TYPE_IS_REQUIRED_KEY + "}")
+    private Reference<ReadingType> readingType = ValueReference.absent();
     private boolean cumulative;
     private Reference<RegisterGroup> registerGroup = ValueReference.absent();
     private String description;
     private Date modificationDate;
+    @Min(value=0, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.TIMEOFUSE_TOO_SMALL + "}")
+    private int timeOfUse;
 
     private Clock clock;
 
     @Inject
-    public RegisterMappingImpl(DataModel dataModel, EventService eventService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, Clock clock, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+    public RegisterMappingImpl(DataModel dataModel, EventService eventService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, Clock clock) {
         super(RegisterMapping.class, dataModel, eventService, thesaurus);
         this.clock = clock;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.meteringService = meteringService;
-        this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
 
-    RegisterMappingImpl initialize(String name, ObisCode obisCode, ProductSpec productSpec) {
+    RegisterMappingImpl initialize(String name, ObisCode obisCode, Phenomenon phenomenon, ReadingType readingType, int timeOfUse) {
         this.setName(name);
         this.setObisCode(obisCode);
-        this.setProductSpec(productSpec);
+        this.setPhenomenon(phenomenon);
+        this.setReadingType(readingType);
+        this.setTimeOfUse(timeOfUse);
         return this;
-    }
-
-    static RegisterMappingImpl from (DataModel dataModel, String name, ObisCode obisCode, ProductSpec productSpec) {
-        return dataModel.getInstance(RegisterMappingImpl.class).initialize(name, obisCode, productSpec);
     }
 
     @Override
     public void save () {
-        validateUniqueObisCodeAndRegisterMapping();
+//        validateUniqueObisCodeAndPhenomenonAndTimeOfUse();
         this.modificationDate = this.clock.now();
         super.save();
     }
 
-    private void validateUniqueObisCodeAndRegisterMapping() {
-        if (this.productSpec.isPresent() && this.obisCode != null) {
-            RegisterMapping otherRegisterMapping = this.findOtherByObisCodeAndProductSpec();
+    private void validateUniqueObisCodeAndPhenomenonAndTimeOfUse() {
+        if (this.phenomenon.isPresent() && this.obisCode != null) {
+            RegisterMapping otherRegisterMapping = this.findOtherByObisCodeAndPhenomenonAndTimeOfUse();
             if (otherRegisterMapping != null) {
-                throw DuplicateObisCodeException.forRegisterMapping(this.getThesaurus(), obisCode, otherRegisterMapping);
+                throw DuplicateObisCodeException.forRegisterMapping(this.getThesaurus(), obisCode, phenomenon.get()
+                        , timeOfUse, otherRegisterMapping);
             }
         }
     }
@@ -157,8 +155,10 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         return !is(this.obisCode).equalTo(obisCode);
     }
 
-    private RegisterMapping findOtherByObisCodeAndProductSpec() {
-        RegisterMapping registerMapping = this.getDataMapper().getUnique("obisCodeString", obisCode.toString(), "productSpec", this.getProductSpec()).orNull();
+    private RegisterMapping findOtherByObisCodeAndPhenomenonAndTimeOfUse() {
+        RegisterMapping registerMapping = this.getDataMapper().getUnique(
+                new String[] { "obisCodeString",    "phenomenon",         "timeOfUse" },
+                new Object[] {  obisCode.toString(), this.getPhenomenon(), this.getTimeOfUse()} ).orNull();
         if (registerMapping != null && this.getId() > 0 && registerMapping.getId() == this.getId()) {
             // The RegisterMapping that was found is the one we are updating so ignore it
             return null;
@@ -179,33 +179,33 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         this.registerGroup.set(registerGroup);
     }
 
-    @Override
-    public ProductSpec getProductSpec() {
-        return this.productSpec.get();
+    private boolean phenomenonChanged(Phenomenon phenomenon) {
+        return ((!this.phenomenon.isPresent() && phenomenon != null)
+            || (phenomenon != null && (this.getPhenomenon().getId() != phenomenon.getId())));
     }
 
-    @Override
-    public void setProductSpec(ProductSpec productSpec) {
-        if (productSpec == null) {
-            // javax.validation will throw ConstraintValidationException in the end
-            this.productSpec.set(null);
-        }
-        else if (this.productSpecChanged(productSpec)) {
+    public Phenomenon getPhenomenon() {
+        return phenomenon.get();
+    }
+
+    public void setPhenomenon(Phenomenon phenomenon) {
+        if (phenomenon==null) {
+            this.phenomenon.setNull();
+        } else if (phenomenonChanged(phenomenon)) {
             if (this.isInUse()) {
-                throw new CannotUpdateProductSpecWhenRegisterMappingIsInUseException(this.getThesaurus(), this);
+                throw new CannotUpdatePhenomenonWhenRegisterMappingIsInUseException(this.getThesaurus(), this);
             }
-            this.productSpec.set(productSpec);
+            this.phenomenon.set(phenomenon);
         }
     }
 
-    private boolean productSpecChanged(ProductSpec productSpec) {
-        return ((!this.productSpec.isPresent() && productSpec != null)
-            || (productSpec != null && (this.getProductSpec().getId() != productSpec.getId())));
+    public void setReadingType(ReadingType readingType) {
+        this.readingType.set(readingType);
     }
 
     @Override
     public ReadingType getReadingType() {
-        return getProductSpec().getReadingType();
+        return this.readingType.get();
     }
 
     public String getDescription() {
@@ -286,12 +286,28 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         this.cumulative = cumulative;
     }
 
+    @Override
     public Unit getUnit() {
-        return getProductSpec().getUnit();
+        return this.phenomenon.get().getUnit();
+    }
+
+    @Override
+    public void setUnit(Unit unit) {
+        Phenomenon phenomenon = dataModel.mapper(Phenomenon.class).getUnique("unitString", unit.dbString()).orNull();
+        setPhenomenon(phenomenon);
     }
 
     public Date getModificationDate() {
         return this.modificationDate;
     }
 
+    @Override
+    public int getTimeOfUse() {
+        return timeOfUse;
+    }
+
+    @Override
+    public void setTimeOfUse(int timeOfUse) {
+        this.timeOfUse = timeOfUse;
+    }
 }

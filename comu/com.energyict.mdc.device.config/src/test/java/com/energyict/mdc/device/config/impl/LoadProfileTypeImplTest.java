@@ -14,7 +14,6 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateIntervalWhenLoadProfileTypeIsInUseException;
@@ -51,6 +50,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     private static final ObisCode OBIS_CODE = ObisCode.fromString("1.0.99.1.0.255");
 
     private ReadingType readingType;
+    private Unit unit;
     private Phenomenon phenomenon;
 
     @Rule
@@ -345,14 +345,11 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
 
         LoadProfileType loadProfileType;
         long registerMappingId;
+        this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
-        // Setup ProductSpec
-        ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
-        productSpec.save();
-
         // Setup RegisterMapping
-        RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, productSpec);
+        RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, unit, readingType, readingType.getTou());
         registerMapping.save();
 
         // Setup LoadProfileType with RegisterMapping
@@ -380,14 +377,11 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
 
         RegisterMapping registerMapping;
         LoadProfileType loadProfileType;
+        this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
-        // Setup ProductSpec
-        ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
-        productSpec.save();
-
         // Setup RegisterMapping
-        registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, productSpec);
+        registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, unit, readingType, readingType.getTou());
         registerMapping.save();
 
         // Setup LoadProfileType without RegisterMapping
@@ -413,13 +407,10 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         RegisterMapping registerMapping;
         LoadProfileType loadProfileType;
         this.setupReadingTypeInExistingTransaction();
-
-        // Setup ProductSpec
-        ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
-        productSpec.save();
+        this.setupPhenomenaInExistingTransaction();
 
         // Setup RegisterMapping
-        registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, productSpec);
+        registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, unit, readingType, readingType.getTou());
         registerMapping.save();
 
         // Setup LoadProfileType with RegisterMapping
@@ -448,12 +439,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
-        // Setup ProductSpec
-        ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
-        productSpec.save();
-
         // Setup RegisterMapping
-        registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, productSpec);
+        registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, unit, readingType, readingType.getTou());
         registerMapping.save();
 
         // Setup LoadProfileType with RegisterMapping
@@ -512,13 +499,10 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         RegisterMapping registerMapping;
         LoadProfileType loadProfileType;
         this.setupReadingTypeInExistingTransaction();
-
-        // Setup ProductSpec
-        ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
-        productSpec.save();
+        this.setupPhenomenaInExistingTransaction();
 
         // Setup RegisterMapping
-        registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, productSpec);
+        registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, unit, readingType, readingType.getTou());
         registerMapping.save();
 
         // Setup LoadProfileType with RegisterMapping
@@ -546,12 +530,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
-        // Setup ProductSpec
-        ProductSpec productSpec = deviceConfigurationService.newProductSpec(this.readingType);
-        productSpec.save();
-
         // Setup RegisterMapping
-        RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, productSpec);
+        RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, unit, readingType, readingType.getTou());
         registerMapping.save();
 
         // Setup LoadProfileType
@@ -598,7 +578,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     }
 
     private void setupPhenomenaInExistingTransaction() {
-        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(DeviceTypeImplTest.class.getSimpleName(), Unit.get("kWh"));
+        this.unit = Unit.get("kWh");
+        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(DeviceTypeImplTest.class.getSimpleName(), unit);
         this.phenomenon.save();
     }
 

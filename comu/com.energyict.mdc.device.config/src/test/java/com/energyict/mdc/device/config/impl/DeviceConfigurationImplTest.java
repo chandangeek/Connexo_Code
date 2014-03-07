@@ -18,7 +18,6 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
@@ -51,6 +50,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+    private Phenomenon phenomenon;
 
     @Test
     @Transactional
@@ -228,7 +228,6 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     @Transactional
     public void cannotAddChannelSpecToActiveDeviceConfigTest() {
         RegisterMapping registerMapping = createDefaultRegisterMapping();
-        Phenomenon phenomenon = createDefaultPhenomenon();
         LoadProfileType loadProfileType = createDefaultLoadProfileType();
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder1 = this.deviceType.newConfiguration("DevConfName");
 
@@ -247,18 +246,13 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         }
     }
 
-    private Phenomenon createDefaultPhenomenon() {
-        Phenomenon phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("DefPhenom", Unit.get("kWh"));
-        phenomenon.save();
-        return phenomenon;
-    }
-
     private RegisterMapping createDefaultRegisterMapping() {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        Unit unit = Unit.get("kWh");
+        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("baseUnit", unit);
+        this.phenomenon.save();
         ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        ProductSpec productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(readingType);
-        productSpec.save();
-        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RMName", ObisCode.fromString("1.0.1.8.0.255"), productSpec);
+        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RMName", ObisCode.fromString("1.0.1.8.0.255"), unit, readingType, readingType.getTou());
         registerMapping.save();
         this.deviceType.addRegisterMapping(registerMapping);
         return registerMapping;
