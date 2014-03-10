@@ -41,7 +41,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
 
     private long id;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmpty})")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
     private String name;
     private boolean active;
     private String description;
@@ -125,10 +125,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     protected void validateMakeObsolete () {
         if (this.isObsolete()) {
             throw new TranslatableApplicationException(
-                    "comPortPoolIsAlreadyObsolete",
-                    "The ComPortPool with id {0} is already obsolete since {1,date,yyyy-MM-dd HH:mm:ss}",
-                    this.getId(),
-                    this.getObsoleteDate());
+                    Constants.MDC_IS_ALREADY_OBSOLETE, "Already obsolete");
         }
     }
 
@@ -137,7 +134,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
             Object[] messageArguments = new Object[2];
             messageArguments[0] = comPort.getComPortType();
             messageArguments[1] = comPortType;
-            throw new TranslatableApplicationException("MDC.ComPortTypeOfComPortDoesNotMatchWithComPortPool", "The ComPortType of ComPort {0} does not match with that of the ComPortPool {1}", messageArguments);
+            throw new TranslatableApplicationException(Constants.MDC_COM_PORT_TYPE_OF_COM_PORT_DOES_NOT_MATCH_WITH_COM_PORT_POOL, "The ComPortType of ComPort {0} does not match with that of the ComPortPool {1}", messageArguments);
         }
     }
 
