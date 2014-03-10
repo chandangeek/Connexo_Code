@@ -20,7 +20,7 @@ import javax.validation.constraints.Size;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-26 (08:47)
  */
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.DuplicateComPortPool}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.MDC_DUPLICATE_COM_PORT_POOL+"}")
 public abstract class ComPortPoolImpl implements ComPortPool {
     protected static final String INBOUND_COMPORTPOOL_DISCRIMINATOR = "0";
     protected static final String OUTBOUND_COMPORTPOOL_DISCRIMINATOR = "1";
@@ -40,14 +40,14 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     private final DataModel dataModel;
 
     private long id;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmpty}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmpty})")
     private String name;
     private boolean active;
     private String description;
-    @Null(groups = { Save.Update.class }, message = "{MDC.comportpool.noUpdateAllowed}")
+    @Null(groups = { Save.Update.class }, message = "{"+Constants.MDC_COMPORTPOOL_NO_UPDATE_ALLOWED+"}")
     private Date obsoleteDate;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{MDC.CanNotBeEmpty}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
     private ComPortType comPortType;
 
     @Inject

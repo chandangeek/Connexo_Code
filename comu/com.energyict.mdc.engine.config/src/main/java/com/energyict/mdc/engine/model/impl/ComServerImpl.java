@@ -38,7 +38,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @since 2012-03-28 (10:20)
  */
 @XmlRootElement
-@UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.DuplicateComServer}")
+@UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_DUPLICATE_COM_SERVER+"}")
 public abstract class ComServerImpl implements ComServer {
 
     protected static final String ONLINE_COMSERVER_DISCRIMINATOR = "0";
@@ -60,23 +60,23 @@ public abstract class ComServerImpl implements ComServer {
     private final Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider;
 
     private long id;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
-    @Pattern(regexp="[a-zA-Z0-9\\.\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{MDC.InvalidChars}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
+    @Pattern(regexp="[a-zA-Z0-9\\.\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_INVALID_CHARS+"}")
     private String name;
     private boolean active;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
     private LogLevel serverLogLevel;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
     private LogLevel communicationLogLevel;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
-    @MinTimeDuration(value = 60 ,groups = { Save.Create.class, Save.Update.class }, message = "{MDC.ValueTooSmall}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
+    @MinTimeDuration(value = 60 ,groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_VALUE_TOO_SMALL+"}")
     private TimeDuration changesInterPollDelay;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
-    @MinTimeDuration(value = 60 ,groups = { Save.Create.class, Save.Update.class }, message = "{MDC.ValueTooSmall}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
+    @MinTimeDuration(value = 60 ,groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_VALUE_TOO_SMALL+"}")
     private TimeDuration schedulingInterPollDelay;
     private Date modificationDate;
     private final List<ComPort>  comPorts = new ArrayList<>();
-    @Null(groups = { Save.Update.class, Delete.class }, message = "{MDC.comserver.noUpdateAllowed}")
+    @Null(groups = { Save.Update.class, Delete.class }, message = "{"+Constants.MDC_COMSERVER_NO_UPDATE_ALLOWED+"}")
     private Date obsoleteDate;
 
     @Inject
@@ -91,12 +91,6 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     protected void validate(){
-    }
-
-    protected void validateNotNull(Object propertyValue, String propertyName) {
-        if (propertyValue == null) {
-            throw new TranslatableApplicationException("XcannotBeEmpty", "\"{0}\" is a required property", propertyName);
-        }
     }
 
     public void makeObsolete () {

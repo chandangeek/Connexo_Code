@@ -23,7 +23,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Constraint(validatedBy = { ComPortPoolTypeValidator.class, ComPortTypeValidator.class })
 public @interface ComPortPoolTypeMatchesComPortType {
 
-	String message() default "{MDC.ComPortTypeOfComPortDoesNotMatchWithComPortPool}";
+	String message() default "{"+Constants.MDC_COM_PORT_TYPE_OF_COM_PORT_DOES_NOT_MATCH_WITH_COM_PORT_POOL+"}";
 
 	Class<?>[] groups() default { };
 

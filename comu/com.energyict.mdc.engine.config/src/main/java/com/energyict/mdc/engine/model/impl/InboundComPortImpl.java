@@ -19,7 +19,7 @@ import com.google.inject.Provider;
 @ComPortPoolTypeMatchesComPortType(groups = { Save.Create.class, Save.Update.class })
 public abstract class InboundComPortImpl extends ComPortImpl implements ComPort, InboundComPort {
 
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
     private final Reference<InboundComPortPool> comPortPool = ValueReference.absent();
 
     protected InboundComPortImpl(DataModel dataModel) {

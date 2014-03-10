@@ -267,7 +267,7 @@ public class ComServerComPortTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComPortPerComServer}", property = "portNumber")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_DUPLICATE_COM_PORT_PER_COM_SERVER+"}", property = "portNumber")
     public void duplicateComPortsTest() throws SQLException, BusinessException {
         int duplicatePortNumber = 2222;
         OnlineComServer shadow = createOnlineComServer();

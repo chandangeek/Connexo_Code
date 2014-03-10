@@ -30,15 +30,15 @@ import org.hibernate.validator.constraints.URL;
 public class OnlineComServerImpl extends ComServerImpl implements OnlineComServer {
 
     private final EngineModelService engineModelService;
-    @URL(message = "{MDC.InvalidURL}", groups = {Save.Update.class, Save.Create.class})
+    @URL(message = "{"+Constants.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
     private String queryAPIPostUri;
-    @URL(message = "{MDC.InvalidURL}", groups = {Save.Update.class, Save.Create.class})
+    @URL(message = "{"+Constants.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
     private String eventRegistrationUri;
-    @Range(min=MINIMUM_STORE_TASK_QUEUE_SIZE, max=MAXIMUM_STORE_TASK_QUEUE_SIZE, message = "{MDC.ValueNotInRange}", groups = {Save.Update.class, Save.Create.class})
+    @Range(min=MINIMUM_STORE_TASK_QUEUE_SIZE, max=MAXIMUM_STORE_TASK_QUEUE_SIZE, message = "{"+Constants.MDC_VALUE_NOT_IN_RANGE+"}", groups = {Save.Update.class, Save.Create.class})
     private int storeTaskQueueSize;
-    @Range(min=MINIMUM_NUMBER_OF_STORE_TASK_THREADS, max=MAXIMUM_NUMBER_OF_STORE_TASK_THREADS, message = "{MDC.ValueNotInRange}", groups = {Save.Update.class, Save.Create.class})
+    @Range(min=MINIMUM_NUMBER_OF_STORE_TASK_THREADS, max=MAXIMUM_NUMBER_OF_STORE_TASK_THREADS, message = "{"+Constants.MDC_VALUE_NOT_IN_RANGE+"}", groups = {Save.Update.class, Save.Create.class})
     private int numberOfStoreTaskThreads;
-    @Range(min=MINIMUM_STORE_TASK_THREAD_PRIORITY, max=MAXIMUM_STORE_TASK_THREAD_PRIORITY, message = "{MDC.ValueNotInRange}", groups = {Save.Update.class, Save.Create.class})
+    @Range(min=MINIMUM_STORE_TASK_THREAD_PRIORITY, max=MAXIMUM_STORE_TASK_THREAD_PRIORITY, message = "{"+Constants.MDC_VALUE_NOT_IN_RANGE+"}", groups = {Save.Update.class, Save.Create.class})
     private int storeTaskThreadPriority;
     private boolean usesDefaultQueryAPIPostUri=true;
     private boolean usesDefaultEventRegistrationUri=true;

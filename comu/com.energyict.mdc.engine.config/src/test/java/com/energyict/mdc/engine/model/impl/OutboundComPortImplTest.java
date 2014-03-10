@@ -58,7 +58,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     @Transactional
     public void testCreateWithoutName() throws BusinessException, SQLException {
         createOnlineComServer().newOutboundComPort()
@@ -71,7 +71,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "type")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "type")
     @Transactional
     public void testCreateWithoutComPortType() throws BusinessException, SQLException {
         createOnlineComServer().newOutboundComPort()
@@ -84,7 +84,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.ValueNotInRange}", property = "numberOfSimultaneousConnections")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_VALUE_NOT_IN_RANGE+"}", property = "numberOfSimultaneousConnections")
     public void testCreateWithZeroSimultaneousConnections() throws BusinessException, SQLException {
         createOnlineComServer().newOutboundComPort()
         .name(COMPORT_NAME)
@@ -96,7 +96,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.ValueNotInRange}", property = "numberOfSimultaneousConnections")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_VALUE_NOT_IN_RANGE+"}", property = "numberOfSimultaneousConnections")
     public void testCreateWithTooManySimultaneousConnections() throws BusinessException, SQLException {
         createOnlineComServer().newOutboundComPort()
         .name(COMPORT_NAME)
@@ -107,7 +107,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComPort}", property="name")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_DUPLICATE_COM_PORT+"}", property="name")
     @Transactional
     public void testCreateWithExistingName() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();

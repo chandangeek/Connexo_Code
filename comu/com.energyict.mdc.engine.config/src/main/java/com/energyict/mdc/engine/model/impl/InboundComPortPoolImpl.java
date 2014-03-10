@@ -18,13 +18,13 @@ import javax.validation.constraints.Min;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-26 (10:21)
  */
-@ComPortPoolTypeMatchesComPortType(groups = {Save.Create.class, Save.Update.class }, message = "{MDC.ComPortTypeOfComPortDoesNotMatchWithComPortPool}")
+@ComPortPoolTypeMatchesComPortType(groups = {Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_COM_PORT_TYPE_OF_COM_PORT_DOES_NOT_MATCH_WITH_COM_PORT_POOL+"}")
 public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundComPortPool {
 
     public static final String FIELD_DISCOVEYPROTOCOL = "discoveryProtocolPluggableClassId";
 
     private final EngineModelService engineModelService;
-    @Min(value =1, groups = {Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
+    @Min(value =1, groups = {Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
     private long discoveryProtocolPluggableClassId;
 
     @Inject

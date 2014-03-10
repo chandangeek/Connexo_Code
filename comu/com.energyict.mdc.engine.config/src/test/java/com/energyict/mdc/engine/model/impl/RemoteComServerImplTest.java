@@ -117,7 +117,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.InvalidChars}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_INVALID_CHARS+"}", property = "name")
     @Transactional
     public void testNameWithInvalidCharacters() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
@@ -138,7 +138,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.ValueTooSmall}", property = "changesInterPollDelay")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_VALUE_TOO_SMALL+"}", property = "changesInterPollDelay")
     public void testTooSmallChangesInterPollDelay() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
@@ -158,7 +158,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.ValueTooSmall}", property = "schedulingInterPollDelay")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_VALUE_TOO_SMALL+"}", property = "schedulingInterPollDelay")
     public void testTooSmallSchedulingInterPollDelay() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
@@ -204,7 +204,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.InvalidURL}", property = "eventRegistrationUri")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_INVALID_URL+"}", property = "eventRegistrationUri")
     public void testCreateWithInvalidEventRegistrationURI() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
@@ -262,7 +262,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "onlineComServer")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "onlineComServer")
     public void testCreateWithoutOnlineComServer() throws BusinessException, SQLException {
         RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
         String name = "With-ComPort";
@@ -280,7 +280,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     public void testCreateWithoutName() throws BusinessException, SQLException {
         RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
         remoteComServer.setActive(true);
@@ -294,7 +294,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "serverLogLevel")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "serverLogLevel")
     @Transactional
     public void testCreateWithoutServerLogLevel() throws BusinessException, SQLException {
         RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
@@ -311,7 +311,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "communicationLogLevel")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "communicationLogLevel")
     public void testCreateWithoutCommunicationLogLevel() throws BusinessException, SQLException {
         RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
         String name = "No-Communication-LogLevel";
@@ -327,7 +327,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "changesInterPollDelay")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "changesInterPollDelay")
     public void testCreateWithoutChangesInterPollDelay() throws BusinessException, SQLException {
         RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
         String name = "No-Changes-InterpollDelay";
@@ -342,7 +342,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "schedulingInterPollDelay")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "schedulingInterPollDelay")
     @Transactional
     public void testCreateWithoutSchedulingInterPollDelay() throws BusinessException, SQLException {
         RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
@@ -358,7 +358,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComServer}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_DUPLICATE_COM_SERVER+"}", property = "name")
     @Transactional
     public void testCreateWithExistingName() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
@@ -490,7 +490,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "onlineComServer")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "onlineComServer")
     public void testUpdateWithoutOnlineComServer() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 

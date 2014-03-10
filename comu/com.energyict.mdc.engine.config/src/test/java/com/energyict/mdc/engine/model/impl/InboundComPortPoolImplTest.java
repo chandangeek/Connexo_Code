@@ -52,7 +52,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     public void testCreateWithoutName() {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
         inboundComPortPool.setDescription(DESCRIPTION);
@@ -101,7 +101,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.DuplicateComPortPool}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_DUPLICATE_COM_PORT_POOL+"}", property = "name")
     public void testUpdateWithSameName() {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
         inboundComPortPool.setName("Test for duplication");
@@ -144,7 +144,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     public void testUpdateWithoutName() {
         InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
 
@@ -284,7 +284,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.comportpool.noUpdateAllowed}", property = "obsoleteDate")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_COMPORTPOOL_NO_UPDATE_ALLOWED+"}", property = "obsoleteDate")
     public void testUpdateAfterMakeObsolete() {
         InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
         comPortPool.makeObsolete();
@@ -308,7 +308,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "comPortType")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortType")
     public void testCreateWithoutComPortType() {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
         inboundComPortPool.setName("Unique comPortPool "+comPortPoolIndex++);
@@ -321,7 +321,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "comPortType")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortType")
     public void updateWithoutComPortType() {
         InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
 
@@ -332,7 +332,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.ComPortTypeOfComPortDoesNotMatchWithComPortPool}", property = "comPortPool")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_COM_PORT_TYPE_OF_COM_PORT_DOES_NOT_MATCH_WITH_COM_PORT_POOL+"}", property = "comPortPool")
     public void testUpdateAddComPortsWithNonMatchingComPortType() {
         InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
         OnlineComServer onlineComServer = createOnlineComServer();
@@ -366,7 +366,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{MDC.CanNotBeEmpty}", property = "discoveryProtocolPluggableClassId")
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "discoveryProtocolPluggableClassId")
     public void updateWithoutDiscoveryProtocol() {
         InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
 

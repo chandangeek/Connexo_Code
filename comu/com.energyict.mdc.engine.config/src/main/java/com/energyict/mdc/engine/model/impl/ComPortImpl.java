@@ -27,7 +27,7 @@ import javax.validation.constraints.Null;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (12:48)
  */
-@UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.DuplicateComPort}")
+@UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_DUPLICATE_COM_PORT+"}")
 public abstract class ComPortImpl implements ComPort {
 
     protected static final String MODEM_DISCRIMINATOR = "1";
@@ -46,15 +46,15 @@ public abstract class ComPortImpl implements ComPort {
     private final DataModel dataModel;
 
     private long id=0;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
     private String name;
     private Date modificationDate;
     private final Reference<ComServer> comServer = ValueReference.absent();
     private boolean active;
     private String description;
-    @Null(groups = { Save.Update.class, Obsolete.class }, message = "{MDC.comport.noUpdateAllowed}")
+    @Null(groups = { Save.Update.class, Obsolete.class }, message = "{"+Constants.MDC_COMPORT_NO_UPDATE_ALLOWED+"}")
     private Date obsoleteDate;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{MDC.CanNotBeEmpty}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
     private ComPortType type;
 
     /**

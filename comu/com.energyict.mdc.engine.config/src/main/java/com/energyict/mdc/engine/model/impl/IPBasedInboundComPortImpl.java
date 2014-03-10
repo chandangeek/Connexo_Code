@@ -19,9 +19,9 @@ import javax.validation.constraints.Min;
 @UniquePortNumber(groups = {Save.Create.class, Save.Update.class})
 public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl implements IPBasedInboundComPort, Payload {
 
-    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{MDC.ValueTooSmall}")
+    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+ Constants.MDC_VALUE_TOO_SMALL+"}")
     private int portNumber;
-    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{MDC.ValueTooSmall}")
+    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+ Constants.MDC_VALUE_TOO_SMALL+"}")
     private int numberOfSimultaneousConnections;
 
     protected IPBasedInboundComPortImpl(DataModel dataModel) {
