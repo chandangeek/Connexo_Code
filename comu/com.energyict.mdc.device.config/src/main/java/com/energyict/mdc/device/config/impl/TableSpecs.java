@@ -14,7 +14,7 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.ProductSpec;
+import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -27,6 +27,22 @@ import com.energyict.mdc.device.config.RegisterSpec;
  * @since 2014-01-29 (11:17)
  */
 public enum TableSpecs {
+
+    EISPHENOMENON {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<Phenomenon> table = dataModel.addTable(name(), Phenomenon.class);
+            table.map(PhenomenonImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column name = table.column("NAME").varChar(80).notNull().map("name").add();
+            Column unit = table.column("UNIT").type("CHAR(7)").notNull().map("unitString").add();
+            table.column("MEASUREMENTCODE").varChar(80).map("measurementCode").add();
+            table.column("EDICODE").varChar(80).map("ediCode").add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
+            table.primaryKey("PK_PHENOMENON").on(id).add();
+            table.unique("UK_EISPHENOMENON").on(unit).add(); // Done so phenomenon can be identified solely by unit, cfr gna
+        }
+    },
 
     EISSYSRTUTYPE {
         @Override
@@ -89,19 +105,6 @@ public enum TableSpecs {
         }
     },
 
-    EISPRODUCTSPEC {
-        @Override
-        public void addTo(DataModel dataModel) {
-            Table<ProductSpec> table = dataModel.addTable(this.name(), ProductSpec.class);
-            table.map(ProductSpecImpl.class);
-            Column id = table.addAutoIdColumn();
-            Column readingType = table.column("READINGTYPE").varChar(100).add();
-            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
-            table.primaryKey("PK_PRODUCTSPEC").on(id).add();
-            table.foreignKey("FK_PRODUCTSPEC_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
-        }
-    },
-
     EISRTUREGISTERMAPPING {
         @Override
         public void addTo(DataModel dataModel) {
@@ -110,15 +113,18 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(128).notNull().map("name").add();
             Column obisCode = table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
-            Column productSpec = table.column("PRODUCTSPECID").number().conversion(ColumnConversion.NUMBER2INT).notNull().add();
+            Column phenomenon = table.column("PHENOMENONID").number().conversion(ColumnConversion.NUMBER2INT).notNull().add();
+            Column readingType = table.column("READINGTYPE").varChar(100).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CUMULATIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("cumulative").add();
             Column registerGroup = table.column("REGISTERGROUPID").number().add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
-            table.foreignKey("FK_EISREGMAPREGGROUP").on(registerGroup).references(EISRTUREGISTERGROUP.name()).map("registerGroup").add();
-            table.foreignKey("FK_EISREGMAPPRODSPEC").on(productSpec).references(EISPRODUCTSPEC.name()).map("productSpec").add();
+            Column timeOfUse = table.column("TIMEOFUSE").number().map("timeOfUse").conversion(ColumnConversion.NUMBER2INT).add();
+            table.foreignKey("FK_EISREGMAP_REGGROUP").on(registerGroup).references(EISRTUREGISTERGROUP.name()).map("registerGroup").add();
+            table.foreignKey("FK_EISREGMAP_PHENOMENON").on(phenomenon).references(EISPHENOMENON.name()).map("phenomenon").add();
+            table.foreignKey("FK_EISREGMAP_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
             table.unique("UK_RTUREGMAPPINGNAME").on(name).add();
-            table.unique("UK_RTUREGMAPPINGOBISPROD").on(obisCode, productSpec).add();
+            table.unique("UK_RTUREGMREADINGTYPE").on(readingType).add();
             table.primaryKey("PK_RTUREGISTERMAPPING").on(id).add();
         }
     },
@@ -188,22 +194,6 @@ public enum TableSpecs {
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
             table.primaryKey("PK_EISDEVICECONFIG").on(id).add();
             table.foreignKey("FK_EISDEVCFG_DEVTYPE").on(deviceTypeId).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("deviceConfigurations").composition().onDelete(DeleteRule.CASCADE).add();
-        }
-    },
-
-    EISPHENOMENON {
-        @Override
-        public void addTo(DataModel dataModel) {
-            Table<Phenomenon> table = dataModel.addTable(name(), Phenomenon.class);
-            table.map(PhenomenonImpl.class);
-            Column id = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar(80).notNull().map("name").add();
-            Column unit = table.column("UNIT").type("CHAR(7)").notNull().map("unitString").add();
-            table.column("MEASUREMENTCODE").varChar(80).map("measurementCode").add();
-            table.column("EDICODE").varChar(80).map("ediCode").add();
-            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
-            table.primaryKey("PK_PHENOMENON").on(id).add();
-            table.unique("UK_EISPHENOMENON").on(name, unit).add();
         }
     },
 
@@ -286,6 +276,20 @@ public enum TableSpecs {
             table.primaryKey("PK_EISLOGBOOKSPECID").on(id).add();
             table.foreignKey("FK_EISLGBSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("logBookSpecs").composition().onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("FK_EISLGBSPEC_LOGBOOKTYPE").on(logbooktypeid).references(EISLOGBOOKTYPE.name()).map("logBookType").add();
+        }
+    },
+
+    MDCNEXTEXECUTIONSPEC {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<NextExecutionSpecs> table = dataModel.addTable(name(), NextExecutionSpecs.class);
+            table.map(NextExecutionSpecsImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.column("FREQUENCYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.every.count").add();
+            table.column("FREQUENCYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.every.timeUnitCode").add();
+            table.column("OFFSETVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.offset.count").add();
+            table.column("OFFSETUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.offset.timeUnitCode").add();
+            table.primaryKey("PK_MDCNEXTEXEC_SPEC").on(id).add();
         }
     },
 

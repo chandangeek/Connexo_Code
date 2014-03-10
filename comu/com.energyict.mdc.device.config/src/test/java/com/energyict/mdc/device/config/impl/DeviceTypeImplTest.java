@@ -19,7 +19,6 @@ import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
@@ -46,6 +45,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
+import static com.elster.jupiter.cbo.FlowDirection.REVERSE;
 import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
@@ -81,7 +81,8 @@ public class DeviceTypeImplTest extends PersistenceTest {
     @Mock
     private DeviceProtocol deviceProtocol;
 
-    private ReadingType readingType;
+    private ReadingType readingType1;
+    private ReadingType readingType2;
     private Phenomenon phenomenon;
     private LogBookType logBookType;
     private LogBookType logBookType2;
@@ -89,7 +90,6 @@ public class DeviceTypeImplTest extends PersistenceTest {
     private LoadProfileType loadProfileType2;
     private RegisterMapping registerMapping;
     private RegisterMapping registerMapping2;
-    private ProductSpec productSpec;
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -581,7 +581,6 @@ public class DeviceTypeImplTest extends PersistenceTest {
         DeviceConfigurationServiceImpl deviceConfigurationService = inMemoryPersistence.getDeviceConfigurationService();
         String deviceTypeName = "testRemoveRegisterMappingThatIsStillInUseByChannelSpec";
         DeviceType deviceType;
-        this.setupPhenomenaInExistingTransaction();
         this.setupLoadProfileTypesInExistingTransaction(deviceTypeName);
         this.setupRegisterMappingTypesInExistingTransaction();
 
@@ -751,11 +750,6 @@ public class DeviceTypeImplTest extends PersistenceTest {
         assertThat(usages).as("Was not expecting to find any register mapping usages for device type {0} after deletion", deviceType).isEmpty();
     }
 
-    private void setupPhenomenaInExistingTransaction() {
-        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(DeviceTypeImplTest.class.getSimpleName(), Unit.get("kWh"));
-        this.phenomenon.save();
-    }
-
     private void setupLogBookTypesInExistingTransaction(String logBookTypeBaseName) {
         this.logBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(logBookTypeBaseName + "-1", ObisCode.fromString("0.0.99.98.0.255"));
         this.logBookType.save();
@@ -773,16 +767,17 @@ public class DeviceTypeImplTest extends PersistenceTest {
     private void setupRegisterMappingTypesInExistingTransaction() {
         this.setupProductSpecsInExistingTransaction();
         String registerMappingTypeBaseName = DeviceTypeImplTest.class.getSimpleName();
-        this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingTypeBaseName + "-1", ObisCode.fromString("1.0.99.1.0.255"), this.productSpec);
+        Unit unit = Unit.get("kWh");
+        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("baseUnit", unit);
+        this.phenomenon.save();
+        this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingTypeBaseName + "-1", ObisCode.fromString("1.0.99.1.0.255"), unit, readingType1, readingType1.getTou());
         this.registerMapping.save();
-        this.registerMapping2 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingTypeBaseName + "-2", ObisCode.fromString("1.0.99.2.0.255"), this.productSpec);
+        this.registerMapping2 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingTypeBaseName + "-2", ObisCode.fromString("1.0.99.2.0.255"), unit, readingType2, readingType2.getTou());
         this.registerMapping2.save();
     }
 
     private void setupProductSpecsInExistingTransaction() {
         this.setupReadingTypeInExistingTransaction();
-        this.productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(this.readingType);
-        this.productSpec.save();
     }
 
     private void setupReadingTypeInExistingTransaction() {
@@ -793,7 +788,15 @@ public class DeviceTypeImplTest extends PersistenceTest {
                 .period(TimeAttribute.MINUTE15)
                 .accumulate(Accumulation.DELTADELTA)
                 .code();
-        this.readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
+        this.readingType1 = inMemoryPersistence.getMeteringService().getReadingType(code).get();
+        String code2 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED)
+                .flow(REVERSE)
+                .measure(ENERGY)
+                .in(KILO, WATTHOUR)
+                .period(TimeAttribute.MINUTE15)
+                .accumulate(Accumulation.DELTADELTA)
+                .code();
+        this.readingType2 = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
     }
 
 }

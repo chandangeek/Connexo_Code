@@ -5,11 +5,9 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.ReadingTypeInformation;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -21,7 +19,6 @@ import java.util.logging.Logger;
  * Generates:
  * <ul>
  * <li>{@link Phenomenon Phenomena}</li>
- * <li>{@link ProductSpec ProductSpecs}</li>
  * <li>{@link RegisterMapping RegisterMappings}</li>
  * </ul>
  * based on the existing {@link com.elster.jupiter.metering.ReadingType ReadingTypes}
@@ -55,28 +52,13 @@ public class MasterDataGenerator {
         return phenomena;
     }
 
-    static List<ProductSpec> generateProductSpecs(MeteringService meteringService, DeviceConfigurationService deviceConfigurationService) {
-        List<ProductSpec> productSpecs = new ArrayList<>();
-        for (ReadingType readingType : meteringService.getAvailableReadingTypes()) {
-            try {
-                ProductSpec productSpec = deviceConfigurationService.newProductSpec(readingType);
-                productSpec.save();
-                productSpecs.add(productSpec);
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
-        }
-        return productSpecs;
-    }
-
     static List<RegisterMapping> generateRegisterMappings(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, DeviceConfigurationService deviceConfigurationService) {
         List<RegisterMapping> registerMappings = new ArrayList<>();
         for (ReadingType readingType : meteringService.getAvailableReadingTypes()) {
             try {
-                ProductSpec productSpec = deviceConfigurationService.findProductSpecByReadingType(readingType);
-                if(productSpec != null && productSpec.getUnit() != null){
+                if (deviceConfigurationService.findRegisterMappingByReadingType(readingType)==null) {
                     ReadingTypeInformation readingTypeInformation = readingTypeUtilService.getReadingTypeInformationFor(readingType);
-                    RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping(readingType.getName(), readingTypeInformation.getObisCode(), productSpec);
+                    RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping(readingType.getName(), readingTypeInformation.getObisCode(), readingTypeInformation.getUnit(), readingType , readingType.getTou());
                     registerMapping.save();
                     registerMappings.add(registerMapping);
                 }
