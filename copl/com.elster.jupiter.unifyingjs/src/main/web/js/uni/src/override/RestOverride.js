@@ -7,6 +7,7 @@ Ext.define('Uni.override.RestOverride', {
     override: 'Ext.data.proxy.Rest',
 
     buildUrl: function (request) {
+        console.log('unifying rest override');
         var me = this,
             operation = request.operation,
             records = operation.records || [],
@@ -24,6 +25,23 @@ Ext.define('Uni.override.RestOverride', {
             }
         }
 
-        return me.callParent(arguments);
+        var url = me.callParent(arguments);
+
+        var urlTemplate = new Ext.Template(url),
+            params = request.proxy.extraParams,
+            newUrl = urlTemplate.apply(params);
+
+
+        //Remove variables embedded into URL
+        Ext.Object.each(params, function (key, value) {
+            var regex = new RegExp('{' + key + '.*?}');
+            if (regex.test(url)) {
+                delete params[key];
+            }
+        });
+
+        request.url = url;
+
+        return newUrl;
     }
 });
