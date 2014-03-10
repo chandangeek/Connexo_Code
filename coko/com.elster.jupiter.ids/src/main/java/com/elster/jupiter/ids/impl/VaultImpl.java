@@ -475,8 +475,16 @@ public class VaultImpl implements Vault {
 		try (Connection connection = getConnection(false)) {
 			try (PreparedStatement statement = connection.prepareStatement(rangeSql(timeSeries))) {
 				statement.setLong(ID_COLUMN_INDEX,timeSeries.getId());
-				statement.setLong(FROM_COLUMN_INDEX, interval.getStart().getTime());
-				statement.setLong(TO_COLUMN_INDEX, interval.getEnd().getTime());
+				if (interval.getStart() == null) {
+					statement.setLong(FROM_COLUMN_INDEX, Long.MIN_VALUE);
+				} else {
+					statement.setLong(FROM_COLUMN_INDEX, interval.getStart().getTime());
+				}
+				if (interval.getEnd() == null) {
+					statement.setLong(TO_COLUMN_INDEX, Long.MAX_VALUE);
+				} else {
+					statement.setLong(TO_COLUMN_INDEX, interval.getEnd().getTime());
+				}
 				try (ResultSet rs = statement.executeQuery()) {
 					while(rs.next()) {
 						result.add(new TimeSeriesEntryImpl(timeSeries,rs));

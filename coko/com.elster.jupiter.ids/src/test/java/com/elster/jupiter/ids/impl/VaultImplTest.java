@@ -3,7 +3,6 @@ package com.elster.jupiter.ids.impl;
 import org.mockito.Mock;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
-import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.collect.ImmutableList;

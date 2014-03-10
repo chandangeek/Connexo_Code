@@ -96,6 +96,7 @@ public class IdsCrudTest {
         assertThat(entries.get(1).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(20));
         assertThat(ts.getEntriesBefore(new DateTime(2015,1,1,0,0).toDate(),1)).hasSize(1);
         assertThat(ts.getEntriesBefore(new DateTime(2015,1,1,0,0).toDate(),2)).hasSize(2);
+        assertThat(ts.getEntries(Interval.sinceEpoch())).hasSize(2);
     }
    
     
