@@ -131,7 +131,9 @@ public enum MessageSeeds implements MessageSeed {
     TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE(13004, Constants.TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY, "The offset value of a temporal expression must be a positive number", Level.SEVERE),
     DUPLICATE_PROTOCOL_CONFIGURATION_PROPERTIES(13001, "protocolConfigurationProperties.duplicateName", "A protocolDialectConfigurationProperties with the name {0} already exists.", Level.SEVERE),
     PROTOCOL_DIALECT_REQUIRED(13002, Constants.PROTOCOLDIALECT_REQUIRED_KEY, "The protocol dialect name is required for a protocolDialectConfigurationProperties", Level.SEVERE),
-    PROTOCOL_DIALECT_HAS_NO_SUCH_PROPERTY(13003, "protocolDialectConfigurationProperties.noSuchProperty", "The protocol dialect {0} does not have a configuration property with name {1}", Level.SEVERE);
+    PROTOCOL_DIALECT_HAS_NO_SUCH_PROPERTY(13003, "protocolDialectConfigurationProperties.noSuchProperty", "The protocol dialect {0} does not have a configuration property with name {1}", Level.SEVERE),
+    PROTOCOL_DIALECT_DUPLICATE(13004, Constants.PROTOCOLDIALECT_CONF_PROPS_DUPLICATE_KEY, "A dialect configuration properties having device configuration  \"{0}\" and device protocol dialect \"{1}\" already exists.", Level.SEVERE),
+    PROTOCOLDIALECT_CONF_PROPS_MISSING_REQUIRED(13005, Constants.PROTOCOLDIALECT_CONF_PROPS_MISSING_REQUIRED, "The protocol dialect {0} is missing required configuration property with name {1}", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -200,6 +202,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY = "DTC.temporalExpression.every.count.positive";
         public static final String TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY = "DTC.temporalExpression.offset.count.positive";
         public static final String PROTOCOLDIALECT_REQUIRED_KEY = "DTC.protocolDialectConfigurationProperties.dialectName.required";
+        public static final String PROTOCOLDIALECT_CONF_PROPS_DUPLICATE_KEY = "DTC.protocolDialectConfigurationProperties.duplicate";
+        public static final String PROTOCOLDIALECT_CONF_PROPS_MISSING_REQUIRED = "DTC.protocolDialectConfigurationProperties.missing.required.properties";
     }
 
 }

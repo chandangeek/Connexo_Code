@@ -20,20 +20,27 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.google.inject.Inject;
 
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.elster.jupiter.util.conditions.Operator.EQUAL;
+
 /**
  * @author sva
  * @since 5/03/13 - 16:12
  */
+@ProtocolDialectConfigurationPropertiesCannotDuplicate(groups = {Save.Create.class})
+@ProtocolDialectConfigurationHasAllRequiredProperties(groups = {Save.Create.class, Save.Update.class})
 class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<ProtocolDialectConfigurationProperties> implements ProtocolDialectConfigurationProperties {
 
     private Reference<DeviceCommunicationConfiguration> deviceCommunicationConfiguration = ValueReference.absent();
 
     private final Clock clock;
+    private final DataModel dataModel;
 
     private DeviceProtocolDialect protocolDialect;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.PROTOCOLDIALECT_REQUIRED_KEY + "}")
@@ -48,136 +55,59 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     @Inject
     ProtocolDialectConfigurationPropertiesImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock) {
         super(ProtocolDialectConfigurationProperties.class, dataModel, eventService, thesaurus);
+        this.dataModel = dataModel;
         this.clock = clock;
     }
-
-    /**
-     * Loads the ProtocolDialectConfigurationProperties properties from the {@link java.sql.ResultSet}.
-     *
-     * @throws java.sql.SQLException Thrown by the ResultSet API
-     */
-//    protected void doLoad(ResultSet resultSet) throws SQLException {
-//        super.doLoad(resultSet);
-//        this.deviceCommunicationConfigurationId = resultSet.getInt(3);
-//        this.protocolDialectName = resultSet.getString(4);
-//    }
-
-//    protected void init(final ProtocolDialectConfigurationPropertiesShadow shadow) throws SQLException, BusinessException {
-//        this.execute(new Transaction<Void>() {
-//            public Void doExecute () throws BusinessException, SQLException {
-//                doInit(shadow);
-//                return null;
-//            }
-//        });
-//    }
-
-//    private void doInit(ProtocolDialectConfigurationPropertiesShadow shadow) throws SQLException, BusinessException {
-//        this.validateNew(shadow);
-//        this.copyNew(shadow);
-//        this.postNew();
-//        this.created();
-//    }
 
     @Override
     public void update() {
         save();
     }
 
-//    private void validateNew(ProtocolDialectConfigurationPropertiesShadow shadow) throws BusinessException {
-//        this.validatePrimaryKey(shadow);
-//        this.validateProperties(shadow);
-//    }
+    static class PrimaryKeyValidator implements ConstraintValidator<ProtocolDialectConfigurationPropertiesCannotDuplicate, ProtocolDialectConfigurationPropertiesImpl> {
 
-//    private void validateUpdate(ProtocolDialectConfigurationPropertiesShadow shadow) throws BusinessException {
-//        this.validatePrimaryKeyNotChanged(shadow);
-//        this.validateProperties(shadow);
-//        this.validateNoRequiredPropertiesAreRemoved(shadow);
-//    }
+        @Override
+        public void initialize(ProtocolDialectConfigurationPropertiesCannotDuplicate constraintAnnotation) {
+            // nothing for now
+        }
 
-//    private void validatePrimaryKey(ProtocolDialectConfigurationPropertiesShadow shadow) throws BusinessException {
-//        DeviceCommunicationConfiguration configuration = getDeviceCommunicationConfiguration();  // DeviceConfiguration available, cause it is the owner of this ConfigurationProperties
-//        DeviceProtocolDialect dialect = this.validateDeviceProtocolDialect(shadow);
-//
-//        ProtocolDialectConfigurationPropertiesFactory configurationPropertiesFactory = (ProtocolDialectConfigurationPropertiesFactory) getFactory();
-//        ProtocolDialectConfigurationProperties configurationProperties = configurationPropertiesFactory.findByConfigurationAndDialect(configuration, dialect);
-//        if (configurationProperties != null) {
-//            throw new DuplicateException(
-//                    "duplicateDialectConfigurationProperties",
-//                    "A dialect configuration properties having device configuration  \"{0}\" and device protocol dialect \"{1}\" already exists.",
-//                    configuration.getId(),
-//                    dialect.getDeviceProtocolDialectName());
-//        }
-//    }
+        @Override
+        public boolean isValid(ProtocolDialectConfigurationPropertiesImpl value, ConstraintValidatorContext context) {
+            return value.dataModel.mapper(ProtocolDialectConfigurationProperties.class)
+                    .select(
+                            EQUAL.compare("deviceCommunicationConfiguration", value.getDeviceCommunicationConfiguration())
+                                    .and(EQUAL.compare("protocolDialectName", value.protocolDialectName)))
+                    .isEmpty();
+        }
 
-//    private DeviceProtocolDialect validateDeviceProtocolDialect(ProtocolDialectConfigurationPropertiesShadow shadow) throws InvalidValueException, CodingException {
-//        String dialectClassName = shadow.getProtocolDialectName();
-//        if (dialectClassName == null || dialectClassName.isEmpty()) {
-//            throw new InvalidValueException("XcannotBeEmpty", "\"{0}\" is a required property", "configurationProperties.dialectClassName");
-//        }
-//        return this.getDeviceProtocolDialect(dialectClassName);
-//    }
 
-//    private void validatePrimaryKeyNotChanged(ProtocolDialectConfigurationPropertiesShadow shadow) throws BusinessException {
-//        if (!this.getDeviceProtocolDialectName().equals(shadow.getProtocolDialectName())) {
-//            throw new BusinessException("configurationProperties.updateOfDialectClassNotAllowed", "The device protocol dialect class cannot be changed.");
-//        }
-//    }
+    }
 
-//    private void validateProperties(ProtocolDialectConfigurationPropertiesShadow shadow) throws BusinessException {
-//        this.validatePropertiesAreLinkedToPropertySpecs(shadow);
-//        this.validatePropertyValues(shadow);
-//    }
+    static class RequiredPropertiesValidator implements ConstraintValidator<ProtocolDialectConfigurationHasAllRequiredProperties, ProtocolDialectConfigurationPropertiesImpl> {
 
-//    private void validatePropertiesAreLinkedToPropertySpecs(ProtocolDialectConfigurationPropertiesShadow shadow) throws BusinessException {
-//        DeviceProtocolDialect protocolDialect = this.getDeviceProtocolDialect(shadow.getProtocolDialectName());
-//        for (String propertyName : shadow.getTypedProperties().localPropertyNames()) {
-//            if (protocolDialect.getPropertySpec(propertyName) == null) {
-//                throw new BusinessException(
-//                        "deviceProtocolPropertyXIsNotInDeviceProtocolDialect",
-//                        "DeviceProtocolDialect {0} does not contain a specification for attribute {1}",
-//                        protocolDialect.getDeviceProtocolDialectName(),
-//                        propertyName);
-//            }
-//        }
-//    }
+        @Override
+        public void initialize(ProtocolDialectConfigurationHasAllRequiredProperties constraintAnnotation) {
+            //nothing for now
 
-//    private void validatePropertyValues(ProtocolDialectConfigurationPropertiesShadow shadow) throws BusinessException {
-//        DeviceProtocolDialect protocolDialect = this.getDeviceProtocolDialect(shadow.getProtocolDialectName());
-//        for (String propertyName : shadow.getTypedProperties().localPropertyNames()) {
-//            this.validatePropertyValue(protocolDialect, propertyName, shadow.getTypedProperties().getProperty(propertyName));
-//        }
-//    }
+        }
 
-//    private void validatePropertyValue(DeviceProtocolDialect protocolDialect, String propertyName, Object propertyValue) throws InvalidValueException {
-//        PropertySpec propertySpec = protocolDialect.getPropertySpec(propertyName);
-//        propertySpec.validateValue(propertyValue);
-//    }
+        @Override
+        public boolean isValid(ProtocolDialectConfigurationPropertiesImpl value, ConstraintValidatorContext context) {
+            TypedProperties typedProperties = value.getTypedProperties();
+            for (PropertySpec propertySpec : value.getPropertySpecs()) {
+                if (propertySpec.isRequired() && !typedProperties.hasValueFor(propertySpec.getName())) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
 
-//    private void validateNoRequiredPropertiesAreRemoved(ProtocolDialectConfigurationPropertiesShadow shadow) throws BusinessException {
-//        DeviceProtocolDialect protocolDialect = this.getDeviceProtocolDialect(shadow.getProtocolDialectName());
-//        TypedProperties shadowProperties = shadow.getTypedProperties();
-//        TypedProperties oldProperties = getTypedProperties();
-//
-//        for (String propertyName : oldProperties.localPropertyNames()) {
-//            if ((shadowProperties.getProperty(propertyName) == null) &&
-//                    protocolDialect.getPropertySpec(propertyName).isRequired()) {
-//                throw new BusinessException("configurationProperties.requiredAttributeCannotBeDeleted", "Cannot delete attribute {1} because it is a required attribute of device protocol dialect {0}.",
-//                        protocolDialect.getDeviceProtocolDialectName(),
-//                        propertyName);
-//            }
-//        }
-//    }
-
-//    protected void copy(ProtocolDialectConfigurationPropertiesShadow shadow) {
-//        super.copyProperties(shadow);
-//        this.setName(shadow.getName());
-//        this.setProtocolDialectName(shadow.getProtocolDialectName());
-//    }
-
-//    @Override
-//    protected void validateDelete() throws SQLException, BusinessException {
-//        super.validateDelete();
+    @Override
+    protected void validateDelete() {
+        //TODO
 //        ProtocolDialectPropertiesFactory factory = ManagerFactory.getCurrent().getProtocolDialectPropertiesFactory();
+//        dataModel.mapper(PDProp)
 //        if (factory.existsUsing(this)) {
 //            throw new BusinessException(
 //                    "protocolDialectConfigurationPropertiesXIsStillInUseByProtocolDialectProperties",
@@ -185,7 +115,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
 //                    this.getDeviceProtocolDialect().getDeviceProtocolDialectName(),
 //                    this.getDeviceCommunicationConfiguration().getDeviceConfiguration().getName());
 //        }
-//    }
+    }
 
     @Override
     public DeviceCommunicationConfiguration getDeviceCommunicationConfiguration() {
@@ -229,7 +159,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         if (typedProperties == null) {
             typedProperties = initializeTypedProperties();
         }
-        return typedProperties;
+        return typedProperties.getUnmodifiableView();
     }
 
     private TypedProperties initializeTypedProperties() {
@@ -240,19 +170,6 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         }
         return properties;
     }
-
-//    @Override
-//    protected int bindBody(PreparedStatement preparedStatement, int offset) throws SQLException {
-//        int parameterNumber = offset;
-//        preparedStatement.setInt(parameterNumber++, this.getDeviceCommunicationConfigurationId());
-//        preparedStatement.setString(parameterNumber++, this.getDeviceProtocolDialectName());
-//        return parameterNumber;
-//    }
-
-//    @Override
-//    protected PropertyPersister doGetPropertyPersister() {
-//        return ProtocolDialectConfigurationPropertiesFactoryImpl.newPropertyPersister();
-//    }
 
     @Override
     public List<PropertySpec> getPropertySpecs () {
@@ -295,15 +212,8 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     @Override
-    protected void doDelete() {
-        //TODO automatically generated method body, provide implementation.
-
-    }
-
-    @Override
-    protected void validateDelete() {
-        //TODO automatically generated method body, provide implementation.
-
+    protected final void doDelete() {
+        dataModel.mapper(ProtocolDialectConfigurationProperties.class).remove(this);
     }
 
     static ProtocolDialectConfigurationProperties from(DataModel dataModel, DeviceCommunicationConfiguration configuration, String name, DeviceProtocolDialect protocolDialect) {
