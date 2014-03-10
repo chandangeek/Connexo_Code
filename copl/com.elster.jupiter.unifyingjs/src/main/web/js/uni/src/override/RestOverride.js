@@ -7,7 +7,6 @@ Ext.define('Uni.override.RestOverride', {
     override: 'Ext.data.proxy.Rest',
 
     buildUrl: function (request) {
-        console.log('unifying rest override');
         var me = this,
             operation = request.operation,
             records = operation.records || [],
