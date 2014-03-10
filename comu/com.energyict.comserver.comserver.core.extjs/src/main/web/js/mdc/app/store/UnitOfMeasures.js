@@ -6,7 +6,7 @@ Ext.define('Mdc.store.UnitOfMeasures',{
 
     proxy: {
         type: 'rest',
-        url: '../../api/dtc/field/unitOfMeasure',
+        url: '../../api/dtc/field/unit',
         reader: {
             type: 'json',
             root: 'units'
