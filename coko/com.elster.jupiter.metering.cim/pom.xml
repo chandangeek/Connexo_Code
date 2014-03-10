@@ -15,9 +15,9 @@
     <name>[Jupiter] com.elster.jupiter.metering.cim</name>
 
     <properties>
-        <sonar.exclusions>target/generated-sources/**</sonar.exclusions>
-        <sonar.cpd.exclusions>target/generated-sources/**</sonar.cpd.exclusions>
-        <sonar.coverage.exclusions>target/generated-sources/**</sonar.coverage.exclusions>
+        <sonar.exclusions>${basedir}/target/generated-sources/**</sonar.exclusions>
+        <sonar.cpd.exclusions>${basedir}/target/generated-sources/**</sonar.cpd.exclusions>
+        <sonar.coverage.exclusions>${basedir}/target/generated-sources/**</sonar.coverage.exclusions>
     </properties>
 
     <build>
