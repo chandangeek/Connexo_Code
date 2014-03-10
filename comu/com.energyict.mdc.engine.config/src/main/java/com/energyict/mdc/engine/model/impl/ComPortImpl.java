@@ -52,7 +52,7 @@ public abstract class ComPortImpl implements ComPort {
     private final Reference<ComServer> comServer = ValueReference.absent();
     private boolean active;
     private String description;
-    @Null(groups = { Save.Update.class, Obsolete.class }, message = "{"+Constants.MDC_COMPORT_NO_UPDATE_ALLOWED+"}")
+    @Null(groups = { Save.Update.class }, message = "{"+Constants.MDC_COMPORT_NO_UPDATE_ALLOWED+"}")
     private Date obsoleteDate;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
     private ComPortType type;
@@ -173,9 +173,8 @@ public abstract class ComPortImpl implements ComPort {
     }
 
     final protected void validateMakeObsolete() {
-        Set<ConstraintViolation<ComPortImpl>> constraintViolations = dataModel.getValidatorFactory().getValidator().validate(this, Obsolete.class);
-        if (!constraintViolations.isEmpty()) {
-            throw new ConstraintViolationException(constraintViolations);
+        if (this.obsoleteDate!=null) {
+            throw new TranslatableApplicationException(Constants.MDC_IS_ALREADY_OBSOLETE, "Already obsolete");
         }
     }
 
@@ -184,10 +183,6 @@ public abstract class ComPortImpl implements ComPort {
         this.setActive(source.isActive());
         this.setDescription(source.getDescription());
     }
-
-    interface Delete {}
-
-    interface Obsolete {}
 
     static protected class ComPortBuilderImpl<B extends ComPort.Builder<B, C>, C extends ComPort> implements ComPort.Builder<B, C> {
         C comPort;
