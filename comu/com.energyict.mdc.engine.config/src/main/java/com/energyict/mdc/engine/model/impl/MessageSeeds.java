@@ -17,6 +17,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_URL(4, Constants.MDC_INVALID_URL, "{value} is not a valid URL", Level.SEVERE),
     INVALID_CHARS(5, Constants.MDC_INVALID_CHARS, "This field contains invalid chars, should obey {regex}", Level.SEVERE),
     REQUIRED_FOR_HTTPS(6, Constants.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS, "This field is mandatory in case https is chosen", Level.SEVERE),
+    IS_ALREADY_OBSOLETE(7, Constants.MDC_IS_ALREADY_OBSOLETE, "Already obsolete", Level.SEVERE),
 
     DUPLICATE_COMSERVER(101, Constants.MDC_DUPLICATE_COM_SERVER, "ComServer with name {value} already exists", Level.SEVERE),
     OBSOLETE_COMSERVER_CANT_BE_UPDATED(103, Constants.MDC_COMSERVER_NO_UPDATE_ALLOWED, "Obsolete ComServers can no longer be updated", Level.SEVERE),
@@ -86,4 +87,5 @@ final class Constants {
     public static final String MDC_DUPLICATE_COM_PORT_PER_COM_SERVER = "MDC.DuplicateComPortPerComServer";
     public static final String MDC_DUPLICATE_COM_PORT_POOL = "MDC.DuplicateComPortPool";
     public static final String MDC_COMPORTPOOL_NO_UPDATE_ALLOWED = "MDC.comportpool.noUpdateAllowed";
+    public static final String MDC_IS_ALREADY_OBSOLETE = "MDC.isAlreadyObsolete";
 }

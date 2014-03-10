@@ -17,7 +17,6 @@ import com.google.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
-import javax.validation.constraints.AssertTrue;
 import org.hibernate.validator.constraints.Range;
 import org.hibernate.validator.constraints.URL;
 
@@ -73,9 +72,20 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
         }
     }
 
-    @AssertTrue(groups = { Delete.class, Obsolete.class }, message = "MDC.OnlineComServerXStillReferenced")
-    private boolean isNotUsedByRemoteComServers() {
-        return engineModelService.findRemoteComServersWithOnlineComServer(this).isEmpty();
+    @Override
+    protected void validateMakeObsolete() {
+        if (!engineModelService.findRemoteComServersWithOnlineComServer(this).isEmpty()) {
+            throw new TranslatableApplicationException(Constants.MDC_ONLINE_COM_SERVER_STILL_REFERENCED, "Online Comserver is still referenced by remote comserver(s)");
+        }
+        super.validateMakeObsolete();
+    }
+
+    @Override
+    protected void validateDelete() {
+        if (!engineModelService.findRemoteComServersWithOnlineComServer(this).isEmpty()) {
+            throw new TranslatableApplicationException(Constants.MDC_ONLINE_COM_SERVER_STILL_REFERENCED, "Online Comserver is still referenced by remote comserver(s)");
+        }
+        super.validateDelete();
     }
 
     @Override

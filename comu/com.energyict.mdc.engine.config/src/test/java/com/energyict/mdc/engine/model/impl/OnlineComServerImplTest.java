@@ -3,8 +3,10 @@ package com.energyict.mdc.engine.model.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.Expected;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.PersistenceTest;
@@ -677,7 +679,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "MDC.OnlineComServerXStillReferenced")
+    @Expected(expected = TranslatableApplicationException.class /*, message = "MDC.OnlineComServerXStillReferenced"*/)
     @Transactional
     public void testDeleteWhileStillUsedByRemoteComServer() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
@@ -714,7 +716,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "MDC.OnlineComServerXStillReferenced")
+    @Expected(expected = TranslatableApplicationException.class /* = "MDC.OnlineComServerXStillReferenced"*/)
     @Transactional
     public void testMakeObsoleteWhileStillUsedByRemoteComServer () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();

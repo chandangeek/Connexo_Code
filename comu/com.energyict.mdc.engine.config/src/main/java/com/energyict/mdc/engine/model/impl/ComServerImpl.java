@@ -21,11 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
@@ -76,7 +72,7 @@ public abstract class ComServerImpl implements ComServer {
     private TimeDuration schedulingInterPollDelay;
     private Date modificationDate;
     private final List<ComPort>  comPorts = new ArrayList<>();
-    @Null(groups = { Save.Update.class, Delete.class }, message = "{"+Constants.MDC_COMSERVER_NO_UPDATE_ALLOWED+"}")
+    @Null(groups = { Save.Update.class }, message = "{"+Constants.MDC_COMSERVER_NO_UPDATE_ALLOWED+"}")
     private Date obsoleteDate;
 
     @Inject
@@ -108,11 +104,15 @@ public abstract class ComServerImpl implements ComServer {
 
     protected void validateMakeObsolete () {
         if (this.isObsolete()) {
-            throw new TranslatableApplicationException("comServerIsAlreadyObsolete",
-                    "The ComServer with id {0} is already obsolete since {1,date,yyyy-MM-dd HH:mm:ss}",
-                    this.getId(),
-                    this.getObsoleteDate());
+            throw new TranslatableApplicationException(Constants.MDC_IS_ALREADY_OBSOLETE, "Already obsolete");
         }
+    }
+
+    @Override
+    public void delete() {
+        validateDelete();
+        this.comPorts.clear();
+        dataModel.remove(this);
     }
 
     protected void validateDelete() {
@@ -402,21 +402,6 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
-    public void delete() {
-        validate(Delete.class);
-        this.comPorts.clear();
-        dataModel.remove(this);
-    }
-
-    private void validate(Class<?> group) {
-        Validator validator = dataModel.getValidatorFactory().getValidator();
-        Set<ConstraintViolation<ComServerImpl>> constraintViolations = validator.validate(this, group);
-        if (!constraintViolations.isEmpty()) {
-            throw new ConstraintViolationException(constraintViolations);
-        }
-    }
-
-    @Override
     public String toString() {
         if (this.isObsolete()) {
             return getName() + " (deleted on "+getObsoleteDate()+")";
@@ -427,7 +412,4 @@ public abstract class ComServerImpl implements ComServer {
 
     }
 
-    interface Delete {}
-
-    interface Obsolete {}
 }
