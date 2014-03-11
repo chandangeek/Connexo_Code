@@ -442,6 +442,45 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(response).hasSize(2);
     }
 
+    @Test
+    public void testGetDeviceCommunicationById() throws Exception {
+        long deviceType_id=41;
+        long deviceConfiguration_id=14;
+        DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
+        DeviceConfiguration mock1 = mock(DeviceConfiguration.class);
+        when(mock1.getId()).thenReturn(deviceConfiguration_id+1);
+        DeviceConfiguration mock2 = mock(DeviceConfiguration.class);
+        when(mock2.getId()).thenReturn(deviceConfiguration_id+2);
+        DeviceConfiguration mock3 = mock(DeviceConfiguration.class);
+        when(mock3.getDeviceType()).thenReturn(deviceType);
+        when(mock3.getId()).thenReturn(deviceConfiguration_id);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(mock1, mock2, mock3));
+        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
+        Response response = target("/devicetypes/41/deviceconfigurations/14").request().get(Response.class);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testGetDeviceCommunicationByIdButNoSuchConfigOnTheDevice() throws Exception {
+        long deviceType_id=41;
+        long deviceConfiguration_id=14;
+        DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
+        DeviceConfiguration mock1 = mock(DeviceConfiguration.class);
+        when(mock1.getId()).thenReturn(deviceConfiguration_id+1);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(mock1));
+        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
+        Response response = target("/devicetypes/41/deviceconfigurations/14").request().get(Response.class);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
+
+    @Test
+    public void testGetDeviceCommunicationByIdWithNonExistingDeviceType() throws Exception {
+        long deviceType_id=41;
+        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(null);
+        Response response = target("/devicetypes/41/deviceconfigurations/14").request().get(Response.class);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
+
     private <T> Finder<T> mockFinder(List<T> list) {
         Finder<T> finder = mock(Finder.class);
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);

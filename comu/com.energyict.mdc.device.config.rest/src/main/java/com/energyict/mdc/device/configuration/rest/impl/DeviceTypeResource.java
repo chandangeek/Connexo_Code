@@ -136,6 +136,19 @@ public class DeviceTypeResource {
         return PagedInfoList.asJson("deviceConfigurations", deviceConfigurationInfos, queryParameters);
     }
 
+    @GET
+    @Path("/{id}/deviceconfigurations/{deviceConfigurationId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DeviceConfigurationInfo getDeviceConfigurationsById(@PathParam("id") long id, @PathParam("deviceConfigurationId") long deviceConfigurationId) {
+        DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
+        for (DeviceConfiguration deviceConfiguration : deviceType.getConfigurations()) {
+            if (deviceConfiguration.getId()==deviceConfigurationId) {
+                return new DeviceConfigurationInfo(deviceConfiguration);
+            }
+        }
+        throw new WebApplicationException("No such device configuration for the device type", Response.status(Response.Status.NOT_FOUND).entity("No such device configuration for the device type").build());
+    }
+
     @POST
     @Path("/{id}/deviceconfigurations")
     @Consumes(MediaType.APPLICATION_JSON)
