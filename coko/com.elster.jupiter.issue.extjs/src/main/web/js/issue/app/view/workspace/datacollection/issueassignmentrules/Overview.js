@@ -3,7 +3,7 @@ Ext.define('Isu.view.workspace.datacollection.issueassignmentrules.Overview', {
     requires: [
         'Uni.view.breadcrumb.Trail',
         'Isu.view.workspace.datacollection.issueassignmentrules.Navigation',
-        'Isu.view.workspace.datacollection.issueassignmentrules.FilterAction',
+        'Isu.view.workspace.datacollection.issueassignmentrules.SideFilter',
         'Isu.view.workspace.datacollection.issueassignmentrules.FilterView',
         'Isu.view.workspace.datacollection.issueassignmentrules.List',
         'Isu.view.workspace.datacollection.issueassignmentrules.Item'
@@ -28,7 +28,7 @@ Ext.define('Isu.view.workspace.datacollection.issueassignmentrules.Overview', {
                             xtype: 'issues-assignment-rules-navigation'
                         },
                         {
-                            xtype: 'issues-assignment-rules-filter-action',
+                            xtype: 'issues-assignment-rules-side-filter',
                             margin: '15 10 0'
                         }
                     ]

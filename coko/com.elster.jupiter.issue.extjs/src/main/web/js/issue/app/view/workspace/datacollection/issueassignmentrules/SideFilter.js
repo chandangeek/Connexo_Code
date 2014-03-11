@@ -1,6 +1,6 @@
-Ext.define('Isu.view.workspace.datacollection.issueassignmentrules.FilterAction', {
+Ext.define('Isu.view.workspace.datacollection.issueassignmentrules.SideFilter', {
     extend: 'Ext.container.Container',
-    alias: 'widget.issues-assignment-rules-filter-action',
+    alias: 'widget.issues-assignment-rules-side-filter',
     defaults: {
         xtype: 'container'
     },

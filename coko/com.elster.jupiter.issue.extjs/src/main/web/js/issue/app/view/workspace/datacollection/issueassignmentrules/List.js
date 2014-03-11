@@ -1,6 +1,7 @@
 Ext.define('Isu.view.workspace.datacollection.issueassignmentrules.List', {
     extend: 'Ext.panel.Panel',
     requires: [
+        'Ext.layout.container.Column',
         'Ext.grid.column.Template',
         'Ext.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
@@ -31,47 +32,45 @@ Ext.define('Isu.view.workspace.datacollection.issueassignmentrules.List', {
             xtype: 'grid',
             store: 'Isu.store.AssignmentRules',
             height: 285,
-            columns: [
-                {
-                    header: 'Priority',
-                    dataIndex: 'priority',
+            columns: {
+                defaults: {
                     sortable: false,
-                    menuDisabled: true,
-                    align: 'right',
-                    width: 90
+                    menuDisabled: true
                 },
-                {
-                    header: 'Name',
-                    dataIndex: 'name',
-                    sortable: false,
-                    menuDisabled: true,
-                    flex: 1
-                },
-                {
-                    header: 'Assign to',
-                    xtype: 'templatecolumn',
-                    tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type}"></span></tpl> {assignee.title}',
-                    sortable: false,
-                    menuDisabled: true,
-                    flex: 1
-                },
-                {
-                    header: 'Status',
-                    dataIndex: 'status',
-                    sortable: false,
-                    menuDisabled: true,
-                    width: 100
-                },
-                {
-                    header: 'Actions',
-                    xtype: 'actioncolumn',
-                    iconCls: 'isu-action-icon',
-                    align: 'left',
-                    sortable: false,
-                    menuDisabled: true,
-                    width: 70
-                }
-            ]
+                items: [
+                    {
+                        header: 'Priority',
+                        dataIndex: 'priority',
+                        align: 'right',
+                        width: 90
+                    },
+                    {
+                        header: 'Name',
+                        dataIndex: 'name',
+                        sortable: false,
+                        menuDisabled: true,
+                        flex: 1
+                    },
+                    {
+                        header: 'Assign to',
+                        xtype: 'templatecolumn',
+                        tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type}"></span></tpl> {assignee.title}',
+                        flex: 1
+                    },
+                    {
+                        header: 'Status',
+                        dataIndex: 'status',
+                        width: 100
+                    },
+                    {
+                        header: 'Actions',
+                        xtype: 'actioncolumn',
+                        iconCls: 'isu-action-icon',
+                        align: 'left',
+                        width: 70
+                    }
+                ]
+            }
         }
     ],
 
@@ -83,13 +82,13 @@ Ext.define('Isu.view.workspace.datacollection.issueassignmentrules.List', {
                 {
                     xtype: 'container',
                     flex: 1/*,
-                    items: [
-                        {
-                            xtype: 'pagingtoolbartop',
-                            store: 'Isu.store.AssignmentRules',
-                            border: false
-                        }
-                    ]*/
+                 items: [
+                 {
+                 xtype: 'pagingtoolbartop',
+                 store: 'Isu.store.AssignmentRules',
+                 border: false
+                 }
+                 ]*/
                 },
                 {
                     xtype: 'button',

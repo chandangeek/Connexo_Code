@@ -10,14 +10,18 @@ Ext.Loader.setConfig({
 
 Ext.onReady(function () {
     var loader = Ext.create('Uni.Loader');
-    loader.initI18n(['MTR']);
+    loader.initI18n(['ISU']);
 
     loader.onReady(function () {
         // Start up the application.
         Ext.application({
-            name: 'Mtr',
+            name: 'Isu',
 
-            extend: 'Mtr.Application',
+            /*"requires": [
+             "UnifyingJS"
+             ],*/
+
+            extend: 'Isu.Application',
 
             autoCreateViewport: true,
 

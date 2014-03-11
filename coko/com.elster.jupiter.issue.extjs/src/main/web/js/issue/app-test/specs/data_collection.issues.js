@@ -6,8 +6,8 @@ describe('Data collection issues', function () {
         issuesStore;
 
     beforeEach(function () {
-        issuesController = Mtr.getApplication().getController('Issues');
-        issuesStore = issuesController.getStore('Mtr.store.Issues');
+        issuesController = Isu.getApplication().getController('Issues');
+        issuesStore = issuesController.getStore('Isu.store.Issues');
 
         expect(issuesStore).toBeTruthy();
 

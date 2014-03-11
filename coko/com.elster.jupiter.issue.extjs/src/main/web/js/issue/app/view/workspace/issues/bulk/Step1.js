@@ -21,40 +21,38 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
             height: 285,
             selType: 'checkboxmodel',
 
-            columns: [
-                {
-                    header: 'Title',
-                    xtype: 'templatecolumn',
-                    tpl: '{reason}<tpl if="device"> to {device.name} {device.sNumber}</tpl>',
-                    flex: 2,
+            columns: {
+                defaults: {
                     sortable: false,
                     menuDisabled: true
                 },
-                {
-                    header: 'Due date',
-                    dataIndex: 'dueDate',
-                    xtype: 'datecolumn',
-                    format: 'M d Y',
-                    width: 140,
-                    sortable: false,
-                    menuDisabled: true
-                },
-                {
-                    header: 'Status',
-                    dataIndex: 'status',
-                    width: 100,
-                    sortable: false,
-                    menuDisabled: true
-                },
-                {
-                    header: 'Assignee',
-                    xtype: 'templatecolumn',
-                    tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type}"></span></tpl> {assignee.title}',
-                    flex: 1,
-                    sortable: false,
-                    menuDisabled: true
-                }
-            ]
+                items: [
+                    {
+                        header: 'Title',
+                        xtype: 'templatecolumn',
+                        tpl: '{reason}<tpl if="device"> to {device.name} {device.sNumber}</tpl>',
+                        flex: 2
+                    },
+                    {
+                        header: 'Due date',
+                        dataIndex: 'dueDate',
+                        xtype: 'datecolumn',
+                        format: 'M d Y',
+                        width: 140
+                    },
+                    {
+                        header: 'Status',
+                        dataIndex: 'status',
+                        width: 100
+                    },
+                    {
+                        header: 'Assignee',
+                        xtype: 'templatecolumn',
+                        tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type}"></span></tpl> {assignee.title}',
+                        flex: 1
+                    }
+                ]
+            }
         }
     ],
 
