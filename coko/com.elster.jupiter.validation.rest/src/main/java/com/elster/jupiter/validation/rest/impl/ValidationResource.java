@@ -61,7 +61,7 @@ public class ValidationResource {
     private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters) {
         Query<ValidationRuleSet> query = Bus.getValidationService().getRuleSetQuery();
         RestQuery<ValidationRuleSet> restQuery = queryService.wrap(query);
-        return restQuery.select(queryParameters, Order.ascending("name"));
+        return restQuery.select(queryParameters, Order.ascending("upper(name)"));
     }
 
 
