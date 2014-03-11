@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.Unit;
@@ -56,7 +57,7 @@ public class MasterDataGenerator {
         List<RegisterMapping> registerMappings = new ArrayList<>();
         for (ReadingType readingType : meteringService.getAvailableReadingTypes()) {
             try {
-                if (deviceConfigurationService.findRegisterMappingByReadingType(readingType)==null) {
+                if (TimeAttribute.NOTAPPLICABLE.equals(readingType.getMeasuringPeriod()) && deviceConfigurationService.findRegisterMappingByReadingType(readingType)==null) {
                     ReadingTypeInformation readingTypeInformation = readingTypeUtilService.getReadingTypeInformationFor(readingType);
                     RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping(readingType.getName(), readingTypeInformation.getObisCode(), readingTypeInformation.getUnit(), readingType , readingType.getTou());
                     registerMapping.save();

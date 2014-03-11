@@ -75,7 +75,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
 
     @Override
     public void save () {
-//        validateUniqueObisCodeAndPhenomenonAndTimeOfUse();
+        validateUniqueObisCodeAndPhenomenonAndTimeOfUse();
         this.modificationDate = this.clock.now();
         super.save();
     }
