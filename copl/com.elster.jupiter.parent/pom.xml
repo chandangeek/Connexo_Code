@@ -15,6 +15,10 @@
         <url>www.elster.com</url>
     </organization>
 
+    <modules>
+        <module>drools-integration</module>
+    </modules>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
