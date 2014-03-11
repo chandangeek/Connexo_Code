@@ -1,6 +1,6 @@
 Ext.define('Cfg.store.ValidationRuleSets', {
     extend: 'Ext.data.Store',
-    autoLoad: true,
+    autoLoad: false,
     model: 'Cfg.model.ValidationRuleSet',
 
 
@@ -9,7 +9,8 @@ Ext.define('Cfg.store.ValidationRuleSets', {
         url: '/api/val/validation',
         reader: {
             type: 'json',
-            root: 'ruleSets'
+            root: 'ruleSets',
+            totalProperty: 'total'
         }
     }
 
