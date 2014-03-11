@@ -70,7 +70,7 @@ public enum MessageSeeds implements MessageSeed {
 
 final class Constants {
 
-    public static final String MDC_VALUE_TOO_SMALL = "MDC.ValueTooSmall";
+    public static final String MDC_VALUE_TOO_SMALL = EngineModelService.COMPONENT_NAME+"ValueTooSmall";
     public static final String MDC_CAN_NOT_BE_EMPTY = "MDC.CanNotBeEmpty";
     public static final String MDC_VALUE_NOT_IN_RANGE = "MDC.ValueNotInRange";
     public static final String MDC_INVALID_URL = "MDC.InvalidURL";
