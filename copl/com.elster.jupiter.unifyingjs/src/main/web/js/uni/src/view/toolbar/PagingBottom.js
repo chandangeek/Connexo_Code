@@ -429,7 +429,10 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             me.store.loadPage(page, {
                 params: me.params,
                 callback: function () {
-                    Ext.History.resumeEvents();
+                    var task = Ext.create('Ext.util.DelayedTask', function () {
+                        Ext.History.resumeEvents();
+                    });
+                    task.delay(100);
                 }
             });
         });
