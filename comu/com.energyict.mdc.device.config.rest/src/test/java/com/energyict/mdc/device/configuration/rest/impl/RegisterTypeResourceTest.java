@@ -18,7 +18,9 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.device.config.RegisterSpec;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
@@ -99,7 +101,7 @@ public class RegisterTypeResourceTest extends JerseyTest {
         when(registerMapping.getId()).thenReturn(13L);
         when(registerMapping.getName()).thenReturn("register type");
         when(registerMapping.getObisCode()).thenReturn(new ObisCode(1,2,3,4,5,6));
-        when(registerMapping.isInUse()).thenReturn(true);
+        when(registerMapping.isLinkedByDeviceType()).thenReturn(true);
         when(registerMapping.getUnit()).thenReturn(Unit.get("kWh"));
         ReadingType readingType = mock(ReadingType.class);
         when(registerMapping.getReadingType()).thenReturn(readingType);
@@ -120,15 +122,19 @@ public class RegisterTypeResourceTest extends JerseyTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
-        
+
+        List<RegisterSpec> registerSpecs = mock(List.class);
+        when(registerSpecs.size()).thenReturn(1);
         when(deviceConfigurationService.findRegisterMapping(13)).thenReturn(registerMapping);
+        when(deviceConfigurationService.findRegisterSpecsByDeviceTypeAndRegisterMapping(any(DeviceType.class), any(RegisterMapping.class))).thenReturn(registerSpecs);
 
         Map<String, Object> map = target("/registertypes/13").request().get(Map.class);
-        assertThat(map).hasSize(7)
+        assertThat(map).hasSize(8)
         .containsKey("id")
         .containsKey("name")
         .containsKey("obisCode")
-        .containsKey("isInUse")
+        .containsKey("isLinkedByDeviceType")
+        .containsKey("isLinkedByRegisterConfig")
         .containsKey("timeOfUse")
         .containsKey("unit")
         .containsKey("readingType");

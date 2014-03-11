@@ -180,7 +180,8 @@ public class DeviceTypeResource {
         }
         List<RegisterMapping> pagedRegisterMappings = ListFinder.of(registerMappings).from(queryParameters).find();
         for (RegisterMapping registerMapping : pagedRegisterMappings) {
-            registerMappingInfos.add(new RegisterMappingInfo(registerMapping));
+            boolean isLinkedByRegisterSpec = !deviceConfigurationService.findRegisterSpecsByDeviceTypeAndRegisterMapping(deviceType, registerMapping).isEmpty();
+            registerMappingInfos.add(new RegisterMappingInfo(registerMapping, isLinkedByRegisterSpec));
         }
 
         return PagedInfoList.asJson("registerTypes", registerMappingInfos, queryParameters);
@@ -199,7 +200,8 @@ public class DeviceTypeResource {
 
         List<RegisterMappingInfo> registerMappingInfos = new ArrayList<>();
         for (RegisterMapping registerMapping : deviceType.getRegisterMappings()) {
-            registerMappingInfos.add(new RegisterMappingInfo(registerMapping));
+            boolean isLinkedByRegisterSpec = !deviceConfigurationService.findRegisterSpecsByDeviceTypeAndRegisterMapping(deviceType, registerMapping).isEmpty();
+            registerMappingInfos.add(new RegisterMappingInfo(registerMapping, isLinkedByRegisterSpec));
         }
 
         return registerMappingInfos;

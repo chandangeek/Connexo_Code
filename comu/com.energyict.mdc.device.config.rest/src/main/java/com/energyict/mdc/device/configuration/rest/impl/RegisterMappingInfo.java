@@ -18,8 +18,10 @@ public class RegisterMappingInfo {
     @JsonProperty("obisCode")
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
-    @JsonProperty("isInUse")
-    public boolean isInUse;
+    @JsonProperty("isLinkedByDeviceType")
+    public boolean isLinkedByDeviceType;
+    @JsonProperty("isLinkedByRegisterConfig")
+    public Boolean isLinkedByRegisterConfig; // This property makes no sense if the register mapping was retrieved outside the scope of a device type. It will be null.
     @JsonProperty("timeOfUse")
     public int timeOfUse;
     @JsonProperty("unit")
@@ -35,10 +37,15 @@ public class RegisterMappingInfo {
         id = registerMapping.getId();
         name = registerMapping.getName();
         obisCode = registerMapping.getObisCode();
-        isInUse = registerMapping.isInUse();
+        isLinkedByDeviceType = registerMapping.isLinkedByDeviceType();
         timeOfUse = registerMapping.getTimeOfUse();
         unit = registerMapping.getUnit();
         readingTypeInfo = new ReadingTypeInfo(registerMapping.getReadingType());
+    }
+
+    public RegisterMappingInfo(RegisterMapping registerMapping, boolean linkedByRegisterSpec) {
+        this(registerMapping);
+        this.isLinkedByRegisterConfig = linkedByRegisterSpec;
     }
 
     public void writeTo(RegisterMapping registerMapping, ReadingType readingType) {
