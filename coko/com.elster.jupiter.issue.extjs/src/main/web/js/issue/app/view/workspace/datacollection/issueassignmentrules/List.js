@@ -36,6 +36,7 @@ Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.List', {
                     header: 'Priority',
                     dataIndex: 'priority',
                     sortable: false,
+                    menuDisabled: true,
                     align: 'right',
                     width: 90
                 },
@@ -43,6 +44,7 @@ Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.List', {
                     header: 'Name',
                     dataIndex: 'name',
                     sortable: false,
+                    menuDisabled: true,
                     flex: 1
                 },
                 {
@@ -50,12 +52,14 @@ Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.List', {
                     xtype: 'templatecolumn',
                     tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type}"></span></tpl> {assignee.title}',
                     sortable: false,
+                    menuDisabled: true,
                     flex: 1
                 },
                 {
                     header: 'Status',
                     dataIndex: 'status',
                     sortable: false,
+                    menuDisabled: true,
                     width: 100
                 },
                 {
@@ -64,6 +68,7 @@ Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.List', {
                     iconCls: 'isu-action-icon',
                     align: 'left',
                     sortable: false,
+                    menuDisabled: true,
                     width: 70
                 }
             ]

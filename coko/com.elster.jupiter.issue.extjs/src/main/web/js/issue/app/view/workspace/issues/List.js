@@ -19,7 +19,8 @@ Ext.define('Mtr.view.workspace.issues.List', {
             xtype: 'templatecolumn',
             tpl: '{reason}<tpl if="device"> to {device.name} {device.serialNumber}</tpl>',
             flex: 2,
-            sortable: false
+            sortable: false,
+            menuDisabled: true
         },
         {
             header: 'Due date',
@@ -27,20 +28,23 @@ Ext.define('Mtr.view.workspace.issues.List', {
             xtype: 'datecolumn',
             format: 'M d Y',
             width: 140,
-            sortable: false
+            sortable: false,
+            menuDisabled: true
         },
         {
             header: 'Status',
             dataIndex: 'status',
             width: 100,
-            sortable: false
+            sortable: false,
+            menuDisabled: true
         },
         {
             header: 'Assignee',
             xtype: 'templatecolumn',
             tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type}"></span></tpl> {assignee.title}',
             flex: 1,
-            sortable: false
+            sortable: false,
+            menuDisabled: true
         },
         {
             header: 'Actions',
@@ -48,7 +52,8 @@ Ext.define('Mtr.view.workspace.issues.List', {
             iconCls: 'isu-action-icon',
             width: 70,
             align: 'left',
-            sortable: false
+            sortable: false,
+            menuDisabled: true
         }
     ],
     dockedItems: [
