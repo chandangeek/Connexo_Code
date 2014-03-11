@@ -1,70 +1,52 @@
 Ext.define('Isu.view.workspace.issues.Overview', {
-    extend: 'Ext.container.Container',
-    requires: [
-        'Uni.view.breadcrumb.Trail'
-    ],
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.issues-overview',
     overflowY: 'auto',
-
-    items: [
+    side: [
         {
-            xtype: 'breadcrumbTrail',
-            padding: 6
-        },
+            xtype: 'issues-filter'
+        }
+    ],
+    content: [
         {
+            border: false,
             layout: {
-                type: 'vbox',
+                type: 'hbox',
                 align: 'stretch'
             },
-            items: [
-                {
-                    defaults: {
-                        cls: 'content-wrapper'
-                    },
                     items: [
                         {
-                            border: false,
+                            html: '<h1>Issues</h1>'
+                        },
+                        {
+                            flex: 1,
                             layout: {
                                 type: 'hbox',
-                                align: 'stretch'
+                                align: 'middle'
                             },
                             items: [
                                 {
-                                    html: '<h1>Issues</h1>'
+                                    flex: 1
                                 },
                                 {
-                                    flex: 1,
-                                    layout: {
-                                        type: 'hbox',
-                                        align: 'middle'
-                                    },
-                                    items: [
-                                        {
-                                            flex: 1
-                                        },
-                                        {
-                                            html: '<a href="#/workspace/datacollection/assignmentrules">View assignment rules</a>',
-                                            width: 150
-                                        }
-                                    ]
+                                    html: '<a href="#/workspace/datacollection/assignmentrules">View assignment rules</a>',
+                                    width: 150
                                 }
                             ]
-                        },
-                        {
-                            xtype: 'issues-filter'
-                        },
-                        {
-                            xtype: 'issue-no-group'
-                        },
-                        {
-                            xtype: 'issues-list'
-                        },
-                        {
-                            xtype: 'issues-item'
                         }
                     ]
-                }
-            ]
+        },
+        {
+            xtype: 'issues-filter'
+        },
+        {
+            xtype: 'issue-no-group'
+        },
+        {
+            xtype: 'issues-list'
+        },
+        {
+            xtype: 'issues-item'
         }
     ]
 });
