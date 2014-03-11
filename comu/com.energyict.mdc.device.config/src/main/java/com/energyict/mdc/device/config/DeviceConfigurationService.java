@@ -247,6 +247,8 @@ public interface DeviceConfigurationService {
 
     public List<DeviceConfiguration> findDeviceConfigurationsUsingRegisterMapping(RegisterMapping registerMapping);
 
+    public boolean isRegisterMappingUsedByDeviceType(RegisterMapping registerMapping);
+
     public List<DeviceType> findDeviceTypesWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
     public List<LoadProfileType> findLoadProfileTypesByName(String name);

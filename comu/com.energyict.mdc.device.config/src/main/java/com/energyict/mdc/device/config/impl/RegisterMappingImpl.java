@@ -263,7 +263,11 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     @Override
     public boolean isInUse() {
         return this.usedByChannelSpecs() || this.usedByRegisterSpecs();
+    }
 
+    @Override
+    public boolean isLinkedByDeviceType() {
+        return deviceConfigurationService.isRegisterMappingUsedByDeviceType(this);
     }
 
     private boolean usedByChannelSpecs() {
