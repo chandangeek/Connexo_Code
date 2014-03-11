@@ -20,6 +20,12 @@ public class DeviceConfigurationInfo {
     public String description;
     @JsonProperty("active")
     public boolean active;
+    @JsonProperty("loadProfileCount")
+    public int loadProfileCount;
+    @JsonProperty("registerCount")
+    public int registerCount;
+    @JsonProperty("logBookCount")
+    public int logBookCount;
     @JsonUnwrapped // As requested by ExtJS people
     public DeviceProtocolInfo deviceProtocolInfo;
     @JsonProperty("deviceFunction")
@@ -34,6 +40,9 @@ public class DeviceConfigurationInfo {
         name = deviceConfiguration.getName();
         active = deviceConfiguration.isActive();
         description = deviceConfiguration.getDescription();
+        loadProfileCount = deviceConfiguration.getLoadProfileSpecs().size();
+        registerCount = deviceConfiguration.getRegisterSpecs().size();
+        logBookCount = deviceConfiguration.getLogBookSpecs().size();
 
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass();
         if (deviceProtocolPluggableClass!=null) {

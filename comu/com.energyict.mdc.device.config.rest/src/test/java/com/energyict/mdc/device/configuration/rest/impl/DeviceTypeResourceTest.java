@@ -205,12 +205,21 @@ public class DeviceTypeResourceTest extends JerseyTest {
     public void testDeviceConfigurationInfoJavaScriptMappings() throws Exception {
 
         DeviceType deviceType = mock(DeviceType.class);
+        List registerList = mock(List.class);
+        when(registerList.size()).thenReturn(2);
+        List logBookList = mock(List.class);
+        when(logBookList.size()).thenReturn(3);
+        List loadProfileList = mock(List.class);
+        when(loadProfileList.size()).thenReturn(4);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(113L);
         when(deviceConfiguration.getName()).thenReturn("defcon");
         when(deviceConfiguration.isActive()).thenReturn(true);
         when(deviceConfiguration.getDescription()).thenReturn("describe me");
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        when(deviceConfiguration.getRegisterSpecs()).thenReturn(registerList);
+        when(deviceConfiguration.getLoadProfileSpecs()).thenReturn(loadProfileList);
+        when(deviceConfiguration.getLogBookSpecs()).thenReturn(logBookList);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
 
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
@@ -228,13 +237,16 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(map.get("total")).describedAs("JSon representation of a field, JavaScript impact if it changed").isEqualTo(1);
         assertThat((List)map.get("deviceConfigurations")).hasSize(1).describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("deviceConfigurations")).get(0);
-        assertThat(jsonDeviceConfiguration).hasSize(6);
+        assertThat(jsonDeviceConfiguration).hasSize(9);
         assertThat(jsonDeviceConfiguration.get("id")).isEqualTo(113).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("active")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("description")).isEqualTo("describe me").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("communicationProtocolName")).isEqualTo("device protocol name").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("deviceFunction")).isEqualTo("Meter").describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("registerCount")).isEqualTo(2).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("logBookCount")).isEqualTo(3).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("loadProfileCount")).isEqualTo(4).describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 
     @Test
