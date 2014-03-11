@@ -5,7 +5,7 @@ describe('Initial assumptions', function () {
         expect(Ext.getVersion().major).toEqual(4);
     });
 
-    it('has loaded Mtr code', function () {
-        expect(Mtr).toBeDefined();
+    it('has loaded Isu code', function () {
+        expect(Isu).toBeDefined();
     });
 });
