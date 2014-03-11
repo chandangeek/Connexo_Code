@@ -51,7 +51,11 @@ public class ValidationResource {
     public ValidationRuleSetInfos getValidationRuleSets(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<ValidationRuleSet> list = queryRuleSets(params);
-        return toRuleSetInfos(params.clipToLimit(list), params.getStart(), params.getLimit());
+
+        ValidationRuleSetInfos infos = new ValidationRuleSetInfos(params.clipToLimit(list));
+        infos.total = params.determineTotal(list.size());
+
+        return infos;
     }
 
     private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters) {
@@ -60,14 +64,6 @@ public class ValidationResource {
         return restQuery.select(queryParameters, Order.ascending("name"));
     }
 
-    private ValidationRuleSetInfos toRuleSetInfos(List<ValidationRuleSet> list, int start, int limit) {
-        ValidationRuleSetInfos infos = new ValidationRuleSetInfos(list);
-        infos.total = start + list.size();
-        if (list.size() == limit) {
-            infos.total++;
-        }
-        return infos;
-    }
 
 
     @GET
