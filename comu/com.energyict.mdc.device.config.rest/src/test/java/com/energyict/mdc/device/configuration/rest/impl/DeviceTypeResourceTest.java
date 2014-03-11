@@ -110,7 +110,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
     @Test
     public void testGetAllDeviceTypesWithFullPage() throws Exception {
-        Finder<DeviceType> finder = mockFinder(Arrays.asList(mockDeviceType("device type 1", 66),mockDeviceType("device type 2", 66),mockDeviceType("device type 3", 66),mockDeviceType("device type 4", 66)));
+        Finder<DeviceType> finder = mockFinder(Arrays.asList(mockDeviceType("device type 1", 66), mockDeviceType("device type 2", 66), mockDeviceType("device type 3", 66), mockDeviceType("device type 4", 66)));
         when(deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
 
         Map<String, Object> map = target("/devicetypes/").queryParam("start", 0).queryParam("limit", 4).request().get(Map.class);
@@ -410,8 +410,10 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101, registerMapping102));
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
 
-        List response = target("/devicetypes/31/registertypes").request().get(List.class);
+        Map response = target("/devicetypes/31/registertypes").request().get(Map.class);
         assertThat(response).hasSize(2);
+        List registerTypes = (List) response.get("registerTypes");
+        assertThat(registerTypes).hasSize(2);
     }
 
     @Test
@@ -438,8 +440,10 @@ public class DeviceTypeResourceTest extends JerseyTest {
         Finder<RegisterMapping> registerMappingFinder = mockFinder(Arrays.asList(registerMapping101, registerMapping102, registerMapping103));
         when(deviceConfigurationService.findAllRegisterMappings()).thenReturn(registerMappingFinder);
 
-        List response = target("/devicetypes/31/registertypes").queryParam("available","true").request().get(List.class);
+        Map response = target("/devicetypes/31/registertypes").queryParam("available","true").request().get(Map.class);
         assertThat(response).hasSize(2);
+        List registerTypes = (List) response.get("registerTypes");
+        assertThat(registerTypes).hasSize(2);
     }
 
     @Test
@@ -486,6 +490,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
         when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
         when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.defaultSortColumn(anyString())).thenReturn(finder);
         when(finder.find()).thenReturn(list);
         return finder;
     }

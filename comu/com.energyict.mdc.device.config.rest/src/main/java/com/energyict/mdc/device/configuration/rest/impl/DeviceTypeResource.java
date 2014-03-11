@@ -4,6 +4,7 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.common.services.ListFinder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -162,7 +163,7 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<RegisterMappingInfo> getRegisterMappingsForDeviceType(@PathParam("id") long id, @QueryParam("available") String available) {
+    public PagedInfoList getRegisterMappingsForDeviceType(@PathParam("id") long id, @QueryParam("available") String available, @BeanParam QueryParameters queryParameters) {
         DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
         List<RegisterMappingInfo> registerMappingInfos = new ArrayList<>();
 
@@ -170,22 +171,19 @@ public class DeviceTypeResource {
         if (available == null || !Boolean.parseBoolean(available)) {
             registerMappings.addAll(deviceType.getRegisterMappings());
         } else {
-            if (Boolean.parseBoolean(available)) {
-                if (Boolean.parseBoolean(available)) {
-                    Set<Long> deviceTypeRegisterMappingIds = asIds(deviceType.getRegisterMappings());
-                    for (RegisterMapping registerMapping : this.deviceConfigurationService.findAllRegisterMappings().find()) {
-                        if (!deviceTypeRegisterMappingIds.contains(registerMapping.getId())) {
-                            registerMappings.add(registerMapping);
-                        }
-                    }
+            Set<Long> deviceTypeRegisterMappingIds = asIds(deviceType.getRegisterMappings());
+            for (RegisterMapping registerMapping : this.deviceConfigurationService.findAllRegisterMappings().defaultSortColumn("name").find()) {
+                if (!deviceTypeRegisterMappingIds.contains(registerMapping.getId())) {
+                    registerMappings.add(registerMapping);
                 }
             }
         }
-        for (RegisterMapping registerMapping : registerMappings) {
+        List<RegisterMapping> pagedRegisterMappings = ListFinder.of(registerMappings).from(queryParameters).find();
+        for (RegisterMapping registerMapping : pagedRegisterMappings) {
             registerMappingInfos.add(new RegisterMappingInfo(registerMapping));
         }
 
-        return registerMappingInfos;
+        return PagedInfoList.asJson("registerTypes", registerMappingInfos, queryParameters);
     }
 
     @POST
@@ -197,7 +195,14 @@ public class DeviceTypeResource {
 
         linkRegisterMappingToDeviceType(deviceType, rmId);
 
-        return getRegisterMappingsForDeviceType(id, null);
+        deviceType = findDeviceTypeByIdOrThrowException(id);
+
+        List<RegisterMappingInfo> registerMappingInfos = new ArrayList<>();
+        for (RegisterMapping registerMapping : deviceType.getRegisterMappings()) {
+            registerMappingInfos.add(new RegisterMappingInfo(registerMapping));
+        }
+
+        return registerMappingInfos;
     }
 
     @DELETE
