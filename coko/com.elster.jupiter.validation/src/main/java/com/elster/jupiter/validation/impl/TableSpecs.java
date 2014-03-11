@@ -42,7 +42,7 @@ public enum TableSpecs {
             table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
             table.column("NAME").type("varchar2(80)").notNull().map("name").add();
             table.primaryKey("VAL_PK_VALIDATIONRULE").on(idColumn).add();
-            table.foreignKey("VAL_FK_RULE").references("VAL_VALIDATIONRULESET").onDelete(CASCADE).map("ruleSet").reverseMap("rules").reverseMapOrder("position").on(ruleSetIdColumn).add();
+            table.foreignKey("VAL_FK_RULE").references("VAL_VALIDATIONRULESET").onDelete(RESTRICT).map("ruleSet").reverseMap("rules").reverseMapOrder("position").on(ruleSetIdColumn).add();
         }
     },
     VAL_VALIDATIONRULEPROPS(ValidationRuleProperties.class) {
