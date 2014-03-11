@@ -14,49 +14,45 @@ Ext.define('Isu.view.workspace.issues.List', {
     enableColumnHide: false,
     height: 395,
     emptyText: '<h3>No issue found</h3><p>No data collection issues have been created yet.</p>',
-    columns: [
-        {
-            header: 'Title',
-            xtype: 'templatecolumn',
-            tpl: '{reason}<tpl if="device"> to {device.name} {device.serialNumber}</tpl>',
-            flex: 2,
+    columns: {
+        defaults: {
             sortable: false,
             menuDisabled: true
         },
-        {
-            header: 'Due date',
-            dataIndex: 'dueDate',
-            xtype: 'datecolumn',
-            format: 'M d Y',
-            width: 140,
-            sortable: false,
-            menuDisabled: true
-        },
-        {
-            header: 'Status',
-            dataIndex: 'status',
-            width: 100,
-            sortable: false,
-            menuDisabled: true
-        },
-        {
-            header: 'Assignee',
-            xtype: 'templatecolumn',
-            tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type}"></span></tpl> {assignee.title}',
-            flex: 1,
-            sortable: false,
-            menuDisabled: true
-        },
-        {
-            header: 'Actions',
-            xtype: 'actioncolumn',
-            iconCls: 'isu-action-icon',
-            width: 70,
-            align: 'left',
-            sortable: false,
-            menuDisabled: true
-        }
-    ],
+        items: [
+            {
+                header: 'Title',
+                xtype: 'templatecolumn',
+                tpl: '{reason}<tpl if="device"> to {device.name} {device.serialNumber}</tpl>',
+                flex: 2
+            },
+            {
+                header: 'Due date',
+                dataIndex: 'dueDate',
+                xtype: 'datecolumn',
+                format: 'M d Y',
+                width: 140
+            },
+            {
+                header: 'Status',
+                dataIndex: 'status',
+                width: 100
+            },
+            {
+                header: 'Assignee',
+                xtype: 'templatecolumn',
+                tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type}"></span></tpl> {assignee.title}',
+                flex: 1
+            },
+            {
+                header: 'Actions',
+                xtype: 'actioncolumn',
+                iconCls: 'isu-action-icon',
+                width: 70,
+                align: 'left'
+            }
+        ]
+    },
     dockedItems: [
         {
             xtype: 'toolbar',
