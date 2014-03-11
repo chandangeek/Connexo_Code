@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.Overview', {
+Ext.define('Isu.view.workspace.Overview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.workspace-overview',
     overflowY: 'auto',

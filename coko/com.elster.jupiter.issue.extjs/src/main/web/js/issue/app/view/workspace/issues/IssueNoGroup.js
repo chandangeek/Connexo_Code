@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.issues.IssueNoGroup', {
+Ext.define('Isu.view.workspace.issues.IssueNoGroup', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.issue-no-group',
 

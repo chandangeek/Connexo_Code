@@ -1,10 +1,14 @@
-Ext.define('Mtr.controller.BulkChangeIssues', {
+Ext.define('Isu.controller.BulkChangeIssues', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Uni.model.BreadcrumbItem'
+    ],
+
     stores: [
-        'Mtr.store.Issues',
-        'Mtr.store.IssuesGroups',
-        'Mtr.store.BulkChangeIssues'
+        'Isu.store.Issues',
+        'Isu.store.IssuesGroups',
+        'Isu.store.BulkChangeIssues'
     ],
 
     views: [
@@ -236,7 +240,7 @@ Ext.define('Mtr.controller.BulkChangeIssues', {
     },
 
     getBulkRecord: function () {
-        var bulkStore = Ext.getStore('Mtr.store.BulkChangeIssues');
+        var bulkStore = Ext.getStore('Isu.store.BulkChangeIssues');
         var bulkRecord = bulkStore.getAt(0);
         if (!bulkRecord) {
             bulkStore.add({

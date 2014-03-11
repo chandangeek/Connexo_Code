@@ -1,9 +1,9 @@
-Ext.define('Mtr.store.Issues', {
+Ext.define('Isu.store.Issues', {
     extend: 'Ext.data.Store',
     requires: [
         'Ext.data.proxy.Rest'
     ],
-    model: 'Mtr.model.Issues',
+    model: 'Isu.model.Issues',
     pageSize: 10,
     autoLoad: false,
 

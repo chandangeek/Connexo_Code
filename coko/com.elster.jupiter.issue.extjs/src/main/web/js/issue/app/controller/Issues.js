@@ -1,9 +1,13 @@
-Ext.define('Mtr.controller.Issues', {
+Ext.define('Isu.controller.Issues', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Uni.model.BreadcrumbItem'
+    ],
+
     stores: [
-        'Mtr.store.Issues',
-        'Mtr.store.IssuesGroups'
+        'Isu.store.Issues',
+        'Isu.store.IssuesGroups'
     ],
 
     views: [
@@ -17,7 +21,7 @@ Ext.define('Mtr.controller.Issues', {
     ],
 
     mixins: [
-        'Mtr.util.IsuGrid'
+        'Isu.util.IsuGrid'
     ],
 
     refs: [
@@ -87,12 +91,12 @@ Ext.define('Mtr.controller.Issues', {
             // ====================================  END IssueListFilter controls  ================================
         });
 
-        this.groupStore = this.getStore('Mtr.store.IssuesGroups');
-        this.store = this.getStore('Mtr.store.Issues');
+        this.groupStore = this.getStore('Isu.store.IssuesGroups');
+        this.store = this.getStore('Isu.store.Issues');
         this.groupParams = {};
         this.sortParams = {};
         this.actionMenuXtype = 'issue-action-menu';
-        this.gridItemModel = this.getModel('Mtr.model.Issues');
+        this.gridItemModel = this.getModel('Isu.model.Issues');
     },
 
     showOverview: function () {
@@ -129,12 +133,12 @@ Ext.define('Mtr.controller.Issues', {
                 record: menu.record
             });
         }
-        Mtr.getApplication().getMainController().showContent(widget);
+        Isu.getApplication().getMainController().showContent(widget);
     },
 
     bulkChangeIssues: function () {
         var widget = Ext.widget('bulk-browse');
-        Mtr.getApplication().getMainController().showContent(widget);
+        Isu.getApplication().getMainController().showContent(widget);
     },
 
     // ====================================  IssueListFilter controls  ====================================
@@ -238,7 +242,7 @@ Ext.define('Mtr.controller.Issues', {
     },
 
     setGroupFields: function (view) {
-        var model = Ext.ModelManager.getModel('Mtr.model.Issues'),
+        var model = Ext.ModelManager.getModel('Isu.model.Issues'),
             reason = model.getFields()[1],
             data = [
                 { Value: '(none)', display: 'None'}

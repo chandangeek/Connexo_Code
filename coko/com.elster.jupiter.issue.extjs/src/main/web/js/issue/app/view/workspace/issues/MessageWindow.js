@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.issues.MessageWindow', {
+Ext.define('Isu.view.workspace.issues.MessageWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.message-window',
     autoShow: true,

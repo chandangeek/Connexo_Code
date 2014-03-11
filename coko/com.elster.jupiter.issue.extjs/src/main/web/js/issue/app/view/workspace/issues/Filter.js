@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.issues.Filter', {
+Ext.define('Isu.view.workspace.issues.Filter', {
     extend: 'Ext.panel.Panel',
     requires: [
         'Uni.view.toolbar.PagingTop',
@@ -6,7 +6,7 @@ Ext.define('Mtr.view.workspace.issues.Filter', {
         'Ext.form.Label'
     ],
     alias: "widget.issues-filter",
-    store: 'Mtr.store.Issues',
+    store: 'Isu.store.Issues',
     border: true,
     header: false,
     collapsible: false,
@@ -76,7 +76,7 @@ Ext.define('Mtr.view.workspace.issues.Filter', {
                     name: 'groupgrid',
                     margin: '10 2 2 2',
                     hidden: true,
-                    store: 'Mtr.store.IssuesGroups',
+                    store: 'Isu.store.IssuesGroups',
                     border: 1,
                     columns: [
                         {
@@ -98,7 +98,7 @@ Ext.define('Mtr.view.workspace.issues.Filter', {
                     },
                     bbar: {
                         xtype: 'pagingtoolbarbottom',
-                        store: 'Mtr.store.IssuesGroups',
+                        store: 'Isu.store.IssuesGroups',
                         dock: 'bottom'
                     }
                 }

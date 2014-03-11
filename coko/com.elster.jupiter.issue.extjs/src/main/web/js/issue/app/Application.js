@@ -1,10 +1,10 @@
-Ext.define('Mtr.Application', {
-    name: 'Mtr',
+Ext.define('Isu.Application', {
+    name: 'Isu',
 
     extend: 'Ext.app.Application',
 
     requires: [
-        'Mtr.model.types.Quantity'
+
     ],
 
     views: [
@@ -13,14 +13,6 @@ Ext.define('Mtr.Application', {
 
     controllers: [
         'Main',
-        'Error',
-        'Party',
-        'Dashboard',
-        'Playground',
-        'UsagePoint',
-        'Person',
-        'Group',
-        'User',
         'Workspace',
         'DataCollection',
         'Issues',
@@ -29,14 +21,6 @@ Ext.define('Mtr.Application', {
         'BulkChangeIssues',
         'MessageWindow',
         'IssueAssignmentRules',
-
-        'history.Dashboard',
-        'history.Group',
-        'history.Party',
-        'history.Person',
-        'history.Playground',
-        'history.UsagePoint',
-        'history.User',
         'history.Workspace'
     ],
 
@@ -47,10 +31,10 @@ Ext.define('Mtr.Application', {
     init: function () {
         // TODO App specific loading.
         this.callParent(arguments);
-        this.getApplication().fireEvent('changeapptitleevent', 'This is just a test');
     },
 
     launch: function () {
+        this.fireEvent('changeapptitleevent', 'Jupiter issue application');
         // Removes the loading indicator.
         Ext.fly('appLoadingWrapper').destroy();
         this.callParent(arguments);

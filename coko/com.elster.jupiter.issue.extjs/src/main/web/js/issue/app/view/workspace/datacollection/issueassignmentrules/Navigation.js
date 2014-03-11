@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.Navigation', {
+Ext.define('Isu.view.workspace.datacollection.issueassignmentrules.Navigation', {
     extend: 'Ext.container.Container',
     alias: 'widget.issues-assignment-rules-navigation',
     requires: [

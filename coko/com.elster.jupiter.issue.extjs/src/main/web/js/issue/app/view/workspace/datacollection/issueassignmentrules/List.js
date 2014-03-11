@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.List', {
+Ext.define('Isu.view.workspace.datacollection.issueassignmentrules.List', {
     extend: 'Ext.panel.Panel',
     requires: [
         'Ext.grid.column.Template',
@@ -29,7 +29,7 @@ Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.List', {
         },
         {
             xtype: 'grid',
-            store: 'Mtr.store.AssignmentRules',
+            store: 'Isu.store.AssignmentRules',
             height: 285,
             columns: [
                 {
@@ -86,7 +86,7 @@ Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.List', {
                     items: [
                         {
                             xtype: 'pagingtoolbartop',
-                            store: 'Mtr.store.AssignmentRules',
+                            store: 'Isu.store.AssignmentRules',
                             border: false
                         }
                     ]*/

@@ -1,8 +1,8 @@
-Ext.define('Mtr.view.workspace.issues.Item', {
+Ext.define('Isu.view.workspace.issues.Item', {
     extend: 'Ext.panel.Panel',
     requires: [
-        'Mtr.view.ext.button.ItemAction',
-        'Mtr.view.workspace.issues.ActionMenu'
+        'Isu.view.ext.button.ItemAction',
+        'Isu.view.workspace.issues.ActionMenu'
     ],
     alias: 'widget.issues-item',
     height: 310,

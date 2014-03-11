@@ -1,4 +1,4 @@
-Ext.define('Mtr.model.UserRoleList', {
+Ext.define('Isu.model.UserRoleList', {
     extend: 'Ext.data.Model',
 
     fields: [

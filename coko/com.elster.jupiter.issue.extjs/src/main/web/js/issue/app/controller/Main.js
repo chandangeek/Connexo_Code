@@ -1,13 +1,15 @@
-Ext.define('Mtr.controller.Main', {
+Ext.define('Isu.controller.Main', {
     extend: 'Ext.app.Controller',
 
     requires: [
         'Ext.window.Window',
-        'Uni.controller.Navigation'
+        'Uni.controller.Navigation',
+        'Uni.controller.Configuration'
     ],
 
     config: {
-        navigationController: null
+        navigationController: null,
+        configurationController: null
     },
 
     refs: [
@@ -28,14 +30,17 @@ Ext.define('Mtr.controller.Main', {
     },
 
     initNavigation: function () {
-        var controller = this.getController('Uni.controller.Navigation');
-        this.setNavigationController(controller);
+        var navigationController = this.getController('Uni.controller.Navigation'),
+            configurationController = this.getController('Uni.controller.Configuration');
+
+        this.setNavigationController(navigationController);
+        this.setConfigurationController(configurationController);
     },
 
     initDefaultHistoryToken: function () {
-        var usagePointController = this.getController('Mtr.controller.history.UsagePoint'),
+        var workspaceController = this.getController('Isu.controller.history.Workspace'),
             eventBus = this.getController('Uni.controller.history.EventBus'),
-            defaultToken = usagePointController.tokenizeShowOverview();
+            defaultToken = workspaceController.tokenizeShowOverview();
 
         eventBus.setDefaultToken(defaultToken);
     },

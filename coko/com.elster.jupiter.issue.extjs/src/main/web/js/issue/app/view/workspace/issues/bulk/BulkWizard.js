@@ -1,15 +1,15 @@
-Ext.define('Mtr.view.workspace.issues.bulk.BulkWizard', {
-    extend: 'Mtr.view.workspace.issues.bulk.Wizard',
+Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
+    extend: 'Isu.view.workspace.issues.bulk.Wizard',
     alias: 'widget.bulk-wizard',
     titlePrefix: 'Bulk action',
     includeSubTitle: true,
 
     requires: [
-        'Mtr.view.workspace.issues.bulk.Step1',
-        'Mtr.view.workspace.issues.bulk.Step2',
-        'Mtr.view.workspace.issues.bulk.Step3',
-        'Mtr.view.workspace.issues.bulk.Step4',
-        'Mtr.view.workspace.issues.bulk.Step5'
+        'Isu.view.workspace.issues.bulk.Step1',
+        'Isu.view.workspace.issues.bulk.Step2',
+        'Isu.view.workspace.issues.bulk.Step3',
+        'Isu.view.workspace.issues.bulk.Step4',
+        'Isu.view.workspace.issues.bulk.Step5'
     ],
 
     header: {

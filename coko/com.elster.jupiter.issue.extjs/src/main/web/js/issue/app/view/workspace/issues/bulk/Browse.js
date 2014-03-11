@@ -1,9 +1,9 @@
-Ext.define('Mtr.view.workspace.issues.bulk.Browse', {
+Ext.define('Isu.view.workspace.issues.bulk.Browse', {
     extend: 'Ext.container.Container',
     alias: 'widget.bulk-browse',
     requires: [
-        'Mtr.view.workspace.issues.bulk.Navigation',
-        'Mtr.view.workspace.issues.bulk.BulkWizard',
+        'Isu.view.workspace.issues.bulk.Navigation',
+        'Isu.view.workspace.issues.bulk.BulkWizard',
         'Uni.view.breadcrumb.Trail'
     ],
     layout: 'border',

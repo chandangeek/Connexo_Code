@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.ext.button.IssuesGridAction', {
+Ext.define('Isu.view.ext.button.IssuesGridAction', {
     extend: 'Ext.button.Split',
     cls: 'isu-grid-action-btn',
     menuAlign: 'tl-bl',

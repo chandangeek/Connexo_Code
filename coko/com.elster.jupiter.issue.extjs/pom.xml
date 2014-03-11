@@ -61,7 +61,7 @@
                                         <property name="build.temp.dir" value="${project.build.directory}/webtemp"/>
                                         <property name="cmd.dir" value="${sencha.cmd.dir}"/>
                                         <property name="ext.dir" value="${sencha.ext.dir}"/>
-                                        <ant antfile="build.xml" target="build" dir="./src/main/web/js/mtr/"/>
+                                        <ant antfile="build.xml" target="build" dir="${basedir}/src/main/web/js/issue/"/>
                                     </target>
                                 </configuration>
                             </execution>
@@ -71,7 +71,7 @@
                 <resources>
                     <resource>
                         <directory>${basedir}/target/web</directory>
-                        <targetPath>js/mtr</targetPath>
+                        <targetPath>js/issue</targetPath>
                         <includes>
                             <!--  WATCH OUT : our build is case sensitive !!!! -->
                             <include>*.html</include>

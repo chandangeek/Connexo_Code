@@ -1,4 +1,4 @@
-Ext.define('Mtr.model.BulkChangeIssues', {
+Ext.define('Isu.model.BulkChangeIssues', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'operation', type: 'string'},
@@ -7,5 +7,5 @@ Ext.define('Mtr.model.BulkChangeIssues', {
         {name: 'assignee', type: 'auto'}
     ],
 
-    hasMany: {model: 'Mtr.model.BulkIssues', name: 'issues'}
+    hasMany: {model: 'Isu.model.BulkIssues', name: 'issues'}
 });

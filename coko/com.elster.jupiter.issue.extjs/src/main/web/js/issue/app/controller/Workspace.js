@@ -1,4 +1,4 @@
-Ext.define('Mtr.controller.Workspace', {
+Ext.define('Isu.controller.Workspace', {
     extend: 'Ext.app.Controller',
 
     views: [

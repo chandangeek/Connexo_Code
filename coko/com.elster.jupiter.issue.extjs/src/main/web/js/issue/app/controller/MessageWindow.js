@@ -19,7 +19,7 @@
  */
 
 
-Ext.define('Mtr.controller.MessageWindow', {
+Ext.define('Isu.controller.MessageWindow', {
     extend: 'Ext.app.Controller',
     views: [
         'workspace.issues.MessagePanel',

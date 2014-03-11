@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.issues.bulk.Navigation', {
+Ext.define('Isu.view.workspace.issues.bulk.Navigation', {
     extend: 'Ext.view.View',
     alias: 'widget.bulk-navigation',
 

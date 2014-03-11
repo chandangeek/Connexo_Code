@@ -1,4 +1,4 @@
-Ext.define('Mtr.model.Issues', {
+Ext.define('Isu.model.Issues', {
     extend: 'Ext.data.Model',
 
     fields: [

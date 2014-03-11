@@ -1,8 +1,12 @@
-Ext.define('Mtr.controller.IssueAssignmentRules', {
+Ext.define('Isu.controller.IssueAssignmentRules', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Uni.model.BreadcrumbItem'
+    ],
+
     stores: [
-        'Mtr.store.AssignmentRules'
+        'Isu.store.AssignmentRules'
     ],
     views: [
         'workspace.datacollection.issueassignmentrules.Overview',
@@ -10,7 +14,7 @@ Ext.define('Mtr.controller.IssueAssignmentRules', {
     ],
 
     mixins: [
-        'Mtr.util.IsuGrid'
+        'Isu.util.IsuGrid'
     ],
 
     refs: [

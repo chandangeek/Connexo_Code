@@ -1,4 +1,4 @@
-Ext.define('Mtr.controller.history.Workspace', {
+Ext.define('Isu.controller.history.Workspace', {
     extend: 'Uni.controller.history.Converter',
 
     rootToken: 'workspace',
@@ -17,19 +17,19 @@ Ext.define('Mtr.controller.history.Workspace', {
         }
     },
 
-    showWorkspace: function () {
-        Mtr.getApplication().getWorkspaceController().showOverview();
+    showWorkspace: function() {
+        Isu.getApplication().getWorkspaceController().showOverview();
     },
 
     showDataCollection: function () {
-        Mtr.getApplication().getDataCollectionController().showOverview();
+        Isu.getApplication().getDataCollectionController().showOverview();
     },
 
     showIssues: function () {
-        Mtr.getApplication().getIssuesController().showOverview();
+        Isu.getApplication().getIssuesController().showOverview();
     },
 
     showAssigmentRules: function () {
-        Mtr.getApplication().getIssueAssignmentRulesController().showOverview();
+        Isu.getApplication().getIssueAssignmentRulesController().showOverview();
     }
 });

@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.FilterAction', {
+Ext.define('Isu.view.workspace.datacollection.issueassignmentrules.FilterAction', {
     extend: 'Ext.container.Container',
     alias: 'widget.issues-assignment-rules-filter-action',
     defaults: {

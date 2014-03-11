@@ -1,9 +1,9 @@
-Ext.define('Mtr.store.AssignmentRules', {
+Ext.define('Isu.store.AssignmentRules', {
     extend: 'Ext.data.Store',
     requires: [
         'Ext.data.proxy.Rest'
     ],
-    model: 'Mtr.model.AssignmentRules',
+    model: 'Isu.model.AssignmentRules',
     pageSize: 100,
 //    buffered: true,
     autoLoad: false,

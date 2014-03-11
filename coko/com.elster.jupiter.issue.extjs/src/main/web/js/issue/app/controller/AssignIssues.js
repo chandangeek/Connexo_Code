@@ -1,10 +1,14 @@
-Ext.define('Mtr.controller.AssignIssues', {
+Ext.define('Isu.controller.AssignIssues', {
         extend: 'Ext.app.Controller',
 
+        requires: [
+            'Uni.model.BreadcrumbItem'
+        ],
+
         stores: [
-            'Mtr.store.UserList',
-            'Mtr.store.UserRoleList',
-            'Mtr.store.UserGroupList'
+            'Isu.store.UserList',
+            'Isu.store.UserRoleList',
+            'Isu.store.UserGroupList'
         ],
 
         views: [

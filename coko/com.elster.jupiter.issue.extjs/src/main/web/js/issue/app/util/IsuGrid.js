@@ -3,7 +3,7 @@
  *
  * This class is to be used to provide basic methods for controllers that handle events of grid view.
  */
-Ext.define('Mtr.util.IsuGrid', {
+Ext.define('Isu.util.IsuGrid', {
     /**
      * Handle 'itemmouseenter' event.
      * Show tooltip for user type icon.

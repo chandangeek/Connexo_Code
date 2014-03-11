@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.issues.Assign', {
+Ext.define('Isu.view.workspace.issues.Assign', {
     extend: 'Ext.container.Container',
     requires: [
         'Ext.form.Panel',

@@ -1,5 +1,9 @@
-Ext.define('Mtr.controller.CloseIssues', {
+Ext.define('Isu.controller.CloseIssues', {
     extend: 'Ext.app.Controller',
+
+    requires: [
+        'Uni.model.BreadcrumbItem'
+    ],
 
     views: [
         'workspace.issues.Close'

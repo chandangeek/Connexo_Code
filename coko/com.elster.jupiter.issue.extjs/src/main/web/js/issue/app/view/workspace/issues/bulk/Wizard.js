@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.issues.bulk.Wizard', {
+Ext.define('Isu.view.workspace.issues.bulk.Wizard', {
     extend: 'Ext.form.Panel',
     alias: 'widget.wizard',
     cls: 'wizard',

@@ -1,6 +1,6 @@
-Ext.define('Mtr.store.IssuesGroups', {
+Ext.define('Isu.store.IssuesGroups', {
     extend: 'Ext.data.Store',
-    model: 'Mtr.model.IssuesGroups',
+    model: 'Isu.model.IssuesGroups',
     pageSize: 10,
     autoLoad: false
  });

@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.FilterView', {
+Ext.define('Isu.view.workspace.datacollection.issueassignmentrules.FilterView', {
     extend: 'Ext.container.Container',
     alias: 'widget.issues-assignment-rules-filter-view',
     layout: 'hbox',

@@ -1,4 +1,4 @@
-Ext.define('Mtr.model.AssignmentRules', {
+Ext.define('Isu.model.AssignmentRules', {
     extend: 'Ext.data.Model',
     fields: [
         {

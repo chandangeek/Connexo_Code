@@ -1,6 +1,6 @@
-Ext.define('Mtr.store.BulkChangeIssues', {
+Ext.define('Isu.store.BulkChangeIssues', {
     extend: 'Ext.data.Store',
-    model: 'Mtr.model.BulkChangeIssues',
+    model: 'Isu.model.BulkChangeIssues',
 
     requires: [
         'Ext.data.proxy.SessionStorage'

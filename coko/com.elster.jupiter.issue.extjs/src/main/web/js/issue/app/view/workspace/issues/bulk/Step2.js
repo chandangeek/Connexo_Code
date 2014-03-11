@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.issues.bulk.Step2', {
+Ext.define('Isu.view.workspace.issues.bulk.Step2', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.bulk-step2',
     title: 'Select action',

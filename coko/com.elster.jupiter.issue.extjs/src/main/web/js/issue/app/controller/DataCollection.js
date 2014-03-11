@@ -1,5 +1,9 @@
-Ext.define('Mtr.controller.DataCollection', {
+Ext.define('Isu.controller.DataCollection', {
     extend: 'Ext.app.Controller',
+
+    requires: [
+        'Uni.model.BreadcrumbItem'
+    ],
 
     views: [
         'workspace.datacollection.Overview'

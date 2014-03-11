@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.issues.List', {
+Ext.define('Isu.view.workspace.issues.List', {
     extend: 'Ext.grid.Panel',
     requires: [
         'Ext.grid.column.Date',
@@ -9,7 +9,8 @@ Ext.define('Mtr.view.workspace.issues.List', {
         'Uni.view.toolbar.PagingBottom'
     ],
     alias: 'widget.issues-list',
-    store: 'Mtr.store.Issues',
+    store: 'Isu.store.Issues',
+    cls: 'content-wrapper',
     enableColumnHide: false,
     height: 395,
     emptyText: '<h3>No issue found</h3><p>No data collection issues have been created yet.</p>',
@@ -67,7 +68,7 @@ Ext.define('Mtr.view.workspace.issues.List', {
                     items: [
                         {
                             xtype: 'pagingtoolbartop',
-                            store: 'Mtr.store.Issues',
+                            store: 'Isu.store.Issues',
                             dock: 'top',
                             border: false
                         }
@@ -82,7 +83,7 @@ Ext.define('Mtr.view.workspace.issues.List', {
         },
         {
             xtype: 'pagingtoolbarbottom',
-            store: 'Mtr.store.Issues',
+            store: 'Isu.store.Issues',
             dock: 'bottom'
         }
     ]

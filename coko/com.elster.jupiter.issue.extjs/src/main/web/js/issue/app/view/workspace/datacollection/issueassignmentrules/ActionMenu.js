@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.ActionMenu', {
+Ext.define('Isu.view.workspace.datacollection.issueassignmentrules.ActionMenu', {
     extend: 'Ext.menu.Menu',
     alias: 'widget.rule-action-menu',
     plain: true,

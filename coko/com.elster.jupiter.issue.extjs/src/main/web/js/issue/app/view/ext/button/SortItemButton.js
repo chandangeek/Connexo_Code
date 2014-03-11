@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.ext.button.SortItemButton', {
+Ext.define('Isu.view.ext.button.SortItemButton', {
     extend: 'Ext.button.Split',
     alias: 'widget.sort-item-btn',
     name: 'sortitembtn',

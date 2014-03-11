@@ -1,8 +1,8 @@
-Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.Item', {
+Ext.define('Isu.view.workspace.datacollection.issueassignmentrules.Item', {
     extend: 'Ext.panel.Panel',
     requires: [
-        'Mtr.view.ext.button.ItemAction',
-        'Mtr.view.workspace.datacollection.issueassignmentrules.ActionMenu'
+        'Isu.view.ext.button.ItemAction',
+        'Isu.view.workspace.datacollection.issueassignmentrules.ActionMenu'
     ],
     alias: 'widget.issues-assignment-rules-item',
     height: 150,

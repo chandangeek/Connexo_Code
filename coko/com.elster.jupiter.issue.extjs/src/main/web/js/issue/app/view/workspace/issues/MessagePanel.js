@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.issues.MessagePanel', {
+Ext.define('Isu.view.workspace.issues.MessagePanel', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.message-panel',
     msgHeaderStyle: {

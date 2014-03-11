@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.issues.AssignForm', {
+Ext.define('Isu.view.workspace.issues.AssignForm', {
     extend: 'Ext.form.Panel',
     defaults: {
         border: false
@@ -108,20 +108,20 @@ Ext.define('Mtr.view.workspace.issues.AssignForm', {
                             items: [
                                 {
                                     name: 'USER',
-                                    store: 'Mtr.store.UserList',
+                                    store: 'Isu.store.UserList',
                                     emptyText: 'Start typing for users',
                                     allowBlank: false,
                                     displayField: 'authenticationName'
                                 },
                                 {
                                     name: 'ROLE',
-                                    store: 'Mtr.store.UserRoleList',
+                                    store: 'Isu.store.UserRoleList',
                                     emptyText: 'Start typing for user roles',
                                     displayField: 'name'
                                 },
                                 {
                                     name: 'GROUP',
-                                    store: 'Mtr.store.UserGroupList',
+                                    store: 'Isu.store.UserGroupList',
                                     emptyText: 'Start typing for user groups',
                                     displayField: 'name'
                                 }

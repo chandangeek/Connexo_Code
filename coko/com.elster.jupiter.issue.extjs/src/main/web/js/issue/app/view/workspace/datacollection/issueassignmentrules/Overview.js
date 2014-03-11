@@ -1,12 +1,12 @@
-Ext.define('Mtr.view.workspace.datacollection.issueassignmentrules.Overview', {
+Ext.define('Isu.view.workspace.datacollection.issueassignmentrules.Overview', {
     extend: 'Ext.container.Container',
     requires: [
         'Uni.view.breadcrumb.Trail',
-        'Mtr.view.workspace.datacollection.issueassignmentrules.Navigation',
-        'Mtr.view.workspace.datacollection.issueassignmentrules.FilterAction',
-        'Mtr.view.workspace.datacollection.issueassignmentrules.FilterView',
-        'Mtr.view.workspace.datacollection.issueassignmentrules.List',
-        'Mtr.view.workspace.datacollection.issueassignmentrules.Item'
+        'Isu.view.workspace.datacollection.issueassignmentrules.Navigation',
+        'Isu.view.workspace.datacollection.issueassignmentrules.FilterAction',
+        'Isu.view.workspace.datacollection.issueassignmentrules.FilterView',
+        'Isu.view.workspace.datacollection.issueassignmentrules.List',
+        'Isu.view.workspace.datacollection.issueassignmentrules.Item'
     ],
     alias: 'widget.issue-assignment-rules-overview',
     overflowY: 'auto',

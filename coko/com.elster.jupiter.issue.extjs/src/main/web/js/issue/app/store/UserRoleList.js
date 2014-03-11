@@ -1,6 +1,6 @@
-Ext.define('Mtr.store.UserRoleList', {
+Ext.define('Isu.store.UserRoleList', {
     extend: 'Ext.data.Store',
-    model: 'Mtr.model.UserRoleList',
+    model: 'Isu.model.UserRoleList',
     autoLoad: true,
 
     proxy: {

@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.datacollection.Overview', {
+Ext.define('Isu.view.workspace.datacollection.Overview', {
     extend: 'Ext.container.Container',
     requires: [
         'Uni.view.breadcrumb.Trail'

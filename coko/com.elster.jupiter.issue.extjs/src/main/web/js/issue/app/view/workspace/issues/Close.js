@@ -1,4 +1,4 @@
-Ext.define('Mtr.view.workspace.issues.Close', {
+Ext.define('Isu.view.workspace.issues.Close', {
     extend: 'Ext.container.Container',
     requires: [
         'Ext.form.Panel',
