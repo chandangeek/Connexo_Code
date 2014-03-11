@@ -100,7 +100,6 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
                                                 item.allowBlank = true;
                                             });
                                             combo.allowBlank = false;
-                                            combo.expand();
                                         }
                                     }
                                 }
