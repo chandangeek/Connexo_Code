@@ -7,8 +7,8 @@ import com.google.common.base.Optional;
 import java.util.List;
 
 public interface IssueMainService {
-    public <T extends Entity> Optional<T> get(Class<T> clazz, long id);
-    public <T extends Entity> Optional<T> delete(Class<T> clazz, long id);
+    public <T extends Entity> Optional<T> get(Class<T> clazz, Object... key);
+    public <T extends Entity> Optional<T> delete(Class<T> clazz, Object... key);
     public <T extends Entity> Optional<T> delete(T entity);
     public <T extends Entity> Optional<T> save(T entity);
     public <T extends Entity> Optional<T> update(T entity);

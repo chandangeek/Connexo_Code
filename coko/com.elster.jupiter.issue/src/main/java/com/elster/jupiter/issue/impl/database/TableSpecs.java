@@ -127,12 +127,10 @@ public enum TableSpecs {
             if (fkKeys == null || fkKeys.length != 6){
                 throw new IllegalArgumentException("Passed arguments don't match foreigen keys");
             }
-            table.foreignKey(fkKeys[0]).map("reason").on(reasonRefIdColumn).references(ISU_REASON.name())
-                    .onDelete(DeleteRule.CASCADE).add();
-            table.foreignKey(fkKeys[1]).map("status").on(statusRefIdColumn).references(ISU_STATUS.name())
-                    .onDelete(DeleteRule.CASCADE).add();
-            table.foreignKey(fkKeys[2]).map("device").on(deviceRefIdColumn).references(MeteringService.COMPONENTNAME, DatabaseConst.METERING_DEVICE_TABLE).
-                    onDelete(DeleteRule.RESTRICT).add();
+            // Changes due to d625ee6 in ORM module (TODO re-check)
+            table.foreignKey(fkKeys[0]).map("reason").on(reasonRefIdColumn).references(ISU_REASON.name()).add();
+            table.foreignKey(fkKeys[1]).map("status").on(statusRefIdColumn).references(ISU_STATUS.name()).add();
+            table.foreignKey(fkKeys[2]).map("device").on(deviceRefIdColumn).references(MeteringService.COMPONENTNAME, DatabaseConst.METERING_DEVICE_TABLE).add();
             table.foreignKey(fkKeys[3]).map("user").on(userRefIdColumn).references(UserService.COMPONENTNAME, DatabaseConst.USER_DEVICE_TABLE).add();
             table.foreignKey(fkKeys[4]).map("team").on(teamRefIdColumn).references(ISU_ASSIGNEETEAM.name()).add();
             table.foreignKey(fkKeys[5]).map("role").on(roleRefIdColumn).references(ISU_ASSIGNEEROLE.name()).add();

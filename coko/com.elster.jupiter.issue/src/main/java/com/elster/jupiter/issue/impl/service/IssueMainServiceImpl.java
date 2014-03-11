@@ -35,13 +35,13 @@ public class IssueMainServiceImpl implements IssueMainService{
     }
 
     @Override
-    public <T extends Entity> Optional<T> get(Class<T> clazz, long id) {
-        return queryService.wrap(dataModel.query(clazz)).get(id);
+    public <T extends Entity> Optional<T> get(Class<T> clazz, Object... key) {
+        return queryService.wrap(dataModel.query(clazz)).get(key);
     }
 
     @Override
-    public <T extends Entity> Optional<T> delete(Class<T> clazz, long id) {
-        Optional<T> entity = get(clazz, id);
+    public <T extends Entity> Optional<T> delete(Class<T> clazz, Object... key) {
+        Optional<T> entity = get(clazz, key);
         if (entity.isPresent()){
             return delete(entity.get());
         }
