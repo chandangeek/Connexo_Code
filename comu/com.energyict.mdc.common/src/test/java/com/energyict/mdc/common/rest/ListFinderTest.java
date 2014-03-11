@@ -1,0 +1,36 @@
+package com.energyict.mdc.common.rest;
+
+import com.energyict.mdc.common.services.ListFinder;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.Test;
+
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class ListFinderTest {
+
+    @Test
+    public void testListFindPaged() throws Exception {
+        List<Integer> ints = new ArrayList<>();
+        for (int i=1; i<100; i++) {
+            ints.add(i);
+        }
+        List<Integer> found = ListFinder.of(ints).paged(10, 10).find();
+        assertThat(found).containsExactly(11,12,13,14,15,16,17,18,19,20);
+    }
+
+    @Test
+    public void testListFindQueryParam() throws Exception {
+        List<Integer> ints = new ArrayList<>();
+        for (int i=1; i<100; i++) {
+            ints.add(i);
+        }
+        QueryParameters queryParameters = mock(QueryParameters.class);
+        when(queryParameters.getStart()).thenReturn(10);
+        when(queryParameters.getLimit()).thenReturn(10);
+        List<Integer> found = ListFinder.of(ints).from(queryParameters).find();
+        assertThat(found).containsExactly(11,12,13,14,15,16,17,18,19,20);
+    }
+}

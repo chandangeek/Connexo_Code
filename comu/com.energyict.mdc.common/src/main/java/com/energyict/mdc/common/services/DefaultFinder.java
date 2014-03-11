@@ -20,6 +20,7 @@ public class DefaultFinder<T> implements Finder<T> {
     private Integer start;
     private Integer pageSize;
     private List<Order> sortingColumns = new ArrayList<>();
+    private Order defaultSort;
 
     public static <T> Finder<T> of(Class<T> clazz, DataModel dataModel) {
         return of(clazz, Condition.TRUE, dataModel);
@@ -52,7 +53,16 @@ public class DefaultFinder<T> implements Finder<T> {
     }
 
     @Override
+    public Finder<T> defaultSortColumn(String sortColumn) {
+        this.defaultSort = Order.ascending(sortColumn);
+        return this;
+    }
+
+    @Override
     public List<T> find() {
+        if (sortingColumns.isEmpty() && defaultSort!=null) {
+            sortingColumns.add(defaultSort);
+        }
         if (start==null || pageSize ==null) {
             return query.select(condition, sortingColumns.toArray(new Order[sortingColumns.size()]));
         } else {
