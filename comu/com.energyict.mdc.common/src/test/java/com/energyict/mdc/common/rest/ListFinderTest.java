@@ -2,6 +2,7 @@ package com.energyict.mdc.common.rest;
 
 import com.energyict.mdc.common.services.ListFinder;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import org.junit.Test;
 
@@ -17,7 +18,7 @@ public class ListFinderTest {
         for (int i=1; i<100; i++) {
             ints.add(i);
         }
-        List<Integer> found = ListFinder.of(ints).paged(10, 10).find();
+        List<Integer> found = ListFinder.of(ints, new NullComparator()).paged(10, 10).find();
         assertThat(found).containsExactly(11,12,13,14,15,16,17,18,19,20);
     }
 
@@ -30,7 +31,15 @@ public class ListFinderTest {
         QueryParameters queryParameters = mock(QueryParameters.class);
         when(queryParameters.getStart()).thenReturn(10);
         when(queryParameters.getLimit()).thenReturn(10);
-        List<Integer> found = ListFinder.of(ints).from(queryParameters).find();
+        List<Integer> found = ListFinder.of(ints, new NullComparator()).from(queryParameters).find();
         assertThat(found).containsExactly(11,12,13,14,15,16,17,18,19,20);
+    }
+
+    class NullComparator implements Comparator<Integer> {
+
+        @Override
+        public int compare(Integer o1, Integer o2) {
+            return o1.compareTo(o2);
+        }
     }
 }

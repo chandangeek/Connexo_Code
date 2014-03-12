@@ -1,6 +1,9 @@
 package com.energyict.mdc.common.services;
 
 import com.energyict.mdc.common.rest.QueryParameters;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -9,16 +12,17 @@ import java.util.List;
  */
 public class ListFinder<T> implements Finder<T> {
 
-    private final List<T> elements;
+    private final List<T> elements = new ArrayList<>();
     private Integer start;
     private Integer pageSize;
 
-    private ListFinder(List<T> elements) {
-        this.elements = elements;
+    private ListFinder(List<T> elements, Comparator<T> comparator) {
+        this.elements.addAll(elements);
+        Collections.sort(this.elements, comparator);
     }
 
-    public static <T> ListFinder<T> of(List<T> elements) {
-        return new ListFinder<>(elements);
+    public static <T> ListFinder<T> of(List<T> elements, Comparator<T> comparator) {
+        return new ListFinder<>(elements, comparator);
     }
 
     @Override
