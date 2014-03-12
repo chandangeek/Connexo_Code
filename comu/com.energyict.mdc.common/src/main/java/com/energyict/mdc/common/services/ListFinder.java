@@ -16,13 +16,18 @@ public class ListFinder<T> implements Finder<T> {
     private Integer start;
     private Integer pageSize;
 
-    private ListFinder(List<T> elements, Comparator<T> comparator) {
+    private ListFinder(List<T> elements) {
         this.elements.addAll(elements);
-        Collections.sort(this.elements, comparator);
     }
 
     public static <T> ListFinder<T> of(List<T> elements, Comparator<T> comparator) {
-        return new ListFinder<>(elements, comparator);
+        ListFinder<T> listFinder = new ListFinder<>(elements);
+        Collections.sort(listFinder.elements, comparator);
+        return listFinder;
+    }
+
+    public static <T> ListFinder<T> of(List<T> elements) {
+        return new ListFinder<>(elements);
     }
 
     @Override
