@@ -2,7 +2,8 @@ Ext.define('Isu.controller.IssueFilter', {
     extend: 'Ext.app.Controller',
 
     stores: [
-        'Isu.store.Assignee'
+        'Isu.store.Assignee',
+        'Isu.store.IssueStatus'
     ],
 
     views: [

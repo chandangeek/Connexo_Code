@@ -6,7 +6,8 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
     width: 180,
 
     requires: [
-        'Isu.view.workspace.issues.component.AssigneeCombo'
+        'Isu.view.workspace.issues.component.AssigneeCombo',
+        'Isu.util.FilterCheckboxgroup'
     ],
 
     items: [
@@ -14,28 +15,9 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
             xtype: 'form',
             items: [
                 {
-                    xtype: 'component',
-                    html: '<b>Status</b>'
-                },
-                {
-                    xtype: 'checkboxfield',
-                    boxLabel: 'Open'
-                },
-                {
-                    xtype: 'checkboxfield',
-                    boxLabel: 'In progress'
-                },
-                {
-                    xtype: 'checkboxfield',
-                    boxLabel: 'On hold'
-                },
-                {
-                    xtype: 'checkboxfield',
-                    boxLabel: 'Closed'
-                },
-                {
-                    xtype: 'checkboxfield',
-                    boxLabel: 'Projected'
+                    xtype: 'filter-checkboxgroup',
+                    store: 'Isu.store.IssueStatus',
+                    title: '<b>Status</b>'
                 }
             ]
         },
