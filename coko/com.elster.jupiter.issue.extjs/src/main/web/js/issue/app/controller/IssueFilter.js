@@ -32,8 +32,10 @@ Ext.define('Isu.controller.IssueFilter', {
     },
 
     filter: function() {
-        var record = this.getIssueFilter().down('form').getRecord();
-        console.log(record);
-        console.log(this.getIssueFilter().down('form').getValues());
+        this.getIssueFilter().down('form').updateRecord();
+
+        //todo: make a model from values!
+        var values = this.getIssueFilter().down('form').getValues();
+        this.getStore('Issues').setProxyFilter(values);
     }
 });

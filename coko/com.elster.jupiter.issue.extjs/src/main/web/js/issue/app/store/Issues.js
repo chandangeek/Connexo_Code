@@ -7,8 +7,20 @@ Ext.define('Isu.store.Issues', {
     pageSize: 10,
     autoLoad: false,
 
-    proxyFilter: {
+    proxyFilter: {},
 
+    setProxyFilter: function(filter){
+        this.proxyFilter = filter;
+        this.load();
+        this.fireEvent('setProxyFilter', filter);
+    },
+
+    listeners: {
+        beforeload: function(store, operation, eOpts) {
+            var params = window.btoa(this.proxyFilter);
+            this.proxy.extraParams.params = params;
+            console.log(params);
+        }
     },
 
     proxy: {

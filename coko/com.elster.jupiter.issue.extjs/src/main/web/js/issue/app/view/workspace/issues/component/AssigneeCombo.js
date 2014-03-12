@@ -10,6 +10,7 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
     queryMode: 'local',
     fieldLabel: 'Assignee',
     labelAlign : 'top',
+    formBind: true,
 
     listConfig: {
         getInnerTpl: function () {

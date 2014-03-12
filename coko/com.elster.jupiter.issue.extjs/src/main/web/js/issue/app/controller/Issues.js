@@ -41,6 +41,10 @@ Ext.define('Isu.controller.Issues', {
         {
             ref: 'issuesOverview',
             selector: 'issues-overview'
+        },
+        {
+            ref: 'filter',
+            selector: 'issues-filter'
         }
     ],
 
@@ -92,12 +96,28 @@ Ext.define('Isu.controller.Issues', {
             // ====================================  END IssueListFilter controls  ================================
         });
 
+        this.listen({
+            store: {
+                '#Issues': {
+                    setProxyFilter: this.filterUpdate
+                }
+            }
+        });
+
         this.groupStore = this.getStore('Isu.store.IssuesGroups');
         this.store = this.getStore('Isu.store.Issues');
         this.groupParams = {};
         this.sortParams = {};
         this.actionMenuXtype = 'issue-action-menu';
         this.gridItemModel = this.getModel('Isu.model.Issues');
+    },
+
+    filterUpdate: function(filter) {
+        var filterElm = this.getFilter().down('panel[name="filter"]');
+        filterElm.removeAll();
+        _.each(filter, function(elm) {
+            console.log('filter:', elm);
+        });
     },
 
     showOverview: function () {
