@@ -1,41 +1,63 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
+import com.energyict.mdc.common.rest.PagedInfoList;
+import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.ListFinder;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-
+import com.google.common.base.Optional;
+import java.util.ArrayList;
+import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("/readingtypes")
 public class ReadingTypeResource {
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final MeteringService meteringService;
 
     @Inject
-    public ReadingTypeResource(MdcReadingTypeUtilService readingTypeUtilService) {
+    public ReadingTypeResource(MdcReadingTypeUtilService readingTypeUtilService, MeteringService meteringService) {
         this.readingTypeUtilService = readingTypeUtilService;
+        this.meteringService = meteringService;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ReadingTypeInfo getReadingTypes(@BeanParam JsonQueryFilter queryFilter) throws Exception {
+    public PagedInfoList getReadingType(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
+        List<ReadingTypeInfo> readingTypeInfos = new ArrayList<>();
         if (!queryFilter.getFilterProperties().isEmpty()) {
             String obisCode = queryFilter.getFilterProperties().get("obisCode");
             String unit = queryFilter.getFilterProperties().get("unit");
-//            if (!Checks.is(unit).emptyOrOnlyWhiteSpace() && !Checks.is(obisCode).emptyOrOnlyWhiteSpace()) {
-//                ReadingTypeUnit readingTypeUnit = new ReadingTypeUnitAdapter().unmarshal(unit);
-//                readingTypeUtilService.getReadingTypeFrom(ObisCode.fromString(obisCode), readingTypeUnit.getUnit());
-//            }
+            if (!Checks.is(unit).emptyOrOnlyWhiteSpace() && !Checks.is(obisCode).emptyOrOnlyWhiteSpace()) {
+                String mrid = readingTypeUtilService.getReadingTypeFrom(ObisCode.fromString(obisCode), Unit.get(unit));
+                Optional<ReadingType> readingType = meteringService.getReadingType(mrid);
+                if (!readingType.isPresent()) {
+                    throw new WebApplicationException("No such reading type", Response.status(Response.Status.NOT_FOUND).entity("No reading type for ObisCode "+obisCode+" and unit "+unit).build());
+                }
+                readingTypeInfos.add(new ReadingTypeInfo(readingType.get()));
+            } else {
+                throw new WebApplicationException("Unknown filter applied", Response.status(Response.Status.BAD_REQUEST).entity("Unknown filter applied").build());
+            }
+        } else {
+            List<ReadingType> readingTypes = ListFinder.of(meteringService.getAvailableReadingTypes(), new ReadingTypeComparator()).from(queryParameters).find();
+            for (ReadingType readingType : readingTypes) {
+                readingTypeInfos.add(new ReadingTypeInfo(readingType));
+            }
         }
-
-        ReadingTypeInfo test = new ReadingTypeInfo();
-        test.mrid = "0.0.10.1.20.1.12.0.0.0.0.0.0.0.0.3.73.0";
-
-        return test;
+        return PagedInfoList.asJson("readingTypes", readingTypeInfos, queryParameters);
     }
 
 }
