@@ -91,6 +91,7 @@ Ext.define('Uni.view.container.ContentContainer', {
         {
             region: 'center',
             xtype: 'container',
+            itemId: 'centerContainer',
             cls: 'center',
             overflowY: 'auto',
             layout: {
