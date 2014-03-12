@@ -47,27 +47,33 @@ Ext.define('Isu.controller.CloseIssues', {
 
         var self = this,
             closeView = Ext.ComponentQuery.query('issues-close')[0],
-            formPanel = closeView.down('form'),
+            formPanel = closeView.down('issues-close-form'),
             form = formPanel.getForm(),
             formValues = form.getValues(),
             url = '/api/isu/issue/close',
+            sendingData = {},
             preloader;
 
-        formPanel.sendingData.status = formValues.status;
-        formPanel.sendingData.comment = formValues.comment.trim();
-
         if (form.isValid()) {
+            sendingData.issues = [
+                {
+                    id: closeView.record.data.id,
+                    version: closeView.record.data.version
+                }
+            ];
+            sendingData.status = formValues.status;
+            sendingData.comment = formValues.comment.trim();
             preloader = Ext.create('Ext.LoadMask', {
                 msg: "Closing issue",
-                name: 'assign-issu-form-submit',
-                target: formPanel
+                name: 'close-issue-form-submit',
+                target: closeView
             });
             preloader.show();
 
             Ext.Ajax.request({
                 url: url,
                 method: 'PUT',
-                jsonData: formPanel.sendingData,
+                jsonData: sendingData,
                 success: function (response) {
                     var result = Ext.decode(response.responseText);
                     var header = {

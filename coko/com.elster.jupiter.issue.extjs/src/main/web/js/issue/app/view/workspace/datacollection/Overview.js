@@ -1,21 +1,10 @@
 Ext.define('Isu.view.workspace.datacollection.Overview', {
-    extend: 'Ext.container.Container',
-    requires: [
-        'Uni.view.breadcrumb.Trail'
-    ],
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.datacollection-overview',
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-    overflowY: 'auto',
-    cls: 'content-wrapper',
-    items: [
+
+    content: [
         {
-            xtype: 'breadcrumbTrail',
-            padding: 6
-        },
-        {
+            xtype: 'panel',
             html: '<h1>Data collection</h1>'+
                 '<h3>Navigation:</h3>'+
                 '<ul>'+

@@ -306,8 +306,15 @@ span[class^=isu-assignee-] {
     border: none !important;
 }
 
-.active-bulk-list-action {
-    background-color: #fff;
+.isu-bulk-browse .west {
+    background-color: #E1E1E1;
+}
+.isu-bulk-navigation {
+    margin: 0px 10px;
+}
+
+.isu-bulk-navigation .active-bulk-list-action {
+    background-color: #FFFFFF;
 }
 
 .isu-bulk-assign-confirmation-request-panel {
@@ -345,3 +352,4 @@ span[class^=isu-assignee-] {
 .isu-btn-link .x-btn-inner {
     color: #3A7CFF;
 }
+

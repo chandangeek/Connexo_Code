@@ -1,35 +1,23 @@
 Ext.define('Isu.view.workspace.issues.Assign', {
-    extend: 'Ext.container.Container',
+    extend: 'Uni.view.container.ContentContainer',
     requires: [
         'Ext.form.Panel',
         'Ext.form.RadioGroup',
-        'Ext.form.field.Hidden',
-        'Uni.view.breadcrumb.Trail'
+        'Ext.form.field.Hidden'
     ],
     alias: 'widget.issues-assign',
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-    overflowY: 'auto',
-    items: [
-        {
-            xtype: 'breadcrumbTrail',
-            padding: 6
-        }
-    ],
-    listeners: {
-        render: {
-            fn: function (self) {
-                self.addForm();
-            }
-        }
+
+    initComponent: function () {
+        var self = this;
+
+        self.callParent(arguments);
+        self.addForm();
     },
 
     addForm: function () {
         var self = this;
 
-        self.add({
+        self.getCenterContainer().add({
             flex: 1,
             minHeight: 305,
             border: false,

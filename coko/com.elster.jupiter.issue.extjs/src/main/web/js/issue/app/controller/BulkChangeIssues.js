@@ -43,7 +43,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                 change: this.onStep2RadiogroupChangeEvent,
                 afterrender: this.getDefaultStep2Operation
             },
-            'bulk-browse bulk-wizard bulk-step3 issues-close radiogroup': {
+            'bulk-browse bulk-wizard bulk-step3 issues-close-form radiogroup': {
                 change: this.onStep3RadiogroupCloseChangeEvent,
                 afterrender: this.getDefaultCloseStatus
             },
@@ -271,7 +271,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     getDefaultCloseStatus: function () {
-        var formPanel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step3').down('issues-close'),
+        var formPanel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step3').down('issues-close-form'),
             default_status = formPanel.down('radiogroup').getValue().status,
             record = this.getBulkRecord();
         record.set('status', default_status);
@@ -298,24 +298,19 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                 view = 'issues-assign-form';
                 break;
             case  'close':
-                view = 'issues-close';
+                view = 'issues-close-form';
                 break;
         }
 
-        widget = Ext.widget(view, {bulk: true});
+        widget = Ext.widget(view);
 
-        if (!Ext.isEmpty(widget.items.items[1])) {
-            widget.items.items[1].margin = '0';
+        if (!Ext.isEmpty(widget.items.getAt(1))) {
+            widget.items.getAt(1).margin = '0';
         }
-
-
 
         if (widget) {
             step3Panel.removeAll(true);
             step3Panel.add(widget);
-            if (view === 'issues-assign-form') {
-                step3Panel.fireEvent('removechildborder', step3Panel);
-            }
         }
     },
 

@@ -1,10 +1,10 @@
 Ext.define('Isu.view.workspace.Overview', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.workspace-overview',
-    overflowY: 'auto',
-    cls: 'content-wrapper',
-    items: [
+
+    content: [
         {
+            xtype: 'panel',
             html: '<h1>Workspace</h1>'+
                 '<h3>Navigation:</h3>'+
                 '<ul>'+
