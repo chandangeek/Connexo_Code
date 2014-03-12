@@ -139,8 +139,9 @@ public class RegisterTypeResourceTest extends JerseyTest {
         .containsKey("timeOfUse")
         .containsKey("unit")
         .containsKey("readingType");
-        assertThat((Map)map.get("readingType")).hasSize(17)
+        assertThat((Map)map.get("readingType")).hasSize(18)
         .containsKey("mrid")
+        .containsKey("description")
         .containsKey("timePeriodOfInterest")
         .containsKey("dataQualifier")
         .containsKey("timeAttributeEnumerations")

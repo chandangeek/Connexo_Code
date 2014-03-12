@@ -22,6 +22,8 @@ public class ReadingTypeInfo {
 
     @JsonProperty("mrid")
     public String mrid;
+    @JsonProperty("description")
+    public String description;
     @JsonProperty("timePeriodOfInterest")
     @XmlJavaTypeAdapter(MacroPeriodAdapter.class)
     public MacroPeriod macroPeriod;
@@ -73,6 +75,7 @@ public class ReadingTypeInfo {
 
     public ReadingTypeInfo(ReadingType readingType) {
         mrid = readingType.getMRID();
+        description = readingType.getDescription();
         macroPeriod = readingType.getMacroPeriod();
         aggregate = readingType.getAggregate();
         timeAttribute = readingType.getMeasuringPeriod();
