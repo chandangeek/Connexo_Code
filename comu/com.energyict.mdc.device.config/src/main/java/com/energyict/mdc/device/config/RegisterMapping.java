@@ -97,4 +97,10 @@ public interface RegisterMapping {
     public int getTimeOfUse();
 
     public void setTimeOfUse(int timeOfUse);
+
+    /**
+     * Indicates that this register mapping has been linked to a device type or not
+     * @return boolean
+     */
+    public boolean isLinkedByDeviceType();
 }

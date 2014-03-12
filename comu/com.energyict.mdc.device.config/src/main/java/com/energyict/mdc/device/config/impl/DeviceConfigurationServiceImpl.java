@@ -37,12 +37,11 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import java.util.List;
+import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -197,8 +196,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public List<RegisterSpec> findRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
-        Condition condition = where("deviceType").isEqualTo(deviceType).and(where("registerMapping").isEqualTo(registerMapping));
-        return this.getDataModel().query(RegisterSpec.class, RegisterMapping.class, DeviceTypeRegisterMappingUsage.class).select(condition);
+        Condition condition = where("deviceConfig.deviceType").isEqualTo(deviceType).and(where("registerMapping").isEqualTo(registerMapping));
+        return this.getDataModel().query(RegisterSpec.class, DeviceConfiguration.class).select(condition);
     }
 
     @Override
@@ -330,6 +329,12 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 query(DeviceConfiguration.class, ChannelSpec.class, RegisterSpec.class).
                 select(   where("channelSpecs.registerMapping").isEqualTo(registerMapping).
                        or(where("registerSpecs.registerMapping").isEqualTo(registerMapping)));
+    }
+
+    @Override
+    public boolean isRegisterMappingUsedByDeviceType(RegisterMapping registerMapping) {
+        return !this.getDataModel().
+                query(DeviceTypeRegisterMappingUsage.class).select(where("registerMapping").isEqualTo(registerMapping)).isEmpty();
     }
 
     @Override
