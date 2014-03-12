@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
     alias: 'widget.registerTypeDetail',
     itemId: 'registerTypeDetail',
     autoScroll: true,
@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
         type: 'vbox',
         align: 'stretch'
     },
-    cls: 'content-wrapper',
+    cls: 'content-container',
 
     initComponent: function () {
         var me = this;
@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                                 },
                                 '->',
                                 {
-                                    icon: 'resources/images/gear-16x16.png',
+                                    icon: '../mdc/resources/images/gear-16x16.png',
                                     text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                                     menu: {
                                         items: [
@@ -115,7 +115,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                                                     items: [
                                                         {
                                                             xtype: 'displayfield',
-                                                            name: 'mrid'
+                                                            name: 'mrid',
+                                                            itemId: 'detail_mrid'
                                                         },
                                                         {
                                                             xtype: 'component',
@@ -123,7 +124,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                                                         },
                                                         {
                                                             xtype: 'button',
-                                                            icon: 'resources/images/information.png',
+                                                            icon: '../mdc/resources/images/information.png',
                                                             tooltip: 'Reading type info',
                                                             cls: 'uni-btn-transparent',
                                                             handler: function (item, test) {
@@ -156,13 +157,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                                                 labelWidth: 250
                                             },
                                             items: [
-                                                {
-                                                    xtype: 'displayfield',
-                                                    name: 'measurementKind',
-                                                    fieldLabel: Uni.I18n.translate('registerType.type', 'MDC', 'Type'),
-                                                    labelAlign: 'right',
-                                                    labelWidth: 150
-                                                },
                                                 {
                                                     xtype: 'displayfield',
                                                     name: 'dataCollectionGroup',

@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
     alias: 'widget.registerTypeEdit',
     itemId: 'registerTypeEdit',
     autoScroll: true,
@@ -10,22 +10,21 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
         type: 'vbox',
         align: 'stretch'
     },
-    cls: 'content-wrapper',
+    cls: 'content-container',
     edit: false,
     isEdit: function () {
         return this.edit
     },
-    setEdit: function (edit, returnLink) {
+    setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editRegisterType';
         } else {
             this.edit = edit;
             this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
             this.down('#createEditButton').action = 'createRegisterType';
         }
-        this.down('#cancelLink').autoEl.href = returnLink;
     },
 
     initComponent: function () {
@@ -46,12 +45,21 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                     },
                     {
                         xtype: 'component',
+                        html: Uni.I18n.translate('registerType.registerTypes', 'MDC', 'Register types'),
+                        margins: '10 10 0 10'
+                    },
+                    {
+                        xtype: 'component',
                         html: '',
                         itemId: 'registerTypeEditCreateTitle',
                         margins: '10 10 10 10'
                     },
-
-
+                    {
+                        xtype: 'component',
+                        html: '',
+                        margins: '10 10 10 10',
+                        itemId: 'registerTypeEditCreateInformation'
+                    },
                     {
                         xtype: 'container',
                         columnWidth: 0.5,
@@ -105,7 +113,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                     },
                                     {
                                         xtype: 'combobox',
-                                        name: 'unitOfMeasure',
+                                        name: 'unit',
                                         fieldLabel: Uni.I18n.translate('registertype.measurementUnit', 'MDC', 'Unit of measure'),
                                         itemId: 'measurementUnitComboBox',
                                         store: this.unitOfMeasure,
@@ -155,7 +163,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         },
                                         items: [
                                             {
-                                                html: 'Note about CIM reading type',
+                                                html: 'Provide this value for the 18 attributes of the reading type.  Devide each value with a "."',
                                                 xtype: 'component'
 
                                             }
@@ -180,20 +188,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         width: 650
                                     },
                                     {
-                                        xtype: 'combobox',
-                                        name: 'measurementKind',
-                                        fieldLabel: Uni.I18n.translate('registertype.measurementKind', 'MDC', 'Type'),
-                                        itemId: 'measurementKindComboBox',
-                                        store: this.measurementKinds,
-                                        queryMode: 'local',
-                                        displayField: 'name',
-                                        valueField: 'name',
-                                        required: false,
-                                        forceSelection: true,
-                                        editable: false,
-                                        width: 650
-                                    },
-                                    {
                                         xtype: 'fieldcontainer',
                                         fieldLabel: '&nbsp',
                                         //width: 430,
@@ -206,8 +200,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                                 text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
                                                 xtype: 'button',
                                                 action: 'createAction',
-                                                itemId: 'createEditButton',
-                                                formBind: true
+                                                itemId: 'createEditButton'
+                                                //  formBind: true
                                             },
                                             {
                                                 xtype: 'component',
@@ -233,13 +227,12 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
         ];
         this.callParent(arguments);
         if (this.isEdit()) {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editRegisterType';
         } else {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
             this.down('#createEditButton').action = 'createRegisterType';
         }
-        this.down('#cancelLink').autoEl.href = this.returnLink;
 
     }
 

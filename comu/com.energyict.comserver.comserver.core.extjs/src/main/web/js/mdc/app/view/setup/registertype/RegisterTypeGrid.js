@@ -21,22 +21,19 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 dataIndex: 'name',
                 sortable: false,
                 hideable: false,
-                renderer: function (value, b, record) {
-                    return '<a href="#setup/registertypes/' + record.get('id') + '">' + value + '</a>';
-                },
                 flex: 3
             },
             {
                 xtype: 'actioncolumn',
                 renderer: function (value, metaData, record) {
                     return '<div style="float:left; font-size: 13px; line-height: 1em;">'
-                        + record.get('mrid') + '&nbsp' + '&nbsp'
+                        + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
                         + '</div>'
                 },
                 header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
                 items: [
                     {
-                        icon: 'resources/images/information.png',
+                        icon: '../mdc/resources/images/information.png',
                         tooltip: 'Reading type info',
                         handler: function (grid, rowIndex, colIndex, item, e) {
                             var record = grid.getStore().getAt(rowIndex);
@@ -57,13 +54,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('registerMappings.type', 'MDC', 'Type'),
-                dataIndex: 'measurementKind',
-                sortable: false,
-                hideable: false,
-                flex: 1
-            },
-            {
                 xtype: 'actioncolumn',
                 tdCls: 'view',
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
@@ -71,7 +61,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 hideable: false,
                 items: [
                     {
-                        icon: 'resources/images/gear-16x16.png',
+                        icon: '../mdc/resources/images/gear-16x16.png',
                         handler: function (grid, rowIndex, colIndex, item, e) {
                             var menu = Ext.widget('menu', {
                                 items: [
@@ -141,7 +131,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
-                dock: 'bottom'
+                dock: 'bottom',
+                itemsPerPageMsg: Uni.I18n.translate('registerTypes.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Register types per page')
             }
         ];
 

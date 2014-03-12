@@ -30,7 +30,8 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         {ref: 'addRegisterMappingBtn', selector: '#addRegisterMappingBtn'},
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
-        {ref: 'registerMappingAddGrid', selector: '#registermappingaddgrid'}
+        {ref: 'registerMappingAddGrid', selector: '#registermappingaddgrid'},
+        {ref: 'previewMrId', selector: '#preview_mrid'}
     ],
 
     deviceTypeId: null,
@@ -78,6 +79,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             var registerMappingsName = this.getRegisterMappingPreviewForm().form.findField('name').getSubmitValue();
             this.getRegisterMappingPreview().getLayout().setActiveItem(1);
             this.getRegisterMappingPreviewTitle().update('<h4>' + registerMappingsName + '</h4>');
+            this.getPreviewMrId().setValue(registerMappings[0].getReadingType().get('mrid'));
             this.getRegisterMappingPreviewForm().loadRecord(registerMappings[0]);
         } else {
             this.getRegisterMappingPreview().getLayout().setActiveItem(0);
@@ -85,6 +87,8 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
     },
 
     showRegisterMappings: function (id) {
+        console.log('show register mappings');
+        console.log(id);
         var me = this;
         this.getRegisterTypesOfDevicetypeStore().getProxy().setExtraParam('deviceType', id);
         this.getRegisterTypesOfDevicetypeStore().load(
@@ -185,7 +189,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
 
     showReadingType: function (record) {
         var widget = Ext.widget('readingTypeDetails');
-        this.getReadingTypeDetailsForm().loadRecord(record);
+        this.getReadingTypeDetailsForm().loadRecord(record.getReadingType());
         widget.show();
     },
 
@@ -215,8 +219,8 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
             success: function (deviceType) {
                 Ext.MessageBox.show({
-                    msg: 'Are you sure you want to remove register type "' + registerMappingToDelete.get('name') + '"? <br />This action cannot be undone.',
-                    title: 'Remove register type: "' + registerMappingToDelete.get('name') + '"',
+                    msg: Uni.I18n.translate('registerMapping.removeRegisterType','MDC','The register type will no longer be available on this device type.'),
+                    title: Uni.I18n.translate('general.remove','MDC','Remove') + ' ' + registerMappingToDelete.get('name'),
                     config: {
                         registerMappingToDelete: registerMappingToDelete,
                         deviceType: deviceType,

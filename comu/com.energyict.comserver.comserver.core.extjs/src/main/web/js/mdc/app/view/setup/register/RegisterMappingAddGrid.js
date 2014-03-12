@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.AvailableRegisterTypes'
- //       'Ext.grid.plugin.BufferedRenderer'
+        //       'Ext.grid.plugin.BufferedRenderer'
     ],
     nbrOfSelectedItems: 0,
     listeners: {
@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
         }
     },
     store: 'AvailableRegisterTypes',
- //   plugins: 'bufferedrenderer',
+    //   plugins: 'bufferedrenderer',
     padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
@@ -38,14 +38,14 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 xtype: 'actioncolumn',
                 renderer: function (value, metaData, record) {
                     return '<div style="float:left; font-size: 13px; line-height: 1em;">'
-                        + record.get('mrid') + '&nbsp' + '&nbsp'
+                        + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
                         + '</div>'
                 },
                 header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
                 flex: 2,
                 items: [
                     {
-                        icon: 'resources/images/information.png',
+                        icon: '../mdc/resources/images/information.png',
                         tooltip: 'Reading type info',
                         handler: function (grid, rowIndex, colIndex, item, e) {
                             var record = grid.getStore().getAt(rowIndex);
@@ -66,7 +66,11 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
             },
             {
                 header: Uni.I18n.translate('registerMappings.type', 'MDC', 'Type'),
-                dataIndex: 'measurementKind',
+                renderer: function (value, metaData, record) {
+                    return '<div style="float:left; font-size: 13px; line-height: 1em;">'
+                        + record.getReadingType().get('measurementKind')
+                        + '</div>'
+                },
                 flex: 1,
                 sortable: false,
                 hideable: false
@@ -89,7 +93,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                         itemId: 'manageRegisterMappingBtn',
                         xtype: 'button',
                         href: '#/setup/registertypes',
-                        hrefTarget: '_new'
+                        hrefTarget: '_blank'
                         //action: 'manageRegisters'
                     }
                 ]

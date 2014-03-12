@@ -1,22 +1,24 @@
 Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
-    extend: 'Ext.panel.Panel',
+    //extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerTypeSetup',
     autoScroll: true,
     itemId: 'registerTypeSetup',
     requires: [
         'Mdc.view.setup.registertype.RegisterTypeGrid',
         'Mdc.view.setup.registertype.RegisterTypePreview',
-        'Uni.view.breadcrumb.Trail'
+        'Mdc.view.setup.registertype.RegisterTypeFilter'
+     //   'Uni.view.breadcrumb.Trail'
     ],
-    layout: {
+   /* layout: {
         type: 'vbox',
         align: 'stretch'
-    },
-    cls: 'content-container',
+    },*/
+ //   cls: 'content-container',
 //    border: 0,
 //    region: 'center',
 
-    items: [
+    content: [
         {
             xtype: 'container',
             cls: 'content-container',
@@ -25,11 +27,11 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
                 align: 'stretch'
             },
             items: [
-                {
+               /* {
                     xtype: 'breadcrumbTrail',
                     region: 'north',
                     padding: 6
-                },
+                },*/
                 {
                     xtype: 'component',
                     html: '<h1>' + Uni.I18n.translate('registerType.registerTypes','MDC','Register types') + '</h1>',
@@ -50,6 +52,13 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
                 }
             ]}
     ],
+
+    side: [
+           {
+               xtype: 'registerTypeFilter',
+               name: 'filter'
+           }
+       ],
 
 
     initComponent: function () {

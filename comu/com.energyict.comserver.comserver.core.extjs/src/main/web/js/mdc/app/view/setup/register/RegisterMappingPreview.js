@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                     },
                     '->',
                     {
-                        icon: 'resources/images/gear-16x16.png',
+                        icon: '../mdc/resources/images/gear-16x16.png',
                         text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                         menu: {
                             items: [
@@ -104,7 +104,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                         items: [
                                             {
                                                 xtype: 'displayfield',
-                                                name: 'mrid'
+                                                name: 'mrid',
+                                                itemId: 'preview_mrid'
                                             },
                                             {
                                                 xtype: 'component',
@@ -112,7 +113,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                             },
                                             {
                                                 xtype: 'button',
-                                                icon: 'resources/images/information.png',
+                                                icon: '../mdc/resources/images/information.png',
                                                 tooltip: 'Reading type info',
                                                 cls: 'uni-btn-transparent',
                                                 handler: function (item, test) {
@@ -142,13 +143,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                     align: 'stretch'
                                 },
                                 items: [
-                                    {
-                                        xtype: 'displayfield',
-                                        name: 'measurementKind',
-                                        fieldLabel: Uni.I18n.translate('registerMapping.type', 'MDC', 'Type'),
-                                        labelAlign: 'right',
-                                        labelWidth: 150
-                                    },
                                     {
                                         xtype: 'displayfield',
                                         name: 'dataCollectionGroup',
