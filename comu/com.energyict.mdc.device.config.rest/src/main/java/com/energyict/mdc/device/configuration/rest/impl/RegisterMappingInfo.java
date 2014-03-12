@@ -20,8 +20,10 @@ public class RegisterMappingInfo {
     public ObisCode obisCode;
     @JsonProperty("isLinkedByDeviceType")
     public boolean isLinkedByDeviceType;
-    @JsonProperty("isLinkedByRegisterConfig")
-    public Boolean isLinkedByRegisterConfig; // This property makes no sense if the register mapping was retrieved outside the scope of a device type. It will be null.
+    @JsonProperty("isLinkedByActiveRegisterConfig")
+    public Boolean isLinkedByActiveRegisterConfig; // This property makes no sense if the register mapping was retrieved outside the scope of a device type. It will be null.
+    @JsonProperty("isLinkedByInactiveRegisterConfig")
+    public Boolean isLinkedByInactiveRegisterConfig; // This property makes no sense if the register mapping was retrieved outside the scope of a device type. It will be null.
     @JsonProperty("timeOfUse")
     public int timeOfUse;
     @JsonProperty("unit")
@@ -43,9 +45,10 @@ public class RegisterMappingInfo {
         readingTypeInfo = new ReadingTypeInfo(registerMapping.getReadingType());
     }
 
-    public RegisterMappingInfo(RegisterMapping registerMapping, boolean linkedByRegisterSpec) {
+    public RegisterMappingInfo(RegisterMapping registerMapping, boolean isLinkedByActiveRegisterSpec, boolean isLinkedByInactiveRegisterSpec) {
         this(registerMapping);
-        this.isLinkedByRegisterConfig = linkedByRegisterSpec;
+        this.isLinkedByActiveRegisterConfig = isLinkedByActiveRegisterSpec;
+        this.isLinkedByInactiveRegisterConfig = isLinkedByInactiveRegisterSpec;
     }
 
     public void writeTo(RegisterMapping registerMapping, ReadingType readingType) {

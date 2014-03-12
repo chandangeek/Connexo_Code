@@ -169,7 +169,6 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getRegisterMappingsForDeviceType(@PathParam("id") long id, @QueryParam("available") String available, @BeanParam QueryParameters queryParameters) {
         DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
-        List<RegisterMappingInfo> registerMappingInfos = new ArrayList<>();
 
         final List<RegisterMapping> registerMappings = new ArrayList<>();
         if (available == null || !Boolean.parseBoolean(available)) {
@@ -182,10 +181,8 @@ public class DeviceTypeResource {
                 }
             }
         }
-        for (RegisterMapping registerMapping : registerMappings) {
-            boolean isLinkedByRegisterSpec = !deviceConfigurationService.findRegisterSpecsByDeviceTypeAndRegisterMapping(deviceType, registerMapping).isEmpty();
-            registerMappingInfos.add(new RegisterMappingInfo(registerMapping, isLinkedByRegisterSpec));
-        }
+
+        List<RegisterMappingInfo> registerMappingInfos = asInfoList(deviceType, registerMappings);
 
         return PagedInfoList.asJson("registerTypes", registerMappingInfos, queryParameters);
     }
@@ -201,13 +198,7 @@ public class DeviceTypeResource {
 
         deviceType = findDeviceTypeByIdOrThrowException(id);
 
-        List<RegisterMappingInfo> registerMappingInfos = new ArrayList<>();
-        for (RegisterMapping registerMapping : deviceType.getRegisterMappings()) {
-            boolean isLinkedByRegisterSpec = !deviceConfigurationService.findRegisterSpecsByDeviceTypeAndRegisterMapping(deviceType, registerMapping).isEmpty();
-            registerMappingInfos.add(new RegisterMappingInfo(registerMapping, isLinkedByRegisterSpec));
-        }
-
-        return registerMappingInfos;
+        return asInfoList(deviceType, deviceType.getRegisterMappings());
     }
 
     @DELETE
@@ -289,6 +280,16 @@ public class DeviceTypeResource {
             throw new WebApplicationException("No device type with id " + id, Response.Status.NOT_FOUND);
         }
         return deviceType;
+    }
+
+    private List<RegisterMappingInfo> asInfoList(DeviceType deviceType, List<RegisterMapping> registerMappings) {
+        List<RegisterMappingInfo> registerMappingInfos = new ArrayList<>();
+        for (RegisterMapping registerMapping : registerMappings) {
+            boolean isLinkedByActiveRegisterSpec = !deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterMapping(deviceType, registerMapping).isEmpty();
+            boolean isLinkedByInactiveRegisterSpec = !deviceConfigurationService.findInactiveRegisterSpecsByDeviceTypeAndRegisterMapping(deviceType, registerMapping).isEmpty();
+            registerMappingInfos.add(new RegisterMappingInfo(registerMapping, isLinkedByActiveRegisterSpec, isLinkedByInactiveRegisterSpec));
+        }
+        return registerMappingInfos;
     }
 
 }

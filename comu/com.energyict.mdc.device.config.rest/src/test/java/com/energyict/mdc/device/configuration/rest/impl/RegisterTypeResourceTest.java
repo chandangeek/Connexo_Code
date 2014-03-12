@@ -126,15 +126,16 @@ public class RegisterTypeResourceTest extends JerseyTest {
         List<RegisterSpec> registerSpecs = mock(List.class);
         when(registerSpecs.size()).thenReturn(1);
         when(deviceConfigurationService.findRegisterMapping(13)).thenReturn(registerMapping);
-        when(deviceConfigurationService.findRegisterSpecsByDeviceTypeAndRegisterMapping(any(DeviceType.class), any(RegisterMapping.class))).thenReturn(registerSpecs);
+        when(deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterMapping(any(DeviceType.class), any(RegisterMapping.class))).thenReturn(registerSpecs);
 
         Map<String, Object> map = target("/registertypes/13").request().get(Map.class);
-        assertThat(map).hasSize(8)
+        assertThat(map).hasSize(9)
         .containsKey("id")
         .containsKey("name")
         .containsKey("obisCode")
         .containsKey("isLinkedByDeviceType")
-        .containsKey("isLinkedByRegisterConfig")
+        .containsKey("isLinkedByActiveRegisterConfig")
+        .containsKey("isLinkedByInactiveRegisterConfig")
         .containsKey("timeOfUse")
         .containsKey("unit")
         .containsKey("readingType");

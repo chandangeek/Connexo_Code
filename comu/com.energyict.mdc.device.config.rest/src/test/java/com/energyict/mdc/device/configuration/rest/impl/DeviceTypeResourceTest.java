@@ -268,14 +268,15 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
         List<RegisterSpec> registerSpecs = mock(List.class);
         when(registerSpecs.size()).thenReturn(1);
-        when(deviceConfigurationService.findRegisterSpecsByDeviceTypeAndRegisterMapping(deviceType, registerMapping)).thenReturn(registerSpecs);
+        when(deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterMapping(deviceType, registerMapping)).thenReturn(registerSpecs);
         when(deviceConfigurationService.findDeviceType(6)).thenReturn(deviceType);
 
         Map<String, Object> map = target("/devicetypes/6/registertypes").request().get(Map.class);
         assertThat(map.get("total")).describedAs("JSon representation of a field, JavaScript impact if it changed").isEqualTo(1);
         assertThat((List)map.get("registerTypes")).hasSize(1).describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("registerTypes")).get(0);
-        assertThat(jsonDeviceConfiguration).containsKey("isLinkedByRegisterConfig").describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration).containsKey("isLinkedByActiveRegisterConfig").describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration).containsKey("isLinkedByInactiveRegisterConfig").describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 
     @Test
