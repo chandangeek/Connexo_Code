@@ -5,6 +5,10 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
     cls: 'filter-form',
     width: 180,
 
+    requires: [
+        'Isu.view.workspace.issues.component.AssigneeCombo'
+    ],
+
     items: [
         {
             xtype: 'form',
@@ -34,6 +38,9 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     boxLabel: 'Projected'
                 }
             ]
+        },
+        {
+            xtype: 'issues-assignee-combo'
         }
     ],
 
