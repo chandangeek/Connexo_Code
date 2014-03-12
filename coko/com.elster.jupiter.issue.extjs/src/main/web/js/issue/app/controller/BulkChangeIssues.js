@@ -39,6 +39,11 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                 wizardfinished: this.onWizardFinishedEvent,
                 wizardcancelled: this.onWizardCancelledEvent
             },
+            'bulk-browse bulk-wizard bulk-step1 issues-list': {
+                afterrender: this.onIssuesListAfterRender,
+                select: this.onIssueListViewSelectAndDeselect,
+                deselect: this.onIssueListViewSelectAndDeselect
+            },
             'bulk-browse bulk-wizard bulk-step2 radiogroup': {
                 change: this.onStep2RadiogroupChangeEvent,
                 afterrender: this.getDefaultStep2Operation
@@ -73,6 +78,15 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2).setChild(breadcrumbChild3);
 
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
+    },
+
+    onIssuesListAfterRender: function (grid) {
+        grid.view.selectedItemCls += ' isu-issues-list-selected-no-highlighted';
+        grid.view.preserveScrollOnRefresh = true;
+    },
+
+    onIssueListViewSelectAndDeselect: function (grid) {
+        grid.view.refresh();
     },
 
     onBulkActionEvent: function () {

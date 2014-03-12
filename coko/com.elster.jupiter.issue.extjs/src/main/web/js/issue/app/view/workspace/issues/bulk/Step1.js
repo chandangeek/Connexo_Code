@@ -20,7 +20,11 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
             xtype: 'issues-list',
             height: 285,
             selType: 'checkboxmodel',
-
+            selModel: {
+                checkOnly: true,
+                enableKeyNav: false,
+                showHeaderCheckbox: false
+            },
             columns: {
                 defaults: {
                     sortable: false,
@@ -30,7 +34,7 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
                     {
                         header: 'Title',
                         xtype: 'templatecolumn',
-                        tpl: '{reason}<tpl if="device"> to {device.name} {device.sNumber}</tpl>',
+                        tpl: '{reason}<tpl if="device"> to {device.name} {device.serialNumber}</tpl>',
                         flex: 2
                     },
                     {
