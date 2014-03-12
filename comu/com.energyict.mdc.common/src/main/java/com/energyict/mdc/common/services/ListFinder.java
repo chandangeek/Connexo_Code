@@ -50,7 +50,7 @@ public class ListFinder<T> implements Finder<T> {
     @Override
     public List<T> find() {
         if (start!=null && pageSize!=null) {
-            return elements.subList(this.start, this.start+this.pageSize);
+            return elements.subList(this.start, this.start+this.pageSize+1); // +1 for the 'there is another page'-indicator
         } else {
             return elements;
         }
