@@ -5,7 +5,8 @@ Ext.define('Isu.controller.IssueFilter', {
     ],
     stores: [
         'Isu.store.Assignee',
-        'Isu.store.IssueStatus'
+        'Isu.store.IssueStatus',
+        'Isu.store.IssueReason'
     ],
     views: [
         'workspace.issues.SideFilter'

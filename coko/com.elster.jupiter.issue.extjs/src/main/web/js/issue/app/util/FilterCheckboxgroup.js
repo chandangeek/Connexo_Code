@@ -42,5 +42,5 @@ Ext.define('Isu.util.FilterCheckboxgroup', {
         return {
             load: this.onLoad
         };
-    },
+    }
 });
