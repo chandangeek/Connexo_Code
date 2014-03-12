@@ -21,18 +21,5 @@ Ext.define('Isu.store.Issues', {
             this.proxy.extraParams.params = params;
             console.log(params);
         }
-    },
-
-    proxy: {
-        type: 'rest',
-        url: '/api/isu/issue',
-        reader: {
-            type: 'json',
-            root: 'issueList'
-        },
-        extraParams: {
-            sort: 'dueDate',
-            order: 'asc'
-        }
     }
 });

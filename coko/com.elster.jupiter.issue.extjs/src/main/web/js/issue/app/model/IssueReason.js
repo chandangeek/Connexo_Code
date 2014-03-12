@@ -17,8 +17,7 @@ Ext.define('Isu.model.IssueReason', {
 
     proxy: {
         type: 'rest',
-        url: '/apps/issue/fakedata/reason.json',
-//        url: '/api/isu/filter/reason',
+        url: '/api/isu/filter/reason',
         reader: {
             type: 'json',
             root: 'data'
