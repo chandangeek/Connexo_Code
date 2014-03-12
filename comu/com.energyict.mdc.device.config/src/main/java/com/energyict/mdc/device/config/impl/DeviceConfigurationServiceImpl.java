@@ -87,7 +87,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Finder<DeviceType> findAllDeviceTypes() {
-        return DefaultFinder.of(DeviceType.class, this.getDataModel());
+        return DefaultFinder.of(DeviceType.class, this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override
@@ -114,7 +114,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Finder<RegisterMapping> findAllRegisterMappings() {
-        return DefaultFinder.of(RegisterMapping.class, this.getDataModel());
+        return DefaultFinder.of(RegisterMapping.class, this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override
@@ -339,7 +339,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType) {
-        return DefaultFinder.of(DeviceConfiguration.class, Where.where("deviceType").isEqualTo(deviceType), this.getDataModel());
+        return DefaultFinder.of(DeviceConfiguration.class, Where.where("deviceType").isEqualTo(deviceType), this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override
