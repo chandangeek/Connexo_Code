@@ -19,7 +19,7 @@ Ext.define('Isu.util.FilterCheckboxgroup', {
 
     beforeRender: function () {
         this.callParent(arguments);
-        if (this.store.isLoading()) {
+        if (!this.store.isLoading()) {
             this.onLoad();
         }
     },
