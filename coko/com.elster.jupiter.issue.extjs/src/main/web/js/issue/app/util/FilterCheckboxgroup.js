@@ -8,6 +8,9 @@ Ext.define('Isu.util.FilterCheckboxgroup', {
         boxLabel: 'name',
         inputValue: 'id'
     },
+    checkboxgroup: {
+        columns: 1
+    },
 
     initComponent: function () {
         var me = this;
@@ -33,19 +36,21 @@ Ext.define('Isu.util.FilterCheckboxgroup', {
 
     onLoad: function () {
         var me = this,
-            checkboxlist = me.down('[name=checkboxlist]');
+            checkboxgroup = me.down('[layout=checkboxgroup]');
 
-        if (!checkboxlist) {
-            checkboxlist = me.add({
+        if (!checkboxgroup) {
+            checkboxgroup = me.add({
                 xtype: 'container',
+                layout: 'checkboxgroup',
+                columns: me.checkboxgroup.columns,
                 name: 'checkboxlist'
             });
         }
 
-        checkboxlist.removeAll();
+        checkboxgroup.removeAll();
 
         Ext.Array.forEach(this.store.getRange(), function (item) {
-            checkboxlist.add({
+            checkboxgroup.add({
                 xtype: 'checkboxfield',
                 boxLabel: item.data[me.checkbox.boxLabel],
                 inputValue: item.data[me.checkbox.inputValue]
