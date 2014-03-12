@@ -1,6 +1,7 @@
 Ext.define('Isu.view.workspace.issues.bulk.Navigation', {
     extend: 'Ext.view.View',
     alias: 'widget.bulk-navigation',
+    componentCls: 'isu-bulk-navigation',
 
     requires: [
         'Ext.data.Store'

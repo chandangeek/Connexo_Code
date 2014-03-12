@@ -1,89 +1,48 @@
 Ext.define('Isu.view.workspace.issues.Close', {
-    extend: 'Ext.container.Container',
-    requires: [
-        'Ext.form.Panel',
-        'Ext.form.RadioGroup',
-        'Ext.form.field.Hidden',
-        'Uni.view.breadcrumb.Trail'
-    ],
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.issues-close',
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-    overflowY: 'auto',
+
+    requires: [
+       'Isu.view.workspace.issues.CloseForm'
+    ],
 
     initComponent: function () {
-        this.callParent(arguments);
-        this.addForm();
+        var self = this;
+
+        self.callParent(arguments);
+        self.addForm();
     },
+
     addForm: function () {
         var self = this;
-        form_item = {
-            xtype: 'form',
+
+        self.getCenterContainer().add({
             flex: 1,
+            minHeight: 305,
             border: false,
             header: false,
+            recordTitle: self.record.data.reason + ' ' + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : ''),
+            bodyPadding: 10,
             defaults: {
                 border: false
             },
             items: [
                 {
+                    html: '<h3 class="isu-assign-text"><span>Close issue </span><span>'
+                    + self.record.data.reason.charAt(0).toLowerCase() + self.record.data.reason.slice(1)
+                    + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '')
+                    + '</span></h3>'
                 },
                 {
-                    xype: 'container',
-                    border: 0,
-                    margin: '0 0 0 -25',
-                    items: [
-                        {
-                            xtype: 'radiogroup',
-                            fieldLabel: 'Reason *',
-                            name: 'status',
-                            columns: 1,
-                            vertical: true,
-                            submitValue: false,
-                            items: [
-                                { boxLabel: 'Resolved', name: 'status', inputValue: 'CLOSED', checked: true },
-                                { boxLabel: 'Rejected', name: 'status', inputValue: 'REJECTED' }
-                            ]
-                        },
-                        {
-                            xtype: 'textarea',
-                            fieldLabel: 'Comment',
-                            name: 'comment',
-                            width: 500,
-                            height: 150,
-                            emptyText: 'Provide a comment (optionally)'
-                        }
-                    ]
-                },
-                {}
-            ]
-        };
-        if (Ext.isEmpty(this.bulk)) {
-            self.add({
-                xtype: 'breadcrumbTrail',
-                padding: 6
-            });
-            form_item.bodyPadding = 10;
-            form_item.minHeight = 305;
-            form_item.recordTitle = self.record.data.reason + ' ' + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '')
-            form_item.sendingData = {
-                issues: [
-                    {
-                        id: self.record.data.id,
-                        version: self.record.data.version
+                    xtype: 'issues-close-form',
+                    padding: '30 50 0 50',
+                    margin: '0',
+                    defaults: {
+                        padding: '0 0 30 0'
                     }
-                ]
-            };
-            form_item.items[0] = { html: '<h3 class="isu-assign-text"><span>Close issue </span><span>'
-                + self.record.data.reason.charAt(0).toLowerCase() + self.record.data.reason.slice(1)
-                + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '')
-                + '</span></h3>'};
-            form_item.items[1].padding = '30 50 0 50';
-            form_item.items[1].defaults = { padding: '0 0 30 0' },
-                form_item.items[1].margin = '0',
-                form_item.items[2] = {
+
+                },
+                {
                     xtype: 'container',
                     padding: '0 155',
                     defaults: {
@@ -94,8 +53,7 @@ Ext.define('Isu.view.workspace.issues.Close', {
                         {
                             name: 'close',
                             text: 'Close',
-                            formBind: true,
-                            disabled: true
+                            formBind: true
                         },
                         {
                             text: 'Cancel',
@@ -106,7 +64,7 @@ Ext.define('Isu.view.workspace.issues.Close', {
                         }
                     ]
                 }
-        }
-        self.add(form_item)
+            ]
+        });
     }
 });

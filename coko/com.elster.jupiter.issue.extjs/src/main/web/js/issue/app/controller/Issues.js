@@ -133,12 +133,12 @@ Ext.define('Isu.controller.Issues', {
                 record: menu.record
             });
         }
-        Isu.getApplication().getMainController().showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     bulkChangeIssues: function () {
         var widget = Ext.widget('bulk-browse');
-        Isu.getApplication().getMainController().showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     // ====================================  IssueListFilter controls  ====================================
