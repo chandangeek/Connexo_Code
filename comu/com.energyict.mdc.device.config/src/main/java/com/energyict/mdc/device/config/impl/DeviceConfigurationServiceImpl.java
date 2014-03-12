@@ -195,8 +195,18 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public List<RegisterSpec> findRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
-        Condition condition = where("deviceConfig.deviceType").isEqualTo(deviceType).and(where("registerMapping").isEqualTo(registerMapping));
+    public List<RegisterSpec> findActiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
+        Condition condition = where("deviceConfig.deviceType").isEqualTo(deviceType).
+                and(where("registerMapping").isEqualTo(registerMapping)).
+                and(where("deviceConfig.active").isEqualTo(Boolean.TRUE));
+        return this.getDataModel().query(RegisterSpec.class, DeviceConfiguration.class).select(condition);
+    }
+
+    @Override
+    public List<RegisterSpec> findInactiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
+        Condition condition = where("deviceConfig.deviceType").isEqualTo(deviceType).
+                and(where("registerMapping").isEqualTo(registerMapping)).
+                and(where("deviceConfig.active").isEqualTo(Boolean.FALSE));
         return this.getDataModel().query(RegisterSpec.class, DeviceConfiguration.class).select(condition);
     }
 
