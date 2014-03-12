@@ -17,7 +17,11 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                 {
                     xtype: 'filter-checkboxgroup',
                     store: 'Isu.store.IssueStatus',
-                    title: '<b>Status</b>'
+                    name: 'status',
+                    fieldLabel: 'Status',
+                    labelAlign : 'top',
+                    columns: 1,
+                    vertical: true
                 }
             ]
         },
