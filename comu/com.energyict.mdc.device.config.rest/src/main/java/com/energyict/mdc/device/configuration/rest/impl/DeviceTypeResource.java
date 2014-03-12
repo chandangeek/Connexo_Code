@@ -129,7 +129,11 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getDeviceConfigurationsForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
         DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
-        List<DeviceConfiguration> deviceConfigurations = deviceConfigurationService.findDeviceConfigurationsUsingDeviceType(deviceType).from(queryParameters).find();
+        List<DeviceConfiguration> deviceConfigurations =
+                deviceConfigurationService.
+                        findDeviceConfigurationsUsingDeviceType(deviceType).
+                        from(queryParameters).
+                        find();
         List<DeviceConfigurationInfo> deviceConfigurationInfos = new ArrayList<>();
         for (DeviceConfiguration deviceConfiguration : deviceConfigurations) {
             deviceConfigurationInfos.add(new DeviceConfigurationInfo(deviceConfiguration));
@@ -169,17 +173,16 @@ public class DeviceTypeResource {
 
         final List<RegisterMapping> registerMappings = new ArrayList<>();
         if (available == null || !Boolean.parseBoolean(available)) {
-            registerMappings.addAll(deviceType.getRegisterMappings());
+            registerMappings.addAll(ListFinder.of(deviceType.getRegisterMappings(), new RegisterTypeComparator()).from(queryParameters).find());
         } else {
             Set<Long> deviceTypeRegisterMappingIds = asIds(deviceType.getRegisterMappings());
-            for (RegisterMapping registerMapping : this.deviceConfigurationService.findAllRegisterMappings().defaultSortColumn("name").find()) {
+            for (RegisterMapping registerMapping : this.deviceConfigurationService.findAllRegisterMappings().from(queryParameters).find()) {
                 if (!deviceTypeRegisterMappingIds.contains(registerMapping.getId())) {
                     registerMappings.add(registerMapping);
                 }
             }
         }
-        List<RegisterMapping> pagedRegisterMappings = ListFinder.of(registerMappings).from(queryParameters).find();
-        for (RegisterMapping registerMapping : pagedRegisterMappings) {
+        for (RegisterMapping registerMapping : registerMappings) {
             boolean isLinkedByRegisterSpec = !deviceConfigurationService.findRegisterSpecsByDeviceTypeAndRegisterMapping(deviceType, registerMapping).isEmpty();
             registerMappingInfos.add(new RegisterMappingInfo(registerMapping, isLinkedByRegisterSpec));
         }
