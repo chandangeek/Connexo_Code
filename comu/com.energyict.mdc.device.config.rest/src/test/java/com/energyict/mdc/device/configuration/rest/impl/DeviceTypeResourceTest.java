@@ -434,7 +434,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
     }
 
     @Test
-    public void testRegistersForDeviceTypeWithoutFilter() throws Exception {
+    public void testRegistersForDeviceTypeWithoutFilterAreSorted() throws Exception {
         // Backend has RM 101 and 102 for device type 31
         long deviceType_id=31;
         long RM_ID_1 = 101L;
@@ -445,16 +445,20 @@ public class DeviceTypeResourceTest extends JerseyTest {
         ReadingType readingType = mock(ReadingType.class);
         when(registerMapping101.getId()).thenReturn(RM_ID_1);
         when(registerMapping101.getReadingType()).thenReturn(readingType);
+        when(registerMapping101.getName()).thenReturn("zzz");
         RegisterMapping registerMapping102 = mock(RegisterMapping.class);
         when(registerMapping102.getId()).thenReturn(RM_ID_2);
         when(registerMapping102.getReadingType()).thenReturn(readingType);
+        when(registerMapping102.getName()).thenReturn("aaa");
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101, registerMapping102));
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
 
         Map response = target("/devicetypes/31/registertypes").request().get(Map.class);
         assertThat(response).hasSize(2);
-        List registerTypes = (List) response.get("registerTypes");
+        List<Map> registerTypes = (List) response.get("registerTypes");
         assertThat(registerTypes).hasSize(2);
+        assertThat(registerTypes.get(0).get("name")).isEqualTo("aaa");
+        assertThat(registerTypes.get(1).get("name")).isEqualTo("zzz");
     }
 
     @Test
