@@ -7,6 +7,10 @@ Ext.define('Isu.store.Issues', {
     pageSize: 10,
     autoLoad: false,
 
+    proxyFilter: {
+
+    },
+
     proxy: {
         type: 'rest',
         url: '/api/isu/issue',
