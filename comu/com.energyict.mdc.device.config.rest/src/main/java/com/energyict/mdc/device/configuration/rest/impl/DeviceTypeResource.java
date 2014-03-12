@@ -118,7 +118,7 @@ public class DeviceTypeResource {
     public List<LogBookTypeInfo> getLogBookTypesForDeviceType(@PathParam("id") long id) {
         DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
         List<LogBookTypeInfo> logBookTypeInfos = new ArrayList<>();
-        for (LogBookType logBookType : deviceType.getLogBookTypes()) {
+        for (LogBookType logBookType : ListFinder.of(deviceType.getLogBookTypes(), new LogBookTypeComparator()).find()) {
             logBookTypeInfos.add(new LogBookTypeInfo(logBookType));
         }
         return logBookTypeInfos;
