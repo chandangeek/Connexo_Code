@@ -12,7 +12,6 @@ Ext.define('Isu.view.workspace.issues.Browse', {
             },
             items: [
                 {
-                    border: false,
                     layout: {
                         type: 'hbox',
                         align: 'middle'

@@ -10,6 +10,10 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
             xtype: 'form',
             items: [
                 {
+                    xtype: 'component',
+                    html: '<b>Status</b>'
+                },
+                {
                     xtype: 'checkboxfield',
                     boxLabel: 'Open'
                 },

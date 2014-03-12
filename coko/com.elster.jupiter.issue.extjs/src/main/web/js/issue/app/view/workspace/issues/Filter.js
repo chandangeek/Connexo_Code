@@ -60,6 +60,7 @@ Ext.define('Isu.view.workspace.issues.Filter', {
                         displayField: 'display',
                         valueField: 'Value',
                         labelWidth: 60,
+                        labelAlign: 'left',
                         height: 20,
                         onFocus: function () {
                             var me = this;
@@ -74,7 +75,7 @@ Ext.define('Isu.view.workspace.issues.Filter', {
                 {
                     xtype: 'gridpanel',
                     name: 'groupgrid',
-                    margin: '10 2 2 2',
+                    margin: '10 0 0 0',
                     hidden: true,
                     store: 'Isu.store.IssuesGroups',
                     border: 1,
