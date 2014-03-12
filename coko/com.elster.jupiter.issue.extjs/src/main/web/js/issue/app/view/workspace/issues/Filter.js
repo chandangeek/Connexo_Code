@@ -36,7 +36,7 @@ Ext.define('Isu.view.workspace.issues.Filter', {
                     border: false,
                     margin: '10 0 10 0',
                     layout: {
-                        type: 'vbox',
+                        type: 'hbox',
                         align: 'stretch'
                     },
                     name: 'filter'

@@ -26,7 +26,7 @@ Ext.define('Isu.Application', {
     ],
 
     stores: [
-        // Stores are required through their controllers.
+        'Isu.store.Issues'
     ],
 
     init: function () {

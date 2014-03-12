@@ -7,19 +7,35 @@ Ext.define('Isu.store.Issues', {
     pageSize: 10,
     autoLoad: false,
 
-    proxyFilter: {},
+    extraParams: {
+        "sort": {},
+        "group": {},
+        "filter": {}
+    },
 
-    setProxyFilter: function(filter){
-        this.proxyFilter = filter;
+    setProxyFilter: function(filter) {
+        this.extraParams.filter = filter;
         this.load();
-        this.fireEvent('setProxyFilter', filter);
+        this.fireEvent('updateProxyFilter', this.extraParams.filter);
+    },
+
+    removeProxyFilter: function(key) {
+        if (!key) {
+            this.extraParams.filter = {};
+        } else {
+            if (!_.isUndefined(this.extraParams.filter[key])){
+                delete this.extraParams.filter[key];
+            }
+        }
+        this.load();
+        this.fireEvent('updateProxyFilter', this.extraParams.filter);
     },
 
     listeners: {
-        beforeload: function(store, operation, eOpts) {
-            var params = window.btoa(this.proxyFilter);
-            this.proxy.extraParams.params = params;
-            console.log(params);
+        "beforeLoad": function() {
+            this.proxy.extraParams.params = window.btoa(Ext.encode(this.extraParams));
+            console.log(this.proxy.extraParams.params);
+            console.log(this.extraParams);
         }
     }
 });
