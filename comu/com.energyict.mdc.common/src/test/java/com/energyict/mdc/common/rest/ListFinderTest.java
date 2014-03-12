@@ -19,7 +19,7 @@ public class ListFinderTest {
             ints.add(i);
         }
         List<Integer> found = ListFinder.of(ints, new NullComparator()).paged(10, 10).find();
-        assertThat(found).containsExactly(11,12,13,14,15,16,17,18,19,20);
+        assertThat(found).containsExactly(11,12,13,14,15,16,17,18,19,20,21);
     }
 
     @Test
@@ -32,7 +32,7 @@ public class ListFinderTest {
         when(queryParameters.getStart()).thenReturn(10);
         when(queryParameters.getLimit()).thenReturn(10);
         List<Integer> found = ListFinder.of(ints, new NullComparator()).from(queryParameters).find();
-        assertThat(found).containsExactly(11,12,13,14,15,16,17,18,19,20);
+        assertThat(found).containsExactly(11,12,13,14,15,16,17,18,19,20,21); // +1 for 'has next page'
     }
 
     class NullComparator implements Comparator<Integer> {
