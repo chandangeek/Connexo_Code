@@ -8,7 +8,7 @@ Ext.define('Isu.store.UserRoleList', {
         url: '/api/isu/assign/roles',
         reader: {
             type: 'json',
-            root: 'assignees'
+            root: 'data'
         }
     }
 });

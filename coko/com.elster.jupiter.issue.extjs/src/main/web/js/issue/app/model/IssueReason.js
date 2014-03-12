@@ -1,4 +1,4 @@
-Ext.define('Isu.model.IssueStatus', {
+Ext.define('Isu.model.IssueReason', {
     extend: 'Ext.data.Model',
     requires: [
         'Ext.data.proxy.Rest'
@@ -17,7 +17,7 @@ Ext.define('Isu.model.IssueStatus', {
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/filter/status',
+        url: '/api/isu/filter/reason',
         reader: {
             type: 'json',
             root: 'data'

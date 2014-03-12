@@ -8,7 +8,7 @@ Ext.define('Isu.store.UserGroupList', {
         url: '/api/isu/assign/groups',
         reader: {
             type: 'json',
-            root: 'assignees'
+            root: 'data'
         }
     }
 });

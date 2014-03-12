@@ -1,5 +1,5 @@
 Ext.define('Isu.util.FilterCheckboxgroup', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.form.CheckboxGroup',
     alias: 'widget.filter-checkboxgroup',
     mixins: {
         bindable: 'Ext.util.Bindable'
@@ -8,9 +8,6 @@ Ext.define('Isu.util.FilterCheckboxgroup', {
         boxLabel: 'name',
         inputValue: 'id'
     },
-    checkboxgroup: {
-        columns: 1
-    },
 
     initComponent: function () {
         var me = this;
@@ -18,42 +15,25 @@ Ext.define('Isu.util.FilterCheckboxgroup', {
         me.bindStore(me.store || 'ext-empty-store', true);
 
         this.callParent(arguments);
-
-        if (me.title) {
-            me.add({
-                xtype: 'container',
-                html: me.title
-            });
-        }
     },
 
     beforeRender: function () {
         this.callParent(arguments);
-        if (this.store.isLoading()) {
+        if (!this.store.isLoading()) {
             this.onLoad();
         }
     },
 
     onLoad: function () {
-        var me = this,
-            checkboxgroup = me.down('[layout=checkboxgroup]');
+        var me = this;
 
-        if (!checkboxgroup) {
-            checkboxgroup = me.add({
-                xtype: 'container',
-                layout: 'checkboxgroup',
-                columns: me.checkboxgroup.columns,
-                name: 'checkboxlist'
-            });
-        }
-
-        checkboxgroup.removeAll();
-
+        me.removeAll();
         Ext.Array.forEach(this.store.getRange(), function (item) {
-            checkboxgroup.add({
+            me.add({
                 xtype: 'checkboxfield',
                 boxLabel: item.data[me.checkbox.boxLabel],
-                inputValue: item.data[me.checkbox.inputValue]
+                inputValue: item.data[me.checkbox.inputValue],
+                name: me.name
             });
         });
     },
@@ -62,18 +42,5 @@ Ext.define('Isu.util.FilterCheckboxgroup', {
         return {
             load: this.onLoad
         };
-    },
-
-    unbind: function (store) {
-        this.bindStore(null);
-    },
-
-    bind: function (store) {
-        this.bindStore(store);
-    },
-
-    onDestroy: function () {
-        this.unbind();
-        this.callParent();
     }
 });

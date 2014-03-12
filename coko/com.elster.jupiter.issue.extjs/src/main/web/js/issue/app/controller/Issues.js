@@ -18,7 +18,8 @@ Ext.define('Isu.controller.Issues', {
         'workspace.issues.Item',
         'workspace.issues.IssueNoGroup',
         'ext.button.GridAction',
-        'ext.button.SortItemButton'
+        'ext.button.SortItemButton',
+        'Isu.view.workspace.issues.component.TagButton'
     ],
 
     mixins: [
@@ -41,6 +42,10 @@ Ext.define('Isu.controller.Issues', {
         {
             ref: 'issuesOverview',
             selector: 'issues-overview'
+        },
+        {
+            ref: 'filter',
+            selector: 'issues-filter'
         }
     ],
 
@@ -87,9 +92,20 @@ Ext.define('Isu.controller.Issues', {
             'button[name=sortitembtn]': {
                 click: this.changeSortDirection,
                 arrowclick: this.removeSortItem
-            }
+            },
 
             // ====================================  END IssueListFilter controls  ================================
+            'issues-filter panel[name="filter"] button-tag': {
+                click: this.removeFilter
+            }
+        });
+
+        this.listen({
+            store: {
+                '#Issues': {
+                    updateProxyFilter: this.filterUpdate
+                }
+            }
         });
 
         this.groupStore = this.getStore('Isu.store.IssuesGroups');
@@ -98,6 +114,23 @@ Ext.define('Isu.controller.Issues', {
         this.sortParams = {};
         this.actionMenuXtype = 'issue-action-menu';
         this.gridItemModel = this.getModel('Isu.model.Issues');
+    },
+
+    filterUpdate: function(filter) {
+        var filterElm = this.getFilter().down('panel[name="filter"]');
+        filterElm.removeAll();
+        _.each(filter, function(elm, key) {
+            var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
+                text : key + ': ' + elm,
+                target: key
+            });
+
+            filterElm.add(button);
+        });
+    },
+
+    removeFilter: function(elm) {
+        this.getStore('Issues').removeProxyFilter(elm.target);
     },
 
     showOverview: function () {

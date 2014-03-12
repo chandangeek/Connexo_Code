@@ -55,7 +55,8 @@ Ext.define('Isu.model.Issues', {
         type: 'rest',
         url: '/api/isu/issue',
         reader: {
-            type: 'json'
+            type: 'json',
+            root: 'data'
         }
     }
 });
