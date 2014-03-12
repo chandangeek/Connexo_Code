@@ -7,7 +7,8 @@ Ext.define('Isu.controller.Issues', {
 
     stores: [
         'Isu.store.Issues',
-        'Isu.store.IssuesGroups'
+        'Isu.store.IssuesGroups',
+        'Isu.store.Assignee'
     ],
 
     views: [

@@ -21,7 +21,8 @@ Ext.define('Isu.Application', {
         'BulkChangeIssues',
         'MessageWindow',
         'IssueAssignmentRules',
-        'history.Workspace'
+        'history.Workspace',
+        'IssueFilter'
     ],
 
     stores: [
