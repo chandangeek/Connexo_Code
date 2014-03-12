@@ -4,10 +4,10 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -15,11 +15,16 @@ import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.pluggable.PluggableService;
+
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 /**
  * Models the database tables that hold the data of the
@@ -54,7 +59,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(80).notNull().map("name").add();
             table.column("DESCRIPTION").varChar(4000).map("description").add();
-            table.column("USECHANNELJOURNAL").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("useChannelJournal").add();
+            table.column("USECHANNELJOURNAL").number().conversion(NUMBER2BOOLEAN).notNull().map("useChannelJournal").add();
             table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2LONG).map("deviceProtocolPluggableClassId").add();
             table.column("DEVICEUSAGETYPE").number().conversion(ColumnConversion.NUMBER2INT).map("deviceUsageTypeId").add();
             table.column("COMMUNICATIONFUNCTIONMASK").number().conversion(ColumnConversion.NUMBER2INT).map("communicationFunctionMask").add();
@@ -118,7 +123,7 @@ public enum TableSpecs {
             Column phenomenon = table.column("PHENOMENONID").number().conversion(ColumnConversion.NUMBER2INT).notNull().add();
             Column readingType = table.column("READINGTYPE").varChar(100).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
-            table.column("CUMULATIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("cumulative").add();
+            table.column("CUMULATIVE").number().conversion(NUMBER2BOOLEAN).notNull().map("cumulative").add();
             Column registerGroup = table.column("REGISTERGROUPID").number().add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
             Column timeOfUse = table.column("TIMEOFUSE").number().map("timeOfUse").conversion(ColumnConversion.NUMBER2INT).add();
@@ -194,9 +199,9 @@ public enum TableSpecs {
             table.column("PROTOTYPEID").number().conversion(ColumnConversion.NUMBER2INT).map("prototypeId").add();
             Column deviceTypeId = table.column("DEVICETYPEID").number().notNull().add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
-            table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
+            table.column("ACTIVE").number().conversion(NUMBER2BOOLEAN).map("active").add();
             table.primaryKey("PK_EISDEVICECONFIG").on(id).add();
-            table.foreignKey("FK_EISDEVCFG_DEVTYPE").on(deviceTypeId).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("deviceConfigurations").composition().onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey("FK_EISDEVCFG_DEVTYPE").on(deviceTypeId).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("deviceConfigurations").composition().onDelete(CASCADE).add();
         }
     },
 
@@ -211,7 +216,7 @@ public enum TableSpecs {
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
             table.primaryKey("PK_EISLOADPROFILESPECID").on(id).add();
             table.foreignKey("FK_EISLPRFSPEC_LOADPROFTYPE").on(loadprofiletypeid).references(EISLOADPROFILETYPE.name()).map("loadProfileType").add();
-            table.foreignKey("FK_EISLPRFSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("loadProfileSpecs").composition().onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey("FK_EISLPRFSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("loadProfileSpecs").composition().onDelete(CASCADE).add();
         }
     },
 
@@ -236,7 +241,7 @@ public enum TableSpecs {
             table.column("INTERVAL").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.count").add();
             table.column("INTERVALCODE").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
             table.primaryKey("PK_EISCHANNELSPECID").on(id).add();
-            table.foreignKey("FK_EISCHNSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("channelSpecs").composition().onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey("FK_EISCHNSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("channelSpecs").composition().onDelete(CASCADE).add();
             table.foreignKey("FK_EISCHNSPEC_REGMAP").on(rturegistermappingid).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
             table.foreignKey("FK_EISCHNSPEC_PHENOM").on(phenomenonid).references(EISPHENOMENON.name()).map("phenomenon").add();
             table.foreignKey("FK_EISCHNSPEC_LPROFSPEC").on(loadprofilespecid).references(EISLOADPROFILESPEC.name()).map("loadProfileSpec").add();
@@ -262,7 +267,7 @@ public enum TableSpecs {
             table.column("CHANNELLINKTYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map("channelSpecLinkType").add();
             table.primaryKey("PK_RTUREGISTERSPEC").on(id).add();
             table.foreignKey("FK_EISRTUREGSPEC_REGMAP").on(registerMapping).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
-            table.foreignKey("FK_EISRTUREGSPEC_DEVCFG").on(deviceConfiguration).references(EISDEVICECONFIG.name()).map("deviceConfig").reverseMap("registerSpecs").composition().onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey("FK_EISRTUREGSPEC_DEVCFG").on(deviceConfiguration).references(EISDEVICECONFIG.name()).map("deviceConfig").reverseMap("registerSpecs").composition().onDelete(CASCADE).add();
             table.foreignKey("FK_REGSPEC_CHANNELSPEC").on(channelSpec).references(EISCHANNELSPEC.name()).map("linkedChannelSpec").add();
         }
     },
@@ -277,7 +282,7 @@ public enum TableSpecs {
             Column logbooktypeid = table.column("LOGBOOKTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
             table.primaryKey("PK_EISLOGBOOKSPECID").on(id).add();
-            table.foreignKey("FK_EISLGBSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("logBookSpecs").composition().onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey("FK_EISLGBSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("logBookSpecs").composition().onDelete(CASCADE).add();
             table.foreignKey("FK_EISLGBSPEC_LOGBOOKTYPE").on(logbooktypeid).references(EISLOGBOOKTYPE.name()).map("logBookType").add();
         }
     },
@@ -296,17 +301,31 @@ public enum TableSpecs {
         }
     },
 
+    MDCDEVICECOMMCONFIG {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<DeviceCommunicationConfiguration> table = dataModel.addTable(name(), DeviceCommunicationConfiguration.class);
+            table.map(DeviceCommunicationConfigurationImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column deviceconfiguration = table.column("DEVICECONFIGURATION").number().add();
+            table.column("SUPPORTALLCATEGORIES").number().conversion(NUMBER2BOOLEAN).notNull().map("supportsAllMessageCategories").add();
+            table.column("USERACTIONS").number().notNull().map("useractions").add();
+            table.foreignKey("FK_MDCDEVICECOMMCONFIG_DCONFIG").on(deviceconfiguration).references(EISDEVICECONFIG.name()).map("deviceConfiguration").add();
+            table.primaryKey("PK_MDCDEVICECOMMCONFIG").on(id).add();
+        }
+    },
+
     MDCDIALECTCONFIGPROPERTIES {
         @Override
         public void addTo(DataModel dataModel) {
             Table<ProtocolDialectConfigurationProperties> table = dataModel.addTable(name(), ProtocolDialectConfigurationProperties.class);
             table.map(ProtocolDialectConfigurationPropertiesImpl.class);
             Column id = table.addAutoIdColumn();
-            //Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().map("deviceCommunicationConfiguration").add(); // TODO remove map when enabling foreign key constraint
+            Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().map("deviceCommunicationConfiguration").add(); // TODO remove map when enabling foreign key constraint
             table.column("DEVICEPROTOCOLDIALECT").varChar(255).notNull().map("protocolDialectName").add();
             table.column("MOD_DATE").type("DATE").map("modDate").add();
             table.column("NAME").varChar(255).notNull().map("name").add();
-//            table.foreignKey("FK_MDCDEVICECONFIG_CONFIGID").on(deviceConfiguration).references(MDCDEVICECOMMCONFIG.name()).map("deviceCommunicationConfiguration").add();
+            table.foreignKey("FK_MDCDEVICECONFIG_CONFIGID").on(deviceConfiguration).references(MDCDEVICECOMMCONFIG.name()).map("deviceCommunicationConfiguration").reverseMap("configurationPropertiesList").composition().add();
             table.primaryKey("PK_MDCDIALECTCONFIGPROPS").on(id).add();
         }
     },
@@ -324,6 +343,47 @@ public enum TableSpecs {
         }
     },
 
+    MDCPARTIALCONNECTIONTASK {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<PartialConnectionTask> table = dataModel.addTable(name(), PartialConnectionTask.class);
+            table.map(PartialConnectionTask.IMPLEMENTERS);
+            Column id = table.addAutoIdColumn();
+            table.column("NAME").varChar(255).notNull().map("name").add();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "number");
+            Column devicecomconfig = table.column("DEVICECOMCONFIG").number().add();
+            Column connectionType = table.column("CONNECTIONTYPE").number().add();
+            Column initiator = table.column("INITIATOR").number().add();
+            table.column("COMWINDOWSTART").number().map("comWindowStart").add();
+            table.column("COMWINDOWEND").number().map("comWindowEnd").add();
+            table.column("CONNECTIONSTRATEGY").number().conversion(NUMBER2ENUM).map("connectionStrategy").add();
+            table.column("SIMULTANEOUSCONNECTIONS").number().conversion(NUMBER2BOOLEAN).map("allowSimultaneousConnections").add();
+            table.column("ISDEFAULT").number().conversion(NUMBER2BOOLEAN).map("isDefault").add();
+            Column nextexecutionspecs = table.column("NEXTEXECUTIONSPECS").number().add();
+            table.column("RESCHEDULERETRYDELAY").number().map("rescheduleRetryDelay.count").add();
+            table.column("MOD_DATE").type("DATE").map("modDate").add();
+            Column comportpool = table.column("COMPORTPOOL").number().add();
+            table.column("RESCHEDULERETRYDELAYCODE").number().map("rescheduleRetryDelay.timeUnitCode").add();
+            table.foreignKey("FK_MDCPARTIALCT_PLUGGABLE").on(connectionType).references(PluggableService.COMPONENTNAME, "EISPLUGGABLECLASS").map("pluggableClass").add();
+            table.foreignKey("FK_MDCPARTIALCT_COMPORTPOOL").on(comportpool).references(EngineModelService.COMPONENT_NAME, "MDCCOMPORTPOOL").map("comPortPool").add();
+            table.foreignKey("FK_MDCPARTCONTASK_DCOMCONFIG").on(devicecomconfig).references(MDCDEVICECOMMCONFIG.name()).map("configuration").reverseMap("partialConnectionTasks").composition().add();
+            table.foreignKey("FK_MDCPARTIALCONNTASK_NEXTEX").on(nextexecutionspecs).references(MDCNEXTEXECUTIONSPEC.name()).onDelete(CASCADE).map("nextExecutionSpecs").add();
+            table.foreignKey("FK_MDCPARTIALCONNTASK_INIT").on(initiator).references(MDCPARTIALCONNECTIONTASK.name()).map("initiator").add();
+            table.primaryKey("PK_MDCPARTIALCONNTASK").on(id).add();
+        }
+    },
+    MDCPARTIALCONNECTIONTASKPROPS {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<PartialConnectionTaskProperty> table = dataModel.addTable(name(), PartialConnectionTaskProperty.class);
+            table.map(PartialConnectionTaskPropertyImpl.class);
+            Column partialconnectiontask = table.column("PARTIALCONNECTIONTASK").number().notNull().add();
+            Column name = table.column("NAME").varChar(255).notNull().map("name").add();
+            table.column("VALUE").varChar(4000).notNull().map("value").add();
+            table.foreignKey("FK_MDCPARTIALPROPS_TASK").on(partialconnectiontask).references(MDCPARTIALCONNECTIONTASK.name()).map("partialConnectionTask").reverseMap("properties").composition().add();
+            table.primaryKey("PK_MDCPARTIALPROPS").on(partialconnectiontask,name).add();
+        }
+    },
     ;
 
     abstract void addTo(DataModel component);

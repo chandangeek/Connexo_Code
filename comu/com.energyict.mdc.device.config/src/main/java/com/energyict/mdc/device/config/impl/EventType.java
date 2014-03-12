@@ -52,7 +52,19 @@ public enum EventType {
     PHENOMENON_DELETED("phenomenon/DELETED"),
     NEXTEXECUTIONSPECS_CREATED("nextexecutionspecs/CREATED"),
     NEXTEXECUTIONSPECS_UPDATED("nextexecutionspecs/UPDATED"),
-    NEXTEXECUTIONSPECS_DELETED("nextexecutionspecs/DELETED");
+    NEXTEXECUTIONSPECS_DELETED("nextexecutionspecs/DELETED"),
+    PARTIAL_INBOUND_CONNECTION_TASK_CREATED("partialinboundconnectiontask/CREATED"),
+    PARTIAL_INBOUND_CONNECTION_TASK_UPDATED("partialinboundconnectiontask/UPDATED"),
+    PARTIAL_INBOUND_CONNECTION_TASK_DELETED("partialinboundconnectiontask/DELETED"),
+    PARTIAL_OUTBOUND_CONNECTION_TASK_CREATED("partialoutboundconnectiontask/CREATED"),
+    PARTIAL_OUTBOUND_CONNECTION_TASK_UPDATED("partialoutboundconnectiontask/UPDATED"),
+    PARTIAL_OUTBOUND_CONNECTION_TASK_DELETED("partialoutboundconnectiontask/DELETED"),
+    PARTIAL_CONNECTION_INITIATION_TASK_CREATED("partialconnectioninitiationtask/CREATED"),
+    PARTIAL_CONNECTION_INITIATION_TASK_UPDATED("partialconnectioninitiationtask/UPDATED"),
+    PARTIAL_CONNECTION_INITIATION_TASK_DELETED("partialconnectioninitiationtask/DELETED"),
+    DEVICE_COMMUNICATION_CONFIGURATION_CREATED("devicecommunicationconfiguration/CREATED"),
+    DEVICE_COMMUNICATION_CONFIGURATION_UPDATED("devicecommunicationconfiguration/UPDATED"),
+    DEVICE_COMMUNICATION_CONFIGURATION_DELETED("devicecommunicationconfiguration/DELETED");
 
     private static final String NAMESPACE = "com/energyict/mdc/device/config/";
     private final String topic;

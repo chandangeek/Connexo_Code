@@ -18,10 +18,10 @@ public abstract class PersistentIdObject<T> {
 
     private long id;
 
-    protected Class<T> domainClass;
-    protected DataModel dataModel;
-    protected EventService eventService;
-    protected Thesaurus thesaurus;
+    protected final Class<T> domainClass;
+    protected final DataModel dataModel;
+    protected final EventService eventService;
+    protected final Thesaurus thesaurus;
 
     protected PersistentIdObject(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         this.domainClass = domainClass;

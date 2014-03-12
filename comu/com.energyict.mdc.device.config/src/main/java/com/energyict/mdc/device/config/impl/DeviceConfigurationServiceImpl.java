@@ -32,6 +32,7 @@ import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.config.exceptions.UnitHasNoMatchingPhenomenonException;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -62,17 +63,18 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
+    private volatile EngineModelService engineModelService;
 
     public DeviceConfigurationServiceImpl() {
         super();
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
-        this(ormService, eventService, nlsService, meteringService, protocolPluggableService, mdcReadingTypeUtilService, false);
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, MdcReadingTypeUtilService mdcReadingTypeUtilService, EngineModelService engineModelService) {
+        this(ormService, eventService, nlsService, meteringService, protocolPluggableService, mdcReadingTypeUtilService, engineModelService, false);
     }
 
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, MdcReadingTypeUtilService mdcReadingTypeUtilService, boolean createMasterData) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, MdcReadingTypeUtilService mdcReadingTypeUtilService, EngineModelService engineModelService, boolean createMasterData) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -80,6 +82,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setMeteringService(meteringService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.setReadingTypeUtilService(mdcReadingTypeUtilService);
+        this.setEngineModelService(engineModelService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install(true, createMasterData);
@@ -400,6 +403,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(EngineModelService.class).toInstance(engineModelService);
             }
         };
     }
@@ -418,4 +422,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         new Installer(this.dataModel, this.eventService, this.thesaurus, this.meteringService, readingTypeUtilService, this).install(exeuteDdl, false, createMasterData);
     }
 
+    @Reference
+    public void setEngineModelService(EngineModelService engineModelService) {
+        this.engineModelService = engineModelService;
+    }
 }

@@ -6,9 +6,7 @@ package com.energyict.mdc.device.config;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-02-15 (10:27)
  */
-public interface DeviceCommunicationConfiguration {
-
-    public int getId();
+public interface DeviceCommunicationConfiguration extends HasId {
 
     public DeviceConfiguration getDeviceConfiguration();
 

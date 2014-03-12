@@ -140,4 +140,16 @@ public class DuplicateNameException extends LocalizedException {
     public static DuplicateNameException protocolConfigurationPropertiesAlreadyExists(Thesaurus thesaurus, String name) {
         return new DuplicateNameException(thesaurus, MessageSeeds.DUPLICATE_PROTOCOL_CONFIGURATION_PROPERTIES, name);
     }
+
+    public static DuplicateNameException partialInboundConnectionTaskExists(Thesaurus thesaurus, String name) {
+        return new DuplicateNameException(thesaurus, MessageSeeds.DUPLICATE_PARTIAL_INBOUND_CONNECTION_TYPE, name);
+    }
+
+    public static DuplicateNameException partialOutboundConnectionTaskExists(Thesaurus thesaurus, String name) {
+        return new DuplicateNameException(thesaurus, MessageSeeds.DUPLICATE_PARTIAL_OUTBOUND_CONNECTION_TYPE, name);
+    }
+
+    public static DuplicateNameException partialConnectionInitiationTaskExists(Thesaurus thesaurus, String name) {
+        return new DuplicateNameException(thesaurus, MessageSeeds.DUPLICATE_PARTIAL_CONNECTION_INITIATION_TYPE, name);
+    }
 }
