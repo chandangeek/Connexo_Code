@@ -218,14 +218,14 @@ public class UsagePointResource {
         return new ReadingInfos(readings);
     }
 
-    private FluentIterable<MeterActivation> meterActivationsForReadingTypeWithMRID(long id, String mRID, SecurityContext securityContext) {
+    private FluentIterable<? extends MeterActivation> meterActivationsForReadingTypeWithMRID(long id, String mRID, SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
         return FluentIterable.from(usagePoint.getMeterActivations()).filter(new HasReadingType(mRID));
     }
 
     private Set<ReadingType> collectReadingTypes(UsagePoint usagePoint) {
         Set<ReadingType> readingTypes = new LinkedHashSet<>();
-        List<MeterActivation> meterActivations = usagePoint.getMeterActivations();
+        List<? extends MeterActivation> meterActivations = usagePoint.getMeterActivations();
         for (MeterActivation meterActivation : meterActivations) {
             readingTypes.addAll(meterActivation.getReadingTypes());
         }
