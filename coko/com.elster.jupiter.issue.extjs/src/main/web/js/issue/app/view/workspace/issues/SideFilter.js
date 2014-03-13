@@ -26,7 +26,9 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                 },
                 {
                     xtype: 'issues-assignee-combo',
-                    name: 'assignee'
+                    name: 'assignee',
+                    fieldLabel: 'Assignee',
+                    labelAlign : 'top'
                 },
                 {
                     xtype: 'combobox',

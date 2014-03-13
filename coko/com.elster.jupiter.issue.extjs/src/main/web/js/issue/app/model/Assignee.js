@@ -16,5 +16,15 @@ Ext.define('Isu.model.Assignee', {
             displayValue: 'title',
             type: 'auto'
         }
-    ]
+    ],
+
+    // GET ?like="operator"
+    proxy: {
+        type: 'rest',
+        url: '/api/isu/assignees',
+        reader: {
+            type: 'json',
+            root: 'data'
+        }
+    }
 });

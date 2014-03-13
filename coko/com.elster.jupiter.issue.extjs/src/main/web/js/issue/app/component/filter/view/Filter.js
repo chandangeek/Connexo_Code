@@ -35,7 +35,7 @@ Ext.define('Isu.component.filter.view.Filter', {
 
     updateHasMany: function (record, association, values) {
         var name = association.name,
-            store = record[name]();
+            store = record[name](),
             cmp = this.down('[name="' + name + '"]');
 
         if (cmp && cmp.mixins.bindable && values[name]) {

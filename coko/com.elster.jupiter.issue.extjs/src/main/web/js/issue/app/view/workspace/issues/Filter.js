@@ -37,7 +37,8 @@ Ext.define('Isu.view.workspace.issues.Filter', {
                     margin: '10 0 10 0',
                     layout: {
                         type: 'hbox',
-                        align: 'stretch'
+                        align: 'stretch',
+                        defaultMargins: '0 5'
                     },
                     name: 'filter'
                 }
