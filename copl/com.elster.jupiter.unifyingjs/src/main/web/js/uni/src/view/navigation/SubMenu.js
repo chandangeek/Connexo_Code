@@ -73,6 +73,11 @@ Ext.define('Uni.view.navigation.SubMenu', {
         scale: 'large'
     },
 
+    /**
+     * @cfg {Object/Ext.Component}
+     *
+     * Configuration of the menu items, buttons can be added here.
+     */
     items: [
     ],
 
