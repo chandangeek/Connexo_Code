@@ -24,6 +24,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -38,6 +39,7 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Clock;
+import com.sun.org.apache.xerces.internal.impl.dv.xs.AnySimpleDV;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -57,7 +59,7 @@ public class UsagePointImplTest {
     @Mock
     private DataMapper<UsagePoint> usagePointFactory;
     @Mock
-    private MeterActivation activation1, activation2;
+    private MeterActivationImpl activation1, activation2;
     @Mock
     private UsagePointAccountability acc1, acc2;
     @Mock
@@ -85,6 +87,7 @@ public class UsagePointImplTest {
 
     @Before
     public void setUp() {
+    	when(role.getMRID()).thenReturn(MarketRoleKind.ENERGYSERVICECONSUMER.name());
         when(dataModel.mapper(UsagePoint.class)).thenReturn(usagePointFactory);
         when(dataModel.getInstance(UsagePointAccountabilityImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
@@ -236,7 +239,7 @@ public class UsagePointImplTest {
     public void testGetMeterActivations() {
     	field("meterActivations").ofType(List.class).in(usagePoint).set(Arrays.asList(activation1,activation2));
         
-        List<MeterActivation> meterActivations = usagePoint.getMeterActivations();
+        List<MeterActivationImpl> meterActivations = usagePoint.getMeterActivations();
 
         assertThat(meterActivations).hasSize(2)
                 .contains(activation1)
@@ -287,25 +290,28 @@ public class UsagePointImplTest {
     public void testGetResponsiblePartyChooseCorrectRole() {
         field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1,acc2));
         PartyRole wrongRole = mock(PartyRole.class);
+        Date now = new Date();
+        when(wrongRole.getMRID()).thenReturn(MarketRoleKind.BALANCERESPONSIBLEPARTY.name());
         when(acc1.getRole()).thenReturn(wrongRole);
-        when(acc1.isCurrent()).thenReturn(true);
+        when(acc1.isEffective(now)).thenReturn(true);
         when(acc2.getRole()).thenReturn(role);
-        when(acc2.isCurrent()).thenReturn(true);
+        when(acc2.isEffective(now)).thenReturn(true);
         when(acc2.getParty()).thenReturn(party);
 
-        assertThat(usagePoint.getResponsibleParty(role)).contains(party);
+        assertThat(usagePoint.getResponsibleParty(now, MarketRoleKind.ENERGYSERVICECONSUMER)).contains(party);
     }
 
     @Test
     public void testGetResponsiblePartyChooseOnlyCurrent() {
     	field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1,acc2));
+    	Date now = new Date();
         when(acc1.getRole()).thenReturn(role);
-        when(acc1.isCurrent()).thenReturn(false);
+        when(acc1.isEffective(now)).thenReturn(false);
         when(acc2.getRole()).thenReturn(role);
-        when(acc2.isCurrent()).thenReturn(true);
+        when(acc2.isEffective(now)).thenReturn(true);
         when(acc2.getParty()).thenReturn(party);
 
-        assertThat(usagePoint.getResponsibleParty(role)).contains(party);
+        assertThat(usagePoint.getResponsibleParty(now, MarketRoleKind.ENERGYSERVICECONSUMER)).contains(party);
     }
 
     @Test

@@ -3,7 +3,9 @@ package com.elster.jupiter.metering.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -22,6 +24,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+
 import javax.inject.Provider;
 
 public class MeterActivationImpl implements MeterActivation {
@@ -128,21 +131,44 @@ public class MeterActivationImpl implements MeterActivation {
 
 	@Override
 	public List<BaseReadingRecord> getReadings(Interval requested, ReadingType readingType) {
-        if (!requested.overlaps(requested)) {
+        if (!requested.overlaps(interval)) {
             return Collections.emptyList();
         }
-        Interval active = requested.intersection(requested);
-        for (Channel channel : getChannels()) {
-            if (channel.getReadingTypes().contains(readingType)) {
-                return channel.getReadings(readingType, active);
-            }
+        Interval active = requested.intersection(interval);
+        Channel channel = getChannel(readingType);
+        if (channel == null) {
+        	return Collections.emptyList();
+        } else {
+        	return channel.getReadings(readingType, active);
         }
-        return Collections.emptyList();
     }
 
 	@Override
+	public List<BaseReadingRecord> getReadingsBefore(Date when, ReadingType readingType, int count) {
+        Channel channel = getChannel(readingType);
+        if (channel == null) {
+        	return Collections.emptyList();
+        } else {
+        	return channel.getReadingsBefore(when, count);
+        }
+    }
+
+	@Override
+	public Set<ReadingType> getReadingTypes(Interval requested) {
+		if (requested.overlaps(interval)) {
+			return new HashSet<>(getReadingTypes());
+		} else {
+			return Collections.emptySet();
+		}
+	}
+	
+	@Override
 	public boolean isCurrent() {
 		return interval.isCurrent(clock);
+	}
+	
+	public boolean isEffective(Date when) {
+		return interval.isEffective(when);
 	}
 
     @Override
@@ -163,4 +189,19 @@ public class MeterActivationImpl implements MeterActivation {
             dataModel.mapper(MeterActivation.class).update(this);
         }
     }
+
+	@Override
+	public boolean overlaps(Interval interval) {
+		return this.getInterval().overlaps(interval);
+	}
+	
+	private Channel getChannel(ReadingType readingType) {
+		for (Channel channel : getChannels()) {
+			if (channel.getReadingTypes().contains(readingType)) {
+				return channel;
+			}
+		}
+		return null;
+	}
+	
 }

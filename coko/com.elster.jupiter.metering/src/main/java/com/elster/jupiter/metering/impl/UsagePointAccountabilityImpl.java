@@ -99,4 +99,9 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 	public boolean isCurrent() {
 		return interval.isCurrent(clock);
 	}
+	
+	@Override
+	public boolean isEffective(Date when) {
+		return interval.isEffective(when);
+	}
 }

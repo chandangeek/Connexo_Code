@@ -59,6 +59,7 @@ import java.util.Date;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointQueryTest {
@@ -174,7 +175,7 @@ public class UsagePointQueryTest {
         PartyService partyService = injector.getInstance(PartyService.class);
         Party party = partyService.newOrganization("Electrabel");
         party.save();
-        PartyRole role = partyService.getRole(MarketRoleKind.COMPETTITIVERETAILER.name()).get();
+        PartyRole role = partyService.getRole(MarketRoleKind.ENERGYSERVICECONSUMER.name()).get();
         party.assumeRole(role, new Date());
         query.setLazy();
         assertThat(query.select(meteringService.hasAccountability())).isEmpty();
@@ -183,6 +184,7 @@ public class UsagePointQueryTest {
         usagePoint.addAccountability(role, party, new Date());
         assertThat(query.select(meteringService.hasAccountability())).isNotEmpty();
         assertThat(query.select(Condition.TRUE, Order.descending("mRID"),Order.ascending("id")).get(0).getMRID()).isEqualTo("mrID9");
+        assertThat(usagePoint.getCustomer(new Date()).get().getMRID()).isEqualTo("Electrabel");
      }
 
 }

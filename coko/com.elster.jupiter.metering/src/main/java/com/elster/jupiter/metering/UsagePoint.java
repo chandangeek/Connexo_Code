@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
@@ -10,7 +11,7 @@ import com.google.common.base.Optional;
 import java.util.Date;
 import java.util.List;
 
-public interface UsagePoint extends IdentifiedObject {
+public interface UsagePoint extends IdentifiedObject , ReadingContainer {
 	long getId();
 	boolean isSdp();
 	boolean isVirtual();
@@ -18,7 +19,7 @@ public interface UsagePoint extends IdentifiedObject {
 	String getReadCycle();
 	String getReadRoute();
 	String getServicePriority();
-    List<MeterActivation> getMeterActivations();
+    List<? extends MeterActivation> getMeterActivations();
 	MeterActivation getCurrentMeterActivation();
 
 	long getServiceLocationId();
@@ -44,9 +45,11 @@ public interface UsagePoint extends IdentifiedObject {
 	long getVersion();
 
 	MeterActivation activate(Date start);
+	MeterActivation activate(Meter meter, Date start);
     List<UsagePointAccountability> getAccountabilities();
 	UsagePointAccountability addAccountability(PartyRole role, Party party, Date start);
-	Optional<Party> getResponsibleParty(PartyRole role);
+	Optional<Party> getCustomer(Date when);
+	Optional<Party> getResponsibleParty(Date when, MarketRoleKind marketRole);
 
 	boolean hasAccountability(User user);
 
@@ -58,5 +61,5 @@ public interface UsagePoint extends IdentifiedObject {
     void addDetail(UsagePointDetail usagePointDetail);
 
     UsagePointDetail terminateDetail(UsagePointDetail detail, Date date);
-	List<? extends BaseReadingRecord> getReadings(Interval interval, ReadingType readingType);
+	
 }

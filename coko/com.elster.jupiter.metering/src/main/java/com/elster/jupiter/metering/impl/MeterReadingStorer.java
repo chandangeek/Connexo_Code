@@ -54,7 +54,7 @@ public class MeterReadingStorer {
     }
 
     void store() {
-        List<MeterActivation> meterActivations = meter.getMeterActivations();
+        List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
         if (meterActivations.isEmpty()) {
             createDefaultMeterActivation();
         }
@@ -176,35 +176,34 @@ public class MeterReadingStorer {
         }
     }
 
-    private Optional<ReadingType> getReadingType(String code) {
-        return dataModel.mapper(ReadingType.class).getOptional(code);
+    private ReadingType findOrCreateReadingType(String code) {
+    	Optional<ReadingType> readingTypeHolder = dataModel.mapper(ReadingType.class).getOptional(code);
+        if (readingTypeHolder.isPresent()) {
+        	return readingTypeHolder.get();
+        } else {
+        	ReadingType readingType = ((MeteringServiceImpl) meteringService).createReadingType(code, "");
+        	MessageSeeds.READINGTYPE_ADDED.log(logger, thesaurus, code, meter.getMRID());
+        	return readingType;
+        }
     }
 
     private Channel findOrCreateChannel(Reading reading, MeterActivation meterActivation) {
-        Optional<ReadingType> readingTypeHolder = getReadingType(reading.getReadingTypeCode());
-        if (readingTypeHolder.isPresent()) {
-            for (Channel each : meterActivation.getChannels()) {
-                if (each.getReadingTypes().contains(readingTypeHolder.get())) {
-                    return each;
-                }
+        ReadingType readingType = findOrCreateReadingType(reading.getReadingTypeCode());
+        for (Channel each : meterActivation.getChannels()) {
+            if (each.getReadingTypes().contains(readingType)) {
+                return each;
             }
-            return meterActivation.createChannel(readingTypeHolder.get());
-        } else {
-            return null;
         }
+        return meterActivation.createChannel(readingType);
     }
 
     private Channel findOrCreateChannel(IntervalReading reading, String readingTypeCode) {
-        Optional<ReadingType> readingTypeHolder = getReadingType(readingTypeCode);
-        if (!readingTypeHolder.isPresent()) {
-            MessageSeeds.READINGTYPE_IGNORED.log(logger, thesaurus, readingTypeCode, meter.getMRID());
-            return null;
-        }
-        Channel channel = getChannel(reading, readingTypeHolder.get());
+        ReadingType readingType = findOrCreateReadingType(readingTypeCode);
+        Channel channel = getChannel(reading, readingType);
         if (channel == null) {
             for (MeterActivation meterActivation : meter.getMeterActivations()) {
                 if (meterActivation.getInterval().contains(reading.getTimeStamp(), Interval.EndpointBehavior.OPEN_CLOSED)) {
-                    return meterActivation.createChannel(readingTypeHolder.get());
+                    return meterActivation.createChannel(readingType);
                 }
             }
             MessageSeeds.NOMETERACTIVATION.log(logger, thesaurus, meter.getMRID(), reading.getTimeStamp());

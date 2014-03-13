@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.orm.DataModel;
@@ -22,6 +23,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Objects.toStringHelper;
 
@@ -50,7 +52,7 @@ public class UsagePointImpl implements UsagePoint {
     // associations
 	private final Reference<ServiceCategory> serviceCategory = ValueReference.absent();
 	private final Reference<ServiceLocation> serviceLocation = ValueReference.absent();
-	private final List<MeterActivation> meterActivations = new ArrayList<>();
+	private final List<MeterActivationImpl> meterActivations = new ArrayList<>();
 	private final List<UsagePointAccountability> accountabilities = new ArrayList<>();
 	
     private final DataModel dataModel;
@@ -219,7 +221,7 @@ public class UsagePointImpl implements UsagePoint {
     }
 
 	@Override
-	public List<MeterActivation> getMeterActivations() {
+	public List<MeterActivationImpl> getMeterActivations() {
 		return ImmutableList.copyOf(meterActivations);
 	}
 	
@@ -254,24 +256,41 @@ public class UsagePointImpl implements UsagePoint {
 	public MeterActivation activate(Date start) {
 		MeterActivationImpl result = meterActivationFactory.get().init(this, start);
 		dataModel.persist(result);
+		adopt(result);
 		return result;
 	}
+    
+    @Override
+	public MeterActivation activate(Meter meter, Date start) {
+		MeterActivationImpl result = meterActivationFactory.get().init(meter, this, start);
+		dataModel.persist(result);
+		adopt(result);
+		return result;
+	}
+    
+    public void adopt(MeterActivationImpl meterActivation) {
+    	if (!meterActivations.isEmpty()) {
+    		MeterActivationImpl last = meterActivations.get(meterActivations.size() - 1);
+    		if (last.getStart().after(meterActivation.getStart())) {
+    			throw new IllegalArgumentException("Invalid start date");
+    		} else {
+    			if (last.getEnd() == null || last.getEnd().after(meterActivation.getStart())) {
+    				last.endAt(meterActivation.getStart());
+    			}
+    		}
+    	}
+    	Optional<Meter> meter = meterActivation.getMeter();
+    	if (meter.isPresent()) {
+    		((MeterImpl) meter.get()).adopt(meterActivation);
+    	}
+    	meterActivations.add(meterActivation);
+    }
 	
 	@Override
 	public UsagePointAccountability addAccountability(PartyRole role , Party party , Date start) {
 		UsagePointAccountability accountability = accountabilityFactory.get().init(this, party, role, start);
 		accountabilities.add(accountability);
 		return accountability;
-	}
-	
-	@Override
-	public Optional<Party> getResponsibleParty(PartyRole role) {
-		for (UsagePointAccountability each : getAccountabilities()) {
-			if (each.isCurrent() && each.getRole().equals(role)) {
-				return Optional.of(each.getParty());
-			}
-		}
-		return Optional.absent();
 	}
 
     @Override
@@ -329,17 +348,6 @@ public class UsagePointImpl implements UsagePoint {
         return toUpdate;
     }
     
-    @Override
-	public List<? extends BaseReadingRecord> getReadings(Interval interval, ReadingType readingType) {
-		List<BaseReadingRecord> result = new ArrayList<>();
-		for (MeterActivation activation : getMeterActivations()) {
-			if (activation.getInterval().overlaps(interval)) {
-				result.addAll(activation.getReadings(interval, readingType));
-			}
-		}
-		return result;
-	}
-
     private void validateAddingDetail(UsagePointDetail candidate) {
         for (UsagePointDetail usagePointDetail : detail.effective(candidate.getInterval())) {
             if (candidate.conflictsWith(usagePointDetail)) {
@@ -348,9 +356,35 @@ public class UsagePointImpl implements UsagePoint {
         }
     }
 
+    @Override
+	public List<? extends BaseReadingRecord> getReadings(Interval interval, ReadingType readingType) {
+		return MeterActivationsImpl.from(meterActivations, interval).getReadings(interval, readingType);
+	}
 
+	@Override
+	public Set<ReadingType> getReadingTypes(Interval interval) {
+		return MeterActivationsImpl.from(meterActivations, interval).getReadingTypes(interval);
+	}
 
+	@Override
+	public List<? extends BaseReadingRecord> getReadingsBefore(Date when, ReadingType readingType, int count) {
+		return MeterActivationsImpl.from(meterActivations).getReadingsBefore(when,readingType,count);
+	}
 
+	@Override
+	public Optional<Party> getCustomer(Date when) {
+		return getResponsibleParty(when,MarketRoleKind.ENERGYSERVICECONSUMER);
+	}
+
+	@Override
+	public Optional<Party> getResponsibleParty(Date when, MarketRoleKind marketRole) {
+		for (UsagePointAccountability each : getAccountabilities()) {
+			if (each.isEffective(when) && each.getRole().getMRID().equals(marketRole.name())) {
+				return Optional.of(each.getParty());
+			}
+		}
+		return Optional.absent();
+	}
 
 
 }

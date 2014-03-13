@@ -12,7 +12,8 @@ public enum MessageSeeds implements MessageSeed {
     ILLEGAL_CURRENCY_CODE(1002, "currency.illegalcode", "Invalid currency code : ''{0}''", Level.SEVERE),
     METER_EVENT_IGNORED(2001, "meter.event.ignored", "Ignored event {0} on meter {1}, since it is not defined in the system", Level.INFO),
     READINGTYPE_IGNORED(2002, "readingtype.ignored" , "Ignored data for reading type {0} on meter {1} , since reading type is not defined int the system", Level.INFO),
-    NOMETERACTIVATION(2003,"meter.nometeractivation","No meter activation fond for meter {0} on {1} " , Level.INFO);
+    NOMETERACTIVATION(2003,"meter.nometeractivation","No meter activation fond for meter {0} on {1} " , Level.INFO),
+    READINGTYPE_ADDED(2004,"readingtype.added","Added reading type {0} for meter {1} " , Level.INFO);
     
     private final int number;
     private final String key;

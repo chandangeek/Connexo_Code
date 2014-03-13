@@ -1,12 +1,13 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
 import java.util.Date;
 import java.util.List;
 
-public interface MeterActivation {
+public interface MeterActivation extends Effectivity , ReadingContainer {
 	long getId();
 	Optional<UsagePoint> getUsagePoint();
 	Optional<Meter> getMeter();
@@ -15,9 +16,9 @@ public interface MeterActivation {
 	Channel createChannel(ReadingType main, ReadingType... readingTypes);
     List<Channel> getChannels();
     List<ReadingType> getReadingTypes();
-    List<? extends BaseReadingRecord> getReadings(Interval interval, ReadingType readingType);
 	boolean isCurrent();
     void endAt(Date end);
     long getVersion();
-    Interval getInterval();
+    boolean overlaps(Interval interval);
+    boolean isEffective(Date when);
 }
