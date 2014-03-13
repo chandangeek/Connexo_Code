@@ -3,8 +3,6 @@ package com.energyict.mdc.protocol.api.device;
 import com.energyict.mdc.common.ApplicationComponent;
 import com.energyict.mdc.common.ObisCode;
 
-import java.util.List;
-
 /**
  * Defines the behavior of an {@link ApplicationComponent}
  * that is capable of finding {@link LogBook}s.
@@ -19,9 +17,9 @@ public interface LogBookFactory {
      */
     public static final ObisCode GENERIC_LOGBOOK_TYPE_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
 
-    public LogBook findLogBooksByDeviceAndDeviceObisCode(Device device, ObisCode obisCode);
+    public LogBook findLogBooksByDeviceAndDeviceObisCode(BaseDevice device, ObisCode obisCode);
 
-    public LogBook findGenericLogBook(Device device);
+    public LogBook findGenericLogBook(BaseDevice device);
 
     public LogBook findLogBook(int logBookId);
 }

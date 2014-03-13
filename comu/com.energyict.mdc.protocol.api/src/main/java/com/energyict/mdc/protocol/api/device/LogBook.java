@@ -21,7 +21,7 @@ public interface LogBook extends IdBusinessObject, Protectable, CanGoOffline<Off
 
     int getDeviceId();
 
-    Device getDevice();
+    BaseDevice getDevice();
 
     ObisCode getDeviceObisCode();
 

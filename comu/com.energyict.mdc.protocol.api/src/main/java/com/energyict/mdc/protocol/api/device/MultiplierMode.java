@@ -3,11 +3,8 @@ package com.energyict.mdc.protocol.api.device;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.LocalizableEnum;
-import com.energyict.mdc.common.Quantity;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,34 +15,10 @@ import java.util.List;
 public enum MultiplierMode implements LocalizableEnum {
 
     NONE(0, "multiplierMode.none") {
-        @Override
-        public Quantity applyTo(Quantity value, Date date, Channel channel) {
-            return value;
-        }
     },
     VERSIONED(1, "multiplierMode.versioned") {
-        @Override
-        public Quantity applyTo(Quantity rawValue, Date date, Channel channel) {
-            DeviceMultiplier multiplier = channel.getDevice().getDeviceMultiplier(date);
-            if (multiplier != null) {
-                return rawValue.multiply(multiplier.getMultiplier());
-            }
-            else {
-                return rawValue;
-            }
-        }
     },
     CONFIGURED_ON_OBJECT(2, "multiplierMode.configuredOnObject") {
-        @Override
-        public Quantity applyTo(Quantity rawValue, Date date, Channel channel) {
-            BigDecimal multiplier = channel.getMultiplier();
-            if (multiplier != null) {
-                return rawValue.multiply(multiplier);
-            }
-            else {
-                return rawValue;
-            }
-        }
     };
 
     private int code;
@@ -93,7 +66,5 @@ public enum MultiplierMode implements LocalizableEnum {
         allUsageTypes.add(CONFIGURED_ON_OBJECT);
         return allUsageTypes;
     }
-
-    public abstract Quantity applyTo(Quantity rawValue, Date date, Channel channel);
 
 }

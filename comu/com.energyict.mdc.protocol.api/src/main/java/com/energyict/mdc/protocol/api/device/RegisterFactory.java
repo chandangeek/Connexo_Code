@@ -6,13 +6,13 @@ import java.util.List;
 
 /**
  * Defines the behavior of an {@link ApplicationComponent}
- * that is capable of finding {@link Register}s.
+ * that is capable of finding {@link BaseRegister}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-08 (16:34)
  */
 public interface RegisterFactory {
 
-    public List<Register> findRegistersByDevice(Device device);
+    public List<BaseRegister> findRegistersByDevice(BaseDevice device);
 
 }

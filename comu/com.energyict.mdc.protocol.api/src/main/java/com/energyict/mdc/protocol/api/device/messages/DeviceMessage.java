@@ -3,14 +3,14 @@ package com.energyict.mdc.protocol.api.device.messages;
 import com.energyict.mdc.common.CanGoOffline;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.dynamic.ReadOnlyDynamicAttributeOwner;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 
 import java.util.Date;
 import java.util.List;
 
 /**
- * Models a message that is sent to a {@link Device device}.
+ * Models a message that is sent to a {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
  * The lifecycle of a DeviceMessage is as following:
  * <ol>
  * <li>{@link DeviceMessageStatus#WAITING}</li>
@@ -27,7 +27,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-05-15 (16:13)
  */
-public interface DeviceMessage<D extends Device> extends IdBusinessObject, ReadOnlyDynamicAttributeOwner, CanGoOffline<OfflineDeviceMessage> {
+public interface DeviceMessage<D extends BaseDevice> extends IdBusinessObject, ReadOnlyDynamicAttributeOwner, CanGoOffline<OfflineDeviceMessage> {
 
     /**
      * Gets the {@link DeviceMessageSpec specification} of this DeviceMessage.
@@ -47,7 +47,7 @@ public interface DeviceMessage<D extends Device> extends IdBusinessObject, ReadO
     public List<DeviceMessageAttribute> getAttributes();
 
     /**
-     * Gets the {@link Device device} to which this DeviceMessage
+     * Gets the {@link com.energyict.mdc.protocol.api.device.BaseDevice device} to which this DeviceMessage
      * will be sent or has been sent, depending on its lifecycle.
      *
      * @return The device

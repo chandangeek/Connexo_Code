@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * Represents a register reading
  */
-public interface RegisterReading<R extends Register> extends BusinessObject, RegisterReadingRecord<R> {
+public interface RegisterReading<R extends BaseRegister> extends BusinessObject {
 
     /**
      * The 'valid' state code

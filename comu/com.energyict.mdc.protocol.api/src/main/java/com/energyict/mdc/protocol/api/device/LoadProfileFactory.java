@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.api.device;
 
 import com.energyict.mdc.common.ApplicationComponent;
-import com.energyict.mdc.protocol.api.device.Device;
 
 import java.util.List;
 
@@ -14,6 +13,6 @@ import java.util.List;
  */
 public interface LoadProfileFactory {
 
-    public List<LoadProfile> findLoadProfilesByDevice(Device device);
+    public List<LoadProfile> findLoadProfilesByDevice(BaseDevice device);
 
 }

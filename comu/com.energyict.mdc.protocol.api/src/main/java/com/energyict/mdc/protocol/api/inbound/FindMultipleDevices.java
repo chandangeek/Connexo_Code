@@ -1,12 +1,11 @@
 package com.energyict.mdc.protocol.api.inbound;
 
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 import java.util.List;
 
 /**
- * Provides additional identification services for {@link com.energyict.mdc.protocol.api.device.Device}s
+ * Provides additional identification services for {@link com.energyict.mdc.protocol.api.device.BaseDevice}s
  * for identifier types that are not guaranteed to be unique
  * and may therefore return multiple Devices.
  *

@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.inbound;
 
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import java.io.Serializable;
 
@@ -15,10 +15,10 @@ public interface DeviceIdentifier extends Serializable {
     public String getIdentifier();
 
     /**
-     * Finds the {@link Device} that is uniquely identified by this DeviceIdentifier.
+     * Finds the {@link com.energyict.mdc.protocol.api.device.BaseDevice} that is uniquely identified by this DeviceIdentifier.
      *
      * @return The Device
      */
-    public Device findDevice ();
+    public BaseDevice findDevice ();
 
 }
