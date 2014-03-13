@@ -49,7 +49,7 @@ public enum MarketRoleKind {
 	PRODUCTIONRESPONSIBLEPARTY("Production Responsible Party"),
 	RECONCILIATIONACCOUNTABLE("Reconciliation Accountable"),
 	RECONCILIATIONRESPONSIBLE("Reconciliation Responsible"),
-	RESERVEALLOCATOR("Reserver Allocator"),
+	RESERVEALLOCATOR("Reserve Allocator"),
 	RESOURCEPROVIDER("Resource Provider"),
 	SCHEDULINGCOORDINATOR("Scheduling Coordinator"),
 	SYSTEMOPERATOR("System Operator"),
