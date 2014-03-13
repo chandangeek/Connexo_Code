@@ -124,7 +124,6 @@ public class DeviceTypeImplTest extends PersistenceTest {
         assertThat(deviceType.getLogBookTypes()).isEmpty();
         assertThat(deviceType.getLoadProfileTypes()).isEmpty();
         assertThat(deviceType.getRegisterMappings()).isEmpty();
-        assertThat(deviceType.getCommunicationFunctions()).isEmpty();
         assertThat(deviceType.getDeviceProtocolPluggableClass()).isEqualTo(this.deviceProtocolPluggableClass);
         assertThat(deviceType.getDescription()).isNotEmpty();
         assertThat(deviceType.getDeviceUsageType()).isEqualTo(DeviceUsageType.NONE);

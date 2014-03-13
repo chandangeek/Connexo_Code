@@ -55,7 +55,6 @@ public enum TableSpecs {
             table.column("USECHANNELJOURNAL").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("useChannelJournal").add();
             table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2LONG).map("deviceProtocolPluggableClassId").add();
             table.column("DEVICEUSAGETYPE").number().conversion(ColumnConversion.NUMBER2INT).map("deviceUsageTypeId").add();
-            table.column("COMMUNICATIONFUNCTIONMASK").number().conversion(ColumnConversion.NUMBER2INT).map("communicationFunctionMask").add();
             table.unique("UK_SYSRTUTYPE").on(name).add();
             table.primaryKey("PK_SYSRTUTYPE").on(id).add();
         }
@@ -193,6 +192,7 @@ public enum TableSpecs {
             Column deviceTypeId = table.column("DEVICETYPEID").number().notNull().add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
+            table.column("COMMUNICATIONFUNCTIONMASK").number().conversion(ColumnConversion.NUMBER2INT).map("communicationFunctionMask").add();
             table.primaryKey("PK_EISDEVICECONFIG").on(id).add();
             table.foreignKey("FK_EISDEVCFG_DEVTYPE").on(deviceTypeId).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("deviceConfigurations").composition().onDelete(DeleteRule.CASCADE).add();
         }

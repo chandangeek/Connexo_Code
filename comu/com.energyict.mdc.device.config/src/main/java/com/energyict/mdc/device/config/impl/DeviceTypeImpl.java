@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -29,10 +28,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -44,8 +41,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private boolean useChannelJournal;
     private int deviceUsageTypeId;
     private DeviceUsageType deviceUsageType;
-    private int communicationFunctionMask;
-    private Set<DeviceCommunicationFunction> deviceCommunicationFunctions;
     @Valid
     private List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
     private List<DeviceTypeLogBookTypeUsage> logBookTypeUsages = new ArrayList<>();
@@ -163,36 +158,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void setDeviceUsageType(DeviceUsageType deviceUsageType) {
         this.deviceUsageType = deviceUsageType;
         this.deviceUsageTypeId = PersistentDeviceUsageType.fromActual(deviceUsageType).getCode();
-    }
-
-    @Override
-    public Set<DeviceCommunicationFunction> getCommunicationFunctions() {
-        if (this.deviceCommunicationFunctions == null) {
-            this.deviceCommunicationFunctions = this.createSetFromMasks(this.communicationFunctionMask);
-        }
-        return EnumSet.copyOf(this.deviceCommunicationFunctions);
-    }
-
-    private Set<DeviceCommunicationFunction> createSetFromMasks(int communicationFunctionMask) {
-        return new DeviceCommunicationFunctionSetPersister().fromDb(communicationFunctionMask);
-    }
-
-    public boolean hasCommunicationFunction(DeviceCommunicationFunction function) {
-        return this.getCommunicationFunctions().contains(function);
-    }
-
-    @Override
-    public void addCommunicationFunction(DeviceCommunicationFunction function) {
-        this.getCommunicationFunctions();   // Load the current set
-        this.deviceCommunicationFunctions.add(function);
-        this.communicationFunctionMask = new DeviceCommunicationFunctionSetPersister().toDb(this.deviceCommunicationFunctions);
-    }
-
-    @Override
-    public void removeCommunicationFunction(DeviceCommunicationFunction function) {
-        this.getCommunicationFunctions();   // Load the current set
-        this.deviceCommunicationFunctions.remove(function);
-        this.communicationFunctionMask = new DeviceCommunicationFunctionSetPersister().toDb(this.deviceCommunicationFunctions);
     }
 
     @Override
@@ -475,10 +440,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             localDeviceProtocol = this.getDeviceProtocolPluggableClass().getDeviceProtocol();
         }
         return localDeviceProtocol;
-    }
-
-    public int getCommunicationFunctionMask() {
-        return communicationFunctionMask;
     }
 
     @Override

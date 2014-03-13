@@ -4,7 +4,6 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import java.util.List;
-import java.util.Set;
 
 /**
  * DeviceType defines the basic common attributes of a
@@ -98,14 +97,6 @@ public interface DeviceType {
     public DeviceUsageType getDeviceUsageType();
 
     public void setDeviceUsageType(DeviceUsageType deviceUsageType);
-
-    public Set<DeviceCommunicationFunction> getCommunicationFunctions();
-
-    public boolean hasCommunicationFunction(DeviceCommunicationFunction function);
-
-    public void addCommunicationFunction(DeviceCommunicationFunction function);
-
-    public void removeCommunicationFunction(DeviceCommunicationFunction function);
 
     public List<DeviceConfiguration> getConfigurations();
 
