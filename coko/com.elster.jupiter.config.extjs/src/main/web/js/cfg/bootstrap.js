@@ -12,6 +12,8 @@
   "ExtThemeNeptune": "../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neptune/overrides",
   "Uni": "../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/UnifyingJS/src",
   "Uni.About": "../../../../../../com.elster.jupiter.unifyingjs/src/main/web/js/uni/build/UnifyingJS.js",
+  "Uni.model.Script": "../../../../../../com.elster.jupiter.unifyingjs/src/main/web/js/uni/src/model/Script.js",
+  "Uni.override": "../../../../../../com.elster.jupiter.unifyingjs/src/main/web/js/uni/src/override",
   "Uni.override.ApplicationOverride": "../../../../../../com.elster.jupiter.unifyingjs/src/main/web/js/uni/build/UnifyingJS.js",
   "Uni.override.CheckboxOverride": "../../../../../../com.elster.jupiter.unifyingjs/src/main/web/js/uni/build/UnifyingJS.js",
   "Uni.override.FieldBaseOverride": "../../../../../../com.elster.jupiter.unifyingjs/src/main/web/js/uni/build/UnifyingJS.js",
@@ -862,6 +864,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Uni.model.BreadcrumbItem": [],
   "Uni.model.MenuItem": [],
   "Uni.model.Notification": [],
+  "Uni.model.Script": [],
   "Uni.model.Translation": [],
   "Uni.override.ApplicationOverride": [],
   "Uni.override.CheckboxOverride": [],
@@ -872,6 +875,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Uni.override.MessageBoxOverride": [],
   "Uni.override.NumberFieldOverride": [],
   "Uni.override.RestOverride": [],
+  "Uni.override.ServerOverride": [],
   "Uni.override.StoreOverride": [],
   "Uni.store.AppItems": [],
   "Uni.store.MenuItems": [],
@@ -908,7 +912,6 @@ Ext.ClassManager.addNameAliasMappings({
   "Cfg.controller.EventType": [],
   "Cfg.controller.Main": [],
   "Cfg.controller.Validation": [],
-  "Cfg.controller.history.Administration": [],
   "Cfg.controller.history.EventType": [],
   "Cfg.controller.history.Validation": [],
   "Cfg.model.EventType": [],
@@ -1888,6 +1891,7 @@ Ext.ClassManager.addNameAliasMappings({
   "Uni.model.BreadcrumbItem": [],
   "Uni.model.MenuItem": [],
   "Uni.model.Notification": [],
+  "Uni.model.Script": [],
   "Uni.model.Translation": [],
   "Uni.override.ApplicationOverride": [],
   "Uni.override.CheckboxOverride": [],
@@ -1898,6 +1902,7 @@ Ext.ClassManager.addNameAliasMappings({
   "Uni.override.MessageBoxOverride": [],
   "Uni.override.NumberFieldOverride": [],
   "Uni.override.RestOverride": [],
+  "Uni.override.ServerOverride": [],
   "Uni.override.StoreOverride": [],
   "Uni.store.AppItems": [],
   "Uni.store.MenuItems": [],
@@ -1974,8 +1979,8 @@ Ext.Loader.loadScript("../../../../../../com.elster.jupiter.extjs/src/main/web/j
 Ext.Loader.loadScript("../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neptune/overrides/layout/component/Dock.js");;
 Ext.Loader.loadScript("../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neptune/overrides/container/ButtonGroup.js");;
 Ext.Loader.loadScript("../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neptune/overrides/toolbar/Paging.js");;
-Ext.Loader.loadScript("../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neptune/overrides/resizer/Splitter.js");;
 Ext.Loader.loadScript("../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neptune/overrides/menu/Separator.js");;
+Ext.Loader.loadScript("../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neptune/overrides/resizer/Splitter.js");;
 Ext.Loader.loadScript("../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neptune/overrides/picker/Month.js");;
 Ext.Loader.loadScript("../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neptune/overrides/form/field/HtmlEditor.js");;
 Ext.Loader.loadScript("../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neptune/overrides/panel/Table.js");;
