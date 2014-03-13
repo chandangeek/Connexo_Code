@@ -50,6 +50,9 @@ public class ListFinder<T> implements Finder<T> {
     @Override
     public List<T> find() {
         if (start!=null && pageSize!=null) {
+            if (start>=elements.size()) {
+                return Collections.emptyList();
+            }
             int limit = Math.min(elements.size()-this.start, this.start+this.pageSize+1);// +1 for the 'there is another page'-indicator
             return elements.subList(this.start, limit);
         } else {

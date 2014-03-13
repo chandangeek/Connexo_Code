@@ -47,7 +47,17 @@ public class ListFinderTest {
     }
 
     @Test
-    public void testGetFullPage() throws Exception {
+    public void testGetOutOfBoundsPage() throws Exception {
+        List<Integer> ints = Arrays.asList(1,2,3,4,5,6,7);
+        QueryParameters queryParameters = mock(QueryParameters.class);
+        when(queryParameters.getStart()).thenReturn(10);
+        when(queryParameters.getLimit()).thenReturn(10);
+        List<Integer> found = ListFinder.of(ints, new NullComparator()).from(queryParameters).find();
+        assertThat(found).isEmpty();
+    }
+
+    @Test
+    public void testGetFullPageSorted() throws Exception {
         List<Integer> ints = Arrays.asList(1,2,3,4,5,6,7,8,9,0);
         QueryParameters queryParameters = mock(QueryParameters.class);
         when(queryParameters.getStart()).thenReturn(0);
