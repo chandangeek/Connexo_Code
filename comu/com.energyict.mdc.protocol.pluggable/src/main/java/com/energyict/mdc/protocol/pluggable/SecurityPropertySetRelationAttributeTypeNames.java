@@ -1,8 +1,5 @@
 package com.energyict.mdc.protocol.pluggable;
 
-import com.energyict.mdc.dynamic.relation.RelationType;
-import com.energyict.mdc.protocol.api.device.Device;
-
 /**
  * Defines constants that should be used for names of
  * {@link com.energyict.mdc.dynamic.relation.RelationAttributeType}
@@ -15,7 +12,7 @@ public interface SecurityPropertySetRelationAttributeTypeNames {
 
     /**
      * The name of the attribute that references the
-     * {@link Device} that owns the security properties.
+     * {@link com.energyict.mdc.protocol.api.device.BaseDevice} that owns the security properties.
      */
     public String DEVICE_ATTRIBUTE_NAME = "device";
 

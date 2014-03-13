@@ -1,15 +1,11 @@
 package com.energyict.mdc.protocol.pluggable.impl.relations;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.dynamic.relation.RelationTypeShadow;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
-import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import java.sql.SQLException;
 
 /**
  * Provides code reuse opportunities for components

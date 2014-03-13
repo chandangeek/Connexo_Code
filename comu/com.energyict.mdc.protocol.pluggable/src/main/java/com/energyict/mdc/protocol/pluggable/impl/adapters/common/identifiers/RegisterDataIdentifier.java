@@ -2,8 +2,8 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers;
 
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.Device;
-import com.energyict.mdc.protocol.api.device.Register;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.RegisterFactory;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
@@ -22,7 +22,7 @@ public class RegisterDataIdentifier implements RegisterIdentifier {
     private final ObisCode deviceRegisterObisCode;
     private final DeviceIdentifier deviceIdentifier;
 
-    private Register register;
+    private BaseRegister register;
 
     public RegisterDataIdentifier(ObisCode registerObisCode, ObisCode deviceRegisterObisCode, DeviceIdentifier deviceIdentifier) {
         this.registerObisCode = registerObisCode;
@@ -31,14 +31,14 @@ public class RegisterDataIdentifier implements RegisterIdentifier {
     }
 
     @Override
-    public Register findRegister () {
+    public BaseRegister findRegister () {
         if(this.register == null){
             DeviceIdentifier deviceFinder = deviceIdentifier;
             List<RegisterFactory> registerFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(RegisterFactory.class);
-            Device device = deviceFinder.findDevice();
+            BaseDevice device = deviceFinder.findDevice();
             for (RegisterFactory registerFactory : registerFactories) {
-                List<Register> registers = registerFactory.findRegistersByDevice(device);
-                for (Register register : registers) {
+                List<BaseRegister> registers = registerFactory.findRegistersByDevice(device);
+                for (BaseRegister register : registers) {
                     if (register.getDeviceObisCode() != null && register.getDeviceObisCode().equals(registerObisCode)){
                         this.register = register;
                         break;

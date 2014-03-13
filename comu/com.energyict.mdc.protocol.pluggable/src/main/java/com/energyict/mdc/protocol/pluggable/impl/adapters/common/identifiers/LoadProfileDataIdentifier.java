@@ -3,7 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfile;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
@@ -34,7 +34,7 @@ public class LoadProfileDataIdentifier implements LoadProfileIdentifier {
     @Override
     public LoadProfile findLoadProfile () {
         if (loadProfile == null) {
-            Device device = deviceIdentifier.findDevice();
+            BaseDevice device = deviceIdentifier.findDevice();
             List<LoadProfileFactory> loadProfileFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(LoadProfileFactory.class);
             List<LoadProfile> loadProfiles = new ArrayList<>();
             for (LoadProfileFactory factory : loadProfileFactories) {
