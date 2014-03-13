@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -385,6 +386,33 @@ public class DeviceTypeResourceTest extends JerseyTest {
         Response response = target("/devicetypes/31/deviceconfigurations/101").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(deviceConfiguration101).setName("new name");
+    }
+
+    @Test
+    public void testDeleteDeviceConfiguration() throws Exception {
+        DeviceType deviceType = mockDeviceType("updater", 31L);
+        DeviceConfiguration deviceConfiguration101 = mock(DeviceConfiguration.class);
+        when(deviceConfiguration101.getId()).thenReturn(101L);
+        when(deviceConfiguration101.getDeviceType()).thenReturn(deviceType);
+        DeviceConfiguration deviceConfiguration102 = mock(DeviceConfiguration.class);
+        when(deviceConfiguration102.getId()).thenReturn(102L);
+        when(deviceConfiguration102.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration101, deviceConfiguration102));
+        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(deviceType);
+
+        Response response = target("/devicetypes/31/deviceconfigurations/101").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(deviceType).removeConfiguration(deviceConfiguration101);
+    }
+
+    @Test
+    public void testDeleteNonExistingDeviceConfiguration() throws Exception {
+        DeviceType deviceType = mockDeviceType("updater", 31L);
+        when(deviceType.getConfigurations()).thenReturn(new ArrayList<DeviceConfiguration>());
+        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(deviceType);
+
+        Response response = target("/devicetypes/31/deviceconfigurations/101").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
