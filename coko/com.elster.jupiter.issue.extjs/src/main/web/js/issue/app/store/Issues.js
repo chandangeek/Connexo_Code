@@ -31,11 +31,17 @@ Ext.define('Isu.store.Issues', {
         return this.proxyFilter;
     },
 
-    removeProxyFilter: function(key) {
+    removeProxyFilter: function(key, id) {
         if (!key) {
             this.proxyFilter = null;
         } else {
-            if (!_.isUndefined(this.proxyFilter.data[key])){
+            if (id) {
+                var store = this.proxyFilter[key]();
+                var rec = store.getById(id);
+                if (rec) {
+                    store.remove(rec);
+                }
+            } else if (!_.isUndefined(this.proxyFilter.data[key])){
                 delete this.proxyFilter.data[key];
             }
         }

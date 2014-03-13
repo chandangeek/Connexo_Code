@@ -123,7 +123,6 @@ Ext.define('Isu.controller.Issues', {
     filterUpdate: function (filter) {
         var filterElm = this.getFilter().down('panel[name="filter"]');
         filterElm.removeAll();
-        console.log(filter.status());
 
         if (filter.get('assignee')) {
             var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
@@ -145,7 +144,8 @@ Ext.define('Isu.controller.Issues', {
             filter.status().each(function (status) {
                 var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
                     text: 'Status: ' + status.get('name'),
-                    target: 'status'
+                    target: 'status',
+                    targetId: status.getId()
                 });
                 filterElm.add(button);
             });
@@ -153,7 +153,7 @@ Ext.define('Isu.controller.Issues', {
     },
 
     removeFilter: function(elm) {
-        this.getStore('Issues').removeProxyFilter(elm.target);
+        this.getStore('Issues').removeProxyFilter(elm.target, elm.targetId);
     },
 
     showOverview: function () {
