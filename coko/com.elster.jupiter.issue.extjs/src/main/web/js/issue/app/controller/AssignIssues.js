@@ -94,8 +94,8 @@ Ext.define('Isu.controller.AssignIssues', {
                     autoAbort: true,
                     success: function (resp) {
                         var response = Ext.JSON.decode(resp.responseText),
-                            successArr = response.success,
-                            failureArr = response.failure,
+                            successArr = response.data.success,
+                            failureArr = response.data.failure,
                             activeCombo = assignPanel.down('issues-assign-form combobox[allowBlank=false]'),
                             msges = [];
                         if (failureArr.length > 0) {
