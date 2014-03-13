@@ -353,6 +353,10 @@ span[class^=isu-assignee-] {
     color: #3A7CFF;
 }
 
+.x-panel .bulk-step {
+    margin: 0px 0px 15px 15px;
+}
+
 .isu-issues-list-selected-no-highlighted .x-grid-cell {
     background-color: inherit !important;
 }
