@@ -119,6 +119,8 @@ public interface DeviceType {
      */
     public DeviceConfigurationBuilder newConfiguration (String name);
 
+    public void removeConfiguration(DeviceConfiguration deviceConfigurationToDelete);
+
     public void save ();
 
     public void delete ();

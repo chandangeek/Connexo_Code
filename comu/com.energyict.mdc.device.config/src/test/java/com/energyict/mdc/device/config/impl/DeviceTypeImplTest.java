@@ -22,6 +22,7 @@ import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
+import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
@@ -772,6 +773,24 @@ public class DeviceTypeImplTest extends PersistenceTest {
     @ExpectedConstraintViolation(messageId = "{DTC.X.name.required}", property = "name")
     public void testCanNotAddDeviceConfigurationWithEmptyName() throws Exception {
         deviceType.newConfiguration("").description("this is it!").add();
+    }
+
+    @Test
+    @Transactional
+    public void testRemoveDeviceConfigFromDeviceType() throws Exception {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
+
+        deviceType.removeConfiguration(deviceConfiguration);
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId())).isNull();
+    }
+
+    @Test(expected = DeviceConfigurationIsActiveException.class)
+    @Transactional
+    public void testCanNotRemoveDeviceConfigIfInUse() throws Exception {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
+        deviceConfiguration.activate();
+
+        deviceType.removeConfiguration(deviceConfiguration);
     }
 
     private void setupLogBookTypesInExistingTransaction(String logBookTypeBaseName) {

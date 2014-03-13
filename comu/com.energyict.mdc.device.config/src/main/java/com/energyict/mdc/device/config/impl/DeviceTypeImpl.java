@@ -491,6 +491,18 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
+    public void removeConfiguration(DeviceConfiguration deviceConfigurationToDelete) {
+        Iterator<DeviceConfiguration> iterator = this.deviceConfigurations.iterator();
+        while (iterator.hasNext()) {
+            DeviceConfiguration configuration = iterator.next();
+            if (configuration.getId()==deviceConfigurationToDelete.getId()) {
+                ((ServerDeviceConfiguration)configuration).notifyDelete();
+                iterator.remove();
+            }
+        }
+    }
+
+    @Override
     public DeviceConfigurationBuilder newConfiguration(String name) {
         return new ConfigurationBuilder(this.dataModel.getInstance(DeviceConfigurationImpl.class).initialize(this, name));
     }
