@@ -1,8 +1,10 @@
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
     alias: 'widget.deviceConfigurationsSetup',
     autoScroll: true,
+    deviceTypeId: null,
     itemId: 'deviceConfigurationsSetup',
+    cls: 'content-container',
     requires: [
         'Uni.view.breadcrumb.Trail'
     ],
@@ -32,23 +34,30 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
                     xtype: 'component',
                     html: '<h1>'+ Uni.I18n.translate('deviceconfig.deviceConfigurations', 'MDC', 'Device configurations')+'</h1>',
                     margins: '10 10 10 10'
+                },
+                {
+                    xtype: 'container',
+                    itemId: 'DeviceConfigurationsGridContainer'
+                },
+                {
+                    xtype: 'component',
+                    height : 25
+                },
+                {
+                    xtype: 'deviceConfigurationPreview'
                 }
-//                {
-//                    xtype: 'deviceTypesGrid'
-//                },
-//                {
-//                    xtype: 'component',
-//                    height : 25
-//                },
-//                {
-//                    xtype: 'deviceTypePreview'
-//                }
             ]}
     ],
 
 
     initComponent: function () {
         this.callParent(arguments);
+        this.down('#DeviceConfigurationsGridContainer').add(
+            {
+                xtype: 'deviceConfigurationsGrid',
+                deviceTypeId: this.deviceTypeId
+            }
+        );
     }
 });
 

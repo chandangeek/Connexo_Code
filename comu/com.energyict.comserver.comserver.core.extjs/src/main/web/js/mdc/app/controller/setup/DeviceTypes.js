@@ -96,7 +96,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             this.getDeviceTypePreviewForm().loadRecord(deviceTypes[0]);
             this.getDeviceTypePreview().getLayout().setActiveItem(1);
             this.getDeviceTypeDetailsLink().update('<a href="#/setup/devicetypes/' + deviceTypeId + '">' + Uni.I18n.translate('general.viewDetails', 'MDC', 'View details') + '</a>');
-            this.getDeviceConfigurationsLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/configurations'});
+            this.getDeviceConfigurationsLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/deviceconfigurations'});
             this.getDeviceConfigurationsLink().getEl().setHTML(deviceTypes[0].get('deviceConfigurationCount') + ' ' + Uni.I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations'));
             this.getDeviceTypePreviewTitle().update('<h4>' + deviceTypes[0].get('name') + '</h4>');
         } else {
@@ -159,7 +159,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         var me=this;
         var widget = Ext.widget('deviceTypeEdit', {
             edit: true,
-            returnLink: me.getApplication().getHistorySetupController().tokenizePreviousTokens(),
+            returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens(),
             deviceCommunicationProtocols: protocolStore
         });
         this.getApplication().getController('Mdc.controller.Main').showContent(widget);

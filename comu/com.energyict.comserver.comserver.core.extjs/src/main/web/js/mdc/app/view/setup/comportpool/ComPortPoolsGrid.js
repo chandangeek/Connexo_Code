@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
                 tdCls:'view',
                 width:24,
                 items: [{
-                    icon: 'resources/images/gear-16x16.png',
+                    icon: '../mdc/resources/images/gear-16x16.png',
                     tooltip: 'View',
                     handler: function(grid, rowIndex, colIndex,item,e) {
                         var menu = Ext.widget('menu', {

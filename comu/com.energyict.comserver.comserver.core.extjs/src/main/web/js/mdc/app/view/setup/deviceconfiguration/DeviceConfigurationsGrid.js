@@ -1,23 +1,24 @@
-Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
+Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.deviceTypesGrid',
+    alias: 'widget.deviceConfigurationsGrid',
     overflowY: 'auto',
-    itemId: 'devicetypegrid',
+    itemId: 'deviceconfigurationsgrid',
+    deviceTypeId: null,
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.DeviceTypes'
+        'Mdc.store.DeviceConfigurations'
     ],
 //    controllers: [
 //        'Mdc.controller.setup.DeviceTypes'
 //    ],
-    store: 'DeviceTypes',
+    store: 'DeviceConfigurations',
     padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
         this.columns = [
             {
-                header : Uni.I18n.translate('devicetype.name', 'MDC', 'Name'),
+                header : Uni.I18n.translate('deviceconfiguration.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 sortable: false,
                 hideable: false,
@@ -28,10 +29,13 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 flex: 0.4
             },
             {
-                header: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Device communication protocol'),
-                dataIndex: 'communicationProtocolName',
+                header : Uni.I18n.translate('deviceconfiguration.active', 'MDC', 'Active'),
+                dataIndex: 'active',
                 sortable: false,
                 hideable: false,
+                renderer: function(value,b,record){
+                    return value===true?Uni.I18n.translate('general.active', 'MDC', 'Active'):Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
+                },
                 fixed: true,
                 flex: 0.4
             },
@@ -93,19 +97,23 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                         flex: 1
                     },
                     {
-                        text: Uni.I18n.translate('devicetype.createDeviceType', 'MDC', 'Create device type'),
-                        itemId: 'createDeviceType',
+                        text: Uni.I18n.translate('deviceconfiguration.createDeviceConfiguration', 'MDC', 'Create device configuration'),
+                        itemId: 'createDeviceConfiguration',
                         xtype: 'button',
-                        action: 'createDeviceType'
+                        action: 'createDeviceConfiguration'
                     }
                 ]
             },
             {
-            xtype: 'pagingtoolbarbottom',
-            store: this.store,
-            dock: 'bottom'
-        }];
+                xtype: 'pagingtoolbarbottom',
+                store: this.store,
+                //todo: check if this works
+                params: [{deviceType: this.deviceTypeId}],
+                dock: 'bottom'
+            }
+];
 
         this.callParent();
     }
 });
+
