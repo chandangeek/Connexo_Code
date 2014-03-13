@@ -26,10 +26,24 @@ Ext.define('Isu.controller.IssueFilter', {
                 click: this.filter
             }
         });
+        this.listen({
+            store: {
+                '#Issues': {
+                    updateProxyFilter: this.filterUpdate
+                }
+            }
+        });
     },
 
     onLaunch: function () {
         this.getIssueFilter().down('filter-form').loadRecord(new Isu.model.IssueFilter());
+    },
+
+    /**
+     * @param filter
+     */
+    filterUpdate: function (filter) {
+        this.getIssueFilter().down('filter-form').loadRecord(filter);
     },
 
     filter: function() {
