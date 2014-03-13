@@ -126,7 +126,7 @@ Ext.define('Isu.controller.Issues', {
 
         if (filter.get('assignee')) {
             var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
-                text: 'Assignee: ' + filter.get('assignee').get('title'),
+                text: 'Assignee: ' + filter.get('assignee').get('name'),
                 target: 'assignee'
             });
             filterElm.add(button);
