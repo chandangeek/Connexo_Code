@@ -634,6 +634,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         public DeviceConfiguration add() {
             this.mode.verify();
             this.doNestedBuilders();
+            Save.CREATE.validate(dataModel, this.underConstruction);
             addConfiguration(this.underConstruction);
             this.mode = BuildingMode.COMPLETE;
             return this.underConstruction;

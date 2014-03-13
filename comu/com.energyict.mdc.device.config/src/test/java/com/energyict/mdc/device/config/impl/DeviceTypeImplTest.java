@@ -750,6 +750,30 @@ public class DeviceTypeImplTest extends PersistenceTest {
         assertThat(usages).as("Was not expecting to find any register mapping usages for device type {0} after deletion", deviceType).isEmpty();
     }
 
+    @Test
+    @Transactional
+    public void testAddDeviceConfiguration() throws Exception {
+        deviceType.newConfiguration("first").description("this is it!").add();
+
+        DeviceType refreshed = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        assertThat(refreshed.getConfigurations()).hasSize(1);
+        assertThat(refreshed.getConfigurations().get(0).getName()).isEqualTo("first");
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{DTC.X.name.required}", property = "name")
+    public void testCanNotAddDeviceConfigurationWithoutName() throws Exception {
+        deviceType.newConfiguration(null).description("this is it!").add();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{DTC.X.name.required}", property = "name")
+    public void testCanNotAddDeviceConfigurationWithEmptyName() throws Exception {
+        deviceType.newConfiguration("").description("this is it!").add();
+    }
+
     private void setupLogBookTypesInExistingTransaction(String logBookTypeBaseName) {
         this.logBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(logBookTypeBaseName + "-1", ObisCode.fromString("0.0.99.98.0.255"));
         this.logBookType.save();
