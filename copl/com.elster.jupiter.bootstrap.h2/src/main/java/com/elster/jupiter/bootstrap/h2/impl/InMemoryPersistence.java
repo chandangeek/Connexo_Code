@@ -14,7 +14,7 @@ import java.sql.SQLException;
 public enum InMemoryPersistence {
     ;
 
-    private static final String url = "jdbc:h2:mem:DB;MVCC=TRUE;lock_timeout=5000";
+    private static final String url = "jdbc:h2:mem:DB;MVCC=TRUE;lock_timeout=5000;MODE=Oracle";
 
     public static String query(String sql) {
         JdbcDataSource dataSource = new JdbcDataSource();
