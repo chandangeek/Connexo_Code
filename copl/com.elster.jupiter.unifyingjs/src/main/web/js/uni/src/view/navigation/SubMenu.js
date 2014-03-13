@@ -8,6 +8,7 @@
  * How and where content is show after clicking a button in the submenu is not fixed.
  * Switching between panels can easily be done using a card layout.
  *
+ *
  * # Example usage
  *
  *     @example
@@ -46,7 +47,13 @@
  *
  *               getMenuCmp: function () {
  *                   return this.down('#myMenu');
- *               },
+ *               }
+ *
+ *
+ *  Toggling: make item "i" active
+ *
+ *      ... .getLayout().setActiveItem(i); // set active item card layout
+ *      menu.toggleMenuItem(i);
  */
 Ext.define('Uni.view.navigation.SubMenu', {
     extend: 'Ext.container.Container',
