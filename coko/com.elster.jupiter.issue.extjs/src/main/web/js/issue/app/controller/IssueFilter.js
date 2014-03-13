@@ -29,14 +29,14 @@ Ext.define('Isu.controller.IssueFilter', {
     },
 
     onLaunch: function () {
-        this.getIssueFilter().down('form').loadRecord(new Isu.model.IssueFilter());
+        this.getIssueFilter().down('filter-form').loadRecord(new Isu.model.IssueFilter());
     },
 
     filter: function() {
-        this.getIssueFilter().down('form').updateRecord();
+        var form = this.getIssueFilter().down('filter-form');
+        var filter = form.getRecord();
+        form.updateRecord(filter);
 
-        //todo: make a model from values!
-        var values = this.getIssueFilter().down('form').getValues();
-        this.getStore('Issues').setProxyFilter(values);
+        this.getStore('Issues').setProxyFilter(filter);
     }
 });

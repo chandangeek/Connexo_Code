@@ -3,39 +3,55 @@ Ext.define('Isu.store.Issues', {
     requires: [
         'Ext.data.proxy.Rest'
     ],
+
     model: 'Isu.model.Issues',
     pageSize: 10,
     autoLoad: false,
+    proxyFilter: null,
 
-    extraParams: {
-        "sort": {},
-        "group": {},
-        "filter": {}
+    /**
+     * @param filter Isu.component.filter.model.Filter
+     */
+    setProxyFilter: function(filter) {
+        if (!filter instanceof Isu.component.filter.model.Filter) {
+            //<debug>
+            Ext.Error.raise('!filter instanceof Isu.component.filter.model.Filter');
+            //</debug>
+        }
+
+        this.proxyFilter = filter;
+        this.load();
+        this.fireEvent('updateProxyFilter', this.proxyFilter);
     },
 
-    setProxyFilter: function(filter) {
-        this.extraParams.filter = filter;
-        this.load();
-        this.fireEvent('updateProxyFilter', this.extraParams.filter);
+    /*
+     * @returns {Isu.component.filter.model.Filter}
+     */
+    getProxyFilter: function() {
+        return this.proxyFilter;
     },
 
     removeProxyFilter: function(key) {
         if (!key) {
-            this.extraParams.filter = {};
+            this.proxyFilter = null;
         } else {
-            if (!_.isUndefined(this.extraParams.filter[key])){
-                delete this.extraParams.filter[key];
+            if (!_.isUndefined(this.proxyFilter.data[key])){
+                delete this.proxyFilter.data[key];
             }
         }
         this.load();
-        this.fireEvent('updateProxyFilter', this.extraParams.filter);
+        this.fireEvent('updateProxyFilter', this.proxyFilter);
     },
 
     listeners: {
         "beforeLoad": function() {
-            this.proxy.extraParams.params = window.btoa(Ext.encode(this.extraParams));
-            console.log(this.proxy.extraParams.params);
-            console.log(this.extraParams);
+            var extraParams = {};
+
+            if (this.proxyFilter) {
+                Ext.merge(extraParams, this.proxyFilter.getPlainData());
+            }
+            console.log(extraParams);
+            Ext.merge(this.proxy.extraParams, extraParams);
         }
     }
 });

@@ -8,6 +8,7 @@ Ext.define('Isu.util.FilterCheckboxgroup', {
         boxLabel: 'name',
         inputValue: 'id'
     },
+    useRawValue: true,
 
     initComponent: function () {
         var me = this;
@@ -36,6 +37,35 @@ Ext.define('Isu.util.FilterCheckboxgroup', {
                 name: me.name
             });
         });
+    },
+
+    getValue: function() {
+        if (this.useRawValue) {
+            return this.getRawValue();
+        }
+
+        return this.callParent();
+    },
+
+    /**
+     * Returns array of selected objects, from binded store
+     * @returns {Ext.data.Model[]}
+     */
+    getRawValue: function() {
+        var value = this.superclass.getValue.call(this);
+        var store = this.getStore();
+
+        var data = value[this.name];
+        if (data) {
+            if (!_.isArray(data)) {
+                data = [data];
+            }
+            value[this.name] = _.map(data, function(id) {
+                return store.getById(id);
+            });
+        }
+
+        return value;
     },
 
     getStoreListeners: function () {

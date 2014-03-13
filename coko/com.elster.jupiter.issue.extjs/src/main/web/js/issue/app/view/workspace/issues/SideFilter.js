@@ -7,12 +7,13 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
 
     requires: [
         'Isu.view.workspace.issues.component.AssigneeCombo',
-        'Isu.util.FilterCheckboxgroup'
+        'Isu.util.FilterCheckboxgroup',
+        'Isu.component.filter.view.Filter'
     ],
 
     items: [
         {
-            xtype: 'form',
+            xtype: 'filter-form',
             items: [
                 {
                     xtype: 'filter-checkboxgroup',
@@ -24,7 +25,8 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     vertical: true
                 },
                 {
-                    xtype: 'issues-assignee-combo'
+                    xtype: 'issues-assignee-combo',
+                    name: 'assignee'
                 },
                 {
                     xtype: 'combobox',

@@ -116,17 +116,40 @@ Ext.define('Isu.controller.Issues', {
         this.gridItemModel = this.getModel('Isu.model.Issues');
     },
 
-    filterUpdate: function(filter) {
+    /**
+     * todo: I18n
+     * @param filter
+     */
+    filterUpdate: function (filter) {
         var filterElm = this.getFilter().down('panel[name="filter"]');
         filterElm.removeAll();
-        _.each(filter, function(elm, key) {
-            var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
-                text : key + ': ' + elm,
-                target: key
-            });
+        console.log(filter.status());
 
+        if (filter.get('assignee')) {
+            var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
+                text: 'Assignee: ' + filter.get('assignee').get('title'),
+                target: 'assignee'
+            });
             filterElm.add(button);
-        });
+        }
+
+        if (filter.get('reason')) {
+            var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
+                text: 'Reason: ' + filter.get('reason').get('name'),
+                target: 'reason'
+            });
+            filterElm.add(button);
+        }
+
+        if (filter.status().count()) {
+            filter.status().each(function (status) {
+                var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
+                    text: 'Status: ' + status.get('name'),
+                    target: 'status'
+                });
+                filterElm.add(button);
+            });
+        }
     },
 
     removeFilter: function(elm) {

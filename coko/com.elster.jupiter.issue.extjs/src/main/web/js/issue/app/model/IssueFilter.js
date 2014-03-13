@@ -1,6 +1,5 @@
 Ext.define('Isu.model.IssueFilter', {
-    extend: 'Ext.data.Model',
-    fields: ['id'],
+    extend: 'Isu.component.filter.model.Filter',
 
     requires: [
         'Isu.model.IssueStatus',
@@ -13,9 +12,16 @@ Ext.define('Isu.model.IssueFilter', {
         name: 'status'
     },
 
-    hasOne: {
-        model: 'Isu.model.Assignee',
-        associationKey: 'assignee',
-        name: 'assignee'
-    }
+    hasOne: [
+        {
+            model: 'Isu.model.Assignee',
+            associationKey: 'assignee',
+            name: 'assignee'
+        },
+        {
+            model: 'Isu.model.IssueReason',
+            associationKey: 'reason',
+            name: 'reason'
+        }
+    ]
 });
