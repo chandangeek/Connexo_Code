@@ -5,11 +5,13 @@ Ext.define('Mdc.store.ReadingTypes', {
     ],
     model: 'Mdc.model.ReadingType',
     storeId: 'ReadingTypes',
+    remoteFilter:true,
     proxy: {
         type: 'rest',
         url: '../../api/dtc/readingtypes',
         reader: {
-            type: 'json'
+            type: 'json',
+            root: 'readingTypes'
         }
     }
 });

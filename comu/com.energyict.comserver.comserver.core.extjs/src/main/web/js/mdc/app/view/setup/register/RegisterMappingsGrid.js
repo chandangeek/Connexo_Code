@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 items: [
                     {
                         icon: '../mdc/resources/images/information.png',
-                        tooltip: 'Reading type info',
+                        tooltip: Uni.I18n.translate('readingType.tooltip','MDC','Reading type info'),
                         handler: function (grid, rowIndex, colIndex, item, e) {
                             var record = grid.getStore().getAt(rowIndex);
                             this.fireEvent('showReadingTypeInfo', record);
@@ -107,7 +107,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                         text: Uni.I18n.translate('registerMapping.addRegisterMapping', 'MDC', 'Add register types'),
                         itemId: 'addRegisterMappingBtn',
                         xtype: 'button',
-                        href: '#setup/registertypes/add',
+                        href: '#setup/devicetypes/' + this.deviceTypeId + '/registertypes/add',
                         hrefTarget: '_self',
                         action: 'addRegisterMapping'
                     },
@@ -117,6 +117,15 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                         xtype: 'button'
                     }
                 ]
+            },
+            {
+                xtype: 'pagingtoolbarbottom',
+                store: this.store,
+                params: [
+                    {deviceType: this.deviceTypeId}
+                ],
+                dock: 'bottom',
+                itemsPerPageMsg: Uni.I18n.translate('registerTypes.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Register types per page')
             }
         ];
 

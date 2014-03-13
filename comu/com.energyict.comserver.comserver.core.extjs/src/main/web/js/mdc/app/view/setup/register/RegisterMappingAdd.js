@@ -1,17 +1,18 @@
 Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerMappingAdd',
     autoScroll: true,
     requires: [
-        'Mdc.view.setup.register.RegisterMappingAddGrid'
+        'Mdc.view.setup.register.RegisterMappingAddGrid',
+        'Mdc.view.setup.register.RegisterMappingsAddFilter'
     ],
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
+    /* layout: {
+     type: 'vbox',
+     align: 'stretch'
+     },*/
     deviceTypeId: null,
-    cls: 'content-container',
-    items: [
+    //cls: 'content-container',
+    content: [
         {
             xtype: 'container',
             cls: 'content-container',
@@ -70,6 +71,12 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
             ]}
     ],
 
+    side: [
+        {
+            xtype: 'registerMappingAddFilter',
+            name: 'filter'
+        }
+    ],
 
     initComponent: function () {
         this.callParent(arguments);

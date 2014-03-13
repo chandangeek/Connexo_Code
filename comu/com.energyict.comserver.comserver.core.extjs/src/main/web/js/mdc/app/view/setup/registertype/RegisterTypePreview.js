@@ -119,7 +119,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                             {
                                                 xtype: 'button',
                                                 icon: '../mdc/resources/images/information.png',
-                                                tooltip: 'Reading type info',
+                                                tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
                                                 cls: 'uni-btn-transparent',
                                                 handler: function (item, test) {
                                                     var record = me.down('#registerTypePreviewForm').form.getRecord();
@@ -135,6 +135,20 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                         xtype: 'displayfield',
                                         name: 'obisCode',
                                         fieldLabel: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
+                                        labelAlign: 'right',
+                                        labelWidth: 150
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        name: 'unit',
+                                        fieldLabel: Uni.I18n.translate('registerType.measurementUnit', 'MDC', 'Unit of measure'),
+                                        labelAlign: 'right',
+                                        labelWidth: 150
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        name: 'timeOfUse',
+                                        fieldLabel: Uni.I18n.translate('registerType.timeOfUse', 'MDC', 'Time of use'),
                                         labelAlign: 'right',
                                         labelWidth: 150
                                     }

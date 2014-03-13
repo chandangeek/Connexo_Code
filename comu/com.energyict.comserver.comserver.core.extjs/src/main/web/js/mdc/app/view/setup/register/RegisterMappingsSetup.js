@@ -1,23 +1,24 @@
 Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerMappingsSetup',
     autoScroll: true,
     itemId: 'registerMappingSetup',
     deviceTypeId: null,
     requires: [
         'Mdc.view.setup.register.RegisterMappingsGrid',
+        'Mdc.view.setup.register.RegisterMappingsFilter',
         'Mdc.view.setup.register.RegisterMappingPreview',
         'Uni.view.breadcrumb.Trail'
     ],
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-    cls: 'content-container',
+    /* layout: {
+     type: 'vbox',
+     align: 'stretch'
+     },*/
+    // cls: 'content-container',
 //    border: 0,
 //    region: 'center',
 
-    items: [
+    content: [
         {
             xtype: 'container',
             cls: 'content-container',
@@ -26,11 +27,11 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                 align: 'stretch'
             },
             items: [
-                {
-                    xtype: 'breadcrumbTrail',
-                    region: 'north',
-                    padding: 6
-                },
+                /* {
+                 xtype: 'breadcrumbTrail',
+                 region: 'north',
+                 padding: 6
+                 },*/
                 {
                     xtype: 'component',
                     html: Uni.I18n.translate('registerMapping.deviceType', 'MDC', 'Device type'),
@@ -58,6 +59,13 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
 
                 }
             ]}
+    ],
+
+    side: [
+        {
+            xtype: 'registerMappingFilter',
+            name: 'filter'
+        }
     ],
 
 

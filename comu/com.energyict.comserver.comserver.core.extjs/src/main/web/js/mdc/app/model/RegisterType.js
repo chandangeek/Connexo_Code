@@ -8,6 +8,8 @@ Ext.define('Mdc.model.RegisterType', {
         {name: 'name', type: 'string', useNull: true},
         {name: 'obisCode', type: 'string', useNull: true},
         {name: 'isLinkedByDeviceType', type: 'boolean', useNull: true},
+        {name: 'isLinkedByActiveRegisterConfig', type: 'boolean', useNull: true},
+        {name: 'isLinkedByInactiveRegisterConfig', type: 'boolean', useNull: true},
         {name: 'timeOfUse', type: 'number', useNull: true},
         {name: 'unit', type: 'string', useNull: true}
     ],
