@@ -23,5 +23,21 @@ Ext.define('Isu.model.IssueFilter', {
             associationKey: 'reason',
             name: 'reason'
         }
-    ]
+    ],
+
+    /**
+     * @override
+     * @returns {*|Object}
+     */
+    getPlainData: function() {
+        var data = this.callParent();
+        var assignee = this.get('assignee');
+
+        if (assignee) {
+            data.assigneeId = assignee.getId();
+            data.assigneeType = assignee.get('type');
+        }
+
+        return data;
+    }
 });
