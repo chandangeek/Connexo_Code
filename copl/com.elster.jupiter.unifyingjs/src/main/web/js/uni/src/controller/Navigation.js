@@ -7,7 +7,8 @@ Ext.define('Uni.controller.Navigation', {
     requires: [
         'Uni.controller.history.EventBus',
         'Uni.store.MenuItems',
-        'Uni.store.AppItems'
+        'Uni.store.AppItems',
+        'Uni.view.container.ContentContainer'
     ],
 
     views: [
@@ -17,6 +18,10 @@ Ext.define('Uni.controller.Navigation', {
         {
             ref: 'navigationMenu',
             selector: 'navigationMenu'
+        },
+        {
+            ref: 'contentWrapper',
+            selector: 'viewport > #contentPanel'
         }
     ],
 
@@ -39,6 +44,9 @@ Ext.define('Uni.controller.Navigation', {
                 afterrender: this.resetAppSwitcherState
             }
         });
+
+        this.getApplication().on('changemaincontentevent', this.showContent, this);
+        this.getApplication().on('changemainbreadcrumbevent', this.setBreadcrumb, this);
     },
 
     initMenuItems: function () {
@@ -111,5 +119,28 @@ Ext.define('Uni.controller.Navigation', {
                 me.getNavigationMenu().selectMenuItem(result);
             }
         }
+    },
+
+    showContent: function (content, side) {
+        this.getContentWrapper().removeAll();
+
+        if (content instanceof Uni.view.container.ContentContainer) {
+            side = content.side;
+            content = content.content;
+        }
+
+        var contentContainer = new Ext.widget('contentcontainer', {
+            content: content,
+            side: side
+        });
+
+        this.getContentWrapper().add(contentContainer);
+        this.getContentWrapper().doComponentLayout();
+    },
+
+    setBreadcrumb: function (breadcrumbItem) {
+        var contentContainer = this.getContentWrapper().down('contentcontainer'),
+            trail = contentContainer.getBreadcrumbTrail();
+        trail.setBreadcrumbItem(breadcrumbItem);
     }
 });
