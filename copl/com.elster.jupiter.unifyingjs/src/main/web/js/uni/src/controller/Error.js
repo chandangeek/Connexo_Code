@@ -5,7 +5,8 @@ Ext.define('Uni.controller.Error', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.view.error.Window'
+        'Uni.view.error.Window',
+        'Ext.ux.window.Notification'
     ],
 
     config: {
