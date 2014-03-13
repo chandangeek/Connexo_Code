@@ -58,11 +58,14 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'ruleSetDetails',selector: 'ruleSetPreview #ruleSetDetails'},
         {ref: 'ruleSetEdit',selector: 'validationrulesetEdit'},
 
-        {ref: 'rulesListContainer', selector: 'rulesContainer > #rulesListContainer'},
+        {ref: 'stepsContainer', selector: 'rulesContainer > #stepsContainer'},
         {ref: 'newRuleSetForm', selector: 'createRuleSet > #newRuleSetForm'},
 
         {ref: 'createRuleSet',selector: 'createRuleSet'},
         {ref: 'addRule',selector: 'addRule'},
+
+        {ref: 'rulesContainer', selector: 'rulesContainer'},
+        {ref: 'stepsMenu', selector: 'rulesContainer > #stepsMenu'},
 
         {ref: 'readingValuesTextFieldsContainer',selector: 'addRule #readingValuesTextFieldsContainer'} ,
         {ref: 'propertiesContainer',selector: 'addRule #propertiesContainer'},
@@ -70,8 +73,6 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'validatorCombo',selector: 'addRule #validatorCombo'},
 
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
-
-
     ],
 
     readingTypeIndex: 2,
@@ -384,36 +385,6 @@ Ext.define('Cfg.controller.Validation', {
 
     },
 
-    showRules: function(id) {
-        var me = this;
-        var rulesWidget = Ext.create('Cfg.view.validation.RuleBrowse', {ruleSetId: id});
-        var ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
-
-        this.getValidationRulesStore().clearFilter();
-        this.getValidationRulesStore().filter('ruleSetId', id);
-
-        ruleSetsStore.load({
-            params: {
-                id: id
-            },
-            callback: function () {
-                var selectedRuleSet = ruleSetsStore.getById(id);
-                var ruleSetName = selectedRuleSet.get("name");
-                var rulesContainerWidget = Ext.create('Cfg.view.validation.RulesContainer');
-                me.getApplication().getController('Cfg.controller.Main').showContent(rulesContainerWidget);
-
-                me.updateMenulinks(id);
-                me.highlightRulesButton();
-
-                me.getRulesListContainer().add(rulesWidget);
-                me.getRulesListContainer().doComponentLayout();
-                me.getAddRuleLink().setHref('#administration/validation/addRule/' + id);
-                me.createRulesBreadCrumbs(id, ruleSetName);
-                me.getRuleBrowseTitle().update('<h1>' + ruleSetName + ' - Rules</h1>');
-            }
-        });
-    },
-
     createRulesBreadCrumbs: function(ruleSetId, ruleSetName) {
         var me = this;
 
@@ -473,19 +444,42 @@ Ext.define('Cfg.controller.Validation', {
     },
 
 
-    highlightRuleSetOverviewButton: function() {
-        this.getRuleSetOverviewLink().setBorder(1);
-        this.getRulesLink().setBorder(0)
+
+    showRules: function(id) {
+        var me = this;
+        var ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
+
+        this.getValidationRulesStore().clearFilter();
+        this.getValidationRulesStore().filter('ruleSetId', id);
+
+        ruleSetsStore.load({
+            params: {
+                id: id
+            },
+            callback: function () {
+                var selectedRuleSet = ruleSetsStore.getById(id);
+                var ruleSetName = selectedRuleSet.get("name");
+
+                if (Ext.ComponentQuery.query('#rulesContainer').length == 0) {
+                    var rulesContainerWidget = Ext.create('Cfg.view.validation.RulesContainer', {ruleSetId: id});
+                    me.getApplication().getController('Cfg.controller.Main').showContent(rulesContainerWidget);
+                }
+
+                me.getRuleBrowseTitle().update('<h1>' + ruleSetName + ' - Rules</h1>');
+                me.goToMenuItem(1);
+                me.createRulesBreadCrumbs(id, ruleSetName);
+            }
+        });
     },
 
-    highlightRulesButton: function() {
-        this.getRuleSetOverviewLink().setBorder(0);
-        this.getRulesLink().setBorder(1)
+    goToMenuItem: function(i) {
+        Ext.ComponentQuery.query('#stepsContainer')[0].getLayout().setActiveItem(i);
+        Ext.ComponentQuery.query('#stepsMenu')[0].toggleMenuItem(i);
     },
+
 
     showRuleSetOverview: function(id) {
         var me = this;
-        var ruleSetOverviewWidget = Ext.create('Cfg.view.validation.RuleSetOverview');
 
         var ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
         ruleSetsStore.load({
@@ -495,31 +489,19 @@ Ext.define('Cfg.controller.Validation', {
             callback: function () {
                 var selectedRuleSet = ruleSetsStore.getById(id);
                 var ruleSetName = selectedRuleSet.get("name");
+
+                if (Ext.ComponentQuery.query('#rulesContainer').length == 0) {
+                    var rulesContainerWidget = Ext.create('Cfg.view.validation.RulesContainer', {ruleSetId: id});
+                    me.getApplication().getController('Cfg.controller.Main').showContent(rulesContainerWidget);
+                }
+
                 me.getRulesetOverviewTitle().update('<h1>' + ruleSetName + ' - Overview</h1>');
                 me.getRulesetOverviewForm().loadRecord(selectedRuleSet);
-
-                var rulesContainerWidget = Ext.create('Cfg.view.validation.RulesContainer');
-                me.getApplication().getController('Cfg.controller.Main').showContent(rulesContainerWidget);
-
-                me.updateMenulinks(id);
-                me.highlightRuleSetOverviewButton();
-
-                me.getRulesListContainer().add(ruleSetOverviewWidget);
-                me.getRulesListContainer().doComponentLayout();
+                me.goToMenuItem(0);
                 me.createRulesOverviewBreadCrumbs(id, ruleSetName);
 
             }
         });
-    },
-
-    updateMenulinks: function(id) {
-        /*this.getRuleSetOverviewLink().update(
-            '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation/overview/' + id + '">Overview</a>');
-        this.getRulesLink().update(
-            '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation/rules/' + id + '">Rules</a>');  */
-        this.getRuleSetOverviewLink().setHref('#administration/validation/overview/' + id);
-        this.getRulesLink().setHref('#administration/validation/rules/' + id);
-
     },
 
     previewValidationRuleSet: function (grid, record) {
