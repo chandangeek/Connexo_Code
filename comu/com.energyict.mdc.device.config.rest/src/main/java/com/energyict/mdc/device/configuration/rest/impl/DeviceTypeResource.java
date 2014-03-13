@@ -154,6 +154,23 @@ public class DeviceTypeResource {
         throw new WebApplicationException("No such device configuration for the device type", Response.status(Response.Status.NOT_FOUND).entity("No such device configuration for the device type").build());
     }
 
+    @PUT
+    @Path("/{id}/deviceconfigurations/{deviceConfigurationId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DeviceConfigurationInfo updateDeviceConfigurations(@PathParam("id") long id, @PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo deviceConfigurationInfo) {
+        DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
+        DeviceConfiguration deviceConfiguration = getDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        if (deviceConfigurationInfo.active!=null && deviceConfigurationInfo.active && !deviceConfiguration.isActive()) {
+            deviceConfiguration.activate();
+        } else if (deviceConfigurationInfo.active!=null && !deviceConfigurationInfo.active && deviceConfiguration.isActive()) {
+            deviceConfiguration.deactivate();
+        } else {
+            deviceConfigurationInfo.writeTo(deviceConfiguration);
+            deviceConfiguration.save();
+        }
+        return new DeviceConfigurationInfo(deviceConfiguration);
+    }
+
     @POST
     @Path("/{id}/deviceconfigurations")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -280,6 +297,15 @@ public class DeviceTypeResource {
             throw new WebApplicationException("No device type with id " + id, Response.Status.NOT_FOUND);
         }
         return deviceType;
+    }
+
+    private DeviceConfiguration getDeviceConfigurationForDeviceTypeOrThrowException(DeviceType deviceType, long deviceConfigurationId) {
+        for (DeviceConfiguration deviceConfiguration : deviceType.getConfigurations()) {
+            if (deviceConfiguration.getId()==deviceConfigurationId) {
+                return deviceConfiguration;
+            }
+        }
+        throw new WebApplicationException("No such device configuration for the device type", Response.status(Response.Status.NOT_FOUND).entity("No such device configuration for the device type").build());
     }
 
     private List<RegisterMappingInfo> asInfoList(DeviceType deviceType, List<RegisterMapping> registerMappings) {

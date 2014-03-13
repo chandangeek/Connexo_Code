@@ -39,6 +39,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -364,6 +365,50 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
         verify(deviceType, never()).removeRegisterMapping(any(RegisterMapping.class));
         verify(deviceType).addRegisterMapping(registerMapping102);
+    }
+
+    @Test
+    public void testUpdateDeviceConfiguration() throws Exception {
+        DeviceType deviceType = mockDeviceType("updater", 31L);
+        DeviceConfiguration deviceConfiguration101 = mock(DeviceConfiguration.class);
+        when(deviceConfiguration101.getId()).thenReturn(101L);
+        when(deviceConfiguration101.getDeviceType()).thenReturn(deviceType);
+        DeviceConfiguration deviceConfiguration102 = mock(DeviceConfiguration.class);
+        when(deviceConfiguration102.getId()).thenReturn(102L);
+        when(deviceConfiguration102.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration101, deviceConfiguration102));
+        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(deviceType);
+
+        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo();
+        deviceConfigurationInfo.name="new name";
+        Entity<DeviceConfigurationInfo> json = Entity.json(deviceConfigurationInfo);
+        Response response = target("/devicetypes/31/deviceconfigurations/101").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(deviceConfiguration101).setName("new name");
+    }
+
+    @Test
+    public void testActivateDeviceConfigurationIgnoresOtherProperties() throws Exception {
+        DeviceType deviceType = mockDeviceType("updater", 31L);
+        DeviceConfiguration deviceConfiguration101 = mock(DeviceConfiguration.class);
+        when(deviceConfiguration101.getId()).thenReturn(101L);
+        when(deviceConfiguration101.isActive()).thenReturn(false);
+        when(deviceConfiguration101.getDeviceType()).thenReturn(deviceType);
+        DeviceConfiguration deviceConfiguration102 = mock(DeviceConfiguration.class);
+        when(deviceConfiguration102.getId()).thenReturn(102L);
+        when(deviceConfiguration102.isActive()).thenReturn(false);
+        when(deviceConfiguration102.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration101, deviceConfiguration102));
+        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(deviceType);
+
+        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo();
+        deviceConfigurationInfo.name="new name";
+        deviceConfigurationInfo.active=true;
+        Entity<DeviceConfigurationInfo> json = Entity.json(deviceConfigurationInfo);
+        Response response = target("/devicetypes/31/deviceconfigurations/101").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(deviceConfiguration101, never()).setName(anyString());
+        verify(deviceConfiguration101, times(1)).activate();
     }
 
     @Test

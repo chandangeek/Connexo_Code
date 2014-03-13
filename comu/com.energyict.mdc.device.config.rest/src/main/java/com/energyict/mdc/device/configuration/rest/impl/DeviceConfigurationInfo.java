@@ -19,7 +19,7 @@ public class DeviceConfigurationInfo {
     @JsonProperty("description")
     public String description;
     @JsonProperty("active")
-    public boolean active;
+    public Boolean active;
     @JsonProperty("loadProfileCount")
     public int loadProfileCount;
     @JsonProperty("registerCount")
@@ -54,4 +54,8 @@ public class DeviceConfigurationInfo {
         }
     }
 
+    public void writeTo(DeviceConfiguration deviceConfiguration) {
+        deviceConfiguration.setDescription(this.description);
+        deviceConfiguration.setName(this.name);
+    }
 }
