@@ -117,8 +117,8 @@ public class LoadProfileMessageUtils {
 
     /**
      * We format the LoadProfile is such a way it is usable in the legacy
-     * {@link com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder} and
-     * {@link com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder}
+     * PartialLoadProfileMessageBuilder and
+     * LoadProfileRegisterMessageBuilder
      *
      * @param loadProfile the LoadProfile to format
      * @return the formatted loadProfile
@@ -152,7 +152,7 @@ public class LoadProfileMessageUtils {
         Element registers = document.createElement(RtuRegistersTag);
         for (Channel channel : allChannels) {
             Element registerElement = document.createElement(RegisterTag);
-            registerElement.setAttribute(RegisterObiscodeTag, channel.getDeviceRegisterMappingObisCode().toString());
+            registerElement.setAttribute(RegisterObiscodeTag, channel.getRegisterTypeObisCode().toString());
             registerElement.setAttribute(RtuRegisterSerialNumber, channel.getDevice().getSerialNumber());
             registers.appendChild(registerElement);
         }
@@ -165,8 +165,8 @@ public class LoadProfileMessageUtils {
         for (Channel channel : allChannels) {
             Element channelElement = document.createElement(ChannelTag);
             channelElement.setAttribute(ChannelIdTag, String.valueOf(counter++));
-            channelElement.setAttribute(ChannelNametag, channel.getDeviceRegisterMappingObisCode().toString());
-            channelElement.setAttribute(ChannelUnitTag, channel.getDeviceRegisterMappingUnit().toString());
+            channelElement.setAttribute(ChannelNametag, channel.getRegisterTypeObisCode().toString());
+            channelElement.setAttribute(ChannelUnitTag, channel.getUnit().toString());
             channelElement.setAttribute(ChannelMeterIdentifier, channel.getDevice().getSerialNumber());
             channels.appendChild(channelElement);
         }

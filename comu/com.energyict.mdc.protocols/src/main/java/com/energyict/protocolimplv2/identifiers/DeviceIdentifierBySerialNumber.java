@@ -2,11 +2,11 @@ package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.Channel;
-import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.device.LoadProfile;
-import com.energyict.mdc.protocol.api.device.Register;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
@@ -19,7 +19,7 @@ import java.util.List;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface
- * that uses an {@link Device}'s serial number to uniquely identify it.
+ * that uses an {@link com.energyict.mdc.protocol.api.device.BaseDevice}'s serial number to uniquely identify it.
  * <b>Be aware that the serialNumber is NOT a unique field in the database.
  * It is possible that multiple devices are found based on the provided SerialNumber.
  * In that case, a {@link DuplicateException} is throw</b>
@@ -31,8 +31,8 @@ import java.util.List;
 public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMultipleDevices {
 
     private String serialNumber;
-    private Device device;
-    private List<Device<Channel, LoadProfile<Channel>, Register>> allDevices;
+    private BaseDevice device;
+    private List<BaseDevice<Channel, LoadProfile<Channel>, BaseRegister>> allDevices;
 
     public DeviceIdentifierBySerialNumber(String serialNumber) {
         super();
@@ -40,7 +40,7 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
     }
 
     @Override
-    public Device findDevice () {
+    public BaseDevice findDevice () {
         //lazyload the device
         if (this.device == null) {
             fetchAllDevices();
@@ -49,7 +49,7 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
             }
             else {
                 if (this.allDevices.size() > 1) {
-                    throw DuplicateException.duplicateFoundFor(Device.class, this.toString());
+                    throw DuplicateException.duplicateFoundFor(BaseDevice.class, this.toString());
                 }
                 else {
                     this.device = this.allDevices.get(0);
@@ -60,7 +60,7 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
     }
 
     private void fetchAllDevices() {
-        List<Device<Channel, LoadProfile<Channel>, Register>> allDevices = new ArrayList<>();
+        List<BaseDevice<Channel, LoadProfile<Channel>, BaseRegister>> allDevices = new ArrayList<>();
         List<DeviceFactory> deviceFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class);
         for (DeviceFactory deviceFactory : deviceFactories) {
             allDevices.addAll(deviceFactory.findDevicesBySerialNumber(this.getIdentifier()));
@@ -102,7 +102,7 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
         }
         List<OfflineDevice> allOfflineDevices = new ArrayList<>();
         OfflineDeviceContext offlineDeviceContext = new DeviceOfflineFlags();
-        for (Device deviceToGoOffline : this.allDevices) {
+        for (BaseDevice deviceToGoOffline : this.allDevices) {
             OfflineDevice offline = (OfflineDevice) deviceToGoOffline.goOffline(offlineDeviceContext);
             allOfflineDevices.add(offline);
         }

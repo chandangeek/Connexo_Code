@@ -11,7 +11,7 @@ import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.api.crypto.MD5Seed;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.InboundConnectionTask;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import org.junit.*;
 
 import java.util.Arrays;
@@ -72,7 +72,7 @@ public class EIWebCryptographerTest extends AbstractEIWebTests {
 
     @Test
     public void testBuildMD5SeedExistingDevice() {
-        Device device = mock(Device.class);
+        BaseDevice device = mock(BaseDevice.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
         InboundDAO inboundDAO = mock(InboundDAO.class);
@@ -95,7 +95,7 @@ public class EIWebCryptographerTest extends AbstractEIWebTests {
 
     @Test
     public void testWasUsed() {
-        Device device = mock(Device.class);
+        BaseDevice device = mock(BaseDevice.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
         InboundDAO inboundDAO = mock(InboundDAO.class);

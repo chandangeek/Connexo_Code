@@ -22,11 +22,11 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.Channel;
-import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.device.LoadProfile;
-import com.energyict.mdc.protocol.api.device.Register;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -198,9 +198,9 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
 
         //Need to clear the gateWay
         //TODO this is not fully compliant with the HTTP comserver ...
-        Device mbus = getRtuFromDatabaseBySerialNumber(serialNumber);
+        BaseDevice mbus = getRtuFromDatabaseBySerialNumber(serialNumber);
         if (mbus != null) {
-            mbus.updateGateway(null);
+            mbus.setPhysicalGateway(null);
         }
     }
 
@@ -320,7 +320,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
                 for (int i = 0; i < pd.getChannelInfos().size(); i++) {
                     final ChannelInfo channel = pd.getChannel(i);
                     if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
-                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), builder.getRtuRegisterIdForRegister(register));
+                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), builder.getRegisterSpecIdForRegister(register));
                         mrd.add(registerValue);
                     }
                 }
@@ -420,10 +420,10 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
      */
     /* These methods require database access ...  TODO we should do this using the framework ...
     /*****************************************************************************/
-    protected Device getRtuFromDatabaseBySerialNumber(String serialNumber) {
+    protected BaseDevice getRtuFromDatabaseBySerialNumber(String serialNumber) {
         List<DeviceFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class);
         for (DeviceFactory factory : factories) {
-            List<Device<Channel, LoadProfile<Channel>, Register>> devices = factory.findDevicesBySerialNumber(serialNumber);
+            List<BaseDevice<Channel, LoadProfile<Channel>, BaseRegister>> devices = factory.findDevicesBySerialNumber(serialNumber);
             if (!devices.isEmpty()) {
                 return devices.get(0);
             }

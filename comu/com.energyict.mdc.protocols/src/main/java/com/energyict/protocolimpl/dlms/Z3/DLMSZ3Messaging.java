@@ -45,7 +45,7 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
@@ -110,7 +110,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     private AARQ aarq;
     private Logger logger;
     private Clock clock;
-    private Device rtu;
+    private BaseDevice rtu;
     private TimeZone timeZone;
 
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
@@ -140,7 +140,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         this.logger.log(level, tekst);
     }
 
-    public Device getMeter() {
+    public BaseDevice getMeter() {
         return this.rtu;
     }
 

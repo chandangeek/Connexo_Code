@@ -64,7 +64,7 @@ public class LoadProfileBuilder {
 
     /**
      * Keeps track of the link between a {@link LoadProfileReader} and a list of
-     * {@link com.energyict.mdc.protocol.api.device.Register} which
+     * {@link com.energyict.mdc.protocol.api.device.BaseRegister} which
      * will represent the 'data' channels of the Profile
      */
     private Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<CapturedRegisterObject>>();
@@ -85,7 +85,7 @@ public class LoadProfileBuilder {
     protected Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<LoadProfileReader, Integer>();
 
     /**
-     * Keeps track of the link between a {@link com.energyict.mdc.protocol.api.device.Register}
+     * Keeps track of the link between a {@link com.energyict.mdc.protocol.api.device.BaseRegister}
      * and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
      */
     private Map<CapturedRegisterObject, DLMSAttribute> registerUnitMap = new HashMap<CapturedRegisterObject, DLMSAttribute>();

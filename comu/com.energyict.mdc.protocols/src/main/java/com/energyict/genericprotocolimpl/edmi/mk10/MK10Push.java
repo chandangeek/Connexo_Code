@@ -9,7 +9,7 @@ package com.energyict.genericprotocolimpl.edmi.mk10;
 import com.energyict.genericprotocolimpl.edmi.mk10.executer.MK10ProtocolExecuter;
 import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.dialer.core.Link;
@@ -96,7 +96,7 @@ public class MK10Push {
         return outputStream;
     }
 
-    private Device getMeter() {
+    private BaseDevice getMeter() {
         return getMK10Executor().getMeter();
     }
 
@@ -115,13 +115,13 @@ public class MK10Push {
         return returnValue;
     }
 //
-    private Device findMatchingMeter(String serial) {
+    private BaseDevice findMatchingMeter(String serial) {
         return null;
     }
 
-    private Device waitForPushMeter() throws IOException, BusinessException {
+    private BaseDevice waitForPushMeter() throws IOException, BusinessException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        Device pushDevice;
+        BaseDevice pushDevice;
         while (inputStream.available() > 0) {
             buffer.write(inputStream.read() & BYTE_MASK);
         }
@@ -155,10 +155,12 @@ public class MK10Push {
         }
 
         if (meterReadingData != null) {
-            getMeter().store(meterReadingData);
+            // deleted the API
+//            getMeter().store(meterReadingData);
         }
         if (meterProfileData != null) {
-            getMeter().store(meterProfileData);
+            // deleted the API
+//            getMeter().store(meterProfileData);
         }
     }
 

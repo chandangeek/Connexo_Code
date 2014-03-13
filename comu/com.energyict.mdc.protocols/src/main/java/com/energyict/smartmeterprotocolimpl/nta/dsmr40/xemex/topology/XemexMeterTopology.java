@@ -6,16 +6,14 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -106,21 +104,15 @@ public class XemexMeterTopology extends MeterTopology {
     }
 
     private void checkForDisappearedMbusMeters(List<DeviceMapping> mbusMap) {
-        Device gatewayDevice = getRtuFromDatabaseBySerialNumber();
+        BaseDevice gatewayDevice = getRtuFromDatabaseBySerialNumber();
         if (gatewayDevice != null) {
-            List<Device> mbusSlaves = gatewayDevice.getDownstreamDevices();
-            Iterator<Device> it = mbusSlaves.iterator();
+            List<BaseDevice> mbusSlaves = gatewayDevice.getDownstreamDevices();
+            Iterator<BaseDevice> it = mbusSlaves.iterator();
             while (it.hasNext()) {
-                Device mbus = it.next();
-                try {
-                    if (!mbusMap.contains(new DeviceMapping(mbus.getSerialNumber()))) {
-                        log(Level.INFO, "MbusDevice " + mbus.getSerialNumber() + " is not installed on the physical device - detaching from gateway.");
-                        mbus.updateGateway(null);
-                    }
-                } catch (SQLException e) {
-                    log(Level.INFO, "Failed to remove the gateway from MbusDevice " + mbus.getSerialNumber() + ".");
-                } catch (BusinessException e) {
-                    log(Level.INFO, "Failed to remove the gateway from MbusDevice " + mbus.getSerialNumber() + ".");
+                BaseDevice mbus = it.next();
+                if (!mbusMap.contains(new DeviceMapping(mbus.getSerialNumber()))) {
+                    log(Level.INFO, "MbusDevice " + mbus.getSerialNumber() + " is not installed on the physical device - detaching from gateway.");
+                    mbus.setPhysicalGateway(null);
                 }
             }
         }

@@ -7,10 +7,10 @@ import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.Channel;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfile;
-import com.energyict.mdc.protocol.api.device.Register;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import org.xml.sax.Attributes;
@@ -230,9 +230,9 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
      * @param loadProfile the new LoadProfile to set
      */
     public void setLoadProfile(final LoadProfile loadProfile) {
-        Device<Channel, LoadProfile<Channel>, Register> currentRtu = loadProfile.getDevice();
-        while (currentRtu.isLogicalSlave() && currentRtu.getGateway() != null) {
-            currentRtu = currentRtu.getGateway();
+        BaseDevice<Channel, LoadProfile<Channel>, BaseRegister> currentRtu = loadProfile.getDevice();
+        while (currentRtu.isLogicalSlave() && currentRtu.getPhysicalGateway() != null) {
+            currentRtu = currentRtu.getPhysicalGateway();
         }
         setMeterSerialNumber(currentRtu.getSerialNumber());
         LoadProfile currentLoadProfile = null;
@@ -263,14 +263,12 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
     private static List<ChannelInfo> createChannelInfos(LoadProfile<?> loadProfile) {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
         for (Channel lpChannel : loadProfile.getAllChannels()) {
-            if (lpChannel.isStoreData()) {
                 channelInfos.add(
                         new ChannelInfo(
                                 channelInfos.size(),
-                                lpChannel.getDeviceRegisterMappingObisCode().toString(),
-                                lpChannel.getDeviceRegisterMappingUnit(),
+                                lpChannel.getRegisterTypeObisCode().toString(),
+                                lpChannel.getUnit(),
                                 lpChannel.getDevice().getSerialNumber()));
-            }
         }
         return channelInfos;
     }

@@ -2,10 +2,10 @@ package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.Register;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import java.text.MessageFormat;
 
@@ -33,10 +33,12 @@ public class PrimeRegisterForChannelIdentifier implements RegisterIdentifier {
     }
 
     @Override
-    public Register findRegister () {
-        Device device = this.deviceIdentifier.findDevice();
+    public BaseRegister findRegister () {
+        BaseDevice device = this.deviceIdentifier.findDevice();
         if (this.channelIndex <= device.getChannels().size()) {
-            Register primeRegister = device.getChannel(this.channelIndex).getPrimeRegister();
+//            Register primeRegister = device.getChannel(this.channelIndex).getRegisterTypeObisCode();
+            // Linking Registers to Channels is not done in Jupiter
+            BaseRegister primeRegister = device.getRegisterWithDeviceObisCode(registerObisCode);
             if (primeRegister == null) {
                 throw new NotFoundException("Prime register of channel " + this.channelIndex + " of device " + this.deviceIdentifier + " not found!");
             }

@@ -11,12 +11,15 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+
+import java.util.List;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface
- * that uses an {@link Device}'s database identifier.
+ * that uses an {@link com.energyict.mdc.protocol.api.device.BaseDevice}'s database identifier.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-16 (15:10)
@@ -37,8 +40,8 @@ public class DeviceIdentifierById implements DeviceIdentifier {
     }
 
     @Override
-    public Device findDevice () {
-        Device device = this.findDevice(this.id);
+    public BaseDevice findDevice () {
+        BaseDevice device = this.findDevice(this.id);
         if (device == null) {
             throw new NotFoundException("Device with id " + this.id + " not found");
         }
@@ -47,9 +50,9 @@ public class DeviceIdentifierById implements DeviceIdentifier {
         }
     }
 
-    private Device findDevice (int deviceId) {
-        IdBusinessObjectFactory<Device> factory = (IdBusinessObjectFactory<Device>) Environment.DEFAULT.get().findFactory(FactoryIds.DEVICE.id());
-        return factory.get(deviceId);
+    private BaseDevice findDevice (int deviceId) {
+        List<DeviceFactory> deviceFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class);
+        return deviceFactories.get(0).findById(deviceId);
     }
 
     @Override

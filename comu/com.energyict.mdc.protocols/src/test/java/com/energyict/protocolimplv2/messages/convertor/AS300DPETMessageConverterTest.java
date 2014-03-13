@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.protocols.messaging.LegacyMessageConverter;
-import com.energyict.mdc.protocol.api.device.Register;
 import com.energyict.mdc.protocol.api.device.RegisterReading;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -45,7 +45,7 @@ public class AS300DPETMessageConverterTest extends AS300MessageConverterTest {
     @Mock
     private DeviceFactoryProvider deviceFactoryProvider;
     @Mock
-    private Device device;
+    private BaseDevice device;
 
     @Before
     public void initializeMocksAndFactories () {
@@ -54,15 +54,15 @@ public class AS300DPETMessageConverterTest extends AS300MessageConverterTest {
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(this.deviceFactory.find(DEVICE_ID)).thenReturn(this.device);
 
-        Register register = mock(Register.class);
+        BaseRegister register = mock(BaseRegister.class);
         List<RegisterReading> registerReadings = new ArrayList<>(1);
 
         RegisterReading registerReading = mock(RegisterReading.class);
         when(registerReading.getText()).thenReturn("KeyPair1");
         registerReadings.add(registerReading);
 
-        when(register.getLastXReadings(any(Integer.class))).thenReturn(registerReadings);
-        when(this.device.getRegister(any(ObisCode.class))).thenReturn(register);
+        when(register.getLastTextRegisterReadings(any(Integer.class))).thenReturn(registerReadings);
+        when(this.device.getRegisterWithDeviceObisCode(any(ObisCode.class))).thenReturn(register);
     }
 
     @Test

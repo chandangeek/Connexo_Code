@@ -2,7 +2,7 @@ package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumberPlaceHolder;
 import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
 import com.energyict.protocols.mdc.inbound.general.frames.parsing.InboundParameters;
@@ -32,7 +32,7 @@ public abstract class AbstractInboundFrame {
     }
 
     private String frame;
-    private Device device = null;
+    private BaseDevice device = null;
     private InboundParameters inboundParameters = null;
     private List<CollectedData> collectedDatas;
     private String[] parameters = new String[0];
@@ -57,7 +57,7 @@ public abstract class AbstractInboundFrame {
         return frame;
     }
 
-    public Device getDevice() {
+    public BaseDevice getDevice() {
         return device;
     }
 

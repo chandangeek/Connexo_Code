@@ -3,9 +3,8 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.device.Device;
-import com.energyict.mdc.protocol.api.device.Register;
-import com.energyict.mdc.protocol.api.device.RegisterReading;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
@@ -71,10 +70,10 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
         }
     }
 
-    private List<Device> findDevices (List<DeviceIdentifier> deviceIds) {
-        List<Device> devices = new ArrayList<>(deviceIds.size());
+    private List<BaseDevice> findDevices (List<DeviceIdentifier> deviceIds) {
+        List<BaseDevice> devices = new ArrayList<>(deviceIds.size());
         for (DeviceIdentifier deviceId : deviceIds) {
-            Device device = deviceId.findDevice();
+            BaseDevice device = deviceId.findDevice();
             devices.add(device);
         }
         return devices;
@@ -86,26 +85,27 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
 
     /**
      * Returns an XML representation of the key pairs of all devices in the List.
-     * @param devices The List of {@link Device}s
+     * @param devices The List of {@link com.energyict.mdc.protocol.api.device.BaseDevice}s
      */
-    private String encodeDevices (List<Device> devices) {
+    private String encodeDevices (List<BaseDevice> devices) {
         StringBuilder builder = new StringBuilder();
         int index = 1;
         try {
-            for (Device device : devices) {
-                Register register = device.getRegister(PUBLIC_KEYS_OBISCODE);
+            for (BaseDevice device : devices) {
+                BaseRegister register = device.getRegisterWithDeviceObisCode(PUBLIC_KEYS_OBISCODE);
                 if (register != null) {
-                    List<RegisterReading> lastXReadings = register.getLastXReadings(1);
-                    if (!lastXReadings.isEmpty()) {
-                        String keyPair = lastXReadings.get(0).getText();
-                        builder.append("<" + KEY).append(String.valueOf(index)).append(">");
-                        builder.append(keyPair);
-                        builder.append("</" + KEY).append(String.valueOf(index)).append(">");
-                        index++;
-                    } else {
+                    // TODO need to find a proper way to get the readings of the registers in order for this message to properly work
+//                    List<RegisterReading> lastXReadings = register.getLastTextRegisterReadings(1);
+//                    if (!lastXReadings.isEmpty()) {
+//                        String keyPair = lastXReadings.get(0).getText();
+//                        builder.append("<" + KEY).append(String.valueOf(index)).append(">");
+//                        builder.append(keyPair);
+//                        builder.append("</" + KEY).append(String.valueOf(index)).append(">");
+//                        index++;
+//                    } else {
                         ApplicationException e = new ApplicationException("Device with serial number " + device.getSerialNumber() + " doesn't have a value for the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ")!");
                         throw new GeneralParseException(e);
-                    }
+//                    }
                 } else {
                     ApplicationException e = new ApplicationException("Rtu with serial number " + device.getSerialNumber() + " doesn't have the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ") defined!");
                     throw new GeneralParseException(e);

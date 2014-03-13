@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.eict.eiweb;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfile;
 import org.junit.*;
 
@@ -36,7 +36,7 @@ public class FirstLoadProfileOnDeviceTest extends AbstractEIWebTests{
 
     @Test
     public void testWithDeviceWithoutLoadProfiles () {
-        Device device = mock(Device.class);
+        BaseDevice device = mock(BaseDevice.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
         LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
@@ -51,7 +51,7 @@ public class FirstLoadProfileOnDeviceTest extends AbstractEIWebTests{
     @Test
     public void testWithDeviceWithOneLoadProfile () {
         LoadProfile expectedLoadProfile = mock(LoadProfile.class);
-        Device device = mock(Device.class);
+        BaseDevice device = mock(BaseDevice.class);
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(expectedLoadProfile));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
@@ -68,7 +68,7 @@ public class FirstLoadProfileOnDeviceTest extends AbstractEIWebTests{
     public void testWithDeviceWithMultipleLoadProfiles () {
         LoadProfile expectedLoadProfile = mock(LoadProfile.class);
         LoadProfile anotherLoadProfile = mock(LoadProfile.class);
-        Device device = mock(Device.class);
+        BaseDevice device = mock(BaseDevice.class);
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(expectedLoadProfile, anotherLoadProfile));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);

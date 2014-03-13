@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.identifiers;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LogBook;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
@@ -33,7 +33,7 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
     @Override
     public LogBook getLogBook() {
         List<LogBookFactory> logBookFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(LogBookFactory.class);
-        Device device = deviceIdentifier.findDevice();
+        BaseDevice device = deviceIdentifier.findDevice();
         for (LogBookFactory factory : logBookFactories) {
             LogBook logBook = factory.findLogBooksByDeviceAndDeviceObisCode(device, logBookObisCode);
             if (logBook != null) {

@@ -10,7 +10,7 @@ import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
@@ -55,7 +55,7 @@ public class MeterTopology implements MasterMeter {
      */
     protected List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
 
-    private Device rtu;
+    private BaseDevice rtu;
 
     public MeterTopology(final AbstractSmartNtaProtocol protocol) {
         this.protocol = protocol;
@@ -247,12 +247,12 @@ public class MeterTopology implements MasterMeter {
      * @throws SQLException      if a database error occurs
      * @throws BusinessException when a business related error occurs
      */
-    private Device findOrCreateMbusDevice(String serialNumber) throws SQLException, BusinessException {
+    private BaseDevice findOrCreateMbusDevice(String serialNumber) throws SQLException, BusinessException {
         DeviceIdentifierBySerialNumber deviceIdentifier = new DeviceIdentifierBySerialNumber(serialNumber);
-        Device mbusRtu = deviceIdentifier.findDevice();
+        BaseDevice mbusRtu = deviceIdentifier.findDevice();
         // Check if gateway has changed, and update if it has
-        if ((mbusRtu.getGateway() == null) || (mbusRtu.getGateway().getId() != getRtuFromDatabaseBySerialNumber().getId())) {
-            mbusRtu.updateGateway(getRtuFromDatabaseBySerialNumber());
+        if ((mbusRtu.getPhysicalGateway() == null) || (mbusRtu.getPhysicalGateway().getId() != getRtuFromDatabaseBySerialNumber().getId())) {
+            mbusRtu.setPhysicalGateway(getRtuFromDatabaseBySerialNumber());
         }
         return mbusRtu;
     }
@@ -262,7 +262,7 @@ public class MeterTopology implements MasterMeter {
      *
      * @return the Device
      */
-    protected Device getRtuFromDatabaseBySerialNumber() {
+    protected BaseDevice getRtuFromDatabaseBySerialNumber() {
         if (rtu == null) {
             String serial = this.protocol.getSerialNumber();
             DeviceIdentifierBySerialNumber deviceIdentifier = new DeviceIdentifierBySerialNumber(serial);

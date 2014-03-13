@@ -1,12 +1,12 @@
 package com.energyict.genericprotocolimpl.common;
 
-import com.energyict.mdc.protocol.api.device.Register;
+import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.data.MeterData;
 import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.Channel;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 /**
  * Copyrights EnergyICT
@@ -18,7 +18,7 @@ public class StoreObjectItem {
     private final Object key;
     private final Object value;
 
-    public StoreObjectItem(Device rtu, ProfileData profileData) {
+    public StoreObjectItem(BaseDevice rtu, ProfileData profileData) {
         this.key = rtu;
         this.value = profileData;
     }
@@ -28,22 +28,22 @@ public class StoreObjectItem {
         this.value = profileData;
     }
 
-    public StoreObjectItem(Register register, RegisterValue registerValue) {
+    public StoreObjectItem(BaseRegister register, RegisterValue registerValue) {
         this.key = register;
         this.value = registerValue;
     }
 
-    public StoreObjectItem(ProfileData profileData, Device rtu) {
+    public StoreObjectItem(ProfileData profileData, BaseDevice rtu) {
         this.key = profileData;
         this.value = rtu;
     }
 
-    public StoreObjectItem(MeterReadingData meterReadingData, Device rtu) {
+    public StoreObjectItem(MeterReadingData meterReadingData, BaseDevice rtu) {
         this.key = meterReadingData;
         this.value = rtu;
     }
 
-    public StoreObjectItem(MeterData meterReadingData, Device rtu) {
+    public StoreObjectItem(MeterData meterReadingData, BaseDevice rtu) {
         this.key = meterReadingData;
         this.value = rtu;
     }

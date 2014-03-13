@@ -1,11 +1,10 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface
- * that uses a PlaceHolder for a {@link Device}'s serial number to uniquely identify it.
+ * that uses a PlaceHolder for a {@link com.energyict.mdc.protocol.api.device.BaseDevice}'s serial number to uniquely identify it.
  * <b>Be aware that the serialNumber is NOT a unique field in the database.
  * It is possible that multiple devices are found based on the provided SerialNumber.
  * In that case, a {@link com.energyict.mdc.common.NotFoundException} is throw</b>

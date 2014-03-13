@@ -2,12 +2,11 @@ package com.energyict.genericprotocolimpl.common.pooling;
 
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.api.device.Channel;
-import com.energyict.mdc.protocol.api.device.Device;
 
 import java.util.Date;
 
 /**
- * Contains logical information from a {@link Channel} from an {@link Device}
+ * Contains logical information from a {@link Channel} from an {@link com.energyict.mdc.protocol.api.device.BaseDevice}
  */
 public interface ChannelFullProtocolShadow {
 

@@ -7,7 +7,7 @@
 package com.energyict.genericprotocolimpl.edmi.mk10.executer;
 
 import com.energyict.genericprotocolimpl.edmi.mk10.MK10Push;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.protocolimpl.edmi.mk10.MK10;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.logging.Logger;
  */
 public class MK10ProtocolExecuter {
 
-    private Device meter = null;
+    private BaseDevice meter = null;
     private MK10Push mk10Push = null;
     private MK10 mk10Protocol = new MK10();
     private Properties properties = new Properties();
@@ -42,11 +42,11 @@ public class MK10ProtocolExecuter {
         getLogger().log(level, msg);
     }
 
-    public Device getMeter() {
+    public BaseDevice getMeter() {
         return meter;
     }
 
-    public void setMeter(Device meter) {
+    public void setMeter(BaseDevice meter) {
         this.meter = meter;
     }
 

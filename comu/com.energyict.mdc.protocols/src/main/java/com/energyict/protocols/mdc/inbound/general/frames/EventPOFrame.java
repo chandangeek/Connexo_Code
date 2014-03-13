@@ -2,7 +2,7 @@ package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LogBook;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -46,7 +46,7 @@ public class EventPOFrame extends AbstractInboundFrame {
     public void doParse() {
         List<MeterProtocolEvent> meterEvents = new ArrayList<>();
         LogBookIdentifier logBookIdentifier;
-        Device device = this.getDevice();
+        BaseDevice device = this.getDevice();
         LogBook genericLogBook = this.findGenericLogBook(device);
         if (!device.getLogBooks().isEmpty()) {
             logBookIdentifier = new LogBookIdentifierById(genericLogBook.getId());
@@ -79,7 +79,7 @@ public class EventPOFrame extends AbstractInboundFrame {
         }
     }
 
-    protected LogBook findGenericLogBook(Device device) {
+    protected LogBook findGenericLogBook(BaseDevice device) {
         List<LogBookFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(LogBookFactory.class);
         for (LogBookFactory factory : factories) {
             LogBook genericLogBook = factory.findGenericLogBook(device);

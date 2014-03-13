@@ -11,7 +11,7 @@ import com.energyict.mdc.meterdata.CollectedDataFactory;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
 import com.energyict.mdc.meterdata.identifiers.CanFindRegister;
 import com.energyict.mdc.protocol.api.ComChannel;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -68,7 +68,7 @@ public class RequestDiscoverTest {
     @Mock
     protected DeviceFactory deviceFactory;
     @Mock
-    protected Device device;
+    protected BaseDevice device;
     @Mock
     protected LogBook logBook;
     @Mock
