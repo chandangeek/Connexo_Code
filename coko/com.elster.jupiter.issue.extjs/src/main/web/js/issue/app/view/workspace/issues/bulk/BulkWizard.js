@@ -23,6 +23,7 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
     items: [
         {
             xtype: 'bulk-step1',
+            cls: 'bulk-step',
             buttonsConfig: {
                 prevbuttonDisabled: true,
                 nextbuttonDisabled: false,
@@ -37,6 +38,7 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
         },
         {
             xtype: 'bulk-step2',
+            cls: 'bulk-step',
             buttonsConfig: {
                 prevbuttonDisabled: false,
                 nextbuttonDisabled: false,
@@ -51,6 +53,7 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
         },
         {
             xtype: 'bulk-step3',
+            cls: 'bulk-step',
             buttonsConfig: {
                 prevbuttonDisabled: false,
                 nextbuttonDisabled: false,
@@ -65,6 +68,7 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
         },
         {
             xtype: 'bulk-step4',
+            cls: 'bulk-step',
             buttonsConfig: {
                 prevbuttonDisabled: false,
                 nextbuttonDisabled: true,
@@ -79,6 +83,7 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
         },
         {
             xtype: 'bulk-step5',
+            cls: 'bulk-step',
             buttonsConfig: {
                 prevbuttonDisabled: true,
                 nextbuttonDisabled: true,
