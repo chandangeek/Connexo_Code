@@ -21,11 +21,11 @@ public class DeviceConfigurationInfo {
     @JsonProperty("active")
     public Boolean active;
     @JsonProperty("loadProfileCount")
-    public int loadProfileCount;
+    public Integer loadProfileCount;
     @JsonProperty("registerCount")
-    public int registerCount;
+    public Integer registerCount;
     @JsonProperty("logBookCount")
-    public int logBookCount;
+    public Integer logBookCount;
     @JsonUnwrapped // As requested by ExtJS people
     public DeviceProtocolInfo deviceProtocolInfo;
     @JsonProperty("deviceFunction")
