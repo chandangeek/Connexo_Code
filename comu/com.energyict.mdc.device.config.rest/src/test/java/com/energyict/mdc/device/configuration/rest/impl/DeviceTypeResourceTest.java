@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -228,6 +229,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getDeviceFunction()).thenReturn(DeviceFunction.METER);
+        when(deviceConfiguration.hasCommunicationFunction(any(DeviceCommunicationFunction.class))).thenReturn(true);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol name");
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
@@ -240,7 +242,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(map.get("total")).describedAs("JSon representation of a field, JavaScript impact if it changed").isEqualTo(1);
         assertThat((List)map.get("deviceConfigurations")).hasSize(1).describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("deviceConfigurations")).get(0);
-        assertThat(jsonDeviceConfiguration).hasSize(9);
+        assertThat(jsonDeviceConfiguration).hasSize(11);
         assertThat(jsonDeviceConfiguration.get("id")).isEqualTo(113).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("active")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -250,6 +252,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(jsonDeviceConfiguration.get("registerCount")).isEqualTo(2).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("logBookCount")).isEqualTo(3).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("loadProfileCount")).isEqualTo(4).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("isGateway")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("isDirectlyAddressable")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 
     @Test
