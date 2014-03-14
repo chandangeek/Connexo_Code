@@ -7,9 +7,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     deviceTypeId: null,
     views: [
         'setup.deviceconfiguration.DeviceConfigurationsSetup',
-        'setup.deviceconfiguration.deviceConfigurationsGrid',
-        'setup.deviceconfiguration.deviceConfigurationPreview',
-        'setup.deviceconfiguration.deviceConfigurationDetail',
+        'setup.deviceconfiguration.DeviceConfigurationsGrid',
+        'setup.deviceconfiguration.DeviceConfigurationPreview',
+        'setup.deviceconfiguration.DeviceConfigurationDetail',
         'setup.deviceconfiguration.DeviceConfigurationEdit'
 
     ],
