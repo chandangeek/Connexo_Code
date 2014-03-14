@@ -5,8 +5,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
     autoScroll: true,
     requires: [
         'Mdc.view.setup.devicetype.DeviceTypesGrid',
-        'Mdc.view.setup.devicetype.DeviceTypePreview',
-        'Mdc.view.setup.devicetype.SideMenuItem'
+        'Mdc.view.setup.devicetype.DeviceTypePreview'
     ],
     cls: 'content-container',
 
