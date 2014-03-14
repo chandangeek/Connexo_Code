@@ -13,7 +13,7 @@
                 "name": "adding_a_guide",
                 "url": "adding_a_guide",
                 "title": "How to add a guide",
-                "description": "This guide explains how a nw guide can be added.",
+                "description": "This guide explains how a new guide can be added.",
                 "icon": "../icons/icon-00.png"
             },
             {
@@ -28,6 +28,13 @@
                 "url": "ui_agreements",
                 "title": "UI Agreements",
                 "description": "This guides contains some UI agreements",
+                "icon": "../icons/icon-00.png"
+            },
+            {
+                "name": "url_routing_with_crossroadsjs",
+                "url": "url_routing_with_crossroadsjs",
+                "title": "URL Routing With Crossroads.js",
+                "description": "Tutorial on how to use routes with Crossroads.js.",
                 "icon": "../icons/icon-00.png"
             }
         ]
