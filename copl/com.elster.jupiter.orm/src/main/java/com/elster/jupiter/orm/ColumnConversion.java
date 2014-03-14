@@ -20,7 +20,9 @@ public enum ColumnConversion {
     CHAR2FILE,
     CHAR2JSON,
     DATE2DATE,
-    TIMESTAMP2DATE;
+    TIMESTAMP2DATE,
+    CLOB2STRING,
+    BLOB2BYTE;
     
 	public static final int CATALOGNAMELIMIT = 30;
 }

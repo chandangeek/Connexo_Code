@@ -337,7 +337,8 @@ public enum ColumnConversionImpl {
             return date == null ? null : new java.util.Date(date.getTime());
         }
     	
-    }, TIMESTAMP2DATE {
+    }, 
+    TIMESTAMP2DATE {
     	@Override
         public Object convert(String in) {
             return new java.util.Date(Long.parseLong(in));
@@ -353,7 +354,41 @@ public enum ColumnConversionImpl {
             java.sql.Timestamp timestamp = rs.getTimestamp(index);
             return timestamp == null ? null : new java.util.Date(timestamp.getTime());
         }    	
+    },
+    CLOB2STRING {
+    	@Override
+        public Object convert(String in) {
+            return in;
+        }
+
+        @Override
+        public Object convertToDb(Object value) {
+        	return value;
+        }
+
+        @Override
+        public Object convertFromDb(ResultSet rs, int index) throws SQLException {
+            return rs.getString(index);
+        }    	
+    	
+    },
+    BLOB2BYTE {
+    	@Override
+        public Object convert(String in) {
+            return in == null ? null : in.getBytes();
+        }
+
+        @Override
+        public Object convertToDb(Object value) {
+        	return value;
+        }
+
+        @Override
+        public Object convertFromDb(ResultSet rs, int index) throws SQLException {
+            return rs.getBytes(index);
+        }    	
     };
+
 
 	public abstract Object convertToDb(Object value);
 	public abstract Object convertFromDb(ResultSet rs, int index) throws SQLException;
