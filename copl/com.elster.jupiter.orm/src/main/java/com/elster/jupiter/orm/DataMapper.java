@@ -13,6 +13,7 @@ public interface DataMapper<T> extends Finder<T> {
 	 * locks the tuple with the given primary key, using select for update
 	 */
 	T lock(Object... values);
+	Optional<T> lockNoWait(Object... values);
 	/**
 	 * inserts a new tuple. Any database generated fields (e.g. generated id) will be updated in object
 	 */

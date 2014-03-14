@@ -209,6 +209,15 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		}
 	}
 	
+	@Override
+	public Optional<T> lockNoWait(Object... values)  {
+		try {
+			return Optional.fromNullable(reader.lockNoWait(KeyValue.of(values)));
+		} catch (SQLException ex) {
+			throw new UnderlyingSQLFailedException(ex);
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<T> find(String[] fieldNames, Object[] values, Order... orders) {

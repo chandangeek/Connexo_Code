@@ -62,7 +62,7 @@ public class DataMapperReader<T> {
 	}
 	
 	Optional<T> findByPrimaryKey (KeyValue keyValue) throws SQLException {
-        List<T> result = find(getPrimaryKeyFragments(keyValue), null, false);
+        List<T> result = find(getPrimaryKeyFragments(keyValue), null, LockMode.NONE);
         if (result.size() > 1) {
             throw new NotUniqueException(keyValue.toString());
         }
@@ -70,12 +70,26 @@ public class DataMapperReader<T> {
 	}
 
     List<JournalEntry<T>> findJournals(KeyValue keyValue) throws SQLException {
-        return findJournal(getPrimaryKeyFragments(keyValue), new Order[] { Order.descending(TableImpl.JOURNALTIMECOLUMNNAME) }, false);
+        return findJournal(getPrimaryKeyFragments(keyValue), new Order[] { Order.descending(TableImpl.JOURNALTIMECOLUMNNAME) }, LockMode.NONE);
     }
 	
 	T lock(KeyValue keyValue)  throws SQLException {
-		List<T> candidates = find(getPrimaryKeyFragments(keyValue) , null , true);
+		List<T> candidates = find(getPrimaryKeyFragments(keyValue) , null , LockMode.WAIT);
 		return candidates.isEmpty() ? null : candidates.get(0);
+	}
+	
+	T lockNoWait(KeyValue keyValue) throws SQLException {
+		try {
+			List<T> candidates = find(getPrimaryKeyFragments(keyValue) , null , LockMode.NOWAIT);
+			return candidates.isEmpty() ? null : candidates.get(0);
+		} catch (SQLException ex) {
+			if (ex.getErrorCode() == 54) {
+				// resource busy
+				return null;
+			} else {
+				throw ex;
+			}
+		}
 	}
 	
 	private Order getListOrder(String fieldName) {
@@ -101,16 +115,16 @@ public class DataMapperReader<T> {
 				addFragments(fragments,fieldNames[i], values[i]);
 			}
 		}
-		return find(fragments, orders, false);		
+		return find(fragments, orders, LockMode.NONE);		
 	}
 			
-	private List<T> find(List<SqlFragment> fragments, Order[] orders, boolean lock) throws SQLException {
-        SqlBuilder builder = selectSql(fragments, orders, lock);
+	private List<T> find(List<SqlFragment> fragments, Order[] orders, LockMode lockMode) throws SQLException {
+        SqlBuilder builder = selectSql(fragments, orders, lockMode);
         return doFind(fragments, builder);
 	}
 
-    private List<JournalEntry<T>> findJournal(List<SqlFragment> fragments, Order[] orders,boolean lock) throws SQLException {    	
-        SqlBuilder builder = selectJournalSql(fragments, orders, lock);     
+    private List<JournalEntry<T>> findJournal(List<SqlFragment> fragments, Order[] orders,LockMode lockMode) throws SQLException {    	
+        SqlBuilder builder = selectJournalSql(fragments, orders, lockMode);     
         List<JournalEntry<T>> result = new ArrayList<>();
         try (Connection connection = getConnection(false)) {
             try(PreparedStatement statement = builder.prepare(connection)) {
@@ -152,17 +166,17 @@ public class DataMapperReader<T> {
         return setters;
     }
 
-    private SqlBuilder selectSql(List<SqlFragment> fragments, Order[] orders , boolean lock) {
+    private SqlBuilder selectSql(List<SqlFragment> fragments, Order[] orders , LockMode lockMode) {
 		SqlBuilder builder = new SqlBuilder(getSqlGenerator().getSelectFromClause(getAlias()));
-        return doSelectSql(fragments, orders, lock, builder);
+        return doSelectSql(fragments, orders, lockMode, builder);
 	}
 
-    private SqlBuilder selectJournalSql(List<SqlFragment> fragments, Order[] orders , boolean lock) {
+    private SqlBuilder selectJournalSql(List<SqlFragment> fragments, Order[] orders , LockMode lockMode) {
         SqlBuilder builder = new SqlBuilder(getSqlGenerator().getSelectFromJournalClause(getAlias()));
-        return doSelectSql(fragments, orders, lock, builder);
+        return doSelectSql(fragments, orders, lockMode, builder);
     }
 
-    private SqlBuilder doSelectSql(List<SqlFragment> fragments, Order[] orders, boolean lock, SqlBuilder builder) {
+    private SqlBuilder doSelectSql(List<SqlFragment> fragments, Order[] orders, LockMode lockMode, SqlBuilder builder) {
         if (!fragments.isEmpty()) {
             builder.append(" where ");
             String separator = "";
@@ -184,9 +198,8 @@ public class DataMapperReader<T> {
                 separator = ", ";
             }
         }
-        if (lock) {
-            builder.append(" for update ");
-        }
+        builder.space();
+        builder.append(lockMode.toSql());
         return builder;
     }
 
