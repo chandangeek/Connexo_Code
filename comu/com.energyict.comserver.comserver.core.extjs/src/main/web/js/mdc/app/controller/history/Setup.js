@@ -7,7 +7,6 @@ Ext.define('Mdc.controller.history.Setup', {
 
     init: function () {
         var me = this;
-        debugger;
         crossroads.addRoute('setup',function(){
             me.getApplication().getController('Mdc.controller.setup.SetupOverview').showOverview();
         });

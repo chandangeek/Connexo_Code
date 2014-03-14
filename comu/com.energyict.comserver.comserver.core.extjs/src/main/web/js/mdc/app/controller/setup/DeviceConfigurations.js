@@ -72,7 +72,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     showDeviceConfigurations: function (id) {
-        debugger;
         var me = this;
         this.deviceTypeId = id;
         this.getDeviceConfigurationsStore().getProxy().setExtraParam('deviceType', id);
@@ -100,7 +99,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     showDeviceConfigurationDetailsView: function (devicetype,deviceconfiguration) {
-        debugger;
         var me = this;
         var widget = Ext.widget('deviceConfigurationDetail');
         var deviceConfigModel = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
