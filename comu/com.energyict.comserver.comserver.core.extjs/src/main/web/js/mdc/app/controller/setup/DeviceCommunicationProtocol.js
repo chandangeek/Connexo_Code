@@ -104,7 +104,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
     },*/
 
     editDeviceCommunicationProtocol: function (grid, record) {
-        var url = this.getApplication().getHistorySetupController().tokenizeBrowse('devicecommunicationprotocols', record.getId());
+        var url = this.getApplication().getController('Mdc.controller.history.Setup').tokenizeBrowse('devicecommunicationprotocols', record.getId());
         Ext.History.add(url);
     },
     updateDeviceCommunicationProtocol: function (button) {

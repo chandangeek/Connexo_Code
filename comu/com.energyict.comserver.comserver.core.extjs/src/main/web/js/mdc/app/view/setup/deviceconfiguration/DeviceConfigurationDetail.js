@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.devicetype.DeviceConfigurationDetail', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceConfigurationDetail',
     itemId: 'deviceConfigurationDetail',
     autoScroll: true,
@@ -7,17 +7,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceConfigurationDetail', {
         'Mdc.view.setup.DeviceConfiguration.DeviceConfigurationsGrid',
         'Mdc.view.setup.DeviceConfiguration.DeviceConfigurationPreview'
     ],
-//    controllers: [
-//        'Mdc.controller.setup.DeviceConfigurations'
-//    ],
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-    cls: 'content-container',
 
-
-    items: [
+    content: [
         {
             xtype: 'container',
             cls: 'content-container',

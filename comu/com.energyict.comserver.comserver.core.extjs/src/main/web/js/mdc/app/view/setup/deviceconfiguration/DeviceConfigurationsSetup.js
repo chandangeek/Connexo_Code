@@ -1,22 +1,16 @@
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceConfigurationsSetup',
     autoScroll: true,
     deviceTypeId: null,
     itemId: 'deviceConfigurationsSetup',
-    cls: 'content-container',
     requires: [
         'Uni.view.breadcrumb.Trail'
     ],
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-    cls: 'content-wrapper',
 //    border: 0,
 //    region: 'center',
 
-    items: [
+    content: [
         {
             xtype: 'container',
             cls: 'content-container',

@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceTypesSetup',
     autoScroll: true,
     itemId: 'deviceTypeSetup',
@@ -8,17 +8,11 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
         'Mdc.view.setup.devicetype.DeviceTypePreview',
         'Uni.view.breadcrumb.Trail'
     ],
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
     cls: 'content-container',
-    items: [
-        {
-            xtype: 'breadcrumbTrail',
-            region: 'north',
-            padding: 6
-        },
+    side: [
+
+    ],
+    content: [
         {
             xtype: 'component',
             html: '<h1>' + Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types') + '</h1>',

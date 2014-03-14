@@ -72,20 +72,12 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     showDeviceConfigurations: function (id) {
+        debugger;
         var me = this;
         this.deviceTypeId = id;
         this.getDeviceConfigurationsStore().getProxy().setExtraParam('deviceType', id);
-//        this.getDeviceConfigurationsStore().load({
-//            callback: function (deviceType) {
-//                me.getDeviceConfigurationsStore().getProxy().setExtraParam('deviceType', id);
-        var widget = Ext.widget('deviceConfigurationsSetup', {deviceTypeId: id});//, {deviceTypeId: id});
-//                var deviceTypeName = deviceType.get('name');
-//                widget.down('#registerTypeTitle').html = '<h1>' + deviceTypeName + ' > ' + 'Register types' + '</h1>';
-//                me.createBreadCrumbs(id, deviceTypeName);
+        var widget = Ext.widget('deviceConfigurationsSetup', {deviceTypeId: id});
         me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-        //           }
-        //       });
-
     },
 
     previewDeviceConfiguration: function (grid, record) {

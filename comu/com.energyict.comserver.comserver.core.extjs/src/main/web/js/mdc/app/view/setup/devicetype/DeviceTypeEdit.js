@@ -1,19 +1,11 @@
 Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceTypeEdit',
     itemId: 'deviceTypeEdit',
     autoScroll: true,
     requires: [
         'Mdc.store.DeviceCommunicationProtocols'
     ],
-//    controllers: [
-//        'Mdc.controller.setup.DeviceTypes'
-//    ],
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-    cls: 'content-container',
     edit: false,
     isEdit: function(){
         return this.edit
@@ -32,7 +24,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
     },
 
     initComponent: function () {
-        this.items = [
+        this.content = [
             {
                 xtype: 'container',
                 cls: 'content-container',

@@ -1,15 +1,8 @@
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceConfigurationEdit',
     itemId: 'deviceConfigurationEdit',
     autoScroll: true,
-//    controllers: [
-//        'Mdc.controller.setup.DeviceTypes'
-//    ],
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
     cls: 'content-container',
     edit: false,
     isEdit: function(){
@@ -29,7 +22,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
     },
 
     initComponent: function () {
-        this.items = [
+        this.content = [
             {
                 xtype: 'container',
                 cls: 'content-container',

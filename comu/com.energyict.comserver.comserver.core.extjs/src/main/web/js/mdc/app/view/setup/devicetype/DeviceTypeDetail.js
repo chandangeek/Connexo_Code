@@ -1,23 +1,20 @@
 Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceTypeDetail',
     itemId: 'deviceTypeDetail',
     autoScroll: true,
     requires: [
         'Mdc.view.setup.devicetype.DeviceTypesGrid',
-        'Mdc.view.setup.devicetype.DeviceTypePreview'
+        'Mdc.view.setup.devicetype.DeviceTypePreview',
+        'Mdc.view.setup.devicetype.SideMenuItem'
     ],
-//    controllers: [
-//        'Mdc.controller.setup.DeviceTypes'
-//    ],
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
     cls: 'content-container',
 
+    side: [
 
-    items: [
+    ],
+
+    content: [
         {
             xtype: 'container',
             cls: 'content-container',
