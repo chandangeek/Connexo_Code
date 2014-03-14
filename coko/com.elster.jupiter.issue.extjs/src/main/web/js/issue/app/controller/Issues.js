@@ -19,7 +19,7 @@ Ext.define('Isu.controller.Issues', {
         'workspace.issues.IssueNoGroup',
         'ext.button.GridAction',
         'ext.button.SortItemButton',
-        'Isu.view.workspace.issues.component.TagButton'
+        'workspace.issues.component.TagButton'
     ],
 
     mixins: [
@@ -117,8 +117,10 @@ Ext.define('Isu.controller.Issues', {
     },
 
     /**
+     * After "updateProxyFilter" event from the Issue store, method will redraw button tags on the filter panel
+     *
      * todo: I18n
-     * @param filter
+     * @param filter Isu.component.filter.model.Filter
      */
     filterUpdate: function (filter) {
         var filterElm = this.getFilter().down('panel[name="filter"]');
