@@ -37,7 +37,7 @@ public class DeviceConfigurationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public PagedInfoList getDeviceConfigurationsForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getDeviceConfigurationsForDeviceType(@PathParam("deviceTypeId") long id, @BeanParam QueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<DeviceConfiguration> deviceConfigurations =
                 deviceConfigurationService.
@@ -54,7 +54,7 @@ public class DeviceConfigurationResource {
     @GET
     @Path("/{deviceConfigurationId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public DeviceConfigurationInfo getDeviceConfigurationsById(@PathParam("id") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId) {
+    public DeviceConfigurationInfo getDeviceConfigurationsById(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         for (DeviceConfiguration deviceConfiguration : deviceType.getConfigurations()) {
             if (deviceConfiguration.getId()==deviceConfigurationId) {
@@ -67,7 +67,7 @@ public class DeviceConfigurationResource {
     @DELETE
     @Path("/{deviceConfigurationId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteDeviceConfigurations(@PathParam("id") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId) {
+    public Response deleteDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         deviceType.removeConfiguration(deviceConfiguration);
@@ -77,7 +77,7 @@ public class DeviceConfigurationResource {
     @PUT
     @Path("/{deviceConfigurationId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public DeviceConfigurationInfo updateDeviceConfigurations(@PathParam("id") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo deviceConfigurationInfo) {
+    public DeviceConfigurationInfo updateDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo deviceConfigurationInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         if (deviceConfigurationInfo.active!=null && deviceConfigurationInfo.active && !deviceConfiguration.isActive()) {
@@ -94,7 +94,7 @@ public class DeviceConfigurationResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public DeviceConfigurationInfo createDeviceConfiguration(@PathParam("id") long deviceTypeId, DeviceConfigurationInfo deviceConfigurationInfo) {
+    public DeviceConfigurationInfo createDeviceConfiguration(@PathParam("deviceTypeId") long deviceTypeId, DeviceConfigurationInfo deviceConfigurationInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration(deviceConfigurationInfo.name).description(deviceConfigurationInfo.description).add();
         return new DeviceConfigurationInfo(deviceConfiguration);

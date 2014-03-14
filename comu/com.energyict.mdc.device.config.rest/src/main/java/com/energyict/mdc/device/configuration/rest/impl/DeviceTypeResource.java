@@ -127,7 +127,7 @@ public class DeviceTypeResource {
         return logBookTypeInfos;
     }
 
-    @Path("/{id}/deviceconfigurations")
+    @Path("/{deviceTypeId}/deviceconfigurations")
     public DeviceConfigurationResource getDeviceConfigurationResource() {
         return deviceConfigurationResourceProvider.get();
     }
