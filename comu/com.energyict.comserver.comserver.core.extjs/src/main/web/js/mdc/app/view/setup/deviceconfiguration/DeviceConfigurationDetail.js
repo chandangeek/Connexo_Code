@@ -4,8 +4,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceConfigurationDetail', {
     itemId: 'deviceConfigurationDetail',
     autoScroll: true,
     requires: [
-        'Mdc.view.setup.DeviceConfiguration.DeviceConfigurationsGrid',
-        'Mdc.view.setup.DeviceConfiguration.DeviceConfigurationPreview'
+        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid',
+        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview'
     ],
 
     content: [
