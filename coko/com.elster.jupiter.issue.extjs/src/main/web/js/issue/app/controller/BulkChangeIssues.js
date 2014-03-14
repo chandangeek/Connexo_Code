@@ -138,7 +138,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             method: 'PUT',
             jsonData: requestData,
             success: function (response) {
-                var obj = Ext.decode(response.responseText),
+                var obj = Ext.decode(response.responseText).data,
                     successCount = obj.success.length,
                     failedCount = obj.failure.length,
                     successMessage, failedMessage;
