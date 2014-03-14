@@ -154,7 +154,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     deleteRegisterTypeFromDetails: function () {
-        var me= this;
+        var me = this;
         var registerTypeToDelete = this.getRegisterTypeDetailForm().getRecord();
         Ext.MessageBox.show({
             msg: Uni.I18n.translate('registerType.deleteRegisterType', 'MDC', 'The register type will no longer be available.'),
@@ -169,7 +169,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     showRegisterTypeEditView: function (registerTypeId) {
-        console.log(registerTypeId);
         var timeOfUseStore = Ext.create('Mdc.store.TimeOfUses');
         var unitOfMeasureStore = Ext.create('Mdc.store.UnitOfMeasures');
         var widget = Ext.widget('registerTypeEdit', {
@@ -188,7 +187,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                         unitOfMeasureStore.load({
                             callback: function (store) {
                                 widget.down('form').loadRecord(registerType);
-                                widget.down('#registerTypeEditCreateTitle').update('<H2>' + registerType.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' +  Uni.I18n.translate('registerType.registerType', 'MDC', 'Register type')  + '</H2>');
+                                widget.down('#registerTypeEditCreateTitle').update('<H2>' + registerType.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerType.registerType', 'MDC', 'Register type') + '</H2>');
                                 widget.down('#editMrIdField').setValue(registerType.getReadingType().get('mrid'));
                                 if (registerType.get('isLinkedByDeviceType') === true) {
                                     widget.down('#editObisCodeField').setDisabled(true);
@@ -221,7 +220,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             {
                 callback: function () {
                     var widget = Ext.widget('registerTypeSetup');
-                    //console.log('store loaded');
                     me.getApplication().getController('Mdc.controller.Main').showContent(widget);
                     //me.overviewBreadCrumb(me.getBreadCrumbs);
                 }
@@ -272,7 +270,14 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             record.save({
                 success: function (record) {
                     location.href = '#setup/registertypes/';
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        me.getRegisterTypeEditForm().getForm().markInvalid(json.errors);
+                    }
                 }
+
             });
 
         }
@@ -284,19 +289,25 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             me = this;
 
         var widget = this.getRegisterTypeEditForm();
-             var mrId = widget.down('#editMrIdField').getValue();
+        var mrId = widget.down('#editMrIdField').getValue();
 
-             delete values.mrid;
-             var readingType = Ext.create(Mdc.model.ReadingType);
+        delete values.mrid;
+        var readingType = Ext.create(Mdc.model.ReadingType);
 
-             readingType.data.mrid = mrId;
+        readingType.data.mrid = mrId;
 
         if (record) {
             record.set(values);
             record.setReadingType(readingType);
             record.save({
-                callback: function (record) {
+                success: function (record) {
                     location.href = '#setup/registertypes/';
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        me.getRegisterTypeEditForm().getForm().markInvalid(json.errors);
+                    }
                 }
             });
         }
@@ -342,10 +353,10 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             text: Uni.I18n.translate('registertype.registerTypes', 'MDC', 'Register types'),
             href: 'registertypes'
         });
-       /* var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: registerTypeName,
-            href: registerTypeId
-        });*/
+        /* var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
+         text: registerTypeName,
+         href: registerTypeId
+         });*/
         var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('registertype.edit', 'MDC', 'Edit register type'),
             href: 'edit'
@@ -387,24 +398,26 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     getReadingType: function (field, newValue, oldValue) {
-        console.log('getReadingType');
         var widget = this.getRegisterTypeEditForm();
         var obisCode = widget.down('#editObisCodeField').getValue();
         var measurementUnit = widget.down('#measurementUnitComboBox').getValue();
+        var mrId = widget.down('#editMrIdField').getValue();
 
-        if (obisCode != '' && measurementUnit != null) {
+        if (obisCode !== '' && measurementUnit !== null && mrId === '') {
 
             var readingTypeStore = Ext.data.StoreManager.lookup('ReadingTypes');
-            /* readingTypeStore.filter([
-             {property: 'obisCode', value: obisCode},
-             {property: 'unit', value: measurementUnit}
-             ]);*/
+            readingTypeStore.filter([
+                {property: 'obisCode', value: obisCode},
+                {property: 'unit', value: measurementUnit}
+            ]);
             readingTypeStore.load({
                 scope: this,
                 callback: function () {
                     widget.down('#editMrIdField').setDisabled(false);
                     widget.down('#editMrIdField').setReadOnly(false);
-                    widget.down('#editMrIdField').setValue(readingTypeStore.first().get('mrid'));
+                    if (readingTypeStore.getCount() !== 0) {
+                        widget.down('#editMrIdField').setValue(readingTypeStore.first().get('mrid'));
+                    }
                 }
             });
         }

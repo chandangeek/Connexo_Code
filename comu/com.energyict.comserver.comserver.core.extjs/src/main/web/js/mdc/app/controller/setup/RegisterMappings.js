@@ -87,25 +87,18 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
     },
 
     showRegisterMappings: function (id) {
-        console.log('show register mappings');
-        console.log(id);
         var me = this;
         this.getRegisterTypesOfDevicetypeStore().getProxy().setExtraParam('deviceType', id);
-        this.getRegisterTypesOfDevicetypeStore().load(
-            {
-                callback: function () {
-                    var widget = Ext.widget('registerMappingsSetup', {deviceTypeId: id});
-                    me.getAddRegisterMappingBtn().href = '#/setup/devicetypes/' + id + '/registertypes/add';
-                    Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
-                        success: function (deviceType) {
-                            var deviceTypeName = deviceType.get('name');
-                            widget.down('#registerTypeTitle').html = '<h1>' + deviceTypeName + ' > ' + Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types') + '</h1>';
-                            me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-                            me.createBreadCrumbs(id, deviceTypeName);
-                        }
-                    });
-                }
-            });
+        var widget = Ext.widget('registerMappingsSetup', {deviceTypeId: id});
+        me.getAddRegisterMappingBtn().href = '#/setup/devicetypes/' + id + '/registertypes/add';
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
+            success: function (deviceType) {
+                var deviceTypeName = deviceType.get('name');
+                widget.down('#registerTypeTitle').html = '<h1>' + deviceTypeName + ' > ' + Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types') + '</h1>';
+                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                me.createBreadCrumbs(id, deviceTypeName);
+            }
+        });
     },
 
     addRegisterMappings: function (id) {
@@ -213,52 +206,86 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         });
     },
 
-    removeRegisterMapping: function (grid, selectionmodel,id) {
+    removeRegisterMapping: function (grid, selectionmodel, id) {
         var me = this;
         var registerMappingToDelete = me.getRegisterMappingGrid().getSelectionModel().getSelection()[0];
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
             success: function (deviceType) {
-                Ext.MessageBox.show({
-                    msg: Uni.I18n.translate('registerMapping.removeRegisterType','MDC','The register type will no longer be available on this device type.'),
-                    title: Uni.I18n.translate('general.remove','MDC','Remove') + ' ' + registerMappingToDelete.get('name'),
-                    config: {
-                        registerMappingToDelete: registerMappingToDelete,
-                        deviceType: deviceType,
-                        me: me
-                    },
-                    buttons: Ext.MessageBox.YESNO,
-                    fn: me.removeRegisterMappingFromDeviceType,
-                    icon: Ext.MessageBox.WARNING
-                });
+                if (deviceType.get('isLinkedByActiveRegisterConfig') === false &&
+                    deviceType.get('isLinkedByInactiveRegisterConfig') === true) {
+                    Ext.MessageBox.show({
+                        msg: Uni.I18n.translate('registerMapping.removeUsedRegisterType', 'MDC', 'The register type will no longer be available on this device type.  It is used by one or more deactivated device configurations.'),
+                        title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + registerMappingToDelete.get('name') + '?',
+                        config: {
+                            registerMappingToDelete: registerMappingToDelete,
+                            deviceType: deviceType,
+                            me: me
+                        },
+                        buttons: Ext.MessageBox.YESNO,
+                        fn: me.removeRegisterMappingFromDeviceType,
+                        icon: Ext.MessageBox.WARNING
+                    });
 
+                } else {
+
+                    Ext.MessageBox.show({
+                        msg: Uni.I18n.translate('registerMapping.removeRegisterType', 'MDC', 'The register type will no longer be available on this device type.'),
+                        title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + registerMappingToDelete.get('name') + '?',
+                        config: {
+                            registerMappingToDelete: registerMappingToDelete,
+                            deviceType: deviceType,
+                            me: me
+                        },
+                        buttons: Ext.MessageBox.YESNO,
+                        fn: me.removeRegisterMappingFromDeviceType,
+                        icon: Ext.MessageBox.WARNING
+                    });
+                }
             }
         });
 
 
     },
     removeRegisterMappingFromPreview: function () {
-           var me = this;
-           var registerMappingToDelete = me.getRegisterMappingGrid().getSelectionModel().getSelection()[0];
-           Ext.ModelManager.getModel('Mdc.model.DeviceType').load(this.getRegisterMappingPreview().deviceTypeId, {
-               success: function (deviceType) {
-                   Ext.MessageBox.show({
-                       msg: 'Are you sure you want to remove register type "' + registerMappingToDelete.get('name') + '"? <br />This action cannot be undone.',
-                       title: 'Remove register type: "' + registerMappingToDelete.get('name') + '"',
-                       config: {
-                           registerMappingToDelete: registerMappingToDelete,
-                           deviceType: deviceType,
-                           me: me
-                       },
-                       buttons: Ext.MessageBox.YESNO,
-                       fn: me.removeRegisterMappingFromDeviceType,
-                       icon: Ext.MessageBox.WARNING
-                   });
+        var me = this;
+        var registerMappingToDelete = me.getRegisterMappingGrid().getSelectionModel().getSelection()[0];
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(this.getRegisterMappingPreview().deviceTypeId, {
+            success: function (deviceType) {
+                if (deviceType.get('isLinkedByActiveRegisterConfig') === false &&
+                    deviceType.get('isLinkedByInactiveRegisterConfig') === true) {
+                    Ext.MessageBox.show({
+                        msg: Uni.I18n.translate('registerMapping.removeUsedRegisterType', 'MDC', 'The register type will no longer be available on this device type.  It is used by one or more deactivated device configurations'),
+                        title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + registerMappingToDelete.get('name') + '?',
+                        config: {
+                            registerMappingToDelete: registerMappingToDelete,
+                            deviceType: deviceType,
+                            me: me
+                        },
+                        buttons: Ext.MessageBox.YESNO,
+                        fn: me.removeRegisterMappingFromDeviceType,
+                        icon: Ext.MessageBox.WARNING
+                    });
+                }
+                else {
 
-               }
-           });
+                    Ext.MessageBox.show({
+                        msg: Uni.I18n.translate('registerMapping.removeRegisterType', 'MDC', 'The register type will no longer be available on this device type.'),
+                        title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + registerMappingToDelete.get('name') + '?',
+                        config: {
+                            registerMappingToDelete: registerMappingToDelete,
+                            deviceType: deviceType,
+                            me: me
+                        },
+                        buttons: Ext.MessageBox.YESNO,
+                        fn: me.removeRegisterMappingFromDeviceType,
+                        icon: Ext.MessageBox.WARNING
+                    });
+                }
+            }
+        });
 
 
-       },
+    },
 
     removeRegisterMappingFromDeviceType: function (btn, text, opt) {
         if (btn === 'yes') {
@@ -267,7 +294,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             var me = opt.config.me;
             deviceType.registerTypes().remove(registerMappingToDelete);
             deviceType.save({
-                callback: function () {
+                success: function () {
                     me.getRegisterTypesOfDevicetypeStore().remove(registerMappingToDelete);
                     location.href = '#setup/devicetypes/' + deviceType.get('id') + '/registertypes';
                 }

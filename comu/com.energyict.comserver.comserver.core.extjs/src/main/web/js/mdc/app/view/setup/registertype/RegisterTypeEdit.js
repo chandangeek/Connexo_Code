@@ -88,7 +88,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         name: 'obisCode',
                                         msgTarget: 'under',
                                         required: true,
-                                        fieldLabel: Uni.I18n.translate('registertype.obisCode', 'MDC', 'Obis code'),
+                                        fieldLabel: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
                                         itemId: 'editObisCodeField',
                                         maxLength: 80,
                                         enforceMaxLength: true,
@@ -105,7 +105,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         },
                                         items: [
                                             {
-                                                html: 'Provide this value for the 6 attributes of the Obis code.  Devide each value with a "."',
+                                                html: Uni.I18n.translate('registerType.obisCodeInfo','MDC','Provide this value for the 6 attributes of the Obis code.  Devide each value with a "."'),
                                                 xtype: 'component'
 
                                             }
@@ -114,7 +114,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                     {
                                         xtype: 'combobox',
                                         name: 'unit',
-                                        fieldLabel: Uni.I18n.translate('registertype.measurementUnit', 'MDC', 'Unit of measure'),
+                                        fieldLabel: Uni.I18n.translate('registerType.measurementUnit', 'MDC', 'Unit of measure'),
                                         itemId: 'measurementUnitComboBox',
                                         store: this.unitOfMeasure,
                                         queryMode: 'local',
@@ -130,7 +130,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                     {
                                         xtype: 'combobox',
                                         name: 'timeOfUse',
-                                        fieldLabel: Uni.I18n.translate('registertype.timeOfUse', 'MDC', 'Time of use'),
+                                        fieldLabel: Uni.I18n.translate('registerType.timeOfUse', 'MDC', 'Time of use'),
                                         itemId: 'timeOfUseComboBox',
                                         store: this.timeOfUse,
                                         queryMode: 'local',
@@ -146,7 +146,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         name: 'mrid',
                                         msgTarget: 'under',
                                         required: false,
-                                        fieldLabel: Uni.I18n.translate('registertype.mrid', 'MDC', 'Reading type'),
+                                        fieldLabel: Uni.I18n.translate('registerType.mrid', 'MDC', 'Reading type'),
                                         itemId: 'editMrIdField',
                                         required: true,
                                         readOnly: true,
@@ -163,7 +163,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         },
                                         items: [
                                             {
-                                                html: 'Provide this value for the 18 attributes of the reading type.  Devide each value with a "."',
+                                                html: Uni.I18n.translate('registerType.readingTypeInfo','MDC','Provide this value for the 18 attributes of the reading type.  Devide each value with a "."'),
                                                 xtype: 'component'
 
                                             }
@@ -176,12 +176,12 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                             if (currentValue.length > 0) {
                                                 return true;
                                             } else {
-                                                return Uni.I18n.translate('registertype.emptyName', 'MDC', 'The name of a register type can not be empty.')
+                                                return Uni.I18n.translate('registerType.emptyName', 'MDC', 'The name of a register type can not be empty.')
                                             }
                                         },
                                         msgTarget: 'under',
                                         required: true,
-                                        fieldLabel: Uni.I18n.translate('registertype.name', 'MDC', 'Name'),
+                                        fieldLabel: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
                                         itemId: 'editRegisterTypeNameField',
                                         maxLength: 80,
                                         enforceMaxLength: true,

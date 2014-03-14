@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
         var me = this;
         this.columns = [
             {
-                header: Uni.I18n.translate('registerMappings.name', 'MDC', 'Name'),
+                header: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 sortable: false,
                 hideable: false,
@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 items: [
                     {
                         icon: '../mdc/resources/images/information.png',
-                        tooltip: 'Reading type info',
+                        tooltip: Uni.I18n.translate('readingType.tooltip','MDC','Reading type info'),
                         handler: function (grid, rowIndex, colIndex, item, e) {
                             var record = grid.getStore().getAt(rowIndex);
                             this.fireEvent('showReadingTypeInfo', record);
@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 hideable: false
             },
             {
-                header: Uni.I18n.translate('registerMappings.obisCode', 'MDC', 'OBIS code'),
+                header: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
                 dataIndex: 'obisCode',
                 sortable: false,
                 hideable: false,
@@ -107,16 +107,16 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('registerMappings.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} register types'),
-                displayMoreMsg: Uni.I18n.translate('registerMappings.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} register types'),
-                emptyMsg: Uni.I18n.translate('registerMappings.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register types to display'),
+                displayMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} register types'),
+                displayMoreMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} register types'),
+                emptyMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register types to display'),
                 items: [
                     {
                         xtype: 'component',
                         flex: 1
                     },
                     {
-                        text: Uni.I18n.translate('devicetype.createRegisterType', 'MDC', 'Create register type'),
+                        text: Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Create register type'),
                         itemId: 'createRegisterType',
                         xtype: 'button',
                         action: 'createRegisterType'
