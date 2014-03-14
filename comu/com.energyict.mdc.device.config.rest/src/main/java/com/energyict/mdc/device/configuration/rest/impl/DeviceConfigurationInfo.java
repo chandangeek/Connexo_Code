@@ -5,6 +5,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -59,6 +61,14 @@ public class DeviceConfigurationInfo {
                 deviceFunction = deviceProtocol.getDeviceFunction();
             }
         }
+    }
+
+    public static List<DeviceConfigurationInfo> from(List<DeviceConfiguration> deviceConfigurations) {
+        List<DeviceConfigurationInfo> infos = new ArrayList<>(deviceConfigurations.size());
+        for (DeviceConfiguration deviceConfiguration : deviceConfigurations) {
+            infos.add(new DeviceConfigurationInfo(deviceConfiguration));
+        }
+        return infos;
     }
 
     public void writeTo(DeviceConfiguration deviceConfiguration) {

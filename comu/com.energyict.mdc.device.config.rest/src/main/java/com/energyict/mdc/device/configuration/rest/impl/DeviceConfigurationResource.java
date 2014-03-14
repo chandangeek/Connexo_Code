@@ -5,7 +5,6 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -44,11 +43,7 @@ public class DeviceConfigurationResource {
                         findDeviceConfigurationsUsingDeviceType(deviceType).
                         from(queryParameters).
                         find();
-        List<DeviceConfigurationInfo> deviceConfigurationInfos = new ArrayList<>();
-        for (DeviceConfiguration deviceConfiguration : deviceConfigurations) {
-            deviceConfigurationInfos.add(new DeviceConfigurationInfo(deviceConfiguration));
-        }
-        return PagedInfoList.asJson("deviceConfigurations", deviceConfigurationInfos, queryParameters);
+        return PagedInfoList.asJson("deviceConfigurations", DeviceConfigurationInfo.from(deviceConfigurations), queryParameters);
     }
 
     @GET
