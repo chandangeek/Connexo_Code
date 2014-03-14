@@ -11,9 +11,12 @@ import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -434,6 +437,8 @@ abstract public class VDEWRegisterDataParse {
         Calendar calendar = null;
         byte[] timedate = new byte[12];
 
+        rawdata = stripExtraCharacters(rawdata);
+
         if ((rawdata.length % 2) != 0) {
             throw new IOException("parseDate, rawdata wrong length (" + rawdata.length + ")!");
         }
@@ -454,11 +459,21 @@ abstract public class VDEWRegisterDataParse {
         }
 
         byte[] data = ProtocolUtils.convert2ascii(timedate);
+
+        if (getDateFormat() != null && getDateFormat().length() > 8) {          //E.g. yyMMddHHmmss (date and time)
+            SimpleDateFormat format = new SimpleDateFormat(getDateFormat());
+            try {
+                return format.parse(ProtocolTools.getHexStringFromBytes(data, ""));
+            } catch (ParseException e) {
+                throw new IOException("Could not parse the received timestamp (" + new String(data) + ") in the configured format + " + getDateFormat());
+            }
+        }
+
         calendar.set(Calendar.HOUR_OF_DAY, ProtocolUtils.BCD2hex(data[0]));
         calendar.set(Calendar.MINUTE, ProtocolUtils.BCD2hex(data[1]));
         calendar.set(Calendar.SECOND, ProtocolUtils.BCD2hex(data[2]));
 
-        StringTokenizer tokenizer = new StringTokenizer(getDateFormat(), "/");
+        StringTokenizer tokenizer = new StringTokenizer(getDateFormat(), "/");    //E.g. yy/mm/dd
         for (int i = 3; i < 6; i++) {
             String token = tokenizer.nextToken();
             if (token.equals("yy")) {
@@ -471,6 +486,14 @@ abstract public class VDEWRegisterDataParse {
         }
 
         return calendar.getTime();
+    }
+
+    /**
+     * Strip out the non-numerical characters from the date time.
+     * E.g.: 20:00:00 25/10/14 becomes 200000251014
+     */
+    private byte[] stripExtraCharacters(byte[] rawdata) {
+        return new String(rawdata).replaceAll("[^0-9]", "").getBytes();
     }
 
 	private Date parseSTimeSDate(byte[] rawdata) throws IOException {
