@@ -474,7 +474,6 @@ Ext.define('Cfg.controller.Validation', {
 
     goToMenuItem: function(i) {
         Ext.ComponentQuery.query('#stepsContainer')[0].getLayout().setActiveItem(i);
-        Ext.ComponentQuery.query('#stepsMenu')[0].toggleMenuItem(i);
     },
 
 
