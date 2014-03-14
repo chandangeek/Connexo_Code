@@ -14,4 +14,8 @@ public class OracleBootstrapModule extends AbstractModule {
         bind(BootstrapService.class).to(BootstrapServiceImpl.class).in(Scopes.SINGLETON);
         bind(ValidationProviderResolver.class).to(ProviderResolverService.class).in(Scopes.SINGLETON);
     }
+    
+    public void deactivate() {
+    	// for compatibility with InMemoryBootstrapModule
+    }
 }
