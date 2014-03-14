@@ -1,5 +1,5 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.elster.jupiter.config.extjs
-Include-Resource: src/main/resources;-../development.bnd
+-include: -../development.bnd
 
