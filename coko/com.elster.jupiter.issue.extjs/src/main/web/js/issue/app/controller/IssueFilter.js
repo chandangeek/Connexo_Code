@@ -7,7 +7,7 @@ Ext.define('Isu.controller.IssueFilter', {
         'Isu.store.Assignee',
         'Isu.store.IssueStatus',
         'Isu.store.IssueReason',
-        'Isu.store.Issues'
+        'Issues'
     ],
     views: [
         'workspace.issues.SideFilter'
@@ -24,6 +24,9 @@ Ext.define('Isu.controller.IssueFilter', {
         this.control({
             'issues-side-filter button[action="filter"]': {
                 click: this.filter
+            },
+            'issues-side-filter button[action="reset"]': {
+                click: this.reset
             }
         });
         this.listen({
@@ -37,6 +40,12 @@ Ext.define('Isu.controller.IssueFilter', {
 
     onLaunch: function () {
         this.getIssueFilter().down('filter-form').loadRecord(new Isu.model.IssueFilter());
+    },
+
+    reset: function() {
+        var filter = new Isu.model.IssueFilter();
+        this.getIssueFilter().down('filter-form').loadRecord(filter);
+        this.getStore('Issues').setProxyFilter(filter);
     },
 
     /**

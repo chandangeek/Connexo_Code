@@ -2,6 +2,24 @@ Ext.define('Isu.component.filter.model.Filter', {
     extend: 'Ext.data.Model',
 
     /**
+     * Returns array of fields and association names
+     *
+     * @returns {String[]}
+     */
+    getFields: function() {
+        var fields = [];
+        this.fields.each(function(field){
+            fields.push(field.name);
+        });
+
+        this.associations.each(function(association){
+            fields.push(association.name);
+        });
+
+        return fields;
+    },
+
+    /**
      * Returns plain object with the associated data
      *
      * @returns {Object}
@@ -18,6 +36,13 @@ Ext.define('Isu.component.filter.model.Filter', {
                 case 'hasMany':
                     data[association.name] = me.extractHasMany(me[association.name](), association);
                     break;
+            }
+        });
+
+        // filter out empty values
+        _.each(data, function(elm, key){
+            if (!elm) {
+                delete data[key];
             }
         });
 
@@ -47,6 +72,7 @@ Ext.define('Isu.component.filter.model.Filter', {
         store.each(function(record){
             result.push(record.getId());
         });
+
         return result;
     }
 });
