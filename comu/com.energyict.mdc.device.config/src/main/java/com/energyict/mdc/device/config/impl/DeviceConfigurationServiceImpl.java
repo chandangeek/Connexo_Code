@@ -87,7 +87,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Finder<DeviceType> findAllDeviceTypes() {
-        return DefaultFinder.of(DeviceType.class, this.getDataModel());
+        return DefaultFinder.of(DeviceType.class, this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override
@@ -114,7 +114,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Finder<RegisterMapping> findAllRegisterMappings() {
-        return DefaultFinder.of(RegisterMapping.class, this.getDataModel());
+        return DefaultFinder.of(RegisterMapping.class, this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override
@@ -195,8 +195,18 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public List<RegisterSpec> findRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
-        Condition condition = where("deviceConfig.deviceType").isEqualTo(deviceType).and(where("registerMapping").isEqualTo(registerMapping));
+    public List<RegisterSpec> findActiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
+        Condition condition = where("deviceConfig.deviceType").isEqualTo(deviceType).
+                and(where("registerMapping").isEqualTo(registerMapping)).
+                and(where("deviceConfig.active").isEqualTo(Boolean.TRUE));
+        return this.getDataModel().query(RegisterSpec.class, DeviceConfiguration.class).select(condition);
+    }
+
+    @Override
+    public List<RegisterSpec> findInactiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
+        Condition condition = where("deviceConfig.deviceType").isEqualTo(deviceType).
+                and(where("registerMapping").isEqualTo(registerMapping)).
+                and(where("deviceConfig.active").isEqualTo(Boolean.FALSE));
         return this.getDataModel().query(RegisterSpec.class, DeviceConfiguration.class).select(condition);
     }
 
@@ -339,7 +349,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType) {
-        return DefaultFinder.of(DeviceConfiguration.class, Where.where("deviceType").isEqualTo(deviceType), this.getDataModel());
+        return DefaultFinder.of(DeviceConfiguration.class, Where.where("deviceType").isEqualTo(deviceType), this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override

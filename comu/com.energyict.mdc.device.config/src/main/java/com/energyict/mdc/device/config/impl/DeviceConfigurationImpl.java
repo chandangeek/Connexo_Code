@@ -12,6 +12,7 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceCommunicationConfigurationFactory;
+import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.HasId;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,7 +51,10 @@ import java.util.Set;
  * User: gde
  * Date: 5/11/12
  */
+@DeviceFunctionsAreSupportedByProtocol
 public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfiguration> implements DeviceConfiguration, ServerDeviceConfiguration {
+
+    private static final DeviceCommunicationFunctionSetPersister deviceCommunicationFunctionSetPersister = new DeviceCommunicationFunctionSetPersister();
 
     private String description;
 
@@ -65,6 +70,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Valid
     private List<LogBookSpec> logBookSpecs = new ArrayList<>();
     private DeviceCommunicationConfiguration communicationConfiguration;
+    private Set<DeviceCommunicationFunction> deviceCommunicationFunctions;
+    private int communicationFunctionMask;
     private Date modificationDate;
     private Clock clock;
     private final Provider<LoadProfileSpecImpl> loadProfileSpecProvider;
@@ -114,6 +121,47 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.description = description;
     }
 
+
+    @Override
+    public Set<DeviceCommunicationFunction> getCommunicationFunctions() {
+        if (this.deviceCommunicationFunctions == null) {
+            this.deviceCommunicationFunctions = this.createSetFromMasks(this.communicationFunctionMask);
+        }
+        return EnumSet.copyOf(this.deviceCommunicationFunctions);
+    }
+
+    private Set<DeviceCommunicationFunction> createSetFromMasks(int communicationFunctionMask) {
+        return deviceCommunicationFunctionSetPersister.fromDb(communicationFunctionMask);
+    }
+
+    @Override
+    public boolean hasCommunicationFunction(DeviceCommunicationFunction function) {
+        return this.getCommunicationFunctions().contains(function);
+    }
+
+    @Override
+    public boolean canActAsGateway() {
+        return hasCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
+    }
+
+    @Override
+    public boolean canBeDirectlyAddressable() {
+        return hasCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);
+    }
+
+    @Override
+    public void addCommunicationFunction(DeviceCommunicationFunction function) {
+        this.getCommunicationFunctions();   // Load the current set
+        this.deviceCommunicationFunctions.add(function);
+        this.communicationFunctionMask = deviceCommunicationFunctionSetPersister.toDb(this.deviceCommunicationFunctions);
+    }
+
+    @Override
+    public void removeCommunicationFunction(DeviceCommunicationFunction function) {
+        this.getCommunicationFunctions();   // Load the current set
+        this.deviceCommunicationFunctions.remove(function);
+        this.communicationFunctionMask = deviceCommunicationFunctionSetPersister.toDb(this.deviceCommunicationFunctions);
+    }
 
     @Override
     protected void validateUniqueName(String name) {
