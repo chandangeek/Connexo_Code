@@ -48,8 +48,8 @@ public class DeviceConfigurationInfo {
         loadProfileCount = deviceConfiguration.getLoadProfileSpecs().size();
         registerCount = deviceConfiguration.getRegisterSpecs().size();
         logBookCount = deviceConfiguration.getLogBookSpecs().size();
-        isGateway = deviceConfiguration.hasCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
-        isDirectlyAddressable = deviceConfiguration.hasCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);
+        isGateway = deviceConfiguration.canActAsGateway();
+        isDirectlyAddressable = deviceConfiguration.canBeDirectlyAddressable();
 
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass();
         if (deviceProtocolPluggableClass!=null) {

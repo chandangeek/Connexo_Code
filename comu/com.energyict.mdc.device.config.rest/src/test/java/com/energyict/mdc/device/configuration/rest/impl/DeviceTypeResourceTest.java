@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -229,7 +228,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getDeviceFunction()).thenReturn(DeviceFunction.METER);
-        when(deviceConfiguration.hasCommunicationFunction(any(DeviceCommunicationFunction.class))).thenReturn(true);
+        when(deviceConfiguration.canActAsGateway()).thenReturn(true);
+        when(deviceConfiguration.canBeDirectlyAddressable()).thenReturn(true);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol name");
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
