@@ -21,7 +21,6 @@ Ext.define('Cfg.controller.Main', {
         }
     ],
     init: function () {
-//        debugger;
         var me=this;
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: 'Validation',
