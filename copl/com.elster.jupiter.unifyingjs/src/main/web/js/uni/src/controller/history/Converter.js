@@ -14,12 +14,12 @@ Ext.define('Uni.controller.history.Converter', {
         var me = this,
             eventBus = me.getController('Uni.controller.history.EventBus');
 
-        eventBus.addTokenObserver(function (tokens) {
-            me.doConversion(tokens);
+        eventBus.addTokenObserver(function (tokens,token) {
+            me.doConversion(tokens,token);
         }, me.rootToken);
     },
 
-    doConversion: function (tokens) {
+    doConversion: function (tokens,token) {
         // Implemented by extending classes.
     },
 
@@ -39,6 +39,14 @@ Ext.define('Uni.controller.history.Converter', {
         }
 
         return token;
+    },
+
+    tokenizePath: function(path,includeHash) {
+        includeHash = includeHash !== undefined ? includeHash : true;
+        if (includeHash) {
+            path = '#' + path;
+        }
+        return path;
     },
 
     /**

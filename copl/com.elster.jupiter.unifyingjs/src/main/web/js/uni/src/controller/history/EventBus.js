@@ -47,7 +47,7 @@ Ext.define('Uni.controller.history.EventBus', {
         }
 
         this.notifyRootObservers(tokens);
-        this.notifyObserversIfNecessary(tokens);
+        this.notifyObserversIfNecessary(tokens,token);
     },
 
     /**
@@ -92,12 +92,12 @@ Ext.define('Uni.controller.history.EventBus', {
         }
     },
 
-    notifyObserversIfNecessary: function (tokens) {
+    notifyObserversIfNecessary: function (tokens,token) {
         var errorController = this.getController('Uni.controller.Error'),
             callback = this.getObservers()[tokens[0]];
 
         if (typeof callback !== 'undefined' && callback != null) {
-            callback(tokens, Uni.controller.history.Settings.tokenDelimiter);
+            callback(tokens,token, Uni.controller.history.Settings.tokenDelimiter);
         } else {
             // TODO Design the basic error controller.
 //            errorController.showHttp404();
