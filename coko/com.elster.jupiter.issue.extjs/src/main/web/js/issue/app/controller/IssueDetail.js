@@ -1,0 +1,168 @@
+Ext.define('Isu.controller.IssueDetail', {
+    extend: 'Ext.app.Controller',
+
+    requires: [
+        'Uni.model.BreadcrumbItem'
+    ],
+
+    stores: [
+        'Isu.store.Issues',
+        'Isu.store.IssueComments'
+    ],
+
+    views: [
+        'workspace.issues.DetailOverview'
+    ],
+
+    refs: [
+        {
+            ref: 'detailPanel',
+            selector: 'issue-detail-overview issue-detail'
+        },
+        {
+            ref: 'commentsPanel',
+            selector: 'issue-detail-overview issue-comments'
+        },
+        {
+            ref: 'commentForm',
+            selector: 'issue-detail-overview form'
+        },
+        {
+            ref: 'addCommentButton',
+            selector: 'issue-detail-overview button[action=addcomment]'
+        }
+    ],
+
+    init: function () {
+        this.control({
+            'issue-detail-overview breadcrumbTrail': {
+                afterrender: this.setBreadcrumb
+            },
+            'issue-detail-overview button[action=addcomment]': {
+                click: this.showCommentForm
+            },
+            'issue-detail-overview form button[action=cancel]': {
+                click: this.hideCommentForm
+            },
+
+            'issue-detail-overview form button[action=send]': {
+                click: this.addComment
+            },
+            'comment-action-menu': {
+                click: this.chooseCommentAction
+            }
+        });
+    },
+
+    showOverview: function (issueId) {
+        var self = this,
+            widget = Ext.widget('issue-detail-overview'),
+            issueDetailModel = self.getModel('Isu.model.Issues'),
+            detailPanel = self.getDetailPanel();
+
+        self.commentsAPI = '/api/isu/issue/' + issueId + '/comments';
+
+        issueDetailModel.load(issueId, {
+            success: function (record) {
+                self.detailData = detailPanel.data = record.data;
+                self.loadComments();
+                self.getApplication().fireEvent('changecontentevent', widget);
+            }
+        });
+    },
+
+    setBreadcrumb: function (breadcrumbs) {
+        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
+                text: 'Workspace',
+                href: '#/workspace'
+            }),
+            breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
+                text: 'Data collection',
+                href: 'datacollection'
+            }),
+            breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
+                text: 'Issues',
+                href: 'issues'
+            }),
+            breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem', {
+                text: 'Issue detail'
+            });
+        breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2).setChild(breadcrumbChild3);
+
+        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
+    },
+
+    chooseCommentAction: function (menu, item) {
+        switch (item.text) {
+            case 'Edit':
+                this.editComment();
+                break;
+            case 'Delete':
+                this.deleteComment();
+                break;
+        }
+    },
+
+    showCommentForm: function () {
+        var form = this.getCommentForm(),
+            button = this.getAddCommentButton();
+
+        button.hide();
+        form.show();
+    },
+
+    hideCommentForm: function () {
+        var form = this.getCommentForm(),
+            button = this.getAddCommentButton();
+
+        form.query('textareafield')[0].clearInvalid();
+        form.hide();
+        button.show();
+    },
+
+    loadComments: function () {
+        var self = this,
+            commentsPanel = self.getCommentsPanel(),
+            preloader = Ext.create('Ext.LoadMask', {
+                msg: 'Loading comments...',
+                target: commentsPanel
+            });
+
+        if (commentsPanel.isVisible()) {
+            preloader.show();
+        }
+
+        commentsPanel.store.proxy.url = self.commentsAPI;
+        commentsPanel.store.load(function () {
+            preloader.destroy();
+        });
+    },
+
+    addComment: function () {
+        var self = this,
+            formComponent = this.getCommentForm(),
+            form = formComponent.getForm();
+
+        if (form.isValid()) {
+            self.hideCommentForm();
+
+            Ext.Ajax.request({
+                url: self.commentsAPI,
+                method: 'POST',
+                jsonData: form.getValues(),
+                autoAbort: true,
+                success: function () {
+                    self.loadComments();
+                }
+            });
+        }
+    },
+
+    editComment: function () {
+
+    },
+
+    deleteComment: function () {
+
+    }
+});

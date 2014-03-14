@@ -94,7 +94,7 @@ Ext.define('Isu.view.workspace.issues.Item', {
                         '<td colspan="3"><tpl if="device">{[values.device.serviceCategory ? values.device.serviceCategory.info : ""]}</tpl></td>',
                         '</tr>',
                         '</table>',
-                        '<div class="isu-item-details-bottom"><a href="javascript:void(0)">View details</a></div>',
+                        '<div class="isu-item-details-bottom"><a href="#/workspace/datacollection/issues/{id}">View details</a></div>',
                         {
                             formatCreationDate: function (date) {
                                 return Ext.Date.format(date, 'M d, Y h:m');

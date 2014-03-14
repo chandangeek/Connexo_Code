@@ -208,6 +208,23 @@ span[class^=isu-assignee-] {
     margin-top: 1px;
 }
 
+.isu-action-button-inactive {
+    background: none;
+    border: none;
+}
+
+.isu-action-button-inactive .x-btn-split-right {
+    background-image: none;
+}
+
+.x-isu-action-button-active {
+    background: none;
+}
+
+.isu-subheader {
+    color: #aaa;
+}
+
 /* Message Window */
 
 /* Window */

@@ -22,7 +22,8 @@ Ext.define('Isu.Application', {
         'MessageWindow',
         'IssueAssignmentRules',
         'history.Workspace',
-        'IssueFilter'
+        'IssueFilter',
+        'IssueDetail'
     ],
 
     stores: [
