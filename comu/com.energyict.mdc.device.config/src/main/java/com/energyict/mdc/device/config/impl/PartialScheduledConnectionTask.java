@@ -10,15 +10,7 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
  * @author sva
  * @since 21/01/13 - 15:40
  */
-public interface PartialScheduledConnectionTask extends PartialConnectionTask {
-
-    /**
-     * Gets the {@link OutboundComPortPool} that is used
-     * by preference for actual OutboundConnectionTasks.
-     *
-     * @return The ComPortPool
-     */
-    public OutboundComPortPool getComPortPool ();
+public interface PartialScheduledConnectionTask<T extends OutboundComPortPool> extends PartialConnectionTask<T> {
 
     /**
      * Gets the specifications for the calculation of the next
@@ -34,5 +26,8 @@ public interface PartialScheduledConnectionTask extends PartialConnectionTask {
      * @return the delay to wait before we may retry after a failing sessions
      */
     public TimeDuration getRescheduleDelay();
+
+
+    void setNextExecutionSpecs(NextExecutionSpecs nextExecutionSpec);
 
 }

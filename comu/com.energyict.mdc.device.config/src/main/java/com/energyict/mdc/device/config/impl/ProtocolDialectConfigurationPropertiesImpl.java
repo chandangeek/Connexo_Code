@@ -25,6 +25,7 @@ import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Operator.EQUAL;
@@ -43,7 +44,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     private final DataModel dataModel;
 
     private DeviceProtocolDialect protocolDialect;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.PROTOCOLDIALECT_REQUIRED_KEY + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.PROTOCOLDIALECT_REQUIRED_KEY + "}")
     private String protocolDialectName;
     private List<ProtocolDialectConfigurationProperty> propertyList = new ArrayList<>();
 
@@ -172,21 +173,19 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs () {
+    public List<PropertySpec> getPropertySpecs() {
         if (this.getDeviceProtocolDialect() == null) {
             return new ArrayList<>(0);
-        }
-        else {
+        } else {
             return this.getDeviceProtocolDialect().getPropertySpecs();
         }
     }
 
     @Override
-    public PropertySpec getPropertySpec (String name) {
+    public PropertySpec getPropertySpec(String name) {
         if (this.getDeviceProtocolDialect() == null) {
             return null;
-        }
-        else {
+        } else {
             return this.getDeviceProtocolDialect().getPropertySpec(name);
         }
     }
@@ -241,6 +240,16 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
             return;
         }
         setNewProperty(name, value);
+    }
+
+    @Override
+    public void removeProperty(String name) {
+        getTypedProperties().removeProperty(name);
+        for (Iterator<ProtocolDialectConfigurationProperty> iterator = propertyList.iterator(); iterator.hasNext(); ) {
+            if (iterator.next().getName().equals(name)) {
+                iterator.remove();
+            }
+        }
     }
 
     private void setNewProperty(String name, Object value) {

@@ -8,7 +8,7 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
  * @author sva
  * @since 21/01/13 - 15:22
  */
-public interface PartialInboundConnectionTask extends PartialConnectionTask {
+public interface PartialInboundConnectionTask extends PartialConnectionTask<InboundComPortPool> {
 
     /**
      * Gets the InboundComPortPool that is used

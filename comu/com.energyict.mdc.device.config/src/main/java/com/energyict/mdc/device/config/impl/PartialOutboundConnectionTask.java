@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 
 /**
@@ -9,7 +10,7 @@ import com.energyict.mdc.protocol.api.ConnectionType;
  * @author sva
  * @since 21/01/13 - 15:49
  */
-public interface PartialOutboundConnectionTask extends PartialScheduledConnectionTask {
+public interface PartialOutboundConnectionTask extends PartialScheduledConnectionTask<OutboundComPortPool> {
 
     /**
      * Gets the time window during which communication with the device
@@ -43,4 +44,9 @@ public interface PartialOutboundConnectionTask extends PartialScheduledConnectio
      */
     public boolean isSimultaneousConnectionsAllowed();
 
+    void setComWindow(ComWindow comWindow);
+
+    void setConnectionStrategy(ConnectionStrategy connectionStrategy);
+
+    void setAllowSimultaneousConnections(boolean allowSimultaneousConnections);
 }

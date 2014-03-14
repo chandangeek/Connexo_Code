@@ -28,7 +28,7 @@ import java.util.Map;
  * @author sva
  * @since 21/01/13 - 15:04
  */
-public interface PartialConnectionTask extends HasName, HasId {
+public interface PartialConnectionTask<T extends ComPortPool> extends HasName, HasId {
 
     Map<String, Class<? extends PartialConnectionTask>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends PartialConnectionTask>>of("0", PartialConnectionInitiationTaskImpl.class, "1", PartialInboundConnectionTaskImpl.class, "2", PartialOutboundConnectionTaskImpl.class);
 
@@ -38,7 +38,7 @@ public interface PartialConnectionTask extends HasName, HasId {
      *
      * @return The ComPortPool
      */
-    public ComPortPool getComPortPool ();
+    public T getComPortPool ();
 
     /**
      * Tests if this PartialConnectionTask is marked as the default
@@ -100,4 +100,13 @@ public interface PartialConnectionTask extends HasName, HasId {
 
     void delete();
 
+    void setComportPool(T comPortPool);
+
+    void setConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass);
+
+    void setDefault(boolean asDefault);
+
+    void setProperty(String key, Object value);
+
+    void removeProperty(String key);
 }

@@ -14,6 +14,7 @@ import org.joda.time.DateTimeConstants;
 
 import javax.inject.Inject;
 
+
 /**
  *  Provides an implementation for an {@link PartialOutboundConnectionTask}
  *
@@ -33,6 +34,8 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
     PartialOutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
         super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService);
     }
+
+
 
 //    protected void doInit(PartialOutboundConnectionTaskShadow shadow) throws SQLException, BusinessException {
 //        this.validateNew(shadow);
@@ -274,5 +277,29 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
     @Override
     protected void doDelete() {
         dataModel.mapper(PartialOutboundConnectionTask.class).remove(this);
+    }
+
+    public static PartialOutboundConnectionTaskImpl from(DataModel dataModel, ConnectionStrategy connectionStrategy) {
+        return dataModel.getInstance(PartialOutboundConnectionTaskImpl.class).init(connectionStrategy);
+    }
+
+    private PartialOutboundConnectionTaskImpl init(ConnectionStrategy connectionStrategy) {
+        this.connectionStrategy = connectionStrategy;
+        return this;
+    }
+
+    @Override
+    public void setComWindow(ComWindow comWindow) {
+        this.comWindow = comWindow;
+    }
+
+    @Override
+    public void setConnectionStrategy(ConnectionStrategy connectionStrategy) {
+        this.connectionStrategy = connectionStrategy;
+    }
+
+    @Override
+    public void setAllowSimultaneousConnections(boolean allowSimultaneousConnections) {
+        this.allowSimultaneousConnections = allowSimultaneousConnections;
     }
 }

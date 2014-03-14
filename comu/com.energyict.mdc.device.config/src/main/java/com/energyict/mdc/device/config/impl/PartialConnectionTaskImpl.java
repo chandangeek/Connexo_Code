@@ -17,6 +17,8 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -25,7 +27,7 @@ import java.util.List;
  * @author sva
  * @since 21/01/13 - 16:44
  */
-public abstract class PartialConnectionTaskImpl<T extends ComPortPool> extends PersistentNamedObject<PartialConnectionTask> implements ServerPartialConnectionTask {
+public abstract class PartialConnectionTaskImpl<T extends ComPortPool> extends PersistentNamedObject<PartialConnectionTask> implements ServerPartialConnectionTask<T> {
 
     private final EngineModelService engineModelService;
     private final ProtocolPluggableService protocolPluggableService;
@@ -186,7 +188,27 @@ public abstract class PartialConnectionTaskImpl<T extends ComPortPool> extends P
 
     @Override
     public List<PartialConnectionTaskProperty> getProperties () {
-        return properties;
+        return Collections.unmodifiableList(properties);
+    }
+
+    public void setProperty(String key, Object value) {
+        for (PartialConnectionTaskProperty property : properties) {
+            if (property.getName().equals(key)) {
+                property.setValue(value);
+                return;
+            }
+        }
+        properties.add(PartialConnectionTaskPropertyImpl.from(this, key, value));
+    }
+
+    @Override
+    public void removeProperty(String key) {
+        for (Iterator<PartialConnectionTaskProperty> iterator = properties.iterator(); iterator.hasNext(); ) {
+            if (iterator.next().getName().equals(key)) {
+                iterator.remove();
+                return;
+            }
+        }
     }
 
     @Override
@@ -226,8 +248,8 @@ public abstract class PartialConnectionTaskImpl<T extends ComPortPool> extends P
     }
 
     @Override
-    public ComPortPool getComPortPool () {
-        return this.comPortPool.get();
+    public T getComPortPool () {
+        return (T) this.comPortPool.get();
     }
 
     protected ComPortPool findComPortPool (int id) {
@@ -243,4 +265,18 @@ public abstract class PartialConnectionTaskImpl<T extends ComPortPool> extends P
         return "./";
     }
 
+    @Override
+    public void setComportPool(T comPortPool) {
+        this.comPortPool.set(comPortPool);
+    }
+
+    @Override
+    public void setConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass) {
+        this.pluggableClass.set(connectionTypePluggableClass);
+    }
+
+    @Override
+    public void setDefault(boolean asDefault) {
+        this.isDefault = asDefault;
+    }
 }

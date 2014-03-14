@@ -1,8 +1,11 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.ValueFactory;
+
+import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link PartialConnectionTaskProperty} interface.
@@ -10,26 +13,46 @@ import com.energyict.mdc.dynamic.ValueFactory;
  * @author sva
  * @since 22/01/13 - 9:05
  */
-public class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty {
+class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty {
 
-    private Reference<PartialConnectionTask> partialConnectionTask;
+    private Reference<PartialConnectionTask> partialConnectionTask = ValueReference.absent();
 
     private String name;
     private String value;
     private transient Object objectValue;
 
-    public PartialConnectionTaskPropertyImpl(PartialConnectionTask partialConnectionTask) {
-        super();
-        this.partialConnectionTask.set(partialConnectionTask);
+    @Inject
+    PartialConnectionTaskPropertyImpl() {
     }
 
-    private Object getValueObjectFromStringValue(String propertyName, String propertyStringValue) {
-        PropertySpec propertySpec = getPartialConnectionTask().getConnectionType().getPropertySpec(propertyName);
+    static PartialConnectionTaskPropertyImpl from(PartialConnectionTask partialConnectionTask, String name, Object value) {
+        PartialConnectionTaskPropertyImpl partialConnectionTaskProperty = new PartialConnectionTaskPropertyImpl();
+        partialConnectionTaskProperty.partialConnectionTask.set(partialConnectionTask);
+        partialConnectionTaskProperty.name = name;
+        partialConnectionTaskProperty.setValue(value);
+        return partialConnectionTaskProperty;
+    }
+
+    private Object getValueObjectFromStringValue(String propertyStringValue) {
+        PropertySpec propertySpec = getPartialConnectionTask().getConnectionType().getPropertySpec(name);
         if (propertySpec != null) {
             ValueFactory valueFactory = propertySpec.getValueFactory();
             return valueFactory.fromStringValue(propertyStringValue);
         }
         return null;
+    }
+
+    private String asStringValue(Object value) {
+        PropertySpec propertySpec = getPartialConnectionTask().getConnectionType().getPropertySpec(name);
+        if (propertySpec != null) {
+            ValueFactory valueFactory = propertySpec.getValueFactory();
+            if (valueFactory.getValueType().isInstance(value)) {
+                return valueFactory.toStringValue(value);
+            }
+            // else there is a value mismatch. Rather than fail fast on this value, we opt to delay until save/update, which will report on all invalid values at once
+        }
+        return null;
+
     }
 
     @Override
@@ -40,7 +63,7 @@ public class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskP
     @Override
     public Object getValue() {
         if (objectValue == null) {
-            objectValue = getValueObjectFromStringValue(name, value);
+            objectValue = getValueObjectFromStringValue(value);
         }
         return value;
     }
@@ -50,4 +73,9 @@ public class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskP
         return partialConnectionTask.get();
     }
 
+    @Override
+    public void setValue(Object value) {
+        objectValue = value;
+        this.value = asStringValue(value);
+    }
 }

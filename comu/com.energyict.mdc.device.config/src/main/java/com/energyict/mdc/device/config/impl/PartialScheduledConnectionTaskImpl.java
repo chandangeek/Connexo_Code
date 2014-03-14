@@ -17,7 +17,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
  * @author sva
  * @since 22/01/13 - 11:52
  */
-public abstract class PartialScheduledConnectionTaskImpl extends PartialConnectionTaskImpl<OutboundComPortPool> implements PartialScheduledConnectionTask {
+public abstract class PartialScheduledConnectionTaskImpl extends PartialConnectionTaskImpl<OutboundComPortPool> implements PartialScheduledConnectionTask<OutboundComPortPool> {
 
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
 
@@ -100,11 +100,11 @@ public abstract class PartialScheduledConnectionTaskImpl extends PartialConnecti
 //        }
 //    }
 
-    /**
-     * Validate if the rescheduleDelay is a positive integer
-     *
-     * @param rescheduleRetryDelay the delay to validate
-     */
+//    /**
+//     * Validate if the rescheduleDelay is a positive integer
+//     *
+//     * @param rescheduleRetryDelay the delay to validate
+//     */
 //    private void validateRescheduleRetryDelay(TimeDuration rescheduleRetryDelay) throws BusinessException {
 //        if (rescheduleRetryDelay != null) {
 //            final int rescheduleDelay = rescheduleRetryDelay.getSeconds();
@@ -174,7 +174,7 @@ public abstract class PartialScheduledConnectionTaskImpl extends PartialConnecti
 
     @Override
     public OutboundComPortPool getComPortPool () {
-        return (OutboundComPortPool) super.getComPortPool();
+        return super.getComPortPool();
     }
 
     @Override
@@ -182,4 +182,8 @@ public abstract class PartialScheduledConnectionTaskImpl extends PartialConnecti
         return OutboundComPortPool.class;
     }
 
+    @Override
+    public void setNextExecutionSpecs(NextExecutionSpecs nextExecutionSpec) {
+        nextExecutionSpecs.set(nextExecutionSpec);
+    }
 }

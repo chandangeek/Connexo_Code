@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ShadowList;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -11,10 +12,13 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
+import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.exceptions.PartialConnectionTaskDoesNotExist;
-import com.energyict.mdc.device.config.exceptions.ProtocolDialectConfigurationPropertyDoesNotExist;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import javax.inject.Inject;
@@ -30,9 +34,9 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-02-15 (11:02)
  */
-public class DeviceCommunicationConfigurationImpl extends PersistentIdObject implements ServerDeviceCommunicationConfiguration {
+public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<DeviceCommunicationConfiguration> implements ServerDeviceCommunicationConfiguration {
 
-    private Reference<DeviceConfiguration> deviceConfiguration;
+    private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
 //    private List<SecurityPropertySet> securityPropertySets;
 //    private List<ComTaskEnablement> comTaskEnablements;
     private boolean supportsAllMessageCategories;
@@ -42,8 +46,12 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject imp
     private List<ProtocolDialectConfigurationProperties> configurationPropertiesList = new ArrayList<>();
 
     @Inject
-    protected DeviceCommunicationConfigurationImpl(Class domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
-        super(domainClass, dataModel, eventService, thesaurus);
+    DeviceCommunicationConfigurationImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+        super(DeviceCommunicationConfiguration.class, dataModel, eventService, thesaurus);
+    }
+
+    static DeviceCommunicationConfigurationImpl from(DataModel dataModel, DeviceConfiguration deviceConfiguration) {
+        return dataModel.getInstance(DeviceCommunicationConfigurationImpl.class).init(deviceConfiguration);
     }
 
 //    public DeviceCommunicationConfigurationImpl(DeviceConfiguration deviceConfiguration, int id) {
@@ -271,18 +279,18 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject imp
 //        }
 //    }
 
-    /**
-     * Updates the existing {@link SecurityPropertySet} that matches
-     * the id of the specified {@link SecurityPropertySetShadow}
-     * and throws a BusinessException if there is no matching SecurityPropertySet.
-     * The updated SecurityPropertySet is added to the list of updated SecurityPropertySets.
-     *
-     * @param shadow                      The SecurityPropertySetShadow
-     * @param updatedSecurityPropertySets The list of already updated SecurityPropertySets
-     * @throws BusinessException Thrown if the update of the SecurityPropertySet violates a business constraint or
-     *                           when there is no SecurityPropertySet with a matching id.
-     * @throws SQLException      Thrown if the update of the SecurityPropertySet violates a database constraint
-     */
+//    /**
+//     * Updates the existing {@link SecurityPropertySet} that matches
+//     * the id of the specified {@link SecurityPropertySetShadow}
+//     * and throws a BusinessException if there is no matching SecurityPropertySet.
+//     * The updated SecurityPropertySet is added to the list of updated SecurityPropertySets.
+//     *
+//     * @param shadow                      The SecurityPropertySetShadow
+//     * @param updatedSecurityPropertySets The list of already updated SecurityPropertySets
+//     * @throws BusinessException Thrown if the update of the SecurityPropertySet violates a business constraint or
+//     *                           when there is no SecurityPropertySet with a matching id.
+//     * @throws SQLException      Thrown if the update of the SecurityPropertySet violates a database constraint
+//     */
 //    private void updateSecurityPropertySetFromShadow(SecurityPropertySetShadow shadow, List<SecurityPropertySet> updatedSecurityPropertySets)
 //        throws BusinessException, SQLException {
 //        for (SecurityPropertySet securityPropertySet : this.getSecurityPropertySets()) {
@@ -302,17 +310,17 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject imp
 //        }
 //    }
 
-    /**
-     * Deletes the existing SecurityPropertySet that matches
-     * the id of the specified SecurityPropertySetShadow
-     * and throws a BusinessException if there is no matching SecurityPropertySet.
-     * The updated SecurityPropertySet is added to the list of updated SecurityPropertySets.
-     *
-     * @param id The id of the obsolete SecurityPropertySet
-     * @throws BusinessException Thrown if the delete of the SecurityPropertySet violates a business constraint or
-     *                           when there is no SecurityPropertySet with a matching id.
-     * @throws SQLException      Thrown if the delete of the SecurityPropertySet violates a database constraint
-     */
+//    /**
+//     * Deletes the existing SecurityPropertySet that matches
+//     * the id of the specified SecurityPropertySetShadow
+//     * and throws a BusinessException if there is no matching SecurityPropertySet.
+//     * The updated SecurityPropertySet is added to the list of updated SecurityPropertySets.
+//     *
+//     * @param id The id of the obsolete SecurityPropertySet
+//     * @throws BusinessException Thrown if the delete of the SecurityPropertySet violates a business constraint or
+//     *                           when there is no SecurityPropertySet with a matching id.
+//     * @throws SQLException      Thrown if the delete of the SecurityPropertySet violates a database constraint
+//     */
 //    private void deleteSecurityPropertySet(int id) throws BusinessException, SQLException {
 //        this.getSecurityPropertySet(id).delete();
 //    }
@@ -366,14 +374,6 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject imp
 //            name, this.getDeviceConfiguration().getName());
 //    }
 
-    private ProtocolDialectConfigurationProperties getConfigurationProperties(int id) throws BusinessException {
-        for (ProtocolDialectConfigurationProperties configurationProperties : this.getProtocolDialectConfigurationPropertiesList()) {
-            if (configurationProperties.getId() == id) {
-                return configurationProperties; // There is only one such element so we are done now
-            }
-        }
-        throw new ProtocolDialectConfigurationPropertyDoesNotExist(thesaurus, id);
-    }
 
 //    private BusinessException configurationPropertiesDoesNotExist(int id) {
 //        return new BusinessException(
@@ -400,18 +400,18 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject imp
 //        }
 //    }
 
-    /**
-     * Updates the existing {@link ProtocolDialectConfigurationProperties} that matches
-     * the id of the specified {@link ProtocolDialectConfigurationPropertiesShadow}
-     * and throws a BusinessException if there is no matching ProtocolDialectConfigurationProperties.
-     * The updated ProtocolDialectConfigurationProperties is added to the list of updated ProtocolDialectConfigurationProperties.
-     *
-     * @param shadow                         The ProtocolDialectConfigurationPropertiesShadow
-     * @param updatedConfigurationProperties The list of already updated ProtocolDialectConfigurationProperties
-     * @throws BusinessException Thrown if the update of the ProtocolDialectConfigurationProperties violates a business constraint or
-     *                           when there is no ProtocolDialectConfigurationProperties with a matching id.
-     * @throws SQLException      Thrown if the update of the ProtocolDialectConfigurationProperties violates a database constraint
-     */
+//    /**
+//     * Updates the existing {@link ProtocolDialectConfigurationProperties} that matches
+//     * the id of the specified {@link ProtocolDialectConfigurationPropertiesShadow}
+//     * and throws a BusinessException if there is no matching ProtocolDialectConfigurationProperties.
+//     * The updated ProtocolDialectConfigurationProperties is added to the list of updated ProtocolDialectConfigurationProperties.
+//     *
+//     * @param shadow                         The ProtocolDialectConfigurationPropertiesShadow
+//     * @param updatedConfigurationProperties The list of already updated ProtocolDialectConfigurationProperties
+//     * @throws BusinessException Thrown if the update of the ProtocolDialectConfigurationProperties violates a business constraint or
+//     *                           when there is no ProtocolDialectConfigurationProperties with a matching id.
+//     * @throws SQLException      Thrown if the update of the ProtocolDialectConfigurationProperties violates a database constraint
+//     */
 //    private void updateConfigurationPropertiesFromShadow(ProtocolDialectConfigurationPropertiesShadow shadow,
 //                                                         List<ProtocolDialectConfigurationProperties> updatedConfigurationProperties)
 //        throws BusinessException, SQLException {
@@ -430,24 +430,6 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject imp
 //            this.deleteConfigurationProperties(shadow.getId());
 //        }
 //    }
-
-    /**
-     * Deletes the existing {@link ProtocolDialectConfigurationProperties} that matches
-     * the id of the specified ProtocolDialectConfigurationPropertiesShadow
-     * and throws a BusinessException if there is no matching ProtocolDialectConfigurationProperties.
-     * The updated ProtocolDialectConfigurationProperties is added to the list of updated ProtocolDialectConfigurationProperties.
-     *
-     * @param id The id of the obsolete ProtocolDialectConfigurationProperties
-     * @throws BusinessException Thrown if the delete of the ProtocolDialectConfigurationProperties violates a business constraint or
-     *                           when there is no ProtocolDialectConfigurationProperties with a matching id.
-     * @throws SQLException      Thrown if the delete of the ProtocolDialectConfigurationProperties violates a database constraint
-     */
-    private void deleteConfigurationProperties(int id)
-        throws
-            BusinessException,
-            SQLException {
-        this.getConfigurationProperties(id).delete();
-    }
 
 //    private void createNewConfigurationProperties(List<ProtocolDialectConfigurationPropertiesShadow> newShadows, List<ProtocolDialectConfigurationProperties> currentConfigurationProperties)
 //        throws
@@ -520,30 +502,12 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject imp
 //        }
 //    }
 
-    private ProtocolDialectConfigurationProperties findProtocolDialectConfigurationPropertyByName(String name) throws BusinessException {
-        for (ProtocolDialectConfigurationProperties props : this.getProtocolDialectConfigurationPropertiesList()) {
-            if (name.equals(props.getName())) {
-                return props;
-            }
-        }
-        throw new ProtocolDialectConfigurationPropertyDoesNotExist(thesaurus, name);
-    }
-
 //    private void copyPartialConnectionTaskId(ComTaskEnablementShadow shadow) throws BusinessException {
 //        if (shadow.getPartialConnectionTaskShadow() != null) {
 //            PartialConnectionTask partialConnectionTask = this.findPartialConnectionTaskByName(shadow.getPartialConnectionTaskShadow().getName());
 //            shadow.setPartialConnectionTaskId(partialConnectionTask.getId());
 //        }
 //    }
-
-    private PartialConnectionTask findPartialConnectionTaskByName(String name) throws BusinessException {
-        for (PartialConnectionTask partialConnectionTask : this.findAllPartialConnectionTasks()) {
-            if (name.equals(partialConnectionTask.getName())) {
-                return partialConnectionTask;
-            }
-        }
-        throw new PartialConnectionTaskDoesNotExist(thesaurus, name);
-    }
 
 //    private BusinessException partialConnectionTaskDoesNotExist(String name) {
 //        return new BusinessException(
@@ -917,8 +881,8 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject imp
     }
 
     private void deleteConfigurationProperties() throws SQLException, BusinessException {
-        for (ProtocolDialectConfigurationProperties configurationProperties : this.getProtocolDialectConfigurationPropertiesList()) {
-            configurationProperties.delete();
+        for (ProtocolDialectConfigurationProperties configurationProperty : configurationPropertiesList) {
+            configurationProperty.delete();
         }
     }
 
@@ -929,7 +893,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject imp
 
     @Override
     public List<SecurityPropertySet> getSecurityPropertySets() {
-        return Collections.emptyList();
+        return new ArrayList<>();
     }
 
     @Override
@@ -992,7 +956,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject imp
 
     @Override
     public List<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationPropertiesList() {
-        return this.configurationPropertiesList;
+        return Collections.unmodifiableList(configurationPropertiesList);
     }
 
     @Override
@@ -1038,6 +1002,11 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject imp
     protected void validateDelete() {
         //TODO automatically generated method body, provide implementation.
 
+    }
+
+    private DeviceCommunicationConfigurationImpl init(DeviceConfiguration deviceConfiguration) {
+        this.deviceConfiguration.set(deviceConfiguration);
+        return this;
     }
 
     private interface PartialConnectionTaskFilterPredicate<T extends PartialConnectionTask> {
@@ -1143,4 +1112,45 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject imp
 //        }
 //    }
 
+
+    @Override
+    public void setSupportsAllMessageCategories(boolean supportAllMessageCategories) {
+        this.supportsAllMessageCategories = supportAllMessageCategories;
+
+    }
+
+    @Override
+    public void addSecurityPropertySet(SecurityPropertySet securityPropertySet) {
+        this.getSecurityPropertySets().add(securityPropertySet);
+    }
+
+    @Override
+    public PartialOutboundConnectionTaskBuilder createPartialOutboundConnectionTask() {
+        //TODO automatically generated method body, provide implementation.
+        return null;
+    }
+
+    @Override
+    public PartialInboundConnectionTaskBuilder createPartialInboundConnectionTask() {
+        //TODO automatically generated method body, provide implementation.
+        return null;
+    }
+
+    @Override
+    public PartialConnectionInitiationTaskBuilder createPartialConnectionInitiationTask() {
+        //TODO automatically generated method body, provide implementation.
+        return null;
+    }
+
+    @Override
+    public void addPartialConnectionTask(PartialConnectionTask partialConnectionTask) {
+        //TODO automatically generated method body, provide implementation.
+    }
+
+    @Override
+    public ProtocolDialectConfigurationProperties createProtocolDialectConfigurationProperties(String name, DeviceProtocolDialect protocolDialect) {
+        ProtocolDialectConfigurationProperties props = ProtocolDialectConfigurationPropertiesImpl.from(dataModel, this, name, protocolDialect);
+        configurationPropertiesList.add(props);
+        return props;
+    }
 }

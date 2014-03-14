@@ -23,13 +23,9 @@ public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl<
         super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService);
     }
 
-//    protected PartialInboundConnectionTaskImpl(int id) {
-//        super(id);
-//    }
-//
-//    protected PartialInboundConnectionTaskImpl(ResultSet resultSet, ResultSetIterator resultSetIterator) throws SQLException {
-//        super(resultSet, resultSetIterator);
-//    }
+    static PartialInboundConnectionTaskImpl from(DataModel dataModel) {
+        return dataModel.getInstance(PartialInboundConnectionTaskImpl.class);
+    }
 
 //    public void init(final PartialInboundConnectionTaskShadow shadow) throws SQLException, BusinessException {
 //        this.execute(new Transaction<Void>() {

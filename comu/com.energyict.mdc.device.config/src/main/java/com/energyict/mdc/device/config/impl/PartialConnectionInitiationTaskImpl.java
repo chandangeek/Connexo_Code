@@ -22,11 +22,14 @@ public class PartialConnectionInitiationTaskImpl extends PartialScheduledConnect
         super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService);
     }
 
+    static PartialConnectionInitiationTask from(DataModel dataModel) {
+        return dataModel.getInstance(PartialConnectionInitiationTaskImpl.class);
+    }
+
     @Override
     protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
         return DuplicateNameException.partialConnectionInitiationTaskExists(thesaurus, name);
     }
-
 
     @Override
     protected CreateEventType createEventType() {
