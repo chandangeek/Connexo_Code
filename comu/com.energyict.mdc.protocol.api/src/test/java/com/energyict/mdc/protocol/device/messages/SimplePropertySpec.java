@@ -47,6 +47,11 @@ public class SimplePropertySpec<T> implements PropertySpec<T> {
     }
 
     @Override
+    public boolean validateValueIgnoreRequired(T value) throws InvalidValueException {
+        return true;
+    }
+
+    @Override
     public PropertySpecPossibleValues<T> getPossibleValues () {
         return null;
     }
