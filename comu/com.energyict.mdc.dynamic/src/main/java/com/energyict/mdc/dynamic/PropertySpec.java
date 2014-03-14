@@ -61,6 +61,20 @@ public interface PropertySpec<T> {
     public boolean validateValue (T value) throws InvalidValueException;
 
     /**
+     * Validates the specified value against this PropertySpec,
+     * ignoring the "required" aspect of this PropertySpec.
+     * Examples of invalid values are:
+     * <ul>
+     * <li>"a string" for a numerical attribute</li>
+     * </ul>
+     *
+     * @param value The value that needs validation
+     * @return <code>true</code> iff the value is valid, all other cases will throw an InvalidValueException
+     * @throws InvalidValueException Thrown if the value is not valid for this attribute specification.
+     */
+    public boolean validateValueIgnoreRequired (T value) throws InvalidValueException;
+
+    /**
      * Get the {@link PropertySpecPossibleValues possible values}
      * for this PropertySpec or <code>null</code> if no such
      * list can be constructed.

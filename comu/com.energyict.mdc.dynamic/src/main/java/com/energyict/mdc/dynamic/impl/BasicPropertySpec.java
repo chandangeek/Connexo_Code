@@ -79,23 +79,34 @@ public class BasicPropertySpec<T> implements PropertySpec<T>, Serializable {
 
     @Override
     public boolean validateValue (T value) throws InvalidValueException {
-        if (this.required && this.isNull(value)) {
+        return this.validateValue(value, this.required);
+    }
+
+    @Override
+    public boolean validateValueIgnoreRequired(T value) throws InvalidValueException {
+        return this.validateValue(value, false);
+    }
+
+    private boolean validateValue (T value, boolean required) throws InvalidValueException {
+        if (required && this.isNull(value)) {
             throw new ValueRequiredException("XisARequiredAttribute", "\"{0}\" is a required message attribute", this.getName());
         }
         else if (value == null) {
             return true;    // All non required properties support null values
         }
-        else if (this.isReference()) {
-            try {
-                return this.valueFactory.isPersistent(value);
-            }
-            catch (ClassCastException e) {
-                throw new InvalidValueException("XisNotCompatibleWithAttributeY", "The value \"{0}\" is not compatible with the attribute specification {1}.", this.getName(), value);
-            }
-        }
         else {
             if (!this.getValueFactory().getValueType().isAssignableFrom(value.getClass())) {
                 throw new InvalidValueException("XisNotCompatibleWithAttributeY", "The value \"{0}\" is not compatible with the attribute specification {1}.", this.getName(), value);
+            }
+            if (this.isReference()) {
+                try {
+                    return this.valueFactory.isPersistent(value);
+                }
+                catch (ClassCastException e) {
+                    /* Doubtfull that this will happen because we have already type-checked the value
+                     * but hey, I am a defensive programmer. */
+                    throw new InvalidValueException("XisNotCompatibleWithAttributeY", "The value \"{0}\" is not compatible with the attribute specification {1}.", this.getName(), value);
+                }
             }
         }
         return true;
