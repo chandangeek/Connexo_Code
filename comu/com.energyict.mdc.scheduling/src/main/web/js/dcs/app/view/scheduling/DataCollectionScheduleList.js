@@ -1,4 +1,4 @@
-Ext.define('Cfg.view.validation.DataCollectionScheduleList', {
+Ext.define('Dcs.view.scheduling.DataCollectionScheduleList', {
     extend: 'Ext.grid.Panel',
     border: true,
     margins: '0 10 10 10',
@@ -18,7 +18,7 @@ Ext.define('Cfg.view.validation.DataCollectionScheduleList', {
     columns: {
         items: [
             { header: Uni.I18n.translate('scheduling.status', 'DCS', 'Status'), dataIndex: 'status', flex: 0.1, sortable: false, fixed: true},
-            { header: Uni.I18n.translate('general.name', 'CFG', 'Name'), dataIndex: 'name', flex: 0.2, sortable: false, fixed: true},
+            { header: Uni.I18n.translate('general.name', 'DCS', 'Name'), dataIndex: 'name', flex: 0.2, sortable: false, fixed: true},
             { header: Uni.I18n.translate('scheduling.deviceGroup', 'DCS', 'Device group'), dataIndex: 'deviceGroupName', flex: 0.2, align: 'center', sortable: false, fixed: true  },
             { header:Uni.I18n.translate('scheduling.schedule', 'DCS', 'Schedule'), dataIndex: 'schedule', flex: 0.2, align: 'center', sortable: false, fixed: true },
             { header:Uni.I18n.translate('scheduling.schedule', 'DCS', 'Planned date'), dataIndex: 'plannedDate', flex: 0.2, align: 'center', sortable: false, fixed: true },
@@ -27,7 +27,7 @@ Ext.define('Cfg.view.validation.DataCollectionScheduleList', {
                 fixed: true,
                 sortable: false,
                 align: 'center',
-                header: Uni.I18n.translate('validation.actions', 'CFG', 'Actions'),
+                header: Uni.I18n.translate('validation.actions', 'DCS', 'Actions'),
                 flex: 0.1,
                 items: [{
                     icon: 'resources/images/gear-16x16.png',
@@ -35,7 +35,7 @@ Ext.define('Cfg.view.validation.DataCollectionScheduleList', {
                         var menu = Ext.widget('menu', {
                             items: [{
                                 xtype: 'menuitem',
-                                text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
+                                text: Uni.I18n.translate('general.edit', 'DCS', 'Edit'),
                                 listeners: {
                                     click: {
                                         element: 'el',
@@ -51,7 +51,7 @@ Ext.define('Cfg.view.validation.DataCollectionScheduleList', {
                             },
                             {
                                 xtype: 'menuitem',
-                                text: Uni.I18n.translate('general.delete', 'CFG', 'Delete'),
+                                text: Uni.I18n.translate('general.delete', 'DCS', 'Delete'),
                                 listeners: {
                                     click: {
                                         element: 'el',
@@ -87,16 +87,11 @@ Ext.define('Cfg.view.validation.DataCollectionScheduleList', {
                         flex: 1
                     },
                     {
-                        text: Uni.I18n.translate('scheduling.createDataCollectionSchedule', 'DCS', 'Create dta collection schedule'),
+                        text: Uni.I18n.translate('scheduling.createDataCollectionSchedule', 'DCS', 'Create schedule'),
                         itemId: 'newDataCollectionSchedule',
                         xtype: 'button',
                         href: '#administration/validation/createdatacollectionschedule',
                         hrefTarget: '_self'
-                    },
-                    {
-                        text:  Uni.I18n.translate('general.bulkAction', 'CFG', 'Bulk action'),
-                        itemId: 'dataCollectionScheduleBulkAction',
-                        action: 'dataCollectionScheduleBulkAction'
                     }
                 ]
             },

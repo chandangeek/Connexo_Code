@@ -1,5 +1,5 @@
-Ext.define('Cfg.Application', {
-    name: 'Cfg',
+Ext.define('Dcs.Application', {
+    name: 'Dcs',
 
     extend: 'Ext.app.Application',
 
@@ -7,10 +7,10 @@ Ext.define('Cfg.Application', {
     ],
 
     controllers: [
-        'Cfg.controller.Main',
-        'Cfg.controller.Schedule',
-        'Cfg.controller.history.Schedule',
-        'Cfg.controller.Administration'
+        'Dcs.controller.Main',
+        'Dcs.controller.Schedule',
+        'Dcs.controller.history.Schedule',
+        'Dcs.controller.Administration'
     ],
 
     stores: [

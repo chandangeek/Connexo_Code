@@ -34,15 +34,15 @@ import java.util.Properties;
  * Date: 10/02/14
  * Time: 10:15
  */
-@Component(name="com.energyict.cfg.ui",service={InstallService.class},property = {"name=CFG"}, immediate = true)
-public class CfgUiInstaller implements InstallService {
+@Component(name="com.energyict.dcs.ui",service={InstallService.class},property = {"name=DCS"}, immediate = true)
+public class DcsUiInstaller implements InstallService {
 
-    public static String COMPONENTNAME = "CFG";
+    public static String COMPONENTNAME = "DCS";
 
     private volatile Thesaurus thesaurus;
     private volatile Activator activator;
 
-    public CfgUiInstaller() {
+    public DcsUiInstaller() {
     }
 
     @Activate
@@ -68,13 +68,13 @@ public class CfgUiInstaller implements InstallService {
     }
 
     @Inject
-    public CfgUiInstaller(Thesaurus thesaurus) {
+    public DcsUiInstaller(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
     @Reference
     public void setThesaurus(NlsService nlsService){
-        this.thesaurus = nlsService.getThesaurus("CFG", Layer.REST);
+        this.thesaurus = nlsService.getThesaurus("DCS", Layer.REST);
     }
 
     @Override

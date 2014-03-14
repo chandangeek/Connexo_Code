@@ -1,11 +1,11 @@
-Ext.define('Cfg.view.validation.DataCollectionSchedulePreview', {
+Ext.define('Dcs.view.scheduling.DataCollectionSchedulePreview', {
     extend: 'Ext.panel.Panel',
     border: true,
     margins: '0 10 10 10',
     alias: 'widget.dataCollectionSchedulePreview',
     itemId: 'dataCollectionSchedulePreview',
     requires: [
-        'Cfg.model.DataCollectionSchedule'
+        'Dcs.model.DataCollectionSchedule'
     ],
 
     layout: {

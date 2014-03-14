@@ -1,7 +1,7 @@
-Ext.define('Cfg.store.DataCollectionSchedules', {
+Ext.define('Dcs.store.DataCollectionSchedules', {
     extend: 'Ext.data.Store',
     autoLoad: false,
-    model: 'Cfg.model.DataCollectionSchedule',
+    model: 'Dcs.model.DataCollectionSchedule',
 
 
     proxy: {

@@ -1,10 +1,10 @@
-Ext.define('Cfg.controller.Main', {
+Ext.define('Dcs.controller.Main', {
     extend: 'Ext.app.Controller',
     requires: [
         'Uni.controller.Navigation'
     ],
     controllers: [
-        'Cfg.controller.history.Schedule'
+        'Dcs.controller.history.Schedule'
     ],
     config: {
         navigationController: null
@@ -22,8 +22,8 @@ Ext.define('Cfg.controller.Main', {
     init: function () {
         var me=this;
         var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: 'DC Scheduling',
-            href: me.getApplication().getController('Cfg.controller.history.Schedule').tokenizeShowOverview(),
+            text: 'Scheduling',
+            href: me.getApplication().getController('Dcs.controller.history.Schedule').tokenizeShowOverview(),
             glyph: 'xe01e@icomoon'
         });
 
@@ -38,7 +38,7 @@ Ext.define('Cfg.controller.Main', {
     },
 
     initDefaultHistoryToken: function () {
-        var controller = this.getController('Cfg.controller.history.Schedule'),
+        var controller = this.getController('Dcs.controller.history.Schedule'),
             eventBus = this.getController('Uni.controller.history.EventBus'),
             defaultToken = controller.tokenizeShowOverview();
 

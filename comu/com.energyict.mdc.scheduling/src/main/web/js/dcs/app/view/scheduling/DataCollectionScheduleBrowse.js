@@ -1,11 +1,11 @@
-Ext.define('Cfg.view.validation.RuleSetBrowse', {
+Ext.define('Dcs.view.scheduling.DataCollectionScheduleBrowse', {
     extend: 'Uni.view.container.ContentContainer',
     border: false,
-    alias: 'widget.validationrulesetBrowse',
+    alias: 'widget.dataCollectionScheduleBrowse',
     overflowY: 'auto',
     requires: [
-        'Cfg.view.validation.DataCollectionScheduleList',
-        'Cfg.view.validation.DataCollectionSchedulePreview',
+        'Dcs.view.scheduling.DataCollectionScheduleList',
+        'Dcs.view.scheduling.DataCollectionSchedulePreview',
         'Uni.view.breadcrumb.Trail'
     ],
     region: 'center',

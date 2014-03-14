@@ -1,4 +1,4 @@
-Ext.define('Cfg.controller.Administration', {
+Ext.define('Dcs.controller.Administration', {
     extend: 'Ext.app.Controller',
 
     stores: [
@@ -10,8 +10,8 @@ Ext.define('Cfg.controller.Administration', {
 
 
     showOverview: function () {
-        var widget = Ext.create('Cfg.view.admin.Administration');
-        this.getApplication().getController('Cfg.controller.Main').showContent(widget);
+        var widget = Ext.create('Dcs.view.admin.Administration');
+        this.getApplication().getController('Dcs.controller.Main').showContent(widget);
     }
 
 });

@@ -5,7 +5,7 @@
                 * metadata-driven class system features
                 */
             Ext.Loader.addClassPathMappings({
-  "Cfg": "app",
+  "Dcs": "app",
   "Ext": "../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/src",
   "Ext.Msg": "../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/src/window/MessageBox.js",
   "Ext.ux": "../../../../../../com.elster.jupiter.unifyingjs/src/main/web/js/uni/packages",
@@ -25,45 +25,18 @@
   "Uni.view.window.ReadingTypeWizard": "../../../../../../com.elster.jupiter.unifyingjs/src/main/web/js/uni/src/view/window/ReadingTypeWizard.js"
 });
 Ext.ClassManager.addNameAlternateMappings({
-  "Cfg.Application": [],
-  "Cfg.controller.Administration": [],
-  "Cfg.controller.EventType": [],
-  "Cfg.controller.Main": [],
-  "Cfg.controller.Validation": [],
-  "Cfg.controller.history.EventType": [],
-  "Cfg.controller.history.Validation": [],
-  "Cfg.model.EventType": [],
-  "Cfg.model.ReadingType": [],
-  "Cfg.model.ValidationAction": [],
-  "Cfg.model.ValidationPropertySpec": [],
-  "Cfg.model.ValidationRule": [],
-  "Cfg.model.ValidationRuleProperty": [],
-  "Cfg.model.ValidationRuleSet": [],
-  "Cfg.model.Validator": [],
-  "Cfg.store.EventTypes": [],
-  "Cfg.store.ReadingTypes": [],
-  "Cfg.store.ReadingTypesForRule": [],
-  "Cfg.store.ValidationActions": [],
-  "Cfg.store.ValidationPropertySpecs": [],
-  "Cfg.store.ValidationPropertySpecsForRule": [],
-  "Cfg.store.ValidationRuleProperties": [],
-  "Cfg.store.ValidationRuleSets": [],
-  "Cfg.store.ValidationRules": [],
-  "Cfg.store.Validators": [],
-  "Cfg.view.Viewport": [],
-  "Cfg.view.admin.Administration": [],
-  "Cfg.view.eventtype.Browse": [],
-  "Cfg.view.eventtype.List": [],
-  "Cfg.view.validation.AddRule": [],
-  "Cfg.view.validation.CreateRuleSet": [],
-  "Cfg.view.validation.RuleBrowse": [],
-  "Cfg.view.validation.RuleList": [],
-  "Cfg.view.validation.RulePreview": [],
-  "Cfg.view.validation.RuleSetBrowse": [],
-  "Cfg.view.validation.RuleSetList": [],
-  "Cfg.view.validation.RuleSetOverview": [],
-  "Cfg.view.validation.RuleSetPreview": [],
-  "Cfg.view.validation.RulesContainer": [],
+  "Dcs.Application": [],
+  "Dcs.controller.Administration": [],
+  "Dcs.controller.Main": [],
+  "Dcs.controller.Schedule": [],
+  "Dcs.controller.history.Schedule": [],
+  "Dcs.model.DataCollectionSchedule": [],
+  "Dcs.store.DataCollectionSchedules": [],
+  "Dcs.view.Viewport": [],
+  "Dcs.view.admin.Administration": [],
+  "Dcs.view.validation.DataCollectionScheduleBrowse": [],
+  "Dcs.view.validation.DataCollectionScheduleList": [],
+  "Dcs.view.validation.DataCollectionSchedulePreview": [],
   "Ext.AbstractComponent": [],
   "Ext.AbstractManager": [],
   "Ext.AbstractPlugin": [],
@@ -903,71 +876,26 @@ Ext.ClassManager.addNameAlternateMappings({
   "Uni.view.window.Wizard": []
 });
 Ext.ClassManager.addNameAliasMappings({
-  "Cfg.Application": [],
-  "Cfg.controller.Administration": [],
-  "Cfg.controller.EventType": [],
-  "Cfg.controller.Main": [],
-  "Cfg.controller.Validation": [],
-  "Cfg.controller.history.Administration": [],
-  "Cfg.controller.history.EventType": [],
-  "Cfg.controller.history.Validation": [],
-  "Cfg.model.EventType": [],
-  "Cfg.model.ReadingType": [],
-  "Cfg.model.ValidationAction": [],
-  "Cfg.model.ValidationPropertySpec": [],
-  "Cfg.model.ValidationRule": [],
-  "Cfg.model.ValidationRuleProperty": [],
-  "Cfg.model.ValidationRuleSet": [],
-  "Cfg.model.Validator": [],
-  "Cfg.store.EventTypes": [],
-  "Cfg.store.ReadingTypes": [],
-  "Cfg.store.ReadingTypesForRule": [],
-  "Cfg.store.ValidationActions": [],
-  "Cfg.store.ValidationPropertySpecs": [],
-  "Cfg.store.ValidationPropertySpecsForRule": [],
-  "Cfg.store.ValidationRuleProperties": [],
-  "Cfg.store.ValidationRuleSets": [],
-  "Cfg.store.ValidationRules": [],
-  "Cfg.store.Validators": [],
-  "Cfg.view.Viewport": [],
-  "Cfg.view.admin.Administration": [
+  "Dcs.Application": [],
+  "Dcs.controller.Administration": [],
+  "Dcs.controller.Main": [],
+  "Dcs.controller.Schedule": [],
+  "Dcs.controller.history.Administration": [],
+  "Dcs.controller.history.Schedule": [],
+  "Dcs.model.DataCollectionSchedule": [],
+  "Dcs.store.DataCollectionSchedules": [],
+  "Dcs.view.Viewport": [],
+  "Dcs.view.admin.Administration": [
     "widget.administration"
   ],
-  "Cfg.view.eventtype.Browse": [
-    "widget.eventtypeBrowse"
+  "Dcs.view.scheduling.DataCollectionScheduleBrowse": [
+    "widget.dataCollectionScheduleBrowse"
   ],
-  "Cfg.view.eventtype.List": [
-    "widget.eventtypeList"
+  "Dcs.view.validation.DataCollectionScheduleList": [
+    "widget.dataCollectionScheduleList"
   ],
-  "Cfg.view.validation.AddRule": [
-    "widget.addRule"
-  ],
-  "Cfg.view.validation.CreateRuleSet": [
-    "widget.createRuleSet"
-  ],
-  "Cfg.view.validation.RuleBrowse": [
-    "widget.validationruleBrowse"
-  ],
-  "Cfg.view.validation.RuleList": [
-    "widget.validationruleList"
-  ],
-  "Cfg.view.validation.RulePreview": [
-    "widget.rulePreview"
-  ],
-  "Cfg.view.validation.RuleSetBrowse": [
-    "widget.validationrulesetBrowse"
-  ],
-  "Cfg.view.validation.RuleSetList": [
-    "widget.validationrulesetList"
-  ],
-  "Cfg.view.validation.RuleSetOverview": [
-    "widget.ruleSetOverview"
-  ],
-  "Cfg.view.validation.RuleSetPreview": [
-    "widget.ruleSetPreview"
-  ],
-  "Cfg.view.validation.RulesContainer": [
-    "widget.rulesContainer"
+  "Dcs.view.validation.DataCollectionSchedulePreview": [
+    "widget.dataCollectionSchedulePreview"
   ],
   "Ext.AbstractComponent": [],
   "Ext.AbstractManager": [],

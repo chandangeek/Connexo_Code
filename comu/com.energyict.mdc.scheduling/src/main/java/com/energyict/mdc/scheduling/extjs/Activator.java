@@ -15,8 +15,8 @@ public class Activator implements BundleActivator {
 
     public void start(BundleContext bundleContext) throws Exception {
         String alias = "/dcs";
-        DefaultStartPage dcs = new DefaultStartPage("Dcs", "", "/index.html", "Cfg.controller.Main",null, Arrays.asList("DCS"));
-        HttpResource resource = new HttpResource(alias, "C:/jupiterrepo/com.elster.jupiter.config.extjs/src/main/web/js/dcs" , new FileResolver(), dcs);
+        DefaultStartPage dcs = new DefaultStartPage("Dcs", "", "/index.html", "Dcs.controller.Main",null, Arrays.asList("DCS"));
+        HttpResource resource = new HttpResource(alias, "C:/jupiterrepo/com.energyict.mdc.scheduling.extjs/src/main/web/js/dcs" , new FileResolver(), dcs);
         registration = bundleContext.registerService(HttpResource.class, resource , null);
     }
 

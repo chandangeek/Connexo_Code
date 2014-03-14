@@ -1,4 +1,4 @@
-Ext.define('Cfg.model.DataCollectionSchedule', {
+Ext.define('Dcs.model.DataCollectionSchedule', {
     extend: 'Ext.data.Model',
     fields: [
         'id',

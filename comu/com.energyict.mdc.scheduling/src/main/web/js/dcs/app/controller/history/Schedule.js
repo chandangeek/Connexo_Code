@@ -1,4 +1,4 @@
-Ext.define('Cfg.controller.history.Schedule', {
+Ext.define('Dcs.controller.history.Schedule', {
     extend: 'Uni.controller.history.Converter',
 
     rootToken: 'administration',
@@ -25,11 +25,11 @@ Ext.define('Cfg.controller.history.Schedule', {
     },
 
     unknownTokensReturnToOverview: function () {
-        this.getApplication().getController('Cfg.controller.Administration').showOverview();
+        this.getApplication().getController('Dcs.controller.Administration').showOverview();
     },
 
     showDataCollectionSchedules: function () {
-        this.getApplication().getController('Cfg.controller.Schedule').showDataCollectionSchedules();
+        this.getApplication().getController('Dcs.controller.Schedule').showDataCollectionSchedules();
     }
 
 

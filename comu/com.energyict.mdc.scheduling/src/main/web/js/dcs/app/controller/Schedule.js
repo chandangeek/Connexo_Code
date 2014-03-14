@@ -1,4 +1,4 @@
-Ext.define('Cfg.controller.Schedule', {
+Ext.define('Dcs.controller.Schedule', {
     extend: 'Ext.app.Controller',
 
     stores: [
@@ -15,7 +15,7 @@ Ext.define('Cfg.controller.Schedule', {
     ],
 
     views: [
-        'validation.DataCollectionScheduleBrowse'
+        'scheduling.DataCollectionScheduleBrowse'
     ],
 
     refs: [
@@ -25,19 +25,24 @@ Ext.define('Cfg.controller.Schedule', {
     init: function () {
         this.initMenu();
 
-        this.control({
+        this.control(
+            /*{
             '#dataCollectionScheduleList': {
                 selectionchange: this.previewDataCollectionSchedules
             }
 
-        });
+        }*/);
+    },
+
+    initMenu: function () {
+
     },
 
 
     showDataCollectionSchedules: function () {
         this.initMenu();
         var widget = Ext.widget('dataCollectionScheduleBrowse');
-        this.getApplication().getController('Cfg.controller.Main').showContent(widget);
+        this.getApplication().getController('Dcs.controller.Main').showContent(widget);
         this.createRuleSetsBreadCrumbs();
     },
 

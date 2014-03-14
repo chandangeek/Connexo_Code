@@ -1,4 +1,4 @@
-Ext.define('Cfg.view.admin.Administration', {
+Ext.define('Dcs.view.admin.Administration', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.administration',
     itemId: 'administration',

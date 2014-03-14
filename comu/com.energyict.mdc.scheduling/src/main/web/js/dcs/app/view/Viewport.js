@@ -1,4 +1,4 @@
-Ext.define('Cfg.view.Viewport', {
+Ext.define('Dcs.view.Viewport', {
     extend: 'Uni.view.Viewport'
 
 });
