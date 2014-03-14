@@ -22,7 +22,7 @@ Ext.define('Isu.view.workspace.issues.List', {
             {
                 header: 'Title',
                 xtype: 'templatecolumn',
-                tpl: '{reason}<tpl if="device"> to {device.name} {device.serialNumber}</tpl>',
+                tpl: '<a href="#/workspace/datacollection/issues/{id}">{reason}<tpl if="device"> to {device.name} {device.serialNumber}</tpl></a>',
                 flex: 2
             },
             {

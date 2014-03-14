@@ -39,7 +39,7 @@ Ext.define('Isu.controller.IssueFilter', {
     },
 
     onLaunch: function () {
-        this.getIssueFilter().down('filter-form').loadRecord(new Isu.model.IssueFilter());
+        this.getIssueFilter() && this.getIssueFilter().down('filter-form').loadRecord(new Isu.model.IssueFilter());
     },
 
     reset: function() {
