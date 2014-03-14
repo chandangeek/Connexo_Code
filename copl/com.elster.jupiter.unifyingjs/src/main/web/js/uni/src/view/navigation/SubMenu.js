@@ -39,7 +39,6 @@
  *
  *               var button2 = menu.add({
  *                   text: '...',
- *                   pressed: false,
  *                   href: '...',
  *                   ...
  *               });
