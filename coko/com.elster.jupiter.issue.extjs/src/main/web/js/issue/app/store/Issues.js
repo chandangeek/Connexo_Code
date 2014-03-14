@@ -51,12 +51,16 @@ Ext.define('Isu.store.Issues', {
 
     listeners: {
         "beforeLoad": function() {
-            var extraParams = {};
+            var extraParams = this.proxy.extraParams;
 
+            // replace filter extra params with new ones
             if (this.proxyFilter) {
-                Ext.merge(extraParams, this.proxyFilter.getPlainData());
+                var data = this.proxyFilter.getPlainData();
+                extraParams = _.omit(extraParams, this.proxyFilter.getFields());
+                Ext.merge(extraParams, data);
             }
-            Ext.merge(this.proxy.extraParams, extraParams);
+
+            this.proxy.extraParams = extraParams;
         }
     }
 });

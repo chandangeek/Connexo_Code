@@ -6,7 +6,7 @@ Ext.define('Isu.controller.Issues', {
     ],
 
     stores: [
-        'Isu.store.Issues',
+        'Issues',
         'Isu.store.IssuesGroups',
         'Isu.store.Assignee'
     ],
@@ -109,7 +109,7 @@ Ext.define('Isu.controller.Issues', {
         });
 
         this.groupStore = this.getStore('Isu.store.IssuesGroups');
-        this.store = this.getStore('Isu.store.Issues');
+        this.store = this.getStore('Issues');
         this.groupParams = {};
         this.sortParams = {};
         this.actionMenuXtype = 'issue-action-menu';
@@ -155,7 +155,7 @@ Ext.define('Isu.controller.Issues', {
     },
 
     removeFilter: function(elm) {
-        this.getStore('Issues').removeProxyFilter(elm.target, elm.targetId);
+        this.store.removeProxyFilter(elm.target, elm.targetId);
     },
 
     showOverview: function () {
