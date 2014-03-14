@@ -5,8 +5,9 @@
  *
  * Styling will also be applied automatically to anything that is in the component.
  *
- * How and where content is show after clicking a button in the submenu is not fixed.
+ * How and where content is shown after clicking a button in the submenu is free to choose.
  * Switching between panels can easily be done using a card layout.
+ * Toggling is done automatically: when the url changes, the button with the current href is selected.
  *
  *
  * # Example usage
@@ -39,7 +40,6 @@
  *               var button2 = menu.add({
  *                   text: '...',
  *                   pressed: false,
- *                   itemId: 'rulesLink',
  *                   href: '...',
  *                   ...
  *               });
@@ -50,10 +50,6 @@
  *               }
  *
  *
- *  Toggling: make item "i" active
- *
- *      ... .getLayout().setActiveItem(i); // set active item card layout
- *      menu.toggleMenuItem(i);
  */
 Ext.define('Uni.view.navigation.SubMenu', {
     extend: 'Ext.container.Container',
@@ -83,12 +79,25 @@ Ext.define('Uni.view.navigation.SubMenu', {
 
     initComponent: function () {
         this.defaults.toggleGroup = 'submenu-' + this.getId();
-
+        var me = this;
+        Ext.util.History.addListener('change', function (token) {
+            me.checkNavigation(token);
+        });
         this.callParent(this);
     },
 
     toggleMenuItem: function (index) {
         this.items.items[index].toggle(true);
+    },
+
+    checkNavigation: function(token) {
+        for (var i = 0; i < this.items.items.length; i++) {
+            var item = this.items.items[i];
+            if ((item.getHref() != null) && (Ext.String.endsWith(item.getHref(), token))) {
+                this.toggleMenuItem(i);
+                break;
+            }
+        }
     }
 
 });
