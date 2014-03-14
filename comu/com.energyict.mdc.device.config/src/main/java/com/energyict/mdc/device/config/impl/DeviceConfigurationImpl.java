@@ -158,6 +158,16 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
+    public boolean canActAsGateway() {
+        return hasCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
+    }
+
+    @Override
+    public boolean canBeDirectlyAddressable() {
+        return hasCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);
+    }
+
+    @Override
     public void addCommunicationFunction(DeviceCommunicationFunction function) {
         this.getCommunicationFunctions();   // Load the current set
         this.deviceCommunicationFunctions.add(function);

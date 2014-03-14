@@ -292,8 +292,8 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
         deviceConfiguration.save();
 
         DeviceConfiguration refreshedDeviceConfiguration = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId());
-        assertThat(refreshedDeviceConfiguration.hasCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION)).isTrue();
-        assertThat(refreshedDeviceConfiguration.hasCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_MASTER)).isFalse();
+        assertThat(refreshedDeviceConfiguration.canBeDirectlyAddressable()).isTrue();
+        assertThat(refreshedDeviceConfiguration.canActAsGateway()).isFalse();
     }
 
     @Test
@@ -301,12 +301,12 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
     public void testSetDeviceConfigGateway() throws Exception {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("gateway").add();
-        deviceConfiguration.addCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_MASTER);
+        deviceConfiguration.addCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
         deviceConfiguration.save();
 
         DeviceConfiguration refreshedDeviceConfiguration = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId());
-        assertThat(refreshedDeviceConfiguration.hasCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION)).isFalse();
-        assertThat(refreshedDeviceConfiguration.hasCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_MASTER)).isTrue();
+        assertThat(refreshedDeviceConfiguration.canBeDirectlyAddressable()).isFalse();
+        assertThat(refreshedDeviceConfiguration.canActAsGateway()).isTrue();
     }
 
     @Test
