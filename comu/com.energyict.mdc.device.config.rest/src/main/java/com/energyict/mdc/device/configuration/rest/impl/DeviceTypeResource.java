@@ -47,13 +47,9 @@ public class DeviceTypeResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getAllDeviceTypes(@BeanParam QueryParameters queryParameters) {
-        List<DeviceTypeInfo> deviceTypeInfos = new ArrayList<>();
         Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.findAllDeviceTypes();
         List<DeviceType> allDeviceTypes = deviceTypeFinder.from(queryParameters).find();
-        for (DeviceType deviceType : allDeviceTypes) {
-            deviceTypeInfos.add(new DeviceTypeInfo(deviceType));
-        }
-
+        List<DeviceTypeInfo> deviceTypeInfos = DeviceTypeInfo.from(allDeviceTypes);
         return PagedInfoList.asJson("deviceTypes", deviceTypeInfos, queryParameters);
     }
 
@@ -73,7 +69,7 @@ public class DeviceTypeResource {
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
         DeviceType deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name, deviceTypeInfo.deviceProtocolInfo.name);
         deviceType.save();
-        return new DeviceTypeInfo(deviceType);
+        return DeviceTypeInfo.from(deviceType);
     }
 
     @PUT
@@ -89,7 +85,7 @@ public class DeviceTypeResource {
         }
         try {
             deviceType.save();
-            return new DeviceTypeInfo(deviceType);
+            return DeviceTypeInfo.from(deviceType);
         } catch (Exception e) {
             throw new WebApplicationException("failed to update device type " + deviceTypeInfo.id, e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build());
         }
@@ -100,7 +96,7 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceTypeInfo findDeviceType(@PathParam("id") long id) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        return new DeviceTypeInfo(deviceType, deviceType.getRegisterMappings());
+        return DeviceTypeInfo.from(deviceType, deviceType.getRegisterMappings());
     }
 
     @GET
@@ -110,7 +106,7 @@ public class DeviceTypeResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<LoadProfileTypeInfo> loadProfileTypeInfos = new ArrayList<>();
         for (LoadProfileType loadProfileType : deviceType.getLoadProfileTypes()) {
-            loadProfileTypeInfos.add(new LoadProfileTypeInfo(loadProfileType));
+            loadProfileTypeInfos.add(LoadProfileTypeInfo.from(loadProfileType));
         }
         return loadProfileTypeInfos;
     }
@@ -131,7 +127,6 @@ public class DeviceTypeResource {
     public DeviceConfigurationResource getDeviceConfigurationResource() {
         return deviceConfigurationResourceProvider.get();
     }
-
 
     @GET
     @Path("/{id}/registertypes")

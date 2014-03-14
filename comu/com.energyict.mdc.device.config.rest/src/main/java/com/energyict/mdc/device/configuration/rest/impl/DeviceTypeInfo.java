@@ -5,12 +5,11 @@ import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonUnwrapped;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonUnwrapped;
 
 @XmlRootElement
 public class DeviceTypeInfo {
@@ -38,33 +37,44 @@ public class DeviceTypeInfo {
     public DeviceTypeInfo() {
     }
 
-    public DeviceTypeInfo(DeviceType deviceType) {
-        this.id=deviceType.getId();
-        this.name=deviceType.getName();
-        this.loadProfileCount = deviceType.getLoadProfileTypes().size();
-        this.registerCount=deviceType.getRegisterMappings().size();
-        this.logBookCount=deviceType.getLogBookTypes().size();
-        this.deviceConfigurationCount=deviceType.getConfigurations().size();
+    public static DeviceTypeInfo from(DeviceType deviceType, List<RegisterMapping> registerMappings) {
+        DeviceTypeInfo deviceTypeInfo = from(deviceType);
+        deviceTypeInfo.registerMappings = new ArrayList<>();
+        for (RegisterMapping registerMapping : registerMappings) {
+            deviceTypeInfo.registerMappings.add(new RegisterMappingInfo(registerMapping));
+        }
+        return deviceTypeInfo;
+    }
+    
+    public static DeviceTypeInfo from(DeviceType deviceType) {
+        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
+        deviceTypeInfo.id=deviceType.getId();
+        deviceTypeInfo.name=deviceType.getName();
+        deviceTypeInfo.loadProfileCount = deviceType.getLoadProfileTypes().size();
+        deviceTypeInfo.registerCount=deviceType.getRegisterMappings().size();
+        deviceTypeInfo.logBookCount=deviceType.getLogBookTypes().size();
+        deviceTypeInfo.deviceConfigurationCount=deviceType.getConfigurations().size();
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceType.getDeviceProtocolPluggableClass();
         if (deviceProtocolPluggableClass!=null) {
-            this.deviceProtocolInfo=new DeviceProtocolInfo(deviceProtocolPluggableClass);
+            deviceTypeInfo.deviceProtocolInfo=new DeviceProtocolInfo(deviceProtocolPluggableClass);
             DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
             if (deviceProtocol!=null) {
                 List<DeviceProtocolCapabilities> deviceProtocolCapabilities = deviceProtocol.getDeviceProtocolCapabilities();
                 if (deviceProtocolCapabilities!=null) {
-                    this.canBeGateway= deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_MASTER);
-                    this.canBeDirectlyAddressed = deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SESSION);
+                    deviceTypeInfo.canBeGateway= deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_MASTER);
+                    deviceTypeInfo.canBeDirectlyAddressed = deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SESSION);
                 }
             }
         }
+        return deviceTypeInfo;
     }
 
-    public DeviceTypeInfo(DeviceType deviceType, List<RegisterMapping> registerMappings) {
-        this(deviceType);
-        this.registerMappings = new ArrayList<>();
-        for (RegisterMapping registerMapping : registerMappings) {
-            this.registerMappings.add(new RegisterMappingInfo(registerMapping));
+    public static List<DeviceTypeInfo> from(List<DeviceType> deviceTypes) {
+        List<DeviceTypeInfo> deviceTypeInfos = new ArrayList<>();
+        for (DeviceType deviceType : deviceTypes) {
+            deviceTypeInfos.add(DeviceTypeInfo.from(deviceType));
         }
+        return deviceTypeInfos;
     }
 
 }
