@@ -138,26 +138,36 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             method: 'PUT',
             jsonData: requestData,
             success: function (response) {
-                var obj = Ext.decode(response.responseText),
+                var obj = Ext.decode(response.responseText).data,
                     successCount = obj.success.length,
-                    failedCount = obj.failure.length,
-                    successMessage, failedMessage;
+                    failedCount = 0,
+                    successMessage,
+                    failedMessage,
+                    failList = '';
+
+                Ext.each (obj.failure, function (fails) {
+                    failList += '<h4>' + fails.reason +':</h4><br>';
+                    Ext.each (fails.issues, function(issue){
+                        failedCount += 1;
+                        failList += issue.title + '<br>';
+                    });
+                });
 
                 switch (operation) {
                     case 'assign':
                         if (successCount > 0) {
-                            successMessage = 'Successfully assigned ' + successCount + ' issue(s) to ' + record.get('assignee').title;
+                            successMessage = '<h3>Successfully assigned ' + successCount + ' issue(s) to ' + record.get('assignee').title + '</h3><br>';
                         }
                         if (failedCount > 0) {
-                            failedMessage = 'Failed to assign ' + failedCount + 'issue(s)'
+                            failedMessage = '<h3>Failed to assign ' + failedCount + 'issue(s)</h3><br>'
                         }
                         break;
                     case 'close':
                         if (successCount > 0) {
-                            successMessage = 'Successfully closed ' + successCount + ' issue(s)';
+                            successMessage = '<h3>Successfully closed ' + successCount + ' issue(s)</h3><br>';
                         }
                         if (failedCount > 0) {
-                            failedMessage = 'Failed to close ' + failedCount + 'issue(s)'
+                            failedMessage = '<h3>Failed to close ' + failedCount + ' issue(s)</h3><br>' + failList;
                         }
                         break;
                 }
@@ -168,15 +178,17 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     var successMsgParams = {
                         type: 'success',
                         msgBody: [
-                            {text: successMessage}
-                        ],
-                        btns: [
-                            {text: "OK", hnd: function () {
-                                Ext.History.back();
-                            }}
+                            {html: successMessage}
                         ],
                         closeBtn: false
                     };
+                    if (failedCount == 0) {
+                        successMsgParams.btns = [
+                            {text: "OK", hnd: function () {
+                                Ext.History.back();
+                            }}
+                        ];
+                    }
                     step5panel.add(Ext.widget('message-panel', successMsgParams));
                 }
 
@@ -184,7 +196,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     var failedMessageParams = {
                         type: 'error',
                         msgBody: [
-                            {text: failedMessage}
+                            {html: failedMessage}
                         ],
                         btns: [
                             {text: "Retry", hnd: function () {
