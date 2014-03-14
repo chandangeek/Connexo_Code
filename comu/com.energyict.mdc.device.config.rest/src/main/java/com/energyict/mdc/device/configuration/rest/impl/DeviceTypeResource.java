@@ -7,8 +7,6 @@ import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.ListFinder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -104,11 +102,7 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<LoadProfileTypeInfo> getLoadProfilesForDeviceType(@PathParam("id") long id) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        List<LoadProfileTypeInfo> loadProfileTypeInfos = new ArrayList<>();
-        for (LoadProfileType loadProfileType : deviceType.getLoadProfileTypes()) {
-            loadProfileTypeInfos.add(LoadProfileTypeInfo.from(loadProfileType));
-        }
-        return loadProfileTypeInfos;
+        return LoadProfileTypeInfo.from(deviceType.getLoadProfileTypes());
     }
 
     @GET
@@ -117,10 +111,7 @@ public class DeviceTypeResource {
     public List<LogBookTypeInfo> getLogBookTypesForDeviceType(@PathParam("id") long id) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<LogBookTypeInfo> logBookTypeInfos = new ArrayList<>();
-        for (LogBookType logBookType : ListFinder.of(deviceType.getLogBookTypes(), new LogBookTypeComparator()).find()) {
-            logBookTypeInfos.add(new LogBookTypeInfo(logBookType));
-        }
-        return logBookTypeInfos;
+        return LogBookTypeInfo.from(ListFinder.of(deviceType.getLogBookTypes(), new LogBookTypeComparator()).find());
     }
 
     @Path("/{deviceTypeId}/deviceconfigurations")
