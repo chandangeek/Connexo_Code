@@ -94,8 +94,8 @@ Ext.define('Isu.controller.AssignIssues', {
                     autoAbort: true,
                     success: function (resp) {
                         var response = Ext.JSON.decode(resp.responseText),
-                            successArr = response.success,
-                            failureArr = response.failure,
+                            successArr = response.data.success,
+                            failureArr = response.data.failure,
                             activeCombo = assignPanel.down('issues-assign-form combobox[allowBlank=false]'),
                             msges = [];
                         if (failureArr.length > 0) {
@@ -103,7 +103,7 @@ Ext.define('Isu.controller.AssignIssues', {
                                 Ext.Array.each(item.issues, function (issue) {
                                     var header = {},
                                         bodyItem = {};
-                                    header.text = 'Failed to assign issue ' + assignPanel.recordTitle + ' to ' + activeCombo.rawValue;
+                                    header.text = 'Failed to assign issue ' + assignPanel.record.data.reason + (assignPanel.record.data.device ? ' to ' + assignPanel.record.data.device.name + ' ' + assignPanel.record.data.device.serialNumber : '') + ' to ' + activeCombo.rawValue;
                                     header.style = 'msgHeaderStyle';
                                     msges.push(header);
                                     bodyItem.text = item.reason;
