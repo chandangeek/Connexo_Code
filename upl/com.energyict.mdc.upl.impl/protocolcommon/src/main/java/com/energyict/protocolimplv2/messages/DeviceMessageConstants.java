@@ -86,10 +86,10 @@ public class DeviceMessageConstants {
     public static final String DisplayMessageActivationDate = "DisplayMessage.activationdate";
 
     public static final String threshold = "Threshold"; //Can be reused
-    public static final String beginDatesAttributeName = "Begin dates";
-    public static final String endDatesAttributeName = "End dates";
-    public static final String offOffsetsAttributeName = "Off offsets";
-    public static final String onOffsetsAttributeName = "On offsets";
+    public static final String beginDatesAttributeName = "BeginDates";
+    public static final String endDatesAttributeName = "EndDates";
+    public static final String offOffsetsAttributeName = "OffOffsets";
+    public static final String onOffsetsAttributeName = "OnOffsets";
 
     public static final String DemandCloseToContractPowerThresholdAttributeName = "LoadBalanceDeviceMessage.demandclosetocontractpowerthreshold";
     public static final String readFrequencyInMinutesAttributeName = "LoadBalanceDeviceMessage.parameters.readfrequencyinminutes";
