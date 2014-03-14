@@ -1,18 +1,19 @@
 Ext.define('Cfg.view.validation.RuleSetBrowse', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.container.ContentContainer',
     border: false,
     alias: 'widget.validationrulesetBrowse',
-    cls: 'content-container',
+    //cls: 'content-container',
     overflowY: 'auto',
     requires: [
         'Cfg.view.validation.RuleSetList',
+        'Cfg.view.validation.RuleSetBrowseFilter',
         'Cfg.view.validation.RuleSetPreview',
         'Uni.view.breadcrumb.Trail'
     ],
     region: 'center',
 
 
-    items: [
+    content: [
         {
             xtype: 'container',
             cls: 'content-container',
@@ -22,12 +23,6 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
                 align: 'stretch'
             },
             items: [
-                {
-                    xtype: 'breadcrumbTrail',
-                    region: 'north',
-                    padding: 6
-                },
-
                 {
                     xtype: 'component',
                     html: '<h1>' +  Uni.I18n.translate('validation.validationRuleSets', 'CFG', 'Validation rule sets') +'</h1>',
@@ -46,6 +41,13 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
             ]
         }
     ],
+
+    /*side: [
+        {
+            xtype: 'rulesetbrowsefilter'
+        }
+    ],  */
+
 
 
     initComponent: function () {
