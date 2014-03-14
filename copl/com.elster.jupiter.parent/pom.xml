@@ -377,7 +377,10 @@
             </build>
         </profile>
         <profile>
-            <id>copy</id>
+            <id>sencha-build</id>
+        </profile>
+        <profile>
+        <id>copy</id>
             <build>
                 <plugins>
                     <plugin>
@@ -434,6 +437,7 @@
                                     </artifactItems>
                                     <includeScope>runtime</includeScope>
                                     <excludeGroupIds>xmlpull,net.sf.kxml,javax.annotation,org.easymock</excludeGroupIds>
+                                    <outputDirectory>${felix.load.folder}</outputDirectory>
                                 </configuration>
                             </execution>
                         </executions>
