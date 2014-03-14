@@ -31,7 +31,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'deviceConfigurationDetailLogBookLink', selector: '#deviceConfigurationDetailLogBooksLink'},
         {ref: 'deviceConfigurationDetailLoadProfilesLink', selector: '#deviceConfigurationDetailLoadProfilesLink'},
         {ref: 'deviceConfigurationDetailForm', selector: '#deviceConfigurationDetailForm'},
-        {ref: 'deviceConfigurationEditForm', selector: '#deviceConfigurationEditForm'}
+        {ref: 'deviceConfigurationEditForm', selector: '#deviceConfigurationEditForm'},
+        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
     ],
 
     init: function () {
@@ -76,7 +77,13 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         this.deviceTypeId = id;
         this.getDeviceConfigurationsStore().getProxy().setExtraParam('deviceType', id);
         var widget = Ext.widget('deviceConfigurationsSetup', {deviceTypeId: id});
-        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id,{
+            success: function(deviceType){
+                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                me.overviewBreadCrumb(id,deviceType.get('name'));
+            }
+        });
+
     },
 
     previewDeviceConfiguration: function (grid, record) {
@@ -106,17 +113,20 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         deviceConfigModel.getProxy().setExtraParam('deviceType', devicetype);
         deviceConfigModel.load(deviceconfiguration, {
             success: function (deviceConfiguration) {
-                var deviceConfigurationId = deviceConfiguration.get('id');
-//                me.detailBreadCrumb(deviceType.get('name'), deviceTypeId);
-//                debugger;
-                me.getDeviceConfigurationDetailRegisterLink().getEl().set({href: '#/setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations' + deviceConfigurationId +'/registertypes'});
-                me.getDeviceConfigurationDetailRegisterLink().getEl().setHTML(deviceConfiguration.get('registerCount') + ' ' + Uni.I18n.translate('devicetype.registers', 'MDC', 'register types'));
-                me.getDeviceConfigurationDetailLogBookLink().getEl().set({href: '#/setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations' + deviceConfigurationId + '/logbooks'});
-                me.getDeviceConfigurationDetailLogBookLink().getEl().setHTML(deviceConfiguration.get('logBookCount') + ' ' + Uni.I18n.translate('devicetype.logbooks', 'MDC', 'logbook types'));
-                me.getDeviceConfigurationDetailLoadProfilesLink().getEl().set({href: '#/setup/devicetypes/' + me.deviceTypeId +  '/deviceconfigurations' + deviceConfigurationId + '/loadprofiles'});
-                me.getDeviceConfigurationDetailLoadProfilesLink().getEl().setHTML(deviceConfiguration.get('loadProfileCount') + ' ' + Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'load profile types'));
-                me.getDeviceConfigurationPreviewTitle().update('<h1>' + deviceConfiguration.get('name') + ' - ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
-                widget.down('form').loadRecord(deviceConfiguration);
+                Ext.ModelManager.getModel('Mdc.model.DeviceType').load(devicetype,{
+                    success: function(deviceType){
+                        var deviceConfigurationId = deviceConfiguration.get('id');
+                        me.detailBreadCrumb(devicetype,deviceType.get('name'),deviceConfigurationId,deviceConfiguration.get('name'));
+                        me.getDeviceConfigurationDetailRegisterLink().getEl().set({href: '#/setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations' + deviceConfigurationId +'/registertypes'});
+                        me.getDeviceConfigurationDetailRegisterLink().getEl().setHTML(deviceConfiguration.get('registerCount') + ' ' + Uni.I18n.translate('devicetype.registers', 'MDC', 'register types'));
+                        me.getDeviceConfigurationDetailLogBookLink().getEl().set({href: '#/setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations' + deviceConfigurationId + '/logbooks'});
+                        me.getDeviceConfigurationDetailLogBookLink().getEl().setHTML(deviceConfiguration.get('logBookCount') + ' ' + Uni.I18n.translate('devicetype.logbooks', 'MDC', 'logbook types'));
+                        me.getDeviceConfigurationDetailLoadProfilesLink().getEl().set({href: '#/setup/devicetypes/' + me.deviceTypeId +  '/deviceconfigurations' + deviceConfigurationId + '/loadprofiles'});
+                        me.getDeviceConfigurationDetailLoadProfilesLink().getEl().setHTML(deviceConfiguration.get('loadProfileCount') + ' ' + Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'load profile types'));
+                        me.getDeviceConfigurationPreviewTitle().update('<h1>' + deviceConfiguration.get('name') + ' - ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
+                        widget.down('form').loadRecord(deviceConfiguration);
+                    }
+                });
             }
         });
         me.getApplication().getController('Mdc.controller.Main').showContent(widget);
@@ -158,14 +168,20 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     showDeviceConfigurationCreateView: function(deviceTypeId){
+        var me=this;
         this.deviceTypeId=deviceTypeId;
         var widget = Ext.widget('deviceConfigurationEdit', {
             edit: false,
             returnLink: '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations'
         });
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
-        widget.down('#deviceConfigurationEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device configuration'+'</H2>');
 
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId,{
+            success: function(deviceType){
+                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                widget.down('#deviceConfigurationEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device configuration'+'</H2>');
+                me.createBreadCrumb(deviceTypeId,deviceType.get('name'));
+            }
+        });
     },
 
     showDeviceConfigurationEditView: function(deviceTypeId,deviceConfigurationId){
@@ -182,10 +198,15 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         model.getProxy().setExtraParam('deviceType', this.deviceTypeId);
         model.load(deviceConfigurationId, {
             success: function (deviceConfiguration) {
-//                me.editBreadCrumb(deviceType.get('name'), deviceTypeId)
+                Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId,{
+                    success: function(deviceType){
+                        me.editBreadCrumb(deviceTypeId, deviceType.get('name'), deviceConfigurationId, deviceConfiguration.get('name'));
                         widget.down('form').loadRecord(deviceConfiguration);
                         widget.down('#deviceConfigurationEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceConfiguration.get('name')+'"</H2>');
                         widget.setLoading(false);
+                    }
+                });
+
             }
         });
     },
@@ -225,6 +246,110 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 }
             });
         }
+    },
+
+    overviewBreadCrumb: function (id,name) {
+        var breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem',{
+            text: Uni.I18n.translate('deviceconfiguration.deviceConfigurations', 'MDC', 'Device configurations'),
+            href: 'deviceconfigurations'
+        });
+        var breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem',{
+            text: name,
+            href: id
+        });
+        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
+            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
+            href: 'devicetypes'
+        });
+        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
+            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
+            href: '#setup'
+        });
+        breadcrumbParent.setChild(breadcrumbChild).setChild(breadcrumbChild2).setChild(breadcrumbChild3);
+        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
+    },
+
+    createBreadCrumb: function (id,name) {
+        var breadcrumbChild4 = Ext.create('Uni.model.BreadcrumbItem',{
+            text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
+            href: 'create'
+        });
+        var breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem',{
+            text: Uni.I18n.translate('deviceconfiguration.deviceConfigurations', 'MDC', 'Device configurations'),
+            href: 'deviceconfigurations'
+        });
+        var breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem',{
+            text: name,
+            href: id
+        });
+        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
+            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
+            href: 'devicetypes'
+        });
+        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
+            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
+            href: '#setup'
+        });
+        breadcrumbParent.setChild(breadcrumbChild).setChild(breadcrumbChild2).setChild(breadcrumbChild3).setChild(breadcrumbChild4);
+        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
+    },
+
+    editBreadCrumb: function (deviceTypeId,deviceTypeName,deviceConfigurationId,deviceConfigurationName) {
+        var breadcrumbChild5 = Ext.create('Uni.model.BreadcrumbItem',{
+            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+            href: 'edit'
+        });
+        var breadcrumbChild4 = Ext.create('Uni.model.BreadcrumbItem',{
+            text: deviceConfigurationName,
+            href: deviceConfigurationId
+        });
+        var breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem',{
+            text: Uni.I18n.translate('deviceconfiguration.deviceConfigurations', 'MDC', 'Device configurations'),
+            href: 'deviceconfigurations'
+        });
+        var breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem',{
+            text: deviceTypeName,
+            href: deviceTypeId
+        });
+        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
+            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
+            href: 'devicetypes'
+        });
+        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
+            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
+            href: '#setup'
+        });
+        breadcrumbParent.setChild(breadcrumbChild).setChild(breadcrumbChild2).setChild(breadcrumbChild3).setChild(breadcrumbChild4).setChild(breadcrumbChild5);
+        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
+    },
+
+    detailBreadCrumb: function (deviceTypeId,deviceTypeName,deviceConfigurationId,deviceConfigurationName) {
+        var breadcrumbChild5 = Ext.create('Uni.model.BreadcrumbItem',{
+            text: Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '"' + deviceConfigurationName + '"',
+            href: 'overview'
+        });
+        var breadcrumbChild4 = Ext.create('Uni.model.BreadcrumbItem',{
+            text: deviceConfigurationName,
+            href: deviceConfigurationId
+        });
+        var breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem',{
+            text: Uni.I18n.translate('deviceconfiguration.deviceConfigurations', 'MDC', 'Device configurations'),
+            href: 'deviceconfigurations'
+        });
+        var breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem',{
+            text: deviceTypeName,
+            href: deviceTypeId
+        });
+        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
+            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
+            href: 'devicetypes'
+        });
+        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
+            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
+            href: '#setup'
+        });
+        breadcrumbParent.setChild(breadcrumbChild).setChild(breadcrumbChild2).setChild(breadcrumbChild3).setChild(breadcrumbChild4).setChild(breadcrumbChild5);
+        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
     }
 });
 
