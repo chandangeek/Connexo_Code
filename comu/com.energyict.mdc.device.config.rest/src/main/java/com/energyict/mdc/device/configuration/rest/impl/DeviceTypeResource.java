@@ -11,6 +11,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.device.config.RegisterSpec;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -189,6 +190,17 @@ public class DeviceTypeResource {
         DeviceType deviceType = findDeviceTypeByIdOrThrowException(id);
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration(deviceConfigurationInfo.name).description(deviceConfigurationInfo.description).add();
         return new DeviceConfigurationInfo(deviceConfiguration);
+    }
+
+    @GET
+    @Path("/{id}/deviceconfigurations/{deviceConfigurationId}/registerconfigurations")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PagedInfoList getRegisterConfigs(@PathParam("id") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam QueryParameters queryParameters) {
+        DeviceType deviceType = findDeviceTypeByIdOrThrowException(deviceTypeId);
+        DeviceConfiguration deviceConfiguration = findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        List<RegisterSpec> pagedRegisterSpecs = ListFinder.of(deviceConfiguration.getRegisterSpecs(), new RegisterConfigurationComparator()).from(queryParameters).find();
+        List<RegisterConfigInfo> registerConfigInfos = RegisterConfigInfo.from(pagedRegisterSpecs);
+        return PagedInfoList.asJson("registerConfigs", registerConfigInfos, queryParameters);
     }
 
     @GET

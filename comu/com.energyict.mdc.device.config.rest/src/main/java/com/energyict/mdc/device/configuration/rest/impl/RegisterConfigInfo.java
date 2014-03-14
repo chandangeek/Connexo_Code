@@ -1,7 +1,13 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.protocol.api.device.MultiplierMode;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -16,17 +22,56 @@ public class RegisterConfigInfo {
     @JsonProperty("obisCode")
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
+    @JsonProperty("overruledObisCode")
+    @XmlJavaTypeAdapter(ObisCodeAdapter.class)
+    public ObisCode overruledObisCode;
     @JsonProperty("obisCodeDescription")
     public String obisCodeDescription;
+    @JsonProperty("unitOfMeasure")
+    @XmlJavaTypeAdapter(UnitAdapter.class)
+    public Unit unit;
+    @JsonProperty("numberOfDigits")
+    public int numberOfDigits;
+    @JsonProperty("numberFractionOfDigits")
+    public int numberOfFractionDigits;
+    @JsonProperty("multiplier")
+    public BigDecimal multiplier;
+    @JsonProperty("multiplierMode")
+    public MultiplierMode multiplierMode;
+    @JsonProperty("overflowValue")
+    public BigDecimal overflowValue;
+    @JsonProperty("linkedChannelConfig")
+    public String linkedChannelConfig;
+    @JsonProperty("channelLinkType")
+    public ChannelSpecLinkType channelLinkType;
 
     public RegisterConfigInfo() {
     }
 
-    public RegisterConfigInfo(RegisterSpec registerSpec) {
-        this.id = registerSpec.getId();
-        this.name = registerSpec.getRegisterMapping().getName();
-        this.readingTypeInfo = new ReadingTypeInfo(registerSpec.getRegisterMapping().getReadingType());
-        this.obisCode = registerSpec.getObisCode();
-        this.obisCodeDescription = registerSpec.getObisCode().getDescription();
+    public static RegisterConfigInfo from(RegisterSpec registerSpec) {
+        RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
+        registerConfigInfo.id = registerSpec.getId();
+        registerConfigInfo.name = registerSpec.getRegisterMapping().getName();
+        registerConfigInfo.readingTypeInfo = new ReadingTypeInfo(registerSpec.getRegisterMapping().getReadingType());
+        registerConfigInfo.obisCode = registerSpec.getObisCode();
+        registerConfigInfo.overruledObisCode = registerSpec.getDeviceObisCode();
+        registerConfigInfo.obisCodeDescription = registerSpec.getObisCode().getDescription();
+        registerConfigInfo.unit = registerSpec.getUnit();
+        registerConfigInfo.numberOfDigits = registerSpec.getNumberOfDigits();
+        registerConfigInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
+        registerConfigInfo.multiplier = registerSpec.getMultiplier();
+        registerConfigInfo.multiplierMode = registerSpec.getMultiplierMode();
+        registerConfigInfo.overflowValue = registerSpec.getOverflowValue();
+        registerConfigInfo.linkedChannelConfig = registerSpec.getLinkedChannelSpec()==null?"":registerSpec.getLinkedChannelSpec().getName();
+        registerConfigInfo.channelLinkType = registerSpec.getChannelSpecLinkType();
+        return registerConfigInfo;
+    }
+
+    public static List<RegisterConfigInfo> from(List<RegisterSpec> registerSpecList) {
+        List<RegisterConfigInfo> registerConfigs = new ArrayList<>(registerSpecList.size());
+        for (RegisterSpec registerSpec : registerSpecList) {
+            registerConfigs.add(RegisterConfigInfo.from(registerSpec));
+        }
+        return registerConfigs;
     }
 }
