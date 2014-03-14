@@ -201,7 +201,6 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             },
             failure: function (response) {
                 step5panel.removeAll(true);
-                Ext.Msg.alert('Server communication error', response.status);
                 Ext.History.back();
             }
         });
