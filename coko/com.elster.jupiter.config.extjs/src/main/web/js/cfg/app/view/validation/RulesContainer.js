@@ -70,7 +70,6 @@ Ext.define('Cfg.view.validation.RulesContainer', {
 
         var rulesButton = stepsMenu.add({
             text: 'Rules',
-            pressed: false,
             itemId: 'rulesLink',
             href: '#administration/validation/rules/' + me.ruleSetId,
             hrefTarget: '_self'
