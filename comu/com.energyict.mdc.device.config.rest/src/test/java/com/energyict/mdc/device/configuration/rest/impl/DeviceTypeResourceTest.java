@@ -66,13 +66,14 @@ public class DeviceTypeResourceTest extends JerseyTest {
     protected Application configure() {
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
-        ResourceConfig resourceConfig = new ResourceConfig(DeviceTypeResource.class);
+        ResourceConfig resourceConfig = new ResourceConfig(ResourceHelper.class, DeviceTypeResource.class, DeviceConfigurationResource.class, RegisterConfigurationResource.class);
         resourceConfig.register(JacksonFeature.class); // Server side JSON processing
         resourceConfig.register(new AbstractBinder() {
             @Override
             protected void configure() {
                 bind(deviceConfigurationService).to(DeviceConfigurationService.class);
                 bind(protocolPluggableService).to(ProtocolPluggableService.class);
+                bind(ResourceHelper.class).to(ResourceHelper.class);
             }
         });
         return resourceConfig;
