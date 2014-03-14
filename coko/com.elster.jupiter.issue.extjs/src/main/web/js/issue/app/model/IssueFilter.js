@@ -27,6 +27,18 @@ Ext.define('Isu.model.IssueFilter', {
 
     /**
      * @override
+     * @returns {String[]}
+     */
+    getFields: function() {
+        var fields = this.callParent();
+        fields.push('assigneeId');
+        fields.push('assigneeType');
+
+        return fields;
+    },
+
+    /**
+     * @override
      * @returns {*|Object}
      */
     getPlainData: function() {
