@@ -93,7 +93,6 @@ Ext.define('Uni.controller.history.EventBus', {
     },
 
     notifyObserversIfNecessary: function (tokens,token) {
-        debugger;
         var errorController = this.getController('Uni.controller.Error'),
             callback = this.getObservers()[tokens[0]];
 
