@@ -81,6 +81,8 @@ public class DeviceTypeImplTest extends PersistenceTest {
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass2;
     @Mock
     private DeviceProtocol deviceProtocol;
+    @Mock
+    private DeviceProtocol deviceProtocol2;
 
     private ReadingType readingType1;
     private ReadingType readingType2;
@@ -101,6 +103,7 @@ public class DeviceTypeImplTest extends PersistenceTest {
         when(this.deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         when(this.deviceProtocolPluggableClass2.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID_2);
+        when(this.deviceProtocolPluggableClass2.getDeviceProtocol()).thenReturn(this.deviceProtocol2);
 
         when(deviceCommunicationConfiguration.getDeviceConfiguration()).thenReturn(deviceConfig);
 
