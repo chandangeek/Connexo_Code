@@ -750,6 +750,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         verify(registerConfig).setOverflow(BigDecimal.valueOf(123));
         verify(registerConfig).setNumberOfDigits(4);
         verify(registerConfig).setNumberOfFractionDigits(6);
+        verify(registerConfig).save();
     }
 
     @Test
