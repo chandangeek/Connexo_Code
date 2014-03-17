@@ -1,7 +1,12 @@
 package com.energyict.mdc.device.config;
 
+import com.energyict.mdc.device.config.impl.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.impl.PartialConnectionTask;
+import com.energyict.mdc.device.config.impl.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.impl.PartialOutboundConnectionTask;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+
+import java.util.List;
 
 /**
  * Models the communication aspects of a {@link DeviceConfiguration}.
@@ -22,6 +27,14 @@ public interface DeviceCommunicationConfiguration extends HasId {
     PartialInboundConnectionTaskBuilder createPartialInboundConnectionTask();
 
     PartialConnectionInitiationTaskBuilder createPartialConnectionInitiationTask();
+
+    List<PartialConnectionTask> getPartialConnectionTasks();
+
+    List<PartialInboundConnectionTask> getPartialInboundConnectionTasks();
+
+    List<PartialOutboundConnectionTask> getPartialOutboundConnectionTasks();
+
+    List<PartialConnectionInitiationTask> getPartialConnectionInitiationTasks();
 
     void addPartialConnectionTask(PartialConnectionTask partialConnectionTask);
 

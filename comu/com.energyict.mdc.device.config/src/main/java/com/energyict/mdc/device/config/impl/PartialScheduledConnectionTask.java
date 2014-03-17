@@ -10,7 +10,7 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
  * @author sva
  * @since 21/01/13 - 15:40
  */
-public interface PartialScheduledConnectionTask<T extends OutboundComPortPool> extends PartialConnectionTask<T> {
+public interface PartialScheduledConnectionTask extends PartialConnectionTask {
 
     /**
      * Gets the specifications for the calculation of the next
@@ -30,4 +30,8 @@ public interface PartialScheduledConnectionTask<T extends OutboundComPortPool> e
 
     void setNextExecutionSpecs(NextExecutionSpecs nextExecutionSpec);
 
+    void setComportPool(OutboundComPortPool comPortPool);
+
+    @Override
+    OutboundComPortPool getComPortPool();
 }

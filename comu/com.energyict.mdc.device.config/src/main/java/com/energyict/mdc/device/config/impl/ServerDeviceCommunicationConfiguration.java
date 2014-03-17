@@ -22,34 +22,6 @@ public interface ServerDeviceCommunicationConfiguration  extends DeviceCommunica
     public List<ComTaskEnablement> getEnabledComTasks();
 
     /**
-     * Gets all the {@link PartialConnectionTask} that were created against this DeviceCommunicationConfiguration.
-     *
-     * @return The List of PartialConnectionTask
-     */
-    public List<PartialConnectionTask> getPartialConnectionTasks();
-
-    /**
-     * Gets the {@link PartialOutboundConnectionTask}s that were created against this DeviceConfiguration.
-     *
-     * @return The List of PartialOutboundConnectionTask
-     */
-    public List<PartialOutboundConnectionTask> getPartialOutboundConnectionTasks();
-
-    /**
-     * Gets the {@link PartialInboundConnectionTask} that is created against this DeviceConfiguration.
-     *
-     * @return The PartialInboundConnectionTask
-     */
-    public List<PartialInboundConnectionTask> getPartialInboundConnectionTasks();
-
-    /**
-     * Gets the {@link PartialConnectionInitiationTask}s that were created against this DeviceConfiguration.
-     *
-     * @return The List of PartialConnectionInitiationTask
-     */
-    public List<PartialConnectionInitiationTask> getPartialConnectionInitiationTasks();
-
-    /**
      * Gets the {@link ProtocolDialectConfigurationProperties} that were created against this DeviceConfiguration.
      *
      * @return The List of ProtocolDialectConfigurationProperties

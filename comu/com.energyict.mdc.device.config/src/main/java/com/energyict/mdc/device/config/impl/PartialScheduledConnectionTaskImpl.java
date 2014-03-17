@@ -17,7 +17,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
  * @author sva
  * @since 22/01/13 - 11:52
  */
-public abstract class PartialScheduledConnectionTaskImpl extends PartialConnectionTaskImpl<OutboundComPortPool> implements PartialScheduledConnectionTask<OutboundComPortPool> {
+public abstract class PartialScheduledConnectionTaskImpl extends PartialConnectionTaskImpl implements PartialScheduledConnectionTask {
 
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
 
@@ -174,7 +174,12 @@ public abstract class PartialScheduledConnectionTaskImpl extends PartialConnecti
 
     @Override
     public OutboundComPortPool getComPortPool () {
-        return super.getComPortPool();
+        return (OutboundComPortPool) super.getComPortPool();
+    }
+
+    @Override
+    public void setComportPool(OutboundComPortPool comPortPool) {
+        doSetComportPool(comPortPool);
     }
 
     @Override

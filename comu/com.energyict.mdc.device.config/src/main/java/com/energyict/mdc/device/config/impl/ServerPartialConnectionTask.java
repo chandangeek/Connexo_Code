@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.engine.model.ComPortPool;
-
 /**
  * Adds behavior to {@link PartialConnectionTask} that is private
  * to the server side implementation.
@@ -9,5 +7,5 @@ import com.energyict.mdc.engine.model.ComPortPool;
  * @author sva
  * @since 22/01/13 - 10:12
  */
-public interface ServerPartialConnectionTask<T extends ComPortPool> extends PartialConnectionTask<T> {
+public interface ServerPartialConnectionTask extends PartialConnectionTask {
 }

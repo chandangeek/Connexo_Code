@@ -27,7 +27,7 @@ import java.util.List;
  * @author sva
  * @since 21/01/13 - 16:44
  */
-public abstract class PartialConnectionTaskImpl<T extends ComPortPool> extends PersistentNamedObject<PartialConnectionTask> implements ServerPartialConnectionTask<T> {
+public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialConnectionTask> implements ServerPartialConnectionTask {
 
     private final EngineModelService engineModelService;
     private final ProtocolPluggableService protocolPluggableService;
@@ -102,7 +102,7 @@ public abstract class PartialConnectionTaskImpl<T extends ComPortPool> extends P
 //
 //    protected abstract boolean validateComPortPoolType (ComPortPool comPortPool) throws InvalidReferenceException;
 
-    protected abstract Class<T> expectedComPortPoolType ();
+    protected abstract Class<? extends ComPortPool> expectedComPortPoolType ();
 
 //    private void validateProperties (PartialConnectionTaskShadow shadow) throws BusinessException {
 //        this.validatePropertiesAreLinkedToPropertySpecs(shadow);
@@ -248,8 +248,8 @@ public abstract class PartialConnectionTaskImpl<T extends ComPortPool> extends P
     }
 
     @Override
-    public T getComPortPool () {
-        return (T) this.comPortPool.get();
+    public ComPortPool getComPortPool () {
+        return this.comPortPool.get();
     }
 
     protected ComPortPool findComPortPool (int id) {
@@ -261,12 +261,11 @@ public abstract class PartialConnectionTaskImpl<T extends ComPortPool> extends P
         return this.isDefault;
     }
 
-    protected String getInvalidCharacters() {
+    String getInvalidCharacters() {
         return "./";
     }
 
-    @Override
-    public void setComportPool(T comPortPool) {
+    final void doSetComportPool(ComPortPool comPortPool) {
         this.comPortPool.set(comPortPool);
     }
 

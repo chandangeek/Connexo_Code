@@ -291,6 +291,8 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
     @Override
     public void setComWindow(ComWindow comWindow) {
         this.comWindow = comWindow;
+        this.comWindowStart = comWindow.getStart().getMillis();
+        this.comWindowEnd = comWindow.getEnd().getMillis();
     }
 
     @Override

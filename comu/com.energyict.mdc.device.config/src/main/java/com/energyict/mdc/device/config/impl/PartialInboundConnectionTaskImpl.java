@@ -16,7 +16,7 @@ import javax.inject.Inject;
  * @author sva
  * @since 21/01/13 - 16:43
  */
-public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl<InboundComPortPool> implements PartialInboundConnectionTask {
+public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl implements PartialInboundConnectionTask {
 
     @Inject
     PartialInboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
@@ -106,6 +106,11 @@ public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl<
     @Override
     public InboundComPortPool getComPortPool () {
         return (InboundComPortPool) super.getComPortPool();
+    }
+
+    @Override
+    public void setComportPool(InboundComPortPool comPortPool) {
+        doSetComportPool(comPortPool);
     }
 
     @Override

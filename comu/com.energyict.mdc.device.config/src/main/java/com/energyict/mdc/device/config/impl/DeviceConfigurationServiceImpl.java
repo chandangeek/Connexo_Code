@@ -35,7 +35,9 @@ import com.energyict.mdc.device.config.exceptions.UnitHasNoMatchingPhenomenonExc
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -364,6 +366,16 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public NextExecutionSpecs findNextExecutionSpecs(long id) {
         return this.dataModel.mapper(NextExecutionSpecs.class).getUnique("id", id).orNull();
+    }
+
+    @Override
+    public Optional<PartialConnectionTask> getPartialConnectionTask(long id) {
+        return dataModel.mapper(PartialConnectionTask.class).getOptional(id);
+    }
+
+    @Override
+    public List<PartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass) {
+        return dataModel.query(PartialConnectionTask.class).select(where("pluggableClass").isEqualTo(connectionTypePluggableClass));
     }
 
     @Reference

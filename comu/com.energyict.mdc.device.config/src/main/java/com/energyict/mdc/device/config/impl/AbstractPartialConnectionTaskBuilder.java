@@ -58,7 +58,7 @@ public abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortP
         instance.setConnectionTypePluggableClass(connectionTypePluggableClass);
         instance.setDefault(asDefault);
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
-            instance.addProperty(entry.getKey(), entry.getValue());
+            instance.setProperty(entry.getKey(), entry.getValue());
             instance.getProperties().add(PartialConnectionTaskPropertyImpl.from(instance, entry.getKey(), entry.getValue()));
         }
 
