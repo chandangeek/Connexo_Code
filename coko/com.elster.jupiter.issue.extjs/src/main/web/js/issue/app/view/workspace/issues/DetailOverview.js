@@ -48,9 +48,7 @@ Ext.define('Isu.view.workspace.issues.DetailOverview', {
                     items: [
                         {
                             xtype: 'textareafield',
-                            name: 'comment',
-                            allowBlank: false,
-                            msgTarget: 'under'
+                            name: 'comment'
                         }
                     ]
                 },
@@ -60,7 +58,8 @@ Ext.define('Isu.view.workspace.issues.DetailOverview', {
                         {
                             xtype: 'button',
                             text: 'Add',
-                            action: 'send'
+                            action: 'send',
+                            disabled: true
                         },
                         {
                             xtype: 'button',

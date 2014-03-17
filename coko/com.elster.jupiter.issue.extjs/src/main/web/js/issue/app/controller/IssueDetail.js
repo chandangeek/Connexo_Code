@@ -30,6 +30,10 @@ Ext.define('Isu.controller.IssueDetail', {
         {
             ref: 'addCommentButton',
             selector: 'issue-detail-overview button[action=addcomment]'
+        },
+        {
+            ref: 'sendCommentButton',
+            selector: 'issue-detail-overview form button[action=send]'
         }
     ],
 
@@ -44,12 +48,11 @@ Ext.define('Isu.controller.IssueDetail', {
             'issue-detail-overview form button[action=cancel]': {
                 click: this.hideCommentForm
             },
-
             'issue-detail-overview form button[action=send]': {
                 click: this.addComment
             },
-            'comment-action-menu': {
-                click: this.chooseCommentAction
+            'issue-detail-overview form textareafield': {
+                change: this.validateCommentForm
             }
         });
     },
@@ -92,17 +95,6 @@ Ext.define('Isu.controller.IssueDetail', {
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
-    chooseCommentAction: function (menu, item) {
-        switch (item.text) {
-            case 'Edit':
-                this.editComment();
-                break;
-            case 'Delete':
-                this.deleteComment();
-                break;
-        }
-    },
-
     showCommentForm: function () {
         var form = this.getCommentForm(),
             button = this.getAddCommentButton();
@@ -115,54 +107,48 @@ Ext.define('Isu.controller.IssueDetail', {
         var form = this.getCommentForm(),
             button = this.getAddCommentButton();
 
-        form.query('textareafield')[0].clearInvalid();
         form.hide();
         button.show();
     },
 
+    validateCommentForm: function (form, newValue) {
+        var sendBtn = this.getSendCommentButton();
+
+        if (newValue.replace(/\s*/g, '')) {
+            sendBtn.setDisabled(false);
+        } else {
+            sendBtn.setDisabled(true);
+        }
+    },
+
     loadComments: function () {
         var self = this,
-            commentsPanel = self.getCommentsPanel(),
-            preloader = Ext.create('Ext.LoadMask', {
-                msg: 'Loading comments...',
-                target: commentsPanel
-            });
-
-        if (commentsPanel.isVisible()) {
-            preloader.show();
-        }
+            commentsPanel = self.getCommentsPanel();
 
         commentsPanel.store.proxy.url = self.commentsAPI;
-        commentsPanel.store.load(function () {
-            preloader.destroy();
-        });
+        commentsPanel.store.load();
     },
 
     addComment: function () {
         var self = this,
-            formComponent = this.getCommentForm(),
-            form = formComponent.getForm();
+            commentsPanel = self.getCommentsPanel(),
+            formPanel = self.getCommentForm(),
+            form = formPanel.getForm();
 
-        if (form.isValid()) {
-            self.hideCommentForm();
+        self.hideCommentForm();
 
-            Ext.Ajax.request({
-                url: self.commentsAPI,
-                method: 'POST',
-                jsonData: form.getValues(),
-                autoAbort: true,
-                success: function () {
-                    self.loadComments();
-                }
-            });
-        }
-    },
+        Ext.Ajax.request({
+            url: self.commentsAPI,
+            method: 'POST',
+            jsonData: form.getValues(),
+            autoAbort: true,
+            success: function (response) {
+                var data = Ext.JSON.decode(response.responseText).data,
+                    newComment;
 
-    editComment: function () {
-
-    },
-
-    deleteComment: function () {
-
+                newComment = commentsPanel.addcomment(data);
+                commentsPanel.move(newComment, 0);
+            }
+        });
     }
 });

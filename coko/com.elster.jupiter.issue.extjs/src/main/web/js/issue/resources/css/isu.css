@@ -225,6 +225,19 @@ span[class^=isu-assignee-] {
     color: #aaa;
 }
 
+.isu-comments-list {
+    padding-left: 25px;
+}
+
+.isu-comments-list .isu-comments-item + .isu-comments-item {
+    border-top: 1px solid;
+}
+
+.isu-comments-item .isu-icon-USER {
+    margin-left: -24px;
+    margin-right: 5px;
+}
+
 /* Message Window */
 
 /* Window */

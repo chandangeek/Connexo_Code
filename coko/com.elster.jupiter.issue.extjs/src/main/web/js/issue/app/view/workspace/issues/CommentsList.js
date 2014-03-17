@@ -1,13 +1,13 @@
 Ext.define('Isu.view.workspace.issues.CommentsList', {
     extend: 'Ext.container.Container',
     requires: [
-        'Isu.view.ext.button.Action',
-        'Isu.view.workspace.issues.CommentActionMenu'
+        'Isu.view.ext.button.Action'
     ],
     alias: 'widget.issue-comments',
     mixins: {
         bindable: 'Ext.util.Bindable'
     },
+    cls: 'isu-comments-list',
 
     initComponent: function () {
         var me = this;
@@ -34,50 +34,28 @@ Ext.define('Isu.view.workspace.issues.CommentsList', {
                 html: '<h3>There are no comments yet on this issue</h3>',
                 border: false
             });
-
             return;
         }
 
         Ext.Array.forEach(me.store.getRange(), function (item, index) {
-            index && me.add({
-                xtype: 'component',
-                html: '<hr>'
-            });
-            me.add({
-                xtype: 'container',
-                layout: {
-                    type: 'hbox',
-                    align: 'middle'
-                },
-                items: [
-                    {
-                        xtype: 'container',
-                        data: item.data,
-                        tpl: new Ext.XTemplate(
-                            '<p><span class="isu-icon-USER"></span><b>{author.name}</b> added a comment - {[values.creationDate ? this.formatCreationDate(values.creationDate) : ""]}</p>',
-                            '<p>{comment}</p>',
-                            {
-                                formatCreationDate: function (date) {
-                                    return Ext.Date.format(date, 'Y-m-d (h:m)');
-                                }
-                            }
-                        ),
-                        flex: 1
-                    },
-                    {
-                        xtype: 'toolbar',
-                        border: false,
-                        items: [
-                            {
-                                xtype: 'action-btn',
-                                menu: {
-                                    xtype: 'comment-action-menu'
-                                }
-                            }
-                        ]
+            me.addcomment(item.data);
+        });
+    },
+
+    addcomment: function (data) {
+        return this.add({
+            xtype: 'container',
+            cls: 'isu-comments-item',
+            data: data,
+            tpl: new Ext.XTemplate(
+                '<p><span class="isu-icon-USER"></span><b>{author.name}</b> added a comment - {[values.creationDate ? this.formatCreationDate(values.creationDate) : ""]}</p>',
+                '<p>{comment}</p>',
+                {
+                    formatCreationDate: function (date) {
+                        return Ext.Date.format(date, 'Y-m-d (h:m)');
                     }
-                ]
-            });
+                }
+            )
         });
     },
 
