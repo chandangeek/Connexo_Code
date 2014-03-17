@@ -8,7 +8,14 @@ import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 
 import java.io.ByteArrayInputStream;
@@ -25,6 +32,8 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1402,5 +1411,26 @@ public final class ProtocolTools {
             cause = cause.getCause();
         }
         return cause;
+    }
+
+    /**
+     * Visualise the given number taking into account the maximum number of characters the visualisation can use.<br></br>
+     * If the visualisation would take more characters, the number is rounded.
+     *
+     * @param value The Number to format
+     * @param maximumNumberOfChars The maximum number of (non-negative) characters to limit the number to<br></br>
+     * Examples:<br></br>
+     *  <ul>
+     *      <li>visualiseFormattedNumber(123.456f, 5) = 123.4</li>
+     *      <li>visualiseFormattedNumber(-123.456f, 5) = -123.4</li>
+     *      <li>visualiseFormattedNumber(12345678, 5) = 12345678</li>
+     *  </ul>
+     *
+     * @return the formatted number visualisation
+     */
+    public static String visualiseFormattedNumber(Number value, int maximumNumberOfChars) {
+        MathContext mathContext = new MathContext(maximumNumberOfChars -1, RoundingMode.HALF_DOWN);
+        BigDecimal bigDecimal = new BigDecimal(value.toString(), mathContext);
+        return bigDecimal.toPlainString();
     }
 }
