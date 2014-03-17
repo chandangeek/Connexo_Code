@@ -55,7 +55,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
             action: 'filter'
         },
         {
-            text: 'Reset',
+            text: 'Clear all',
             action: 'reset'
         }
     ]
