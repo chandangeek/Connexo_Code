@@ -2,7 +2,6 @@ package com.elster.jupiter.orm;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.security.Principal;
@@ -17,7 +16,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bootstrap.oracle.impl.OracleBootstrapModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -100,7 +98,8 @@ public class LobTest {
     }
     
     private static class LobTestTuple {
-    	private long id;
+    	@SuppressWarnings("unused")
+		private long id;
     	private String charLob = "";
     	private byte[] byteLob;
     	
