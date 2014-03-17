@@ -50,6 +50,12 @@ public enum Operator {
 			return "UPPER({0}) = UPPER(?)"; 
 		}
 	},
+	LIKEIGNORECASE("") {
+		@Override 
+		public String getFormat() {
+			return "UPPER({0}) LIKE UPPER(?)"; 
+		}
+	},
 	SOUNDSAS("") {
 		@Override 
 		public String getFormat() {

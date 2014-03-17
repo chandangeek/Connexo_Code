@@ -59,6 +59,10 @@ public final class Where {
 		return Operator.LIKE.compare(field,value);
 	}
 	
+	public Condition likeIgnoreCase(Object value) {
+		return Operator.LIKEIGNORECASE.compare(field,value);
+	}
+	
 	public Condition isNotEqual(Object value) {
 		return Operator.NOTEQUAL.compare(field,value);
 	}
