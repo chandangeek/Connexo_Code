@@ -6,9 +6,9 @@ import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.Channel;
 import com.energyict.mdc.protocol.api.device.LoadProfile;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
@@ -71,7 +71,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     /**
      * The LoadProfile to read
      */
-    private LoadProfile<Channel> loadProfile;
+    private LoadProfile<BaseChannel> loadProfile;
 
     public static String getMessageNodeTag() {
         return MESSAGETAG;
@@ -165,14 +165,14 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     }
 
     private void checkRtuRegistersForLoadProfile() throws BusinessException {
-        BaseDevice<Channel, LoadProfile<Channel>, BaseRegister> rtu = this.loadProfile.getDevice();
+        BaseDevice<BaseChannel, LoadProfile<BaseChannel>, BaseRegister> rtu = this.loadProfile.getDevice();
 
         List<BaseRegister> allRegisters = rtu.getRegisters();
-        for (BaseDevice dRtu : rtu.getDownstreamDevices()) {
+        for (BaseDevice dRtu : rtu.getPhysicalConnectedDevices()) {
             allRegisters.addAll(dRtu.getRegisters());
         }
 
-        for (Channel channel : this.loadProfile.getAllChannels()) {
+        for (BaseChannel channel : this.loadProfile.getAllChannels()) {
             boolean contains = false;
             for (BaseRegister register : allRegisters) {
                 contains |= register.getRegisterMappingObisCode().equals(channel.getRegisterTypeObisCode());
@@ -211,15 +211,15 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         return builder.toString();
     }
 
-    public LoadProfile<Channel> getLoadProfile() {
+    public LoadProfile<BaseChannel> getLoadProfile() {
         if (this.loadProfile == null) {
             this.loadProfile = this.findLoadProfile(this.loadProfileId);
         }
         return loadProfile;
     }
 
-    private LoadProfile<Channel> findLoadProfile(int loadProfileId) {
-        IdBusinessObjectFactory<LoadProfile<Channel>> factory = (IdBusinessObjectFactory<LoadProfile<Channel>>) Environment.DEFAULT.get().findFactory(FactoryIds.LOADPROFILE.id());
+    private LoadProfile<BaseChannel> findLoadProfile(int loadProfileId) {
+        IdBusinessObjectFactory<LoadProfile<BaseChannel>> factory = (IdBusinessObjectFactory<LoadProfile<BaseChannel>>) Environment.DEFAULT.get().findFactory(FactoryIds.LOADPROFILE.id());
         return factory.get(loadProfileId);
     }
 
@@ -230,7 +230,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
      * @param loadProfile the new LoadProfile to set
      */
     public void setLoadProfile(final LoadProfile loadProfile) {
-        BaseDevice<Channel, LoadProfile<Channel>, BaseRegister> currentRtu = loadProfile.getDevice();
+        BaseDevice<BaseChannel, LoadProfile<BaseChannel>, BaseRegister> currentRtu = loadProfile.getDevice();
         while (currentRtu.isLogicalSlave() && currentRtu.getPhysicalGateway() != null) {
             currentRtu = currentRtu.getPhysicalGateway();
         }
@@ -259,7 +259,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
      */
     private List<com.energyict.mdc.protocol.api.device.data.Register> createRegisterList(final LoadProfile<?> loadProfile) {
         List<com.energyict.mdc.protocol.api.device.data.Register> registers = new ArrayList<>();
-        for (Channel channel : loadProfile.getAllChannels()) {
+        for (BaseChannel channel : loadProfile.getAllChannels()) {
             registers.add(new com.energyict.mdc.protocol.api.device.data.Register(-1, channel.getRegisterTypeObisCode(), channel.getDevice().getSerialNumber()));
         }
         return registers;
@@ -271,8 +271,8 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
 
 
     public int getRegisterSpecIdForRegister(com.energyict.mdc.protocol.api.device.data.Register register) {
-        BaseDevice<Channel, LoadProfile<Channel>, BaseRegister> device = null;
-        for (Channel channel : getLoadProfile().getAllChannels()) {
+        BaseDevice<BaseChannel, LoadProfile<BaseChannel>, BaseRegister> device = null;
+        for (BaseChannel channel : getLoadProfile().getAllChannels()) {
             if (channel.getDevice().getSerialNumber().equals(register.getSerialNumber())) {
                 device = channel.getDevice();
                 break;

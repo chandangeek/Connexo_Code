@@ -1,11 +1,11 @@
 package com.energyict.genericprotocolimpl.common;
 
+import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.data.MeterData;
 import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.device.Channel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 /**
@@ -23,7 +23,7 @@ public class StoreObjectItem {
         this.value = profileData;
     }
 
-    public StoreObjectItem(Channel channel, ProfileData profileData) {
+    public StoreObjectItem(BaseChannel channel, ProfileData profileData) {
         this.key = channel;
         this.value = profileData;
     }

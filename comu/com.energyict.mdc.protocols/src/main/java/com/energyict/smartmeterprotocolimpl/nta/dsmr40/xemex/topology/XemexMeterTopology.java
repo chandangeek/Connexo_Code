@@ -106,7 +106,7 @@ public class XemexMeterTopology extends MeterTopology {
     private void checkForDisappearedMbusMeters(List<DeviceMapping> mbusMap) {
         BaseDevice gatewayDevice = getRtuFromDatabaseBySerialNumber();
         if (gatewayDevice != null) {
-            List<BaseDevice> mbusSlaves = gatewayDevice.getDownstreamDevices();
+            List<BaseDevice> mbusSlaves = gatewayDevice.getPhysicalConnectedDevices();
             Iterator<BaseDevice> it = mbusSlaves.iterator();
             while (it.hasNext()) {
                 BaseDevice mbus = it.next();

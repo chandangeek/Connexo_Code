@@ -7,8 +7,8 @@ import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.Channel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfile;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
@@ -230,7 +230,7 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
      * @param loadProfile the new LoadProfile to set
      */
     public void setLoadProfile(final LoadProfile loadProfile) {
-        BaseDevice<Channel, LoadProfile<Channel>, BaseRegister> currentRtu = loadProfile.getDevice();
+        BaseDevice<BaseChannel, LoadProfile<BaseChannel>, BaseRegister> currentRtu = loadProfile.getDevice();
         while (currentRtu.isLogicalSlave() && currentRtu.getPhysicalGateway() != null) {
             currentRtu = currentRtu.getPhysicalGateway();
         }
@@ -262,7 +262,7 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
      */
     private static List<ChannelInfo> createChannelInfos(LoadProfile<?> loadProfile) {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-        for (Channel lpChannel : loadProfile.getAllChannels()) {
+        for (BaseChannel lpChannel : loadProfile.getAllChannels()) {
                 channelInfos.add(
                         new ChannelInfo(
                                 channelInfos.size(),

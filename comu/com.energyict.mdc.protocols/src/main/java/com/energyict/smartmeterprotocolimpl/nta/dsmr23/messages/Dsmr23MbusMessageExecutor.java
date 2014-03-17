@@ -22,9 +22,9 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.Channel;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.device.LoadProfile;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
@@ -423,7 +423,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
     protected BaseDevice getRtuFromDatabaseBySerialNumber(String serialNumber) {
         List<DeviceFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class);
         for (DeviceFactory factory : factories) {
-            List<BaseDevice<Channel, LoadProfile<Channel>, BaseRegister>> devices = factory.findDevicesBySerialNumber(serialNumber);
+            List<BaseDevice<BaseChannel, LoadProfile<BaseChannel>, BaseRegister>> devices = factory.findDevicesBySerialNumber(serialNumber);
             if (!devices.isEmpty()) {
                 return devices.get(0);
             }

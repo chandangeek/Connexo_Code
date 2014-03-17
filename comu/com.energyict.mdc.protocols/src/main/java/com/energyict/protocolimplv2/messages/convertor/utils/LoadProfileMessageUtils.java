@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor.utils;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.protocol.api.device.Channel;
+import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.LoadProfile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -148,9 +148,9 @@ public class LoadProfileMessageUtils {
         }
     }
 
-    private static Node convertToRegisterElements(List<Channel> allChannels, Document document) {
+    private static Node convertToRegisterElements(List<BaseChannel> allChannels, Document document) {
         Element registers = document.createElement(RtuRegistersTag);
-        for (Channel channel : allChannels) {
+        for (BaseChannel channel : allChannels) {
             Element registerElement = document.createElement(RegisterTag);
             registerElement.setAttribute(RegisterObiscodeTag, channel.getRegisterTypeObisCode().toString());
             registerElement.setAttribute(RtuRegisterSerialNumber, channel.getDevice().getSerialNumber());
@@ -159,10 +159,10 @@ public class LoadProfileMessageUtils {
         return registers;
     }
 
-    private static Node convertToChannelsElement(List<Channel> allChannels, Document document) {
+    private static Node convertToChannelsElement(List<BaseChannel> allChannels, Document document) {
         Element channels = document.createElement(ChannelInfosTag);
         int counter = 0;
-        for (Channel channel : allChannels) {
+        for (BaseChannel channel : allChannels) {
             Element channelElement = document.createElement(ChannelTag);
             channelElement.setAttribute(ChannelIdTag, String.valueOf(counter++));
             channelElement.setAttribute(ChannelNametag, channel.getRegisterTypeObisCode().toString());

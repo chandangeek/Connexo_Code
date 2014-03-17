@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.messages.convertor.utils;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.Channel;
+import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfile;
 import org.junit.*;
@@ -31,8 +31,8 @@ public class LoadProfileMessageUtilsTest {
     @Test
     public void loadProfileFormatTest() {
         BaseDevice device = createdMockedDevice();
-        Channel channel1 = createdMockedChannel(device, OBISCODE1);
-        Channel channel2 = createdMockedChannel(device, OBISCODE2);
+        BaseChannel channel1 = createdMockedChannel(device, OBISCODE1);
+        BaseChannel channel2 = createdMockedChannel(device, OBISCODE2);
         LoadProfile loadProfile = createMockedLoadProfile();
         when(loadProfile.getDevice()).thenReturn(device);
         when(loadProfile.getAllChannels()).thenReturn(Arrays.asList(channel1, channel2));
@@ -49,8 +49,8 @@ public class LoadProfileMessageUtilsTest {
         return loadProfile;
     }
 
-    private Channel createdMockedChannel(BaseDevice device, ObisCode obisCode) {
-        Channel channel = mock(Channel.class);
+    private BaseChannel createdMockedChannel(BaseDevice device, ObisCode obisCode) {
+        BaseChannel channel = mock(BaseChannel.class);
         when(channel.getDevice()).thenReturn(device);
         when(channel.getRegisterTypeObisCode()).thenReturn(obisCode);
         when(channel.getDeviceRegisterMappingUnit()).thenReturn(UNIT);
