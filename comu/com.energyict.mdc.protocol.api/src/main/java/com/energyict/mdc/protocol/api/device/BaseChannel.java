@@ -12,7 +12,7 @@ import java.math.BigDecimal;
  * Channel objects are created automatically when an Device is created.
  */
 
-public interface Channel extends CanGoOffline<OfflineLoadProfileChannel> {
+public interface BaseChannel extends CanGoOffline<OfflineLoadProfileChannel> {
 
     /**
      * Returns the device the receiver belongs to.
@@ -20,14 +20,6 @@ public interface Channel extends CanGoOffline<OfflineLoadProfileChannel> {
      * @return the receiver's device.
      */
     BaseDevice getDevice();
-
-    /**
-     * Returns the configured interval in seconds.
-     * Equivalent to getRtu().getIntervalInSeconds().
-     *
-     * @return the interval in seconds.
-     */
-    int getIntervalInSeconds();
 
     /**
      * Returns the receiver's configured unit.

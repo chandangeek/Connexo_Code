@@ -7,7 +7,6 @@ import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.interval.IntervalRecord;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 
 import java.sql.SQLException;
@@ -18,7 +17,7 @@ import java.util.List;
  * LoadProfile represents a loadprofile on a data logger or energy meter.
  * Each LoadProfile has a number of channels to store load profile data.
  */
-public interface LoadProfile<C extends Channel> extends IdBusinessObject, CanGoOffline<OfflineLoadProfile> {
+public interface LoadProfile<C extends BaseChannel> extends IdBusinessObject, CanGoOffline<OfflineLoadProfile> {
 
     /**
      * return the end time of the last interval read from the device.
@@ -37,14 +36,14 @@ public interface LoadProfile<C extends Channel> extends IdBusinessObject, CanGoO
     public BaseDevice getDevice();
 
     /**
-     * Returns the receiver's {@link Channel}s.
+     * Returns the receiver's {@link BaseChannel}s.
      *
      * @return a <CODE>List</CODE> of <CODE>Channel</CODE> objects
      */
     public List<C> getChannels();
 
     /**
-     * Returns the receiver's {@link Channel}s AND
+     * Returns the receiver's {@link BaseChannel}s AND
      * the channels of all slave devices belonging to
      * LoadProfiles of the same type.
      *
