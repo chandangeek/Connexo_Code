@@ -11,6 +11,10 @@ public interface UserService {
 
     User createUser(String name, String description);
 
+    User createApacheDirectoryUser(String name, String domain);
+
+    User createActiveDirectoryUser(String name, String domain);
+
     Group createGroup(String name);
 
     Privilege createPrivilege(String componentName, String name, String description);
@@ -46,4 +50,8 @@ public interface UserService {
     LdapUserDirectory createActiveDirectory(String domain);
 
     LdapUserDirectory createApacheDirectory(String domain);
+
+    User findOrCreateUser(String name, String domain, String directoryType);
+
+    Group findOrCreateGroup(String group);
 }

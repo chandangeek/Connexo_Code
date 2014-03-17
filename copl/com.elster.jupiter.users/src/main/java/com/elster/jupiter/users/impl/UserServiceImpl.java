@@ -113,6 +113,21 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Override
+    public User createApacheDirectoryUser(String name, String domain) {
+        UserImpl result = createApacheDirectory(domain).newUser(name, domain);
+        result.save();
+        return result;
+    }
+
+    @Override
+    public User createActiveDirectoryUser(String name, String domain) {
+        UserImpl result = createActiveDirectory(domain).newUser(name, domain);
+        result.save();
+        return result;
+    }
+
+
+    @Override
     public Group createGroup(String name) {
         GroupImpl result = GroupImpl.from(dataModel, name);
         result.persist();
@@ -145,6 +160,33 @@ public class UserServiceImpl implements UserService, InstallService {
         Condition condition = Operator.EQUAL.compare("authenticationName", authenticationName);
         List<User> users = dataModel.query(User.class, UserInGroup.class).select(condition);
         return users.isEmpty() ? Optional.<User>absent() : Optional.of(users.get(0));
+    }
+
+    @Override
+    public User findOrCreateUser(String name, String domain, String directoryType) {
+        Condition userCondition = Operator.EQUAL.compare("authenticationName", name);
+        Condition domainCondition = Operator.EQUAL.compare("userDirectory.domain", domain);
+        List<User> users = dataModel.query(User.class, UserDirectory.class).select(userCondition.and(domainCondition));
+        if (users.isEmpty()){
+            if (ApacheDirectoryImpl.TYPE_IDENTIFIER.equals(directoryType)) {
+                return createApacheDirectoryUser(name, domain);
+            }
+            if (ActiveDirectoryImpl.TYPE_IDENTIFIER.equals(directoryType)) {
+                return createActiveDirectoryUser(name, domain);
+            }
+            return createUser(name, domain);
+        }
+        return users.get(0);
+    }
+
+    @Override
+    public Group findOrCreateGroup(String name) {
+        Condition groupCondition = Operator.EQUAL.compare("name", name);
+        List<Group> groups = dataModel.query(Group.class).select(groupCondition);
+        if (groups.isEmpty()){
+            return createGroup(name);
+        }
+        return groups.get(0);
     }
 
     @Override
