@@ -28,6 +28,9 @@ Ext.define('Isu.controller.IssueFilter', {
             'issues-side-filter button[action="reset"]': {
                 click: this.reset
             },
+            'issues-filter button[action="clearfilter"]': {
+                click: this.reset
+            },
             'issues-side-filter filter-form': {
                 render: this.loadFormModel
             }

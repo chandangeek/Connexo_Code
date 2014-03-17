@@ -38,12 +38,21 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     forceSelection: true,
                     anyMatch: true,
                     store: 'Isu.store.IssueReason',
-                    queryMode: 'local',
+
                     fieldLabel: 'Reason',
                     labelAlign : 'top',
                     listConfig: {
                         cls: 'isu-combo-color-list'
-                    }
+                    },
+
+                    queryMode: 'remote',
+                    queryParam: 'like',
+                    queryDelay: 100,
+                    minChars: 2,
+
+                    hideTrigger:true,
+                    anchor: '100%',
+                    emptyText: 'type something'
                 }
             ]
         }
@@ -55,7 +64,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
             action: 'filter'
         },
         {
-            text: 'Reset',
+            text: 'Clear all',
             action: 'reset'
         }
     ]

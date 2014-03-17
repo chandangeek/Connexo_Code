@@ -13,26 +13,30 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
     groupField: 'type',
     groupDisplayField: 'type',
     formBind: true,
-    width: '100%',
 
-    listConfig: {
-        getInnerTpl: function () {
-            var groupField = this.groupField,
-                displayField = this.displayField,
-                groupDisplayField = this.groupDisplayField;
+    typeAhead: false,
+    hideTrigger:true,
+    anchor: '100%',
+    emptyText: 'type something',
 
-            return '' +
-//                '<tpl for=".">' +
-//                '<tpl if="this.' + groupField + ' != values.' + groupField + '">' +
-//                '<tpl exec="this.' + groupField + ' = values.' + groupField + '"></tpl>' +
-//                '<div class="x-panel-header-default x-panel-header-text-container x-panel-header-text x-panel-header-text-default" title="{' + groupDisplayField + '}">{' + groupDisplayField + '}</div>' +
-//                '</tpl>' +
-//                '<div class="x-boundlist-item">{' + displayField + '}</div>' +
-//                '</tpl>'
+    constructor: function (args) {
+        var me = this,
+            groupField =  args.groupField || me.groupField,
+            groupDisplayField = args.groupDisplayField || me.groupDisplayField,
+            displayField = args.displayField || me.displayField;
 
-                '<tpl if="type"><span class="isu-icon-{type}"></span></tpl> {name}'
-            ;
-        }
-    }
+        args.tpl = new Ext.XTemplate(
+            '<tpl for=".">',
+            '<tpl if="this.' + groupField + ' != values.' + groupField + '">',
+            '<tpl exec="this.' + groupField + ' = values.' + groupField + '"></tpl>',
+            '<div class="x-panel-header-default x-panel-header-text-container x-panel-header-text x-panel-header-text-default" title="{' + groupDisplayField + '}">{' + groupDisplayField + '}</div>',
+            '</tpl>',
+            '<div class="x-boundlist-item">{' + displayField + '}</div>',
+            '</tpl>'
+        );
+
+        me.callParent(arguments);
+    },
+    pageSize: 10
 });
 
