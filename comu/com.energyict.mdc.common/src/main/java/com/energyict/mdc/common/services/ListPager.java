@@ -10,44 +10,32 @@ import java.util.List;
  * Implementation of Finder that allows paging over a list of objects
  * Merely intended as temporary functionality while we wait for back end sorting to be completed
  */
-public class ListFinder<T> implements Finder<T> {
+public class ListPager<T> {
 
     private final List<T> elements = new ArrayList<>();
     private Integer start;
     private Integer pageSize;
 
-    private ListFinder(List<T> elements) {
+    private ListPager(List<T> elements) {
         this.elements.addAll(elements);
     }
 
-    public static <T> ListFinder<T> of(List<T> elements, Comparator<T> comparator) {
-        ListFinder<T> listFinder = new ListFinder<>(elements);
-        Collections.sort(listFinder.elements, comparator);
-        return listFinder;
+    public static <T> ListPager<T> of(List<T> elements, Comparator<T> comparator) {
+        ListPager<T> listPager = new ListPager<>(elements);
+        Collections.sort(listPager.elements, comparator);
+        return listPager;
     }
 
-    public static <T> ListFinder<T> of(List<T> elements) {
-        return new ListFinder<>(elements);
+    public static <T> ListPager<T> of(List<T> elements) {
+        return new ListPager<>(elements);
     }
 
-    @Override
-    public Finder<T> paged(Integer start, Integer pageSize) {
+    public ListPager<T> paged(Integer start, Integer pageSize) {
         this.start=start;
         this.pageSize=pageSize;
         return this;
     }
 
-    @Override
-    public Finder<T> sorted(String sortColumn, boolean sortOrder) {
-        return this;
-    }
-
-    @Override
-    public Finder<T> defaultSortColumn(String sortColumn) {
-        return this;
-    }
-
-    @Override
     public List<T> find() {
         if (start!=null && pageSize!=null) {
             if (start>=elements.size()) {
@@ -60,8 +48,7 @@ public class ListFinder<T> implements Finder<T> {
         }
     }
 
-    @Override
-    public Finder<T> from(QueryParameters queryParameters) {
+    public ListPager<T> from(QueryParameters queryParameters) {
         this.paged(queryParameters.getStart(), queryParameters.getLimit());
         return this;
     }

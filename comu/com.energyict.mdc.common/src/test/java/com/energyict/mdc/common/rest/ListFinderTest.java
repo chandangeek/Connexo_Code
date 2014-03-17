@@ -1,6 +1,6 @@
 package com.energyict.mdc.common.rest;
 
-import com.energyict.mdc.common.services.ListFinder;
+import com.energyict.mdc.common.services.ListPager;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -19,7 +19,7 @@ public class ListFinderTest {
         for (int i=1; i<100; i++) {
             ints.add(i);
         }
-        List<Integer> found = ListFinder.of(ints, new NullComparator()).paged(10, 10).find();
+        List<Integer> found = ListPager.of(ints, new NullComparator()).paged(10, 10).find();
         assertThat(found).containsExactly(11,12,13,14,15,16,17,18,19,20,21);
     }
 
@@ -32,7 +32,7 @@ public class ListFinderTest {
         QueryParameters queryParameters = mock(QueryParameters.class);
         when(queryParameters.getStart()).thenReturn(10);
         when(queryParameters.getLimit()).thenReturn(10);
-        List<Integer> found = ListFinder.of(ints, new NullComparator()).from(queryParameters).find();
+        List<Integer> found = ListPager.of(ints, new NullComparator()).from(queryParameters).find();
         assertThat(found).containsExactly(11,12,13,14,15,16,17,18,19,20,21); // +1 for 'has next page'
     }
 
@@ -42,7 +42,7 @@ public class ListFinderTest {
         QueryParameters queryParameters = mock(QueryParameters.class);
         when(queryParameters.getStart()).thenReturn(0);
         when(queryParameters.getLimit()).thenReturn(10);
-        List<Integer> found = ListFinder.of(ints, new NullComparator()).from(queryParameters).find();
+        List<Integer> found = ListPager.of(ints, new NullComparator()).from(queryParameters).find();
         assertThat(found).containsExactly(1,2,3,4,5,6,7);
     }
 
@@ -52,7 +52,7 @@ public class ListFinderTest {
         QueryParameters queryParameters = mock(QueryParameters.class);
         when(queryParameters.getStart()).thenReturn(10);
         when(queryParameters.getLimit()).thenReturn(10);
-        List<Integer> found = ListFinder.of(ints, new NullComparator()).from(queryParameters).find();
+        List<Integer> found = ListPager.of(ints, new NullComparator()).from(queryParameters).find();
         assertThat(found).isEmpty();
     }
 
@@ -62,7 +62,7 @@ public class ListFinderTest {
         QueryParameters queryParameters = mock(QueryParameters.class);
         when(queryParameters.getStart()).thenReturn(0);
         when(queryParameters.getLimit()).thenReturn(10);
-        List<Integer> found = ListFinder.of(ints, new NullComparator()).from(queryParameters).find();
+        List<Integer> found = ListPager.of(ints, new NullComparator()).from(queryParameters).find();
         assertThat(found).containsExactly(0,1,2,3,4,5,6,7,8,9);
     }
 
