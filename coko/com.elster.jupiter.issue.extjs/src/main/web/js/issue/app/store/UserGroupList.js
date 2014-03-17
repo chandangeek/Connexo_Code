@@ -5,7 +5,7 @@ Ext.define('Isu.store.UserGroupList', {
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/assign/groups',
+        url: '/api/isu/assignees/groups',
         reader: {
             type: 'json',
             root: 'data'
