@@ -87,7 +87,7 @@ public class RegisterConfigInfo {
         registerSpec.setNumberOfDigits(this.numberOfDigits);
         registerSpec.setNumberOfFractionDigits(this.numberOfFractionDigits);
         registerSpec.setChannelSpecLinkType(this.channelLinkType);
-        registerSpec.setOverruledObisCode(this.obisCode);
+        registerSpec.setOverruledObisCode(this.overruledObisCode);
         registerSpec.setLinkedChannelSpec(linkedChannelSpec);
         registerSpec.setRegisterMapping(registerMapping);
     }

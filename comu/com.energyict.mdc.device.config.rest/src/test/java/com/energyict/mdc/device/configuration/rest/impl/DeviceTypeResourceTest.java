@@ -706,7 +706,50 @@ public class DeviceTypeResourceTest extends JerseyTest {
         verify(registerSpecBuilder).setOverflow(BigDecimal.TEN);
         verify(deviceConfiguration).createRegisterSpec(registerMappingArgumentCaptor.capture());
         assertThat(registerMappingArgumentCaptor.getValue()).isEqualTo(registerMapping);
+    }
 
+    @Test
+    public void testUpdateRegisterConfigWithoutLinkedChannelSpec() throws Exception {
+        long deviceType_id=41;
+        long deviceConfig_id=51;
+        long registerSpec_id=61;
+        long registerMapping_id=133;
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getId()).thenReturn(deviceConfig_id);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+        RegisterMapping registerMapping = mock(RegisterMapping.class);
+        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
+        when(deviceConfigurationService.findRegisterMapping(registerMapping_id)).thenReturn(registerMapping);
+        ReadingType readingType = mockReadingType();
+        when(registerMapping.getReadingType()).thenReturn(readingType);
+        RegisterSpec registerConfig = mock(RegisterSpec.class);
+        when(registerConfig.getRegisterMapping()).thenReturn(registerMapping);
+        when(registerConfig.getId()).thenReturn(registerSpec_id);
+        ObisCode obisCode = mockObisCode();
+        when(registerConfig.getObisCode()).thenReturn(obisCode);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = mock(RegisterSpec.RegisterSpecBuilder.class, Answers.RETURNS_SELF);
+        when(registerSpecBuilder.add()).thenReturn(registerConfig);
+        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerConfig));
+        RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
+        registerConfigInfo.registerTypeId=registerMapping_id;
+        registerConfigInfo.multiplier= BigDecimal.TEN;
+        registerConfigInfo.numberOfFractionDigits= 6;
+        registerConfigInfo.numberOfDigits= 4;
+        registerConfigInfo.overflowValue= BigDecimal.valueOf(123);
+        registerConfigInfo.overruledObisCode= obisCode;
+
+        Entity<RegisterConfigInfo> json = Entity.json(registerConfigInfo);
+        Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        ArgumentCaptor<ObisCode> obisCodeArgumentCaptor = ArgumentCaptor.forClass(ObisCode.class);
+        verify(registerConfig).setMultiplier(BigDecimal.TEN);
+        verify(registerConfig).setRegisterMapping(registerMapping);
+        verify(registerConfig).setOverruledObisCode(obisCodeArgumentCaptor.capture());
+        assertThat(obisCodeArgumentCaptor.getValue().toString()).isEqualTo(obisCode.toString());
+        verify(registerConfig).setOverflow(BigDecimal.valueOf(123));
+        verify(registerConfig).setNumberOfDigits(4);
+        verify(registerConfig).setNumberOfFractionDigits(6);
     }
 
     @Test
@@ -742,7 +785,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
     private ObisCode mockObisCode() {
         ObisCode obisCode = mock(ObisCode.class);
         when(obisCode.getDescription()).thenReturn("desc");
-        when(obisCode.toString()).thenReturn("1.2.3.4.5.6");
+        when(obisCode.toString()).thenReturn("1.1.1.1.1.1");
         return obisCode;
     }
 
