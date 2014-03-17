@@ -1,6 +1,10 @@
 package com.energyict.protocolimpl.base.protocolcollections;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolCollection;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolImplFactory;
+import com.energyict.protocol.ProtocolInstantiator;
+import com.energyict.protocol.SmartMeterProtocol;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,27 +25,38 @@ public class SmartMeterProtocolCollectionImpl implements ProtocolCollection {
         buildDefaultProtocols();
     }
 
-    public void buildDefaultProtocols() {
+    private void buildDefaultProtocols() {
         this.protocolClasses = new ArrayList();
         this.protocolNames = new ArrayList();
 
-
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub");this.protocolNames.add("UkHub");
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.InHomeDisplay");this.protocolNames.add("UkHub InHomeDisplay");
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas");this.protocolNames.add("UkHub ZigBee Gas");
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3");this.protocolNames.add("Smart WebRtu Z3");
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.webrtuz3.EMeter");this.protocolNames.add("Smart WebRtu Z3 E-meter");
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.webrtuz3.MbusDevice");this.protocolNames.add("Smart WebRtu Z3 Mbus Meter");
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.elster.apollo.AS300");this.protocolNames.add("Elster AS300 (UkHub)");
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD");this.protocolNames.add("Landis and Gyr ZMD");
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP");this.protocolNames.add("DSMR 2.3 WebRtu KP");
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice");this.protocolNames.add("DSMR 2.3 WebRtu KP - Mbus");
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.Mx382");this.protocolNames.add("DSMR 2.3 Iskra Mx382");
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.MbusDevice");this.protocolNames.add("DSMR 2.3 Iskra Mx382 - Mbus");
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350");this.protocolNames.add("DSMR 4.0 Landis and Gyr E350");
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372");this.protocolNames.add("Pre-NTA Iskra Mx372");
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.MbusDevice");this.protocolNames.add("Pre-NTA Iskra Mx372 - Mbus");
-
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.elster.apollo5.AS300DPET");  this.protocolNames.add("Elster AS300D-PET DLMS");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.elster.AS300P.AS300P");  this.protocolNames.add("Elster AS300-P DLMS (SSWG EC)");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.elster.apollo.AS300");  this.protocolNames.add("Elster AS300-P DLMS (SSWG IC)");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas.Z igbeeGas");  this.protocolNames.add("Elster BK-G4E  (SSWG EC) DLMS");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas");  this.protocolNames.add("Elster BK-G4E  (SSWG IC) DLMS");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster.MBusDevice");  this.protocolNames.add("Elster BK-Gx DLMS (NTA DSMR4.0) Mbus Slave");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.AM110R.AM110R");  this.protocolNames.add("EnergyICT AM110R DLMS (SSWG EC)");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.ihd.InHomeDisplay");  this.protocolNames.add("EnergyICT AM110R DLMS (SSWG EC) Zigbee IHD");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub");  this.protocolNames.add("EnergyICT AM110R DLMS (SSWG IC)");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.InHomeDisplay");  this.protocolNames.add("EnergyICT AM110R DLMS (SSWG IC) Zigbee IHD");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP");  this.protocolNames.add("EnergyICT WebRTU KP DLMS (NTA DSMR2.3)");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice");  this.protocolNames.add("EnergyICT WebRTU KP DLMS (NTA DSMR2.3) Mbus Slave");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3");  this.protocolNames.add("EnergyICT WebRTU Z3 DLMS");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.webrtuz3.EMeter");  this.protocolNames.add("EnergyICT WebRTU Z3 DLMS EMeter Slave");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.webrtuz3.MbusDevice");  this.protocolNames.add("EnergyICT WebRTU Z3 DLMS Mbus Slave");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveDevice");  this.protocolNames.add("EnergyICT WebRTU Z3 DLMS TIC Slave");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm.Kaifa");  this.protocolNames.add("IBM Kaifa DLMS (NTA DSMR4.0)");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm.MBusDevice");  this.protocolNames.add("IBM Kaifa DLMS (NTA DSMR4.0) Mbus Slave");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372");  this.protocolNames.add("Iskraemeco Mx372 DLMS (PRE-NTA)");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.MbusDevice");  this.protocolNames.add("Iskraemeco Mx372 DLMS (PRE-NTA) Mbus Slave");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.Mx382");  this.protocolNames.add("Iskraemeco Mx382 DLMS (NTA DSMR2.3)");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.MbusDevice");  this.protocolNames.add("Iskraemeco Mx382 DLMS (NTA DSMR2.3) Mbus Slave");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.actaris.sl7000.ActarisSl7000");  this.protocolNames.add("Itron SL7000 DLMS");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350");  this.protocolNames.add("Landis+Gyr E350 XEMEX DLMS (NTA DSMR4.0)");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice");  this.protocolNames.add("Landis+Gyr E350 XEMEX DLMS (NTA DSMR4.0) Mbus Slave");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD");  this.protocolNames.add("Landis+Gyr ICG Family DLMS");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.REMIDatalogger");  this.protocolNames.add("XEMEX ReMI DLMS (NTA DSMR4.0)");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.MbusDevice");  this.protocolNames.add("XEMEX ReMI DLMS (NTA DSMR4.0) Mbus Slave");
     }
 
     public String getProtocolName(int index) throws IOException {
