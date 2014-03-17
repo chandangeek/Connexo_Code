@@ -36,53 +36,12 @@
         </dependency>
     </dependencies>
 
-    <properties>
-        <resource.dir>../../</resource.dir>
-    </properties>
-
     <profiles>
         <profile>
             <id>sencha-build</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
-                        <executions>
-                            <execution>
-                                <id>sencha-compile</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target unless="skipSencha">
-                                        <echo>Sencha build</echo>
-                                        <echo>Using Sencha CMD in ${sencha.cmd.dir}</echo>
-                                        <echo>Using Ext lib in ${sencha.ext.dir}</echo>
-                                        <property name="build.dir" value="${project.build.directory}/web"/>
-                                        <property name="build.temp.dir" value="${project.build.directory}/webtemp"/>
-                                        <property name="cmd.dir" value="${sencha.cmd.dir}"/>
-                                        <property name="ext.dir" value="${sencha.ext.dir}"/>
-                                        <property name="resource.dir" value="./Unifying/"/>
-                                        <ant antfile="build.xml" target="build" dir="./src/main/web/js/uni/"/>
-                                    </target>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.felix</groupId>
-                        <artifactId>maven-bundle-plugin</artifactId>
-                        <configuration>
-                            <instructions>
-                                <Include-Resource>{maven-resources}</Include-Resource>
-                            </instructions>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
+            <properties>
+                <js.dir>js/uni</js.dir>
+            </properties>
         </profile>
 
     </profiles>
