@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -52,6 +53,27 @@ public class RegisterConfigurationResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterConfigInfo createRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, RegisterConfigInfo registerConfigInfo) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        RegisterMapping registerMapping = registerConfigInfo.registerTypeId==null?null:findRegisterMappingOrThrowException(registerConfigInfo.registerTypeId);
+        ChannelSpec channelSpec = registerConfigInfo.linkedChannelConfigId==null?null:findChannelSpecOrThrowException(registerConfigInfo.linkedChannelConfigId);
+        RegisterSpec registerSpec = deviceConfiguration.createRegisterSpec(registerMapping)
+                .setMultiplier(registerConfigInfo.multiplier)
+                .setMultiplierMode(registerConfigInfo.multiplierMode)
+                .setChannelSpecLinkType(registerConfigInfo.channelLinkType)
+                .setLinkedChannelSpec(channelSpec)
+                .setNumberOfDigits(registerConfigInfo.numberOfDigits)
+                .setNumberOfFractionDigits(registerConfigInfo.numberOfFractionDigits)
+                .setOverflow(registerConfigInfo.overflowValue)
+                .setOverruledObisCode(registerConfigInfo.overruledObisCode)
+                .add();
+        return RegisterConfigInfo.from(registerSpec);
+    }
+
+    @PUT
+    @Path("/{registerId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public RegisterConfigInfo updateRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("registerConfigId") long registerTypeId, RegisterConfigInfo registerConfigInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         RegisterMapping registerMapping = registerConfigInfo.registerTypeId==null?null:findRegisterMappingOrThrowException(registerConfigInfo.registerTypeId);

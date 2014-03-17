@@ -81,8 +81,8 @@ public class DeviceConfigurationResource {
             deviceConfiguration.deactivate();
         } else {
             deviceConfigurationInfo.writeTo(deviceConfiguration);
-            deviceConfiguration.save();
         }
+        deviceConfiguration.save();
         return new DeviceConfigurationInfo(deviceConfiguration);
     }
 
