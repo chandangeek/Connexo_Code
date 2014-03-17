@@ -18,4 +18,5 @@ public interface PhysicalGatewayReference extends GatewayReference {
      */
     public Device getPhysicalGateway();
 
+    Device getOrigin();
 }

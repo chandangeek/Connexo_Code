@@ -19,17 +19,23 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exception.MessageSeeds;
+import com.energyict.mdc.device.data.exception.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.Channel;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.LoadProfile;
 import com.energyict.mdc.protocol.api.device.LogBook;
@@ -40,6 +46,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
@@ -49,7 +56,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Constants.DUPLICATE_DEVICE_EXTERNAL_KEY +"}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_EXTERNAL_KEY + "}")
 public class DeviceImpl implements Device {
 
     private final DataModel dataModel;
@@ -57,12 +64,12 @@ public class DeviceImpl implements Device {
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final MeteringService meteringService;
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceDataService deviceDataService;
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private long id;
 
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private String name;
 
     private String serialNumber;
@@ -71,17 +78,26 @@ public class DeviceImpl implements Device {
     private TimeZone timeZone;
     private String externalName;
     private Date modificationDate;
+    @Valid
     private TemporalReference<CommunicationGatewayReference> communicationGatewayReferenceDevice = Temporals.absent();
+    @Valid
     private TemporalReference<PhysicalGatewayReference> physicalGatewayReferenceDevice = Temporals.absent();
+    @Valid
+    private List<DeviceProtocolPropertyImpl> deviceProperties = new ArrayList<>();
 
     @Inject
-    public DeviceImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, MeteringService meteringService, DeviceConfigurationService deviceConfigurationService) {
+    public DeviceImpl(DataModel dataModel,
+                      EventService eventService,
+                      Thesaurus thesaurus,
+                      Clock clock,
+                      MeteringService meteringService,
+                      DeviceDataService deviceDataService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.meteringService = meteringService;
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceDataService = deviceDataService;
     }
 
     @Override
@@ -90,8 +106,7 @@ public class DeviceImpl implements Device {
         Save.action(this.getId()).save(dataModel, this);
         if (this.id > 0) {
             this.notifyUpdated();
-        }
-        else {
+        } else {
             this.notifyCreated();
         }
     }
@@ -120,10 +135,22 @@ public class DeviceImpl implements Device {
     }
 
     private void validateDelete() {
-        // nothing to validate yet
+        validateGatewayUsage();
     }
 
-    DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name){
+    private void validateGatewayUsage() {
+        List<BaseDevice> physicalConnectedDevices = getPhysicalConnectedDevices();
+        if (!physicalConnectedDevices.isEmpty()) {
+            throw StillGatewayException.forPhysicalGateway(thesaurus, this, physicalConnectedDevices.toArray(new Device[physicalConnectedDevices.size()]));
+        }
+        List<BaseDevice> communicationReferencingDevices = getCommunicationReferencingDevices();
+        if (!communicationReferencingDevices.isEmpty()) {
+            throw StillGatewayException.forCommunicationGateway(thesaurus, this, communicationReferencingDevices.toArray(new Device[communicationReferencingDevices.size()]));
+
+        }
+    }
+
+    DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name) {
         this.deviceConfiguration.set(deviceConfiguration);
         setName(name);
         return this;
@@ -153,8 +180,8 @@ public class DeviceImpl implements Device {
     }
 
     public TimeZone getTimeZone() {
-        if(this.timeZone == null){
-            if(!Checks.is(timeZoneId).empty() && Arrays.asList(TimeZone.getAvailableIDs()).contains(this.timeZoneId)){
+        if (this.timeZone == null) {
+            if (!Checks.is(timeZoneId).empty() && Arrays.asList(TimeZone.getAvailableIDs()).contains(this.timeZoneId)) {
                 this.timeZone = TimeZone.getTimeZone(timeZoneId);
             } else {
                 return getSystemTimeZone();
@@ -173,7 +200,7 @@ public class DeviceImpl implements Device {
 
     @Override
     public void setTimeZone(TimeZone timeZone) {
-        if(timeZone != null){
+        if (timeZone != null) {
             this.timeZoneId = timeZone.getID();
         } else {
             this.timeZoneId = "";
@@ -197,17 +224,31 @@ public class DeviceImpl implements Device {
 
     @Override
     public List<Channel> getChannels() {
-        return Collections.emptyList();
+        List<Channel> channels = new ArrayList<>();
+        for (ChannelSpec channelSpec : getDeviceConfiguration().getChannelSpecs()) {
+            channels.add(new ChannelImpl(channelSpec, this));
+        }
+        return channels;
     }
 
     @Override
-    public Channel getChannel(String name) {
+    public BaseChannel getChannel(String name) {
+        for (ChannelSpec channelSpec : getDeviceConfiguration().getChannelSpecs()) {
+            if (channelSpec.getName().equals(name)) {
+                return new ChannelImpl(channelSpec, this);
+            }
+        }
         return null;
     }
 
     @Override
-    public Channel getChannel(int index) {
-        return null;
+    public BaseChannel getChannel(int index) {
+        List<ChannelSpec> channelSpecs = getDeviceConfiguration().getChannelSpecs();
+        if(channelSpecs.size() > index){
+            return new ChannelImpl(channelSpecs.get(index), this);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -222,7 +263,7 @@ public class DeviceImpl implements Device {
     @Override
     public Register getRegisterWithDeviceObisCode(ObisCode code) {
         for (RegisterSpec registerSpec : getDeviceConfiguration().getRegisterSpecs()) {
-            if(registerSpec.getDeviceObisCode().equals(code)){
+            if (registerSpec.getDeviceObisCode().equals(code)) {
                 return new RegisterImpl(registerSpec, this);
             }
         }
@@ -230,29 +271,32 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public List<BaseDevice> getDownstreamDevices() {
-        //TODO search them via a service ...
-        return Collections.emptyList();
+    public List<BaseDevice> getPhysicalConnectedDevices() {
+        return this.deviceDataService.findPhysicalConnectedDevicesFor(this);
     }
 
     @Override
     public Device getPhysicalGateway() {
         Optional<PhysicalGatewayReference> physicalGatewayReferenceOptional = this.physicalGatewayReferenceDevice.effective(clock.now());
-        if(physicalGatewayReferenceOptional.isPresent()){
+        if (physicalGatewayReferenceOptional.isPresent()) {
             return physicalGatewayReferenceOptional.get().getPhysicalGateway();
         }
         return null;
     }
 
     @Override
-    public void setPhysicalGateway(BaseDevice gateway){
-        if(gateway != null){
+    public void setPhysicalGateway(BaseDevice gateway) {
+        if (gateway != null) {
             Date currentTime = clock.now();
             terminateTemporal(currentTime, this.physicalGatewayReferenceDevice);
-            PhysicalGatewayReferenceImpl physicalGatewayReference = this.dataModel.getInstance(PhysicalGatewayReferenceImpl.class).createFor(Interval.startAt(currentTime), (Device) gateway);
-            this.physicalGatewayReferenceDevice.add(physicalGatewayReference);
-//            this.dataModel.persist(physicalGatewayReferenceDevice);
+            PhysicalGatewayReferenceImpl physicalGatewayReference = this.dataModel.getInstance(PhysicalGatewayReferenceImpl.class).createFor(Interval.startAt(currentTime), (Device) gateway, this);
+            savePhysicalGateway(physicalGatewayReference);
         }
+    }
+
+    private void savePhysicalGateway(PhysicalGatewayReferenceImpl physicalGatewayReference) {
+        Save.action(getId()).validate(this.dataModel, physicalGatewayReference);
+        this.physicalGatewayReferenceDevice.add(physicalGatewayReference);
     }
 
     @Override
@@ -262,22 +306,26 @@ public class DeviceImpl implements Device {
 
     private void terminateTemporal(Date currentTime, TemporalReference<? extends GatewayReference> temporalReference) {
         Optional<? extends GatewayReference> currentGateway = temporalReference.effective(currentTime);
-        if(currentGateway.isPresent()){
-            currentGateway.get().terminate(currentTime);
-            // TODO do we need to do this?
-            this.dataModel.update(temporalReference);
+        if (currentGateway.isPresent()) {
+            GatewayReference gateway = currentGateway.get();
+            gateway.terminate(currentTime);
+            this.dataModel.update(gateway);
         }
     }
 
     @Override
     public void setCommunicationGateway(Device gateway) {
-        if(gateway != null){
+        if (gateway != null) {
             Date currentTime = clock.now();
             terminateTemporal(currentTime, this.communicationGatewayReferenceDevice);
-            CommunicationGatewayReferenceImpl communicationGatewayReference = this.dataModel.getInstance(CommunicationGatewayReferenceImpl.class).createFor(Interval.startAt(currentTime), gateway);
-            this.communicationGatewayReferenceDevice.add(communicationGatewayReference);
-//            this.dataModel.persist(physicalGatewayReferenceDevice);
+            CommunicationGatewayReferenceImpl communicationGatewayReference = this.dataModel.getInstance(CommunicationGatewayReferenceImpl.class).createFor(Interval.startAt(currentTime), gateway, this);
+            saveCommunicationGateway(communicationGatewayReference);
         }
+    }
+
+    private void saveCommunicationGateway(CommunicationGatewayReferenceImpl communicationGatewayReference) {
+        Save.action(getId()).validate(this.dataModel, communicationGatewayReference);
+        this.communicationGatewayReferenceDevice.add(communicationGatewayReference);
     }
 
     @Override
@@ -286,9 +334,14 @@ public class DeviceImpl implements Device {
     }
 
     @Override
+    public List<BaseDevice> getCommunicationReferencingDevices() {
+        return this.deviceDataService.findCommunicationReferencingDevicesFor(this);
+    }
+
+    @Override
     public Device getCommunicationGateway() {
         Optional<CommunicationGatewayReference> communicationGatewayReferenceOptional = this.communicationGatewayReferenceDevice.effective(clock.now());
-        if(communicationGatewayReferenceOptional.isPresent()){
+        if (communicationGatewayReferenceOptional.isPresent()) {
             return communicationGatewayReferenceOptional.get().getCommunicationGateway();
         }
         return null;
@@ -326,30 +379,54 @@ public class DeviceImpl implements Device {
         return Collections.emptyList();
     }
 
-    public void loadProfilesChanged(){
+    public void loadProfilesChanged() {
 
     }
 
-    public TypedProperties getProtocolProperties() {
+    public TypedProperties getDeviceProtocolProperties() {
         TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceProtocolPluggableClass().getProperties());
-        TypedProperties localProperties = getProtocolPropertyPersister().get(this);
+        TypedProperties localProperties = getLocalProperties(this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs());
         properties.setAllProperties(localProperties);
         return properties;
     }
 
-//    public DeviceProtocolPropertyPersister getProtocolPropertyPersister() {
-//        return new DeviceProtocolPropertyPersister(this, "eisrtuprotocolinfo", "rtuid");
-//    }
+    @Override
+    public void setDeviceProtocolProperties(TypedProperties allDeviceProtocolProperties) {
+        //TODO check the property implementation rudi made.
+        /*
+            Consider creating multiple methods for create/update/delete properties with name/value pair
+         */
+    }
+
+    private TypedProperties getLocalProperties(List<PropertySpec> propertySpecs) {
+        TypedProperties properties = TypedProperties.empty();
+        for (PropertySpec propertySpec : propertySpecs) {
+            DeviceProtocolProperty deviceProtocolProperty = findDevicePropertyFor(propertySpec);
+            if (deviceProtocolProperty != null) {
+                properties.setProperty(deviceProtocolProperty.getName(), propertySpec.getValueFactory().fromStringValue(deviceProtocolProperty.getStringValue()));
+            }
+        }
+        return properties;
+    }
+
+    private DeviceProtocolProperty findDevicePropertyFor(PropertySpec propertySpec) {
+        for (DeviceProtocolPropertyImpl deviceProperty : this.deviceProperties) {
+            if (deviceProperty.getName().equals(propertySpec.getName())) {
+                return deviceProperty;
+            }
+        }
+        return null;
+    }
 
     @Override
     public void store(MeterReading meterReading) {
         Optional<AmrSystem> amrSystem = this.meteringService.findAmrSystem(1);
-        if(amrSystem.isPresent()){
+        if (amrSystem.isPresent()) {
             Optional<Meter> holder = amrSystem.get().findMeter(String.valueOf(getId()));
             Meter meter;
-            if(!holder.isPresent()){
+            if (!holder.isPresent()) {
                 // create meter
-                if(getExternalName() != null){
+                if (getExternalName() != null) {
                     meter = amrSystem.get().newMeter(String.valueOf(getId()), getExternalName());
                 } else {
                     meter = amrSystem.get().newMeter(String.valueOf(getId()));

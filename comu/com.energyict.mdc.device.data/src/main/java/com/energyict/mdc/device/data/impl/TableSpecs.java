@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
 
 import java.util.List;
 
@@ -38,27 +39,29 @@ public enum TableSpecs {
         }
     },
 
-    MDCDEVICEPROPERTIES{
-        @Override
-        public void addTo(DataModel dataModel) {
-            Table<Api> table = dataModel.add(name(), Api.class);
-            table.map(Implementation.class);
-            Column name = table.column("NAME").varChar(80).notNull().map("name").add();
-            table.column("CRONSTRING").varChar(80).notNull().map("cronstring").add();
-            table.column("RECURRENTTASKSACTIVE").type("CHAR(1)").notNull().map("recurrenttasksactive").add();
-            table.primaryKey("APS_PK_APPSERVER").on(name).add();
-        }
-    },
+//    MDCDEVICEPROPERTIES{
+//        @Override
+//        public void addTo(DataModel dataModel) {
+//            Table<DeviceProtocolProperty> table = dataModel.addTable(name(), DeviceProtocolProperty.class);
+//            table.map(DeviceProtocolPropertyImpl.class);
+//            Column rtuid = table.column("RTUID").number().add();
+//            table.column("NAME").varChar(255).notNull().map("name").add();
+//            table.column("VALUE").varChar(255).map("stringValue").add();
+//            table.foreignKey("FK_PROTOCOLINFOTYPEID").on(rtuid).references(EISRTU.name()).map("device").reverseMap("deviceProperties").composition().add();
+//        }
+//    },
 
     MDCPHYSICALGATEWAYREFERENCE {
         @Override
         void addTo(DataModel dataModel) {
             Table<PhysicalGatewayReference> table = dataModel.addTable(name(), PhysicalGatewayReference.class);
             table.map(PhysicalGatewayReferenceImpl.class);
-            Column physicalGatewayId = table.column("GATEWAYID").notNull().number().conversion(NUMBER2LONG).add();
+            Column originId = table.column("ORIGINID").notNull().number().conversion(NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
-            table.primaryKey("DDC_U_PHY_GATEWAY").on(physicalGatewayId, intervalColumns.get(0)).add();
-            table.foreignKey("DDC_FK_DEVPHYGATEWAY").on(physicalGatewayId).references(EISRTU.name()).onDelete(CASCADE).map("gateway").reverseMap("physicalGatewayReferenceDevice").composition().add();
+            Column physicalGatewayId = table.column("GATEWAYID").notNull().number().conversion(NUMBER2LONG).add();
+            table.primaryKey("DDC_U_PHY_GATEWAY").on(originId, intervalColumns.get(0)).add();
+            table.foreignKey("DDC_FK_DEVPHYORIGIN").on(originId).references(EISRTU.name()).onDelete(CASCADE).map("origin").reverseMap("physicalGatewayReferenceDevice").composition().add();
+            table.foreignKey("DDC_FK_DEVPHYGATEWAY").on(physicalGatewayId).references(EISRTU.name()).onDelete(CASCADE).map("gateway").add();
         }
     },
 
@@ -67,14 +70,14 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<CommunicationGatewayReference> table = dataModel.addTable(name(), CommunicationGatewayReference.class);
             table.map(CommunicationGatewayReferenceImpl.class);
-            Column communicationGatewayId = table.column("GATEWAYID").notNull().number().conversion(NUMBER2LONG).add();
+            Column originId = table.column("ORIGINID").notNull().number().conversion(NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
-            table.primaryKey("DDC_U_COM_GATEWAY").on(communicationGatewayId, intervalColumns.get(0)).add();
-            table.foreignKey("DDC_FK_DEVCOMGATEWAY").on(communicationGatewayId).references(EISRTU.name()).onDelete(CASCADE).map("gateway").reverseMap("communicationGatewayReferenceDevice").composition().add();
+            Column communicationGatewayId = table.column("GATEWAYID").notNull().number().conversion(NUMBER2LONG).add();
+            table.primaryKey("DDC_U_COM_GATEWAY").on(originId, intervalColumns.get(0)).add();
+            table.foreignKey("DDC_FK_DEVCOMORIGIN").on(originId).references(EISRTU.name()).onDelete(CASCADE).map("origin").reverseMap("communicationGatewayReferenceDevice").composition().add();
+            table.foreignKey("DDC_FK_DEVCOMGATEWAY").on(communicationGatewayId).references(EISRTU.name()).onDelete(CASCADE).map("gateway").add();
         }
     },
-
-
     ;
 
     private TableSpecs() {

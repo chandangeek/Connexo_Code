@@ -4,12 +4,9 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.Channel;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.LoadProfile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -49,11 +46,34 @@ public interface Device extends BaseDevice<Channel, LoadProfile<Channel>, Regist
     @Override
     public Device getPhysicalGateway();
 
+    /**
+     * Get the Device which is used for <i>communication</i><br>
+     * <i>Note that this can be another device than the physical gateway</i>
+     *
+     * @return the Device which is used to communicate with the HeadEnd
+     */
     public Device getCommunicationGateway();
 
+    /**
+     * Set the device which will be used to communicate with the HeadEnd.<br>
+     *
+     * @param device the communication gateway for this device
+     */
     void setCommunicationGateway(Device device);
 
+    /**
+     * Remove the current link to the communication gateway
+     */
     void clearCommunicationGateway();
+
+    /**
+     * Gets the list of Devices which are reference to this Device for Communication.
+     * This means that for each returned Device, the {@link #getCommunicationGateway()}
+     * will return this Device for the current timestamp.
+     *
+     * @return the list of Devices which are currently linked to this Device for communication
+     */
+    List<BaseDevice> getCommunicationReferencingDevices();
 
     List<DeviceMessage> getMessages();
 
@@ -105,7 +125,9 @@ public interface Device extends BaseDevice<Channel, LoadProfile<Channel>, Regist
      */
     void loadProfilesChanged();
 
-    TypedProperties getProtocolProperties();
+    TypedProperties getDeviceProtocolProperties();
+
+    void setDeviceProtocolProperties(TypedProperties allDeviceProtocolProperties);
 
     /**
      * Stores the given MeterReadings
@@ -146,7 +168,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile<Channel>, Regist
      * @param name the channel name.
      * @return the channel or null.
      */
-    Channel getChannel(String name);
+    BaseChannel getChannel(String name);
 
     /**
      * Returns the channel with the given index.
@@ -154,5 +176,5 @@ public interface Device extends BaseDevice<Channel, LoadProfile<Channel>, Regist
      * @param index the zero based index.
      * @return the Channel.
      */
-    Channel getChannel(int index);
+    BaseChannel getChannel(int index);
 }

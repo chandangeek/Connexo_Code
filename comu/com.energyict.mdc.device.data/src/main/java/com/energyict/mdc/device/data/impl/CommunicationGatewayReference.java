@@ -19,4 +19,5 @@ public interface CommunicationGatewayReference extends GatewayReference {
      */
     public Device getCommunicationGateway();
 
+    Device getOrigin();
 }

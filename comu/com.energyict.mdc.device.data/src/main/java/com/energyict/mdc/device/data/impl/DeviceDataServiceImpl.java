@@ -8,12 +8,15 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -21,6 +24,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Provides a straightforward implementation of the {@link com.energyict.mdc.device.data.DeviceDataService} interface
@@ -149,5 +155,35 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     public boolean deviceHasLogBookForLogBookSpec(Device device, LogBookSpec logBookSpec) {
         //TODO properly implement when the persistence of LogBook has finished
         return false;
+    }
+
+    @Override
+    public List<BaseDevice> findPhysicalConnectedDevicesFor(Device device) {
+        Condition condition = Where.where("gateway").isEqualTo(device).and(Where.where("interval").isEffective());
+        List<PhysicalGatewayReference> physicalGatewayReferences = this.dataModel.mapper(PhysicalGatewayReference.class).select(condition);
+        if(!physicalGatewayReferences.isEmpty()){
+            List<BaseDevice> baseDevices = new ArrayList<>();
+            for (PhysicalGatewayReference physicalGatewayReference : physicalGatewayReferences) {
+                baseDevices.add(physicalGatewayReference.getOrigin());
+            }
+            return baseDevices;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<BaseDevice> findCommunicationReferencingDevicesFor(Device device) {
+        Condition condition = Where.where("gateway").isEqualTo(device).and(Where.where("interval").isEffective());
+        List<CommunicationGatewayReference> communicationGatewayReferences = this.dataModel.mapper(CommunicationGatewayReference.class).select(condition);
+        if(!communicationGatewayReferences.isEmpty()){
+            List<BaseDevice> baseDevices = new ArrayList<>();
+            for (CommunicationGatewayReference communicationGatewayReference : communicationGatewayReferences) {
+                baseDevices.add(communicationGatewayReference.getOrigin());
+            }
+            return baseDevices;
+        } else {
+            return Collections.emptyList();
+        }
     }
 }

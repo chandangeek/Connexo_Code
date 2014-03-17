@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.exception;
 
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 
 import java.util.logging.Level;
@@ -13,8 +12,8 @@ import java.util.logging.Level;
  */
 public enum MessageSeeds implements MessageSeed {
 
-    DEVICE_NAME_IS_REQUIRED(1001, "device.name.required", "The name of a device is required", Level.SEVERE),
-    DUPLICATE_DEVICE_EXTERNAL_NAME(1002, Constants.DUPLICATE_DEVICE_EXTERNAL_KEY, "All device must have a unique external name", Level.SEVERE),
+    DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(100, Constants.PHYSICAL_GATEWAY_STILL_IN_USE,"You can not delete device '{0}' because it is still used as a physical gateway for '{1}'", Level.SEVERE),
+    DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(101, Constants.COMMUNICATION_GATEWAY_STILL_IN_USE,"You can not delete device '{0}' because it is still used as a communication gateway for '{1}'", Level.SEVERE),
     ;
 
     private final int number;
@@ -56,7 +55,11 @@ public enum MessageSeeds implements MessageSeed {
 
     public static class Constants {
         public static final String NAME_REQUIRED_KEY = "DDC.X.name.required";
+        public static final String VALUE_IS_REQUIRED_KEY = "DDC.X.value.required";
         public static final String DUPLICATE_DEVICE_EXTERNAL_KEY = "DDC.device.duplicateExternalName";
+        public static final String GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY = "DDC.gateway.not.origin";
+        public static final String PHYSICAL_GATEWAY_STILL_IN_USE = "DDC.device.delete.linked.physical.gateway";
+        public static final String COMMUNICATION_GATEWAY_STILL_IN_USE = "DDC.device.delete.linked.communication.gateway";
 
     }
 }

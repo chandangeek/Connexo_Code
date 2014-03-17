@@ -20,18 +20,22 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exception.MessageSeeds;
+import com.energyict.mdc.device.data.exception.StillGatewayException;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import org.fest.assertions.core.Condition;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.TimeZone;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.fest.assertions.api.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -61,7 +65,7 @@ public class DeviceImplTest extends PersistenceTest {
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     @Before
-    public void saveTheDefaultTimeZone(){
+    public void saveTheDefaultTimeZone() {
         this.actualDefaultTimeZone = TimeZone.getDefault();
     }
 
@@ -72,17 +76,21 @@ public class DeviceImplTest extends PersistenceTest {
     }
 
     @After
-    public void restoreTheDefaultTimeZone(){
+    public void restoreTheDefaultTimeZone() {
         TimeZone.setDefault(this.actualDefaultTimeZone);
     }
 
     @After
-    public void cleanupDefaultSystemTimeZoneInUseFactoryOnEnvironment(){
+    public void cleanupDefaultSystemTimeZoneInUseFactoryOnEnvironment() {
         when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DefaultSystemTimeZoneFactory.class)).thenReturn(Collections.<DefaultSystemTimeZoneFactory>emptyList());
     }
 
     private Device createSimpleDevice() {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME);
+        return createSimpleDeviceWithName(DEVICENAME);
+    }
+
+    private Device createSimpleDeviceWithName(String name) {
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name);
         device.save();
         return device;
     }
@@ -116,10 +124,10 @@ public class DeviceImplTest extends PersistenceTest {
 
     private void setupPhenomena() {
         this.unit1 = Unit.get("kWh");
-        this.phenomenon1 = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(DeviceImplTest.class.getSimpleName()+"1", unit1);
+        this.phenomenon1 = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(DeviceImplTest.class.getSimpleName() + "1", unit1);
         this.phenomenon1.save();
         this.unit2 = Unit.get("MWh");
-        this.phenomenon2 = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(DeviceImplTest.class.getSimpleName()+"2", unit2);
+        this.phenomenon2 = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(DeviceImplTest.class.getSimpleName() + "2", unit2);
         this.phenomenon2.save();
     }
 
@@ -370,7 +378,7 @@ public class DeviceImplTest extends PersistenceTest {
         assertThat(simpleDevice.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"))).isNull();
     }
 
-    private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs(){
+    private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {
         RegisterMapping registerMapping1 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RegisterMapping1", obisCode1, unit1, readingType1, 0);
         registerMapping1.save();
         RegisterMapping registerMapping2 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RegisterMapping2", obisCode2, unit2, readingType2, 0);
@@ -383,6 +391,10 @@ public class DeviceImplTest extends PersistenceTest {
         DeviceConfiguration deviceConfiguration = configurationWithRegisterMappings.add();
         deviceType.save();
         return deviceConfiguration;
+    }
+
+    DeviceConfiguration createDeviceConfigurationWithTwoChannelSpecs(){
+        return null;
     }
 
     @Test
@@ -418,44 +430,441 @@ public class DeviceImplTest extends PersistenceTest {
         assertThat(simpleDevice.getPhysicalGateway()).isNull();
     }
 
-    @Ignore
     @Test
     @Transactional
     public void createWithPhysicalGatewayTest() {
-        Device masterDevice = createSimpleDevice();
+        Device masterDevice = createSimpleDeviceWithName("Physical_MASTER");
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave");
+        device.setPhysicalGateway(masterDevice);
         device.save();
-
-        // After the add, to the TemporalReference, the all() returns nothing ...
-
-        Device test = getReloadedDevice(device);
-        test.setPhysicalGateway(masterDevice);
-        test.save();
-
-        Device reloadedDevice = getReloadedDevice(test);
+        Device reloadedDevice = getReloadedDevice(device);
 
         assertThat(reloadedDevice.getPhysicalGateway()).isNotNull();
         assertThat(reloadedDevice.getPhysicalGateway().getId()).isEqualTo(masterDevice.getId());
     }
 
-    @Ignore
+    @Test
+    @Transactional
+    public void updateWithPhysicalGatewayTest() {
+        Device masterDevice = createSimpleDeviceWithName("Physical_MASTER");
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave");
+        device.save();
+        Device reloadedDevice = getReloadedDevice(device);
+        reloadedDevice.setPhysicalGateway(masterDevice);
+        reloadedDevice.save();
+
+        Device updatedDevice = getReloadedDevice(reloadedDevice);
+
+        assertThat(updatedDevice.getPhysicalGateway()).isNotNull();
+        assertThat(updatedDevice.getPhysicalGateway().getId()).isEqualTo(masterDevice.getId());
+    }
+
+    @Test
+    @Transactional
+    public void updateMultipleSlavesWithSameMasterTest() {
+        Device masterDevice = createSimpleDeviceWithName("Physical_MASTER");
+        Device slaveDevice1 = createSimpleDeviceWithName("SLAVE_1");
+        Device slaveDevice2 = createSimpleDeviceWithName("SLAVE_2");
+
+        slaveDevice1.setPhysicalGateway(masterDevice);
+        slaveDevice1.save();
+        slaveDevice2.setPhysicalGateway(masterDevice);
+        slaveDevice2.save();
+
+        Device reloadedSlave1 = getReloadedDevice(slaveDevice1);
+        Device reloadedSlave2 = getReloadedDevice(slaveDevice2);
+
+        assertThat(reloadedSlave1.getPhysicalGateway().getId()).isEqualTo(reloadedSlave2.getPhysicalGateway().getId()).isEqualTo(masterDevice.getId());
+    }
+
+    @Test
+    @Transactional
+    public void updateWithSecondMasterDeviceTest() {
+        Device masterDevice1 = createSimpleDeviceWithName("Physical_MASTER_1");
+        Device masterDevice2 = createSimpleDeviceWithName("Physical_MASTER_2");
+        Device origin = createSimpleDeviceWithName("Origin");
+
+        origin.setPhysicalGateway(masterDevice1);
+        origin.save();
+
+        Device slaveWithMaster1 = getReloadedDevice(origin);
+        slaveWithMaster1.setPhysicalGateway(masterDevice2);
+        slaveWithMaster1.save();
+
+        Device slaveWithMaster2 = getReloadedDevice(slaveWithMaster1);
+
+        assertThat(slaveWithMaster2.getPhysicalGateway().getId()).isEqualTo(masterDevice2.getId());
+    }
+
+    @Test
+    @Transactional
+    public void removePhysicalGatewayTest() {
+        Device masterDevice = createSimpleDeviceWithName("Physical_MASTER");
+        Device slaveDevice1 = createSimpleDeviceWithName("SLAVE_1");
+        slaveDevice1.setPhysicalGateway(masterDevice);
+        slaveDevice1.save();
+
+        Device updatedSlave = getReloadedDevice(slaveDevice1);
+        updatedSlave.clearPhysicalGateway();
+        updatedSlave.save();
+
+        Device slaveWithNoMaster = getReloadedDevice(updatedSlave);
+        assertThat(slaveWithNoMaster.getPhysicalGateway()).isNull();
+    }
+
+    @Test
+    @Transactional
+    public void clearPhysicalGatewayWhenThereIsNoGatewayTest() {
+        Device origin = createSimpleDeviceWithName("Origin");
+        origin.clearPhysicalGateway();
+        // no exception should be thrown
+        assertThat(getReloadedDevice(origin).getPhysicalGateway()).isNull();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
+    public void setPhysicalGatewaySameAsOriginDeviceTest() {
+        Device origin = createSimpleDeviceWithName("Origin");
+
+        origin.setPhysicalGateway(origin);
+        origin.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
+    public void updatePhysicalGatewayWithSameAsOriginDeviceTest() {
+        Device physicalGateway = createSimpleDeviceWithName("PhysicalGateway");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave");
+        device.setPhysicalGateway(physicalGateway);
+        device.save();
+        Device reloadedDevice = getReloadedDevice(device);
+
+        reloadedDevice.setPhysicalGateway(reloadedDevice);
+        reloadedDevice.save();
+    }
+
+    @Test
+    @Transactional
+    public void defaultCommunicationGatewayNullTest() {
+        Device simpleDevice = createSimpleDevice();
+
+        assertThat(simpleDevice.getCommunicationGateway()).isNull();
+    }
+
     @Test
     @Transactional
     public void createWithCommunicationGatewayTest() {
         Device communicationMaster = createSimpleDevice();
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave");
+        device.setCommunicationGateway(communicationMaster);
         device.save();
-
-        Device test = getReloadedDevice(device);
-        test.setCommunicationGateway(communicationMaster);
-        test.save();
-
-        Device reloadedDevice = getReloadedDevice(test);
+        Device reloadedDevice = getReloadedDevice(device);
 
         assertThat(reloadedDevice.getCommunicationGateway()).isNotNull();
         assertThat(reloadedDevice.getCommunicationGateway().getId()).isEqualTo(communicationMaster.getId());
     }
 
+    @Test
+    @Transactional
+    public void updateWithCommunicationGatewayTest() {
+        Device communicationGateway = createSimpleDeviceWithName("CommunicationGateway");
+        Device origin = createSimpleDeviceWithName("Origin");
+        Device reloadedOrigin = getReloadedDevice(origin);
+        reloadedOrigin.setCommunicationGateway(communicationGateway);
+        reloadedOrigin.save();
+
+        Device updatedDevice = getReloadedDevice(reloadedOrigin);
+
+        assertThat(updatedDevice.getCommunicationGateway()).isNotNull();
+        assertThat(updatedDevice.getCommunicationGateway().getId()).isEqualTo(communicationGateway.getId());
+    }
+
+    @Test
+    @Transactional
+    public void updateMultipleOriginsWithSameCommunicationGatewayTest() {
+        Device masterDevice = createSimpleDeviceWithName("Physical_MASTER");
+        Device slaveDevice1 = createSimpleDeviceWithName("SLAVE_1");
+        Device slaveDevice2 = createSimpleDeviceWithName("SLAVE_2");
+
+        slaveDevice1.setCommunicationGateway(masterDevice);
+        slaveDevice1.save();
+        slaveDevice2.setCommunicationGateway(masterDevice);
+        slaveDevice2.save();
+
+        Device reloadedSlave1 = getReloadedDevice(slaveDevice1);
+        Device reloadedSlave2 = getReloadedDevice(slaveDevice2);
+
+        assertThat(reloadedSlave1.getCommunicationGateway().getId()).isEqualTo(reloadedSlave2.getCommunicationGateway().getId()).isEqualTo(masterDevice.getId());
+    }
+
+    @Test
+    @Transactional
+    public void removeCommunicationGatewayTest() {
+        Device communicationMaster = createSimpleDeviceWithName("CommunicationMaster");
+        Device origin = createSimpleDeviceWithName("Origin");
+        origin.setCommunicationGateway(communicationMaster);
+        origin.save();
+
+        Device originWithMaster = getReloadedDevice(origin);
+        originWithMaster.clearCommunicationGateway();
+        originWithMaster.save();
+
+        Device originWithoutMaster = getReloadedDevice(originWithMaster);
+
+        assertThat(originWithoutMaster.getCommunicationGateway()).isNull();
+    }
+
+    @Test
+    @Transactional
+    public void updateWithSecondCommunicationGatewayTest() {
+        Device communicationMaster1 = createSimpleDeviceWithName("CommunicationMaster1");
+        Device communicationMaster2 = createSimpleDeviceWithName("CommunicationMaster2");
+        Device origin = createSimpleDeviceWithName("Origin");
+
+        origin.setCommunicationGateway(communicationMaster1);
+        origin.save();
+
+        Device originWithMaster1 = getReloadedDevice(origin);
+        originWithMaster1.setCommunicationGateway(communicationMaster2);
+
+        Device originWithMaster2 = getReloadedDevice(originWithMaster1);
+
+        assertThat(originWithMaster2.getCommunicationGateway().getId()).isEqualTo(communicationMaster2.getId());
+    }
+
+    @Test
+    @Transactional
+    public void clearCommunicationGatewayWhenThereIsNoGatewayTest() {
+        Device originWithoutCommunicationGateway = createSimpleDevice();
+        originWithoutCommunicationGateway.clearCommunicationGateway();
+        // no exception should be thrown
+        assertThat(getReloadedDevice(originWithoutCommunicationGateway).getCommunicationGateway()).isNull();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
+    public void setCommunicationGatewaySameAsOriginTest() {
+        Device origin = createSimpleDeviceWithName("Origin");
+
+        origin.setCommunicationGateway(origin);
+        origin.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
+    public void updateCommunicationGatewayWithSameAsOriginDeviceTest() {
+        Device communicationMaster = createSimpleDevice();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave");
+        device.setCommunicationGateway(communicationMaster);
+        device.save();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        reloadedDevice.setCommunicationGateway(reloadedDevice);
+    }
+
+    @Test
+    @Transactional
+    public void createWithSamePhysicalAndCommunicationGatewayTest() {
+        Device gatewayForBoth = createSimpleDeviceWithName("GatewayForBoth");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin");
+        device.setPhysicalGateway(gatewayForBoth);
+        device.setCommunicationGateway(gatewayForBoth);
+        device.save();
+
+        Device reloadedDevice = getReloadedDevice(device);
+
+        assertThat(reloadedDevice.getPhysicalGateway().getId()).isEqualTo(reloadedDevice.getCommunicationGateway().getId()).isEqualTo(gatewayForBoth.getId());
+    }
+
+    @Test
+    @Transactional
+    public void findDownstreamDevicesWhenNoneArePresentTest() {
+        Device device = createSimpleDevice();
+
+        assertThat(device.getPhysicalConnectedDevices()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void findPhysicalConnectedDevicesTest() {
+        Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
+        final Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1");
+        device1.setPhysicalGateway(physicalMaster);
+        device1.save();
+        final Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin2");
+        device2.setPhysicalGateway(physicalMaster);
+        device2.save();
+
+        List<BaseDevice> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
+
+        assertThat(downstreamDevices).hasSize(2);
+        assertThat(downstreamDevices).has(new Condition<List<BaseDevice>>() {
+            @Override
+            public boolean matches(List<BaseDevice> value) {
+                boolean bothMatch = true;
+                for (BaseDevice baseDevice : value) {
+                    bothMatch &= ((baseDevice.getId() == device1.getId()) || (baseDevice.getId() == device2.getId()));
+                }
+                return bothMatch;
+            }
+        });
+    }
+
+    @Test
+    @Transactional
+    public void findDownstreamDevicesAfterRemovingGatewayReferenceTest() {
+        Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
+        final Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1");
+        device1.setPhysicalGateway(physicalMaster);
+        device1.save();
+        final Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin2");
+        device2.setPhysicalGateway(physicalMaster);
+        device2.save();
+
+        //business method
+        device1.clearPhysicalGateway();
+        device1.save();
+
+        List<BaseDevice> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
+
+        assertThat(downstreamDevices).hasSize(1);
+        assertThat(downstreamDevices.get(0).getId()).isEqualTo(device2.getId());
+    }
+
+    @Test
+    @Transactional
+    public void findDownstreamDevicesAfterRemovalOfOneTest() {
+        Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
+        final Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1");
+        device1.setPhysicalGateway(physicalMaster);
+        device1.save();
+        final Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin2");
+        device2.setPhysicalGateway(physicalMaster);
+        device2.save();
+
+        //business method
+        device1.delete();
+
+        List<BaseDevice> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
+
+        assertThat(downstreamDevices).hasSize(1);
+        assertThat(downstreamDevices.get(0).getId()).isEqualTo(device2.getId());
+    }
+
+    @Test
+    @Transactional
+    public void findDownstreamDevicesAfterSettingToOtherPhysicalGatewayTest() {
+        Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
+        Device otherPhysicalMaster = createSimpleDeviceWithName("OtherPhysicalMaster");
+        final Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1");
+        device1.setPhysicalGateway(physicalMaster);
+        device1.save();
+        final Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin2");
+        device2.setPhysicalGateway(physicalMaster);
+        device2.save();
+
+        //business method
+        device1.setPhysicalGateway(otherPhysicalMaster);
+        device1.save();
+
+
+        List<BaseDevice> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
+
+        assertThat(downstreamDevices).hasSize(1);
+        assertThat(downstreamDevices.get(0).getId()).isEqualTo(device2.getId());
+    }
+
+    @Test(expected = StillGatewayException.class)
+    @Transactional
+    public void cannotDeleteBecauseStillUsedAsPhysicalGatewayTest() {
+        Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
+        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1");
+        device1.setPhysicalGateway(physicalMaster);
+        device1.save();
+
+        //business method
+        try {
+            physicalMaster.delete();
+        } catch (StillGatewayException e) {
+            if (!e.getMessageSeed().equals(MessageSeeds.DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY)) {
+                fail("Should have gotten an exception indicating that the device was still linked as a physical gateway, but was " + e.getMessage());
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    @Test
+    @Transactional
+    public void deletePhysicalMasterAfterDeletingSlaveTest() {
+        Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin");
+        device.setPhysicalGateway(physicalMaster);
+        device.save();
+
+        Device reloadedSlave = getReloadedDevice(device);
+        reloadedSlave.delete();
+
+        Device reloadedMaster = getReloadedDevice(physicalMaster);
+        long masterId = reloadedMaster.getId();
+        reloadedMaster.delete();
+
+        assertThat(inMemoryPersistence.getDeviceService().findDeviceById(masterId)).isNull();
+    }
+
+    @Test(expected = StillGatewayException.class)
+    @Transactional
+    public void cannotDeleteBecauseStillUsedAsCommunicationGatewayTest() {
+        Device communicationMaster = createSimpleDeviceWithName("CommunicationMaster");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1");
+        device.setCommunicationGateway(communicationMaster);
+        device.save();
+
+        //business method
+        try {
+            communicationMaster.delete();
+        } catch (StillGatewayException e) {
+            if (!e.getMessageSeed().equals(MessageSeeds.DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY)) {
+                fail("Should have gotten an exception indicating that the device was still linked as a physical gateway, but was " + e.getMessage());
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    @Test
+    @Transactional
+    public void deleteCommunicationMasterAfterDeletingSlaveTest() {
+        Device communicationMaster = createSimpleDeviceWithName("CommunicationMaster");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1");
+        device.setCommunicationGateway(communicationMaster);
+        device.save();
+
+        Device reloadedSlave = getReloadedDevice(device);
+        reloadedSlave.delete();
+
+        Device reloadedCommunicationMaster = getReloadedDevice(communicationMaster);
+        long masterId = reloadedCommunicationMaster.getId();
+        reloadedCommunicationMaster.delete();
+
+        assertThat(inMemoryPersistence.getDeviceService().findDeviceById(masterId)).isNull();
+    }
+
+    @Test
+    @Transactional
+    public void getChannelsForConfigWithNoChannelSpecsTest() {
+        Device simpleDevice = createSimpleDevice();
+
+        assertThat(simpleDevice.getChannels()).isEmpty();
+    }
+
+    // todo complete the channel tests
 }
