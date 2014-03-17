@@ -8,7 +8,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.common.services.ListFinder;
+import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class ReadingTypeResource {
                 throw new WebApplicationException("Unknown filter applied", Response.status(Response.Status.BAD_REQUEST).entity("Unknown filter applied").build());
             }
         } else {
-            List<ReadingType> readingTypes = ListFinder.of(meteringService.getAvailableReadingTypes(), new ReadingTypeComparator()).from(queryParameters).find();
+            List<ReadingType> readingTypes = ListPager.of(meteringService.getAvailableReadingTypes(), new ReadingTypeComparator()).from(queryParameters).find();
             for (ReadingType readingType : readingTypes) {
                 readingTypeInfos.add(new ReadingTypeInfo(readingType));
             }

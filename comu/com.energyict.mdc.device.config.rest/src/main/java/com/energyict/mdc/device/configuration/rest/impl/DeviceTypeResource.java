@@ -4,7 +4,7 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.common.services.ListFinder;
+import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
@@ -111,7 +111,7 @@ public class DeviceTypeResource {
     public List<LogBookTypeInfo> getLogBookTypesForDeviceType(@PathParam("id") long id) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<LogBookTypeInfo> logBookTypeInfos = new ArrayList<>();
-        return LogBookTypeInfo.from(ListFinder.of(deviceType.getLogBookTypes(), new LogBookTypeComparator()).find());
+        return LogBookTypeInfo.from(ListPager.of(deviceType.getLogBookTypes(), new LogBookTypeComparator()).find());
     }
 
     @Path("/{deviceTypeId}/deviceconfigurations")
@@ -127,7 +127,7 @@ public class DeviceTypeResource {
 
         final List<RegisterMapping> registerMappings = new ArrayList<>();
         if (available == null || !Boolean.parseBoolean(available)) {
-            registerMappings.addAll(ListFinder.of(deviceType.getRegisterMappings(), new RegisterTypeComparator()).from(queryParameters).find());
+            registerMappings.addAll(ListPager.of(deviceType.getRegisterMappings(), new RegisterTypeComparator()).from(queryParameters).find());
         } else {
             Set<Long> deviceTypeRegisterMappingIds = asIds(deviceType.getRegisterMappings());
             for (RegisterMapping registerMapping : this.deviceConfigurationService.findAllRegisterMappings().from(queryParameters).find()) {
