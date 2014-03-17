@@ -10,9 +10,12 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 public class RegisterConfigurationResource {
 
@@ -32,5 +35,24 @@ public class RegisterConfigurationResource {
         List<RegisterConfigInfo> registerConfigInfos = RegisterConfigInfo.from(pagedRegisterSpecs);
         return PagedInfoList.asJson("registerConfigurations", registerConfigInfos, queryParameters);
     }
+
+    @GET
+    @Path("/{registerId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public RegisterConfigInfo getRegisterConfigs(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("registerId") long registerId) {
+        return RegisterConfigInfo.from(findRegisterSpecOrThrowException(deviceTypeId,deviceConfigurationId, registerId));
+    }
+
+    private RegisterSpec findRegisterSpecOrThrowException(long deviceTypeId, long deviceConfigId, long registerId) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigId);
+        for (RegisterSpec registerSpec : deviceConfiguration.getRegisterSpecs()) {
+            if (registerSpec.getId()==registerId) {
+                return registerSpec;
+            }
+        }
+        throw new WebApplicationException("No such register configuration for the device configuration", Response.status(Response.Status.NOT_FOUND).entity("No such register configuration for the device configuration").build());
+    }
+
 
 }
