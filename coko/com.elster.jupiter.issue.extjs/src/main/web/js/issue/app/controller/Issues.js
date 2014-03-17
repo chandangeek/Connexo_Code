@@ -182,17 +182,28 @@ Ext.define('Isu.controller.Issues', {
     },
 
     chooseIssuesAction: function (menu, item) {
-        var widget;
-        if (item.text == 'Assign') {
-            widget = Ext.widget('issues-assign', {
-                record: menu.record
-            });
-        } else {
-            widget = Ext.widget('issues-close', {
-                record: menu.record
-            });
+        var widget,
+            action = item.action;
+
+        switch (action) {
+            case 'assign':
+                widget = Ext.widget('issues-assign', {
+                    record: menu.record
+                });
+                break;
+            case 'close':
+                widget = Ext.widget('issues-close', {
+                    record: menu.record
+                });
+                break;
+            case 'addcomment':
+                window.location.href = '#/workspace/datacollection/issues/' + menu.record.data.id;
+                break;
         }
-        this.getApplication().fireEvent('changecontentevent', widget);
+
+        if (widget) {
+            this.getApplication().fireEvent('changecontentevent', widget);
+        }
     },
 
     bulkChangeIssues: function () {

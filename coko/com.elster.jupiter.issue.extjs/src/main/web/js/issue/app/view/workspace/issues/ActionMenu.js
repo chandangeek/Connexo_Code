@@ -6,10 +6,16 @@ Ext.define('Isu.view.workspace.issues.ActionMenu', {
     shadow: false,
     items: [
         {
-            text: 'Assign'
+            text: 'Assign',
+            action: 'assign'
         },
         {
-            text: 'Close'
+            text: 'Close',
+            action: 'close'
+        },
+        {
+            text: 'Add comment',
+            action: 'addcomment'
         }
     ]
 });
