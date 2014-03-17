@@ -8,7 +8,12 @@ public enum Operator {
 	GREATERTHANOREQUAL (">="),
 	LESSTHANOREQUAL ("<="),
 	LIKE ("LIKE"),
-	REGEXP_LIKE ("REGEXP_LIKE"),
+	REGEXP_LIKE ("REGEXP_LIKE") {
+		@Override
+		public String getFormat() {
+			return getSymbol() + "({0},?,?)";
+		}
+	},
 	ISNULL ("IS NULL") {
 		@Override 
 		public String getFormat() {

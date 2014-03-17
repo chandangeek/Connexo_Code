@@ -67,8 +67,8 @@ public final class Where {
 		return Operator.NOTEQUALANDNOTBOTHNULL.compare(field,value);
 	}
 	
-	public Condition matches(Object value) {
-		return Operator.REGEXP_LIKE.compare(field,value);
+	public Condition matches(Object value, String options) {
+		return Operator.REGEXP_LIKE.compare(field,value,options);
 	}
 	
 	public Condition soundsAs(Object value) {
