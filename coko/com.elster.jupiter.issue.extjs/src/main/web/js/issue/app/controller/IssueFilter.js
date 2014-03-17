@@ -27,6 +27,9 @@ Ext.define('Isu.controller.IssueFilter', {
             },
             'issues-side-filter button[action="reset"]': {
                 click: this.reset
+            },
+            'issues-side-filter filter-form': {
+                render: this.loadFormModel
             }
         });
         this.listen({
@@ -38,8 +41,8 @@ Ext.define('Isu.controller.IssueFilter', {
         });
     },
 
-    onLaunch: function () {
-        this.getIssueFilter() && this.getIssueFilter().down('filter-form').loadRecord(new Isu.model.IssueFilter());
+    loadFormModel: function (form) {
+        form.loadRecord(new Isu.model.IssueFilter());
     },
 
     reset: function() {
