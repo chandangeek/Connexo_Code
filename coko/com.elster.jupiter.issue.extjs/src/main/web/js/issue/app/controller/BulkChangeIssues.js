@@ -144,8 +144,6 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             requestUrl = '/api/isu/issue/' + operation,
             failedIssues = [];
 
-        console.log(record);
-        console.log(requestData);
         var pb = Ext.create('Ext.ProgressBar', {width: '50%'});
         step5panel.removeAll(true);
         step5panel.add(
