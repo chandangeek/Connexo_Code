@@ -8,13 +8,49 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
     ],
 
     items: [
+        {xtype: 'issues-filter'},
+        {xtype: 'issue-no-group'},
         {
-            xtype: 'issues-filter',
-            bodyCls: 'isu-bulk-wizard-no-border'
+            xtype: 'radiogroup',
+            name: 'AllOrSelectedIssues',
+            columns: 1,
+            vertical: true,
+            submitValue: false,
+            defaults: {
+                padding: '30 0'
+            },
+            items: [
+                {
+                    boxLabel: '<b>All issues</b><br/>' +
+                        '<span style="color: grey;">Select all issues (related to filters and grouping on the issues screen)</span>',
+                    name: 'issuesRange',
+                    inputValue: 'ALL'
+                },
+                {
+                    boxLabel: '<b>Selected issues</b><br/><span style="color: grey;">Select issues in table</span>',
+                    name: 'issuesRange',
+                    inputValue: 'SELECTED'
+                }
+            ]
         },
         {
-            xtype: 'issue-no-group',
-            bodyCls: 'isu-bulk-wizard-no-border'
+            xtype: 'container',
+            name: 'selected-issues-txt-holder',
+            layout: 'hbox',
+            padding: '0 0 10 0',
+            items: [
+                {
+                    xtype: 'label',
+                    name: 'issues-qty-txt',
+                    width: 120
+                },
+                {
+                    xtype: 'button',
+                    name: 'uncheck-all-btn',
+                    text: 'Uncheck all',
+                    margin: '0 0 0 20'
+                }
+            ]
         },
         {
             xtype: 'issues-list',
@@ -57,7 +93,8 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
                         flex: 1
                     }
                 ]
-            }
+            },
+            dockedItems: []
         }
     ],
 

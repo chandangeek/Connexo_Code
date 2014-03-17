@@ -56,7 +56,6 @@ Ext.define('Isu.store.Issues', {
             if (this.proxyFilter) {
                 Ext.merge(extraParams, this.proxyFilter.getPlainData());
             }
-            console.log(extraParams);
             Ext.merge(this.proxy.extraParams, extraParams);
         }
     }
