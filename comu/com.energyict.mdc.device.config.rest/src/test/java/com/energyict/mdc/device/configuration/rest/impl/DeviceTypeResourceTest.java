@@ -48,14 +48,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.RETURNS_DEFAULTS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -692,8 +689,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceConfiguration.createRegisterSpec(Matchers.<RegisterMapping>any())).thenReturn(registerSpecBuilder);
         RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
         registerConfigInfo.registerTypeId=registerMapping_id;
-        registerConfigInfo.multiplier= BigDecimal.ONE;
-        registerConfigInfo.multiplierMode= MultiplierMode.NONE;
+        registerConfigInfo.multiplier= BigDecimal.TEN;
         registerConfigInfo.numberOfFractionDigits= 6;
         registerConfigInfo.numberOfDigits= 4;
         registerConfigInfo.overflowValue= BigDecimal.TEN;
@@ -703,14 +699,34 @@ public class DeviceTypeResourceTest extends JerseyTest {
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<RegisterMapping> registerMappingArgumentCaptor = ArgumentCaptor.forClass(RegisterMapping.class);
-        verify(registerSpecBuilder).setMultiplier(BigDecimal.ONE);
-        verify(registerSpecBuilder).setMultiplierMode(MultiplierMode.NONE);
+        verify(registerSpecBuilder).setMultiplier(BigDecimal.TEN);
+        verify(registerSpecBuilder).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
         verify(registerSpecBuilder).setNumberOfDigits(4);
         verify(registerSpecBuilder).setNumberOfFractionDigits(6);
         verify(registerSpecBuilder).setOverflow(BigDecimal.TEN);
         verify(deviceConfiguration).createRegisterSpec(registerMappingArgumentCaptor.capture());
         assertThat(registerMappingArgumentCaptor.getValue()).isEqualTo(registerMapping);
 
+    }
+
+    @Test
+    public void testDeleteRegisterConfig() throws Exception {
+        long deviceType_id=41;
+        long deviceConfig_id=51;
+        long registerSpec_id=61;
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getId()).thenReturn(deviceConfig_id);
+        RegisterSpec registerSpec = mock(RegisterSpec.class);
+        when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(registerSpec.getId()).thenReturn(registerSpec_id);
+        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
+
+        Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(deviceConfiguration).deleteRegisterSpec(registerSpec);
     }
 
     private <T> Finder<T> mockFinder(List<T> list) {
@@ -750,19 +766,6 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
         return readingType;
-    }
-
-    public class SelfReturningAnswer implements Answer<Object> {
-
-        public Object answer(InvocationOnMock invocation) throws Throwable {
-            Object mock = invocation.getMock();
-            if( invocation.getMethod().getReturnType().isInstance( mock )){
-                return mock;
-            }
-            else{
-                return RETURNS_DEFAULTS.answer(invocation);
-            }
-        }
     }
 
 }

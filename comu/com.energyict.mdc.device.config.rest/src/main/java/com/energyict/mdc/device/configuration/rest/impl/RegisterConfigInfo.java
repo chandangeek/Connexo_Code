@@ -2,7 +2,9 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
+import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import java.math.BigDecimal;
@@ -38,8 +40,6 @@ public class RegisterConfigInfo {
     public int numberOfFractionDigits;
     @JsonProperty("multiplier")
     public BigDecimal multiplier;
-    @JsonProperty("multiplierMode")
-    public MultiplierMode multiplierMode;
     @JsonProperty("overflowValue")
     public BigDecimal overflowValue;
     @JsonProperty("linkedChannelConfig")
@@ -64,7 +64,6 @@ public class RegisterConfigInfo {
         registerConfigInfo.numberOfDigits = registerSpec.getNumberOfDigits();
         registerConfigInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         registerConfigInfo.multiplier = registerSpec.getMultiplier();
-        registerConfigInfo.multiplierMode = registerSpec.getMultiplierMode();
         registerConfigInfo.overflowValue = registerSpec.getOverflowValue();
         registerConfigInfo.linkedChannelConfig = registerSpec.getLinkedChannelSpec()==null?"":registerSpec.getLinkedChannelSpec().getName();
         registerConfigInfo.linkedChannelConfigId = registerSpec.getLinkedChannelSpec()==null?null:registerSpec.getLinkedChannelSpec().getId();
@@ -79,5 +78,17 @@ public class RegisterConfigInfo {
             registerConfigs.add(RegisterConfigInfo.from(registerSpec));
         }
         return registerConfigs;
+    }
+
+    public void writeTo(RegisterSpec registerSpec, ChannelSpec linkedChannelSpec, RegisterMapping registerMapping) {
+        registerSpec.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
+        registerSpec.setMultiplier(this.multiplier);
+        registerSpec.setOverflow(this.overflowValue);
+        registerSpec.setNumberOfDigits(this.numberOfDigits);
+        registerSpec.setNumberOfFractionDigits(this.numberOfFractionDigits);
+        registerSpec.setChannelSpecLinkType(this.channelLinkType);
+        registerSpec.setOverruledObisCode(this.obisCode);
+        registerSpec.setLinkedChannelSpec(linkedChannelSpec);
+        registerSpec.setRegisterMapping(registerMapping);
     }
 }

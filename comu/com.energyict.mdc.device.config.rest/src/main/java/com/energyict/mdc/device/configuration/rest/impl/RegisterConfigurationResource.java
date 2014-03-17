@@ -9,9 +9,11 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -58,8 +60,8 @@ public class RegisterConfigurationResource {
         RegisterMapping registerMapping = registerConfigInfo.registerTypeId==null?null:findRegisterMappingOrThrowException(registerConfigInfo.registerTypeId);
         ChannelSpec channelSpec = registerConfigInfo.linkedChannelConfigId==null?null:findChannelSpecOrThrowException(registerConfigInfo.linkedChannelConfigId);
         RegisterSpec registerSpec = deviceConfiguration.createRegisterSpec(registerMapping)
+                .setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT)
                 .setMultiplier(registerConfigInfo.multiplier)
-                .setMultiplierMode(registerConfigInfo.multiplierMode)
                 .setChannelSpecLinkType(registerConfigInfo.channelLinkType)
                 .setLinkedChannelSpec(channelSpec)
                 .setNumberOfDigits(registerConfigInfo.numberOfDigits)
@@ -71,24 +73,24 @@ public class RegisterConfigurationResource {
     }
 
     @PUT
-    @Path("/{registerId}")
+    @Path("/{registerConfigId}")
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterConfigInfo updateRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("registerConfigId") long registerTypeId, RegisterConfigInfo registerConfigInfo) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        RegisterMapping registerMapping = registerConfigInfo.registerTypeId==null?null:findRegisterMappingOrThrowException(registerConfigInfo.registerTypeId);
+        RegisterSpec registerSpec = findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerTypeId);
         ChannelSpec channelSpec = registerConfigInfo.linkedChannelConfigId==null?null:findChannelSpecOrThrowException(registerConfigInfo.linkedChannelConfigId);
-        RegisterSpec registerSpec = deviceConfiguration.createRegisterSpec(registerMapping)
-                .setMultiplier(registerConfigInfo.multiplier)
-                .setMultiplierMode(registerConfigInfo.multiplierMode)
-                .setChannelSpecLinkType(registerConfigInfo.channelLinkType)
-                .setLinkedChannelSpec(channelSpec)
-                .setNumberOfDigits(registerConfigInfo.numberOfDigits)
-                .setNumberOfFractionDigits(registerConfigInfo.numberOfFractionDigits)
-                .setOverflow(registerConfigInfo.overflowValue)
-                .setOverruledObisCode(registerConfigInfo.overruledObisCode)
-                .add();
+        RegisterMapping registerMapping = registerConfigInfo.registerTypeId==null?null:findRegisterMappingOrThrowException(registerConfigInfo.registerTypeId);
+        registerConfigInfo.writeTo(registerSpec, channelSpec, registerMapping);
+        registerSpec.save();
         return RegisterConfigInfo.from(registerSpec);
+    }
+
+    @DELETE
+    @Path("/{registerConfigId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("registerConfigId") long registerTypeId, RegisterConfigInfo registerConfigInfo) {
+        RegisterSpec registerSpec = findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerTypeId);
+        registerSpec.getDeviceConfiguration().deleteRegisterSpec(registerSpec);
+        return Response.ok().build();
     }
 
     private ChannelSpec findChannelSpecOrThrowException(long linkedChannelConfigId) {
