@@ -27,6 +27,13 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         }
     ],
 
+    listeners: {
+       retryRequest: function(wizard, failedItems){
+           this.setFailedBulkRecordIssues(failedItems);
+           this.onWizardFinishedEvent(wizard);
+       }
+    },
+
     init: function () {
         this.control({
             'bulk-browse breadcrumbTrail': {
@@ -56,6 +63,19 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                 beforeactivate: this.beforeStep4
             }
         });
+    },
+
+    setFailedBulkRecordIssues: function(failedIssues){
+        var record = this.getBulkRecord(),
+            previousIssues = record.get('issues'),
+            leftIssues = [];
+        Ext.each (previousIssues, function (issue) {
+            if(Ext.Array.contains(failedIssues, issue.get('id'))){
+                leftIssues.push(issue);
+            }
+        });
+        record.set('issues', leftIssues);
+        record.commit();
     },
 
     setBreadcrumb: function (breadcrumbs) {
@@ -114,15 +134,18 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     onWizardFinishedEvent: function (wizard) {
+        var self = this;
         this.setBulkActionListActiveItem(wizard);
         this.getBulkActionsList().clearHyperLinkActions();
-
         var step5panel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step5'),
             record = this.getBulkRecord(),
             requestData = this.getRequestData(record),
             operation = record.get('operation'),
-            requestUrl = '/api/isu/issue/' + operation;
+            requestUrl = '/api/isu/issue/' + operation,
+            failedIssues = [];
 
+        console.log(record);
+        console.log(requestData);
         var pb = Ext.create('Ext.ProgressBar', {width: '50%'});
         step5panel.removeAll(true);
         step5panel.add(
@@ -149,6 +172,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     failList += '<h4>' + fails.reason +':</h4><br>';
                     Ext.each (fails.issues, function(issue){
                         failedCount += 1;
+                        failedIssues.push(issue.id);
                         failList += issue.title + '<br>';
                     });
                 });
@@ -200,10 +224,10 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                         ],
                         btns: [
                             {text: "Retry", hnd: function () {
-                                console.log('Retry');
+                                self.fireEvent('retryRequest', wizard, failedIssues);
                             }},
                             {text: "Finish", hnd: function () {
-                                console.log('Finish');
+                                Ext.History.back();
                             }}
                         ],
                         closeBtn: false
