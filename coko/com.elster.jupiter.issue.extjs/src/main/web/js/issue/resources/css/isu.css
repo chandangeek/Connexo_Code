@@ -103,10 +103,9 @@ span[class^=isu-assignee-] {
 }
 
 .isu-button-close:before {
-    font-size: 22px;
     position: absolute;
-    right: -7px;
-    top: -3px;
+    right: -3px;
+    top: 2px;
 }
 
 .isu-error-panel {
@@ -236,6 +235,17 @@ span[class^=isu-assignee-] {
 .isu-comments-item .isu-icon-USER {
     margin-left: -24px;
     margin-right: 5px;
+}
+
+.isu-combo-color-list ul li:nth-child(2n) {
+    background-color: #FAFAFA;
+    border-top: 1px solid #EDEDED;
+    border-bottom: 1px solid #EDEDED;
+}
+
+.isu-combo-color-list ul li:nth-child(2n):hover {
+    background-color: #D6E8F6;
+    border-color: #D6E8F6;
 }
 
 /* Message Window */
