@@ -19,6 +19,8 @@ public class RegisterConfigInfo {
     public String name;
     @JsonProperty("readingType")
     public ReadingTypeInfo readingTypeInfo;
+    @JsonProperty("registerTypeId")
+    public Long registerTypeId;
     @JsonProperty("obisCode")
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
@@ -42,6 +44,8 @@ public class RegisterConfigInfo {
     public BigDecimal overflowValue;
     @JsonProperty("linkedChannelConfig")
     public String linkedChannelConfig;
+    @JsonProperty("linkedChannelConfigId")
+    public Long linkedChannelConfigId;
     @JsonProperty("channelLinkType")
     public ChannelSpecLinkType channelLinkType;
 
@@ -63,7 +67,9 @@ public class RegisterConfigInfo {
         registerConfigInfo.multiplierMode = registerSpec.getMultiplierMode();
         registerConfigInfo.overflowValue = registerSpec.getOverflowValue();
         registerConfigInfo.linkedChannelConfig = registerSpec.getLinkedChannelSpec()==null?"":registerSpec.getLinkedChannelSpec().getName();
+        registerConfigInfo.linkedChannelConfigId = registerSpec.getLinkedChannelSpec()==null?null:registerSpec.getLinkedChannelSpec().getId();
         registerConfigInfo.channelLinkType = registerSpec.getChannelSpecLinkType();
+        registerConfigInfo.registerTypeId = registerSpec.getRegisterMapping().getId();
         return registerConfigInfo;
     }
 

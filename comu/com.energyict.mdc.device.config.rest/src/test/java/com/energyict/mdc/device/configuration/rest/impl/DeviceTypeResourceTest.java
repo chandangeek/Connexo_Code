@@ -11,6 +11,7 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.tests.Answers;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -24,7 +25,9 @@ import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,11 +47,15 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEFAULTS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -141,7 +148,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
         Map<String, Object> map = target("/devicetypes/").queryParam("start", 100).queryParam("limit", 20).request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(100);
-        assertThat((List)map.get("deviceTypes")).isEmpty();
+        assertThat((List) map.get("deviceTypes")).isEmpty();
         ArgumentCaptor<QueryParameters> queryParametersArgumentCaptor = ArgumentCaptor.forClass(QueryParameters.class);
         verify(finder).from(queryParametersArgumentCaptor.capture());
         assertThat(queryParametersArgumentCaptor.getValue().getStart()).isEqualTo(100);
@@ -648,6 +655,81 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         RegisterSpec registerSpec = mock(RegisterSpec.class);
         when(registerSpec.getId()).thenReturn(registerConfig_id);
+        ReadingType readingType = mockReadingType();
+        RegisterMapping registerMapping = mock(RegisterMapping.class);
+        when(registerMapping.getReadingType()).thenReturn(readingType);
+        when(registerSpec.getRegisterMapping()).thenReturn(registerMapping);
+        ObisCode obisCode = mockObisCode();
+        when(registerSpec.getObisCode()).thenReturn(obisCode);
+
+        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
+
+        Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().get(Response.class);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testCreateRegisterConfigWithoutLinkedChannelSpec() throws Exception {
+        long deviceType_id=41;
+        long deviceConfig_id=51;
+        long registerMapping_id=133;
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getId()).thenReturn(deviceConfig_id);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+        RegisterMapping registerMapping = mock(RegisterMapping.class);
+        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
+        when(deviceConfigurationService.findRegisterMapping(registerMapping_id)).thenReturn(registerMapping);
+        ReadingType readingType = mockReadingType();
+        when(registerMapping.getReadingType()).thenReturn(readingType);
+        RegisterSpec registerConfig = mock(RegisterSpec.class);
+        when(registerConfig.getRegisterMapping()).thenReturn(registerMapping);
+        ObisCode obisCode = mockObisCode();
+        when(registerConfig.getObisCode()).thenReturn(obisCode);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = mock(RegisterSpec.RegisterSpecBuilder.class, Answers.RETURNS_SELF);
+        when(registerSpecBuilder.add()).thenReturn(registerConfig);
+        when(deviceConfiguration.createRegisterSpec(Matchers.<RegisterMapping>any())).thenReturn(registerSpecBuilder);
+        RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
+        registerConfigInfo.registerTypeId=registerMapping_id;
+        registerConfigInfo.multiplier= BigDecimal.ONE;
+        registerConfigInfo.multiplierMode= MultiplierMode.NONE;
+        registerConfigInfo.numberOfFractionDigits= 6;
+        registerConfigInfo.numberOfDigits= 4;
+        registerConfigInfo.overflowValue= BigDecimal.TEN;
+        registerConfigInfo.overruledObisCode= null;
+
+        Entity<RegisterConfigInfo> json = Entity.json(registerConfigInfo);
+        Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        ArgumentCaptor<RegisterMapping> registerMappingArgumentCaptor = ArgumentCaptor.forClass(RegisterMapping.class);
+        verify(registerSpecBuilder).setMultiplier(BigDecimal.ONE);
+        verify(registerSpecBuilder).setMultiplierMode(MultiplierMode.NONE);
+        verify(registerSpecBuilder).setNumberOfDigits(4);
+        verify(registerSpecBuilder).setNumberOfFractionDigits(6);
+        verify(registerSpecBuilder).setOverflow(BigDecimal.TEN);
+        verify(deviceConfiguration).createRegisterSpec(registerMappingArgumentCaptor.capture());
+        assertThat(registerMappingArgumentCaptor.getValue()).isEqualTo(registerMapping);
+
+    }
+
+    private <T> Finder<T> mockFinder(List<T> list) {
+        Finder<T> finder = mock(Finder.class);
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.defaultSortColumn(anyString())).thenReturn(finder);
+        when(finder.find()).thenReturn(list);
+        return finder;
+    }
+
+    private ObisCode mockObisCode() {
+        ObisCode obisCode = mock(ObisCode.class);
+        when(obisCode.getDescription()).thenReturn("desc");
+        when(obisCode.toString()).thenReturn("1.2.3.4.5.6");
+        return obisCode;
+    }
+
+    private ReadingType mockReadingType() {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn("mrid");
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
@@ -666,26 +748,20 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
-        RegisterMapping registerMapping = mock(RegisterMapping.class);
-        when(registerMapping.getReadingType()).thenReturn(readingType);
-        when(registerSpec.getRegisterMapping()).thenReturn(registerMapping);
-        ObisCode obisCode = mock(ObisCode.class);
-        when(obisCode.getDescription()).thenReturn("desc");
-        when(registerSpec.getObisCode()).thenReturn(obisCode);
-        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
-
-        Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().get(Response.class);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        return readingType;
     }
 
-    private <T> Finder<T> mockFinder(List<T> list) {
-        Finder<T> finder = mock(Finder.class);
-        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
-        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
-        when(finder.defaultSortColumn(anyString())).thenReturn(finder);
-        when(finder.find()).thenReturn(list);
-        return finder;
+    public class SelfReturningAnswer implements Answer<Object> {
+
+        public Object answer(InvocationOnMock invocation) throws Throwable {
+            Object mock = invocation.getMock();
+            if( invocation.getMethod().getReturnType().isInstance( mock )){
+                return mock;
+            }
+            else{
+                return RETURNS_DEFAULTS.answer(invocation);
+            }
+        }
     }
 
 }
