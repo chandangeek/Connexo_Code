@@ -8,7 +8,7 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
  * Date: 13/03/14
  * Time: 14:36
  */
-public interface PartialScheduledConnectionTaskBuilder<S, U extends PartialConnectionTask<OutboundComPortPool>> extends PartialConnectionTaskBuilder<S, OutboundComPortPool, U> {
+public interface PartialScheduledConnectionTaskBuilder<S, U extends PartialConnectionTask> extends PartialConnectionTaskBuilder<S, OutboundComPortPool, U> {
 
     NextExecutionSpecBuilder nextExecutionSpec();
 }

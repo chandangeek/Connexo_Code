@@ -13,7 +13,7 @@ import java.util.Map;
  * Date: 13/03/14
  * Time: 15:03
  */
-public abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortPool, U extends PartialConnectionTask<T>> implements PartialConnectionTaskBuilder<S, T, U> {
+public abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortPool, U extends PartialConnectionTask> implements PartialConnectionTaskBuilder<S, T, U> {
 
     final S myself;
     final DataModel dataModel;
@@ -54,7 +54,6 @@ public abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortP
     @Override
     public U build() {
         U instance = newInstance();
-        instance.setComportPool(comPortPool);
         instance.setConnectionTypePluggableClass(connectionTypePluggableClass);
         instance.setDefault(asDefault);
         for (Map.Entry<String, Object> entry : properties.entrySet()) {

@@ -274,4 +274,6 @@ public interface DeviceConfigurationService {
     public Optional<PartialConnectionTask> getPartialConnectionTask(long id);
 
     public List<PartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass);
+
+    public Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(long id);
 }

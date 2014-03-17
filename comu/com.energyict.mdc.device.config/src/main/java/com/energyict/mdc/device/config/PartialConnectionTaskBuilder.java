@@ -9,7 +9,7 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
  * Date: 13/03/14
  * Time: 14:33
  */
-public interface PartialConnectionTaskBuilder<S, T extends ComPortPool, U extends PartialConnectionTask<T>> {
+public interface PartialConnectionTaskBuilder<S, T extends ComPortPool, U extends PartialConnectionTask> {
 
     S pluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass);
 

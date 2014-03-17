@@ -13,7 +13,7 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
  * Date: 13/03/14
  * Time: 15:12
  */
-public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends PartialScheduledConnectionTask<OutboundComPortPool>> extends AbstractPartialConnectionTaskBuilder<S, OutboundComPortPool, U> implements PartialScheduledConnectionTaskBuilder<S, U> {
+public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends PartialScheduledConnectionTask> extends AbstractPartialConnectionTaskBuilder<S, OutboundComPortPool, U> implements PartialScheduledConnectionTaskBuilder<S, U> {
 
     private NextExecutionSpecs nextExecutionSpecs;
 
@@ -45,6 +45,7 @@ public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends
 
     @Override
     void populate(U instance) {
+        instance.setComportPool(comPortPool);
         if (nextExecutionSpecs != null) {
             instance.setNextExecutionSpecs(nextExecutionSpecs);
         }

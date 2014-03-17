@@ -4,7 +4,6 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
@@ -20,13 +19,6 @@ public interface ServerDeviceCommunicationConfiguration  extends DeviceCommunica
     public List<SecurityPropertySet> getSecurityPropertySets();
 
     public List<ComTaskEnablement> getEnabledComTasks();
-
-    /**
-     * Gets the {@link ProtocolDialectConfigurationProperties} that were created against this DeviceConfiguration.
-     *
-     * @return The List of ProtocolDialectConfigurationProperties
-     */
-    public List<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationPropertiesList();
 
     /**
      * Tests if this configuration supports all current and future

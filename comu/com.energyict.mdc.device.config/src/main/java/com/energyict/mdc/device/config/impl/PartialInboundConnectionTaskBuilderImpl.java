@@ -17,7 +17,7 @@ public class PartialInboundConnectionTaskBuilderImpl extends AbstractPartialConn
 
     @Override
     void populate(PartialInboundConnectionTask instance) {
-        // nothing atm
+        instance.setComportPool(comPortPool);
     }
 
     @Override
