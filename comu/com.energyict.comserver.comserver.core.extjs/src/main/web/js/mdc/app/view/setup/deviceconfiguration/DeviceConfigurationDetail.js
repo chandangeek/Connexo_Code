@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.devicetype.DeviceConfigurationDetail', {
+Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceConfigurationDetail',
     itemId: 'deviceConfigurationDetail',
