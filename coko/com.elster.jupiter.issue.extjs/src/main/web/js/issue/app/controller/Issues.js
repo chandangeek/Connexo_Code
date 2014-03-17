@@ -95,7 +95,7 @@ Ext.define('Isu.controller.Issues', {
             },
 
             // ====================================  END IssueListFilter controls  ================================
-            'issues-filter panel[name="filter"] button-tag': {
+            'issues-filter [name="filter"] button-tag': {
                 click: this.removeFilter
             }
         });
@@ -123,15 +123,18 @@ Ext.define('Isu.controller.Issues', {
      * @param filter Isu.component.filter.model.Filter
      */
     filterUpdate: function (filter) {
-        var filterElm = this.getFilter().down('panel[name="filter"]');
-        filterElm.removeAll();
+        var filterElm = this.getFilter().down('[name="filter"]'),
+            emptyText = this.getFilter().down('[name="empty-text"]'),
+            clearFilterBtn = this.getFilter().down('button[action="clearfilter"]'),
+            buttons = [];
 
         if (filter.get('assignee')) {
             var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
                 text: 'Assignee: ' + filter.get('assignee').get('name'),
                 target: 'assignee'
             });
-            filterElm.add(button);
+
+            buttons.push(button);
         }
 
         if (filter.get('reason')) {
@@ -139,7 +142,8 @@ Ext.define('Isu.controller.Issues', {
                 text: 'Reason: ' + filter.get('reason').get('name'),
                 target: 'reason'
             });
-            filterElm.add(button);
+
+            buttons.push(button);
         }
 
         if (filter.status().count()) {
@@ -149,8 +153,23 @@ Ext.define('Isu.controller.Issues', {
                     target: 'status',
                     targetId: status.getId()
                 });
+
+                buttons.push(button);
+            });
+        }
+
+        filterElm.removeAll();
+
+        if (buttons.length) {
+            emptyText.hide();
+            clearFilterBtn.setDisabled(false);
+
+            Ext.Array.each(buttons, function (button){
                 filterElm.add(button);
             });
+        } else {
+            emptyText.show();
+            clearFilterBtn.setDisabled(true);
         }
     },
 
@@ -182,17 +201,28 @@ Ext.define('Isu.controller.Issues', {
     },
 
     chooseIssuesAction: function (menu, item) {
-        var widget;
-        if (item.text == 'Assign') {
-            widget = Ext.widget('issues-assign', {
-                record: menu.record
-            });
-        } else {
-            widget = Ext.widget('issues-close', {
-                record: menu.record
-            });
+        var widget,
+            action = item.action;
+
+        switch (action) {
+            case 'assign':
+                widget = Ext.widget('issues-assign', {
+                    record: menu.record
+                });
+                break;
+            case 'close':
+                widget = Ext.widget('issues-close', {
+                    record: menu.record
+                });
+                break;
+            case 'addcomment':
+                window.location.href = '#/workspace/datacollection/issues/' + menu.record.data.id;
+                break;
         }
-        this.getApplication().fireEvent('changecontentevent', widget);
+
+        if (widget) {
+            this.getApplication().fireEvent('changecontentevent', widget);
+        }
     },
 
     bulkChangeIssues: function () {
@@ -258,7 +288,10 @@ Ext.define('Isu.controller.Issues', {
     removeSortItem: function (btn) {
         var panel = btn.up('panel');
         panel.remove(btn);
-        this.applySort(panel)
+        this.applySort(panel);
+        if (!panel.query('[name=sortitembtn]').length) {
+            Ext.ComponentQuery.query('button[name=clearsortbtn]')[0].setDisabled(true);
+        }
     },
 
     addSortItem: function (menu, item) {
@@ -275,6 +308,7 @@ Ext.define('Isu.controller.Issues', {
         panel.insert(index, sortItem);
 
         this.applySort(panel);
+        Ext.ComponentQuery.query('button[name=clearsortbtn]')[0].setDisabled(false);
     },
 
     setAddSortMenu: function (btn) {
@@ -298,6 +332,7 @@ Ext.define('Isu.controller.Issues', {
             }
         });
         this.applySort(pan);
+        Ext.ComponentQuery.query('button[name=clearsortbtn]')[0].setDisabled(true);
     },
 
     setGroupFields: function (view) {

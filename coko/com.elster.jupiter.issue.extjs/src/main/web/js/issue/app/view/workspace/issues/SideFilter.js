@@ -40,7 +40,10 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     store: 'Isu.store.IssueReason',
                     queryMode: 'local',
                     fieldLabel: 'Reason',
-                    labelAlign : 'top'
+                    labelAlign : 'top',
+                    listConfig: {
+                        cls: 'isu-combo-color-list'
+                    }
                 }
             ]
         }
@@ -52,7 +55,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
             action: 'filter'
         },
         {
-            text: 'Reset',
+            text: 'Clear all',
             action: 'reset'
         }
     ]

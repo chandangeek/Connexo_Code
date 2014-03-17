@@ -7,7 +7,7 @@ Ext.define('Isu.model.IssuesGroups', {
         url: '/api/isu/issue/groupedlist',
         reader: {
             type: 'json',
-            root: 'groups',
+            root: 'data',
             totalProperty: 'totalCount'
         }
     }
