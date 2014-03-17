@@ -211,7 +211,9 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                             }}
                         ];
                     }
-                    step5panel.add(Ext.widget('message-panel', successMsgParams));
+                    successPanel = Ext.widget('message-panel', successMsgParams);
+                    successPanel.addClass('isu-bulk-message-panel');
+                    step5panel.add(successPanel);
                 }
 
                 if (failedCount > 0) {
@@ -230,7 +232,9 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                         ],
                         closeBtn: false
                     };
-                    step5panel.add(Ext.widget('message-panel', failedMessageParams));
+                    failedPanel = Ext.widget('message-panel', failedMessageParams);
+                    failedPanel.addClass('isu-bulk-message-panel');
+                    step5panel.add(failedPanel);
                 }
             },
             failure: function (response) {

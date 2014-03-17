@@ -352,6 +352,9 @@ span[class^=isu-assignee-] {
 .isu-bulk-navigation {
     margin: 0px 10px;
 }
+.isu-bulk-message-panel {
+    width: 50%;
+}
 
 .isu-bulk-navigation .active-bulk-list-action {
     background-color: #FFFFFF;
