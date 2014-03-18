@@ -20,7 +20,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     store: 'Isu.store.IssueStatus',
                     name: 'status',
                     fieldLabel: 'Status',
-                    labelAlign : 'top',
+                    labelAlign: 'top',
                     columns: 1,
                     vertical: true
                 },
@@ -28,7 +28,9 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     xtype: 'issues-assignee-combo',
                     name: 'assignee',
                     fieldLabel: 'Assignee',
-                    labelAlign : 'top'
+                    labelAlign: 'top',
+                    forceSelection: true,
+                    anyMatch: true
                 },
                 {
                     xtype: 'combobox',
@@ -40,7 +42,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     store: 'Isu.store.IssueReason',
 
                     fieldLabel: 'Reason',
-                    labelAlign : 'top',
+                    labelAlign: 'top',
                     listConfig: {
                         cls: 'isu-combo-color-list'
                     },

@@ -183,7 +183,7 @@ Ext.define('Isu.view.workspace.issues.Filter', {
                         align: 'middle'
                     },
                     defaults: {
-                      margin: '0 5 0 0'
+                        margin: '0 5 0 0'
                     },
                     items: [
                         {

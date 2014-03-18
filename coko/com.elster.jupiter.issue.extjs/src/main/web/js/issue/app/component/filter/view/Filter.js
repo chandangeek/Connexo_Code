@@ -96,7 +96,9 @@ Ext.define('Isu.component.filter.view.Filter', {
         var name = association.name,
             cmp = this.down('[name="' + name + '"]');
 
-        if (cmp && cmp.mixins.bindable && values[name]) {
+        if (!values[name]) {
+            record.set(name, null);
+        } else if (cmp && cmp.mixins.bindable) {
             var store = cmp.getStore();
             var rec = store.getById(values[name]);
             record.set(name, rec);
@@ -117,7 +119,10 @@ Ext.define('Isu.component.filter.view.Filter', {
             store = record[name](),
             cmp = this.down('[name="' + name + '"]');
 
-        if (cmp && cmp.mixins.bindable && values[name]) {
+        if (!values[name]) {
+            store.removeAll();
+
+        } else if (cmp && cmp.mixins.bindable && values[name]) {
             var cmpStore = cmp.getStore();
 
             if (!_.isArray(values[name])) {
