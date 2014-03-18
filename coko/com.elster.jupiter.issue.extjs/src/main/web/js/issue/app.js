@@ -16,7 +16,8 @@ Ext.Loader.addClassPathMappings({
     "Isu": "app",
     "Ext": "/apps/ext/src",
     "Ext.Msg": "/apps/ext/src/window/MessageBox.js",
-    'Uni': "/apps/uni/src"
+    'Uni': "/apps/uni/src",
+    'Ext.ux.window.Notification': "/apps/uni/packages/Ext.ux.window.Notification/Notification.js"
 });
 
 Ext.Loader.syncRequire([
