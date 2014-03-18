@@ -26,6 +26,8 @@ import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -76,6 +78,7 @@ public class InMemoryPersistence {
     private ApplicationContext applicationContext;
     private ProtocolPluggableService protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
+    private EngineModelService engineModelService;
 
     public void initializeDatabase(String testName, boolean showSqlLogging, boolean createMasterData) {
         this.initializeMocks(testName);
@@ -99,7 +102,8 @@ public class InMemoryPersistence {
                 new OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new DeviceConfigurationModule(),
-                new MdcCommonModule());
+                new MdcCommonModule(),
+                new EngineModelModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.ormService = injector.getInstance(OrmService.class);
@@ -107,6 +111,7 @@ public class InMemoryPersistence {
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
+            this.engineModelService = injector.getInstance(EngineModelService.class);
             this.dataModel = this.createNewDeviceConfigurationService(createMasterData);
             ctx.commit();
         }
@@ -116,7 +121,7 @@ public class InMemoryPersistence {
     }
 
     private DataModel createNewDeviceConfigurationService(boolean createMasterData) {
-        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.protocolPluggableService, this.readingTypeUtilService, createMasterData);
+        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.protocolPluggableService, this.readingTypeUtilService, engineModelService, createMasterData);
         return this.deviceConfigurationService.getDataModel();
     }
 
