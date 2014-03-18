@@ -4,15 +4,24 @@ Ext.define('Dcs.store.DataCollectionSchedules', {
     model: 'Dcs.model.DataCollectionSchedule',
 
 
-    proxy: {
+    /*proxy: {
         type: 'rest',
-        url: '/api/val/validation',
+        url: '/api/dcs/scheduling',
         reader: {
             type: 'json',
             root: 'dataCollectionSchedules',
             totalProperty: 'total'
         }
-    }
+    }  */
+
+    proxy: {
+     type: 'ajax',
+     url: '../dcs/resources/data/datacollectionschedules.json',
+     reader: {
+         type: 'json',
+         root: 'dataCollectionSchedules'
+         }
+     }
 
 
 });

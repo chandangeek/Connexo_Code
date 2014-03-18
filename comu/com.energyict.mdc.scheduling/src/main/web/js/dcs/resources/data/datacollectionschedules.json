@@ -1,0 +1,68 @@
+{
+"dataCollectionSchedules": [
+    {
+        "id": 1,
+        "running": true,
+        "name": "Billing East region",
+        "deviceGroupName": "Device group E",
+        "schedule": "Monthly",
+        "plannedDate": "Mar 31 2014 09:00 AM"
+    },
+    {
+        "id": 2,
+        "running": false,
+        "name": "Billing North region",
+        "deviceGroupName": "Device group N",
+        "schedule": "Monthly",
+        "plannedDate": "Mar 31 2014 12:00 AM"
+    },
+    {
+        "id": 3,
+        "running": true,
+        "name": "Billing South region",
+        "deviceGroupName": "Device group T",
+        "schedule": "Monthly",
+        "plannedDate": "Mar 31 2014 02:00 PM"
+    },
+    {
+        "id": 4,
+        "running": true,
+        "name": "Billing West region",
+        "deviceGroupName": "Device group B",
+        "schedule": "Monthly",
+        "plannedDate": "Mar 31 2014 04:00 PM"
+    },
+    {
+        "id": 5,
+        "running": true,
+        "name": "Weekly data collection FRID devices for Brussels",
+        "deviceGroupName": "Device group L",
+        "schedule": "Every few minutes",
+        "plannedDate": "Apr 5 2014 02:00 AM"
+    },
+    {
+        "id": 6,
+        "running": false,
+        "name": "Extra data collection april",
+        "deviceGroupName": "Device group Y",
+        "schedule": "Weekly",
+        "plannedDate": "Apr 7 2014 06:00 AM"
+    },
+    {
+        "id": 7,
+        "running": true,
+        "name": "Data collection DESRTH8 devices",
+        "deviceGroupName": "Device group Z",
+        "schedule": "Monthly",
+        "plannedDate": "Apr 8 2014 02:00 AM"
+    },
+    {
+        "id": 8,
+        "running": true,
+        "name": "Data collection YF444578 devices",
+        "deviceGroupName": "Device group X",
+        "schedule": "Daily",
+        "plannedDate": "Apr 10 2014 02:00 PM"
+    }
+]
+}

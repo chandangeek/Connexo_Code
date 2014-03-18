@@ -17,20 +17,30 @@ Ext.define('Dcs.view.scheduling.DataCollectionScheduleList', {
 
     columns: {
         items: [
-            { header: Uni.I18n.translate('scheduling.status', 'DCS', 'Status'), dataIndex: 'status', flex: 0.1, sortable: false, fixed: true},
-            { header: Uni.I18n.translate('general.name', 'DCS', 'Name'), dataIndex: 'name', flex: 0.2, sortable: false, fixed: true},
-            { header: Uni.I18n.translate('scheduling.deviceGroup', 'DCS', 'Device group'), dataIndex: 'deviceGroupName', flex: 0.2, align: 'center', sortable: false, fixed: true  },
-            { header:Uni.I18n.translate('scheduling.schedule', 'DCS', 'Schedule'), dataIndex: 'schedule', flex: 0.2, align: 'center', sortable: false, fixed: true },
-            { header:Uni.I18n.translate('scheduling.schedule', 'DCS', 'Planned date'), dataIndex: 'plannedDate', flex: 0.2, align: 'center', sortable: false, fixed: true },
+            { header: Uni.I18n.translate('scheduling.status', 'DCS', 'Status'), dataIndex: 'running', flex: 0.04, sortable: false, fixed: true,
+                renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                    	             switch (record.data.running) {
+                        	                 case true:
+                                                 return '<img src="../dcs/resources/images/Play.png">';
+                            	              case false:
+                                                 return '<img src="../dcs/resources/images/Pause.png">';
+                            	             }
+
+
+            }},
+            { header: Uni.I18n.translate('general.name', 'DCS', 'Name'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true},
+            { header: Uni.I18n.translate('scheduling.deviceGroup', 'DCS', 'Device group'), dataIndex: 'deviceGroupName', flex: 0.15, sortable: false, fixed: true  },
+            { header:Uni.I18n.translate('scheduling.schedule', 'DCS', 'Schedule'), dataIndex: 'schedule', flex: 0.15, sortable: false, fixed: true },
+            { header:Uni.I18n.translate('scheduling.schedule', 'DCS', 'Planned date'), dataIndex: 'plannedDate', flex: 0.2, sortable: false, fixed: true },
             {
                 xtype:'actioncolumn',
                 fixed: true,
                 sortable: false,
                 align: 'center',
                 header: Uni.I18n.translate('validation.actions', 'DCS', 'Actions'),
-                flex: 0.1,
+                flex: 0.05,
                 items: [{
-                    icon: 'resources/images/gear-16x16.png',
+                    icon: '../dcs/resources/images/gear-16x16.png',
                     handler: function(grid, rowIndex, colIndex,item,e) {
                         var menu = Ext.widget('menu', {
                             items: [{
