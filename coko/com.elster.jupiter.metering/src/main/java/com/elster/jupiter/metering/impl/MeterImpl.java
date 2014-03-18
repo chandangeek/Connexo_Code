@@ -113,6 +113,10 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
 		return MeterActivationsImpl.from(meterActivations).getReadingsBefore(when,readingType,count);
 	}
 	
-	
+
+	@Override
+	public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Date when, ReadingType readingType, int count) {
+		return MeterActivationsImpl.from(meterActivations).getReadingsOnOrBefore(when,readingType,count);
+	}
     
 }

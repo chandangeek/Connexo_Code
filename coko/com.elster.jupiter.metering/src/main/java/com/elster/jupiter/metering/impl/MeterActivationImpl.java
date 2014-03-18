@@ -154,6 +154,16 @@ public class MeterActivationImpl implements MeterActivation {
     }
 
 	@Override
+	public List<BaseReadingRecord> getReadingsOnOrBefore(Date when, ReadingType readingType, int count) {
+        Channel channel = getChannel(readingType);
+        if (channel == null) {
+        	return Collections.emptyList();
+        } else {
+        	return channel.getReadingsOnOrBefore(when, count);
+        }
+    }
+	
+	@Override
 	public Set<ReadingType> getReadingTypes(Interval requested) {
 		if (requested.overlaps(interval)) {
 			return new HashSet<>(getReadingTypes());

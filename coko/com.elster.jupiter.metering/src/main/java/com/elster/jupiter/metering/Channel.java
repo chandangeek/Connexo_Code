@@ -32,4 +32,5 @@ public interface Channel {
 
     boolean isRegular();
     List<BaseReadingRecord> getReadingsBefore(Date when, int readingCount);
+    List<BaseReadingRecord> getReadingsOnOrBefore(Date when, int readingCount);
 }

@@ -145,6 +145,8 @@ public class MeterReadingStorerTest {
             		meteringService.getReadingType(registerReadingTypeCode).get());
             assertThat(readings).hasSize(1);
             assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(1200));
+            assertThat(meter.getReadingsBefore(dateTime.toDate(), meteringService.getReadingType(intervalReadingTypeCode).get(),10)).isEmpty();
+            assertThat(meter.getReadingsOnOrBefore(dateTime.toDate(), meteringService.getReadingType(intervalReadingTypeCode).get(),10)).hasSize(1);
             ctx.commit();
         }
     }

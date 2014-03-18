@@ -347,4 +347,14 @@ public final class ChannelImpl implements Channel {
 		return builder.build();
 	}
     
+	@Override
+	public List<BaseReadingRecord> getReadingsOnOrBefore(Date when, int readingCount) {
+		boolean regular = isRegular();
+		List<TimeSeriesEntry> entries = getTimeSeries().getEntriesOnOrBefore(when,readingCount);
+		ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
+		for (TimeSeriesEntry entry : entries) {
+			builder.add(createReading(regular,entry));
+		}
+		return builder.build();
+	}
 }

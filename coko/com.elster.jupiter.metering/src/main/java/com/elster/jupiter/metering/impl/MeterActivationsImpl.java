@@ -51,6 +51,19 @@ public class MeterActivationsImpl implements ReadingContainer {
 		return result;
 	}
 	
+	@Override
+	public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Date when, ReadingType readingType, int count) {
+		if (meterActivations.isEmpty()) {
+			return Collections.emptyList();
+		}
+		List <BaseReadingRecord> result = new ArrayList<>();
+		result.addAll(last().getReadingsOnOrBefore(when, readingType , count));
+		for (int i = meterActivations.size() - 2 ; i >= 0 && result.size() < count ; i--) {
+			result.addAll(meterActivations.get(i).getReadingsOnOrBefore(when,readingType, count - result.size()));
+		}
+		return result;
+	}
+	
 	private MeterActivationImpl last() {
 		return meterActivations.get(meterActivations.size() - 1);
 	}

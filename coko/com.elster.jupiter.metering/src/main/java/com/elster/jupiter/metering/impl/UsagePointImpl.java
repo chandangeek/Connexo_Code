@@ -372,6 +372,11 @@ public class UsagePointImpl implements UsagePoint {
 	}
 
 	@Override
+	public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Date when, ReadingType readingType, int count) {
+		return MeterActivationsImpl.from(meterActivations).getReadingsOnOrBefore(when,readingType,count);
+	}
+
+	@Override
 	public Optional<Party> getCustomer(Date when) {
 		return getResponsibleParty(when,MarketRoleKind.ENERGYSERVICECONSUMER);
 	}
