@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -108,8 +107,6 @@ public interface RegisterSpec extends HasId {
      * @return the overflow value
      */
     public BigDecimal getOverflowValue();
-
-    void setDeviceConfig(DeviceConfiguration deviceConfig);
 
     void setRegisterMapping(RegisterMapping registerMapping);
 

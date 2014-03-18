@@ -181,7 +181,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         return getDeviceConfiguration().getName() + " - " + getRegisterMapping().getName();
     }
 
-    @Override
     public void setDeviceConfig(DeviceConfiguration deviceConfig) {
         this.deviceConfig.set(deviceConfig);
     }
