@@ -25,12 +25,12 @@ Ext.define('Isu.view.workspace.issues.Filter', {
             items: [
                 {
                     xtype: 'component',
-                    html: 'Filters',
+                    html: '<b>Filters</b>',
                     width: 50
                 },
                 {
                     xtype: 'component',
-                    html: '<b>None</b>',
+                    html: 'None',
                     name: 'empty-text'
                 },
                 {
@@ -77,7 +77,7 @@ Ext.define('Isu.view.workspace.issues.Filter', {
                     items: [
                         {
                             xtype: 'component',
-                            html: 'Group',
+                            html: '<b>Group</b>',
                             width: 50
                         },
                         {
@@ -170,7 +170,7 @@ Ext.define('Isu.view.workspace.issues.Filter', {
             items: [
                 {
                     xtype: 'component',
-                    html: 'Sort',
+                    html: '<b>Sort</b>',
                     width: 50
                 },
                 {
