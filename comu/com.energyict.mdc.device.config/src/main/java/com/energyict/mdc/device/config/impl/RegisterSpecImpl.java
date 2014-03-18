@@ -140,7 +140,14 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     private void validateDeviceTypeContainsRegisterMapping() {
         DeviceType deviceType = getDeviceConfiguration().getDeviceType();
-        if (!deviceType.getRegisterMappings().contains(getRegisterMapping())) {
+        boolean found = false;
+        for (RegisterMapping mapping : deviceType.getRegisterMappings()) {
+            if (mapping.getId()==getRegisterMapping().getId()) {
+                found=true;
+            }
+        }
+
+        if (!found) {
             throw new RegisterMappingIsNotConfiguredOnDeviceTypeException(this.thesaurus, getRegisterMapping());
         }
     }
