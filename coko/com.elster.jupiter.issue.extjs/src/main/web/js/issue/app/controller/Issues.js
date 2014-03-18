@@ -262,12 +262,12 @@ Ext.define('Isu.controller.Issues', {
     },
 
     applySort: function (view) {
-        var me = this;
+        var me = this,
+            sortDirection;
         me.sortParams = {};
         view.items.each(function (item) {
             if (item.name == 'sortitembtn') {
-                me.sortParams.sort = item.sortValue;
-                me.sortParams.order = item.sortOrder;
+                me.sortParams.sort = item.sortOrder + item.sortValue;
             }
         });
         me.updateIssueList();
@@ -275,12 +275,12 @@ Ext.define('Isu.controller.Issues', {
     },
 
     changeSortDirection: function (btn) {
-        if (btn.sortOrder == 'asc') {
+        if (btn.sortOrder == '') {
             btn.setIconCls('isu-icon-down-big isu-icon-white');
-            btn.sortOrder = 'desc';
+            btn.sortOrder = '-';
         } else {
             btn.setIconCls('isu-icon-up-big isu-icon-white');
-            btn.sortOrder = 'asc'
+            btn.sortOrder = ''
         }
         this.applySort(btn.up('panel'))
     },
@@ -384,7 +384,7 @@ Ext.define('Isu.controller.Issues', {
         this.showDefaultItems();
 
         if (newValue != '(none)') {
-            this.groupStore.proxy.extraParams = {reason: newValue};
+            this.groupStore.proxy.extraParams = {field: newValue};
             this.groupStore.load();
             this.group = newValue;
             grid.show();
@@ -403,7 +403,7 @@ Ext.define('Isu.controller.Issues', {
 
     getIssuesForGroup: function (grid, record) {
 
-        var iString = 'Issues for ' + this.group + ': ' + record.data.reason,
+        var iString = '<h3>Issues for ' + this.group + ': ' + record.data.reason + '</h3>',
             issuesFor = Ext.ComponentQuery.query('panel[name=issuesforlabel]')[0],
             lineLabel = Ext.ComponentQuery.query('label[name=forissuesline]')[0]
             ;
@@ -414,7 +414,7 @@ Ext.define('Isu.controller.Issues', {
         this.getIssuesList().getSelectionModel().deselectAll();
         this.getIssuesList().show();
         this.getIssueNoGroup().hide();
-        this.groupParams[this.group] = record.data.reason;
+        this.groupParams[this.group] = record.data.id;
         this.updateIssueList();
         this.showDefaultItems();
         this.store.loadPage(1);
