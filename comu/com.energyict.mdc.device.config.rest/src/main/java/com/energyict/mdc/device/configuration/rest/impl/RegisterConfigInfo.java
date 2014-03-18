@@ -3,7 +3,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
@@ -42,12 +41,6 @@ public class RegisterConfigInfo {
     public BigDecimal multiplier;
     @JsonProperty("overflowValue")
     public BigDecimal overflowValue;
-    @JsonProperty("linkedChannelConfig")
-    public String linkedChannelConfig;
-    @JsonProperty("linkedChannelConfigId")
-    public Long linkedChannelConfigId;
-    @JsonProperty("channelLinkType")
-    public ChannelSpecLinkType channelLinkType;
 
     public RegisterConfigInfo() {
     }
@@ -65,9 +58,6 @@ public class RegisterConfigInfo {
         registerConfigInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         registerConfigInfo.multiplier = registerSpec.getMultiplier();
         registerConfigInfo.overflowValue = registerSpec.getOverflowValue();
-        registerConfigInfo.linkedChannelConfig = registerSpec.getLinkedChannelSpec()==null?"":registerSpec.getLinkedChannelSpec().getName();
-        registerConfigInfo.linkedChannelConfigId = registerSpec.getLinkedChannelSpec()==null?null:registerSpec.getLinkedChannelSpec().getId();
-        registerConfigInfo.channelLinkType = registerSpec.getChannelSpecLinkType();
         registerConfigInfo.registerTypeId = registerSpec.getRegisterMapping().getId();
         return registerConfigInfo;
     }
@@ -86,7 +76,6 @@ public class RegisterConfigInfo {
         registerSpec.setOverflow(this.overflowValue);
         registerSpec.setNumberOfDigits(this.numberOfDigits);
         registerSpec.setNumberOfFractionDigits(this.numberOfFractionDigits);
-        registerSpec.setChannelSpecLinkType(this.channelLinkType);
         registerSpec.setOverruledObisCode(this.overruledObisCode);
         registerSpec.setLinkedChannelSpec(linkedChannelSpec);
         registerSpec.setRegisterMapping(registerMapping);
