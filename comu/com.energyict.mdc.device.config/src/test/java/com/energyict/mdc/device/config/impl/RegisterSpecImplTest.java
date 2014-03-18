@@ -6,20 +6,14 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
-import com.energyict.mdc.device.config.exceptions.DuplicatePrimeRegisterSpecException;
 import com.energyict.mdc.device.config.exceptions.InvalidValueException;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
@@ -112,8 +106,6 @@ public class RegisterSpecImplTest extends PersistenceTest {
         assertThat(registerSpec.getObisCode()).isEqualTo(registerMappingObisCode);
         assertThat(registerSpec.getDeviceObisCode()).isEqualTo(registerMappingObisCode);
         assertThat(registerSpec.getDeviceConfiguration()).isEqualTo(this.deviceConfiguration);
-        assertThat(registerSpec.getChannelSpecLinkType()).isNull();
-        assertThat(registerSpec.getLinkedChannelSpec()).isNull();
         assertThat(registerSpec.getNumberOfDigits()).isEqualTo(this.numberOfDigits);
         assertThat(registerSpec.getNumberOfFractionDigits()).isEqualTo(this.numberOfFractionDigits);
         assertThat(registerSpec.getOverflowValue()).isNull();
@@ -389,95 +381,5 @@ public class RegisterSpecImplTest extends PersistenceTest {
         registerSpec = registerSpecBuilder.add();
 
         assertThat(registerSpec.getMultiplier()).isEqualTo(BigDecimal.TEN);
-    }
-
-    @Test
-    @Transactional
-    public void updateWithChannelSpecTest() {
-        ChannelSpec channelSpec;
-        LoadProfileType loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType("LoadProfileType", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1));
-        loadProfileType.addRegisterMapping(registerMapping);
-        loadProfileType.save();
-        this.deviceType.addLoadProfileType(loadProfileType);
-        this.deviceType.save();
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon1, loadProfileSpecBuilder.add());
-        channelSpec = channelSpecBuilder.add();
-
-        RegisterSpec defaultRegisterSpec;
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(registerMapping);
-        setRegisterSpecDefaultFields(registerSpecBuilder);
-        registerSpecBuilder.setLinkedChannelSpec(channelSpec);
-        registerSpecBuilder.setChannelSpecLinkType(ChannelSpecLinkType.PRIME);
-        defaultRegisterSpec = registerSpecBuilder.add();
-
-        RegisterSpec loaded = inMemoryPersistence.getDeviceConfigurationService().findRegisterSpec(defaultRegisterSpec.getId());
-
-        assertThat(loaded.getLinkedChannelSpec().getId()).isEqualTo(channelSpec.getId());
-        assertThat(loaded.getChannelSpecLinkType()).isEqualTo(ChannelSpecLinkType.PRIME);
-    }
-
-    @Test(expected = DuplicatePrimeRegisterSpecException.class)
-    @Transactional
-    public void cannotCreateDoublePrimeRegisterForChannelTest() {
-        RegisterSpec defaultRegisterSpec = createDefaultRegisterSpec();
-        ChannelSpec channelSpec;
-        LoadProfileType loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType("LoadProfileType", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1));
-        loadProfileType.addRegisterMapping(registerMapping);
-        loadProfileType.save();
-        this.deviceType.addLoadProfileType(loadProfileType);
-        try {
-            this.deviceType.save();
-        }
-        catch (Exception e) {
-            e.printStackTrace(System.err);
-        }
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon1, loadProfileSpecBuilder.add());
-        channelSpec = channelSpecBuilder.add();
-
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(defaultRegisterSpec);
-        registerSpecUpdater.setLinkedChannelSpec(channelSpec);
-        registerSpecUpdater.setChannelSpecLinkType(ChannelSpecLinkType.PRIME);
-        registerSpecUpdater.update();
-
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(registerMapping);
-        setRegisterSpecDefaultFields(registerSpecBuilder);
-        registerSpecBuilder.setOverruledObisCode(ObisCode.fromString("1.1.1.1.1.1"));
-        registerSpecBuilder.setLinkedChannelSpec(channelSpec);
-        registerSpecBuilder.setChannelSpecLinkType(ChannelSpecLinkType.PRIME);
-
-        RegisterSpec registerSpec2 = registerSpecBuilder.add();
-    }
-
-    @Test(expected = DuplicatePrimeRegisterSpecException.class)
-    @Transactional
-    public void cannotUpdateDoublePrimeRegisterForChannelTest() {
-        RegisterSpec defaultRegisterSpec = createDefaultRegisterSpec();
-        ChannelSpec channelSpec;
-        LoadProfileType loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType("LoadProfileType", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1));
-        loadProfileType.addRegisterMapping(registerMapping);
-        loadProfileType.save();
-        this.deviceType.addLoadProfileType(loadProfileType);
-        this.deviceType.save();
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon1, loadProfileSpecBuilder.add());
-        channelSpec = channelSpecBuilder.add();
-
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(defaultRegisterSpec);
-        registerSpecUpdater.setLinkedChannelSpec(channelSpec);
-        registerSpecUpdater.setChannelSpecLinkType(ChannelSpecLinkType.PRIME);
-        registerSpecUpdater.update();
-
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(registerMapping);
-        setRegisterSpecDefaultFields(registerSpecBuilder);
-        registerSpecBuilder.setOverruledObisCode(ObisCode.fromString("1.1.1.1.1.1"));
-        registerSpecBuilder.setLinkedChannelSpec(channelSpec);
-        registerSpecBuilder.setChannelSpecLinkType(ChannelSpecLinkType.TIME_OF_USE);
-        RegisterSpec registerSpec2 = registerSpecBuilder.add();
-
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater2 = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec2);
-        registerSpecUpdater2.setChannelSpecLinkType(ChannelSpecLinkType.PRIME);
-        registerSpecUpdater2.update();
     }
 }

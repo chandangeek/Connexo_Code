@@ -10,15 +10,10 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.exceptions.DuplicatePrimeRegisterSpecException;
-import com.energyict.mdc.device.config.exceptions.InCorrectDeviceConfigOfChannelSpecException;
 import com.energyict.mdc.device.config.exceptions.InvalidValueException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
@@ -27,18 +22,14 @@ import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfigured
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
 public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implements RegisterSpec {
 
-    private final DeviceConfigurationService deviceConfigurationService;
-
     private final Reference<DeviceConfiguration> deviceConfig = ValueReference.absent();
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY + "}")
     private final Reference<RegisterMapping> registerMapping = ValueReference.absent();
-    private final Reference<ChannelSpec> linkedChannelSpec = ValueReference.absent();
     private int numberOfDigits;
     private int numberOfFractionDigits;
     private String overruledObisCodeString;
@@ -47,13 +38,11 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     private BigDecimal multiplier = BigDecimal.ONE;
     private MultiplierMode multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
 
-    private ChannelSpecLinkType channelSpecLinkType;
     private Date modificationDate;
 
     @Inject
-    public RegisterSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {
+    public RegisterSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(RegisterSpec.class, dataModel, eventService, thesaurus);
-        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     private RegisterSpecImpl initialize(DeviceConfiguration deviceConfig, RegisterMapping registerMapping) {
@@ -75,11 +64,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     @Override
     public ObisCode getObisCode() {
         return getRegisterMapping().getObisCode();
-    }
-
-    @Override
-    public ChannelSpec getLinkedChannelSpec() {
-        return linkedChannelSpec.orNull();
     }
 
     @Override
@@ -132,7 +116,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     private void validate() {
-        validateLinkedChannelSpec();
         validateOverFlowAndNumberOfDigits();
         validateNumberOfFractionDigitsOfOverFlowValue();
         validateDeviceTypeContainsRegisterMapping();
@@ -195,20 +178,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     @Override
     public void setRegisterMapping(RegisterMapping registerMapping) {
         this.registerMapping.set(registerMapping);
-    }
-
-    @Override
-    public void setLinkedChannelSpec(ChannelSpec linkedChannelSpec) {
-        this.linkedChannelSpec.set(linkedChannelSpec);
-    }
-
-    private void validateLinkedChannelSpec() {
-        if (this.linkedChannelSpec.isPresent()) {
-            if (this.deviceConfig.isPresent() && getLinkedChannelSpec().getDeviceConfiguration().getId() != getDeviceConfiguration().getId()) {
-                throw new InCorrectDeviceConfigOfChannelSpecException(this.thesaurus, getLinkedChannelSpec(), getLinkedChannelSpec().getDeviceConfiguration(), getDeviceConfiguration());
-            }
-            validateChannelSpecLinkType(channelSpecLinkType, getLinkedChannelSpec());
-        }
     }
 
     @Override
@@ -279,30 +248,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         this.modificationDate = modificationDate;
     }
 
-    @Override
-    public ChannelSpecLinkType getChannelSpecLinkType() {
-        return channelSpecLinkType;
-    }
-
-    @Override
-    public void setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType) {
-        this.channelSpecLinkType = channelSpecLinkType;
-    }
-
-    // TODO check if this validation is oké
-    private void validateChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType, ChannelSpec channelSpec) {
-        if (channelSpec != null && channelSpecLinkType != null) {
-            ServerDeviceConfigurationService deviceConfigurationService = (ServerDeviceConfigurationService) this.deviceConfigurationService;
-            List<RegisterSpec> registerSpecs = deviceConfigurationService.findRegisterSpecsByChannelSpecAndLinkType(channelSpec, channelSpecLinkType);
-            if (!registerSpecs.isEmpty()) {
-                RegisterSpec currentPrimeRegisterSpec = registerSpecs.get(0);
-                if (currentPrimeRegisterSpec != null && channelSpecLinkType == ChannelSpecLinkType.PRIME) {
-                    throw new DuplicatePrimeRegisterSpecException(this.thesaurus, channelSpec, currentPrimeRegisterSpec);
-                }
-            }
-        }
-    }
-
     abstract static class RegisterSpecBuilder implements RegisterSpec.RegisterSpecBuilder {
 
         final RegisterSpecImpl registerSpec;
@@ -314,12 +259,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         @Override
         public RegisterSpec.RegisterSpecBuilder setRegisterMapping(RegisterMapping registerMapping) {
             this.registerSpec.setRegisterMapping(registerMapping);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecBuilder setLinkedChannelSpec(ChannelSpec linkedChannelSpec) {
-            this.registerSpec.setLinkedChannelSpec(linkedChannelSpec);
             return this;
         }
 
@@ -360,12 +299,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         }
 
         @Override
-        public RegisterSpec.RegisterSpecBuilder setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType) {
-            this.registerSpec.setChannelSpecLinkType(channelSpecLinkType);
-            return this;
-        }
-
-        @Override
         public RegisterSpec add() {
             this.registerSpec.validateBeforeAddToConfiguration();
             return this.registerSpec;
@@ -383,12 +316,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         @Override
         public RegisterSpec.RegisterSpecUpdater setRegisterMapping(RegisterMapping registerMapping) {
             this.registerSpec.setRegisterMapping(registerMapping);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecUpdater setLinkedChannelSpec(ChannelSpec linkedChannelSpec) {
-            this.registerSpec.setLinkedChannelSpec(linkedChannelSpec);
             return this;
         }
 
@@ -425,12 +352,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         @Override
         public RegisterSpec.RegisterSpecUpdater setMultiplierMode(MultiplierMode multiplierMode) {
             this.registerSpec.setMultiplierMode(multiplierMode);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecUpdater setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType) {
-            this.registerSpec.setChannelSpecLinkType(channelSpecLinkType);
             return this;
         }
 
