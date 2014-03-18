@@ -73,6 +73,12 @@ public enum Fakes {
         }
 
         @Override
+        public Optional<T> lockNoWait(Object... values) {
+            //TODO automatically generated method body, provide implementation.
+            return null;
+        }
+
+        @Override
         public void persist(T object) {
             if (store.containsKey(getKey(object))) {
                 throw new IllegalArgumentException();
