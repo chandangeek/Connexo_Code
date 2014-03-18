@@ -16,22 +16,26 @@ Ext.define('Isu.view.workspace.issues.Filter', {
     },
     items: [
         {
-            xtype: 'panel',
-            header: false,
-            border: false,
+            xtype: 'container',
+            height: 45,
             layout: {
                 type: 'hbox',
-                align: 'left'
+                align: 'middle'
             },
             items: [
                 {
-                    xtype: 'label',
-                    style: 'font: normal 16px Calibri',
-                    html: 'Filters',
-                    margin: '10 0 10 0'
+                    xtype: 'component',
+                    html: '<b>Filters</b>',
+                    width: 50
                 },
                 {
-                    xtype: 'panel',
+                    xtype: 'component',
+                    html: 'None',
+                    name: 'empty-text'
+                },
+                {
+                    xtype: 'container',
+                    name: 'filter',
                     header: false,
                     border: false,
                     margin: '10 0 10 0',
@@ -40,7 +44,13 @@ Ext.define('Isu.view.workspace.issues.Filter', {
                         align: 'stretch',
                         defaultMargins: '0 5'
                     },
-                    name: 'filter'
+                    flex: 1
+                },
+                {
+                    xtype: 'button',
+                    action: 'clearfilter',
+                    text: 'Clear all',
+                    disabled: true
                 }
             ]
         },
@@ -52,7 +62,6 @@ Ext.define('Isu.view.workspace.issues.Filter', {
             xtype: 'panel',
             header: false,
             border: false,
-            margin: '10 0 10 0',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -60,29 +69,38 @@ Ext.define('Isu.view.workspace.issues.Filter', {
             items: [
                 {
                     border: false,
-                    items: {
-                        xtype: 'combobox',
-                        name: 'groupnames',
-                        editable: false,
-                        labelStyle: 'font: normal 16px Calibri',
-                        emptyText: 'None',
-                        fieldLabel: 'Group',
-                        labelSeparator: '',
-                        queryMode: 'local',
-                        displayField: 'display',
-                        valueField: 'Value',
-                        labelWidth: 60,
-                        labelAlign: 'left',
-                        height: 20,
-                        onFocus: function () {
-                            var me = this;
+                    layout: {
+                        type: 'hbox',
+                        align: 'middle'
+                    },
+                    height: 45,
+                    items: [
+                        {
+                            xtype: 'component',
+                            html: '<b>Group</b>',
+                            width: 50
+                        },
+                        {
+                            xtype: 'combobox',
+                            name: 'groupnames',
+                            editable: false,
+                            emptyText: 'None',
+                            labelSeparator: '',
+                            queryMode: 'local',
+                            displayField: 'display',
+                            valueField: 'Value',
+                            labelAlign: 'left',
+                            height: 20,
+                            onFocus: function () {
+                                var me = this;
 
-                            if (!me.isExpanded) {
-                                me.expand()
+                                if (!me.isExpanded) {
+                                    me.expand()
+                                }
+                                me.getPicker().focus();
                             }
-                            me.getPicker().focus();
                         }
-                    }
+                    ]
                 },
                 {
                     xtype: 'gridpanel',
@@ -144,17 +162,16 @@ Ext.define('Isu.view.workspace.issues.Filter', {
             header: false,
             border: false,
             flex: 1,
-            margin: '2 0 0 0',
+            height: 45,
             layout: {
                 type: 'hbox',
-                align: 'stretch'
+                align: 'middle'
             },
             items: [
                 {
-                    xtype: 'label',
-                    style: 'font: normal 16px Calibri',
-                    html: 'Sort',
-                    margin: '10 0 10 0'
+                    xtype: 'component',
+                    html: '<b>Sort</b>',
+                    width: 50
                 },
                 {
                     xtype: 'panel',
@@ -163,14 +180,16 @@ Ext.define('Isu.view.workspace.issues.Filter', {
                     flex: 1,
                     layout: {
                         type: 'hbox',
-                        align: 'left'
+                        align: 'middle'
+                    },
+                    defaults: {
+                        margin: '0 5 0 0'
                     },
                     items: [
                         {
                             xtype: 'button',
                             name: 'addsortbtn',
                             text: '+ Add sort',
-                            margin: '10 5 0 10',
                             menu: {
                                 shadow: false,
                                 border: false,
@@ -181,15 +200,9 @@ Ext.define('Isu.view.workspace.issues.Filter', {
                     ]
                 },
                 {
-                    xtype: 'panel',
-                    border: false,
-                    margin: '3 10 10 10',
-                    items: {
-                        xtype: 'button',
-                        name: 'clearsortbtn',
-                        margin: '10 10 10 10',
-                        text: 'Clear all'
-                    }
+                    xtype: 'button',
+                    name: 'clearsortbtn',
+                    text: 'Clear all'
                 }
             ]
         }

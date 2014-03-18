@@ -5,7 +5,7 @@ Ext.define('Isu.store.UserRoleList', {
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/assign/roles',
+        url: '/api/isu/assignees/roles',
         reader: {
             type: 'json',
             root: 'data'

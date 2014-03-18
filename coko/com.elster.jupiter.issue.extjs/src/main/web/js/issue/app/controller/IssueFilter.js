@@ -7,7 +7,7 @@ Ext.define('Isu.controller.IssueFilter', {
         'Isu.store.Assignee',
         'Isu.store.IssueStatus',
         'Isu.store.IssueReason',
-        'Isu.store.Issues'
+        'Issues'
     ],
     views: [
         'workspace.issues.SideFilter'
@@ -24,17 +24,60 @@ Ext.define('Isu.controller.IssueFilter', {
         this.control({
             'issues-side-filter button[action="filter"]': {
                 click: this.filter
+            },
+            'issues-side-filter button[action="reset"]': {
+                click: this.reset
+            },
+            'issues-filter button[action="clearfilter"]': {
+                click: this.reset
+            },
+            'issues-side-filter filter-form': {
+                render: this.loadFormModel
+            },
+            'issues-side-filter filter-form combobox[name=assignee]': {
+                change: this.clearCombo
+            },
+            'issues-side-filter filter-form combobox[name=reason]': {
+                change: this.clearCombo
+            }
+        });
+        this.listen({
+            store: {
+                '#Issues': {
+                    updateProxyFilter: this.filterUpdate
+                }
             }
         });
     },
 
-    onLaunch: function () {
-        this.getIssueFilter().down('filter-form').loadRecord(new Isu.model.IssueFilter());
+    clearCombo: function (combo, newValue) {
+        if (newValue == '') {
+            combo.reset();
+        }
     },
 
-    filter: function() {
-        var form = this.getIssueFilter().down('filter-form');
-        var filter = form.getRecord();
+    loadFormModel: function (form) {
+        form.loadRecord(new Isu.model.IssueFilter());
+    },
+
+    reset: function () {
+        var filter = new Isu.model.IssueFilter();
+
+        this.getIssueFilter().down('filter-form').loadRecord(filter);
+        this.getStore('Issues').setProxyFilter(filter);
+    },
+
+    /**
+     * @param filter
+     */
+    filterUpdate: function (filter) {
+        this.getIssueFilter().down('filter-form').loadRecord(filter);
+    },
+
+    filter: function () {
+        var form = this.getIssueFilter().down('filter-form'),
+            filter = form.getRecord();
+
         form.updateRecord(filter);
 
         this.getStore('Issues').setProxyFilter(filter);

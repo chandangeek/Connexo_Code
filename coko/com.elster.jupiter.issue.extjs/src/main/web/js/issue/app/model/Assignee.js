@@ -12,8 +12,8 @@ Ext.define('Isu.model.Assignee', {
             type: 'auto'
         },
         {
-            name: 'title',
-            displayValue: 'title',
+            name: 'name',
+            displayValue: 'Name',
             type: 'auto'
         }
     ],

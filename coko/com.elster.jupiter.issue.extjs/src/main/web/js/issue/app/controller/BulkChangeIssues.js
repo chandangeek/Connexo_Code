@@ -27,6 +27,13 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         }
     ],
 
+    listeners: {
+       retryRequest: function(wizard, failedItems){
+           this.setFailedBulkRecordIssues(failedItems);
+           this.onWizardFinishedEvent(wizard);
+       }
+    },
+
     init: function () {
         this.control({
             'bulk-browse breadcrumbTrail': {
@@ -61,6 +68,19 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                 beforeactivate: this.beforeStep4
             }
         });
+    },
+
+    setFailedBulkRecordIssues: function(failedIssues){
+        var record = this.getBulkRecord(),
+            previousIssues = record.get('issues'),
+            leftIssues = [];
+        Ext.each (previousIssues, function (issue) {
+            if(Ext.Array.contains(failedIssues, issue.get('id'))){
+                leftIssues.push(issue);
+            }
+        });
+        record.set('issues', leftIssues);
+        record.commit();
     },
 
     setBreadcrumb: function (breadcrumbs) {
@@ -155,14 +175,15 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     onWizardFinishedEvent: function (wizard) {
+        var self = this;
         this.setBulkActionListActiveItem(wizard);
         this.getBulkActionsList().clearHyperLinkActions();
-
         var step5panel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step5'),
             record = this.getBulkRecord(),
             requestData = this.getRequestData(record),
             operation = record.get('operation'),
-            requestUrl = '/api/isu/issue/' + operation;
+            requestUrl = '/api/isu/issue/' + operation,
+            failedIssues = [];
 
         var pb = Ext.create('Ext.ProgressBar', {width: '50%'});
         step5panel.removeAll(true);
@@ -179,26 +200,37 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             method: 'PUT',
             jsonData: requestData,
             success: function (response) {
-                var obj = Ext.decode(response.responseText),
+                var obj = Ext.decode(response.responseText).data,
                     successCount = obj.success.length,
-                    failedCount = obj.failure.length,
-                    successMessage, failedMessage;
+                    failedCount = 0,
+                    successMessage,
+                    failedMessage,
+                    failList = '';
+
+                Ext.each (obj.failure, function (fails) {
+                    failList += '<h4>' + fails.reason +':</h4><br>';
+                    Ext.each (fails.issues, function(issue){
+                        failedCount += 1;
+                        failedIssues.push(issue.id);
+                        failList += issue.title + '<br>';
+                    });
+                });
 
                 switch (operation) {
                     case 'assign':
                         if (successCount > 0) {
-                            successMessage = 'Successfully assigned ' + successCount + ' issue(s) to ' + record.get('assignee').title;
+                            successMessage = '<h3>Successfully assigned ' + successCount + ' issue(s) to ' + record.get('assignee').title + '</h3><br>';
                         }
                         if (failedCount > 0) {
-                            failedMessage = 'Failed to assign ' + failedCount + 'issue(s)'
+                            failedMessage = '<h3>Failed to assign ' + failedCount + 'issue(s)</h3><br>'
                         }
                         break;
                     case 'close':
                         if (successCount > 0) {
-                            successMessage = 'Successfully closed ' + successCount + ' issue(s)';
+                            successMessage = '<h3>Successfully closed ' + successCount + ' issue(s)</h3><br>';
                         }
                         if (failedCount > 0) {
-                            failedMessage = 'Failed to close ' + failedCount + 'issue(s)'
+                            failedMessage = '<h3>Failed to close ' + failedCount + ' issue(s)</h3><br>' + failList;
                         }
                         break;
                 }
@@ -209,40 +241,45 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     var successMsgParams = {
                         type: 'success',
                         msgBody: [
-                            {text: successMessage}
-                        ],
-                        btns: [
-                            {text: "OK", hnd: function () {
-                                Ext.History.back();
-                            }}
+                            {html: successMessage}
                         ],
                         closeBtn: false
                     };
-                    step5panel.add(Ext.widget('message-panel', successMsgParams));
+                    if (failedCount == 0) {
+                        successMsgParams.btns = [
+                            {text: "OK", hnd: function () {
+                                Ext.History.back();
+                            }}
+                        ];
+                    }
+                    successPanel = Ext.widget('message-panel', successMsgParams);
+                    successPanel.addClass('isu-bulk-message-panel');
+                    step5panel.add(successPanel);
                 }
 
                 if (failedCount > 0) {
                     var failedMessageParams = {
                         type: 'error',
                         msgBody: [
-                            {text: failedMessage}
+                            {html: failedMessage}
                         ],
                         btns: [
                             {text: "Retry", hnd: function () {
-                                console.log('Retry');
+                                self.fireEvent('retryRequest', wizard, failedIssues);
                             }},
                             {text: "Finish", hnd: function () {
-                                console.log('Finish');
+                                Ext.History.back();
                             }}
                         ],
                         closeBtn: false
                     };
-                    step5panel.add(Ext.widget('message-panel', failedMessageParams));
+                    failedPanel = Ext.widget('message-panel', failedMessageParams);
+                    failedPanel.addClass('isu-bulk-message-panel');
+                    step5panel.add(failedPanel);
                 }
             },
             failure: function (response) {
                 step5panel.removeAll(true);
-                Ext.Msg.alert('Server communication error', response.status);
                 Ext.History.back();
             }
         });

@@ -1,11 +1,10 @@
-Ext.define('Isu.store.UserGroupList', {
+Ext.define('Isu.store.IssueComments', {
     extend: 'Ext.data.Store',
-    model: 'Isu.model.UserGroupList',
-    autoLoad: true,
+    model: 'Isu.model.IssueComments',
+    autoLoad: false,
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/assignees/groups',
         reader: {
             type: 'json',
             root: 'data'

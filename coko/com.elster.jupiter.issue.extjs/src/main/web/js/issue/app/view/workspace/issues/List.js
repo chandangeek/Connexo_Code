@@ -9,7 +9,7 @@ Ext.define('Isu.view.workspace.issues.List', {
         'Uni.view.toolbar.PagingBottom'
     ],
     alias: 'widget.issues-list',
-    store: 'Isu.store.Issues',
+    store: 'Issues',
     enableColumnHide: false,
     height: 395,
     emptyText: '<h3>No issue found</h3><p>No data collection issues have been created yet.</p>',
@@ -22,7 +22,7 @@ Ext.define('Isu.view.workspace.issues.List', {
             {
                 header: 'Title',
                 xtype: 'templatecolumn',
-                tpl: '{reason}<tpl if="device"> to {device.name} {device.serialNumber}</tpl>',
+                tpl: '<a href="#/workspace/datacollection/issues/{id}">{reason}<tpl if="device"> to {device.name} {device.serialNumber}</tpl></a>',
                 flex: 2
             },
             {
@@ -64,7 +64,7 @@ Ext.define('Isu.view.workspace.issues.List', {
                     items: [
                         {
                             xtype: 'pagingtoolbartop',
-                            store: 'Isu.store.Issues',
+                            store: 'Issues',
                             dock: 'top',
                             border: false
                         }
@@ -79,7 +79,7 @@ Ext.define('Isu.view.workspace.issues.List', {
         },
         {
             xtype: 'pagingtoolbarbottom',
-            store: 'Isu.store.Issues',
+            store: 'Issues',
             dock: 'bottom'
         }
     ]
