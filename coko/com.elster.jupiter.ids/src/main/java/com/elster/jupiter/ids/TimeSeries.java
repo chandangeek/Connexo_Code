@@ -23,6 +23,7 @@ public interface TimeSeries {
     List<TimeSeriesEntry> getEntries(Interval interval);
     Optional<TimeSeriesEntry> getEntry(Date when);
     List<TimeSeriesEntry> getEntriesBefore(Date when,int entryCount);
+    List<TimeSeriesEntry> getEntriesOnOrBefore(Date when,int entryCount);
 	boolean isValidDateTime(Date date);
 	TimeZone getTimeZone();
 }

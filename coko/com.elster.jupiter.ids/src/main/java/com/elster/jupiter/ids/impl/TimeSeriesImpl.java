@@ -288,6 +288,11 @@ public final class TimeSeriesImpl implements TimeSeries {
 
 	@Override
 	public List<TimeSeriesEntry> getEntriesBefore(Date when,int entryCount) {
-		return getVault().getEntriesBefore(this,when,entryCount);
+		return getVault().getEntriesBefore(this,when,entryCount,false);
+	}
+
+	@Override
+	public List<TimeSeriesEntry> getEntriesOnOrBefore(Date when, int entryCount) {
+		return getVault().getEntriesBefore(this,when,entryCount,true);
 	}
 }

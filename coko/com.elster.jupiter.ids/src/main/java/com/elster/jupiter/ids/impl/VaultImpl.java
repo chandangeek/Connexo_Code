@@ -588,18 +588,18 @@ public class VaultImpl implements Vault {
 		return dataModel.getSqlDialect().equals(SqlDialect.ORACLE);
 	}
 
-	List<TimeSeriesEntry> getEntriesBefore(TimeSeriesImpl timeSeries, Date when, int entryCount) {
+	List<TimeSeriesEntry> getEntriesBefore(TimeSeriesImpl timeSeries, Date when, int entryCount , boolean includeBoundary) {
 		try {
-			return doGetEntriesBefore(timeSeries,when,entryCount);
+			return doGetEntriesBefore(timeSeries,when,entryCount, includeBoundary);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 	
-	private List<TimeSeriesEntry> doGetEntriesBefore(TimeSeriesImpl timeSeries, Date when, int entryCount) throws SQLException {
+	private List<TimeSeriesEntry> doGetEntriesBefore(TimeSeriesImpl timeSeries, Date when, int entryCount, boolean includeBoundary) throws SQLException {
 		List<TimeSeriesEntry> result = new ArrayList<>();
 		try (Connection connection = getConnection(false)) {
-			try (PreparedStatement statement = connection.prepareStatement(entriesBeforeSql(timeSeries))) {
+			try (PreparedStatement statement = connection.prepareStatement(entriesBeforeSql(timeSeries,includeBoundary))) {
 				statement.setLong(ID_COLUMN_INDEX,timeSeries.getId());
 				statement.setLong(WHEN_COLUMN_INDEX, when.getTime());
 				statement.setInt(3, entryCount);
@@ -613,9 +613,11 @@ public class VaultImpl implements Vault {
 		return result;
 	}
 	
-	private String entriesBeforeSql(TimeSeries timeSeries) {
+	private String entriesBeforeSql(TimeSeries timeSeries,boolean includeBoundary) {
 		StringBuilder base = selectSql(timeSeries);
-		base.append(" AND UTCSTAMP < ? ORDER BY UTCSTAMP DESC ");
+		base.append(" AND UTCSTAMP ");
+		base.append(includeBoundary ? "<= " : "<");
+		base.append(" ? ORDER BY UTCSTAMP DESC ");
 		StringBuilder builder = new StringBuilder ("SELECT * from (");
 		builder.append(base.toString());
 		builder.append(") where ROWNUM <= ? ");
