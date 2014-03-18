@@ -58,12 +58,9 @@ public class RegisterConfigurationResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         RegisterMapping registerMapping = registerConfigInfo.registerTypeId==null?null:findRegisterMappingOrThrowException(registerConfigInfo.registerTypeId);
-        ChannelSpec channelSpec = registerConfigInfo.linkedChannelConfigId==null?null:findChannelSpecOrThrowException(registerConfigInfo.linkedChannelConfigId);
         RegisterSpec registerSpec = deviceConfiguration.createRegisterSpec(registerMapping)
                 .setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT)
                 .setMultiplier(registerConfigInfo.multiplier)
-                .setChannelSpecLinkType(registerConfigInfo.channelLinkType)
-                .setLinkedChannelSpec(channelSpec)
                 .setNumberOfDigits(registerConfigInfo.numberOfDigits)
                 .setNumberOfFractionDigits(registerConfigInfo.numberOfFractionDigits)
                 .setOverflow(registerConfigInfo.overflowValue)
@@ -77,9 +74,8 @@ public class RegisterConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterConfigInfo updateRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("registerConfigId") long registerTypeId, RegisterConfigInfo registerConfigInfo) {
         RegisterSpec registerSpec = findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerTypeId);
-        ChannelSpec channelSpec = registerConfigInfo.linkedChannelConfigId==null?null:findChannelSpecOrThrowException(registerConfigInfo.linkedChannelConfigId);
         RegisterMapping registerMapping = registerConfigInfo.registerTypeId==null?null:findRegisterMappingOrThrowException(registerConfigInfo.registerTypeId);
-        registerConfigInfo.writeTo(registerSpec, channelSpec, registerMapping);
+        registerConfigInfo.writeTo(registerSpec, registerMapping);
         registerSpec.save();
         return RegisterConfigInfo.from(registerSpec);
     }

@@ -274,6 +274,41 @@ public class DeviceTypeResourceTest extends JerseyTest {
     }
 
     @Test
+    public void testRegisterConfigurationInfoJavaScriptMappings() throws Exception {
+
+        DeviceType deviceType = mock(DeviceType.class);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getId()).thenReturn(113L);
+        RegisterMapping registerMapping = mock(RegisterMapping.class);
+        ReadingType readingType = mockReadingType();
+        when(registerMapping.getReadingType()).thenReturn(readingType);
+        RegisterSpec registerSpec = mock(RegisterSpec.class);
+        when(registerSpec.getId()).thenReturn(1L);
+        when(registerSpec.getRegisterMapping()).thenReturn(registerMapping);
+        ObisCode obisCode = mockObisCode();
+        when(registerSpec.getObisCode()).thenReturn(obisCode);
+        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+
+        when(deviceConfigurationService.findDeviceType(6)).thenReturn(deviceType);
+
+        Map<String, Object> jsonRegisterConfiguration = target("/devicetypes/6/deviceconfigurations/113/registerconfigurations/1").request().get(Map.class);
+        assertThat(jsonRegisterConfiguration).hasSize(12);
+        assertThat(jsonRegisterConfiguration.get("id")).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonRegisterConfiguration.get("name")).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonRegisterConfiguration.get("readingType")).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonRegisterConfiguration.get("registerTypeId")).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonRegisterConfiguration.get("obisCode")).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonRegisterConfiguration.get("overruledObisCode")).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonRegisterConfiguration.get("obisCodeDescription")).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonRegisterConfiguration.get("unitOfMeasure")).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonRegisterConfiguration.get("numberOfDigits")).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonRegisterConfiguration.get("numberOfFractionDigits")).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonRegisterConfiguration.get("multiplier")).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonRegisterConfiguration.get("overflowValue")).describedAs("JSon representation of a field, JavaScript impact if it changed");
+    }
+
+    @Test
     public void testRegisterTypesInfoJavaScriptMappings() throws Exception {
 
         DeviceType deviceType = mock(DeviceType.class);
