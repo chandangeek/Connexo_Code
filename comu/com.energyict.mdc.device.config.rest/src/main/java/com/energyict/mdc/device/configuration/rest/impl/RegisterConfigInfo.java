@@ -36,7 +36,7 @@ public class RegisterConfigInfo {
     public Unit unit;
     @JsonProperty("numberOfDigits")
     public int numberOfDigits;
-    @JsonProperty("numberFractionOfDigits")
+    @JsonProperty("numberOfFractionDigits")
     public int numberOfFractionDigits;
     @JsonProperty("multiplier")
     public BigDecimal multiplier;
