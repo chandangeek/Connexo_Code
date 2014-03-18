@@ -47,11 +47,14 @@ Ext.define('Isu.controller.Issues', {
         {
             ref: 'filter',
             selector: 'issues-filter'
-        },
+        }
     ],
 
     init: function () {
         this.control({
+            'issues-overview issues-list': {
+                afterrender: this.bulkChangeButtonDisable
+            },
             'issues-overview issues-list gridview': {
                 itemclick: this.loadGridItemDetail,
                 itemmouseenter: this.onUserTypeIconHover
@@ -173,6 +176,14 @@ Ext.define('Isu.controller.Issues', {
             emptyText.show();
             clearFilterBtn.setDisabled(true);
         }
+    },
+
+    bulkChangeButtonDisable: function (grid) {
+        grid.store.on('load', function () {
+            if (grid.store.getCount() < 1) {
+                grid.up().down('button[name=bulk-change-issues]').setDisabled(true);
+            }
+        });
     },
 
     sortUpdate: function(sortModel) {
