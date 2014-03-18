@@ -114,5 +114,6 @@ mvn:com.elster.jupiter/fileimport/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/tasks/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/appserver/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/config.extjs/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/masterjs/1.0.0-SNAPSHOT
 
 	
