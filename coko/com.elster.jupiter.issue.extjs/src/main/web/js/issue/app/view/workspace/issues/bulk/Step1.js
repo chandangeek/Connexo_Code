@@ -8,6 +8,18 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
     ],
 
     items: [
+        {
+            name: 'step1-errors',
+            layout: 'hbox',
+            hidden: true,
+            defaults: {
+                xtype: 'container',
+                cls: 'isu-error-panel'
+            },
+            items: [
+                {html: '<b>There are errors on this page that require your attention.</b>'}
+            ]
+        },
         {xtype: 'issues-filter'},
         {xtype: 'issue-no-group'},
         {

@@ -107,10 +107,17 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         grid.view.preserveScrollOnRefresh = true;
     },
 
-    onIssueListViewSelectAndDeselect: function (selModel) {
-        selModel.view.refresh();
-        this.step1SelectedIssuesTxtHolderUptade(selModel.view.ownerCt);
+    onIssueListViewSelectAndDeselect: function (grid) {
+        grid.view.refresh();
+        this.step1SelectedIssuesTxtHolderUptade(grid);
 
+        var step1RadioGroup = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step1').down('radiogroup'),
+            step1ErrorPanel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step1').down('[name=step1-errors]');
+
+        if (grid.view.getSelectionModel().getSelection().length > 0) {
+            step1RadioGroup.query('[inputValue=SELECTED]')[0].setBoxLabel('<b>Selected issues</b><br/><span style="color: gray;">Select issues in table</span>')
+            step1ErrorPanel.setVisible(false);
+        }
     },
 
     onUncheckAllIssuesEvent: function (btn) {
@@ -426,7 +433,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     step1SelectedIssuesTxtHolderUptade: function (grid) {
         var step1SelectedIssuesTxt = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step1').down('[name=issues-qty-txt]');
         step1SelectedIssuesTxt.setText(
-            grid.getSelectionModel().getSelection().length >= 1 ? (grid.getSelectionModel().getSelection().length +
-                (grid.getSelectionModel().getSelection().length > 1 ? ' issues' : ' issue') + ' selected') : 'No issues selected');
+            grid.view.getSelectionModel().getSelection().length >= 1 ? (grid.view.getSelectionModel().getSelection().length +
+                (grid.view.getSelectionModel().getSelection().length > 1 ? ' issues' : ' issue') + ' selected') : 'No issues selected');
     }
 });

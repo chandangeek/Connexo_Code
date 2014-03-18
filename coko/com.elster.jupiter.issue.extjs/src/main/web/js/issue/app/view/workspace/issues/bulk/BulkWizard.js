@@ -115,5 +115,38 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
         wizard.getLayout().setActiveItem(++wizard.activeItemId);
         wizard.fireEvent('wizardpagechange', wizard);
         wizard.fireEvent('wizardfinished', wizard);
+    },
+
+    onNextButtonClick: function (next) {
+        var wizard = next.up('wizard'),
+            functionName = 'processValidateOnStep' + (wizard.activeItemId + 1);
+        if (this.processValidate(functionName, wizard)) {
+            wizard.getLayout().setActiveItem(++wizard.activeItemId);
+            wizard.fireEvent('wizardpagechange', wizard);
+            wizard.fireEvent('wizardnext', wizard);
+        }
+    },
+
+    processValidate: function (func, wizard) {
+        if (func in this) {
+            return this[func](wizard);
+        } else {
+            return true;
+        }
+    },
+
+    processValidateOnStep1: function (wizard) {
+        var issuesGrid = wizard.down('issues-list'),
+            step1ErrorPanel = wizard.down('[name=step1-errors]'),
+            step1RadioGroup = wizard.down('radiogroup');
+
+        if (Ext.isEmpty(issuesGrid.view.getSelectionModel().getSelection())) {
+            step1RadioGroup.query('[inputValue=SELECTED]')[0].setBoxLabel('<b>Selected issues<br/><span style="color: #CF4C35;">' +
+                'It is required to select one or more issues to go to the next step</b></span>');
+            step1ErrorPanel.setVisible(true);
+            return false;
+        } else {
+            return true;
+        }
     }
 });
