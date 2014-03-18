@@ -267,6 +267,11 @@ public enum Fakes {
 			return null;
 		}
 
+		@Override
+		public Optional<T> lockNoWait(Object... values) {
+			return Optional.absent();
+		}
+
     }
 
     public static Object getFieldValue(Object object, String fieldName) {
