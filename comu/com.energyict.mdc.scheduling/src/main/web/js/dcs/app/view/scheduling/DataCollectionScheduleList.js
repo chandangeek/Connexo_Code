@@ -90,7 +90,7 @@ Ext.define('Dcs.view.scheduling.DataCollectionScheduleList', {
                         text: Uni.I18n.translate('scheduling.createDataCollectionSchedule', 'DCS', 'Create schedule'),
                         itemId: 'newDataCollectionSchedule',
                         xtype: 'button',
-                        href: '#administration/validation/createdatacollectionschedule',
+                        href: '#administration_dcs/validation/createdatacollectionschedule',
                         hrefTarget: '_self'
                     }
                 ]

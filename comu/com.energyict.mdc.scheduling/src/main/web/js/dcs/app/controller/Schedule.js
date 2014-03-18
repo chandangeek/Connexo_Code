@@ -56,7 +56,7 @@ Ext.define('Dcs.controller.Schedule', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Administration',
-            href: '#administration'
+            href: '#administration_dcs'
         });
         breadcrumbParent.setChild(breadcrumbDataCollectionSchedules);
 

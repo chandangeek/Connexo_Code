@@ -12,7 +12,7 @@ Ext.define('Dcs.view.admin.Administration', {
     items: [
         {
             xtype: 'component',
-            html: '<h3><a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#administration/scheduling">Data Collection Schedules</a></h3>',
+            html: '<h3><a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#administration_dcs/scheduling">Data Collection Schedules</a></h3>',
             margin: '30 30 30 30'
         }
     ],

@@ -1,8 +1,8 @@
 Ext.define('Dcs.controller.history.Schedule', {
     extend: 'Uni.controller.history.Converter',
 
-    rootToken: 'administration',
-    previousTokens: ['administration'],
+    rootToken: 'administration_dcs',
+    previousTokens: ['administration_dcs'],
 
     doConversion: function (tokens) {
         if (this.currentTokens !== null) {
