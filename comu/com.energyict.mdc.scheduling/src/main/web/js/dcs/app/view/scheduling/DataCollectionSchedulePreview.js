@@ -54,7 +54,7 @@ Ext.define('Dcs.view.scheduling.DataCollectionSchedulePreview', {
                 '->',
                 {
                     icon: 'resources/images/gear-16x16.png',
-                    text: Uni.I18n.translate('validation.actions', 'DCS', 'Actions'),
+                    text: Uni.I18n.translate('scheduling.actions', 'DCS', 'Actions'),
                     menu:{
                         items:[
                             {
