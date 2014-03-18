@@ -19,6 +19,7 @@ Ext.define('Uni.Loader', {
         'Uni.controller.Error',
         'Uni.controller.Navigation',
         'Uni.controller.Notifications',
+        'Uni.controller.Portal',
         'Uni.controller.Search',
         'Uni.view.form.field.Vtypes',
 

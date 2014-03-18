@@ -8,6 +8,7 @@ Ext.define('Uni.override.ApplicationOverride', {
         'Uni.controller.Configuration',
         'Uni.controller.Error',
         'Uni.controller.Navigation',
+        'Uni.controller.Portal',
         'Uni.controller.Notifications',
         'Uni.controller.Search'
     ],

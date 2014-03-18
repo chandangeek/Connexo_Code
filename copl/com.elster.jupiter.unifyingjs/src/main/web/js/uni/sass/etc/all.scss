@@ -427,6 +427,16 @@ $menu-width-collapsed: 55px;
 
 // Portal
 
+.uni-portal-container {
+    .uni-portal-panel {
+        margin: 10px;
+
+        .x-panel-body-default {
+            border-color: #157fcc !important;
+        }
+    }
+}
+
 .x-panel-ghost {
     z-index: 1;
 }

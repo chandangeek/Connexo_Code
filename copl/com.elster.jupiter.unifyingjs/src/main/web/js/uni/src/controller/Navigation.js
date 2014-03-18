@@ -82,7 +82,7 @@ Ext.define('Uni.controller.Navigation', {
         }
     },
 
-    refreshNavigationMenu: function (container) {
+    refreshNavigationMenu: function () {
         var menu = this.getNavigationMenu(),
             store = Uni.store.MenuItems;
 
