@@ -55,12 +55,15 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
 
                                     },
                                     {
-                                        xtype: 'menuseparator'
-                                    },
-                                    {
                                         text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
                                         itemId: 'deleteDeviceConfiguration',
                                         action: 'deleteDeviceConfiguration'
+
+                                    },
+                                    {
+                                        text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+                                        itemId: 'activateDeactivateDeviceConfiguration',
+                                        action: 'activateDeactivateDeviceConfiguration'
 
                                     }
                                 ]
@@ -89,11 +92,65 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                     },
                                     items: [
                                         {
+                                            xtype: 'fieldcontainer',
+                                            columnWidth: 0.5,
+                                            fieldLabel: Uni.I18n.translate('devicetype.deviceType', 'MDC', 'Device type'),
+                                            layout: {
+                                                type: 'vbox'
+                                            },
+                                            items: [
+                                                {
+                                                    xtype: 'component',
+                                                    name: 'deviceTypeName',
+                                                    cls: 'x-form-display-field',
+                                                    autoEl: {
+                                                        tag: 'a',
+                                                        href: '#',
+                                                        html: Uni.I18n.translate('devicetype.deviceType', 'MDC', 'Device type')
+                                                    },
+                                                    itemId: 'deviceConfigurationDetailDeviceTypeLink'
+                                                }
+                                            ]
+                                        },
+                                        {
                                             xtype: 'displayfield',
                                             name: 'name',
                                             fieldLabel: Uni.I18n.translate('deviceconfiguration.name', 'MDC', 'Name'),
                                             itemId: 'deviceName'
 
+                                        },
+                                        {
+                                            xtype: 'displayfield',
+                                            name: 'description',
+                                            fieldLabel: Uni.I18n.translate('deviceconfiguration.description', 'MDC', 'Description'),
+                                            itemId: 'deviceConfigurationDescription'
+                                        },
+                                        {
+                                            xtype: 'displayfield',
+                                            name: 'active',
+                                            fieldLabel: Uni.I18n.translate('deviceconfiguration.status', 'MDC', 'Status'),
+                                            itemId: 'deviceConfigurationStatus',
+                                            renderer: function (item) {
+                                                return item ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
+                                            }
+                                        },
+                                        {
+                                            xtype: 'displayfield',
+                                            name: 'isGateway',
+                                            fieldLabel: Uni.I18n.translate('deviceconfiguration.isGateway', 'MDC', 'Can act as gateway'),
+                                            itemId: 'deviceConfigurationIsGateway',
+                                            renderer: function (item) {
+                                                return item ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
+                                            }
+                                        },
+                                        {
+                                            xtype: 'displayfield',
+                                            name: 'isDirectlyAddressable',
+                                            fieldLabel: Uni.I18n.translate('deviceconfiguration.isDirectlyAddressable', 'MDC', 'Directly addressable'),
+                                            itemId: 'deviceConfigurationDirectlyAddressable',
+                                            renderer: function (item) {
+                                                return item ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
+                                            }
                                         }
 //                                {
 //                                    xtype: 'displayfield',

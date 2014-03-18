@@ -30,8 +30,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'deviceConfigurationDetailRegisterLink', selector: '#deviceConfigurationDetailRegistersLink'},
         {ref: 'deviceConfigurationDetailLogBookLink', selector: '#deviceConfigurationDetailLogBooksLink'},
         {ref: 'deviceConfigurationDetailLoadProfilesLink', selector: '#deviceConfigurationDetailLoadProfilesLink'},
+        {ref: 'deviceConfigurationDetailDeviceTypeLink', selector: '#deviceConfigurationDetailDeviceTypeLink'},
         {ref: 'deviceConfigurationDetailForm', selector: '#deviceConfigurationDetailForm'},
         {ref: 'deviceConfigurationEditForm', selector: '#deviceConfigurationEditForm'},
+        {ref: 'activateDeviceconfigurationMenuItem', selector: '#activateDeviceconfigurationMenuItem'},
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
     ],
 
@@ -45,7 +47,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             },
             '#deviceconfigurationsgrid actioncolumn': {
                 editItem: this.editDeviceConfigurationHistory,
-                deleteItem: this.deleteDeviceConfiguration
+                deleteItem: this.deleteDeviceConfiguration,
+                activateItem: this.activateDeviceConfiguration
             },
             '#deviceConfigurationPreview menuitem[action=editDeviceConfiguration]': {
                 click: this.editDeviceConfigurationHistory
@@ -53,11 +56,17 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             '#deviceConfigurationPreview menuitem[action=deleteDeviceConfiguration]': {
                 click: this.deleteDeviceConfiguration
             },
+            '#deviceConfigurationPreview menuitem[action=activateDeactivateDeviceConfiguration]': {
+                click: this.activateDeviceConfiguration
+            },
             '#deviceConfigurationDetail menuitem[action=deleteDeviceConfiguration]': {
                 click: this.deleteDeviceConfigurationFromDetails
             },
             '#deviceConfigurationDetail menuitem[action=editDeviceConfiguration]': {
                 click: this.editDeviceConfigurationFromDetailsHistory
+            },
+            '#deviceConfigurationDetail menuitem[action=activateDeactivateDeviceConfiguration]': {
+                click: this.activateDeviceConfigurationFromDetails
             },
             '#createEditButton[action=createDeviceConfiguration]': {
                 click: this.createDeviceConfiguration
@@ -90,6 +99,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var deviceConfigurations = this.getDeviceConfigurationsGrid().getSelectionModel().getSelection();
         if (deviceConfigurations.length == 1) {
             var deviceConfigurationId = deviceConfigurations[0].get('id');
+            debugger;
+            this.getActivateDeviceconfigurationMenuItem().setText(deviceConfigurations[0].get('active')===true?Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate'):Uni.I18n.translate('general.activate', 'MDC', 'Activate'));
             this.getDeviceConfigurationRegisterLink().getEl().set({href: '#/setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations' + deviceConfigurationId + '/registertypes'});
             this.getDeviceConfigurationRegisterLink().getEl().setHTML(deviceConfigurations[0].get('registerCount') + ' ' + Uni.I18n.translate('devicetype.registers', 'MDC', 'register types'));
             this.getDeviceConfigurationLogBookLink().getEl().set({href: '#/setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations' + deviceConfigurationId + '/logbooks'});
@@ -117,6 +128,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     success: function(deviceType){
                         var deviceConfigurationId = deviceConfiguration.get('id');
                         me.detailBreadCrumb(devicetype,deviceType.get('name'),deviceConfigurationId,deviceConfiguration.get('name'));
+                        me.getDeviceConfigurationDetailDeviceTypeLink().getEl().set({href:'#/setup/devicetypes/' + me.deviceTypeId});
+                        me.getDeviceConfigurationDetailDeviceTypeLink().getEl().setHTML(deviceType.get('name'));
                         me.getDeviceConfigurationDetailRegisterLink().getEl().set({href: '#/setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations' + deviceConfigurationId +'/registertypes'});
                         me.getDeviceConfigurationDetailRegisterLink().getEl().setHTML(deviceConfiguration.get('registerCount') + ' ' + Uni.I18n.translate('devicetype.registers', 'MDC', 'register types'));
                         me.getDeviceConfigurationDetailLogBookLink().getEl().set({href: '#/setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations' + deviceConfigurationId + '/logbooks'});
@@ -143,6 +156,39 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     editDeviceConfigurationFromDetailsHistory: function(){
         var record = this.getDeviceConfigurationDetailForm().getRecord();
         location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ record.get('id') +'/edit';
+    },
+
+    activateDeviceConfiguration: function(){
+        var me=this;
+       var deviceConfigurationToActivateDeactivate = this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0];
+        if(deviceConfigurationToActivateDeactivate.get('active')===true){
+            deviceConfigurationToActivateDeactivate.set('active',false);
+        } else {
+            deviceConfigurationToActivateDeactivate.set('active',true);
+        }
+        deviceConfigurationToActivateDeactivate.getProxy().setExtraParam('deviceType',this.deviceTypeId);
+        deviceConfigurationToActivateDeactivate.save({
+            callback: function(){
+                location.href = '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations';
+            }
+        });
+    },
+
+    activateDeviceConfigurationFromDetails: function(){
+        var me = this;
+        debugger;
+        var deviceConfigurationToActivateDeactivate = this.getDeviceConfigurationDetailForm().getRecord();
+        if(deviceConfigurationToActivateDeactivate.get('active')===true){
+            deviceConfigurationToActivateDeactivate.set('active',false);
+        } else {
+            deviceConfigurationToActivateDeactivate.set('active',true);
+        }
+        deviceConfigurationToActivateDeactivate.getProxy().setExtraParam('deviceType',this.deviceTypeId);
+        deviceConfigurationToActivateDeactivate.save({
+            callback: function(){
+                location.href = '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/'+deviceConfigurationToActivateDeactivate.get('id');
+            }
+        });
     },
 
     deleteDeviceConfiguration: function(){

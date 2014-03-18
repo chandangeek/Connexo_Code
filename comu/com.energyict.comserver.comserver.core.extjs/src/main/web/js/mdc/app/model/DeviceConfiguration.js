@@ -7,7 +7,10 @@ Ext.define('Mdc.model.DeviceConfiguration', {
         {name: 'active', type: 'boolean', useNull: true},
         {name: 'loadProfileCount', type: 'number', useNull: true},
         {name: 'registerCount', type: 'number', useNull: true},
-        {name: 'logBookCount', type: 'number', useNull: true}
+        {name: 'logBookCount', type: 'number', useNull: true},
+        {name: 'isGateway', type: 'boolean', useNull: true},
+        {name: 'isDirectlyAddressable', type: 'boolean', useNull: true}
+
     ],
     proxy: {
         type: 'rest',

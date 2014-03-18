@@ -83,6 +83,27 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 enforceMaxLength: true
                                             },
                                             {
+                                                xtype: 'textareafield',
+                                                name: 'description',
+                                                msgTarget: 'under',
+                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.description', 'MDC', 'Description'),
+                                                itemId: 'editDeviceConfigurationDescriptionField'
+                                            },
+                                            {
+                                                xtype: 'checkbox',
+                                                inputValue: true,
+                                                uncheckedValue: 'false',
+                                                name: 'isGateway',
+                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.isGateway', 'MDC', 'Can act as gateway')
+                                            },
+                                            {
+                                                xtype: 'checkbox',
+                                                inputValue: true,
+                                                uncheckedValue: 'false',
+                                                name: 'isDirectlyAddressable',
+                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.isDirectlyAddressable', 'MDC', 'Directly addressable')
+                                            },
+                                            {
                                                 xtype: 'fieldcontainer',
                                                 fieldLabel: '&nbsp',
                                                 //width: 430,

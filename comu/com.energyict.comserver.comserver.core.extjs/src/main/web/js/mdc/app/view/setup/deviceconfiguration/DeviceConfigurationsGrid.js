@@ -22,9 +22,9 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                 dataIndex: 'name',
                 sortable: false,
                 hideable: false,
-                renderer: function(value,b,record){
-                    return '<a href="#/setup/devicetypes/' + record.get('id') + '">' + value + '</a>';;
-                },
+//                renderer: function(value,b,record){
+//                    return '<a href="#/setup/devicetypes/' + record.get('id') + '">' + value + '</a>';;
+//                },
                 fixed: true,
                 flex: 0.4
             },
@@ -51,6 +51,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                 items: [{
                     icon: '../mdc/resources/images/gear-16x16.png',
                     handler: function(grid, rowIndex, colIndex,item,e) {
+                        grid.getSelectionModel().select(rowIndex);
                         var menu = Ext.widget('menu', {
                             items: [{
                                 xtype: 'menuitem',
@@ -78,7 +79,22 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                                     }
 
                                 }
-                            }]
+                            },
+                                {
+                                    xtype: 'menuitem',
+                                    text: grid.getSelectionModel().getSelection()[0].get('active')===true?Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate'):Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+                                    listeners: {
+                                        click: {
+                                            element: 'el',
+                                            fn: function(){
+                                                this.fireEvent('activateItem',grid,grid.getSelectionModel().getSelection());
+                                            },
+                                            scope: this
+                                        }
+
+                                    }
+                                }
+                            ]
                         });
                         menu.showAt(e.getXY());
                     }

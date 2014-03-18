@@ -118,7 +118,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 me.getDeviceTypeDetailLogBookLink().getEl().setHTML(deviceType.get('logBookCount') + ' ' + Uni.I18n.translate('devicetype.logbooks', 'MDC', 'logbook types'));
                 me.getDeviceTypeDetailLoadProfilesLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/loadprofiles'});
                 me.getDeviceTypeDetailLoadProfilesLink().getEl().setHTML(deviceType.get('loadProfileCount') + ' ' + Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'loadprofile types'));
-                me.getDeviceConfigurationsDetailLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/configurations'});
+                me.getDeviceConfigurationsDetailLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/deviceconfigurations'});
                 me.getDeviceConfigurationsDetailLink().getEl().setHTML(deviceType.get('deviceConfigurationCount') + ' ' + Uni.I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations'));
                 widget.down('form').loadRecord(deviceType);
 

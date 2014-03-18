@@ -63,12 +63,15 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
 
                             },
                             {
-                                xtype: 'menuseparator'
-                            },
-                            {
                                 text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
                                 itemId: 'deleteDeviceConfiguration',
                                 action: 'deleteDeviceConfiguration'
+
+                            },
+                            {
+                                text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+                                itemId: 'activateDeviceconfigurationMenuItem',
+                                action: 'activateDeactivateDeviceConfiguration'
 
                             }
                         ]
