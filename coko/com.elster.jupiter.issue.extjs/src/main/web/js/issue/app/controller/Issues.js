@@ -51,6 +51,9 @@ Ext.define('Isu.controller.Issues', {
 
     init: function () {
         this.control({
+            'issues-overview issues-list': {
+                afterrender: this.bulkChangeButtonDisable
+            },
             'issues-overview issues-list gridview': {
                 itemclick: this.loadGridItemDetail,
                 itemmouseenter: this.onUserTypeIconHover
@@ -152,7 +155,15 @@ Ext.define('Isu.controller.Issues', {
         }
     },
 
-    removeFilter: function(elm) {
+    bulkChangeButtonDisable: function (grid) {
+        grid.store.on('load', function () {
+            if (grid.store.getCount() < 1) {
+                grid.up().down('button[name=bulk-change-issues]').setDisabled(true);
+            }
+        });
+    },
+
+    removeFilter: function (elm) {
         this.getStore('Issues').removeProxyFilter(elm.target, elm.targetId);
     },
 
