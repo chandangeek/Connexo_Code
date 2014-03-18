@@ -164,7 +164,7 @@ Ext.define('Isu.controller.Issues', {
             emptyText.hide();
             clearFilterBtn.setDisabled(false);
 
-            Ext.Array.each(buttons, function (button){
+            Ext.Array.each(buttons, function (button) {
                 filterElm.add(button);
             });
         } else {
@@ -173,7 +173,7 @@ Ext.define('Isu.controller.Issues', {
         }
     },
 
-    removeFilter: function(elm) {
+    removeFilter: function (elm) {
         this.store.removeProxyFilter(elm.target, elm.targetId);
     },
 

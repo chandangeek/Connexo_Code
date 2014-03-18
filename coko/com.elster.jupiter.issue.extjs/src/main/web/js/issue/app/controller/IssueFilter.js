@@ -33,6 +33,12 @@ Ext.define('Isu.controller.IssueFilter', {
             },
             'issues-side-filter filter-form': {
                 render: this.loadFormModel
+            },
+            'issues-side-filter filter-form combobox[name=assignee]': {
+                change: this.clearCombo
+            },
+            'issues-side-filter filter-form combobox[name=reason]': {
+                change: this.clearCombo
             }
         });
         this.listen({
@@ -44,12 +50,19 @@ Ext.define('Isu.controller.IssueFilter', {
         });
     },
 
+    clearCombo: function (combo, newValue) {
+        if (newValue == '') {
+            combo.reset();
+        }
+    },
+
     loadFormModel: function (form) {
         form.loadRecord(new Isu.model.IssueFilter());
     },
 
-    reset: function() {
+    reset: function () {
         var filter = new Isu.model.IssueFilter();
+
         this.getIssueFilter().down('filter-form').loadRecord(filter);
         this.getStore('Issues').setProxyFilter(filter);
     },
@@ -61,9 +74,10 @@ Ext.define('Isu.controller.IssueFilter', {
         this.getIssueFilter().down('filter-form').loadRecord(filter);
     },
 
-    filter: function() {
-        var form = this.getIssueFilter().down('filter-form');
-        var filter = form.getRecord();
+    filter: function () {
+        var form = this.getIssueFilter().down('filter-form'),
+            filter = form.getRecord();
+
         form.updateRecord(filter);
 
         this.getStore('Issues').setProxyFilter(filter);
