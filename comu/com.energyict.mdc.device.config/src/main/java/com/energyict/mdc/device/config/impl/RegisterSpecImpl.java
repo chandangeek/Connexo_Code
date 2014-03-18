@@ -223,8 +223,8 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     @Override
     public void setOverruledObisCode(ObisCode overruledObisCode) {
-        this.overruledObisCodeString = overruledObisCode.toString();
         this.overruledObisCode = overruledObisCode;
+        this.overruledObisCodeString = overruledObisCode==null?null:overruledObisCode.toString();
     }
 
     @Override
