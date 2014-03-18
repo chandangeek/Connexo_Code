@@ -19,19 +19,23 @@ Ext.define('Dcs.controller.Schedule', {
     ],
 
     refs: [
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
+        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
+        {ref: 'dataCollectionScheduleList', selector: 'dataCollectionScheduleList'},
+        {ref: 'dataCollectionSchedulePreview', selector: 'dataCollectionSchedulePreview'},
+        {ref: 'dataCollectionScheduleForm',selector: 'dataCollectionSchedulePreview #dataCollectionScheduleForm'},
+        {ref: 'dataCollectionSchedulePreviewTitle',selector: 'dataCollectionSchedulePreview #dataCollectionSchedulePreviewTitle'}
     ],
 
     init: function () {
         this.initMenu();
 
         this.control(
-            /*{
+            {
             '#dataCollectionScheduleList': {
-                selectionchange: this.previewDataCollectionSchedules
+                selectionchange: this.previewDataCollectionSchedule
             }
 
-        }*/);
+        });
     },
 
     initMenu: function () {
@@ -64,8 +68,8 @@ Ext.define('Dcs.controller.Schedule', {
 
     },
 
-    previewValidationRuleSet: function (grid, record) {
-        var selectedDataCollectionSchedules = this.getDataCollectionSchedulesGrid().getSelectionModel().getSelection();
+    previewDataCollectionSchedule: function (grid, record) {
+        var selectedDataCollectionSchedules = this.getDataCollectionScheduleList().getSelectionModel().getSelection();
         if (selectedDataCollectionSchedules.length == 1) {
             this.getDataCollectionScheduleForm().loadRecord(selectedDataCollectionSchedules[0]);
             var dataCollectionScheduleName = this.getDataCollectionScheduleForm().form.findField('name').getSubmitValue();

@@ -79,7 +79,6 @@ Ext.define('Dcs.view.scheduling.DataCollectionSchedulePreview', {
             items: [
                 {
                     xtype: 'displayfield',
-                    margin: '10 0 0 0',
                     name: 'name',
                     fieldLabel: Uni.I18n.translate('scheduling.name', 'DCS', 'Name'),
                     labelWidth:	250
