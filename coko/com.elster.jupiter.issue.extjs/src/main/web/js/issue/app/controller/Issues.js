@@ -2,7 +2,8 @@ Ext.define('Isu.controller.Issues', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem'
+        'Uni.model.BreadcrumbItem',
+        'Isu.model.IssueSort'
     ],
 
     stores: [
@@ -46,7 +47,7 @@ Ext.define('Isu.controller.Issues', {
         {
             ref: 'filter',
             selector: 'issues-filter'
-        }
+        },
     ],
 
     init: function () {
@@ -103,7 +104,8 @@ Ext.define('Isu.controller.Issues', {
         this.listen({
             store: {
                 '#Issues': {
-                    updateProxyFilter: this.filterUpdate
+                    updateProxyFilter: this.filterUpdate,
+                    updateProxySort: this.sortUpdate
                 }
             }
         });
@@ -173,8 +175,34 @@ Ext.define('Isu.controller.Issues', {
         }
     },
 
+    sortUpdate: function(sortModel) {
+        var filterElm = this.getFilter().down('[name="sortitemspanel"]');
+
+        filterElm.removeAll();
+
+        sortModel.fields.each(function(field){
+            if (sortModel.get(field.name)) {
+                var cls = sortModel.get(field.name) == Isu.model.IssueSort.ASC
+                    ? 'isu-icon-up-big'
+                    : 'isu-icon-down-big';
+
+                var sortItem = {
+                    xtype: 'sort-item-btn',
+                    sortValue: field.name,
+                    text: field.displayValue,
+                    iconCls: 'isu-icon-white ' + cls
+                };
+
+                filterElm.add(sortItem);
+            }
+        });
+
+        this.getFilter().down('[name="clearsortbtn"]').setDisabled(!filterElm.items.length);
+    },
+
     removeFilter: function (elm) {
-        this.store.removeProxyFilter(elm.target, elm.targetId);
+        this.store.getProxyFilter().removeFilterParam(elm.target, elm.targetId);
+        this.store.updateProxyFilter();
     },
 
     showOverview: function () {
@@ -230,109 +258,50 @@ Ext.define('Isu.controller.Issues', {
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
-    // ====================================  IssueListFilter controls  ====================================
-
     setDefaults: function (sortPanel) {
-        this.groupParams = {};
-        var fakeItem = {
-                text: 'Due date',
-                value: 'dueDate'
-            },
-            fakeMenu = {
-                up: function () {
-                    return {
-                        up: function () {
-                            return sortPanel;
-                        }
-                    }
-                }
-            };
-        this.addSortItem(fakeMenu, fakeItem);
-
+        this.store.setProxySort(new Isu.model.IssueSort());
     },
 
     updateIssueList: function () {
         var extraParams = {};
-        if (this.sortParams != undefined || this.groupParams != undefined) {
+        if (this.groupParams != undefined) {
             Ext.merge(extraParams, this.groupParams);
-            Ext.merge(extraParams, this.sortParams);
         }
         this.store.proxy.extraParams = extraParams;
         this.store.loadPage(1);
     },
 
-    applySort: function (view) {
-        var me = this,
-            sortDirection;
-        me.sortParams = {};
-        view.items.each(function (item) {
-            if (item.name == 'sortitembtn') {
-                me.sortParams.sort = item.sortOrder + item.sortValue;
-            }
-        });
-        me.updateIssueList();
-        this.showDefaultItems();
-    },
-
     changeSortDirection: function (btn) {
-        if (btn.sortOrder == '') {
-            btn.setIconCls('isu-icon-down-big isu-icon-white');
-            btn.sortOrder = '-';
-        } else {
-            btn.setIconCls('isu-icon-up-big isu-icon-white');
-            btn.sortOrder = ''
-        }
-        this.applySort(btn.up('panel'))
+        this.store.getProxySort().toggleSortParam(btn.sortValue);
+        this.store.updateProxySort();
     },
 
     removeSortItem: function (btn) {
-        var panel = btn.up('panel');
-        panel.remove(btn);
-        this.applySort(panel);
-        if (!panel.query('[name=sortitembtn]').length) {
-            Ext.ComponentQuery.query('button[name=clearsortbtn]')[0].setDisabled(true);
-        }
+        this.store.getProxySort().removeSortParam(btn.sortValue);
+        this.store.updateProxySort();
     },
 
     addSortItem: function (menu, item) {
-        var btn = menu.up('button'),
-            panel = btn.up('panel'),
-            index = panel.items.getCount() - 1;
-
-        var sortItem = {
-            xtype: 'sort-item-btn',
-            sortValue: item.value,
-            text: item.text
-        };
-
-        panel.insert(index, sortItem);
-
-        this.applySort(panel);
-        Ext.ComponentQuery.query('button[name=clearsortbtn]')[0].setDisabled(false);
+        this.store.getProxySort().addSortParam(item.value);
+        this.store.updateProxySort();
     },
 
     setAddSortMenu: function (btn) {
         if (btn.menu.items.getCount() < 1) {
-            var menu = [],
-                item = {};
-            item.text = 'Due date';
-            item.value = 'dueDate';
-            item.name = 'addsortmenuitem';
-            menu.push(item);
-            btn.menu.add(menu);
+            this.store.getProxySort().fields.each(function(item) {
+                if (item.displayValue) {
+                    btn.menu.add({
+                        text: item.displayValue,
+                        value: item.name
+                    });
+                }
+            });
             btn.showMenu();
         }
     },
 
     clearSort: function (btn) {
-        var pan = btn.up('panel').up('panel').down('panel[name=sortitemspanel]');
-        pan.items.each(function (item) {
-            if (item.name == 'sortitembtn') {
-                pan.remove(item, true);
-            }
-        });
-        this.applySort(pan);
-        Ext.ComponentQuery.query('button[name=clearsortbtn]')[0].setDisabled(true);
+        this.store.setProxySort(new Isu.model.IssueSort());
     },
 
     setGroupFields: function (view) {

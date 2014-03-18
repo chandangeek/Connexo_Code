@@ -177,14 +177,19 @@ Ext.define('Isu.view.workspace.issues.Filter', {
                     xtype: 'panel',
                     border: false,
                     name: 'sortitemspanel',
-                    flex: 1,
-                    layout: {
-                        type: 'hbox',
-                        align: 'middle'
-                    },
+                    flex: 0,
+                    defaults: {
+                        margin: '0 5 0 0'
+                    }
+                },
+                {
+                    xtype: 'panel',
+                    border: false,
+                    name: 'sortitemspanel',
                     defaults: {
                         margin: '0 5 0 0'
                     },
+                    flex: 1,
                     items: [
                         {
                             xtype: 'button',
@@ -199,6 +204,7 @@ Ext.define('Isu.view.workspace.issues.Filter', {
                         }
                     ]
                 },
+
                 {
                     xtype: 'button',
                     name: 'clearsortbtn',

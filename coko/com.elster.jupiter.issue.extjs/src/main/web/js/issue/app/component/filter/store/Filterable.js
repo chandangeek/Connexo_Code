@@ -13,8 +13,7 @@ Ext.define('Isu.component.filter.store.Filterable', {
         }
 
         this.proxyFilter = filter;
-        this.load();
-        this.fireEvent('updateProxyFilter', this.proxyFilter);
+        this.updateProxyFilter();
     },
 
     /*
@@ -24,20 +23,7 @@ Ext.define('Isu.component.filter.store.Filterable', {
         return this.proxyFilter;
     },
 
-    removeProxyFilter: function(key, id) {
-        if (!key) {
-            this.proxyFilter = null;
-        } else {
-            if (id) {
-                var store = this.proxyFilter[key]();
-                var rec = store.getById(id);
-                if (rec) {
-                    store.remove(rec);
-                }
-            } else if (!_.isUndefined(this.proxyFilter.data[key])){
-                delete this.proxyFilter.data[key];
-            }
-        }
+    updateProxyFilter: function() {
         this.load();
         this.fireEvent('updateProxyFilter', this.proxyFilter);
     },

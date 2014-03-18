@@ -74,5 +74,17 @@ Ext.define('Isu.component.filter.model.Filter', {
         });
 
         return result;
+    },
+
+    removeFilterParam: function(key, id) {
+        if (id) {
+            var store = this[key]();
+            var rec = store.getById(id);
+            if (rec) {
+                store.remove(rec);
+            }
+        } else if (!_.isUndefined(this.data[key])){
+            delete this.data[key];
+        }
     }
 });

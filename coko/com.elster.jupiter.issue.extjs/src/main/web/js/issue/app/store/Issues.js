@@ -2,11 +2,13 @@ Ext.define('Isu.store.Issues', {
     extend: 'Ext.data.Store',
     requires: [
         'Ext.data.proxy.Rest',
-        'Isu.component.filter.store.Filterable'
+        'Isu.component.filter.store.Filterable',
+        'Isu.component.sort.store.Sortable'
     ],
 
     mixins: [
-        'Isu.component.filter.store.Filterable'
+        'Isu.component.filter.store.Filterable',
+        'Isu.component.sort.store.Sortable'
     ],
 
     model: 'Isu.model.Issues',
@@ -19,11 +21,15 @@ Ext.define('Isu.store.Issues', {
 
             // replace filter extra params with new ones
             if (this.proxyFilter) {
-                var data = this.getFilterParams();
                 extraParams = _.omit(extraParams, this.proxyFilter.getFields());
-                Ext.merge(extraParams, data);
+                Ext.merge(extraParams, this.getFilterParams());
             }
 
+            if (this.proxySort) {
+                extraParams = _.omit(extraParams, this.proxySort.getFields());
+                Ext.merge(extraParams, this.getSortParams());
+            }
+            console.log(extraParams);
             this.proxy.extraParams = extraParams;
         }
     }
