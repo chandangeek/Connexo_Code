@@ -40,6 +40,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 //    private List<SecurityPropertySet> securityPropertySets;
 //    private List<ComTaskEnablement> comTaskEnablements;
     private boolean supportsAllMessageCategories;
+    private long userActions; // temp place holder for the enumset
 //    private EnumSet<DeviceMessageUserAction> userActions = EnumSet.noneOf(DeviceMessageUserAction.class);
 //    private List<DeviceMessageEnablement> deviceMessageEnablements;
     private List<PartialConnectionTask> partialConnectionTasks = new ArrayList<>();

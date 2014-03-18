@@ -309,7 +309,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column deviceconfiguration = table.column("DEVICECONFIGURATION").number().add();
             table.column("SUPPORTALLCATEGORIES").number().conversion(NUMBER2BOOLEAN).notNull().map("supportsAllMessageCategories").add();
-            table.column("USERACTIONS").number().notNull().map("useractions").add();
+            table.column("USERACTIONS").number().notNull().map("userActions").add();
             table.foreignKey("FK_MDCDEVICECOMMCONFIG_DCONFIG").on(deviceconfiguration).references(EISDEVICECONFIG.name()).map("deviceConfiguration").add();
             table.primaryKey("PK_MDCDEVICECOMMCONFIG").on(id).add();
         }

@@ -30,6 +30,8 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -103,7 +105,8 @@ public class InMemoryPersistence {
                 new MdcReadingTypeUtilServiceModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
-                new EngineModelModule());
+                new EngineModelModule(),
+                new PluggableModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.ormService = injector.getInstance(OrmService.class);
@@ -112,6 +115,7 @@ public class InMemoryPersistence {
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.engineModelService = injector.getInstance(EngineModelService.class);
+            injector.getInstance(PluggableService.class);
             this.dataModel = this.createNewDeviceConfigurationService(createMasterData);
             ctx.commit();
         }
