@@ -36,7 +36,6 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
         );
 
         me.callParent(arguments);
-    },
-    pageSize: 10
+    }
 });
 
