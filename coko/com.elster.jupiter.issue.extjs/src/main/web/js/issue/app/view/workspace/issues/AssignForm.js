@@ -181,20 +181,17 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
 
     onFieldErrorChange: function (form, lable, error) {
         var formErrorsPanel;
-
         if (form.xtype == 'issues-assign-form') {
             formErrorsPanel = form.down('[name=form-errors]');
 
             if (error) {
+                formErrorsPanel.hide();
+                formErrorsPanel.removeAll();
                 formErrorsPanel.add({
                     html: 'There are errors on this page that require your attention.'
                 });
                 formErrorsPanel.show();
-             } else {
-                formErrorsPanel.hide();
-                formErrorsPanel.removeAll();
-
-            }
+             }
         }
     }
 });
