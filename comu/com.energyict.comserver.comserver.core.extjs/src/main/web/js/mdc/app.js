@@ -7,6 +7,8 @@
 
 
 Ext.require('Uni.Loader');
+Ext.require('Mdc.Application');
+
 
 Ext.onReady(function () {
 
