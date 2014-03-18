@@ -16,6 +16,9 @@ public class ObisCodeAdapter extends XmlAdapter<String, ObisCode> {
 
     @Override
     public String marshal(ObisCode obisCode) throws Exception {
+        if (obisCode==null) {
+            return null;
+        }
         return obisCode.toString();
     }
 }
