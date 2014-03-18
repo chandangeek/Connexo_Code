@@ -40,6 +40,8 @@ public class RegisterConfigInfo {
     public BigDecimal multiplier;
     @JsonProperty("overflowValue")
     public BigDecimal overflowValue;
+    @JsonProperty("timeOfUse")
+    public int timeOfUse;
 
     public RegisterConfigInfo() {
     }
@@ -58,6 +60,7 @@ public class RegisterConfigInfo {
         registerConfigInfo.multiplier = registerSpec.getMultiplier();
         registerConfigInfo.overflowValue = registerSpec.getOverflowValue();
         registerConfigInfo.registerTypeId = registerSpec.getRegisterMapping().getId();
+        registerConfigInfo.timeOfUse = registerSpec.getRegisterMapping().getTimeOfUse();
         return registerConfigInfo;
     }
 
