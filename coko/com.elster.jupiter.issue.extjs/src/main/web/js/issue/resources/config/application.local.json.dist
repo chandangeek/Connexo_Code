@@ -1,0 +1,13 @@
+{
+    "Ext.Loader": {
+        "basePath": "http://192.168.97.11:8082"
+    },
+    "Ext.data.proxy.Server": {
+//        "login": "admin",
+//        "password": "admin",
+        "headers" : {
+//            "Authorization" : "Basic " + window.btoa([this.login, this.password].join(':'))
+            "Authorization" : "Basic YWRtaW46YWRtaW4="
+        }
+    }
+}

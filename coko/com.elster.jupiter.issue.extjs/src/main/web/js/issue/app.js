@@ -7,33 +7,42 @@
 // DO NOT DELETE - this directive is required for Sencha Cmd packages to work.
 //@require @packageOverrides
 
-Ext.require('Uni.Loader');
-
 Ext.Loader.setConfig({
     enabled: true,
-    disableCaching: true, // For debug only.
-    paths: {
-        'Uni' : '../uni/src'
-    }
+    disableCaching: true // For debug only.
 });
 
-Ext.onReady(function () {
-    var loader = Ext.create('Uni.Loader');
-    loader.initI18n(['ISU']);
+Ext.Loader.addClassPathMappings({
+    "Isu": "app",
+    "Ext": "/apps/ext/src",
+    "Ext.Msg": "/apps/ext/src/window/MessageBox.js",
+    'Uni': "/apps/uni/src"
+});
 
-    loader.onReady(function () {
-        // Start up the application.
-        Ext.application({
-            name: 'Isu',
+Ext.Loader.syncRequire([
+    'Isu.override.LoaderOverride',
+    'Isu.override.ProxyOverride',
+    'Isu.util.Config'
+], function(){
 
-            /*"requires": [
-                "UnifyingJS"
-            ],*/
+    var config = new Isu.util.Config();
 
-            extend: 'Isu.Application',
+    config.onReady(function() {
 
-            autoCreateViewport: true
+        Ext.require('Uni.Loader');
+
+        Ext.onReady(function () {
+
+            var loader = Ext.create('Uni.Loader');
+            loader.initI18n(['ISU']);
+
+            // Start up the application.
+            Ext.application({
+                name: 'Isu',
+                extend: 'Isu.Application',
+                autoCreateViewport: true
+            });
+
         });
     });
 });
-
