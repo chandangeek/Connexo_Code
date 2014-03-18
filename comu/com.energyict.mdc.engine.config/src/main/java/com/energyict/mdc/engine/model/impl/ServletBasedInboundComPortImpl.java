@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
@@ -31,8 +32,8 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     private String contextPath;
 
     @Inject
-    protected ServletBasedInboundComPortImpl(DataModel dataModel) {
-        super(dataModel);
+    protected ServletBasedInboundComPortImpl(DataModel dataModel, Thesaurus thesaurus) {
+        super(dataModel, thesaurus);
     }
 
     @Override

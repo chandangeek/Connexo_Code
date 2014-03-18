@@ -1,9 +1,11 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
@@ -53,8 +55,8 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
     private LegacySerialPortConfiguration serialPortConfiguration;
 
     @Inject
-    protected ModemBasedInboundComPortImpl(DataModel dataModel) {
-        super(dataModel);
+    protected ModemBasedInboundComPortImpl(DataModel dataModel, Thesaurus thesaurus) {
+        super(dataModel, thesaurus);
     }
 
     public int getRingCount() {
@@ -68,8 +70,9 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
 
     @Override
     public void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections) {
-        validateInRange(Range.<Integer>closed(1, 1), numberOfSimultaneousConnections, "numberOfSimultaneousConnections");
-        // NO-OP
+        if (!Range.<Integer>closed(1, 1).contains(numberOfSimultaneousConnections)) {
+            throw new TranslatableApplicationException(thesaurus, MessageSeeds.VALUE_NOT_IN_RANGE);
+        }
     }
 
     @Override

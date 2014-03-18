@@ -12,7 +12,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.common.TranslatableExceptionCreator;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.engine.model.ComPort;
@@ -126,6 +126,10 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
                 bind(UDPBasedInboundComPort.class).to(UDPBasedInboundComPortImpl.class);
                 bind(OutboundComPort.class).to(OutboundComPortImpl.class);
                 bind(ComPortPoolMember.class).to(ComPortPoolMemberImpl.class);
+//                install(new FactoryModuleBuilder().
+//                        implement(TranslatableException.class, TranslatableApplicationException.class).
+//                        build(TranslatableExceptionFactory.class));
+                bind(Thesaurus.class).toInstance(thesaurus);
             }
         };
     }
@@ -527,7 +531,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
         if (collection.isEmpty()) {
             return null;
         } else if (collection.size()!=1) {
-            throw new TranslatableApplicationException("XnotUnique", "The elements queried was supposed to be unique");
+            throw dataModel.getInstance(TranslatableExceptionCreator.class).create(MessageSeeds.NOT_UNIQUE);
         }
         return collection.iterator().next();
     }

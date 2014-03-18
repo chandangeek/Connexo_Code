@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
@@ -31,8 +32,8 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
     private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>();
 
     @Inject
-    protected OutboundComPortPoolImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
-        super(dataModel);
+    protected OutboundComPortPoolImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider, Thesaurus thesaurus) {
+        super(dataModel, thesaurus);
         this.comPortPoolMemberProvider = comPortPoolMemberProvider;
     }
 

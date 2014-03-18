@@ -40,7 +40,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
 
     @Test
     public void outBoundTest() {
-        OutboundComPort comPort = new OutboundComPortImpl(dataModel, getEngineModelService());
+        OutboundComPort comPort = new OutboundComPortImpl(dataModel, getEngineModelService(), null);
         assertThat(comPort.isInbound()).isFalse();
     }
 

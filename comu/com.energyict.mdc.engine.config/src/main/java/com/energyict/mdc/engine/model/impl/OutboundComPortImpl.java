@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
@@ -28,8 +29,8 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
     private int numberOfSimultaneousConnections;
 
     @Inject
-    protected OutboundComPortImpl(DataModel dataModel, EngineModelService engineModelService) {
-        super(dataModel);
+    protected OutboundComPortImpl(DataModel dataModel, EngineModelService engineModelService, Thesaurus thesaurus) {
+        super(dataModel, thesaurus);
         this.engineModelService = engineModelService;
     }
 
@@ -75,7 +76,7 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
         if (newType != this.getComPortType()) {
          List<OutboundComPortPool> comPortPools = engineModelService.findContainingComPortPoolsForComPort(this);
          if (!comPortPools.isEmpty()) {
-             throw new TranslatableApplicationException("outboundComPortXStillMemberOfPool", "Outbound comport {0} is still a member of comport pool {1}. The comport type cannot be changed.", this.getName(), comPortPools.get(0).getName());
+             throw new TranslatableApplicationException(thesaurus, MessageSeeds.OUTBOUND_COMPORT_STILL_IN_POOL);
          }
         }
     }

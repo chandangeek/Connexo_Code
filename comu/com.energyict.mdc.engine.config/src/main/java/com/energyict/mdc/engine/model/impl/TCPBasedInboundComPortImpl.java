@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
@@ -18,8 +19,8 @@ import javax.inject.Inject;
 public class TCPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements TCPBasedInboundComPort, IPBasedInboundComPort, ComPort, InboundComPort {
 
     @Inject
-    protected TCPBasedInboundComPortImpl(DataModel dataModel) {
-        super(dataModel);
+    protected TCPBasedInboundComPortImpl(DataModel dataModel, Thesaurus thesaurus) {
+        super(dataModel, thesaurus);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
@@ -54,6 +55,7 @@ public abstract class ComServerImpl implements ComServer {
     private final Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider;
     private final Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider;
     private final Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider;
+    protected final Thesaurus thesaurus;
 
     private long id;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
@@ -76,7 +78,7 @@ public abstract class ComServerImpl implements ComServer {
     private Date obsoleteDate;
 
     @Inject
-    protected ComServerImpl(DataModel dataModel, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider) {
+    protected ComServerImpl(DataModel dataModel, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
         super();
         this.dataModel = dataModel;
         this.outboundComPortProvider = outboundComPortProvider;
@@ -84,6 +86,7 @@ public abstract class ComServerImpl implements ComServer {
         this.modemBasedInboundComPortProvider = modemBasedInboundComPortProvider;
         this.tcpBasedInboundComPortProvider = tcpBasedInboundComPortProvider;
         this.udpBasedInboundComPortProvider = udpBasedInboundComPortProvider;
+        this.thesaurus = thesaurus;
     }
 
     protected void validate(){
@@ -104,7 +107,7 @@ public abstract class ComServerImpl implements ComServer {
 
     protected void validateMakeObsolete () {
         if (this.isObsolete()) {
-            throw new TranslatableApplicationException(Constants.MDC_IS_ALREADY_OBSOLETE, "Already obsolete");
+            throw new TranslatableApplicationException(thesaurus, MessageSeeds.IS_ALREADY_OBSOLETE);
         }
     }
 

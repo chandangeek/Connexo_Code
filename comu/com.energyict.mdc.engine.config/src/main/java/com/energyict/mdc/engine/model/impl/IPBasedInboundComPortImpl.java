@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
@@ -24,8 +24,8 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
     @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+ Constants.MDC_VALUE_TOO_SMALL+"}")
     private int numberOfSimultaneousConnections;
 
-    protected IPBasedInboundComPortImpl(DataModel dataModel) {
-        super(dataModel);
+    protected IPBasedInboundComPortImpl(DataModel dataModel, Thesaurus thesaurus) {
+        super(dataModel, thesaurus);
     }
 
     @Override
@@ -50,7 +50,6 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
 
     protected void validateCreate() {
         super.validateCreate();
-        validateDuplicatePortNumber();
     }
 
     @Override
@@ -59,19 +58,6 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
         IPBasedInboundComPort mySource = (IPBasedInboundComPort) source;
         this.setPortNumber(mySource.getPortNumber());
         this.setNumberOfSimultaneousConnections(mySource.getNumberOfSimultaneousConnections());
-    }
-
-    private void validateDuplicatePortNumber()  {
-        for (ComPort comPort : getComServer().getComPorts()) {
-            if(comPort.getId() != this.getId()){
-                if(IPBasedInboundComPort.class.isAssignableFrom(comPort.getClass())){
-                    IPBasedInboundComPort ipBasedInboundComPort = (IPBasedInboundComPort) comPort;
-                    if(ipBasedInboundComPort.getPortNumber() == this.portNumber){
-                        throw new TranslatableApplicationException("duplicatecomportpercomserver", "'{0}' should be unique per comserver (duplicate: {1})", "comport.portnumber", portNumber);
-                    }
-                }
-            }
-        }
     }
 
     static class IpBasedInboundComPortBuilderImpl<B extends IpBasedInboundComPortBuilder<B,C>, C extends IPBasedInboundComPort & InboundComPort>

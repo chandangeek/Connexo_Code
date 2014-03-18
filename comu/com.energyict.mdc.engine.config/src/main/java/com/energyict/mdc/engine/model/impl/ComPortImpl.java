@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -9,7 +10,6 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Range;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +44,7 @@ public abstract class ComPortImpl implements ComPort {
                     UDP_DISCRIMINATOR, UDPBasedInboundComPortImpl.class,
                     OUTBOUND_DISCRIMINATOR, OutboundComPortImpl.class);
     private final DataModel dataModel;
+    protected final Thesaurus thesaurus;
 
     private long id=0;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
@@ -62,8 +63,9 @@ public abstract class ComPortImpl implements ComPort {
      * @param dataModel
      */
     @Inject
-    protected ComPortImpl(DataModel dataModel) {
+    protected ComPortImpl(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
     }
 
     public void setName(String name) {
@@ -79,12 +81,6 @@ public abstract class ComPortImpl implements ComPort {
         Set<ConstraintViolation<ComPortImpl>> constraintViolations = validator.validate(this, group);
         if (!constraintViolations.isEmpty()) {
             throw new ConstraintViolationException(constraintViolations);
-        }
-    }
-
-    protected void validateInRange(Range<Integer> acceptableRange, int propertyValue, String propertyName) {
-        if (!acceptableRange.contains(propertyValue)) {
-            throw new TranslatableApplicationException("XnotInAcceptableRange", "\"{0}\" should be between {1} and {2}", propertyName, acceptableRange.lowerEndpoint(), acceptableRange.upperEndpoint());
         }
     }
 
@@ -174,7 +170,7 @@ public abstract class ComPortImpl implements ComPort {
 
     final protected void validateMakeObsolete() {
         if (this.obsoleteDate!=null) {
-            throw new TranslatableApplicationException(Constants.MDC_IS_ALREADY_OBSOLETE, "Already obsolete");
+            throw new TranslatableApplicationException(thesaurus,MessageSeeds.IS_ALREADY_OBSOLETE);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
@@ -23,8 +24,8 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
     private int bufferSize;
 
     @Inject
-    protected UDPBasedInboundComPortImpl(DataModel dataModel) {
-        super(dataModel);
+    protected UDPBasedInboundComPortImpl(DataModel dataModel, Thesaurus thesaurus) {
+        super(dataModel, thesaurus);
     }
 
     @Override

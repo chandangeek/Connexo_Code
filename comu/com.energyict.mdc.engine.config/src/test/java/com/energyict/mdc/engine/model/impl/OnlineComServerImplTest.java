@@ -49,7 +49,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testGetTypeDoesNotReturnServerBasedClassName () {
-        OnlineComServer onlineComServer = new OnlineComServerImpl(dataModel, getEngineModelService(), outboundComPortProvider, null, null, null, null);
+        OnlineComServer onlineComServer = new OnlineComServerImpl(dataModel, getEngineModelService(), outboundComPortProvider, null, null, null, null, null);
 
         // Business method
         String type = onlineComServer.getType();

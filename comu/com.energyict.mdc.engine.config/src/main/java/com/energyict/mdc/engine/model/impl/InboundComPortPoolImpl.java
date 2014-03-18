@@ -1,12 +1,12 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -28,8 +28,8 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
     private long discoveryProtocolPluggableClassId;
 
     @Inject
-    protected InboundComPortPoolImpl(DataModel dataModel, EngineModelService engineModelService) {
-        super(dataModel);
+    protected InboundComPortPoolImpl(DataModel dataModel, EngineModelService engineModelService, Thesaurus thesaurus) {
+        super(dataModel, thesaurus);
         this.engineModelService = engineModelService;
     }
 
@@ -60,7 +60,7 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
 
     private void validateDiscoveryProtocolPluggableClass(long discoveryProtocolPluggableClassId) {
         if (discoveryProtocolPluggableClassId == 0) {
-            throw new TranslatableApplicationException("XcannotBeEmpty", "\"{0}\" is a required property", "inboundComPortPool.discoveryProtocol");
+            throw new TranslatableApplicationException(thesaurus, MessageSeeds.MUST_HAVE_DISCOVERY_PROTOCOL);
             // TODO Use PluggableClassService once JP-682 is done
 //        } else {
 //            PluggableClass pluggableClass = this.findDiscoveryProtocolPluggableClass(discoveryProtocolPluggableClassId);
@@ -91,11 +91,7 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
                 names.add(comPort.getName());
             }
 
-            throw new TranslatableApplicationException(
-                    "inboundComPortPoolXStillInUseByComPortsY",
-                    "Inbound ComPortPool '{0}' is still in use by the following inbound comport(s): {1}",
-                    this.getName(),
-                    Joiner.on(",").skipNulls().join(names));
+            throw new TranslatableApplicationException(thesaurus, MessageSeeds.COMPORTPOOL_STILL_REFERENCED);
         }
     }
 

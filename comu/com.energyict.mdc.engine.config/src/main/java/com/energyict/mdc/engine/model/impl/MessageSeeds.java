@@ -18,6 +18,8 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_CHARS(5, Constants.MDC_INVALID_CHARS, "This field contains invalid chars, should obey {regex}", Level.SEVERE),
     REQUIRED_FOR_HTTPS(6, Constants.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS, "This field is mandatory in case https is chosen", Level.SEVERE),
     IS_ALREADY_OBSOLETE(7, Constants.MDC_IS_ALREADY_OBSOLETE, "Already obsolete", Level.SEVERE),
+    NOT_UNIQUE(8, Constants.MDC_NOT_UNIQUE , "the element is not unique", Level.SEVERE),
+    MUST_HAVE_DISCOVERY_PROTOCOL(9, Constants.DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_IS_MANDATORY_FOR_COMPORTPOOL, "Discovery protocol pluggable class is mandatory for comportpool", Level.SEVERE),
 
     DUPLICATE_COMSERVER(101, Constants.MDC_DUPLICATE_COM_SERVER, "ComServer with name {value} already exists", Level.SEVERE),
     OBSOLETE_COMSERVER_CANT_BE_UPDATED(103, Constants.MDC_COMSERVER_NO_UPDATE_ALLOWED, "Obsolete ComServers can no longer be updated", Level.SEVERE),
@@ -27,7 +29,9 @@ public enum MessageSeeds implements MessageSeed {
     COMPORTPOOL_DOES_NOT_MATCH_COMPORT(107, Constants.MDC_COM_PORT_TYPE_OF_COM_PORT_DOES_NOT_MATCH_WITH_COM_PORT_POOL, "The type of the comPortPool does not match the comPort type", Level.SEVERE),
     DUPLICATE_COM_PORT_NUMBER(108, Constants.MDC_DUPLICATE_COM_PORT_PER_COM_SERVER, "The port number of a ComPort must be unique per ComServer", Level.SEVERE),
     DUPLICATE_COMPORTPOOL(109, Constants.MDC_DUPLICATE_COM_PORT_POOL, "ComPortPool with name {value} already exists", Level.SEVERE),
-    OBSOLETE_COMPORTPOOL_CANT_BE_UPDATED(110, Constants.MDC_COMPORTPOOL_NO_UPDATE_ALLOWED, "Obsolete ComPortPool can no longer be updated", Level.SEVERE);
+    OBSOLETE_COMPORTPOOL_CANT_BE_UPDATED(110, Constants.MDC_COMPORTPOOL_NO_UPDATE_ALLOWED, "Obsolete ComPortPool can no longer be updated", Level.SEVERE),
+    COMPORTPOOL_STILL_REFERENCED(111, Constants.MDC_COMPORTPOOL_STILL_REFERENCED, "Comport pool is still referenced by comport(s)", Level.SEVERE),
+    OUTBOUND_COMPORT_STILL_IN_POOL(112, Constants.OUTBOUND_COM_PORT_STILL_MEMBER_OF_POOL, "The outbound comport is still contained in a pool", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -80,6 +84,7 @@ final class Constants {
     public static final String MDC_DUPLICATE_COM_SERVER = "MDC.DuplicateComServer";
     public static final String MDC_COMSERVER_NO_UPDATE_ALLOWED = "MDC.comserver.noUpdateAllowed";
     public static final String MDC_ONLINE_COM_SERVER_STILL_REFERENCED = "MDC.OnlineComServerXStillReferenced";
+    public static final String MDC_COMPORTPOOL_STILL_REFERENCED = "MDC.ComPortPoolStillReferenced";
 
     public static final String MDC_DUPLICATE_COM_PORT = "MDC.DuplicateComPort";
     public static final String MDC_COMPORT_NO_UPDATE_ALLOWED = "MDC.comport.noUpdateAllowed";
@@ -88,4 +93,7 @@ final class Constants {
     public static final String MDC_DUPLICATE_COM_PORT_POOL = "MDC.DuplicateComPortPool";
     public static final String MDC_COMPORTPOOL_NO_UPDATE_ALLOWED = "MDC.comportpool.noUpdateAllowed";
     public static final String MDC_IS_ALREADY_OBSOLETE = "MDC.isAlreadyObsolete";
+    public static final String MDC_NOT_UNIQUE = "MDC.notUnique";
+    public static final String DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_IS_MANDATORY_FOR_COMPORTPOOL = "MDC.discoveryProtocol.isMandatory";
+    public static final String OUTBOUND_COM_PORT_STILL_MEMBER_OF_POOL = "outboundComPortXStillMemberOfPool";
 }

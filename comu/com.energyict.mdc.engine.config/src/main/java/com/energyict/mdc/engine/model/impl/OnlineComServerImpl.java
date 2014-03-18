@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
@@ -43,8 +44,8 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
     private boolean usesDefaultEventRegistrationUri=true;
 
     @Inject
-    public OnlineComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider) {
-        super(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider);
+    public OnlineComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
+        super(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
         this.engineModelService = engineModelService;
     }
 
@@ -64,7 +65,7 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
             if(IPBasedInboundComPort.class.isAssignableFrom(inboundComPort.getClass())){
                 int portNumber = ((IPBasedInboundComPort) inboundComPort).getPortNumber();
                 if(portNumbers.contains(portNumber)){
-                    throw new TranslatableApplicationException("duplicatecomportpercomserver", "'{0}' should be unique per comserver (duplicate: {1})", "comport.portnumber", portNumber);
+                    throw new TranslatableApplicationException(thesaurus, MessageSeeds.DUPLICATE_COM_PORT_NUMBER);
                 } else {
                     portNumbers.add(portNumber);
                 }
@@ -74,17 +75,19 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
 
     @Override
     protected void validateMakeObsolete() {
-        if (!engineModelService.findRemoteComServersWithOnlineComServer(this).isEmpty()) {
-            throw new TranslatableApplicationException(Constants.MDC_ONLINE_COM_SERVER_STILL_REFERENCED, "Online Comserver is still referenced by remote comserver(s)");
-        }
+        validateOnlineComServerNotReferenced();
         super.validateMakeObsolete();
+    }
+
+    private void validateOnlineComServerNotReferenced() {
+        if (!engineModelService.findRemoteComServersWithOnlineComServer(this).isEmpty()) {
+            throw new TranslatableApplicationException(thesaurus, MessageSeeds.ONLINE_COMSERVER_STILL_REFERENCED);
+        }
     }
 
     @Override
     protected void validateDelete() {
-        if (!engineModelService.findRemoteComServersWithOnlineComServer(this).isEmpty()) {
-            throw new TranslatableApplicationException(Constants.MDC_ONLINE_COM_SERVER_STILL_REFERENCED, "Online Comserver is still referenced by remote comserver(s)");
-        }
+        validateOnlineComServerNotReferenced();
         super.validateDelete();
     }
 

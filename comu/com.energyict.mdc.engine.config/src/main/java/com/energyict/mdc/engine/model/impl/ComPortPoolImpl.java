@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
@@ -38,6 +39,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
                     OUTBOUND_COMPORTPOOL_DISCRIMINATOR, OutboundComPortPoolImpl.class);
 
     private final DataModel dataModel;
+    protected final Thesaurus thesaurus;
 
     private long id;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
@@ -51,8 +53,9 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     private ComPortType comPortType;
 
     @Inject
-    protected ComPortPoolImpl(DataModel dataModel) {
+    protected ComPortPoolImpl(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -124,17 +127,13 @@ public abstract class ComPortPoolImpl implements ComPortPool {
 
     protected void validateMakeObsolete () {
         if (this.isObsolete()) {
-            throw new TranslatableApplicationException(
-                    Constants.MDC_IS_ALREADY_OBSOLETE, "Already obsolete");
+            throw new TranslatableApplicationException(thesaurus,MessageSeeds.IS_ALREADY_OBSOLETE);
         }
     }
 
     protected void validateComPortForComPortType(ComPort comPort, ComPortType comPortType) {
         if (!comPort.getComPortType().equals(comPortType)) {
-            Object[] messageArguments = new Object[2];
-            messageArguments[0] = comPort.getComPortType();
-            messageArguments[1] = comPortType;
-            throw new TranslatableApplicationException(Constants.MDC_COM_PORT_TYPE_OF_COM_PORT_DOES_NOT_MATCH_WITH_COM_PORT_POOL, "The ComPortType of ComPort {0} does not match with that of the ComPortPool {1}", messageArguments);
+            throw new TranslatableApplicationException(thesaurus,MessageSeeds.COMPORTPOOL_DOES_NOT_MATCH_COMPORT);
         }
     }
 

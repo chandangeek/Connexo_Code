@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -22,8 +23,8 @@ public abstract class InboundComPortImpl extends ComPortImpl implements ComPort,
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
     private final Reference<InboundComPortPool> comPortPool = ValueReference.absent();
 
-    protected InboundComPortImpl(DataModel dataModel) {
-        super(dataModel);
+    protected InboundComPortImpl(DataModel dataModel, Thesaurus thesaurus) {
+        super(dataModel, thesaurus);
     }
 
     public InboundComPortPool getComPortPool () {
