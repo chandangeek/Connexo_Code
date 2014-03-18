@@ -99,7 +99,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var deviceConfigurations = this.getDeviceConfigurationsGrid().getSelectionModel().getSelection();
         if (deviceConfigurations.length == 1) {
             var deviceConfigurationId = deviceConfigurations[0].get('id');
-            debugger;
             this.getActivateDeviceconfigurationMenuItem().setText(deviceConfigurations[0].get('active')===true?Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate'):Uni.I18n.translate('general.activate', 'MDC', 'Activate'));
             this.getDeviceConfigurationRegisterLink().getEl().set({href: '#/setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations' + deviceConfigurationId + '/registertypes'});
             this.getDeviceConfigurationRegisterLink().getEl().setHTML(deviceConfigurations[0].get('registerCount') + ' ' + Uni.I18n.translate('devicetype.registers', 'MDC', 'register types'));
@@ -176,7 +175,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
     activateDeviceConfigurationFromDetails: function(){
         var me = this;
-        debugger;
         var deviceConfigurationToActivateDeactivate = this.getDeviceConfigurationDetailForm().getRecord();
         if(deviceConfigurationToActivateDeactivate.get('active')===true){
             deviceConfigurationToActivateDeactivate.set('active',false);
