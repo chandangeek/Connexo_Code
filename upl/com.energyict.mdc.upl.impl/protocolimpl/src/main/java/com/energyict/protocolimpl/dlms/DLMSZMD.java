@@ -32,7 +32,6 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.obis.ObisCode;
@@ -136,34 +135,18 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
            getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getCaptureObjectsAsDataContainer().printDataContainer();
         }
 
-        int index=0;
-        if (eventIdIndex == -1) {
-            Iterator it = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getCaptureObjects().iterator();
-            while(it.hasNext()) {
-                CapturedObject capturedObject = (CapturedObject)it.next();
-                if (capturedObject.getLogicalName().getObisCode().equals(ObisCode.fromString("0.0.96.240.12.255")) &&
-                    (capturedObject.getAttributeIndex() == 2) &&
-                    (capturedObject.getClassId() == 3)) {
-					break;
-				} else {
-					index++;
-				}
+        for (int i = 0; i < dc.getRoot().getNrOfElements(); i++) {
+            Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
+            int id;
+            if (eventIdIndex == -1) {
+                id = dc.getRoot().getStructure(i).getInteger(1);
+            } else {
+                id = dc.getRoot().getStructure(i).convert2Long(eventIdIndex).intValue();
             }
-        }
-
-        for (int i=0;i<dc.getRoot().getNrOfElements();i++) {
-           Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
-           int id=0;
-           if (eventIdIndex == -1) {
-               id = dc.getRoot().getStructure(i).getInteger(index);
-           }
-           else {
-               id = dc.getRoot().getStructure(i).convert2Long(eventIdIndex).intValue();
-           }
-           MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
-           if (meterEvent != null) {
-			profileData.addEvent(meterEvent);
-		}
+            MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
+            if (meterEvent != null) {
+                profileData.addEvent(meterEvent);
+            }
         }
     }
 

@@ -13,7 +13,6 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.GenericInvoke;
@@ -49,7 +48,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -102,7 +100,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
      */
     @Override
     protected ZMDProperties getProperties() {
-         if (properties == null) {
+        if (properties == null) {
             properties = new ZMDProperties();
         }
         return properties;
@@ -119,7 +117,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
     }
 
     protected SecurityProvider getSecurityProvider() {
-        return  getProperties().getSecurityProvider();
+        return getProperties().getSecurityProvider();
     }
 
     /**
@@ -334,30 +332,13 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
         Calendar toCalendar = ProtocolUtils.getCalendar(getTimeZone()); // Must be in the device time zone
         DataContainer dc = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCalendar, toCalendar);
 
-        int index = 0;
-        int eventIdIndex = getProperties().getEventIdIndex();
-
-        if (eventIdIndex == -1) {
-            Iterator it = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getCaptureObjects().iterator();
-            while (it.hasNext()) {
-                CapturedObject capturedObject = (CapturedObject) it.next();
-                if (capturedObject.getLogicalName().getObisCode().equals(ObisCode.fromString("0.0.96.240.12.255")) &&
-                        (capturedObject.getAttributeIndex() == 2) &&
-                        (capturedObject.getClassId() == 3)) {
-                    break;
-                } else {
-                    index++;
-                }
-            }
-        }
-
         for (int i = 0; i < dc.getRoot().getNrOfElements(); i++) {
             Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
-            int id = 0;
-            if (eventIdIndex == -1) {
-                id = dc.getRoot().getStructure(i).getInteger(index);
+            int id;
+            if (getProperties().getEventIdIndex() == -1) {
+                id = dc.getRoot().getStructure(i).getInteger(1);
             } else {
-                id = dc.getRoot().getStructure(i).convert2Long(eventIdIndex).intValue();
+                id = dc.getRoot().getStructure(i).convert2Long(getProperties().getEventIdIndex()).intValue();
             }
             MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
             if (meterEvent != null) {
