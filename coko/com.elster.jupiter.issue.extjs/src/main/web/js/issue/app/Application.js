@@ -23,7 +23,10 @@ Ext.define('Isu.Application', {
         'IssueAssignmentRules',
         'history.Workspace',
         'IssueFilter',
-        'IssueDetail'
+        'IssueDetail',
+        'history.Administration',
+        'Administration',
+        'AdministrationDataCollection'
     ],
 
     stores: [

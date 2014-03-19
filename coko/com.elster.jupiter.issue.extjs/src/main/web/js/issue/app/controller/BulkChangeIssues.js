@@ -27,6 +27,10 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         }
     },
 
+    mixins: [
+        'Isu.util.IsuGrid'
+    ],
+
     init: function () {
         this.control({
             'bulk-browse breadcrumbTrail': {
@@ -45,6 +49,9 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             'bulk-browse bulk-wizard bulk-step1 issues-list': {
                 afterrender: this.onIssuesListAfterRender,
                 selectionchange: this.onIssueListViewSelectAndDeselect
+            },
+            'bulk-browse bulk-wizard bulk-step1 issues-list gridview': {
+                refresh: this.setAssigneeTypeIconTooltip
             },
             'bulk-browse bulk-wizard bulk-step1 radiogroup': {
                 change: this.onStep1RadiogroupChangeEvent

@@ -5,54 +5,76 @@
  */
 Ext.define('Isu.util.IsuGrid', {
     /**
-     * Handle 'itemmouseenter' event.
-     * Show tooltip for user type icon.
+     * Handle 'refresh' event.
+     * Set tooltip for assignee type icon.
+     * 'class' property of element must be equal 'isu-assignee-type-icon'.
      */
-    onUserTypeIconHover: function (view, record, item) {
-        var rowEl = Ext.get(item),
-            iconElem = rowEl.select('span').elements[0],
-            toolTip;
-        if (iconElem) {
-            var icon = iconElem.getAttribute('class'),
-                domIconElem = Ext.get(iconElem);
-            switch (icon) {
-                case 'isu-icon-USER':
-                    toolTip = Ext.create('Ext.tip.ToolTip', {
-                        target: domIconElem,
-                        html: 'User',
-                        style: {
-                            borderColor: 'black'
-                        }
-                    });
-                    break;
-                case 'isu-icon-GROUP':
-                    toolTip = Ext.create('Ext.tip.ToolTip', {
-                        target: domIconElem,
-                        html: 'User group',
-                        style: {
-                            borderColor: 'black'
-                        }
-                    });
-                    break;
-                case 'isu-icon-ROLE':
-                    toolTip = Ext.create('Ext.tip.ToolTip', {
-                        target: domIconElem,
-                        html: 'User role',
-                        style: {
-                            borderColor: 'black'
-                        }
-                    });
-                    break;
-                default:
-                    break;
+    setAssigneeTypeIconTooltip: function (grid) {
+        var gridEl = grid.getEl(),
+            icons = gridEl.query('.isu-assignee-type-icon');
+
+        Ext.Array.each(icons, function (item) {
+            var icon = Ext.get(item),
+                text;
+
+            if (icon.hasCls('isu-icon-USER')) {
+                text = 'User';
+            } else if (icon.hasCls('isu-icon-GROUP')) {
+                text = 'User group';
+            } else if (icon.hasCls('isu-icon-ROLE')) {
+                text = 'User role';
             }
-            domIconElem.on('mouseenter', function () {
-                toolTip.show();
-            });
-            domIconElem.on('mouseleave', function () {
-                toolTip.hide();
-            });
-        }
+
+            if (text) {
+                icon.tooltip = Ext.create('Ext.tip.ToolTip', {
+                    target: icon,
+                    html: text,
+                    style: {
+                        borderColor: 'black'
+                    }
+                });
+
+                icon.on('mouseenter', function () {
+                    icon.tooltip.show();
+                });
+                icon.on('mouseleave', function () {
+                    icon.tooltip.hide();
+                });
+            }
+        });
+    },
+
+    /**
+     * Handle 'refresh' event.
+     * Set tooltip for description cell if inner text is shown with ellipsis.
+     * 'rtdCls' property of column must be equal 'isu-grid-description'.
+     */
+    setDescriptionTooltip: function (grid) {
+        var gridEl = grid.getEl(),
+            descriptionCells = gridEl.query('.isu-grid-description');
+
+        Ext.Array.each(descriptionCells, function (item) {
+            var cell = Ext.get(item),
+                cellInner = cell.down('.x-grid-cell-inner'),
+                text = cellInner.getHTML();
+
+            if (cellInner.getTextWidth() > cellInner.getWidth()) {
+                cell.tooltip = Ext.create('Ext.tip.ToolTip', {
+                    target: cell,
+                    html: text,
+                    style: {
+                        borderColor: 'black'
+                    }
+                });
+
+                cell.on('mouseenter', function () {
+                    cell.tooltip.show();
+                });
+                cell.on('mouseleave', function () {
+                    cell.tooltip.hide();
+                });
+            }
+        });
     },
 
     /**

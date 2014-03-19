@@ -54,7 +54,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
 
                     hideTrigger:true,
                     anchor: '100%',
-                    emptyText: 'type something'
+                    emptyText: 'start typing a reason'
                 }
             ]
         }

@@ -101,7 +101,7 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
                     {
                         header: 'Assignee',
                         xtype: 'templatecolumn',
-                        tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type}"></span></tpl> {assignee.name}',
+                        tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type} isu-assignee-type-icon"></span></tpl> {assignee.name}',
                         flex: 1
                     }
                 ]
