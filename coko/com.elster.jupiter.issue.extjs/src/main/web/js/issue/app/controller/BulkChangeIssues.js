@@ -28,10 +28,10 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     ],
 
     listeners: {
-       retryRequest: function(wizard, failedItems){
-           this.setFailedBulkRecordIssues(failedItems);
-           this.onWizardFinishedEvent(wizard);
-       }
+        retryRequest: function (wizard, failedItems) {
+            this.setFailedBulkRecordIssues(failedItems);
+            this.onWizardFinishedEvent(wizard);
+        }
     },
 
     init: function () {
@@ -70,12 +70,12 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         });
     },
 
-    setFailedBulkRecordIssues: function(failedIssues){
+    setFailedBulkRecordIssues: function (failedIssues) {
         var record = this.getBulkRecord(),
             previousIssues = record.get('issues'),
             leftIssues = [];
-        Ext.each (previousIssues, function (issue) {
-            if(Ext.Array.contains(failedIssues, issue.get('id'))){
+        Ext.each(previousIssues, function (issue) {
+            if (Ext.Array.contains(failedIssues, issue.get('id'))) {
                 leftIssues.push(issue);
             }
         });
@@ -207,22 +207,25 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     failedMessage,
                     failList = '';
 
-                Ext.each (obj.failure, function (fails) {
-                    failList += '<h4>' + fails.reason +':</h4><br>';
-                    Ext.each (fails.issues, function(issue){
+                Ext.each(obj.failure, function (fails) {
+                    failList += '<h4>' + fails.reason + ':</h4><li>';
+                    Ext.each(fails.issues, function (issue) {
                         failedCount += 1;
                         failedIssues.push(issue.id);
-                        failList += issue.title + '<br>';
+                        failList += '<ul style="padding-left: 1em;">' + issue.title + '</ul>';
                     });
+                    failList += '</li>';
                 });
 
                 switch (operation) {
                     case 'assign':
                         if (successCount > 0) {
-                            successMessage = '<h3>Successfully assigned ' + successCount + ' issue(s) to ' + record.get('assignee').title + '</h3><br>';
+                            successMessage = '<h3>Successfully assigned ' + successCount + (successCount > 1 ? ' issues' : ' issue')
+                                + ' to ' + record.get('assignee').title + '</h3><br>';
                         }
                         if (failedCount > 0) {
-                            failedMessage = '<h3>Failed to assign ' + failedCount + 'issue(s)</h3><br>'
+                            failedMessage = '<h3>Failed to assign ' + failedCount + (failedCount > 1 ? ' issues' : ' issue') + '</h3><br>'
+                                + failList;
                         }
                         break;
                     case 'close':
