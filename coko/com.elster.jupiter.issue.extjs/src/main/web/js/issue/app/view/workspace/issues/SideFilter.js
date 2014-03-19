@@ -35,16 +35,17 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                 {
                     xtype: 'combobox',
                     name: 'reason',
+                    fieldLabel: 'Reason',
+                    labelAlign: 'top',
+
                     displayField: 'name',
                     valueField: 'id',
                     forceSelection: true,
-//                    anyMatch: true,
                     store: 'Isu.store.IssueReason',
 
-                    fieldLabel: 'Reason',
-                    labelAlign: 'top',
                     listConfig: {
-                        cls: 'isu-combo-color-list'
+                        cls: 'isu-combo-color-list',
+                        emptyText: 'No reason found'
                     },
 
                     queryMode: 'remote',
@@ -52,9 +53,9 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     queryDelay: 100,
                     minChars: 1,
 
-                    hideTrigger:true,
+                    triggerAction: 'query',
                     anchor: '100%',
-                    emptyText: 'type something'
+                    emptyText: 'select a reason'
                 }
             ]
         }

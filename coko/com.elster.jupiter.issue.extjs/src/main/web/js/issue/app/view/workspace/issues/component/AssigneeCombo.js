@@ -6,26 +6,28 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
     displayField: 'name',
     valueField: 'id',
 
+    triggerAction: 'query',
     queryMode: 'remote',
     queryParam: 'like',
     queryDelay: 100,
     minChars: 1,
 
     formBind: true,
-
     typeAhead: true,
+
 //    hideTrigger: true,
     anchor: '100%',
-    emptyText: 'type something',
+    emptyText: 'select an assignee',
 
     forceSelection: true,
 
     gridConfig: {
+        emptyText: 'No assignee found',
         resizable: false,
         features: [
             {
                 ftype: 'grouping',
-                groupHeaderTpl: '{name}',
+                groupHeaderTpl: '<span class="isu-icon-{name}"></span> {name}',
                 collapsible: false
             }
         ],
