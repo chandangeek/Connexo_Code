@@ -10,7 +10,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
     requires: [
         'Mdc.store.RegisterConfigsOfDeviceConfig',
-        'Mdc.store.RegisterTypesOfDeviceType',
+        'Mdc.store.RegisterTypesOfDevicetype',
         'Uni.model.BreadcrumbItem'
     ],
 
