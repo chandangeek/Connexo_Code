@@ -53,7 +53,6 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo getComServer(@PathParam("id") int id) {
         ExpressionFactoryImpl expressionFactory = new ExpressionFactoryImpl();
-        System.out.println(expressionFactory.hashCode());
         ComServer comServer = engineModelService.findComServer(id);
         if (comServer == null) {
             throw new WebApplicationException("No ComServer with id "+id,
