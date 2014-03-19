@@ -64,6 +64,7 @@ Ext.define('Isu.controller.Issues', {
             },
             'issue-action-menu': {
                 beforehide: this.hideItemAction,
+                beforehide: this.hideItemAction,
                 click: this.chooseIssuesAction
             },
             'issues-overview issues-list button[name=bulk-change-issues]': {
