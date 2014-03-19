@@ -14,8 +14,11 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -158,11 +161,11 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
 
     @Override
-    public List<BaseDevice> findPhysicalConnectedDevicesFor(Device device) {
+    public List<BaseDevice<Channel, LoadProfile, Register>> findPhysicalConnectedDevicesFor(Device device) {
         Condition condition = Where.where("gateway").isEqualTo(device).and(Where.where("interval").isEffective());
         List<PhysicalGatewayReference> physicalGatewayReferences = this.dataModel.mapper(PhysicalGatewayReference.class).select(condition);
         if(!physicalGatewayReferences.isEmpty()){
-            List<BaseDevice> baseDevices = new ArrayList<>();
+            List<BaseDevice<Channel, LoadProfile, Register>> baseDevices = new ArrayList<>();
             for (PhysicalGatewayReference physicalGatewayReference : physicalGatewayReferences) {
                 baseDevices.add(physicalGatewayReference.getOrigin());
             }
@@ -173,11 +176,11 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
 
     @Override
-    public List<BaseDevice> findCommunicationReferencingDevicesFor(Device device) {
+    public List<BaseDevice<Channel, LoadProfile, Register>> findCommunicationReferencingDevicesFor(Device device) {
         Condition condition = Where.where("gateway").isEqualTo(device).and(Where.where("interval").isEffective());
         List<CommunicationGatewayReference> communicationGatewayReferences = this.dataModel.mapper(CommunicationGatewayReference.class).select(condition);
         if(!communicationGatewayReferences.isEmpty()){
-            List<BaseDevice> baseDevices = new ArrayList<>();
+            List<BaseDevice<Channel, LoadProfile, Register>> baseDevices = new ArrayList<>();
             for (CommunicationGatewayReference communicationGatewayReference : communicationGatewayReferences) {
                 baseDevices.add(communicationGatewayReference.getOrigin());
             }
@@ -185,5 +188,10 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
         } else {
             return Collections.emptyList();
         }
+    }
+
+    @Override
+    public LoadProfile findLoadProfileById(long id) {
+        return dataModel.mapper(LoadProfile.class).getUnique("id", id).orNull();
     }
 }

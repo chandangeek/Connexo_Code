@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.LoadProfile;
 
 import java.util.List;
 
@@ -76,6 +77,22 @@ public enum TableSpecs {
             table.primaryKey("DDC_U_COM_GATEWAY").on(originId, intervalColumns.get(0)).add();
             table.foreignKey("DDC_FK_DEVCOMORIGIN").on(originId).references(EISRTU.name()).onDelete(CASCADE).map("origin").reverseMap("communicationGatewayReferenceDevice").composition().add();
             table.foreignKey("DDC_FK_DEVCOMGATEWAY").on(communicationGatewayId).references(EISRTU.name()).onDelete(CASCADE).map("gateway").add();
+        }
+    },
+
+    EISLOADPROFILE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<LoadProfile> table = dataModel.addTable(name(), LoadProfile.class);
+            table.map(LoadProfileImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column deviceId = table.column("RTUID").number().notNull().add();
+            table.column("LASTREADING").number().map("lastReading").conversion(ColumnConversion.NUMBER2UTCINSTANT).add();
+            Column loadprofilespecid = table.column("LOADPROFILESPECID").number().add();
+            table.primaryKey("PK_LOADPROFILE").on(id).add();
+            table.foreignKey("FK_LOADPROFILE_LOADPROFILESPEC").on(loadprofilespecid).references(DeviceConfigurationService.COMPONENTNAME, "EISLOADPROFILESPEC").map("loadProfileSpec").add();
+            table.foreignKey("FK_LOADPROFILE_RTU").on(deviceId).references(EISRTU.name()).map("device").reverseMap("loadProfiles").composition().add();
+
         }
     },
     ;

@@ -21,13 +21,14 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exception.MessageSeeds;
 import com.energyict.mdc.device.data.exception.StillGatewayException;
@@ -37,7 +38,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
-import com.energyict.mdc.protocol.api.device.LoadProfile;
 import com.energyict.mdc.protocol.api.device.LogBook;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
@@ -65,6 +65,7 @@ public class DeviceImpl implements Device {
     private final Clock clock;
     private final MeteringService meteringService;
     private final DeviceDataService deviceDataService;
+    private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private long id;
 
@@ -111,6 +112,7 @@ public class DeviceImpl implements Device {
         }
     }
 
+
     private void notifyUpdated() {
         this.eventService.postEvent(UpdateEventType.DEVICE.topic(), this);
     }
@@ -139,11 +141,11 @@ public class DeviceImpl implements Device {
     }
 
     private void validateGatewayUsage() {
-        List<BaseDevice> physicalConnectedDevices = getPhysicalConnectedDevices();
+        List<BaseDevice<Channel, LoadProfile, Register>> physicalConnectedDevices = getPhysicalConnectedDevices();
         if (!physicalConnectedDevices.isEmpty()) {
             throw StillGatewayException.forPhysicalGateway(thesaurus, this, physicalConnectedDevices.toArray(new Device[physicalConnectedDevices.size()]));
         }
-        List<BaseDevice> communicationReferencingDevices = getCommunicationReferencingDevices();
+        List<BaseDevice<Channel, LoadProfile, Register>> communicationReferencingDevices = getCommunicationReferencingDevices();
         if (!communicationReferencingDevices.isEmpty()) {
             throw StillGatewayException.forCommunicationGateway(thesaurus, this, communicationReferencingDevices.toArray(new Device[communicationReferencingDevices.size()]));
 
@@ -153,7 +155,14 @@ public class DeviceImpl implements Device {
     DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name) {
         this.deviceConfiguration.set(deviceConfiguration);
         setName(name);
+        createLoadProfiles();
         return this;
+    }
+
+    private void createLoadProfiles() {
+        for (LoadProfileSpec loadProfileSpec : this.getDeviceConfiguration().getLoadProfileSpecs()) {
+            this.loadProfiles.add(this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this));
+        }
     }
 
     @Override
@@ -225,17 +234,17 @@ public class DeviceImpl implements Device {
     @Override
     public List<Channel> getChannels() {
         List<Channel> channels = new ArrayList<>();
-        for (ChannelSpec channelSpec : getDeviceConfiguration().getChannelSpecs()) {
-            channels.add(new ChannelImpl(channelSpec, this));
+        for (LoadProfile loadProfile : loadProfiles) {
+            channels.addAll(loadProfile.getChannels());
         }
         return channels;
     }
 
     @Override
     public BaseChannel getChannel(String name) {
-        for (ChannelSpec channelSpec : getDeviceConfiguration().getChannelSpecs()) {
-            if (channelSpec.getName().equals(name)) {
-                return new ChannelImpl(channelSpec, this);
+        for (Channel channel : getChannels()) {
+            if (channel.getChannelSpec().getName().equals(name)) {
+                return channel;
             }
         }
         return null;
@@ -243,9 +252,9 @@ public class DeviceImpl implements Device {
 
     @Override
     public BaseChannel getChannel(int index) {
-        List<ChannelSpec> channelSpecs = getDeviceConfiguration().getChannelSpecs();
-        if(channelSpecs.size() > index){
-            return new ChannelImpl(channelSpecs.get(index), this);
+        List<Channel> channels = getChannels();
+        if(channels.size() > index){
+            return channels.get(index);
         } else {
             return null;
         }
@@ -271,7 +280,7 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public List<BaseDevice> getPhysicalConnectedDevices() {
+    public List<BaseDevice<Channel, LoadProfile, Register>> getPhysicalConnectedDevices() {
         return this.deviceDataService.findPhysicalConnectedDevicesFor(this);
     }
 
@@ -334,7 +343,7 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public List<BaseDevice> getCommunicationReferencingDevices() {
+    public List<BaseDevice<Channel, LoadProfile, Register>> getCommunicationReferencingDevices() {
         return this.deviceDataService.findCommunicationReferencingDevicesFor(this);
     }
 
@@ -374,13 +383,24 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public List<LoadProfile<Channel>> getLoadProfiles() {
-        //TODO
-        return Collections.emptyList();
+    public List<LoadProfile> getLoadProfiles() {
+        return this.loadProfiles;
+    }
+
+    @Override
+    public LoadProfile.LoadProfileUpdater getLoadProfileUpdaterFor(LoadProfile loadProfile){
+        return new LoadProfileUpdaterForDevice((LoadProfileImpl) loadProfile);
+    }
+
+    class LoadProfileUpdaterForDevice extends LoadProfileImpl.LoadProfileUpdater {
+
+        protected LoadProfileUpdaterForDevice(LoadProfileImpl loadProfile) {
+            super(loadProfile);
+        }
     }
 
     public void loadProfilesChanged() {
-
+        // todo, still required?
     }
 
     public TypedProperties getDeviceProtocolProperties() {

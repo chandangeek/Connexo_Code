@@ -18,7 +18,10 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exception.MessageSeeds;
 import com.energyict.mdc.device.data.exception.StillGatewayException;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -703,12 +706,12 @@ public class DeviceImplTest extends PersistenceTest {
         device2.setPhysicalGateway(physicalMaster);
         device2.save();
 
-        List<BaseDevice> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
+        List<BaseDevice<Channel,LoadProfile,Register>> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
 
         assertThat(downstreamDevices).hasSize(2);
-        assertThat(downstreamDevices).has(new Condition<List<BaseDevice>>() {
+        assertThat(downstreamDevices).has(new Condition<List<BaseDevice<Channel,LoadProfile,Register>>>() {
             @Override
-            public boolean matches(List<BaseDevice> value) {
+            public boolean matches(List<BaseDevice<Channel,LoadProfile,Register>> value) {
                 boolean bothMatch = true;
                 for (BaseDevice baseDevice : value) {
                     bothMatch &= ((baseDevice.getId() == device1.getId()) || (baseDevice.getId() == device2.getId()));
@@ -733,7 +736,7 @@ public class DeviceImplTest extends PersistenceTest {
         device1.clearPhysicalGateway();
         device1.save();
 
-        List<BaseDevice> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
+        List<BaseDevice<Channel,LoadProfile,Register>> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
 
         assertThat(downstreamDevices).hasSize(1);
         assertThat(downstreamDevices.get(0).getId()).isEqualTo(device2.getId());
@@ -753,7 +756,7 @@ public class DeviceImplTest extends PersistenceTest {
         //business method
         device1.delete();
 
-        List<BaseDevice> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
+        List<BaseDevice<Channel,LoadProfile,Register>> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
 
         assertThat(downstreamDevices).hasSize(1);
         assertThat(downstreamDevices.get(0).getId()).isEqualTo(device2.getId());
@@ -776,7 +779,7 @@ public class DeviceImplTest extends PersistenceTest {
         device1.save();
 
 
-        List<BaseDevice> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
+        List<BaseDevice<Channel,LoadProfile,Register>> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
 
         assertThat(downstreamDevices).hasSize(1);
         assertThat(downstreamDevices.get(0).getId()).isEqualTo(device2.getId());

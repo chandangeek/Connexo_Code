@@ -7,8 +7,8 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
-import com.energyict.mdc.protocol.api.device.LoadProfile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
@@ -21,7 +21,7 @@ import java.util.TimeZone;
  * Date: 19/12/12
  * Time: 10:35
  */
-public interface Device extends BaseDevice<Channel, LoadProfile<Channel>, Register> {
+public interface Device extends BaseDevice<Channel, LoadProfile, Register> {
 
     void save();
 
@@ -73,7 +73,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile<Channel>, Regist
      *
      * @return the list of Devices which are currently linked to this Device for communication
      */
-    List<BaseDevice> getCommunicationReferencingDevices();
+    List<BaseDevice<Channel, LoadProfile, Register>> getCommunicationReferencingDevices();
 
     List<DeviceMessage> getMessages();
 
@@ -119,6 +119,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile<Channel>, Regist
      * @return the last modification timestamp.
      */
     Date getModDate();
+
+    LoadProfile.LoadProfileUpdater getLoadProfileUpdaterFor(LoadProfile loadProfile);
 
     /**
      * Notification method to signal that something on the device's load profile(s) changed
