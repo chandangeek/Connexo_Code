@@ -1,12 +1,11 @@
 package com.energyict.mdc.dynamic.impl;
 
 import com.energyict.mdc.common.InvalidValueException;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
  * Tests the {@link ReferencePropertySpec} component.
@@ -44,7 +43,7 @@ public class ReferencePropertySpecTest extends AbstractPropertySpecTest {
     @Test
     public void testTestBusinessObjectIsValidRequiredValue () throws InvalidValueException {
         ReferencePropertySpec<TestBusinessObject> propertySpec = this.newReferencePropertySpec(true);
-        TestBusinessObject value = this.newPeristentTestBusinessObject();
+        TestBusinessObject value = this.newPersistentTestBusinessObject();
 
         // Business method
         assertThat(propertySpec.validateValue(value)).isTrue();
@@ -53,7 +52,7 @@ public class ReferencePropertySpecTest extends AbstractPropertySpecTest {
     @Test
     public void testTestBusinessObjectIsValidOptionalValue () throws InvalidValueException {
         ReferencePropertySpec<TestBusinessObject> propertySpec = this.newReferencePropertySpec(false);
-        TestBusinessObject value = this.newPeristentTestBusinessObject();
+        TestBusinessObject value = this.newPersistentTestBusinessObject();
 
         // Business method
         assertThat(propertySpec.validateValue(value)).isTrue();
@@ -78,7 +77,7 @@ public class ReferencePropertySpecTest extends AbstractPropertySpecTest {
     }
 
     private ReferencePropertySpec<TestBusinessObject> newReferencePropertySpec (boolean required) {
-        return new ReferencePropertySpec<>("SomeBusinessObject", required, mock(TestBusinessObjectFactory.class));
+        return new ReferencePropertySpec<>("SomeBusinessObject", required, new TestBusinessObjectFactoryImpl());
     }
 
 }
