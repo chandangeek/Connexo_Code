@@ -4,6 +4,7 @@ import com.elster.jupiter.util.HasName;
 import com.google.common.base.Optional;
 
 import java.security.Principal;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -58,4 +59,12 @@ public interface User extends Principal, HasName {
     void setLocale(Locale locale);
 
     Set<Privilege> getPrivileges();
+
+    String getDomain();
+
+    String getLanguage();
+
+    Date getCreationDate();
+
+    Date getModifiedDate();
 }

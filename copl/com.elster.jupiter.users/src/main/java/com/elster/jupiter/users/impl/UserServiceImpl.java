@@ -148,6 +148,15 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Override
+    public Optional<User> findOrCreateUser(String name, String domain) {
+        Condition userCondition = Operator.EQUAL.compare("authenticationName", name);
+        Condition domainCondition = Operator.EQUAL.compare("domain", domain);
+        List<User> users = dataModel.query(User.class, UserDirectory.class).select(userCondition.and(domainCondition));
+        // TODO: create user if not found
+        return users.isEmpty() ? Optional.<User>absent() : Optional.of(users.get(0));
+    }
+
+    @Override
     public Optional<Group> getGroup(long id) {
         return dataModel.mapper(Group.class).getOptional(id);
     }

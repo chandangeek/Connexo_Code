@@ -253,4 +253,24 @@ public class UserImpl implements User {
 
         return privileges;
     }
+
+    @Override
+    public String getDomain() {
+        return userDirectory.get().getDomain();
+    }
+
+    @Override
+    public String getLanguage() {
+        return languageTag;
+    }
+
+    @Override
+    public Date getCreationDate() {
+        return createTime.toDate();
+    }
+
+    @Override
+    public Date getModifiedDate() {
+        return modTime.toDate();
+    }
 }

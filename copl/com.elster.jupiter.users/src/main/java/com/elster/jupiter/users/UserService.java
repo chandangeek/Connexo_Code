@@ -46,4 +46,6 @@ public interface UserService {
     LdapUserDirectory createActiveDirectory(String domain);
 
     LdapUserDirectory createApacheDirectory(String domain);
+
+    Optional<User> findOrCreateUser(String name, String domain);
 }

@@ -114,6 +114,16 @@ final class GroupImpl implements Group , PersistenceAware {
         return false;
     }
 
+    @Override
+    public Date getCreationDate() {
+        return createTime.toDate();
+    }
+
+    @Override
+    public Date getModifiedDate() {
+        return modTime.toDate();
+    }
+
     void persist() {
 		groupFactory().persist(this);
 	}
@@ -123,15 +133,7 @@ final class GroupImpl implements Group , PersistenceAware {
         return dataModel.mapper(Group.class);
     }
 
-    public Date getCreateDate() {
-		return createTime.toDate();
-	}
-	
-	public Date getModificationDate() {
-		return modTime.toDate();
-	}
-	
-	public long getVersion() {
+    public long getVersion() {
 		return version;
 	}
 	

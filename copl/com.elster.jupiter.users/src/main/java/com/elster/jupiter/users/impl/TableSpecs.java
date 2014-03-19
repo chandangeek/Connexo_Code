@@ -49,6 +49,7 @@ public enum TableSpecs {
             table.column("DIRECTORY_USER").type("varchar(4000)").map("directoryUser").add();
             table.column("PASSWORD").type("varchar(128)").map("password").add();
             table.column("URL").type("varchar(4000)").map("url").add();
+            table.column("BASE_DN").type("varchar(4000)").map("baseDN").add();
             table.addAuditColumns();
             table.primaryKey("USR_PK_USERDIRECTORY").on(domain).add();
         }

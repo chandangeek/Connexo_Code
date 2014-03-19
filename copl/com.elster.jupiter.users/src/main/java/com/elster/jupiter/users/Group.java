@@ -2,6 +2,7 @@ package com.elster.jupiter.users;
 
 import com.elster.jupiter.util.HasName;
 
+import java.util.Date;
 import java.util.List;
 
 public interface Group extends HasName {
@@ -25,4 +26,8 @@ public interface Group extends HasName {
     boolean grant(Privilege privilege);
 
     boolean revoke(Privilege privilege);
+
+    Date getCreationDate();
+
+    Date getModifiedDate();
 }
