@@ -270,7 +270,9 @@ Ext.define('Isu.controller.Issues', {
     },
 
     setDefaults: function (sortPanel) {
-        this.store.setProxySort(new Isu.model.IssueSort());
+        var defaultSort = new Isu.model.IssueSort();
+        defaultSort.addSortParam('dueDate');
+        this.store.setProxySort(defaultSort);
     },
 
     updateIssueList: function () {
