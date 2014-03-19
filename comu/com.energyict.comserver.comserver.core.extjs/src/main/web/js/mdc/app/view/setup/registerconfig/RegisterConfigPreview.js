@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.register.RegisterConfigPreview', {
+Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
     extend: 'Ext.panel.Panel',
     border: true,
     margins: '0 10 10 10',

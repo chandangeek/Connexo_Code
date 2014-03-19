@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.register.RegisterConfigSetup', {
+Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerConfigSetup',
     autoScroll: true,

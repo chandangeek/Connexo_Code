@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.register.RegisterConfigGrid', {
+Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.registerConfigGrid',
     overflowY: 'auto',

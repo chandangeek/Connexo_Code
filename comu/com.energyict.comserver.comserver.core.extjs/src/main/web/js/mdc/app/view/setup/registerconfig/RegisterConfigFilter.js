@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.register.RegisterConfigFilter', {
+Ext.define('Mdc.view.setup.registerconfig.RegisterConfigFilter', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.registerConfigFilter',
     title: 'Filter',
