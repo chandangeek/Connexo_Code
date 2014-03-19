@@ -5,8 +5,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 
-import java.math.BigDecimal;
-
 /**
  * Represents a single load profile on a data logger or energy meter.
  * Channel objects are created automatically when an Device is created.
@@ -34,7 +32,7 @@ public interface BaseChannel extends CanGoOffline<OfflineLoadProfileChannel> {
      *
      * @return the LoadProfile
      */
-    LoadProfile getLoadProfile();
+    BaseLoadProfile getLoadProfile();
 
     ObisCode getRegisterTypeObisCode();
 }

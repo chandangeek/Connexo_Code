@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.device.data.identifiers;
 
-import com.energyict.mdc.protocol.api.device.LoadProfile;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 
 import java.io.Serializable;
 
@@ -13,10 +13,10 @@ import java.io.Serializable;
 public interface LoadProfileIdentifier extends Serializable {
 
     /**
-     * Finds the {@link LoadProfile} that is uniquely identified by this LoadProfileIdentifier.
+     * Finds the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} that is uniquely identified by this LoadProfileIdentifier.
      *
      * @return The LoadProfile
      */
-    public LoadProfile findLoadProfile ();
+    public BaseLoadProfile findLoadProfile ();
 
 }

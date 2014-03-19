@@ -12,7 +12,7 @@ import java.util.List;
  * Each Device has a number of channels to store load profile data.
  * The number of channels is defined by its DeviceType.
  */
-public interface BaseDevice<C extends BaseChannel, LP extends LoadProfile<C>, R extends BaseRegister> extends CanGoPartiallyOffline<OfflineDevice, OfflineDeviceContext> {
+public interface BaseDevice<C extends BaseChannel, LP extends BaseLoadProfile<C>, R extends BaseRegister> extends CanGoPartiallyOffline<OfflineDevice, OfflineDeviceContext> {
 
     /**
      * Returns number that uniquely identifies this DeviceType.
@@ -74,10 +74,10 @@ public interface BaseDevice<C extends BaseChannel, LP extends LoadProfile<C>, R 
      *
      * @return the list of physically connected Devices
      */
-    List<BaseDevice> getPhysicalConnectedDevices();
+    List<BaseDevice<C, LP, R>> getPhysicalConnectedDevices();
 
     /**
-     * returns the {@link LoadProfile}s defined for this device.
+     * returns the {@link BaseLoadProfile}s defined for this device.
      *
      * @return the LoadProfiles
      */

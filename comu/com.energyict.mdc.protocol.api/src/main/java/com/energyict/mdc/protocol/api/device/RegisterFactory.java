@@ -13,6 +13,4 @@ import java.util.List;
  */
 public interface RegisterFactory {
 
-    public List<BaseRegister> findRegistersByDevice(BaseDevice device);
-
 }

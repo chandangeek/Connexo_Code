@@ -14,9 +14,9 @@ import java.util.List;
  */
 public interface DeviceFactory {
 
-    public <C extends BaseChannel, LP extends LoadProfile<C>, R extends BaseRegister> List<BaseDevice<C, LP, R>> findDevicesBySerialNumber(String serialNumber);
+    public <C extends BaseChannel, LP extends BaseLoadProfile<C>, R extends BaseRegister> List<BaseDevice<C, LP, R>> findDevicesBySerialNumber(String serialNumber);
 
-    public <C extends BaseChannel, LP extends LoadProfile<C>, R extends BaseRegister> List<BaseDevice<C, LP, R>> findDevicesByNotInheritedProtocolProperty(PropertySpec propertySpec, Object propertyValue);
+    public <C extends BaseChannel, LP extends BaseLoadProfile<C>, R extends BaseRegister> List<BaseDevice<C, LP, R>> findDevicesByNotInheritedProtocolProperty(PropertySpec propertySpec, Object propertyValue);
 
     public BaseDevice findById(int id);
 }

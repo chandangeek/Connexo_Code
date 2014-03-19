@@ -3,7 +3,6 @@ package com.energyict.mdc.protocol.api.exceptions;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.exceptions.CommonExceptionReferences;
 import com.energyict.mdc.common.exceptions.CommonReferenceScope;
-import com.energyict.mdc.protocol.api.device.LoadProfile;
 import com.energyict.mdc.common.exceptions.ExceptionCode;
 import com.energyict.mdc.common.exceptions.ExceptionType;
 
@@ -30,7 +29,7 @@ public final class DeviceConfigurationException extends ComServerRuntimeExceptio
     /**
      * Creates a {@link DeviceConfigurationException} indicating the configuration of a Device could not be fetched.
      *
-     * @param loadProfileObisCode the <code>ObisCode</code> of the {@link LoadProfile LoadProfile}
+     * @param loadProfileObisCode the <code>ObisCode</code> of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile LoadProfile}
      * @return the newly created config-not-accessible exception
      */
     public static DeviceConfigurationException notAccessible(final ObisCode loadProfileObisCode) {

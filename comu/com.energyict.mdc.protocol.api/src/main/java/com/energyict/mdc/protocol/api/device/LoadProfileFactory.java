@@ -6,13 +6,14 @@ import java.util.List;
 
 /**
  * Defines the behavior of an {@link ApplicationComponent}
- * that is capable of finding {@link LoadProfile}s.
+ * that is capable of finding {@link BaseLoadProfile}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-08 (16:34)
  */
 public interface LoadProfileFactory {
 
-    public List<LoadProfile> findLoadProfilesByDevice(BaseDevice device);
+    public List<BaseLoadProfile> findLoadProfilesByDevice(BaseDevice<BaseChannel,BaseLoadProfile<BaseChannel>, BaseRegister> device);
 
+    public BaseLoadProfile findLoadProfileById(int loadProfileId);
 }

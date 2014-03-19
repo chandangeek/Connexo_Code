@@ -1,6 +1,9 @@
 package com.energyict.mdc.protocol.api.inbound;
 
+import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
+import com.energyict.mdc.protocol.api.device.BaseRegister;
 
 import java.io.Serializable;
 
@@ -19,6 +22,6 @@ public interface DeviceIdentifier extends Serializable {
      *
      * @return The Device
      */
-    public BaseDevice findDevice ();
+    public BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> findDevice();
 
 }
