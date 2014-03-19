@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.device.LoadProfile;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -75,7 +75,7 @@ public class REMIDataloggerMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.enableDSTAttributeName:
                 return ((Boolean) messageAttribute).booleanValue() == true ? "1" : "0";
             case DeviceMessageConstants.loadProfileAttributeName:
-            	return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+            	return LoadProfileMessageUtils.formatLoadProfile((BaseLoadProfile) messageAttribute);
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
             	return dateTimeFormatWithTimeZone.format((Date) messageAttribute);

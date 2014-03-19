@@ -3,9 +3,9 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.device.LoadProfile;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
@@ -180,7 +180,7 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(emergencyProfileDurationAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
         } else if (propertySpec.getName().equals(loadProfileAttributeName)) {
-            return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+            return LoadProfileMessageUtils.formatLoadProfile((BaseLoadProfile) messageAttribute);
         } else if (propertySpec.getName().equals(fromDateAttributeName)
                 || propertySpec.getName().equals(toDateAttributeName)) {
             return dateFormat.format((Date) messageAttribute);

@@ -1,6 +1,7 @@
 package com.energyict.mdw.cpo;
 
 import com.energyict.mdc.protocol.api.device.BaseChannel;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdw.dynamicattributes.BigDecimalFactory;
 import com.energyict.mdw.dynamicattributes.BooleanFactory;
 import com.energyict.mdw.dynamicattributes.DateAndTimeFactory;
@@ -25,7 +26,6 @@ import com.energyict.mdc.common.ean.Ean13;
 import com.energyict.mdc.common.ean.Ean18;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.device.LoadProfile;
 import com.energyict.mdc.protocol.api.legacy.dynamic.AttributeValueSelectionMode;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ValueDomain;
@@ -446,14 +446,14 @@ public class PropertySpecFactory {
     }
 
     /**
-     * Creates a PropertySpec for a {@link LoadProfile} value.
+     * Creates a PropertySpec for a {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} value.
      *
      * @param name the name of the PropertySpec
      * @return the newly created PropertySpec
      */
-    public static PropertySpec<LoadProfile> loadProfilePropertySpec(final String name) {
+    public static PropertySpec<BaseLoadProfile> loadProfilePropertySpec(final String name) {
         return PropertySpecBuilder.
-                forReference(LoadProfile.class, new ValueDomain(FactoryIds.LOADPROFILE.id(), 0),
+                forReference(BaseLoadProfile.class, new ValueDomain(FactoryIds.LOADPROFILE.id(), 0),
                         AttributeValueSelectionMode.SEARCH_AND_SELECT).
                 name(name).finish();
     }

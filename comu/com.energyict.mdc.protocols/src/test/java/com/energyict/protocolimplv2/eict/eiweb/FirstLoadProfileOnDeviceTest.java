@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.LoadProfile;
 import org.junit.*;
 
 import java.util.Arrays;
@@ -42,7 +42,7 @@ public class FirstLoadProfileOnDeviceTest extends AbstractEIWebTests{
         LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
 
         // Business method
-        LoadProfile loadProfile = loadProfileIdentifier.findLoadProfile();
+        BaseLoadProfile loadProfile = loadProfileIdentifier.findLoadProfile();
 
         // Asserts
         assertThat(loadProfile).isNull();
@@ -50,7 +50,7 @@ public class FirstLoadProfileOnDeviceTest extends AbstractEIWebTests{
 
     @Test
     public void testWithDeviceWithOneLoadProfile () {
-        LoadProfile expectedLoadProfile = mock(LoadProfile.class);
+        BaseLoadProfile expectedLoadProfile = mock(BaseLoadProfile.class);
         BaseDevice device = mock(BaseDevice.class);
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(expectedLoadProfile));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
@@ -58,7 +58,7 @@ public class FirstLoadProfileOnDeviceTest extends AbstractEIWebTests{
         LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
 
         // Business method
-        LoadProfile loadProfile = loadProfileIdentifier.findLoadProfile();
+        BaseLoadProfile loadProfile = loadProfileIdentifier.findLoadProfile();
 
         // Asserts
         assertThat(loadProfile).isEqualTo(expectedLoadProfile);
@@ -66,8 +66,8 @@ public class FirstLoadProfileOnDeviceTest extends AbstractEIWebTests{
 
     @Test
     public void testWithDeviceWithMultipleLoadProfiles () {
-        LoadProfile expectedLoadProfile = mock(LoadProfile.class);
-        LoadProfile anotherLoadProfile = mock(LoadProfile.class);
+        BaseLoadProfile expectedLoadProfile = mock(BaseLoadProfile.class);
+        BaseLoadProfile anotherLoadProfile = mock(BaseLoadProfile.class);
         BaseDevice device = mock(BaseDevice.class);
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(expectedLoadProfile, anotherLoadProfile));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
@@ -75,7 +75,7 @@ public class FirstLoadProfileOnDeviceTest extends AbstractEIWebTests{
         LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
 
         // Business method
-        LoadProfile loadProfile = loadProfileIdentifier.findLoadProfile();
+        BaseLoadProfile loadProfile = loadProfileIdentifier.findLoadProfile();
 
         // Asserts
         assertThat(loadProfile).isEqualTo(expectedLoadProfile);

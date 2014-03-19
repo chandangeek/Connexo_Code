@@ -6,7 +6,7 @@ import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
-import com.energyict.mdc.protocol.api.device.LoadProfile;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
@@ -33,7 +33,7 @@ public class SerialNumberDeviceIdentifier implements DeviceIdentifier, FindMulti
 
     private final String serialNumber;
     private BaseDevice device;
-    private List<BaseDevice<BaseChannel, LoadProfile<BaseChannel>, BaseRegister>> allDevices;
+    private List<BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister>> allDevices;
 
     public SerialNumberDeviceIdentifier (String serialNumber) {
         super();

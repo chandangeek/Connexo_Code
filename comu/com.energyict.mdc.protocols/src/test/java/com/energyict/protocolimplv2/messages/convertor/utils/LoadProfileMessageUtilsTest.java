@@ -4,7 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.LoadProfile;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import org.junit.*;
 
 import java.util.Arrays;
@@ -33,7 +33,7 @@ public class LoadProfileMessageUtilsTest {
         BaseDevice device = createdMockedDevice();
         BaseChannel channel1 = createdMockedChannel(device, OBISCODE1);
         BaseChannel channel2 = createdMockedChannel(device, OBISCODE2);
-        LoadProfile loadProfile = createMockedLoadProfile();
+        BaseLoadProfile loadProfile = createMockedLoadProfile();
         when(loadProfile.getDevice()).thenReturn(device);
         when(loadProfile.getAllChannels()).thenReturn(Arrays.asList(channel1, channel2));
 
@@ -43,8 +43,8 @@ public class LoadProfileMessageUtilsTest {
         assertThat(format).isEqualTo(expectedXml);
     }
 
-    private LoadProfile createMockedLoadProfile() {
-        LoadProfile loadProfile = mock(LoadProfile.class);
+    private BaseLoadProfile createMockedLoadProfile() {
+        BaseLoadProfile loadProfile = mock(BaseLoadProfile.class);
         when(loadProfile.getDeviceObisCode()).thenReturn(LOAD_PROFILE_OBISCODE);
         return loadProfile;
     }

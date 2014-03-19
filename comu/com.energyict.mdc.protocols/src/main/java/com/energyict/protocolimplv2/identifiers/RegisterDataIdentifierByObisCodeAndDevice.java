@@ -2,7 +2,9 @@ package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.RegisterFactory;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
@@ -37,13 +39,9 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     @Override
     public BaseRegister findRegister () {
         if (this.register == null) {
-            List<BaseRegister> registers = new ArrayList<>();
             List<RegisterFactory> registerFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(RegisterFactory.class);
-            BaseDevice device = deviceIdentifier.findDevice();
-            for (RegisterFactory factory : registerFactories) {
-                registers.addAll(factory.findRegistersByDevice(device));
-            }
-            for (BaseRegister register : registers) {
+            BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> device = deviceIdentifier.findDevice();
+            for (BaseRegister register : device.getRegisters()) {
                 // first need to check the DeviceObisCde
                 if (register.getDeviceObisCode() != null && register.getDeviceObisCode().equals(registerObisCode)){
                     this.register = register;

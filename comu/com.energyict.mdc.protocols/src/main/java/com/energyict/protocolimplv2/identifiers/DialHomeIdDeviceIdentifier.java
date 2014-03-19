@@ -1,13 +1,13 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.protocol.api.device.BaseChannel;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
-import com.energyict.mdc.protocol.api.device.LoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
@@ -33,7 +33,7 @@ public class DialHomeIdDeviceIdentifier implements DeviceIdentifier, FindMultipl
 
     private final String callHomeID;
     private BaseDevice device;
-    private List<BaseDevice<BaseChannel, LoadProfile<BaseChannel>, BaseRegister>> allDevices;
+    private List<BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister>> allDevices;
 
     public DialHomeIdDeviceIdentifier(String callHomeId) {
         super();
@@ -58,7 +58,7 @@ public class DialHomeIdDeviceIdentifier implements DeviceIdentifier, FindMultipl
     }
 
     private void fetchAllDevices() {
-        List<BaseDevice<BaseChannel, LoadProfile<BaseChannel>, BaseRegister>> allDevices = new ArrayList<>();
+        List<BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister>> allDevices = new ArrayList<>();
         List<DeviceFactory> deviceFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class);
         for (DeviceFactory deviceFactory : deviceFactories) {
             allDevices.addAll(deviceFactory.findDevicesByNotInheritedProtocolProperty(CALL_HOME_ID_PROPERTY_SPEC, this.getIdentifier()));

@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.messages.convertor.utils;
 
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.LoadProfile;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -123,7 +123,7 @@ public class LoadProfileMessageUtils {
      * @param loadProfile the LoadProfile to format
      * @return the formatted loadProfile
      */
-    public static String formatLoadProfile(final LoadProfile loadProfile) {
+    public static String formatLoadProfile(final BaseLoadProfile loadProfile) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 

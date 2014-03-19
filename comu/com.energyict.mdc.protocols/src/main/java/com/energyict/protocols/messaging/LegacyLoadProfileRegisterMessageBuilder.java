@@ -8,8 +8,9 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.LoadProfile;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import org.xml.sax.Attributes;
@@ -58,7 +59,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     private Date startReadingTime;
 
     /**
-     * Represents the database ID of the {@link LoadProfile} to read.
+     * Represents the database ID of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} to read.
      * We will need this to set in the {@link com.energyict.mdc.protocol.api.device.data.ProfileData} object.
      */
     private int loadProfileId;
@@ -71,7 +72,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     /**
      * The LoadProfile to read
      */
-    private LoadProfile<BaseChannel> loadProfile;
+    private BaseLoadProfile<BaseChannel> loadProfile;
 
     public static String getMessageNodeTag() {
         return MESSAGETAG;
@@ -165,7 +166,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     }
 
     private void checkRtuRegistersForLoadProfile() throws BusinessException {
-        BaseDevice<BaseChannel, LoadProfile<BaseChannel>, BaseRegister> rtu = this.loadProfile.getDevice();
+        BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> rtu = this.loadProfile.getDevice();
 
         List<BaseRegister> allRegisters = rtu.getRegisters();
         for (BaseDevice dRtu : rtu.getPhysicalConnectedDevices()) {
@@ -211,16 +212,20 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         return builder.toString();
     }
 
-    public LoadProfile<BaseChannel> getLoadProfile() {
+    public BaseLoadProfile<BaseChannel> getLoadProfile() {
         if (this.loadProfile == null) {
             this.loadProfile = this.findLoadProfile(this.loadProfileId);
         }
         return loadProfile;
     }
 
-    private LoadProfile<BaseChannel> findLoadProfile(int loadProfileId) {
-        IdBusinessObjectFactory<LoadProfile<BaseChannel>> factory = (IdBusinessObjectFactory<LoadProfile<BaseChannel>>) Environment.DEFAULT.get().findFactory(FactoryIds.LOADPROFILE.id());
-        return factory.get(loadProfileId);
+    private BaseLoadProfile<BaseChannel> findLoadProfile(int loadProfileId) {
+        List<LoadProfileFactory> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(LoadProfileFactory.class);
+        if(modulesImplementing.isEmpty()){
+            return null;
+        } else {
+            return modulesImplementing.get(0).findLoadProfileById(loadProfileId);
+        }
     }
 
     /**
@@ -229,14 +234,14 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
      *
      * @param loadProfile the new LoadProfile to set
      */
-    public void setLoadProfile(final LoadProfile loadProfile) {
-        BaseDevice<BaseChannel, LoadProfile<BaseChannel>, BaseRegister> currentRtu = loadProfile.getDevice();
+    public void setLoadProfile(final BaseLoadProfile loadProfile) {
+        BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> currentRtu = loadProfile.getDevice();
         while (currentRtu.isLogicalSlave() && currentRtu.getPhysicalGateway() != null) {
             currentRtu = currentRtu.getPhysicalGateway();
         }
         setMeterSerialNumber(currentRtu.getSerialNumber());
-        LoadProfile currentLoadProfile = null;
-        for (LoadProfile lProfile : currentRtu.getLoadProfiles()) {
+        BaseLoadProfile currentLoadProfile = null;
+        for (BaseLoadProfile lProfile : currentRtu.getLoadProfiles()) {
             if (lProfile.getLoadProfileTypeId() == loadProfile.getLoadProfileTypeId()) {
                 currentLoadProfile = lProfile;
             }
@@ -246,7 +251,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         } else {
             this.loadProfile = currentLoadProfile;
         }
-        setLoadProfileId(this.loadProfile.getId());
+        setLoadProfileId((int) this.loadProfile.getId());
         setProfileObisCode(this.loadProfile.getLoadProfileTypeObisCode());
         setRegisters(createRegisterList(this.loadProfile));
     }
@@ -257,7 +262,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
      * @param loadProfile the given <code>LoadProfile</code>
      * @return the new Register List
      */
-    private List<com.energyict.mdc.protocol.api.device.data.Register> createRegisterList(final LoadProfile<?> loadProfile) {
+    private List<com.energyict.mdc.protocol.api.device.data.Register> createRegisterList(final BaseLoadProfile<?> loadProfile) {
         List<com.energyict.mdc.protocol.api.device.data.Register> registers = new ArrayList<>();
         for (BaseChannel channel : loadProfile.getAllChannels()) {
             registers.add(new com.energyict.mdc.protocol.api.device.data.Register(-1, channel.getRegisterTypeObisCode(), channel.getDevice().getSerialNumber()));
@@ -271,7 +276,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
 
 
     public int getRegisterSpecIdForRegister(com.energyict.mdc.protocol.api.device.data.Register register) {
-        BaseDevice<BaseChannel, LoadProfile<BaseChannel>, BaseRegister> device = null;
+        BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> device = null;
         for (BaseChannel channel : getLoadProfile().getAllChannels()) {
             if (channel.getDevice().getSerialNumber().equals(register.getSerialNumber())) {
                 device = channel.getDevice();
