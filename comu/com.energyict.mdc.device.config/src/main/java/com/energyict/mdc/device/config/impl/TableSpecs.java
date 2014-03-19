@@ -254,7 +254,7 @@ public enum TableSpecs {
             table.column("NUMBEROFFRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map(RegisterSpecImpl.NUMBER_OF_FRACTION_DIGITS).add();
             table.column("OVERFLOWVALUE").number().map("overflow").add();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            table.column("MULTIPLIER").number().map("multiplier").add();
+            table.column("MULTIPLIER").number().map(RegisterSpecImpl.MULTIPLIER).add();
             table.column("MULTIPLIERMODE").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("multiplierMode").add();
             table.primaryKey("PK_RTUREGISTERSPEC").on(id).add();
             table.foreignKey("FK_EISRTUREGSPEC_REGMAP").on(registerMapping).references(EISRTUREGISTERMAPPING.name()).map(RegisterSpecImpl.REGISTER_MAPPING).add();
