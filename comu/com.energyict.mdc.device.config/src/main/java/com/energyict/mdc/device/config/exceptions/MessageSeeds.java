@@ -54,14 +54,17 @@ public enum MessageSeeds implements MessageSeed {
     LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(5004, "logBookType.cannotUpdateObisCode", "The obis code of the log book type '{0}' cannot be updated because it is in use", Level.SEVERE),
     LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(5005, "logBookType.XstillInUseByLogBookSpecsY", "The log book type {0} cannot be deleted because it is still in use by the following log book spec(s): {1}", Level.SEVERE),
     LOG_BOOK_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(5006, "logBookType.XstillInUseByDeviceTypesY", "The log book type {0} cannot be deleted because it is still in use by the following device type(s): {1}", Level.SEVERE),
-    REGISTER_SPEC_NUMBER_OF_DIGITS_LARGER_THAN_ONE(6001, "registerSpec.invalidNumberOfDigits", "Invalid number of digits. At least 1 digit is required", Level.SEVERE),
+    REGISTER_SPEC_NUMBER_OF_DIGITS_LARGER_THAN_ONE(6001, Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS, "Invalid number of digits. At least 1 digit is required", Level.SEVERE),
+    REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED(6002, Constants.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED, "The number of digits can not be decreased", Level.SEVERE),
     REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED(6003, Constants.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY,"The register mapping of a register specification is required", Level.SEVERE),
+    REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED(6004, Constants.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED, "The number of fraction digits can not be decreased", Level.SEVERE),
     REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS(6005, "registerSpec.overflow.exceed","The provided overflow value '{0}' may not exceed '{1}' (according to the provided number of digits '{2}')", Level.SEVERE),
     REGISTER_SPEC_OVERFLOW_LARGER_THAN_ZERO(6006, "registerSpec.overflow.invalidValue","The provided overflow value '{0}' must be larger then zero (0))", Level.SEVERE),
     REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS(6007, "registerSpec.overflow.fractionDigits","The provided overflow value '{0}' more fraction digits '{1}' than provided '{2}')", Level.SEVERE),
     REGISTER_SPEC_CANNOT_DELETE_FOR_ACTIVE_CONFIG(6009, "registerSpec.delete.active.config","It is not allowed to delete a register spec from an active device configuration", Level.SEVERE),
     REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG(6010, "registerSpec.add.active.config","You can not add a register spec to an active device configuration", Level.SEVERE),
     REGISTER_SPEC_REGISTER_MAPPING_IS_NOT_ON_DEVICE_TYPE(6011, "registerSpec.not.deviceType","The register spec contains a register mapping {0} which is not configured on the device type", Level.SEVERE),
+    REGISTER_SPEC_REGISTER_MAPPING_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6012, Constants.REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG,"The register spec contains a register mapping {0} which is not configured on the device type", Level.SEVERE),
     DEVICE_TYPE_NAME_IS_REQUIRED(7001, "deviceType.name.required", "The name of a device type is required", Level.SEVERE),
     DEVICE_TYPE_ALREADY_EXISTS(7002, "deviceType.duplicateNameX", "A device type with name '{0}' already exists", Level.SEVERE),
     DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS(7003, Constants.DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS_KEY, "The device type {0} cannot be deleted because it still has active configurations", Level.SEVERE),
@@ -197,6 +200,10 @@ public enum MessageSeeds implements MessageSeed {
         public static final String TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY = "DTC.temporalExpression.offset.count.positive";
         public static final String DEVICE_CONFIG_GATEWAY_NOT_ALLOWED = "DTC.deviceConfig.gateway.notAllowed";
         public static final String DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED = "DTC.deviceConfig.directAddress.notAllowed";
+        public static final String REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS = "registerSpec.invalidNumberOfDigits";
+        public static final String REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED = "registerSpec.numberOfDigits.decreased";
+        public static final String REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED = "registerSpec.numberOfFractionDigits.decreased";
+        public static final String REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG = "registerSpec.registerMapping.activeDeviceConfig";
     }
 
 }

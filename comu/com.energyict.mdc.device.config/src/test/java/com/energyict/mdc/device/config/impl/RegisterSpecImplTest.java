@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
@@ -15,6 +16,7 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.InvalidValueException;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredOnDeviceTypeException;
@@ -126,8 +128,9 @@ public class RegisterSpecImplTest extends PersistenceTest {
         assertThat(registerSpec.getNumberOfDigits()).isEqualTo(updatedNumberOfDigits);
     }
 
-    @Test(expected = InvalidValueException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS+"}", property = RegisterSpecImpl.NUMBER_OF_DIGITS, strict = false)
     public void setNegativeNumberOfDigitsTest() {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
         int updatedNumberOfDigits = -1;
@@ -381,5 +384,37 @@ public class RegisterSpecImplTest extends PersistenceTest {
         registerSpec = registerSpecBuilder.add();
 
         assertThat(registerSpec.getMultiplier()).isEqualTo(BigDecimal.TEN);
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED+"}", property = RegisterSpecImpl.NUMBER_OF_DIGITS)
+    public void testDecreaseNumberOfDigits() throws Exception {
+        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        registerSpec.setNumberOfDigits(8); // decreased!!
+        registerSpec.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED+"}", property = RegisterSpecImpl.NUMBER_OF_FRACTION_DIGITS)
+    public void testDecreaseNumberOfFractionDigits() throws Exception {
+        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        registerSpec.setNumberOfFractionDigits(1); // decreased!!
+        registerSpec.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG+"}", property = RegisterSpecImpl.REGISTER_MAPPING)
+    public void testUpdateRegisterMappingForActiveConfig() throws Exception {
+        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        deviceConfiguration.activate();
+        deviceConfiguration.save();
+        RegisterMapping registerMapping2 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME + "2", registerMappingObisCode, unit2, readingType2, readingType2.getTou());
+        registerMapping2.save();
+
+        registerSpec.setRegisterMapping(registerMapping2); // updated
+        registerSpec.save();
     }
 }

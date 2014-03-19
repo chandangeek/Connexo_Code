@@ -24,14 +24,17 @@ import java.math.BigDecimal;
 import java.util.Date;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.constraints.Min;
 
+@ValidRegisterSpec(groups = { Save.Update.class })
 public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implements RegisterSpec {
 
     private final Reference<DeviceConfiguration> deviceConfig = ValueReference.absent();
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY + "}")
-    private final Reference<RegisterMapping> registerMapping = ValueReference.absent();
-    private int numberOfDigits;
-    private int numberOfFractionDigits;
+    private final Reference<RegisterMapping> registerMapping = ValueReference.absent(); static final String REGISTER_MAPPING = "registerMapping";
+    @Min(value = 1, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS + "}")
+    private int numberOfDigits; static final String NUMBER_OF_DIGITS="numberOfDigits";
+    private int numberOfFractionDigits; static final String NUMBER_OF_FRACTION_DIGITS="numberOfFractionDigits";
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
     private BigDecimal overflow;
@@ -182,14 +185,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     @Override
     public void setNumberOfDigits(int numberOfDigits) {
-        validateNumberOfDigits(numberOfDigits);
         this.numberOfDigits = numberOfDigits;
-    }
-
-    private void validateNumberOfDigits(int numberOfDigits) {
-        if (numberOfDigits < 1) {
-            throw InvalidValueException.registerSpecNumberOfDigitsShouldBeLargerThanOne(this.thesaurus);
-        }
     }
 
     @Override
