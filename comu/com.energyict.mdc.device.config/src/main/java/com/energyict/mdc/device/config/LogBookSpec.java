@@ -38,10 +38,6 @@ public interface LogBookSpec extends HasId{
      */
     public ObisCode getObisCode();
 
-    void setDeviceConfiguration(DeviceConfiguration deviceConfiguration);
-
-    void setLogBookType(LogBookType logBookType);
-
     void setOverruledObisCode(ObisCode overruledObisCode);
 
     void validateDelete();
