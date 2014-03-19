@@ -31,7 +31,9 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_COMPORTPOOL(109, Constants.MDC_DUPLICATE_COM_PORT_POOL, "ComPortPool with name {value} already exists", Level.SEVERE),
     OBSOLETE_COMPORTPOOL_CANT_BE_UPDATED(110, Constants.MDC_COMPORTPOOL_NO_UPDATE_ALLOWED, "Obsolete ComPortPool can no longer be updated", Level.SEVERE),
     COMPORTPOOL_STILL_REFERENCED(111, Constants.MDC_COMPORTPOOL_STILL_REFERENCED, "Comport pool is still referenced by comport(s)", Level.SEVERE),
-    OUTBOUND_COMPORT_STILL_IN_POOL(112, Constants.OUTBOUND_COM_PORT_STILL_MEMBER_OF_POOL, "The outbound comport is still contained in a pool", Level.SEVERE);
+    OUTBOUND_COMPORT_STILL_IN_POOL(112, Constants.OUTBOUND_COM_PORT_STILL_MEMBER_OF_POOL, "The outbound comport is still contained in a pool", Level.SEVERE),
+    NO_SUCH_PLUGGABLE_CLASS(113, Constants.MDC_COM_PORT_POOL_PLUGGABLE_CLASS_INVALID, "The comportpool references a non-existing pluggable class", Level.SEVERE),
+    VETO_DISCOVERYPROTOCOLPLUGGABLECLASS_DELETION(114, Constants.DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_XSTILL_IN_USE_BY_DEVICE_TYPES_Y, "The device protocol pluggable class {0} is still used by the following device types: {1}", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -95,5 +97,7 @@ final class Constants {
     public static final String MDC_IS_ALREADY_OBSOLETE = "MDC.isAlreadyObsolete";
     public static final String MDC_NOT_UNIQUE = "MDC.notUnique";
     public static final String DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_IS_MANDATORY_FOR_COMPORTPOOL = "MDC.discoveryProtocol.isMandatory";
-    public static final String OUTBOUND_COM_PORT_STILL_MEMBER_OF_POOL = "outboundComPortXStillMemberOfPool";
+    public static final String OUTBOUND_COM_PORT_STILL_MEMBER_OF_POOL = "MDC.outboundComPortXStillMemberOfPool";
+    public static final String MDC_COM_PORT_POOL_PLUGGABLE_CLASS_INVALID = "MDC.ComPortPool.pluggableClass.invalid";
+    public static final String DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_XSTILL_IN_USE_BY_DEVICE_TYPES_Y = "discoveryProtocolPluggableClass.XstillInUseByDeviceTypesY";
 }

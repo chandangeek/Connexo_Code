@@ -56,9 +56,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>devtools.persistence</artifactId>
-            <scope>test</scope>
+          <groupId>com.energyict</groupId>
+          <artifactId>mdc.protocol.pluggable</artifactId>
+          <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -79,6 +79,12 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools.persistence</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>messaging.h2</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

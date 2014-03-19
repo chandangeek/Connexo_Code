@@ -33,6 +33,7 @@ import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -63,25 +64,27 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     private volatile DataModel dataModel;
     private Thesaurus thesaurus;
     private NlsService nlsService;
+    private PluggableService pluggableService;
 
     public EngineModelServiceImpl() {
         super();
     }
 
     @Inject
-    public EngineModelServiceImpl(OrmService ormService, NlsService nlsService) {
+    public EngineModelServiceImpl(OrmService ormService, NlsService nlsService, PluggableService pluggableService) {
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
+        this.setPluggableService(pluggableService);
         activate();
         createTranslations();
         if (!dataModel.isInstalled()) {
-        	this.install(true);
+            dataModel.install(true, false);
         }
     }
 
     @Override
     public void install() {
-        this.install(false);
+        dataModel.install(true, true);
     }
 
     private void createTranslations() {
@@ -93,11 +96,6 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
         thesaurus.addTranslations(translations);
     }
 
-
-
-    private void install(boolean executeDdl) {
-        dataModel.install(executeDdl, false);
-    }
 
     @Reference
     public void setOrmService(OrmService ormService) {
@@ -113,6 +111,11 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
         this.thesaurus = nlsService.getThesaurus(EngineModelService.COMPONENT_NAME,Layer.DOMAIN);
     }
 
+    @Reference
+    public void setPluggableService(PluggableService pluggableService) {
+        this.pluggableService = pluggableService;
+    }
+
     Module getModule() {
         return new AbstractModule() {
             @Override
@@ -126,10 +129,8 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
                 bind(UDPBasedInboundComPort.class).to(UDPBasedInboundComPortImpl.class);
                 bind(OutboundComPort.class).to(OutboundComPortImpl.class);
                 bind(ComPortPoolMember.class).to(ComPortPoolMemberImpl.class);
-//                install(new FactoryModuleBuilder().
-//                        implement(TranslatableException.class, TranslatableApplicationException.class).
-//                        build(TranslatableExceptionFactory.class));
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(PluggableService.class).toInstance(pluggableService);
             }
         };
     }

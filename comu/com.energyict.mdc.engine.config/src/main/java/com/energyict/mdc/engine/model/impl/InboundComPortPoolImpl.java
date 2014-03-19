@@ -7,6 +7,9 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.pluggable.PluggableClassType;
+import com.energyict.mdc.pluggable.PluggableService;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -24,13 +27,15 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
     public static final String FIELD_DISCOVEYPROTOCOL = "discoveryProtocolPluggableClassId";
 
     private final EngineModelService engineModelService;
+    private final PluggableService pluggableService;
     @Min(value =1, groups = {Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
     private long discoveryProtocolPluggableClassId;
 
     @Inject
-    protected InboundComPortPoolImpl(DataModel dataModel, EngineModelService engineModelService, Thesaurus thesaurus) {
+    protected InboundComPortPoolImpl(DataModel dataModel, EngineModelService engineModelService, Thesaurus thesaurus, PluggableService pluggableService) {
         super(dataModel, thesaurus);
         this.engineModelService = engineModelService;
+        this.pluggableService = pluggableService;
     }
 
     @Override
@@ -61,12 +66,11 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
     private void validateDiscoveryProtocolPluggableClass(long discoveryProtocolPluggableClassId) {
         if (discoveryProtocolPluggableClassId == 0) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.MUST_HAVE_DISCOVERY_PROTOCOL);
-            // TODO Use PluggableClassService once JP-682 is done
-//        } else {
-//            PluggableClass pluggableClass = this.findDiscoveryProtocolPluggableClass(discoveryProtocolPluggableClassId);
-//            if (pluggableClass == null) {
-//                throw InvalidReferenceException.newForIdBusinessObject(discoveryProtocolPluggableClassId, this.getInboundDeviceProtocolPluggableClassFactory());
-//            }
+        } else {
+            PluggableClass pluggableClass = pluggableService.findByTypeAndId(PluggableClassType.DiscoveryProtocol, discoveryProtocolPluggableClassId);
+            if (pluggableClass == null) {
+                throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_SUCH_PLUGGABLE_CLASS);
+            }
         }
     }
 
