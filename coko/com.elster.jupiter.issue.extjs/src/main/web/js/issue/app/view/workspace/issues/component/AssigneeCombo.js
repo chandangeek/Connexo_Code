@@ -9,10 +9,8 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
     queryMode: 'remote',
     queryParam: 'like',
     queryDelay: 100,
-    minChars: 2,
+    minChars: 1,
 
-    groupField: 'type',
-    groupDisplayField: 'type',
     formBind: true,
 
     typeAhead: false,
