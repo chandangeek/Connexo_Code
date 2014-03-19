@@ -107,4 +107,6 @@ public interface PartialConnectionTask extends HasName, HasId {
     void setProperty(String key, Object value);
 
     void removeProperty(String key);
+
+    void setName(String name);
 }

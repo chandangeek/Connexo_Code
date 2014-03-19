@@ -965,8 +965,13 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
         return this.findAllPartialConnectionTasks();
     }
 
+    @Override
+    public void remove(PartialConnectionTask partialConnectionTask) {
+        partialConnectionTasks.remove(partialConnectionTask);
+    }
+
     private List<PartialConnectionTask> findAllPartialConnectionTasks() {
-        return this.partialConnectionTasks;
+        return Collections.unmodifiableList(this.partialConnectionTasks);
     }
 
     private <T extends PartialConnectionTask> List<T> filter(List<PartialConnectionTask> needsFiltering, PartialConnectionTaskFilterPredicate filterPredicate) {
@@ -1127,25 +1132,22 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public PartialOutboundConnectionTaskBuilder createPartialOutboundConnectionTask() {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+        return new PartialOutboundConnectionTaskBuilderImpl(dataModel, this);
     }
 
     @Override
     public PartialInboundConnectionTaskBuilder createPartialInboundConnectionTask() {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+        return new PartialInboundConnectionTaskBuilderImpl(dataModel, this);
     }
 
     @Override
     public PartialConnectionInitiationTaskBuilder createPartialConnectionInitiationTask() {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+        return new PartialConnectionInitiationTaskBuilderImpl(dataModel, this);
     }
 
     @Override
     public void addPartialConnectionTask(PartialConnectionTask partialConnectionTask) {
-        //TODO automatically generated method body, provide implementation.
+        partialConnectionTasks.add(partialConnectionTask);
     }
 
     @Override

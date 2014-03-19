@@ -22,8 +22,7 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.PluggableService;
 
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 /**
@@ -309,7 +308,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column deviceconfiguration = table.column("DEVICECONFIGURATION").number().add();
             table.column("SUPPORTALLCATEGORIES").number().conversion(NUMBER2BOOLEAN).notNull().map("supportsAllMessageCategories").add();
-            table.column("USERACTIONS").number().notNull().map("userActions").add();
+            table.column("USERACTIONS").number().conversion(NUMBER2LONG).notNull().map("userActions").add();
             table.foreignKey("FK_MDCDEVICECOMMCONFIG_DCONFIG").on(deviceconfiguration).references(EISDEVICECONFIG.name()).map("deviceConfiguration").add();
             table.primaryKey("PK_MDCDEVICECOMMCONFIG").on(id).add();
         }
@@ -352,24 +351,24 @@ public enum TableSpecs {
             table.column("NAME").varChar(255).notNull().map("name").add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
             Column devicecomconfig = table.column("DEVICECOMCONFIG").number().add();
-            Column connectionType = table.column("CONNECTIONTYPE").number().add();
+            Column connectionType = table.column("CONNECTIONTYPE").number().conversion(NUMBER2LONG).map("pluggableClassId").add();
             Column initiator = table.column("INITIATOR").number().add();
-            table.column("COMWINDOWSTART").number().map("comWindowStart").add();
-            table.column("COMWINDOWEND").number().map("comWindowEnd").add();
+            table.column("COMWINDOWSTART").number().conversion(NUMBER2INT).map("comWindowStart").add();
+            table.column("COMWINDOWEND").number().conversion(NUMBER2INT).map("comWindowEnd").add();
             table.column("CONNECTIONSTRATEGY").number().conversion(NUMBER2ENUM).map("connectionStrategy").add();
             table.column("SIMULTANEOUSCONNECTIONS").number().conversion(NUMBER2BOOLEAN).map("allowSimultaneousConnections").add();
             table.column("ISDEFAULT").number().conversion(NUMBER2BOOLEAN).map("isDefault").add();
             Column nextexecutionspecs = table.column("NEXTEXECUTIONSPECS").number().add();
             table.column("RESCHEDULERETRYDELAY").number().map("rescheduleRetryDelay.count").add();
-            table.column("MOD_DATE").type("DATE").map("modDate").add();
+            table.column("MOD_DATE").type("DATE").map("modDate").insert("sysdate").update("sysdate").add();
             Column comportpool = table.column("COMPORTPOOL").number().add();
             table.column("RESCHEDULERETRYDELAYCODE").number().map("rescheduleRetryDelay.timeUnitCode").add();
+            table.primaryKey("PK_MDCPARTIALCONNTASK").on(id).add();
             table.foreignKey("FK_MDCPARTIALCT_PLUGGABLE").on(connectionType).references(PluggableService.COMPONENTNAME, "EISPLUGGABLECLASS").map("pluggableClass").add();
             table.foreignKey("FK_MDCPARTIALCT_COMPORTPOOL").on(comportpool).references(EngineModelService.COMPONENT_NAME, "MDCCOMPORTPOOL").map("comPortPool").add();
             table.foreignKey("FK_MDCPARTCONTASK_DCOMCONFIG").on(devicecomconfig).references(MDCDEVICECOMMCONFIG.name()).map("configuration").reverseMap("partialConnectionTasks").composition().add();
             table.foreignKey("FK_MDCPARTIALCONNTASK_NEXTEX").on(nextexecutionspecs).references(MDCNEXTEXECUTIONSPEC.name()).onDelete(CASCADE).map("nextExecutionSpecs").add();
             table.foreignKey("FK_MDCPARTIALCONNTASK_INIT").on(initiator).references(MDCPARTIALCONNECTIONTASK.name()).map("initiator").add();
-            table.primaryKey("PK_MDCPARTIALCONNTASK").on(id).add();
         }
     },
     MDCPARTIALCONNECTIONTASKPROPS {

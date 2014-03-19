@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
 
 /**
@@ -16,8 +17,8 @@ public class PartialOutboundConnectionTaskBuilderImpl extends AbstractScheduledP
     private boolean allowSimultaneousConnections;
 
 
-    PartialOutboundConnectionTaskBuilderImpl(DataModel dataModel) {
-        super(PartialOutboundConnectionTaskBuilder.class, dataModel);
+    PartialOutboundConnectionTaskBuilderImpl(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
+        super(PartialOutboundConnectionTaskBuilder.class, dataModel, configuration);
     }
 
     @Override
@@ -40,7 +41,7 @@ public class PartialOutboundConnectionTaskBuilderImpl extends AbstractScheduledP
 
     @Override
     PartialOutboundConnectionTask newInstance() {
-        return dataModel.getInstance(PartialOutboundConnectionTaskImpl.class);
+        return PartialOutboundConnectionTaskImpl.from(dataModel, configuration);
     }
 
     @Override

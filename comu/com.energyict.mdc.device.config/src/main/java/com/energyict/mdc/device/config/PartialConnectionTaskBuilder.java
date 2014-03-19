@@ -17,5 +17,7 @@ public interface PartialConnectionTaskBuilder<S, T extends ComPortPool, U extend
 
     S asDefault(boolean asDefault);
 
+    S name(String name);
+
     U build();
 }

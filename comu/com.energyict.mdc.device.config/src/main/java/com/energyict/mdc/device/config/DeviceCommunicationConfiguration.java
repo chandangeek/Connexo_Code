@@ -18,6 +18,8 @@ public interface DeviceCommunicationConfiguration extends HasId {
 
     public DeviceConfiguration getDeviceConfiguration();
 
+    void remove(PartialConnectionTask partialConnectionTask);
+
     void setSupportsAllMessageCategories(boolean supportAllMessageCategories);
 
     void addSecurityPropertySet(SecurityPropertySet securityPropertySet);

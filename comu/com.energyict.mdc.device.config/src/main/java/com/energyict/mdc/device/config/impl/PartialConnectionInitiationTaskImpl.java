@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -22,8 +23,13 @@ public class PartialConnectionInitiationTaskImpl extends PartialScheduledConnect
         super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService);
     }
 
-    static PartialConnectionInitiationTask from(DataModel dataModel) {
-        return dataModel.getInstance(PartialConnectionInitiationTaskImpl.class);
+    static PartialConnectionInitiationTask from(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
+        return dataModel.getInstance(PartialConnectionInitiationTaskImpl.class).init(configuration);
+    }
+
+    private PartialConnectionInitiationTask init(DeviceCommunicationConfiguration configuration) {
+        setConfiguration(configuration);
+        return this;
     }
 
     @Override

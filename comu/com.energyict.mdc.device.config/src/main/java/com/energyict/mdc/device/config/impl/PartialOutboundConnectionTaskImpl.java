@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
+import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -35,98 +36,23 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
         super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService);
     }
 
+    static PartialOutboundConnectionTask from(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
+        return dataModel.getInstance(PartialOutboundConnectionTaskImpl.class).init(configuration);
+    }
 
+    private PartialOutboundConnectionTask init(DeviceCommunicationConfiguration configuration) {
+        setConfiguration(configuration);
+        return this;
+    }
 
-//    protected void doInit(PartialOutboundConnectionTaskShadow shadow) throws SQLException, BusinessException {
-//        this.validateNew(shadow);
-//        doInitNextExecutionSpecs(shadow);
-//        this.copyNew(shadow);
-//        this.postNew();
-//        this.postProperties(shadow);
-//        this.created();
-//    }
 
 //    private void validateNew(PartialOutboundConnectionTaskShadow shadow) throws BusinessException {
 //        this.validate(shadow);
 //    }
 
-//    private void copyNew(PartialOutboundConnectionTaskShadow shadow) {
-//        this.copy(shadow);
-//    }
-
-//    @Override
-//    protected void doLoad(ResultSetIterator resultSet) throws SQLException {
-//        super.doLoad(resultSet);
-//        this.connectionInitiatorId = resultSet.nextInt();
-//        this.comWindow = this.loadComWindow(resultSet);
-//        this.connectionStrategy = this.toConnectionStrategy(resultSet.nextInt());
-//        this.allowSimultaneousConnections = resultSet.nextInt() != 0;
-//    }
-
-//    private ComWindow loadComWindow(ResultSetIterator resultSet) throws SQLException {
-//        int startSeconds = resultSet.nextInt();
-//        if (resultSet.wasNull()) {
-//            resultSet.skip();
-//            return null;
-//        } else {
-//            return this.toComWindow(startSeconds, resultSet.nextInt());
-//        }
-//    }
-
-//    private ComWindow toComWindow(int startSeconds, int endSeconds) {
-//        return new ComWindow(startSeconds, endSeconds);
-//    }
-
-//    private ConnectionStrategy toConnectionStrategy(int connectionStrategyOrdinalValue) {
-//        for (ConnectionStrategy strategy : ConnectionStrategy.values()) {
-//            if (strategy.ordinal() == connectionStrategyOrdinalValue) {
-//                return strategy;
-//            }
-//        }
-//        return null;
-//    }
-
-//    @Override
-//    protected int bindBody(PreparedStatement preparedStatement, int firstParameterNumber) throws SQLException {
-//        int parameterNumber = super.bindBody(preparedStatement, firstParameterNumber);
-//        parameterNumber = this.bindConnectionInitiator(preparedStatement, parameterNumber);
-//        parameterNumber = this.bindComWindow(this.comWindow, preparedStatement, parameterNumber);
-//        this.bindConnectionStrategy(preparedStatement, parameterNumber++, this.connectionStrategy);
-//        preparedStatement.setInt(parameterNumber++, this.toDbValue(this.allowSimultaneousConnections));
-//        return parameterNumber;
-//    }
-
-//    private int bindConnectionInitiator(PreparedStatement preparedStatement, int parameterNumber) throws SQLException {
-//        if (this.connectionInitiatorId != 0) {
-//            preparedStatement.setInt(parameterNumber++, this.connectionInitiatorId);
-//        } else {
-//            preparedStatement.setNull(parameterNumber++, Types.INTEGER);
-//        }
-//        return parameterNumber;
-//    }
-
-//    private int bindComWindow(ComWindow comWindow, PreparedStatement preparedStatement, int parameterIndex) throws SQLException {
-//        if (comWindow == null) {
-//            preparedStatement.setNull(parameterIndex, Types.INTEGER);
-//            preparedStatement.setNull(parameterIndex + 1, Types.INTEGER);
-//        } else {
-//            preparedStatement.setInt(parameterIndex, this.toSeconds(comWindow.getStart()));
-//            preparedStatement.setInt(parameterIndex + 1, this.toSeconds(comWindow.getEnd()));
-//        }
-//        return parameterIndex + 2;
-//    }
-
     private int toSeconds(PartialTime partialTime) {
         return partialTime.getMillis() / DateTimeConstants.MILLIS_PER_SECOND;
     }
-
-//    private void bindConnectionStrategy(PreparedStatement preparedStatement, int parameterIndex, ConnectionStrategy connectionStrategy) throws SQLException {
-//        preparedStatement.setInt(parameterIndex, this.toDbValue(connectionStrategy));
-//    }
-
-//    private int toDbValue(ConnectionStrategy connectionStrategy) {
-//        return connectionStrategy.ordinal();
-//    }
 
 //    protected void validate(PartialOutboundConnectionTaskShadow shadow) throws BusinessException {
 //        super.validate(shadow);
@@ -214,7 +140,7 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
     @Override
     public ComWindow getCommunicationWindow() {
         if (comWindow == null) {
-            comWindow = new ComWindow(PartialTime.fromSeconds(comWindowStart), PartialTime.fromSeconds(comWindowEnd));
+            comWindow = new ComWindow(PartialTime.fromMilliSeconds(comWindowStart), PartialTime.fromMilliSeconds(comWindowEnd));
         }
         return this.comWindow;
     }

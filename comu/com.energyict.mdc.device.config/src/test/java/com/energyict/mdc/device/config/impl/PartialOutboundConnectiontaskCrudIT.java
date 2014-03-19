@@ -22,8 +22,10 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.ApplicationContext;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
@@ -32,7 +34,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -65,16 +67,17 @@ import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
 
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PartialInboundConnectiontaskCrudIT {
+public class PartialOutboundConnectiontaskCrudIT {
 
-    private InboundComPortPool inboundComPortPool, inboundComPortPool2;
+    private static final ComWindow COM_WINDOW = new ComWindow(3600, 7200);
+    private OutboundComPortPool outboundComPortPool, outboundComPortPool1;
     private ConnectionTypePluggableClass connectionTypePluggableClass, connectionTypePluggableClass2;
 
     @Mock
@@ -193,18 +196,18 @@ public class PartialInboundConnectiontaskCrudIT {
             connectionTypePluggableClass2.save();
             discoveryPluggable = protocolPluggableService.newInboundDeviceProtocolPluggableClass("MyDiscoveryName", DlmsSerialNumberDiscover.class.getName());
             discoveryPluggable.save();
-            inboundComPortPool = engineModelService.newInboundComPortPool();
-            inboundComPortPool.setActive(true);
-            inboundComPortPool.setComPortType(ComPortType.TCP);
-            inboundComPortPool.setName("inboundComPortPool");
-            inboundComPortPool.setDiscoveryProtocolPluggableClassId(discoveryPluggable.getId());
-            inboundComPortPool.save();
-            inboundComPortPool2 = engineModelService.newInboundComPortPool();
-            inboundComPortPool2.setActive(true);
-            inboundComPortPool2.setComPortType(ComPortType.TCP);
-            inboundComPortPool2.setName("inboundComPortPool2");
-            inboundComPortPool2.setDiscoveryProtocolPluggableClassId(discoveryPluggable.getId());
-            inboundComPortPool2.save();
+            outboundComPortPool = engineModelService.newOutboundComPortPool();
+            outboundComPortPool.setActive(true);
+            outboundComPortPool.setComPortType(ComPortType.TCP);
+            outboundComPortPool.setName("inboundComPortPool");
+            outboundComPortPool.setTaskExecutionTimeout(TimeDuration.minutes(15));
+            outboundComPortPool.save();
+            outboundComPortPool1 = engineModelService.newOutboundComPortPool();
+            outboundComPortPool1.setActive(true);
+            outboundComPortPool1.setComPortType(ComPortType.TCP);
+            outboundComPortPool1.setName("inboundComPortPool2");
+            outboundComPortPool1.setTaskExecutionTimeout(TimeDuration.minutes(5));
+            outboundComPortPool1.save();
             context.commit();
         }
 
@@ -219,7 +222,7 @@ public class PartialInboundConnectiontaskCrudIT {
     @Test
     public void testCreate() {
 
-        PartialInboundConnectionTask inboundConnectionTask;
+        PartialOutboundConnectionTask outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
@@ -231,37 +234,40 @@ public class PartialInboundConnectiontaskCrudIT {
             communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
             communicationConfiguration.save();
 
-            inboundConnectionTask = communicationConfiguration.createPartialInboundConnectionTask()
-                    .name("MyInbound")
-                    .comPortPool(inboundComPortPool)
+            outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+                    .name("MyOutbound")
+                    .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
+                    .comWindow(COM_WINDOW)
                     .asDefault(true).build();
             communicationConfiguration.save();
 
             context.commit();
         }
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found).isPresent();
 
         PartialConnectionTask partialConnectionTask = found.get();
 
-        assertThat(partialConnectionTask).isInstanceOf(PartialInboundConnectionTask.class);
+        assertThat(partialConnectionTask).isInstanceOf(PartialOutboundConnectionTask.class);
 
-        PartialInboundConnectionTask partialInboundConnectionTask = (PartialInboundConnectionTask) partialConnectionTask;
+        PartialOutboundConnectionTask partialOutboundConnectionTask = (PartialOutboundConnectionTask) partialConnectionTask;
 
-        assertThat(partialInboundConnectionTask.getComPortPool().getId()).isEqualTo(inboundComPortPool.getId());
-        assertThat(partialInboundConnectionTask.isDefault()).isTrue();
-        assertThat(partialInboundConnectionTask.getConfiguration().getId()).isEqualTo(communicationConfiguration.getId());
-        assertThat(partialInboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
-        assertThat(partialInboundConnectionTask.getName()).isEqualTo("MyInbound");
+        assertThat(partialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
+        assertThat(partialOutboundConnectionTask.isDefault()).isTrue();
+        assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(communicationConfiguration.getId());
+        assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
+        assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(COM_WINDOW);
+        assertThat(partialOutboundConnectionTask.getName()).isEqualTo("MyOutbound");
 
     }
 
+//            partialInboundConnectionTask.setName("Changed");
     @Test
     public void testUpdate() {
 
-        PartialInboundConnectionTask inboundConnectionTask;
+        PartialOutboundConnectionTask outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
@@ -273,48 +279,52 @@ public class PartialInboundConnectiontaskCrudIT {
             communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
             communicationConfiguration.save();
 
-            inboundConnectionTask = communicationConfiguration.createPartialInboundConnectionTask()
-                    .name("MyInbound")
-                    .comPortPool(inboundComPortPool)
+            outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+                    .name("MyOutbound")
+                    .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
+                    .comWindow(COM_WINDOW)
                     .asDefault(true).build();
             communicationConfiguration.save();
 
             context.commit();
         }
 
+        ComWindow newComWindow = new ComWindow(7200, 10800);
         try (TransactionContext context = transactionService.getContext()) {
             DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceConfigurationService(communicationConfiguration.getId());
-            PartialInboundConnectionTask partialInboundConnectionTask = configuration.getPartialInboundConnectionTasks().get(0);
-            partialInboundConnectionTask.setDefault(false);
-            partialInboundConnectionTask.setComportPool(inboundComPortPool2);
-            partialInboundConnectionTask.setConnectionTypePluggableClass(connectionTypePluggableClass2);
-            partialInboundConnectionTask.setName("Changed");
-            partialInboundConnectionTask.save();
+            PartialOutboundConnectionTask partialOutboundConnectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
+            partialOutboundConnectionTask.setDefault(false);
+            partialOutboundConnectionTask.setComportPool(outboundComPortPool1);
+            partialOutboundConnectionTask.setConnectionTypePluggableClass(connectionTypePluggableClass2);
+            partialOutboundConnectionTask.setComWindow(newComWindow);
+            partialOutboundConnectionTask.setName("Changed");
+            partialOutboundConnectionTask.save();
 
             context.commit();
         }
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found).isPresent();
 
         PartialConnectionTask partialConnectionTask = found.get();
 
-        assertThat(partialConnectionTask).isInstanceOf(PartialInboundConnectionTask.class);
+        assertThat(partialConnectionTask).isInstanceOf(PartialOutboundConnectionTask.class);
 
-        PartialInboundConnectionTask partialInboundConnectionTask = (PartialInboundConnectionTask) partialConnectionTask;
+        PartialOutboundConnectionTask partialOutboundConnectionTask = (PartialOutboundConnectionTask) partialConnectionTask;
 
-        assertThat(partialInboundConnectionTask.getComPortPool().getId()).isEqualTo(inboundComPortPool2.getId());
-        assertThat(partialInboundConnectionTask.isDefault()).isFalse();
-        assertThat(partialInboundConnectionTask.getConfiguration().getId()).isEqualTo(communicationConfiguration.getId());
-        assertThat(partialInboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
-        assertThat(partialInboundConnectionTask.getName()).isEqualTo("Changed");
+        assertThat(partialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool1.getId());
+        assertThat(partialOutboundConnectionTask.isDefault()).isFalse();
+        assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(communicationConfiguration.getId());
+        assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
+        assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(newComWindow);
+        assertThat(partialOutboundConnectionTask.getName()).isEqualTo("Changed");
 
     }
 
     @Test
     public void testDelete() {
-        PartialInboundConnectionTask inboundConnectionTask;
+        PartialOutboundConnectionTask outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
@@ -326,10 +336,11 @@ public class PartialInboundConnectiontaskCrudIT {
             communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
             communicationConfiguration.save();
 
-            inboundConnectionTask = communicationConfiguration.createPartialInboundConnectionTask()
-                    .name("MyInbound")
-                    .comPortPool(inboundComPortPool)
+            outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+                    .name("MyOutbound")
+                    .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
+                    .comWindow(COM_WINDOW)
                     .asDefault(true).build();
             communicationConfiguration.save();
 
@@ -338,14 +349,14 @@ public class PartialInboundConnectiontaskCrudIT {
 
         try (TransactionContext context = transactionService.getContext()) {
             DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceConfigurationService(communicationConfiguration.getId());
-            PartialInboundConnectionTask partialInboundConnectionTask = configuration.getPartialInboundConnectionTasks().get(0);
-            configuration.remove(partialInboundConnectionTask);
+            PartialOutboundConnectionTask partialOutboundConnectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
+            configuration.remove(partialOutboundConnectionTask);
             configuration.save();
 
             context.commit();
         }
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found).isAbsent();
 
     }

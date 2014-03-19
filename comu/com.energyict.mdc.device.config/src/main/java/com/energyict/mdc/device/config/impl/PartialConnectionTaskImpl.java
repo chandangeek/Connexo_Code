@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,10 +34,12 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     private final ProtocolPluggableService protocolPluggableService;
 
     private Reference<DeviceCommunicationConfiguration> configuration = ValueReference.absent();
-    private Reference<ConnectionTypePluggableClass> pluggableClass = ValueReference.absent();
+    private long pluggableClassId;
+    private ConnectionTypePluggableClass pluggableClass;
     private Reference<ComPortPool> comPortPool = ValueReference.absent();
     private boolean isDefault;
     private List<PartialConnectionTaskProperty> properties = new ArrayList<>();
+    private Date modDate;
 
     @Inject
     PartialConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
@@ -45,15 +48,9 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         this.protocolPluggableService = protocolPluggableService;
     }
 
-//    private void bindReference (PreparedStatement preparedStatement, int parameterNumber, int referenceId) throws SQLException {
-//        if (referenceId == 0) {
-//            preparedStatement.setNull(parameterNumber, Types.INTEGER);
-//        }
-//        else {
-//            preparedStatement.setInt(parameterNumber, referenceId);
-//        }
-//    }
-
+    void setConfiguration(DeviceCommunicationConfiguration configuration) {
+        this.configuration.set(configuration);
+    }
 //    protected DeviceCommunicationConfiguration validate (PartialConnectionTaskShadow shadow) throws BusinessException {
 //        DeviceCommunicationConfiguration configuration = this.validateConfiguration(shadow);
 //        this.validateConnectionTypePluggableClass(shadow.getConnectionTypePluggableClassId());
@@ -150,17 +147,6 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
 //        return configuration;
 //    }
 
-//    protected void copy (PartialConnectionTaskShadow shadow) {
-//        this.setName(shadow.getName());
-//        this.configurationId = shadow.getConfigurationId();
-//        this.configuration = null;
-//        this.pluggableClassId = shadow.getConnectionTypePluggableClassId();
-//        this.pluggableClass = null;
-//        this.comportPoolId = shadow.getComPortPoolId();
-//        this.comPortPool = null;
-//        this.isDefault = shadow.isDefault();
-//    }
-
     @Override
     protected void validateDelete () {
         // TODO ConnectionTask bundle should listen for delete events on this and veto if any clients exist
@@ -226,11 +212,6 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         return this.getPluggableClass().getConnectionType().getPropertySpecs();
     }
 
-//    protected void postProperties (PartialConnectionTaskShadow shadow) throws BusinessException, SQLException {
-//        this.getPropertyFactory().deleteAllFor(this);
-//        this.getPropertyFactory().createProperties(this, shadow.getTypedProperties());
-//    }
-
     protected void validateNotNull (Object propertyValue, String propertyName) throws InvalidValueException {
         if (propertyValue == null) {
             throw new InvalidValueException("XcannotBeEmpty", "\"{0}\" is a required property", propertyName);
@@ -244,7 +225,10 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
 
     @Override
     public ConnectionTypePluggableClass getPluggableClass () {
-        return pluggableClass.get();
+        if (pluggableClass == null && pluggableClassId != 0) {
+            pluggableClass = protocolPluggableService.findConnectionTypePluggableClass(pluggableClassId);
+        }
+        return pluggableClass;
     }
 
     @Override
@@ -271,7 +255,8 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
 
     @Override
     public void setConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass) {
-        this.pluggableClass.set(connectionTypePluggableClass);
+        this.pluggableClass = connectionTypePluggableClass;
+        this.pluggableClassId = connectionTypePluggableClass == null ? 0 : connectionTypePluggableClass.getId();
     }
 
     @Override

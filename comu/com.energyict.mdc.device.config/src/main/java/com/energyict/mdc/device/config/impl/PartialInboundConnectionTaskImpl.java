@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -23,9 +24,15 @@ public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl 
         super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService);
     }
 
-    static PartialInboundConnectionTaskImpl from(DataModel dataModel) {
-        return dataModel.getInstance(PartialInboundConnectionTaskImpl.class);
+    static PartialInboundConnectionTask from(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
+        return dataModel.getInstance(PartialInboundConnectionTaskImpl.class).init(configuration);
     }
+
+    private PartialInboundConnectionTask init(DeviceCommunicationConfiguration configuration) {
+        setConfiguration(configuration);
+        return this;
+    }
+
 
 //    public void init(final PartialInboundConnectionTaskShadow shadow) throws SQLException, BusinessException {
 //        this.execute(new Transaction<Void>() {
