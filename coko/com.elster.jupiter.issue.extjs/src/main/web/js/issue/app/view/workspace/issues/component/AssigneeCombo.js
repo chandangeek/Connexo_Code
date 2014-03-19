@@ -21,6 +21,7 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
     forceSelection: true,
 
     gridConfig: {
+        resizable: false,
         features: [
             {
                 ftype: 'grouping',

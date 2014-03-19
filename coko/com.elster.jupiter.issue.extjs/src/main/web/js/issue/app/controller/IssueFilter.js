@@ -32,7 +32,7 @@ Ext.define('Isu.controller.IssueFilter', {
                 click: this.reset
             },
             'issues-side-filter filter-form': {
-                render: this.loadFormModel
+                afterrender: this.loadFormModel
             },
             'issues-side-filter filter-form combobox[name=assignee]': {
                 change: this.clearCombo
@@ -57,19 +57,32 @@ Ext.define('Isu.controller.IssueFilter', {
     },
 
     loadFormModel: function (form) {
-        var defaultFilter = new Isu.model.IssueFilter(),
-            store = this.getStore('IssueStatus'),
+        var store = this.getStore('IssueStatus'),
             me = this;
 
         store.filter('name', 'Open'); //todo: hardcoded value! remove after proper REST API is implemented.
-        store.on('load', function(){
-            store.each(function(item) {
-                defaultFilter.status().add(item);
-            });
 
-            form.loadRecord(defaultFilter);
-            me.getStore('Issues').setProxyFilter(defaultFilter);
+        if (!store.count()) {
+            store.on('load', function(){
+                me.loadDefaults();
+            });
+        } else {
+            me.loadDefaults();
+        }
+    },
+
+    loadDefaults: function() {
+        var form = this.getIssueFilter().down('filter-form'),
+            defaultFilter = new Isu.model.IssueFilter(),
+            store = this.getStore('IssueStatus'),
+            me = this;
+
+        store.each(function(item) {
+            defaultFilter.status().add(item);
         });
+
+        form.loadRecord(defaultFilter);
+        me.getStore('Issues').setProxyFilter(defaultFilter);
     },
 
     reset: function () {
