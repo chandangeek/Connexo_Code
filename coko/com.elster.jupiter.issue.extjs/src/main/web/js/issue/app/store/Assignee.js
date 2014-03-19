@@ -5,5 +5,6 @@ Ext.define('Isu.store.Assignee', {
     ],
     model: 'Isu.model.Assignee',
     pageSize: 100,
+    groupField: 'type',
     autoLoad: false
 });

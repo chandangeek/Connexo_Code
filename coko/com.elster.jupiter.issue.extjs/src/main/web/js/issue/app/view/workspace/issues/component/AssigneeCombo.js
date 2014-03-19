@@ -1,5 +1,6 @@
 Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
-    extend: 'Ext.form.field.ComboBox',
+    extend: 'Ext.ux.Rixo.form.field.GridPicker',
+
     alias: 'widget.issues-assignee-combo',
     store: 'Isu.store.Assignee',
     displayField: 'name',
@@ -15,27 +16,26 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
     formBind: true,
 
     typeAhead: false,
-    hideTrigger:true,
+    hideTrigger: true,
     anchor: '100%',
     emptyText: 'type something',
 
-    constructor: function (args) {
-        var me = this,
-            groupField =  args.groupField || me.groupField,
-            groupDisplayField = args.groupDisplayField || me.groupDisplayField,
-            displayField = args.displayField || me.displayField;
-
-        args.tpl = new Ext.XTemplate(
-            '<tpl for=".">',
-            '<tpl if="this.' + groupField + ' != values.' + groupField + '">',
-            '<tpl exec="this.' + groupField + ' = values.' + groupField + '"></tpl>',
-            '<div class="x-panel-header-default x-panel-header-text-container x-panel-header-text x-panel-header-text-default" title="{' + groupDisplayField + '}">{' + groupDisplayField + '}</div>',
-            '</tpl>',
-            '<div class="x-boundlist-item">{' + displayField + '}</div>',
-            '</tpl>'
-        );
-
-        me.callParent(arguments);
+    gridConfig: {
+        features: [
+            {
+                ftype: 'grouping',
+                groupHeaderTpl: '{name}',
+                collapsible: false
+            }
+        ],
+        columns: [
+//            {
+//                xtype: 'rownumberer'
+//            },
+            {
+                dataIndex: 'name', flex: 1
+            }
+        ]
     }
 });
 
