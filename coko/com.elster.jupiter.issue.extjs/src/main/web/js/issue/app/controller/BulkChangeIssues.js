@@ -20,13 +20,6 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         'ext.button.SortItemButton'
     ],
 
-    refs: [
-        {
-            ref: 'bulkActionsList',
-            selector: 'bulk-browse bulk-navigation'
-        }
-    ],
-
     listeners: {
         retryRequest: function (wizard, failedItems) {
             this.setFailedBulkRecordIssues(failedItems);
@@ -45,6 +38,9 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                 wizardstarted: this.onWizardStartedEvent,
                 wizardfinished: this.onWizardFinishedEvent,
                 wizardcancelled: this.onWizardCancelledEvent
+            },
+            'bulk-browse bulk-navigation button': {
+                click: this.setActivePage
             },
             'bulk-browse bulk-wizard bulk-step1 issues-list': {
                 afterrender: this.onIssuesListAfterRender,
@@ -70,7 +66,26 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         });
     },
 
-    setFailedBulkRecordIssues: function (failedIssues) {
+    setActivePage: function(btn){
+        var wizard = this.createdWizard;
+        wizard.activeItemId = btn.number;
+        wizard.getLayout().setActiveItem(wizard.activeItemId);
+        wizard.fireEvent('wizardpagechange', wizard);
+        this.setButtonsDisabling(btn.number);
+    },
+
+    setButtonsDisabling: function(index){
+        btns = Ext.ComponentQuery.query('bulk-browse bulk-navigation button');
+        Ext.each (btns, function(btn){
+            if(btn.number <= index) {
+                btn.setDisabled(false);
+            } else {
+                btn.setDisabled(true);
+            }
+        });
+    },
+
+    setFailedBulkRecordIssues: function(failedIssues) {
         var record = this.getBulkRecord(),
             previousIssues = record.get('issues'),
             leftIssues = [];
@@ -157,27 +172,27 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
     onWizardPrevEvent: function (wizard) {
         var index = wizard.getActiveItemId();
-        this.getBulkActionsList().setHyperLinkAction(index, false);
         this.setBulkActionListActiveItem(wizard);
+        this.setButtonsDisabling(index);
     },
 
     onWizardNextEvent: function (wizard) {
         var index = wizard.getActiveItemId();
-        this.getBulkActionsList().setHyperLinkAction(index - 1, true);
         this.setBulkActionListActiveItem(wizard);
-
         var functionName = 'processNextOnStep' + index;
         this.processStep(functionName, wizard);
+        this.setButtonsDisabling(index);
     },
 
     onWizardStartedEvent: function (wizard) {
+        this.createdWizard = wizard;
         this.setBulkActionListActiveItem(wizard);
     },
 
     onWizardFinishedEvent: function (wizard) {
         var self = this;
         this.setBulkActionListActiveItem(wizard);
-        this.getBulkActionsList().clearHyperLinkActions();
+        this.setButtonsDisabling(-1);
         var step5panel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step5'),
             record = this.getBulkRecord(),
             requestData = this.getRequestData(record),
@@ -325,7 +340,6 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
     setBulkActionListActiveItem: function (wizard) {
         var index = wizard.getActiveItemId();
-        this.getBulkActionsList().setActiveAction(index);
     },
 
     processStep: function (func, wizard) {
