@@ -11,7 +11,8 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         'setup.licensedprotocol.List',
         'setup.devicetype.DeviceTypesSetup',
         'setup.register.RegisterMappingsSetup',
-        'setup.registertype.RegisterTypeSetup'
+        'setup.registertype.RegisterTypeSetup',
+        'setup.registerconfig.RegisterConfigSetup'
     ],
 
     init: function () {
@@ -49,6 +50,11 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
     },
     showRegisterTypes: function () {
         var widget = Ext.widget('registerTypeSetup');
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+    },
+    showRegisterConfigs: function () {
+        console.log('show register configs');
+        var widget = Ext.widget('registerConfigSetup');
         this.getApplication().getController('Mdc.controller.Main').showContent(widget);
     }
 

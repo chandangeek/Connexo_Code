@@ -8,6 +8,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
         'Mdc.view.setup.register.RegisterMappingsGrid',
         'Mdc.view.setup.register.RegisterMappingsFilter',
         'Mdc.view.setup.register.RegisterMappingPreview',
+        'Uni.view.navigation.SubMenu',
         'Uni.view.breadcrumb.Trail'
     ],
     /* layout: {
@@ -22,6 +23,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
         {
             xtype: 'container',
             cls: 'content-container',
+            itemId: 'stepsContainer',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -63,6 +65,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
 
     side: [
         {
+            xtype: 'navigationSubMenu',
+            itemId: 'stepsMenu'
+        },
+        {
             xtype: 'registerMappingFilter',
             name: 'filter'
         }
@@ -84,7 +90,63 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
             }
         );
 
+        this.initStepsMenu();
+    },
+
+    initStepsMenu: function () {
+        var me = this;
+        var stepsMenu = this.getStepsMenuCmp();
+
+        var deviceTypeButton = stepsMenu.add({
+            text: 'Overview',
+            pressed: false,
+            itemId: 'deviceTypeOverviewLink',
+            href: '#setup/devicetypes/' + me.deviceTypeId,
+            hrefTarget: '_self'
+        });
+
+        var registerTypesButton = stepsMenu.add({
+            text: 'Register types',
+            pressed: true,
+            itemId: 'registerTypesLink',
+            href: '#setup/devicetypes/' + me.deviceTypeId + '/registertypes',
+            hrefTarget: '_self'
+        });
+
+        var loadProfilesButton = stepsMenu.add({
+            text: 'Load profiles',
+            pressed: false,
+            itemId: 'loadProfilesOverviewLink',
+            href: '#setup/devicetypes/' + me.deviceTypeId + '/loadprofiles',
+            hrefTarget: '_self'
+        });
+
+        var logBooksButton = stepsMenu.add({
+            text: 'Logbooks',
+            pressed: false,
+            itemId: 'logbooksOverviewLink',
+            href: '#setup/devicetypes/' + me.deviceTypeId + '/logbooks',
+            hrefTarget: '_self'
+        });
+
+        var configurationsButton = stepsMenu.add({
+            text: 'Device configurations',
+            pressed: false,
+            itemId: 'deviceConfigurationsOverviewLink',
+            href: '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations',
+            hrefTarget: '_self'
+        });
+
+    },
+
+    getStepsMenuCmp: function () {
+        return this.down('#stepsMenu');
+    },
+
+    getStepsContainerCmp: function () {
+        return this.down('#stepsContainer');
     }
+
 });
 
 

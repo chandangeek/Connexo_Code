@@ -1,11 +1,11 @@
-Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
+Ext.define('Mdc.view.setup.register.RegisterConfigPreview', {
     extend: 'Ext.panel.Panel',
     border: true,
     margins: '0 10 10 10',
-    alias: 'widget.registerMappingPreview',
-    itemId: 'registerMappingPreview',
+    alias: 'widget.registerConfigPreview',
+    itemId: 'registerConfigPreview',
     requires: [
-        'Mdc.model.RegisterType'
+        'Mdc.model.RegisterConfiguration'
     ],
     layout: {
         type: 'card',
@@ -13,6 +13,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
     },
 
     deviceTypeId: null,
+    deviceConfigId: null,
     initComponent: function () {
         var me = this;
         this.items = [
@@ -23,14 +24,14 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                 tbar: [
                     {
                         xtype: 'component',
-                        html: '<H4>' + Uni.I18n.translate('registerMapping.noRegisterMappingSelected', 'MDC', 'No register type selected') + '</H4>'
+                        html: '<H4>' + Uni.I18n.translate('registerConfig.noRegisterConfigSelected', 'MDC', 'No register configuration selected') + '</H4>'
                     }
                 ],
                 items: [
                     {
                         xtype: 'component',
                         height: '100px',
-                        html: '<H5>' + Uni.I18n.translate('registerMapping.selectRegisterMapping', 'MDC', 'Select a register type to see its details') + '</H5>'
+                        html: '<H5>' + Uni.I18n.translate('registerConfig.selectRegisterConfig', 'MDC', 'Select a register configuration to see its details') + '</H5>'
                     }
                 ]
 
@@ -40,7 +41,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
             {
                 xtype: 'form',
                 border: false,
-                itemId: 'registerMappingPreviewForm',
+                itemId: 'registerConfigPreviewForm',
                 padding: '10 10 0 10',
                 layout: {
                     type: 'vbox',
@@ -49,8 +50,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                 tbar: [
                     {
                         xtype: 'component',
-                        html: '<h4>' + Uni.I18n.translate('registerMapping.previewTitle', 'MDC', 'Selected register preview') + '</h4>',
-                        itemId: 'registerMappingPreviewTitle'
+                        html: '<h4>' + Uni.I18n.translate('registerConfig.previewTitle', 'MDC', 'Selected register configuration') + '</h4>',
+                        itemId: 'registerConfigPreviewTitle'
                     },
                     '->',
                     {
@@ -59,9 +60,18 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                         menu: {
                             items: [
                                 {
-                                    text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                                    itemId: 'removeRegisterMapping',
-                                    action: 'removeRegisterMapping'
+                                    text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                    itemId: 'editRegisterConfig',
+                                    action: 'editRegisterConfig'
+
+                                },
+                                {
+                                    xtype: 'menuseparator'
+                                },
+                                {
+                                    text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                                    itemId: 'deleteRegisterConfig',
+                                    action: 'deleteRegisterConfig'
 
                                 }
                             ]
@@ -87,14 +97,14 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                     {
                                         xtype: 'displayfield',
                                         name: 'name',
-                                        fieldLabel: Uni.I18n.translate('registerMapping.name', 'MDC', 'Name'),
+                                        fieldLabel: Uni.I18n.translate('registerConfig.deviceRegister', 'MDC', 'Device register'),
                                         labelAlign: 'right',
                                         labelWidth: 150
                                     },
                                     {
                                         xtype: 'fieldcontainer',
                                         columnWidth: 0.5,
-                                        fieldLabel: Uni.I18n.translate('registerMapping.readingType', 'MDC', 'Reading type'),
+                                        fieldLabel: Uni.I18n.translate('registerConfig.readingType', 'MDC', 'Reading type'),
                                         labelAlign: 'right',
                                         labelWidth: 150,
                                         layout: {
@@ -117,10 +127,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                                 tooltip: 'Reading type info',
                                                 cls: 'uni-btn-transparent',
                                                 handler: function (item, test) {
-                                                    var record = me.down('#registerMappingPreviewForm').form.getRecord();
+                                                    var record = me.down('#registerConfigPreviewForm').form.getRecord();
                                                     this.fireEvent('showReadingTypeInfo', record);
                                                 },
-                                                itemId: 'readingTypeBtn',
+                                                itemId: 'raadingTypeBtn',
                                                 action: 'showReadingTypeInfo'
                                             }
 
@@ -129,7 +139,28 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                     {
                                         xtype: 'displayfield',
                                         name: 'obisCode',
-                                        fieldLabel: Uni.I18n.translate('registerMapping.obisCode', 'MDC', 'OBIS code'),
+                                        fieldLabel: Uni.I18n.translate('registerConfig.obisCode', 'MDC', 'OBIS code'),
+                                        labelAlign: 'right',
+                                        labelWidth: 150
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        name: 'overruledObisCode',
+                                        fieldLabel: Uni.I18n.translate('registerConfig.overruledObisCode', 'MDC', 'Overruled OBIS code'),
+                                        labelAlign: 'right',
+                                        labelWidth: 150
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        name: 'unitOfMeasure',
+                                        fieldLabel: Uni.I18n.translate('registerConfig.unit', 'MDC', 'Unit of measure'),
+                                        labelAlign: 'right',
+                                        labelWidth: 150
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        name: 'timeOfUse',
+                                        fieldLabel: Uni.I18n.translate('registerConfig.timeOfUse', 'MDC', 'Time of use'),
                                         labelAlign: 'right',
                                         labelWidth: 150
                                     }
@@ -145,31 +176,37 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                 items: [
                                     {
                                         xtype: 'displayfield',
-                                        name: 'dataCollectionGroup',
-                                        fieldLabel: Uni.I18n.translate('registerMapping.dataCollectionGroup', 'MDC', 'Data collection group'),
+                                        name: 'overflowValue',
+                                        fieldLabel: Uni.I18n.translate('registerConfig.overflowValue', 'MDC', 'Overflow value'),
+                                        labelAlign: 'right',
+                                        labelWidth: 150
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        name: 'numberOfDigits',
+                                        fieldLabel: Uni.I18n.translate('registerConfig.numberOfDigits', 'MDC', 'Number of digits'),
+                                        labelAlign: 'right',
+                                        labelWidth: 150
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        name: 'numberOfFractionDigits',
+                                        fieldLabel: Uni.I18n.translate('registerConfig.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
+                                        labelAlign: 'right',
+                                        labelWidth: 150
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        name: 'multiplier',
+                                        fieldLabel: Uni.I18n.translate('registerConfig.multiplier', 'MDC', 'Multiplier'),
                                         labelAlign: 'right',
                                         labelWidth: 150
                                     }
-
                                 ]
                             }
                         ]
                     }
-                    /*,
-                     {
-                     xtype: 'toolbar',
-                     docked: 'bottom',
-                     title: 'Bottom Toolbar',
-                     items: [
-                     '->',
-                     {
-                     xtype: 'component',
-                     itemId: 'registerMappingDetailsLink',
-                     html: '' // filled in in Controller
-                     }
 
-                     ]
-                     }*/
                 ]
             }
         ]
