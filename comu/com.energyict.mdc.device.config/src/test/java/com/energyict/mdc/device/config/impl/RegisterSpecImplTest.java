@@ -406,6 +406,17 @@ public class RegisterSpecImplTest extends PersistenceTest {
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG+"}", property = RegisterSpecImpl.MULTIPLIER)
+    public void testUpdateMultiplierForActiveConfig() throws Exception {
+        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        deviceConfiguration.activate();
+        deviceConfiguration.save();
+        registerSpec.setMultiplier(BigDecimal.valueOf(101)); // changed!
+        registerSpec.save();
+    }
+
+    @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG+"}", property = RegisterSpecImpl.REGISTER_MAPPING)
     public void testUpdateRegisterMappingForActiveConfig() throws Exception {
         RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();

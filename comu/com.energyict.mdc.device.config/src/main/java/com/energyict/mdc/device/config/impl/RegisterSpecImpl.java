@@ -38,7 +38,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
     private BigDecimal overflow;
-    private BigDecimal multiplier = BigDecimal.ONE;
+    private BigDecimal multiplier = BigDecimal.ONE; static final String MULTIPLIER="multiplier";
     private MultiplierMode multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
 
     private Date modificationDate;

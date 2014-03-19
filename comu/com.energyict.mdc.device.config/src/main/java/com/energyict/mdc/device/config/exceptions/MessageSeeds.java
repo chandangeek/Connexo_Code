@@ -64,7 +64,8 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_SPEC_CANNOT_DELETE_FOR_ACTIVE_CONFIG(6009, "registerSpec.delete.active.config","It is not allowed to delete a register spec from an active device configuration", Level.SEVERE),
     REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG(6010, "registerSpec.add.active.config","You can not add a register spec to an active device configuration", Level.SEVERE),
     REGISTER_SPEC_REGISTER_MAPPING_IS_NOT_ON_DEVICE_TYPE(6011, "registerSpec.not.deviceType","The register spec contains a register mapping {0} which is not configured on the device type", Level.SEVERE),
-    REGISTER_SPEC_REGISTER_MAPPING_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6012, Constants.REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG,"The register spec contains a register mapping {0} which is not configured on the device type", Level.SEVERE),
+    REGISTER_SPEC_REGISTER_MAPPING_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6012, Constants.REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG,"The register mapping type can not be modified if the device configuration is active", Level.SEVERE),
+    REGISTER_SPEC_MULTIPLIER_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6012, Constants.REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG,"The register mapping type can not be modified if the device configuration is active", Level.SEVERE),
     DEVICE_TYPE_NAME_IS_REQUIRED(7001, "deviceType.name.required", "The name of a device type is required", Level.SEVERE),
     DEVICE_TYPE_ALREADY_EXISTS(7002, "deviceType.duplicateNameX", "A device type with name '{0}' already exists", Level.SEVERE),
     DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS(7003, Constants.DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS_KEY, "The device type {0} cannot be deleted because it still has active configurations", Level.SEVERE),
@@ -200,10 +201,11 @@ public enum MessageSeeds implements MessageSeed {
         public static final String TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY = "DTC.temporalExpression.offset.count.positive";
         public static final String DEVICE_CONFIG_GATEWAY_NOT_ALLOWED = "DTC.deviceConfig.gateway.notAllowed";
         public static final String DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED = "DTC.deviceConfig.directAddress.notAllowed";
-        public static final String REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS = "registerSpec.invalidNumberOfDigits";
-        public static final String REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED = "registerSpec.numberOfDigits.decreased";
-        public static final String REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED = "registerSpec.numberOfFractionDigits.decreased";
-        public static final String REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG = "registerSpec.registerMapping.activeDeviceConfig";
+        public static final String REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS = "DTC.registerSpec.invalidNumberOfDigits";
+        public static final String REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED = "DTC.registerSpec.numberOfDigits.decreased";
+        public static final String REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED = "DTC.registerSpec.numberOfFractionDigits.decreased";
+        public static final String REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG = "DTC.registerSpec.registerMapping.activeDeviceConfig";
+        public static final String REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG = "DTC.registerSpec.multiplier.activeDeviceConfig";
     }
 
 }
