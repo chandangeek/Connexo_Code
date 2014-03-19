@@ -209,7 +209,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
 
                 ]
             }
-        ]
+        ];
         this.callParent(arguments);
 
     }
