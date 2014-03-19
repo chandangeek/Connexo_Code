@@ -120,7 +120,7 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
     onNextButtonClick: function (next) {
         var wizard = next.up('wizard'),
             functionName = 'processValidateOnStep' + (wizard.activeItemId + 1);
-        if (this.processValidate(functionName, wizard)) {
+        if (this.processValidate(functionName, wizard) && wizard.getForm().isValid()) {
             wizard.getLayout().setActiveItem(++wizard.activeItemId);
             wizard.fireEvent('wizardpagechange', wizard);
             wizard.fireEvent('wizardnext', wizard);
