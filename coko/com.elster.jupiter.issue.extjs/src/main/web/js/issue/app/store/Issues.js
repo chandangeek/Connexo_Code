@@ -29,7 +29,6 @@ Ext.define('Isu.store.Issues', {
                 extraParams = _.omit(extraParams, this.proxySort.getFields());
                 Ext.merge(extraParams, this.getSortParams());
             }
-            console.log(extraParams);
             this.proxy.extraParams = extraParams;
         }
     }
