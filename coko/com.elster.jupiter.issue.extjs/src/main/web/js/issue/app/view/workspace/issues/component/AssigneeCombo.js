@@ -4,13 +4,14 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
     alias: 'widget.issues-assignee-combo',
     store: 'Isu.store.Assignee',
     displayField: 'name',
-    valueField: 'id',
+    valueField: 'idx',
 
     triggerAction: 'query',
     queryMode: 'remote',
     queryParam: 'like',
     queryDelay: 100,
     minChars: 1,
+    disableKeyFilter: true,
 
     formBind: true,
     typeAhead: true,

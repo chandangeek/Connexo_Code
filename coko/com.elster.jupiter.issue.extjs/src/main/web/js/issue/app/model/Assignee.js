@@ -7,6 +7,14 @@ Ext.define('Isu.model.Assignee', {
             type: 'int'
         },
         {
+            name: 'idx',
+            displayValue: 'IDX',
+            type: 'string',
+            convert: function(value, record) {
+                return [record.get('id'),record.get('type')].join(':');
+            }
+        },
+        {
             name: 'type',
             displayValue: 'Type',
             type: 'auto'
@@ -17,6 +25,8 @@ Ext.define('Isu.model.Assignee', {
             type: 'auto'
         }
     ],
+
+    idProperty: 'idx',
 
     // GET ?like="operator"
     proxy: {

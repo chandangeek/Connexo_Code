@@ -46,7 +46,7 @@ Ext.define('Isu.model.IssueFilter', {
         var assignee = this.get('assignee');
 
         if (assignee) {
-            data.assigneeId = assignee.getId();
+            data.assigneeId = assignee.get('id');
             data.assigneeType = assignee.get('type');
         }
 
