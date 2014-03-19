@@ -41,7 +41,7 @@ public final class InboundDeviceProtocolPluggableClassImpl extends PluggableClas
 
     @Override
     protected Discriminator discriminator() {
-        return Discriminator.DEVICEPROTOCOL;
+        return Discriminator.DISCOVERYPROTOCOL;
     }
 
     @Override
