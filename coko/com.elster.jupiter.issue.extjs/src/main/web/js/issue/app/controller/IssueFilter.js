@@ -57,7 +57,17 @@ Ext.define('Isu.controller.IssueFilter', {
     },
 
     loadFormModel: function (form) {
-        form.loadRecord(new Isu.model.IssueFilter());
+        var defaultFilter = new Isu.model.IssueFilter(),
+            store = this.getStore('IssueStatus');
+
+        store.filter('name', 'Open'); //todo: hardcoded value! remove after proper REST API is implemented.
+        store.on('load', function(){
+            store.each(function(item) {
+                defaultFilter.status().add(item);
+            });
+
+            form.loadRecord(defaultFilter);
+        });
     },
 
     reset: function () {
