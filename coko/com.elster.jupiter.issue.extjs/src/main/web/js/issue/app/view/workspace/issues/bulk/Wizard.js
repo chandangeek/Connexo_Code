@@ -71,6 +71,16 @@ Ext.define('Isu.view.workspace.issues.bulk.Wizard', {
             fields.each(function (field) {
                 field.disable();
             });
+        } else if (wizard.down('issues-assign-form')) {
+            var assignValues = wizard.getForm().getValues(),
+                assignRadio = wizard.down('issues-assign-form').down('radiogroup').items.items[0].getGroupValue();
+            Ext.state.Manager.set('formAssignRadio', assignRadio);
+            Ext.state.Manager.set('formAssignValues', assignValues);
+        } else if (wizard.down('issues-close-form')) {
+            var closeValues = wizard.getForm().getValues(),
+                closeRadio = wizard.down('issues-close-form').down('radiogroup').items.items[0].getGroupValue();
+            Ext.state.Manager.set('formCloseRadio', closeRadio);
+            Ext.state.Manager.set('formCloseValues', closeValues);
         }
         wizard.getLayout().setActiveItem(--wizard.activeItemId);
         wizard.fireEvent('wizardpagechange', wizard);
