@@ -22,11 +22,11 @@ Ext.define('Isu.view.workspace.issues.Browse', {
                             html: '<h1>Issues</h1>',
                             flex: 1
                         },
-                        {
-                            xtype: 'component',
-                            html: '<a href="#/workspace/datacollection/assignmentrules">View assignment rules</a>',
-                            width: 150
-                        }
+//                        {
+//                            xtype: 'component',
+//                            html: '<a href="#/workspace/datacollection/assignmentrules">View assignment rules</a>',
+//                            width: 150
+//                        }
                     ]
                 },
                 {

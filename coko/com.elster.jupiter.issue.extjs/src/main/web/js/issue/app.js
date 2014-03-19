@@ -17,6 +17,7 @@ Ext.Loader.addClassPathMappings({
     "Ext": "/apps/ext/src",
     "Ext.Msg": "/apps/ext/src/window/MessageBox.js",
     'Uni': "/apps/uni/src",
+    'Ext.ux': "resources/js/Ext/ux",
     'Ext.ux.window.Notification': "/apps/uni/packages/Ext.ux.window.Notification/Notification.js"
 });
 

@@ -38,7 +38,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     displayField: 'name',
                     valueField: 'id',
                     forceSelection: true,
-                    anyMatch: true,
+//                    anyMatch: true,
                     store: 'Isu.store.IssueReason',
 
                     fieldLabel: 'Reason',
@@ -50,7 +50,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     queryMode: 'remote',
                     queryParam: 'like',
                     queryDelay: 100,
-                    minChars: 2,
+                    minChars: 1,
 
                     hideTrigger:true,
                     anchor: '100%',
