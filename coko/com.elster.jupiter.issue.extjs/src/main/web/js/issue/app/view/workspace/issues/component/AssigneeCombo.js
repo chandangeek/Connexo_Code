@@ -17,7 +17,7 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
 
 //    hideTrigger: true,
     anchor: '100%',
-    emptyText: 'select an assignee',
+    emptyText: 'start typing a user',
 
     forceSelection: true,
 

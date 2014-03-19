@@ -10,19 +10,11 @@ Ext.define('Isu.model.AssignmentRules', {
             type: 'string'
         },
         {
-            name: 'priority',
-            type: 'int'
-        },
-        {
-            name: 'status',
+            name: 'description',
             type: 'string'
         },
         {
             name: 'assignee',
-            type: 'auto'
-        },
-        {
-            name: 'when',
             type: 'auto'
         },
         {
@@ -33,7 +25,7 @@ Ext.define('Isu.model.AssignmentRules', {
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/rules',
+        url: '/api/isu/rules/assign',
         reader: {
             type: 'json'
         }

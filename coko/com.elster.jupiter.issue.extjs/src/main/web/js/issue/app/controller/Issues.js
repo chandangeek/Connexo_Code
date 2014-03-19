@@ -57,7 +57,7 @@ Ext.define('Isu.controller.Issues', {
             },
             'issues-overview issues-list gridview': {
                 itemclick: this.loadGridItemDetail,
-                itemmouseenter: this.onUserTypeIconHover
+                refresh: this.setAssigneeTypeIconTooltip
             },
             'issues-overview issues-list actioncolumn': {
                 click: this.showItemAction
@@ -187,12 +187,12 @@ Ext.define('Isu.controller.Issues', {
         });
     },
 
-    sortUpdate: function(sortModel) {
+    sortUpdate: function (sortModel) {
         var filterElm = this.getFilter().down('[name="sortitemspanel"]');
 
         filterElm.removeAll();
 
-        sortModel.fields.each(function(field){
+        sortModel.fields.each(function (field) {
             if (sortModel.get(field.name)) {
                 var cls = sortModel.get(field.name) == Isu.model.IssueSort.ASC
                     ? 'isu-icon-up-big'
@@ -302,7 +302,7 @@ Ext.define('Isu.controller.Issues', {
 
     setAddSortMenu: function (btn) {
         if (btn.menu.items.getCount() < 1) {
-            this.store.getProxySort().fields.each(function(item) {
+            this.store.getProxySort().fields.each(function (item) {
                 if (item.displayValue) {
                     btn.menu.add({
                         text: item.displayValue,
