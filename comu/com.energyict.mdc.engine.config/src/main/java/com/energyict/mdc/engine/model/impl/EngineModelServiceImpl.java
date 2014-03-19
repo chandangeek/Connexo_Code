@@ -12,7 +12,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-import com.energyict.mdc.common.TranslatableExceptionCreator;
+import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.engine.model.ComPort;
@@ -531,7 +531,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
         if (collection.isEmpty()) {
             return null;
         } else if (collection.size()!=1) {
-            throw dataModel.getInstance(TranslatableExceptionCreator.class).create(MessageSeeds.NOT_UNIQUE);
+            throw new TranslatableApplicationException(thesaurus, MessageSeeds.NOT_UNIQUE);
         }
         return collection.iterator().next();
     }
