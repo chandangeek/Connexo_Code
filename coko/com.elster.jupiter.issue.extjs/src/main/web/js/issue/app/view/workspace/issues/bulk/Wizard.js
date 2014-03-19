@@ -66,6 +66,12 @@ Ext.define('Isu.view.workspace.issues.bulk.Wizard', {
 
     onPrevButtonClick: function (prev) {
         var wizard = prev.up('wizard');
+        if (!wizard.getForm().isValid()) {
+            var fields = wizard.down('issues-assign-form').getForm().getFields();
+            fields.each(function (field) {
+                field.disable();
+            });
+        }
         wizard.getLayout().setActiveItem(--wizard.activeItemId);
         wizard.fireEvent('wizardpagechange', wizard);
         wizard.fireEvent('wizardprev', wizard);

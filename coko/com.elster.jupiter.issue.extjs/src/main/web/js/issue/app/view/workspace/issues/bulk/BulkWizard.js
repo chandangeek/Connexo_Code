@@ -120,7 +120,7 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
     onNextButtonClick: function (next) {
         var wizard = next.up('wizard'),
             functionName = 'processValidateOnStep' + (wizard.activeItemId + 1);
-        if (this.processValidate(functionName, wizard)) {
+        if (this.processValidate(functionName, wizard) && wizard.getForm().isValid()) {
             wizard.getLayout().setActiveItem(++wizard.activeItemId);
             wizard.fireEvent('wizardpagechange', wizard);
             wizard.fireEvent('wizardnext', wizard);
@@ -148,5 +148,29 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
         } else {
             return true;
         }
+    },
+
+    processValidateOnStep3: function (wizard) {
+        var assignForm = wizard.down('bulk-step3').down('issues-assign-form'),
+            formErrorsPanel,
+            activeRadioButton,
+            comboBox;
+
+        if (!Ext.isEmpty(assignForm)) {
+            formErrorsPanel = assignForm.down('[name=form-errors]');
+            formErrorsPanel.hide();
+            formErrorsPanel.removeAll();
+            activeRadioButton = assignForm.down('radiogroup').down('[checked=true]')
+            comboBox = wizard.down('bulk-step3').down('issues-assign-form').down('combobox[name=' + activeRadioButton.inputValue + ']');
+            if (Ext.isEmpty(comboBox.getValue())) {
+                formErrorsPanel.add({
+                    html: 'You must choose \'' + activeRadioButton.boxLabel + '\' before you can proceed'
+                });
+                formErrorsPanel.show();
+                return false;
+            }
+        }
+        return true;
     }
+
 });

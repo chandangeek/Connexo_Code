@@ -3,8 +3,8 @@ Ext.define('Isu.view.workspace.issues.bulk.Browse', {
     alias: 'widget.bulk-browse',
     componentCls: 'isu-bulk-browse',
     requires: [
-        'Isu.view.workspace.issues.bulk.Navigation',
-        'Isu.view.workspace.issues.bulk.BulkWizard'
+        'Isu.view.workspace.issues.bulk.BulkWizard',
+        'Isu.view.workspace.issues.bulk.Navigation'
     ],
 
     side: [
