@@ -16,7 +16,7 @@ Ext.define('Isu.component.sort.model.Sort', {
         DESC: 'desc'
     },
 
-    default: 'DESC',
+    default: 'ASC',
     key: 'sort',
 
     /**

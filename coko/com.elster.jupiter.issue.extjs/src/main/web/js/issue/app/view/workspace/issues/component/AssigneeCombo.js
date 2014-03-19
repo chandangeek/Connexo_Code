@@ -13,10 +13,12 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
 
     formBind: true,
 
-    typeAhead: false,
-    hideTrigger: true,
+    typeAhead: true,
+//    hideTrigger: true,
     anchor: '100%',
     emptyText: 'type something',
+
+    forceSelection: true,
 
     gridConfig: {
         features: [
