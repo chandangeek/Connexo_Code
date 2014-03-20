@@ -107,6 +107,7 @@ Ext.define('Isu.controller.IssueDetail', {
         var form = this.getCommentForm(),
             button = this.getAddCommentButton();
 
+        form.down('textareafield').reset();
         form.hide();
         button.show();
     },
@@ -147,7 +148,6 @@ Ext.define('Isu.controller.IssueDetail', {
             }
         });
 
-        formPanel.down('textareafield').reset();
         self.hideCommentForm();
     }
 });

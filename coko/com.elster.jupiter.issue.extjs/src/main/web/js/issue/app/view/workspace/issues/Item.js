@@ -97,7 +97,7 @@ Ext.define('Isu.view.workspace.issues.Item', {
                         '<div class="isu-item-details-bottom"><a href="#/workspace/datacollection/issues/{id}">View details</a></div>',
                         {
                             formatCreationDate: function (date) {
-                                return Ext.Date.format(date, 'M d, Y h:m');
+                                return Ext.Date.format(date, 'M d, Y H:i');
                             }
                         },
                         {
