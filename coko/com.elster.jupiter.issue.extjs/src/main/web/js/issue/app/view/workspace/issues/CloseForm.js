@@ -8,7 +8,7 @@ Ext.define('Isu.view.workspace.issues.CloseForm', {
     alias: 'widget.issues-close-form',
 
     defaults: {
-        border: false
+//        border: false
     },
 
     items: [
@@ -35,23 +35,5 @@ Ext.define('Isu.view.workspace.issues.CloseForm', {
                 }
             ]
         }
-    ],
-
-    listeners: {
-        afterrender: function (form) {
-            var values = Ext.state.Manager.get('formCloseValues');
-            if (values) {
-                Ext.Object.each(values, function (key, value) {
-                    if (key == 'comment') {
-                        form.down('textarea').setValue(value);
-                    }
-                });
-            }
-            var selRadio = Ext.state.Manager.get('formCloseRadio');
-            if (selRadio) {
-                var radio = form.down('radiogroup').down('[inputValue=' + selRadio + ']');
-                radio.setValue(true);
-            }
-        }
-    }
+    ]
 });
