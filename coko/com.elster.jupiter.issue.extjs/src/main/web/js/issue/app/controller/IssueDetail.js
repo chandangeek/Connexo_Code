@@ -144,6 +144,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 var data = Ext.JSON.decode(response.responseText).data,
                     newComment;
 
+                !commentsPanel.getStore().getTotalCount() && commentsPanel.removeAll();
                 newComment = commentsPanel.addcomment(data);
             }
         });

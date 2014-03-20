@@ -101,7 +101,7 @@ Ext.define('Isu.controller.Issues', {
 
             // ====================================  END IssueListFilter controls  ================================
             'issues-filter [name="filter"] button-tag': {
-                click: this.removeFilter
+                arrowclick: this.removeFilter
             }
         });
 
