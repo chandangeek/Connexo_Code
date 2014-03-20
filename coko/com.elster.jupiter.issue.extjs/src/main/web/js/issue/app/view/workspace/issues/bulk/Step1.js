@@ -20,8 +20,6 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
                 {html: '<b>There are errors on this page that require your attention.</b>'}
             ]
         },
-        {xtype: 'issues-filter'},
-        {xtype: 'issue-no-group'},
         {
             xtype: 'radiogroup',
             name: 'AllOrSelectedIssues',
@@ -29,7 +27,7 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
             vertical: true,
             submitValue: false,
             defaults: {
-                padding: '30 0'
+                padding: '0 0 30 0'
             },
             items: [
                 {
