@@ -52,12 +52,9 @@ Ext.define('Isu.controller.Issues', {
 
     init: function () {
         this.control({
-            'issues-overview issues-list': {
-                afterrender: this.bulkChangeButtonDisable
-            },
             'issues-overview issues-list gridview': {
                 itemclick: this.loadGridItemDetail,
-                refresh: this.setAssigneeTypeIconTooltip
+                refresh: this.onIssuesListGridViewRefreshEvent
             },
             'issues-overview issues-list actioncolumn': {
                 click: this.showItemAction
@@ -180,11 +177,17 @@ Ext.define('Isu.controller.Issues', {
     },
 
     bulkChangeButtonDisable: function (grid) {
-        grid.store.on('load', function () {
-            if (grid.store.getCount() < 1) {
-                grid.up().down('button[name=bulk-change-issues]').setDisabled(true);
-            }
-        });
+        var bulkBtn = grid.up().down('button[name=bulk-change-issues]');
+        if (grid.store.getCount() < 1) {
+            bulkBtn.setDisabled(true);
+        } else {
+            bulkBtn.setDisabled(false);
+        }
+    },
+
+    onIssuesListGridViewRefreshEvent: function (gridView) {
+        this.setAssigneeTypeIconTooltip(gridView);
+        this.bulkChangeButtonDisable(gridView);
     },
 
     sortUpdate: function (sortModel) {
