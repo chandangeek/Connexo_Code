@@ -9,6 +9,9 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
     triggerAction: 'query',
     queryMode: 'remote',
     queryParam: 'like',
+    allQuery: '%',
+    lastQuery: '',
+
     queryDelay: 100,
     minChars: 1,
     disableKeyFilter: true,
