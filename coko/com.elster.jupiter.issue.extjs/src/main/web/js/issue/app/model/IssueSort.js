@@ -5,10 +5,6 @@ Ext.define('Isu.model.IssueSort', {
         {
             name: 'dueDate',
             displayValue: 'Due date'
-        },
-        {
-            name: 'creationDate',
-            displayValue: 'Creation date'
         }
     ]
 });
