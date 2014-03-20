@@ -54,6 +54,8 @@ Ext.define('Uni.view.navigation.SubMenu', {
     extend: 'Ext.container.Container',
     alias: 'widget.navigationSubMenu',
 
+    baseCls: Uni.About.baseCssPrefix + 'submenu',
+
     layout: {
         type: 'vbox',
         align: 'stretch'
@@ -89,7 +91,7 @@ Ext.define('Uni.view.navigation.SubMenu', {
         this.items.items[index].toggle(true);
     },
 
-    checkNavigation: function(token) {
+    checkNavigation: function (token) {
         for (var i = 0; i < this.items.items.length; i++) {
             var item = this.items.items[i];
             if ((item.getHref() != null) && (Ext.String.endsWith(item.getHref(), token))) {

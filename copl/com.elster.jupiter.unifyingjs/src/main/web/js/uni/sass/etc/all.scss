@@ -322,6 +322,49 @@ $menu-width-collapsed: 55px;
     }
 }
 
+// Sub menu
+
+.uni-submenu {
+    background-color: #cbcbcb;
+
+    padding: 10px {
+        bottom: 16px;
+    }
+
+    margin: {
+        top: 8px;
+        right: 6px;
+        left: 8px;
+    }
+
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    -khtml-border-radius: 8px;
+    border-radius: 8px;
+
+    .x-btn {
+        @include transparent-button;
+
+        .x-btn-button {
+            .x-btn-inner {
+                font-weight: normal;
+                text-align: left;
+                color: #686868;
+            }
+        }
+
+        height: 28px;
+    }
+
+    .x-pressed {
+        .x-btn-button {
+            .x-btn-inner {
+                color: #70bb51;
+            }
+        }
+    }
+}
+
 // Breadcrumbs
 
 .breadcrumbs {

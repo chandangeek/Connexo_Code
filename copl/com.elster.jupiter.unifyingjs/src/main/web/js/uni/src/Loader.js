@@ -12,6 +12,7 @@ Ext.define('Uni.Loader', {
 
         'Ext.tip.QuickTipManager',
         'Ext.layout.container.Absolute',
+        'Ext.data.proxy.Rest',
         'Uni.I18n',
         'Ext.state.CookieProvider',
 
