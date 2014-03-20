@@ -8,7 +8,7 @@ import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.pluggable.PluggableClass;
 import java.util.List;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -33,14 +33,14 @@ public class ComPortPoolPluggableClassDeletionEventHandler extends EventHandler<
     @Override
     protected void onEvent(LocalEvent event, Object... objects) {
         if (event.getType().getTopic().equals(TOPIC)) {
-            this.handleDeleteProtocolPluggableClass((InboundDeviceProtocolPluggableClass) event.getSource());
+            this.handleDeleteProtocolPluggableClass((PluggableClass) event.getSource());
         }
     }
 
-    private void handleDeleteProtocolPluggableClass(InboundDeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        List<InboundComPortPool> inboundComPortPools = engineModelService.findComPortPoolByDiscoveryProtocol(deviceProtocolPluggableClass);
+    private void handleDeleteProtocolPluggableClass(PluggableClass pluggableClass) {
+        List<InboundComPortPool> inboundComPortPools = engineModelService.findComPortPoolByDiscoveryProtocol(pluggableClass);
         if (!inboundComPortPools.isEmpty()) {
-            throw new VetoDiscoveryProtocolPluggableClassDeletionBecauseStillUsedByComPortPoolException(this.thesaurus, deviceProtocolPluggableClass, inboundComPortPools);
+            throw new VetoDiscoveryProtocolPluggableClassDeletionBecauseStillUsedByComPortPoolException(this.thesaurus, pluggableClass, inboundComPortPools);
         }
     }
 
