@@ -230,4 +230,9 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
     public void setAllowSimultaneousConnections(boolean allowSimultaneousConnections) {
         this.allowSimultaneousConnections = allowSimultaneousConnections;
     }
+
+    @Override
+    public void setInitiationTask(PartialConnectionInitiationTask partialConnectionInitiationTask) {
+        this.initiator.set(partialConnectionInitiationTask);
+    }
 }

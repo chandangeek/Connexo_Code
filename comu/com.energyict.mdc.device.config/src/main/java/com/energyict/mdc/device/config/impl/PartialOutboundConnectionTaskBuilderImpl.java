@@ -15,6 +15,7 @@ public class PartialOutboundConnectionTaskBuilderImpl extends AbstractScheduledP
     private ComWindow comWindow;
     private ConnectionStrategy connectionStrategy;
     private boolean allowSimultaneousConnections;
+    private PartialConnectionInitiationTask partialConnectionInitiationTask;
 
 
     PartialOutboundConnectionTaskBuilderImpl(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
@@ -40,6 +41,12 @@ public class PartialOutboundConnectionTaskBuilderImpl extends AbstractScheduledP
     }
 
     @Override
+    public PartialOutboundConnectionTaskBuilder initiatonTask(PartialConnectionInitiationTask connectionInitiationTask) {
+        this.partialConnectionInitiationTask = connectionInitiationTask;
+        return myself;
+    }
+
+    @Override
     PartialOutboundConnectionTask newInstance() {
         return PartialOutboundConnectionTaskImpl.from(dataModel, configuration);
     }
@@ -50,5 +57,6 @@ public class PartialOutboundConnectionTaskBuilderImpl extends AbstractScheduledP
         instance.setComWindow(comWindow);
         instance.setConnectionStrategy(connectionStrategy);
         instance.setAllowSimultaneousConnections(allowSimultaneousConnections);
+        instance.setInitiationTask(partialConnectionInitiationTask);
     }
 }

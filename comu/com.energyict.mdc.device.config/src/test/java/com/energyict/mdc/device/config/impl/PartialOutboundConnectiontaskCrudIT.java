@@ -211,8 +211,6 @@ public class PartialOutboundConnectiontaskCrudIT {
             outboundComPortPool1.save();
             context.commit();
         }
-
-
     }
 
     @After
@@ -365,6 +363,71 @@ public class PartialOutboundConnectiontaskCrudIT {
 
     }
 
+    @Test
+    public void testCreateReferencingInitiation() {
+
+        PartialConnectionInitiationTask connectionInitiationTask;
+        DeviceCommunicationConfiguration communicationConfiguration;
+        DeviceType deviceType;
+        DeviceConfiguration deviceConfiguration;
+        try (TransactionContext context = transactionService.getContext()) {
+            deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            deviceType.save();
+
+            deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration.save();
+
+            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
+            communicationConfiguration.save();
+
+            connectionInitiationTask = communicationConfiguration.createPartialConnectionInitiationTask()
+                    .name("MyInitiation")
+                    .comPortPool(outboundComPortPool)
+                    .pluggableClass(connectionTypePluggableClass)
+                    .asDefault(true).build();
+            communicationConfiguration.save();
+
+            context.commit();
+        }
+
+        PartialOutboundConnectionTask outboundConnectionTask;
+        try (TransactionContext context = transactionService.getContext()) {
+            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
+            communicationConfiguration.save();
+
+            outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+                    .name("MyOutbound")
+                    .comPortPool(outboundComPortPool)
+                    .pluggableClass(connectionTypePluggableClass)
+                    .comWindow(COM_WINDOW)
+                    .nextExecutionSpec().temporalExpression(TimeDuration.minutes(15)).set()
+                    .initiatonTask(connectionInitiationTask)
+                    .asDefault(true).build();
+            communicationConfiguration.save();
+
+            context.commit();
+        }
+
+        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
+        assertThat(found).isPresent();
+
+        PartialConnectionTask partialConnectionTask = found.get();
+
+        assertThat(partialConnectionTask).isInstanceOf(PartialOutboundConnectionTask.class);
+
+        PartialOutboundConnectionTask partialOutboundConnectionTask = (PartialOutboundConnectionTask) partialConnectionTask;
+
+        assertThat(partialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
+        assertThat(partialOutboundConnectionTask.isDefault()).isTrue();
+        assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(communicationConfiguration.getId());
+        assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
+        assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(COM_WINDOW);
+        assertThat(partialOutboundConnectionTask.getNextExecutionSpecs()).isNotNull();
+        assertThat(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(new TemporalExpression(TimeDuration.minutes(15)));
+        assertThat(partialOutboundConnectionTask.getInitiatorTask().getId()).isEqualTo(connectionInitiationTask.getId());
+        assertThat(partialOutboundConnectionTask.getName()).isEqualTo("MyOutbound");
+
+    }
 
     public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
     }
