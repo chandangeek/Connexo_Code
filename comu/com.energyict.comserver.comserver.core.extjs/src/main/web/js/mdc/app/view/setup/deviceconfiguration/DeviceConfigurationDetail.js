@@ -5,8 +5,11 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
     autoScroll: true,
     requires: [
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid',
-        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview'
+        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview',
+        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu'
     ],
+    deviceTypeId: null,
+    deviceConfigurationId: null,
 
     content: [
         {
@@ -229,6 +232,13 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
 
 
     initComponent: function () {
+        this.side = [{
+            xtype: 'deviceConfigurationMenu',
+            itemId: 'stepsMenu',
+            deviceTypeId: this.deviceTypeId,
+            deviceConfigurationId: this.deviceConfigurationId,
+            toggle: 0
+        }];
         this.callParent(arguments);
     }
 })

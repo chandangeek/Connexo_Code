@@ -11,7 +11,6 @@ Ext.require('Mdc.Application');
 
 
 Ext.onReady(function () {
-
 //    var loader = Ext.create('Uni.Loader');
 //    loader.initI18n(['MDC']);
 //    loader.onReady(function () {

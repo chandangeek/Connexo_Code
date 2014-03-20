@@ -117,7 +117,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
     showDeviceConfigurationDetailsView: function (devicetype,deviceconfiguration) {
         var me = this;
-        var widget = Ext.widget('deviceConfigurationDetail');
+        var widget = Ext.widget('deviceConfigurationDetail',{deviceTypeId: devicetype,deviceConfigurationId: deviceconfiguration});
         var deviceConfigModel = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
         this.deviceTypeId=devicetype
         deviceConfigModel.getProxy().setExtraParam('deviceType', devicetype);

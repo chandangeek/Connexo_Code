@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
     deviceTypeId: null,
     itemId: 'deviceConfigurationsSetup',
     requires: [
-        'Uni.view.breadcrumb.Trail'
+        'Uni.view.breadcrumb.Trail',
+        'Mdc.view.setup.devicetype.DeviceTypeMenu'
     ],
 //    border: 0,
 //    region: 'center',
@@ -26,7 +27,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
                 },
                 {
                     xtype: 'component',
-                    html: '<h1>'+ Uni.I18n.translate('deviceconfig.deviceConfigurations', 'MDC', 'Device configurations')+'</h1>',
+                    html: '<h1>' + Uni.I18n.translate('deviceconfig.deviceConfigurations', 'MDC', 'Device configurations') + '</h1>',
                     margins: '10 10 10 10'
                 },
                 {
@@ -35,7 +36,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
                 },
                 {
                     xtype: 'component',
-                    height : 25
+                    height: 25
                 },
                 {
                     xtype: 'deviceConfigurationPreview'
@@ -45,6 +46,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
 
 
     initComponent: function () {
+        this.side = [
+            {
+                xtype: 'deviceTypeMenu',
+                itemId: 'stepsMenu',
+                deviceTypeId: this.deviceTypeId,
+                toggle: 4
+            }
+        ];
         this.callParent(arguments);
         this.down('#DeviceConfigurationsGridContainer').add(
             {
@@ -53,6 +62,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
             }
         );
     }
-});
+})
+;
 
 

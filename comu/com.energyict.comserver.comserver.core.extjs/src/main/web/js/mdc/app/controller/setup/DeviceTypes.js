@@ -106,7 +106,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
     showDeviceTypeDetailsView: function (deviceType) {
         var me = this;
-        var widget = Ext.widget('deviceTypeDetail');
+        var widget = Ext.widget('deviceTypeDetail',{deviceTypeId: deviceType});
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceType, {
             success: function (deviceType) {
                 var deviceTypeId = deviceType.get('id');
