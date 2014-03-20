@@ -16,7 +16,6 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
     formBind: true,
     typeAhead: true,
 
-//    hideTrigger: true,
     anchor: '100%',
     emptyText: 'start typing a user',
 
@@ -25,6 +24,8 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
     gridConfig: {
         emptyText: 'No assignee found',
         resizable: false,
+        stripeRows: true,
+
         features: [
             {
                 ftype: 'grouping',
@@ -33,9 +34,6 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
             }
         ],
         columns: [
-//            {
-//                xtype: 'rownumberer'
-//            },
             {
                 dataIndex: 'name', flex: 1
             }
