@@ -29,7 +29,7 @@ public class UniqueComServerNameValidator implements ConstraintValidator<UniqueN
         ComServer comServerWithTheSameName = engineModelService.findComServer(comServer.getName());
         if (comServerWithTheSameName != null && comServer.getId() != comServerWithTheSameName.getId() && !comServerWithTheSameName.isObsolete()) {
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(message).addPropertyNode(ComServerImpl.FieldNames.NAME.getName()).addConstraintViolation();
                 return false;
             }
         return true;

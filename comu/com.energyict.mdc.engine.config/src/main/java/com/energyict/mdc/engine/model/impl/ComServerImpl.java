@@ -57,6 +57,19 @@ public abstract class ComServerImpl implements ComServer {
     private final Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider;
     protected final Thesaurus thesaurus;
 
+    enum FieldNames {
+        NAME("name");
+        private final String name;
+
+        FieldNames(String name) {
+            this.name = name;
+        }
+
+        String getName() {
+            return name;
+        }
+    }
+
     private long id;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
     @Pattern(regexp="[a-zA-Z0-9\\.\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_INVALID_CHARS+"}")

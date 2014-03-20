@@ -21,11 +21,11 @@ public enum TableSpecs {
             table.map(ComPortPoolImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
-            table.column("NAME").type("varchar2(80)").map(ComPortPoolImpl.FIELD_NAME).add();
-            table.column("ACTIVE").type("varchar2(1)").notNull().map(ComPortPoolImpl.FIELD_ACTIVE).conversion(ColumnConversion.NUMBER2BOOLEAN).add();
-            table.column("DESCRIPTION").type("varchar2(80)").map(ComPortPoolImpl.FIELD_DESCRIPTION).add();
-            table.column("OBSOLETE_DATE").type("DATE").map(ComPortPoolImpl.FIELD_OBSOLETEDATE).add();
-            table.column("COMPORTTYPE").number().notNull().map(ComPortPoolImpl.FIELD_COMPORTTYPE).conversion(ColumnConversion.NUMBER2ENUM).add();
+            table.column("NAME").type("varchar2(80)").map(ComPortPoolImpl.FieldNames.NAME.getName()).add();
+            table.column("ACTIVE").type("varchar2(1)").notNull().map(ComPortPoolImpl.FieldNames.ACTIVE.getName()).conversion(ColumnConversion.NUMBER2BOOLEAN).add();
+            table.column("DESCRIPTION").type("varchar2(80)").map(ComPortPoolImpl.FieldNames.DESCRIPTION.getName()).add();
+            table.column("OBSOLETE_DATE").type("DATE").map(ComPortPoolImpl.FieldNames.OBSOLETEDATE.getName()).add();
+            table.column("COMPORTTYPE").number().notNull().map(ComPortPoolImpl.FieldNames.COMPORTTYPE.getName()).conversion(ColumnConversion.NUMBER2ENUM).add();
             table.column("TASKEXECUTIONTIMEOUTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT+".count").add();
             table.column("TASKEXECUTIONTIMEOUTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT+".timeUnitCode").add();
             table.column("DISCOVERYPROTOCOL").number().conversion(ColumnConversion.NUMBER2INT).map(InboundComPortPoolImpl.FIELD_DISCOVEYPROTOCOL).add();
@@ -38,7 +38,7 @@ public enum TableSpecs {
             Table<ComServer> table = dataModel.addTable(name(), ComServer.class);
             table.map(ComServerImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").type("varchar2(80)").notNull().map("name").add();
+            table.column("NAME").type("varchar2(80)").notNull().map(ComServerImpl.FieldNames.NAME.getName()).add();
             table.primaryKey("CEM_PK_COMSERVER").on(idColumn).add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
@@ -74,7 +74,7 @@ public enum TableSpecs {
             // ComPortImpl
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
-            table.column("NAME").type("varchar2(80)").map("name").add();
+            table.column("NAME").type("varchar2(80)").map(ComPortImpl.FieldNames.NAME.getName()).add();
             table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
             Column comServerColumn = table.column("COMSERVERID").number().conversion(ColumnConversion.NUMBER2LONG).add(); // DO NOT MAP
             table.column("ACTIVE").type("varchar2(1)").notNull().map("active").conversion(ColumnConversion.NUMBER2BOOLEAN).add();

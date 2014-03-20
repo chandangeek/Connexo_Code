@@ -18,7 +18,7 @@ public class UniqueComPortNameValidator implements ConstraintValidator<UniqueNam
         for (ComPort comPort : comPortUnderEvaluation.getComServer().getComPorts()) {
             if (comPort.getId()!=comPortUnderEvaluation.getId() && comPort.getName().equals(comPortUnderEvaluation.getName()) && !comPort.isObsolete()) {
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(message).addPropertyNode(ComPortImpl.FieldNames.NAME.getName()).addConstraintViolation();
                 return false;
             }
         }

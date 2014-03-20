@@ -46,6 +46,19 @@ public abstract class ComPortImpl implements ComPort {
     private final DataModel dataModel;
     protected final Thesaurus thesaurus;
 
+    enum FieldNames {
+        NAME("name");
+        private final String name;
+
+        FieldNames(String name) {
+            this.name = name;
+        }
+
+        String getName() {
+            return name;
+        }
+    }
+
     private long id=0;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
     private String name;
