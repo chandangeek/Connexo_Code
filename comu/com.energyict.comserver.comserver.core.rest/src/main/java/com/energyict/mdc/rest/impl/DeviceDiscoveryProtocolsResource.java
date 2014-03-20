@@ -2,7 +2,6 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -56,7 +55,7 @@ public class DeviceDiscoveryProtocolsResource {
             this.protocolPluggableService.deleteInboundDeviceProtocolPluggableClass(id);
         }
         catch (Exception e) {
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
         return Response.ok().build();
     }
