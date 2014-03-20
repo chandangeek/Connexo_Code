@@ -1,4 +1,4 @@
-Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
+Ext.define('Isu.view.administration.datacollection.issueautomaticcreationrules.List', {
     extend: 'Ext.panel.Panel',
     requires: [
         'Ext.layout.container.Column',
@@ -7,7 +7,7 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
     ],
-    alias: 'widget.issues-assignment-rules-list',
+    alias: 'widget.issues-autocreation-rules-list',
     border: false,
     items: [
         {
@@ -19,7 +19,7 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
         },
         {
             xtype: 'grid',
-            store: 'Isu.store.AssignmentRules',
+            store: 'Isu.store.AutoCreationRules',
             height: 285,
             columns: {
                 defaults: {
@@ -28,19 +28,43 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
                 },
                 items: [
                     {
-                        header: 'Description',
-                        dataIndex: 'description',
-                        tdCls: 'isu-grid-description',
+                        header: 'Priority',
+                        dataIndex: 'priority',
                         flex: 1
                     },
                     {
-                        header: 'Assign to',
+                        header: 'Active',
+                        dataIndex: 'active',
+                        flex: 1
+                    },
+                    {
+                        header: 'Issue type',
+                        dataIndex: 'type',
+                        flex: 2
+                    },
+                    {
+                        header: 'Issue reason',
+                        dataIndex: 'reason',
+                        flex: 2
+                    },
+                    {
+                        header: 'Issue title',
+                        dataIndex: 'title',
+                        flex: 3
+                    },
+                    {
+                        header: 'Rule',
+                        dataIndex: 'rule',
+                        flex: 2
+                    },
+                    {
+                        header: 'Assignee',
                         xtype: 'templatecolumn',
                         tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type} isu-assignee-type-icon"></span></tpl> {assignee.name}',
-                        flex: 1
+                        flex: 2
                     },
                     {
-                        header: 'Actions',
+                        header: 'Action',
                         xtype: 'actioncolumn',
                         iconCls: 'isu-action-icon',
                         align: 'left',
@@ -58,7 +82,7 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
             items: [
                 {
                     xtype: 'pagingtoolbartop',
-                    store: 'Isu.store.AssignmentRules',
+                    store: 'Isu.store.AutoCreationRules',
                     border: false
                 }
             ]
@@ -68,6 +92,7 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
     initComponent: function () {
         var self = this,
             store;
+
 
         self.callParent(arguments);
 
@@ -81,25 +106,6 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
         });
 
         store.load();
-    },
 
-    onStoreLoad: function (store) {
-        if (store.getTotalCount()) {
-            this.hideEmptyText();
-        } else {
-            this.showEmptyText();
-        }
-    },
-
-    showEmptyText: function () {
-        this.down('button[name=bulk-change-issues-assignment-rules]').setDisabled(true);
-        this.down('grid').hide();
-        this.down('panel[name=empty-text]').show();
-    },
-
-    hideEmptyText: function () {
-        this.down('grid').show();
-        this.down('panel[name=empty-text]').hide();
     }
 });
-

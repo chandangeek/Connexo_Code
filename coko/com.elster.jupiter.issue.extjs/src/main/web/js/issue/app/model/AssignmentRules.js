@@ -27,7 +27,8 @@ Ext.define('Isu.model.AssignmentRules', {
         type: 'rest',
         url: '/api/isu/rules/assign',
         reader: {
-            type: 'json'
+            type: 'json',
+            root: 'data'
         }
     }
 });

@@ -38,6 +38,7 @@ Ext.define('Isu.util.Config', {
             },
 
             failure: function(response, opts) {
+                callback();
             }
         });
     }

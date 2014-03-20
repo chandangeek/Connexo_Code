@@ -49,6 +49,12 @@ Ext.define('Isu.view.administration.Overview', {
             href: '#/administration/datacollection/issueassignmentrules',
             hrefTarget: '_self'
         });
+
+        menu.add({
+            text: 'Issue automatic creation rules',
+            href: '#/administration/datacollection/issueautomaticcreationrules',
+            hrefTarget: '_self'
+        });
     },
 
     getSideMenuCmp: function () {

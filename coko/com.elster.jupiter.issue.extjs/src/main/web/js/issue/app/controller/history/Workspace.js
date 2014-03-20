@@ -27,6 +27,9 @@ Ext.define('Isu.controller.history.Workspace', {
         crossroads.addRoute('workspace/datacollection/assignmentrules',function(id){
             Isu.getApplication().getIssueAssignmentRulesController().showOverview();
         });
+        crossroads.addRoute('workspace/datacollection/autocreationrules',function(id){
+            Isu.getApplication().getIssueAutoCreationRulesController.showOverview();
+        });
 
         this.callParent(arguments);
     },
