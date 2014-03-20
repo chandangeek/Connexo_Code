@@ -55,7 +55,6 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
         {
             xtype: 'toolbar',
             dock: 'top',
-            padding: 0,
             items: [
                 {
                     xtype: 'pagingtoolbartop',

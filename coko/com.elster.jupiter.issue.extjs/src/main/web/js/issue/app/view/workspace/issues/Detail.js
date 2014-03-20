@@ -40,7 +40,7 @@ Ext.define('Isu.view.workspace.issues.Detail', {
         '</table>',
         {
             formatCreationDate: function (date) {
-                return Ext.Date.format(date, 'M d, Y h:m');
+                return Ext.Date.format(date, 'M d, Y H:i');
             }
         },
         {
