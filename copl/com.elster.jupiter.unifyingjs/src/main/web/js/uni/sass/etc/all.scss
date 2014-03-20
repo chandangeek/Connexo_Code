@@ -363,6 +363,14 @@ $menu-width-collapsed: 55px;
             }
         }
     }
+
+    .x-over {
+        .x-btn-button {
+            .x-btn-inner {
+                color: #74af74;
+            }
+        }
+    }
 }
 
 // Breadcrumbs
