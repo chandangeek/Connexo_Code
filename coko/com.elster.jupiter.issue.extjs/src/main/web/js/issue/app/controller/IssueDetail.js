@@ -135,20 +135,19 @@ Ext.define('Isu.controller.IssueDetail', {
             formPanel = self.getCommentForm(),
             form = formPanel.getForm();
 
-        self.hideCommentForm();
-
         Ext.Ajax.request({
             url: self.commentsAPI,
             method: 'POST',
             jsonData: form.getValues(),
-            autoAbort: true,
             success: function (response) {
                 var data = Ext.JSON.decode(response.responseText).data,
                     newComment;
 
                 newComment = commentsPanel.addcomment(data);
-                commentsPanel.move(newComment, 0);
             }
         });
+
+        formPanel.down('textareafield').reset();
+        self.hideCommentForm();
     }
 });

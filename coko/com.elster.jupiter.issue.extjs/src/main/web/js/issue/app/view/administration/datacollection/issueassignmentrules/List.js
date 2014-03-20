@@ -55,6 +55,7 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
         {
             xtype: 'toolbar',
             dock: 'top',
+            padding: 0,
             items: [
                 {
                     xtype: 'pagingtoolbartop',
@@ -98,7 +99,6 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
     },
 
     hideEmptyText: function () {
-        this.down('button[name=bulk-change-issues-assignment-rules]').setDisabled(false);
         this.down('grid').show();
         this.down('panel[name=empty-text]').hide();
     }

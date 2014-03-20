@@ -9,5 +9,11 @@ Ext.define('Isu.store.IssueComments', {
             type: 'json',
             root: 'data'
         }
-    }
+    },
+
+    sorters: [{
+        sorterFn: function(o1, o2){
+            return o1.get('creationDate') > o2.get('creationDate')
+        }
+    }]
 });
