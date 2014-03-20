@@ -41,7 +41,7 @@ Ext.define('Isu.view.workspace.issues.CloseForm', {
     ],
 
     listeners: {
-       afterrender: function (form) {
+        afterrender: function (form) {
             var values = Ext.state.Manager.get('formCloseValues');
             if (values) {
                 Ext.Object.each(values, function (key, value) {

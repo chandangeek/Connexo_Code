@@ -52,7 +52,8 @@ Ext.define('Isu.view.workspace.issues.CommentsList', {
                 '<p>{comment}</p>',
                 {
                     formatCreationDate: function (date) {
-                        return Ext.Date.format(date, 'Y-m-d (h:m)');
+                        date = Ext.isDate(date) ? date : new Date(date);
+                        return Ext.Date.format(date, 'M d, Y (h:m)');
                     }
                 }
             )
