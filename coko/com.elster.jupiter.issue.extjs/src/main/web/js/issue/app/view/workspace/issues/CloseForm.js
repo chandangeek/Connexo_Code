@@ -23,10 +23,7 @@ Ext.define('Isu.view.workspace.issues.CloseForm', {
                     columns: 1,
                     vertical: true,
                     submitValue: false,
-                    items: [
-                        { boxLabel: 'Resolved', name: 'status', inputValue: 'Resolved', checked: true },
-                        { boxLabel: 'Won\'t fix', name: 'status', inputValue: 'Won\'t fix' }
-                    ]
+                    items: []
                 },
                 {
                     xtype: 'textarea',

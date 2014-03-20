@@ -11,6 +11,9 @@ Ext.define('Isu.controller.CloseIssues', {
 
     init: function () {
         this.control({
+            'issues-close issues-close-form': {
+                beforerender: this.issueClosingFormBeforeRenderEvent
+            },
             'issues-close button[name=close]': {
                 click: this.submitIssueClosing
             },
@@ -43,8 +46,28 @@ Ext.define('Isu.controller.CloseIssues', {
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
-    submitIssueClosing: function () {
+    issueClosingFormBeforeRenderEvent: function (form) {
+        var statusesContainer = form.down('[name=status]');
+        Ext.Ajax.request({
+            url: '/api/isu/statuses',
+            method: 'GET',
+            success: function (response) {
+                var statuses = Ext.decode(response.responseText).data;
+                Ext.each(statuses, function (status) {
+                    if (!Ext.isEmpty(status.allowForClosing) && status.allowForClosing) {
+                        statusesContainer.add({
+                            boxLabel: status.name,
+                            inputValue: status.name,
+                            name: 'status'
+                        })
+                    }
+                });
+                statusesContainer.items.items[0].setValue(true);
+            }
+        });
+    },
 
+    submitIssueClosing: function () {
         var self = this,
             closeView = Ext.ComponentQuery.query('issues-close')[0],
             formPanel = closeView.down('issues-close-form'),
@@ -121,11 +144,11 @@ Ext.define('Isu.controller.CloseIssues', {
                                 }
                             ],
                             listeners: {
-                               close: {
-                                   fn: function() {
-                                       formPanel.enable();
-                                   }
-                               }
+                                close: {
+                                    fn: function () {
+                                        formPanel.enable();
+                                    }
+                                }
                             }
                         });
                         formPanel.disable();

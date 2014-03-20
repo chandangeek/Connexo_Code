@@ -15,7 +15,6 @@ Ext.define('Isu.view.workspace.issues.Close', {
 
     addForm: function () {
         var self = this;
-
         self.getCenterContainer().add({
             flex: 1,
             minHeight: 305,
