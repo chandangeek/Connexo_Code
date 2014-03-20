@@ -5,18 +5,18 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
 public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool> {
 
     public OutboundComPortPoolInfo() {
+        outboundComPorts = new ArrayList<>();
     }
 
     public OutboundComPortPoolInfo(OutboundComPortPool comPortPool) {

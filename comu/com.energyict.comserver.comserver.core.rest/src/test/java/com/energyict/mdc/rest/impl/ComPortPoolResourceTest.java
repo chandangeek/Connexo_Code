@@ -11,6 +11,13 @@ import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortPoolInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortPoolInfo;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
 import org.assertj.core.data.MapEntry;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -23,14 +30,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -216,6 +215,24 @@ public class ComPortPoolResourceTest extends JerseyTest {
         ArgumentCaptor<OutboundComPort> comPortArgumentCaptor = ArgumentCaptor.forClass(OutboundComPort.class);
         verify(mockOutboundComPortPool).addOutboundComPort(comPortArgumentCaptor.capture());
         assertThat(comPortArgumentCaptor.getValue().getName()).isEqualTo("Port 2");
+    }
+
+    @Test
+    public void testCreateComPortPoolWithoutComPorts() throws Exception {
+
+        OutboundComPortPoolInfo outboundComPortPoolInfo = new OutboundComPortPoolInfo();
+        outboundComPortPoolInfo.active=true;
+        outboundComPortPoolInfo.name="Updated";
+        outboundComPortPoolInfo.description="description";
+        outboundComPortPoolInfo.taskExecutionTimeout=new TimeDurationInfo(new TimeDuration(5, TimeDuration.MINUTES));
+
+        OutboundComPortPool outboundComPortPool = mock(OutboundComPortPool.class);
+        when(engineModelService.newOutboundComPortPool()).thenReturn(outboundComPortPool);
+
+        Entity<OutboundComPortPoolInfo> json = Entity.json(outboundComPortPoolInfo);
+
+        final Response response = target("/comportpools/").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
