@@ -10,6 +10,9 @@ Ext.define('Isu.controller.history.Administration', {
                     case 'issueassignmentrules':
                         this.showAssigmentRules();
                         break;
+                    case 'issueautomaticcreationrules':
+                        this.showAutoCreationRules();
+                        break;
                 }
             } else if (tokens.length == 2 && tokens[1] == 'datacollection') {
                 this.showDataCollection();
@@ -29,5 +32,9 @@ Ext.define('Isu.controller.history.Administration', {
 
     showAssigmentRules: function () {
         Isu.getApplication().getIssueAssignmentRulesController().showOverview();
+    },
+
+    showAutoCreationRules: function () {
+        Isu.getApplication().getIssueAutoCreationRulesController().showOverview();
     }
 });

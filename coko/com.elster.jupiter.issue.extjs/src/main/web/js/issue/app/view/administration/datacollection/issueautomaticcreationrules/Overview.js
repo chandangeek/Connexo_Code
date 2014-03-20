@@ -1,23 +1,29 @@
-Ext.define('Isu.view.administration.datacollection.Overview', {
+Ext.define('Isu.view.administration.datacollection.issueautomaticcreationrules.Overview', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.administration-datacollection-overview',
-
     requires: [
-        'Uni.view.navigation.SubMenu'
+        'Uni.view.navigation.SubMenu',
+        'Isu.view.administration.datacollection.issueautomaticcreationrules.List'
     ],
-
+    alias: 'widget.issue-autocreation-rules-overview',
     side: [
         {
             xtype: 'navigationSubMenu',
             itemId: 'sideMenu'
         }
     ],
-
     content: [
         {
-            xtype: 'panel',
-            html: '<h1>Data collection</h1>',
-            flex: 1
+            cls: 'content-wrapper',
+            items: [
+                {
+                    html: '<h1>Issue automatic creation rules</h1>',
+                    margin: '0 0 20 0'
+                },
+                {
+                    xtype: 'issues-autocreation-rules-list',
+                    margin: '0 0 20 0'
+                }
+            ]
         }
     ],
 
@@ -32,20 +38,8 @@ Ext.define('Isu.view.administration.datacollection.Overview', {
             menu = this.getSideMenuCmp();
 
         menu.add({
-            text: 'Data collection',
-            pressed: true,
-            href: '#/administration/datacollection',
-            hrefTarget: '_self'
-        });
-
-        menu.add({
-            text: 'Issue assignment rules',
-            href: '#/administration/datacollection/issueassignmentrules',
-            hrefTarget: '_self'
-        });
-
-        menu.add({
             text: 'Issue automatic creation rules',
+            pressed: true,
             href: '#/administration/datacollection/issueautomaticcreationrules',
             hrefTarget: '_self'
         });
