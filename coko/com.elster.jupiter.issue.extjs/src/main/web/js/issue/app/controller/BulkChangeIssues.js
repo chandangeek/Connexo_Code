@@ -78,7 +78,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
-    setActivePage: function(btn){
+    setActivePage: function (btn) {
         var wizard = this.createdWizard;
         wizard.activeItemId = btn.number;
         wizard.getLayout().setActiveItem(wizard.activeItemId);
@@ -86,10 +86,10 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         this.setButtonsDisabling(btn.number);
     },
 
-    setButtonsDisabling: function(index){
+    setButtonsDisabling: function (index) {
         btns = Ext.ComponentQuery.query('bulk-browse bulk-navigation button');
-        Ext.each (btns, function(btn){
-            if(btn.number <= index) {
+        Ext.each(btns, function (btn) {
+            if (btn.number <= index) {
                 btn.setDisabled(false);
             } else {
                 btn.setDisabled(true);
@@ -97,7 +97,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         });
     },
 
-    setFailedBulkRecordIssues: function(failedIssues) {
+    setFailedBulkRecordIssues: function (failedIssues) {
         var record = this.getBulkRecord(),
             previousIssues = record.get('issues'),
             leftIssues = [];

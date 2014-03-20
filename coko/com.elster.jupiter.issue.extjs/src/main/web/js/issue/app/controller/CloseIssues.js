@@ -14,6 +14,9 @@ Ext.define('Isu.controller.CloseIssues', {
             'issues-close issues-close-form': {
                 beforerender: this.issueClosingFormBeforeRenderEvent
             },
+            'bulk-browse bulk-wizard bulk-step3 issues-close-form': {
+                beforerender: this.issueClosingFormBeforeRenderEvent
+            },
             'issues-close button[name=close]': {
                 click: this.submitIssueClosing
             },
@@ -47,7 +50,8 @@ Ext.define('Isu.controller.CloseIssues', {
     },
 
     issueClosingFormBeforeRenderEvent: function (form) {
-        var statusesContainer = form.down('[name=status]');
+        var statusesContainer = form.down('[name=status]'),
+            values = Ext.state.Manager.get('formCloseValues');
         Ext.Ajax.request({
             url: '/api/isu/statuses',
             method: 'GET',
@@ -62,9 +66,16 @@ Ext.define('Isu.controller.CloseIssues', {
                         })
                     }
                 });
-                statusesContainer.items.items[0].setValue(true);
+                if (Ext.isEmpty(values)) {
+                    statusesContainer.items.items[0].setValue(true);
+                } else {
+                    statusesContainer.down('[inputValue=' + values.status + ']').setValue(true);
+                }
             }
         });
+        if (values) {
+            form.down('textarea').setValue(values.comment);
+        }
     },
 
     submitIssueClosing: function () {
@@ -98,7 +109,7 @@ Ext.define('Isu.controller.CloseIssues', {
                 method: 'PUT',
                 jsonData: sendingData,
                 success: function (response) {
-                    var result = Ext.decode(response.responseText);
+                    var result = Ext.decode(response.responseText).data;
                     var header = {
                         style: 'msgHeaderStyle'
                     };
@@ -139,7 +150,7 @@ Ext.define('Isu.controller.CloseIssues', {
                                     href: '#/workspace/datacollection/issues',
                                     // this function is necessary and MUST be empty
                                     hnd: function () {
-
+                                        Ext.History.back();
                                     }
                                 }
                             ],
