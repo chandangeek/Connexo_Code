@@ -41,12 +41,6 @@ Ext.define('Isu.view.workspace.issues.Overview', {
             href: '#/workspace/datacollection/issues',
             hrefTarget: '_self'
         });
-
-        menu.add({
-            text: 'Issues bulk action',
-            href: '#/workspace/datacollection/issuesbulkaction',
-            hrefTarget: '_self'
-        });
     },
 
     getSideMenuCmp: function () {

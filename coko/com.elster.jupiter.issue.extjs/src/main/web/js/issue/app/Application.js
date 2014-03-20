@@ -40,7 +40,7 @@ Ext.define('Isu.Application', {
     },
 
     launch: function () {
-        this.fireEvent('changeapptitleevent', 'Jupiter issue application');
+        //this.fireEvent('changeapptitleevent', 'Jupiter issue application');
         // Removes the loading indicator.
         Ext.fly('appLoadingWrapper').destroy();
         this.callParent(arguments);
