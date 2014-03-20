@@ -98,7 +98,7 @@ Ext.define('Mdc.controller.history.Setup', {
         crossroads.addRoute('setup/devicetypes/{id}/registertypes',function(id){
             me.getApplication().getController('Mdc.controller.setup.RegisterMappings').showRegisterMappings(id);
         });
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/add',function(deviceTypeId){
+        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/registertypes/add',function(deviceTypeId){
             me.getApplication().getController('Mdc.controller.setup.RegisterMappings').addRegisterMappings(deviceTypeId);
         });
 
