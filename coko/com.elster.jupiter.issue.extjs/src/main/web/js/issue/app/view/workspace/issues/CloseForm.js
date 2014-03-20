@@ -15,7 +15,6 @@ Ext.define('Isu.view.workspace.issues.CloseForm', {
         {
             xype: 'container',
             border: 0,
-            margin: '0 0 0 -25',
             items: [
                 {
                     xtype: 'radiogroup',
@@ -25,8 +24,8 @@ Ext.define('Isu.view.workspace.issues.CloseForm', {
                     vertical: true,
                     submitValue: false,
                     items: [
-                        { boxLabel: 'Resolved', name: 'status', inputValue: 'CLOSED', checked: true },
-                        { boxLabel: 'Rejected', name: 'status', inputValue: 'REJECTED' }
+                        { boxLabel: 'Resolved', name: 'status', inputValue: 'Resolved', checked: true },
+                        { boxLabel: 'Won\'t fix', name: 'status', inputValue: 'Won\'t fix' }
                     ]
                 },
                 {
@@ -39,5 +38,23 @@ Ext.define('Isu.view.workspace.issues.CloseForm', {
                 }
             ]
         }
-    ]
+    ],
+
+    listeners: {
+       afterrender: function (form) {
+            var values = Ext.state.Manager.get('formCloseValues');
+            if (values) {
+                Ext.Object.each(values, function (key, value) {
+                    if (key == 'comment') {
+                        form.down('textarea').setValue(value);
+                    }
+                });
+            }
+            var selRadio = Ext.state.Manager.get('formCloseRadio');
+            if (selRadio) {
+                var radio = form.down('radiogroup').down('[inputValue=' + selRadio + ']');
+                radio.setValue(true);
+            }
+        }
+    }
 });

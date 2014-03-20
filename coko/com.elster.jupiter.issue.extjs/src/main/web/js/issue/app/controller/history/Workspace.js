@@ -18,6 +18,9 @@ Ext.define('Isu.controller.history.Workspace', {
         crossroads.addRoute('workspace/datacollection/issues',function(){
             Isu.getApplication().getIssuesController().showOverview();
         });
+        crossroads.addRoute('workspace/datacollection/issuesbulkaction',function(){
+            Isu.getApplication().getBulkChangeIssuesController().showOverview();
+        });
         crossroads.addRoute('workspace/datacollection/issues/{id}',function(id){
             Isu.getApplication().getIssueDetailController().showOverview(id);
         });
@@ -40,7 +43,7 @@ Ext.define('Isu.controller.history.Workspace', {
         }
         this.currentPath = token;
         crossroads.parse(token);
-    },
+    }
 
 //    doConversion: function (tokens) {
 //        if (tokens.length > 1) {

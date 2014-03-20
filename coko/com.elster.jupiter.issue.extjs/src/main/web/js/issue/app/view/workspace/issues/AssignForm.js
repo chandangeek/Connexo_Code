@@ -155,6 +155,30 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
             fn: function (form, lable, error) {
                 form.onFieldErrorChange(form, lable, error);
             }
+        },
+        afterrender: function (form) {
+            var values = Ext.state.Manager.get('formAssignValues');
+            if (values) {
+                Ext.Object.each(values, function (key, value) {
+                    if (key == 'comment') {
+                        form.down('textareafield').setValue(value);
+                    }
+                    if (key == 'GROUP') {
+                        form.down('combobox[name=GROUP]').setValue(value);
+                    }
+                    if (key == 'ROLE') {
+                        form.down('combobox[name=ROLE]').setValue(value);
+                    }
+                    if (key == 'USER') {
+                        form.down('combobox[name=USER]').setValue(value);
+                    }
+                });
+            }
+            var selRadio = Ext.state.Manager.get('formAssignRadio');
+            if (selRadio) {
+                var radio = form.down('radiogroup').down('[inputValue=' + selRadio + ']');
+                radio.setValue(true);
+            }
         }
     },
 
@@ -191,7 +215,7 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
                     html: 'There are errors on this page that require your attention.'
                 });
                 formErrorsPanel.show();
-             }
+            }
         }
     }
 });

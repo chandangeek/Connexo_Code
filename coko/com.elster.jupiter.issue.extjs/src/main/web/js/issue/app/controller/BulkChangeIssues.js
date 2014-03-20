@@ -73,6 +73,11 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         });
     },
 
+    showOverview: function () {
+        var widget = Ext.widget('bulk-browse');
+        this.getApplication().fireEvent('changecontentevent', widget);
+    },
+
     setActivePage: function(btn){
         var wizard = this.createdWizard;
         wizard.activeItemId = btn.number;
@@ -120,7 +125,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             }),
             breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem', {
                 text: 'Bulk action',
-                href: 'bulkaction'
+                href: 'issuesbulkaction'
             });
         breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2).setChild(breadcrumbChild3);
 
