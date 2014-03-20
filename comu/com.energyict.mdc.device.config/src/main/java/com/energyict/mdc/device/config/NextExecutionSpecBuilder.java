@@ -9,7 +9,9 @@ import com.energyict.mdc.common.TimeDuration;
  */
 public interface NextExecutionSpecBuilder<S> {
 
-    NextExecutionSpecBuilder temporalExpression(TimeDuration frequency, TimeDuration offset);
+    NextExecutionSpecBuilder<S> temporalExpression(TimeDuration frequency, TimeDuration offset);
+
+    NextExecutionSpecBuilder<S> temporalExpression(TimeDuration frequency);
 
     S set();
 }

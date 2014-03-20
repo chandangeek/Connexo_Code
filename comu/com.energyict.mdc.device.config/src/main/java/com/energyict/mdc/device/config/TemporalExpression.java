@@ -5,6 +5,7 @@ import org.joda.time.DateTimeConstants;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * TemporalExpression represent a recurring time.
@@ -16,7 +17,7 @@ import java.util.Date;
  *
  * @author Karel
  */
-public class TemporalExpression {
+public final class TemporalExpression {
 
     private static final int MAXIMUM_NUMBER_OF_DAYS_IN_ALL_MONTHS = 28;
     private static final int NUMBER_OF_SECONDS_IN_MAXIMUM_DAYS_IN_ALL_MONTHS = DateTimeConstants.SECONDS_PER_DAY * MAXIMUM_NUMBER_OF_DAYS_IN_ALL_MONTHS;
@@ -142,4 +143,23 @@ public class TemporalExpression {
         return nextOccurrence(previous).before(new Date());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TemporalExpression)) {
+            return false;
+        }
+
+        TemporalExpression that = (TemporalExpression) o;
+
+        return every.equals(that.every) && offset.equals(that.offset);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(every, offset);
+    }
 }

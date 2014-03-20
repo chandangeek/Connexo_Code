@@ -23,7 +23,7 @@ public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends
     }
 
     @Override
-    public NextExecutionSpecBuilder nextExecutionSpec() {
+    public NextExecutionSpecBuilder<S> nextExecutionSpec() {
         return new InternalNextExecutionSpecBuilder();
     }
 
@@ -38,6 +38,12 @@ public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends
         }
 
         @Override
+        public NextExecutionSpecBuilder temporalExpression(TimeDuration frequency) {
+            temporalExpression = new TemporalExpression(frequency);
+            return this;
+        }
+
+        @Override
         public S set() {
             nextExecutionSpecs = dataModel.getInstance(NextExecutionSpecsImpl.class).initialize(temporalExpression);
             return AbstractScheduledPartialConnectionTaskBuilder.this.myself;
@@ -48,8 +54,8 @@ public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends
     void populate(U instance) {
         instance.setComportPool(comPortPool);
         if (nextExecutionSpecs != null) {
+            nextExecutionSpecs.save();
             instance.setNextExecutionSpecs(nextExecutionSpecs);
         }
-
     }
 }

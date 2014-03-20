@@ -1,19 +1,23 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.energyict.mdc.common.TimeDuration;
-import junit.framework.TestCase;
 import org.joda.time.DateTimeConstants;
+import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test cases for the temporal expression class which is used in the scheduling of jobs.
  *
  * @author alex
  */
-public final class TemporalExpressionTest extends TestCase {
+public final class TemporalExpressionTest extends EqualsContractTest {
 
     /**
      * The date on which the DST starts in Europe in 2008.
@@ -99,6 +103,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests the next occurrence when DST ends using a DST aware time zone.
      */
+    @Test
     public final void testDailyNextOccurrenceAtDSTEndWithDSTAwareTimeZone() {
         doTestScheduling(DST_END_DATE, true, DAILY_SCHEDULING_EXPRESSION);
     }
@@ -106,6 +111,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests the next occurrence when DST starts with a DST aware time zone.
      */
+    @Test
     public final void testDailyNextOccurrenceAtDSTStartWithDSTAwareTimeZone() {
         doTestScheduling(DST_START_TIME, true, DAILY_SCHEDULING_EXPRESSION);
     }
@@ -113,6 +119,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests the next occurrence when DST starts with a DST unaware time zone.
      */
+    @Test
     public final void testDailyNextOccurrenceAtDSTEndWithDSTUnawareTimeZone() {
         doTestScheduling(DST_END_DATE, false, DAILY_SCHEDULING_EXPRESSION);
     }
@@ -120,6 +127,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests the next occurrence scheduling using a timezone that is not DST aware.
      */
+    @Test
     public final void testDailyNextOccurrenceAtDSTStartWithDSTUnawareTimeZone() {
         doTestScheduling(DST_START_TIME, false, DAILY_SCHEDULING_EXPRESSION);
     }
@@ -127,6 +135,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests the determination of the next scheduling occurrence inside a DST period using a DST aware timezone.
      */
+    @Test
     public final void testDailyNextOccurrenceInsideDSTPeriodWithDSTAwareTimeZone() {
         doTestScheduling(DATE_INSIDE_DST_PERIOD, true, DAILY_SCHEDULING_EXPRESSION);
     }
@@ -134,6 +143,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests the determination of the next scheduling occurrence inside a DST period using a DST unaware timezone.
      */
+    @Test
     public final void testDailyNextOccurrenceInsideDSTPeriodWithDSTUnawareTimeZone() {
         doTestScheduling(DATE_INSIDE_DST_PERIOD, false, DAILY_SCHEDULING_EXPRESSION);
     }
@@ -141,6 +151,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests the determination of the next scheduling occurrence inside a DST period using a DST aware timezone.
      */
+    @Test
     public final void testDailyNextOccurrenceOutsideDSTPeriodWithDSTAwareTimeZone() {
         doTestScheduling(DATE_OUTSIDE_DST_PERIOD, true, DAILY_SCHEDULING_EXPRESSION);
     }
@@ -148,6 +159,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests the determination of the next scheduling occurrence inside a DST period using a DST aware timezone.
      */
+    @Test
     public final void testDailyNextOccurrenceOutsideDSTPeriodWithDSTUnawareTimeZone() {
         doTestScheduling(DATE_OUTSIDE_DST_PERIOD, false, DAILY_SCHEDULING_EXPRESSION);
     }
@@ -156,6 +168,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests the next occurrence when DST ends using a DST aware time zone.
      */
+    @Test
     public final void testWeeklyNextOccurrenceAtDSTEndWithDSTAwareTimeZone() {
         doTestScheduling(DST_END_DATE, true, WEEKLY_SCHEDULING_EXPRESSION);
     }
@@ -163,6 +176,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests the next occurrence when DST starts with a DST aware time zone.
      */
+    @Test
     public final void testWeekyNextOccurrenceAtDSTStartWithDSTAwareTimeZone() {
         doTestScheduling(DST_START_TIME, true, WEEKLY_SCHEDULING_EXPRESSION);
     }
@@ -170,6 +184,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests the next occurrence when DST starts with a DST unaware time zone.
      */
+    @Test
     public final void testWeeklyNextOccurrenceAtDSTEndWithDSTUnawareTimeZone() {
         doTestScheduling(DST_END_DATE, false, WEEKLY_SCHEDULING_EXPRESSION);
     }
@@ -177,6 +192,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests the next occurrence scheduling using a timezone that is not DST aware.
      */
+    @Test
     public final void testWeeklyNextOccurrenceAtDSTStartWithDSTUnawareTimeZone() {
         doTestScheduling(DST_START_TIME, false, WEEKLY_SCHEDULING_EXPRESSION);
     }
@@ -184,6 +200,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests the determination of the next scheduling occurrence inside a DST period using a DST aware timezone.
      */
+    @Test
     public final void testWeeklyNextOccurrenceInsideDSTPeriodWithDSTAwareTimeZone() {
         doTestScheduling(DATE_INSIDE_DST_PERIOD, true, WEEKLY_SCHEDULING_EXPRESSION);
     }
@@ -191,6 +208,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests the determination of the next scheduling occurrence inside a DST period using a DST unaware timezone.
      */
+    @Test
     public final void testWeeklyNextOccurrenceInsideDSTPeriodWithDSTUnawareTimeZone() {
         doTestScheduling(DATE_INSIDE_DST_PERIOD, false, WEEKLY_SCHEDULING_EXPRESSION);
     }
@@ -198,6 +216,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests the determination of the next scheduling occurrence inside a DST period using a DST aware timezone.
      */
+    @Test
     public final void testWeeklyNextOccurrenceOutsideDSTPeriodWithDSTAwareTimeZone() {
         doTestScheduling(DATE_OUTSIDE_DST_PERIOD, true, WEEKLY_SCHEDULING_EXPRESSION);
     }
@@ -205,6 +224,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests the determination of the next scheduling occurrence inside a DST period using a DST aware timezone.
      */
+    @Test
     public final void testWeeklyNextOccurrenceOutsideDSTPeriodWithDSTUnawareTimeZone() {
         doTestScheduling(DATE_OUTSIDE_DST_PERIOD, false, WEEKLY_SCHEDULING_EXPRESSION);
     }
@@ -212,6 +232,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests winter to summer time transition with 15 min leaps
      */
+    @Test
     public final void testDSTLeapNextOccurrence15min() {
         Calendar cal = Calendar.getInstance(TIMEZONE_WITH_DST);
         cal.clear();
@@ -229,18 +250,18 @@ public final class TemporalExpressionTest extends TestCase {
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(1, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(45, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(1);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(45);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(3, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(0, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(3);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(3, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(15, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(3);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(15);
 
 
     }
@@ -248,6 +269,7 @@ public final class TemporalExpressionTest extends TestCase {
     /**
      * Tests winter to summer time transition with 1 hour leaps
      */
+    @Test
     public final void testDSTLeapNextOccurrence1hour() {
         Calendar cal = Calendar.getInstance(TIMEZONE_WITH_DST);
         cal.clear();
@@ -265,24 +287,25 @@ public final class TemporalExpressionTest extends TestCase {
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(1, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(0, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(1);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(3, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(0, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(3);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(4, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(0, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(4);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
 
     }
 
     /**
      * Tests winter to summer time transition with 2 hour leaps
      */
+    @Test
     public final void testDSTLeapNextOccurrence2hour() {
 
 
@@ -302,29 +325,30 @@ public final class TemporalExpressionTest extends TestCase {
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(23, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(10, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(23);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(1, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(10, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(1);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(4, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(10, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(4);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(6, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(10, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(6);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
 
     }
 
     /**
      * Tests summer to winter time transition with 15 min leaps
      */
+    @Test
     public final void testNonDSTLeapNextOccurrence15min() {
 
         Calendar cal = Calendar.getInstance(TIMEZONE_WITH_DST);
@@ -343,44 +367,45 @@ public final class TemporalExpressionTest extends TestCase {
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(1, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(45, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(1);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(45);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(2, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(0, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(2);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(2, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(15, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(2);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(15);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(2, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(30, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(2);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(30);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(2, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(45, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(2);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(45);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(2, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(0, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(2);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(2, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(15, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(2);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(15);
 
     }
 
     /**
      * Tests summer to winter time transition with 1 hour leaps
      */
+    @Test
     public final void testNonDSTLeapNextOccurrence1hour() {
         Calendar cal = Calendar.getInstance(TIMEZONE_WITH_DST);
         cal.clear();
@@ -398,35 +423,37 @@ public final class TemporalExpressionTest extends TestCase {
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(1, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(0, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(1);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(2, cal.get(Calendar.HOUR_OF_DAY));  // 2h SUMMER TIME
-        assertEquals(0, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(2);  // 2h SUMMER TIME
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(2, cal.get(Calendar.HOUR_OF_DAY));     // 2h WINTER TIME
-        assertEquals(0, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(2);     // 2h WINTER TIME
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertEquals(3, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(0, cal.get(Calendar.MINUTE));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(3);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
 
     }
 
+    @Test
     public void testEiserver2255() {
         TemporalExpression expression = new TemporalExpression(new TimeDuration(12, TimeDuration.MONTHS), new TimeDuration(1, TimeDuration.MONTHS));
         Calendar now = Calendar.getInstance();
         Date date = expression.nextOccurrence(now);
         Calendar returnedDate = Calendar.getInstance();
         returnedDate.setTime(date);
-        assertTrue("Calculated date is not correct !", now.get(Calendar.YEAR) < returnedDate.get(Calendar.YEAR));
+        assertThat(now.get(Calendar.YEAR) < returnedDate.get(Calendar.YEAR)).describedAs("Calculated date is not correct !").isTrue();
     }
 
+    @Test
     public void testOnLastDayOfMonthSpecifiedWithOffset31 () {
         TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(31, TimeDuration.DAYS));
         Calendar february1st2013 = Calendar.getInstance();
@@ -434,10 +461,11 @@ public final class TemporalExpressionTest extends TestCase {
         Date nextOccurrence = expression.nextOccurrence(february1st2013);
         Calendar nextCalendar = Calendar.getInstance();
         nextCalendar.setTime(nextOccurrence);
-        assertEquals("Calculated nextOccurrence month is not correct !", Calendar.FEBRUARY, nextCalendar.get(Calendar.MONTH));
-        assertEquals("Calculated nextOccurrence day is not correct !", 28, nextCalendar.get(Calendar.DAY_OF_MONTH));
+        assertThat(nextCalendar.get(Calendar.MONTH)).describedAs("Calculated nextOccurrence month is not correct !").isEqualTo(Calendar.FEBRUARY);
+        assertThat(nextCalendar.get(Calendar.DAY_OF_MONTH)).describedAs("Calculated nextOccurrence day is not correct !").isEqualTo(28);
     }
 
+    @Test
     public void testOnLastDayOfMonthSpecifiedWithOffset31And6PM () {
         int offsetInSeconds = DateTimeConstants.SECONDS_PER_DAY * 31 + DateTimeConstants.SECONDS_PER_HOUR * 18;
         TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(offsetInSeconds));
@@ -446,13 +474,14 @@ public final class TemporalExpressionTest extends TestCase {
         Date nextOccurrence = expression.nextOccurrence(february1st2013);
         Calendar nextCalendar = Calendar.getInstance();
         nextCalendar.setTime(nextOccurrence);
-        assertEquals("Calculated nextOccurrence month is not correct !", Calendar.FEBRUARY, nextCalendar.get(Calendar.MONTH));
-        assertEquals("Calculated nextOccurrence day is not correct !", 28, nextCalendar.get(Calendar.DAY_OF_MONTH));
-        assertEquals("Calculated nextOccurrence hour is not correct !", 18, nextCalendar.get(Calendar.HOUR_OF_DAY));
-        assertEquals("Calculated nextOccurrence minute is not correct !", 0, nextCalendar.get(Calendar.MINUTE));
-        assertEquals("Calculated nextOccurrence second is not correct !", 0, nextCalendar.get(Calendar.SECOND));
+        assertThat(nextCalendar.get(Calendar.MONTH)).describedAs("Calculated nextOccurrence month is not correct !").isEqualTo(Calendar.FEBRUARY);
+        assertThat(nextCalendar.get(Calendar.DAY_OF_MONTH)).describedAs("Calculated nextOccurrence day is not correct !").isEqualTo(28);
+        assertThat(nextCalendar.get(Calendar.HOUR_OF_DAY)).describedAs("Calculated nextOccurrence hour is not correct !").isEqualTo(18);
+        assertThat(nextCalendar.get(Calendar.MINUTE)).describedAs("Calculated nextOccurrence minute is not correct !").isEqualTo(0);
+        assertThat(nextCalendar.get(Calendar.SECOND)).describedAs("Calculated nextOccurrence second is not correct !").isEqualTo(0);
     }
 
+    @Test
     public void testOnLastDayOfMonthSpecifiedWithOffset30 () {
         TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(31, TimeDuration.DAYS));
         Calendar february1st2013 = Calendar.getInstance();
@@ -460,10 +489,11 @@ public final class TemporalExpressionTest extends TestCase {
         Date nextOccurrence = expression.nextOccurrence(february1st2013);
         Calendar nextCalendar = Calendar.getInstance();
         nextCalendar.setTime(nextOccurrence);
-        assertEquals("Calculated nextOccurrence month is not correct !", Calendar.FEBRUARY, nextCalendar.get(Calendar.MONTH));
-        assertEquals("Calculated nextOccurrence day is not correct !", 28, nextCalendar.get(Calendar.DAY_OF_MONTH));
+        assertThat(nextCalendar.get(Calendar.MONTH)).describedAs("Calculated nextOccurrence month is not correct !").isEqualTo(Calendar.FEBRUARY);
+        assertThat(nextCalendar.get(Calendar.DAY_OF_MONTH)).describedAs("Calculated nextOccurrence day is not correct !").isEqualTo(28);
     }
 
+    @Test
     public void testOnLastDayOfMonthSpecifiedWithOffset29 () {
         TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(31, TimeDuration.DAYS));
         Calendar february1st2013 = Calendar.getInstance();
@@ -471,8 +501,8 @@ public final class TemporalExpressionTest extends TestCase {
         Date nextOccurrence = expression.nextOccurrence(february1st2013);
         Calendar nextCalendar = Calendar.getInstance();
         nextCalendar.setTime(nextOccurrence);
-        assertEquals("Calculated nextOccurrence month is not correct !", Calendar.FEBRUARY, nextCalendar.get(Calendar.MONTH));
-        assertEquals("Calculated nextOccurrence day is not correct !", 28, nextCalendar.get(Calendar.DAY_OF_MONTH));
+        assertThat(nextCalendar.get(Calendar.MONTH)).describedAs("Calculated nextOccurrence month is not correct !").isEqualTo(Calendar.FEBRUARY);
+        assertThat(nextCalendar.get(Calendar.DAY_OF_MONTH)).describedAs("Calculated nextOccurrence day is not correct !").isEqualTo(28);
     }
 
     /**
@@ -491,7 +521,7 @@ public final class TemporalExpressionTest extends TestCase {
         final int scheduledHour = nextScheduleCalendar.get(Calendar.HOUR);
         final int expectedScheduledHour = DAILY_SCHEDULING_EXPRESSION.getOffset().getCount();
 
-        assertEquals("Scheduled hour [" + scheduledHour + "] should be [" + expectedScheduledHour + "]", expectedScheduledHour, scheduledHour);
+        assertThat(scheduledHour).describedAs("Scheduled hour [" + scheduledHour + "] should be [" + expectedScheduledHour + "]").isEqualTo(expectedScheduledHour);
     }
 
     /**
@@ -514,6 +544,35 @@ public final class TemporalExpressionTest extends TestCase {
             DATE_INSIDE_DST_PERIOD.setTimeZone(TIMEZONE_WITHOUT_DST);
             DATE_OUTSIDE_DST_PERIOD.setTimeZone(TIMEZONE_WITHOUT_DST);
         }
+    }
+
+    @Override
+    protected Object getInstanceA() {
+        return DAILY_SCHEDULING_EXPRESSION;
+    }
+
+    @Override
+    protected Object getInstanceEqualToA() {
+        return new TemporalExpression(TimeDuration.days(1), TimeDuration.hours(4));
+    }
+
+    @Override
+    protected Iterable<?> getInstancesNotEqualToA() {
+        return Arrays.asList(
+            new TemporalExpression(TimeDuration.days(2), TimeDuration.hours(0)),
+            new TemporalExpression(TimeDuration.days(2), TimeDuration.hours(4)),
+            new TemporalExpression(TimeDuration.days(1), TimeDuration.hours(2))
+        );
+    }
+
+    @Override
+    protected boolean canBeSubclassed() {
+        return false;
+    }
+
+    @Override
+    protected Object getInstanceOfSubclassEqualToA() {
+        return null;
     }
 
     /* public void testStuff() {

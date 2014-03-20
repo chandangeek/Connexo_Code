@@ -32,6 +32,7 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
@@ -239,6 +240,7 @@ public class PartialOutboundConnectiontaskCrudIT {
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
                     .comWindow(COM_WINDOW)
+                    .nextExecutionSpec().temporalExpression(TimeDuration.minutes(15)).set()
                     .asDefault(true).build();
             communicationConfiguration.save();
 
@@ -259,6 +261,8 @@ public class PartialOutboundConnectiontaskCrudIT {
         assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(communicationConfiguration.getId());
         assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(COM_WINDOW);
+        assertThat(partialOutboundConnectionTask.getNextExecutionSpecs()).isNotNull();
+        assertThat(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(new TemporalExpression(TimeDuration.minutes(15)));
         assertThat(partialOutboundConnectionTask.getName()).isEqualTo("MyOutbound");
 
     }
