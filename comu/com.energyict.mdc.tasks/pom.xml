@@ -10,7 +10,7 @@
     <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
   </parent>
 
-  <artifactId>mdc-task</artifactId>
+  <artifactId>mdc.task</artifactId>
   <packaging>bundle</packaging>
   <version>${comserver.version}</version>
   <name>[MDC] mdc-task</name>
@@ -24,6 +24,23 @@
       <artifactId>util</artifactId>
       <version>${jupiter.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>domain.util</artifactId>
+      <version>${jupiter.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc-common</artifactId>
+      <version>${project.version}</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc-protocols-api</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
