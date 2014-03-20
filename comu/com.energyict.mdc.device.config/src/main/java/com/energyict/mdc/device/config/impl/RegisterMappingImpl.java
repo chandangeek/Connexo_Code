@@ -75,7 +75,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
 
     @Override
     public void save () {
-//        validateUniqueObisCodeAndPhenomenonAndTimeOfUse();
+        validateUniqueObisCodeAndPhenomenonAndTimeOfUse();
         this.modificationDate = this.clock.now();
         super.save();
     }
@@ -263,7 +263,11 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     @Override
     public boolean isInUse() {
         return this.usedByChannelSpecs() || this.usedByRegisterSpecs();
+    }
 
+    @Override
+    public boolean isLinkedByDeviceType() {
+        return deviceConfigurationService.isRegisterMappingUsedByDeviceType(this);
     }
 
     private boolean usedByChannelSpecs() {

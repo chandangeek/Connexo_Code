@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.protocol.api.device.Device;
 import java.util.List;
+import java.util.Set;
 
 /**
  * User: gde
@@ -113,5 +114,16 @@ public interface DeviceConfiguration extends HasId {
 
     void save();
 
+    Set<DeviceCommunicationFunction> getCommunicationFunctions();
+
+    void addCommunicationFunction(DeviceCommunicationFunction function);
+
+    void removeCommunicationFunction(DeviceCommunicationFunction function);
+
+    boolean hasCommunicationFunction(DeviceCommunicationFunction function);
+
+    public boolean canActAsGateway();
+
+    public boolean canBeDirectlyAddressable();
     //TODO we remove 'CreateDeviceTransaction' and 'DeviceConfigurationChanges' from the API, must be included when time comes ...
 }

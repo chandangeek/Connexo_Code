@@ -157,13 +157,24 @@ public interface DeviceConfigurationService {
     public RegisterSpec findRegisterSpec(long id);
 
     /**
-     * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given {@link DeviceType} and modeled by the given {@link RegisterMapping RegisterMappings}
+     * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given {@link DeviceType} and modelled by the given {@link RegisterMapping RegisterMappings}
+     * where the register spec if owned by an active device configuration
      *
      * @param deviceType      the DeviceType
      * @param registerMapping the list of RegisterMappings
      * @return all the {@link RegisterSpec RegisterSpecs} which are defined for the given parameters
      */
-    public List<RegisterSpec> findRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping);
+    public List<RegisterSpec> findActiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping);
+
+    /**
+     * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given {@link DeviceType} and modelled by the given {@link RegisterMapping RegisterMappings}
+     * where the register spec if owned by an inactive device configuration
+     *
+     * @param deviceType      the DeviceType
+     * @param registerMapping the list of RegisterMappings
+     * @return all the {@link RegisterSpec RegisterSpecs} which are defined for the given parameters
+     */
+    public List<RegisterSpec> findInactiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping);
 
     /**
      * Finds a list of {@link RegisterSpec RegisterSpecs} which are modeled by the given RegisterMapping
@@ -246,6 +257,8 @@ public interface DeviceConfigurationService {
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLogBookType(LogBookType logBookType);
 
     public List<DeviceConfiguration> findDeviceConfigurationsUsingRegisterMapping(RegisterMapping registerMapping);
+
+    public boolean isRegisterMappingUsedByDeviceType(RegisterMapping registerMapping);
 
     public List<DeviceType> findDeviceTypesWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
