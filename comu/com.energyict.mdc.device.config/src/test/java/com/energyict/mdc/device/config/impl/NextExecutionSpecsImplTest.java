@@ -44,6 +44,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
         specs.save();
 
         // Asserts
+        assertThat(specs).isNotNull();
         assertThat(specs.getTemporalExpression()).isNotNull();
         assertThat(specs.getTemporalExpression().getEvery()).isEqualTo(this.frequency);
         assertThat(specs.getTemporalExpression().getOffset()).isEqualTo(ZERO_OFFSET);
@@ -51,7 +52,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateWithFrequencyAndOfsetWithoutViolations () throws BusinessException, SQLException {
+    public void testCreateWithFrequencyAndOffsetWithoutViolations () throws BusinessException, SQLException {
         NextExecutionSpecs specs = this.createWithFrequencyAndOffsetWithoutViolations();
 
         // Asserts
@@ -63,7 +64,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testFindAfterCreate () throws BusinessException, SQLException {
-        NextExecutionSpecs specs = this.createWithOnlyFrequencyWithoutViolations();
+        NextExecutionSpecs specs = this.createWithFrequencyAndOffsetWithoutViolations();
         specs.save();
 
         // Business method
@@ -71,8 +72,9 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
 
         // Asserts
         assertThat(found).isNotNull();
-        assertThat(specs.getTemporalExpression().getEvery()).isEqualTo(this.frequency);
-        assertThat(specs.getTemporalExpression().getOffset()).isEqualTo(ZERO_OFFSET);
+        assertThat(found.getTemporalExpression()).isNotNull();
+        assertThat(found.getTemporalExpression().getEvery()).isEqualTo(this.frequency);
+        assertThat(found.getTemporalExpression().getOffset()).isEqualTo(this.offset);
     }
 
     @Test
@@ -85,9 +87,11 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
         specs.save();
 
         // Asserts
-        assertThat(specs.getTemporalExpression()).isNotNull();
-        assertThat(specs.getTemporalExpression().getEvery()).isEqualTo(this.frequency);
-        assertThat(specs.getTemporalExpression().getOffset()).isEqualTo(this.offset);
+        NextExecutionSpecs found = inMemoryPersistence.getDeviceConfigurationService().findNextExecutionSpecs(specs.getId());
+
+        assertThat(found.getTemporalExpression()).isNotNull();
+        assertThat(found.getTemporalExpression().getEvery()).isEqualTo(this.frequency);
+        assertThat(found.getTemporalExpression().getOffset()).isEqualTo(this.offset);
     }
 
     @Test
@@ -100,9 +104,10 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
         specs.save();
 
         // Asserts
-        assertThat(specs.getTemporalExpression()).isNotNull();
-        assertThat(specs.getTemporalExpression().getEvery()).isEqualTo(this.frequency);
-        assertThat(specs.getTemporalExpression().getOffset()).isEqualTo(ZERO_OFFSET);
+        NextExecutionSpecs found = inMemoryPersistence.getDeviceConfigurationService().findNextExecutionSpecs(specs.getId());
+        assertThat(found.getTemporalExpression()).isNotNull();
+        assertThat(found.getTemporalExpression().getEvery()).isEqualTo(this.frequency);
+        assertThat(found.getTemporalExpression().getOffset()).isEqualTo(ZERO_OFFSET);
     }
 
     @Test
