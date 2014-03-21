@@ -44,10 +44,6 @@ abstract class ProtocolTaskImpl implements ProtocolTask, OfflineDeviceContext {
         Save.UPDATE.save(this.dataModel, this);
     }
 
-    @Override
-    public void delete() {
-    }
-
     /**
      * Return the {@link ComTask} this ProtocolTask belongs to
      *

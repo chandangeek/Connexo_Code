@@ -18,6 +18,4 @@ public interface ProtocolTask {
 
     public void save();
 
-    public void delete();
-
 }
