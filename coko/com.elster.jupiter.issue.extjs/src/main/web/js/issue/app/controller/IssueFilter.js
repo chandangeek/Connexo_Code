@@ -104,6 +104,7 @@ Ext.define('Isu.controller.IssueFilter', {
             filter = form.getRecord();
 
         form.updateRecord(filter);
+        console.log(filter);
 
         this.getStore('Issues').setProxyFilter(filter);
     }

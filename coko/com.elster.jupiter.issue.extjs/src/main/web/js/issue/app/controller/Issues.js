@@ -280,9 +280,11 @@ Ext.define('Isu.controller.Issues', {
         var extraParams = {};
         if (this.groupParams != undefined) {
             Ext.merge(extraParams, this.groupParams);
-        }
+        };
         this.store.proxy.extraParams = extraParams;
-        this.store.loadPage(1);
+        console.log(extraParams);
+
+        this.store.load(extraParams);
     },
 
     changeSortDirection: function (btn) {
@@ -381,6 +383,7 @@ Ext.define('Isu.controller.Issues', {
             this.groupStore.un('load', XtoYof);
             this.getIssueNoGroup().hide();
             fullList.show();
+            this.store.updateProxyFilter();
         }
     },
 
@@ -397,10 +400,18 @@ Ext.define('Isu.controller.Issues', {
         this.getIssuesList().getSelectionModel().deselectAll();
         this.getIssuesList().show();
         this.getIssueNoGroup().hide();
-        this.groupParams[this.group] = record.data.id;
-        this.updateIssueList();
+//        this.groupParams[this.group] = record.data.id;
+
+        var model = new Isu.model.IssueReason({
+            id: record.getId(),
+            name: record.get('reason')
+        })
+        this.store.getProxyFilter().set('reason', model);
+        this.store.updateProxyFilter();
+
+//        this.updateIssueList();
         this.showDefaultItems();
-        this.store.loadPage(1);
+
     },
 
 
