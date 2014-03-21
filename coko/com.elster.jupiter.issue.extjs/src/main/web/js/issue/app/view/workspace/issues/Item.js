@@ -51,7 +51,7 @@ Ext.define('Isu.view.workspace.issues.Item', {
                             xtype: 'item-action',
                             menu: {
                                 xtype: 'issue-action-menu',
-                                record: record
+                                issueId: record.data.id
                             }
                         }
                     ]

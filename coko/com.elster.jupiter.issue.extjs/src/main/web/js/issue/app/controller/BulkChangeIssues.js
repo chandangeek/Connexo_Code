@@ -125,7 +125,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             }),
             breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem', {
                 text: 'Bulk action',
-                href: 'issuesbulkaction'
+                href: 'bulkaction'
             });
         breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2).setChild(breadcrumbChild3);
 
