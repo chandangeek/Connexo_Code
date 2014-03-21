@@ -148,7 +148,8 @@ public enum MessageSeeds implements MessageSeed {
     PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE(13019, Constants.PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE_KEY, "The value for property {0} is of the wrong type.", SEVERE),
     CONNECTION_STRATEGY_REQUIRED(13020, Constants.CONNECTION_STRATEGY_REQUIRED_KEY, "Connection Strategy is required", SEVERE),
     NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS(13021, Constants.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS_KEY, "Next Execution Spec is required for OutboundConnectionTasks that minimize connections.", SEVERE),
-    NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY(13022, Constants.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY, "Next Execution Spec is invalid for Communication Window.", SEVERE);
+    NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY(13022, Constants.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY, "Next Execution Spec is invalid for Communication Window.", SEVERE),
+    NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY(13023, Constants.NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY_KEY, "Next Execution Spec's offset is greater than its frequency.", SEVERE);
 
     private final int number;
     private final String key;
@@ -225,6 +226,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CONNECTION_STRATEGY_REQUIRED_KEY = "DTC.partialOutboundConnectionTask.connectionStrategyRequired";
         public static final String NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS_KEY = "DTC.partialOutboundConnectionTask.executionSpecRequiredForMinimizeConnections";
         public static final String NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY = "DTC.partialOutboundConnectionTask.executionSpecInvalidForComWindow";
+        public static final String NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY_KEY = "DTC.nextExecutionSpecs.offsetGreaterThanFrequency";
     }
 
 }
