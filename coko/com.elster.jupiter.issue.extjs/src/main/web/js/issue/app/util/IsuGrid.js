@@ -94,7 +94,7 @@ Ext.define('Isu.util.IsuGrid', {
             renderTo: cell,
             menu: {
                 xtype: this.actionMenuXtype,
-                record: record
+                issueId: record.data.id
             }
         });
         this.gridActionBtn.showMenu();

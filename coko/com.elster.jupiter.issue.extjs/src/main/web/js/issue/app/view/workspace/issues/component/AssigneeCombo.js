@@ -15,6 +15,7 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
     queryDelay: 100,
     minChars: 1,
     disableKeyFilter: true,
+    queryCaching: false,
 
     formBind: true,
     typeAhead: true,

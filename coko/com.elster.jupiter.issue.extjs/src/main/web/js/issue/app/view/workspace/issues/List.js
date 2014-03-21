@@ -72,8 +72,10 @@ Ext.define('Isu.view.workspace.issues.List', {
                 },
                 {
                     xtype: 'button',
-                    name: 'bulk-change-issues',
-                    text: 'Bulk action'
+                    text: 'Bulk action',
+                    action: 'bulkchangesissues',
+                    hrefTarget: '',
+                    href: '#/workspace/datacollection/bulkaction'
                 }
             ]
         },

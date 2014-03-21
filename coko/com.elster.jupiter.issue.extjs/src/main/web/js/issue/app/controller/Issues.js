@@ -63,9 +63,6 @@ Ext.define('Isu.controller.Issues', {
                 beforehide: this.hideItemAction,
                 click: this.chooseIssuesAction
             },
-            'issues-overview issues-list button[name=bulk-change-issues]': {
-                click: this.bulkChangeIssues
-            },
             // ====================================  IssueListFilter controls  ====================================
 
             'button[name=addsortbtn]': {
@@ -176,7 +173,7 @@ Ext.define('Isu.controller.Issues', {
     },
 
     bulkChangeButtonDisable: function (grid) {
-        var bulkBtn = grid.up().down('button[name=bulk-change-issues]');
+        var bulkBtn = grid.up().down('button[action=bulkchangesissues]');
         if (grid.store.getCount() < 1) {
             bulkBtn.setDisabled(true);
         } else {
@@ -243,33 +240,19 @@ Ext.define('Isu.controller.Issues', {
     },
 
     chooseIssuesAction: function (menu, item) {
-        var widget,
-            action = item.action;
+        var action = item.action;
 
         switch (action) {
             case 'assign':
-                widget = Ext.widget('issues-assign', {
-                    record: menu.record
-                });
+                window.location.href = '#/workspace/datacollection/issues/' + menu.issueId + '/assign';
                 break;
             case 'close':
-                widget = Ext.widget('issues-close', {
-                    record: menu.record
-                });
+                window.location.href = '#/workspace/datacollection/issues/' + menu.issueId + '/close';
                 break;
             case 'addcomment':
                 Isu.getApplication().getIssueDetailController().showOverview(menu.record.data.id, true);
                 break;
         }
-
-        if (widget) {
-            this.getApplication().fireEvent('changecontentevent', widget);
-        }
-    },
-
-    bulkChangeIssues: function () {
-        var widget = Ext.widget('bulk-browse');
-        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     setDefaults: function (sortPanel) {

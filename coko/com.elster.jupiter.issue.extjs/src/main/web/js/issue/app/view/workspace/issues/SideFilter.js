@@ -51,6 +51,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     queryMode: 'remote',
                     queryParam: 'like',
                     queryDelay: 100,
+                    queryCaching: false,
                     minChars: 1,
 
                     triggerAction: 'query',

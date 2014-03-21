@@ -24,11 +24,14 @@ Ext.define('Isu.controller.history.Workspace', {
         crossroads.addRoute('workspace/datacollection/issues/{id}',function(id){
             Isu.getApplication().getIssueDetailController().showOverview(id);
         });
-        crossroads.addRoute('workspace/datacollection/assignmentrules',function(id){
-            Isu.getApplication().getIssueAssignmentRulesController().showOverview();
+        crossroads.addRoute('workspace/datacollection/bulkaction',function(){
+            Isu.getApplication().getBulkChangeIssuesController().showOverview();
         });
-        crossroads.addRoute('workspace/datacollection/autocreationrules',function(id){
-            Isu.getApplication().getIssueAutoCreationRulesController.showOverview();
+        crossroads.addRoute('workspace/datacollection/issues/{id}/assign',function(id){
+            Isu.getApplication().getAssignIssuesController().showOverview(id);
+        });
+        crossroads.addRoute('workspace/datacollection/issues/{id}/close',function(id){
+            Isu.getApplication().getCloseIssuesController().showOverview(id);
         });
 
         this.callParent(arguments);
