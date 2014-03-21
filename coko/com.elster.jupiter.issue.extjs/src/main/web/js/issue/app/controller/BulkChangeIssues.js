@@ -347,7 +347,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     onWizardCancelledEvent: function (wizard) {
-        Ext.History.back();
+        window.location.href = '#/workspace/datacollection/issues/'
     },
 
     setBulkActionListActiveItem: function (wizard) {
