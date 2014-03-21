@@ -10,4 +10,6 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
  */
 public interface PartialInboundConnectionTaskBuilder extends PartialConnectionTaskBuilder<PartialInboundConnectionTaskBuilder, InboundComPortPool, PartialInboundConnectionTask> {
 
+    PartialInboundConnectionTaskBuilder asDefault(boolean asDefault);
+
 }

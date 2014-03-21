@@ -172,8 +172,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         this.pluggableClassId = connectionTypePluggableClass == null ? 0 : connectionTypePluggableClass.getId();
     }
 
-    @Override
-    public void setDefault(boolean asDefault) {
+    void setDefault(boolean asDefault) {
         this.isDefault = asDefault;
     }
 
@@ -195,5 +194,35 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
             return true;
         }
 
+    }
+
+    public static class HasSpecValidator implements ConstraintValidator<PartialConnectionTaskPropertyMustHaveSpec, PartialConnectionTaskProperty> {
+
+        @Override
+        public void initialize(PartialConnectionTaskPropertyMustHaveSpec constraintAnnotation) {
+        }
+
+        @Override
+        public boolean isValid(PartialConnectionTaskProperty value, ConstraintValidatorContext context) {
+            ConnectionTypePluggableClass connectionTypePluggableClass = value.getPartialConnectionTask().getPluggableClass();
+            return connectionTypePluggableClass.getPropertySpec(value.getName()) != null;
+        }
+    }
+
+    public static class ValueValidator implements ConstraintValidator<PartialConnectionTaskPropertyMustHaveSpec, PartialConnectionTaskProperty> {
+
+        @Override
+        public void initialize(PartialConnectionTaskPropertyMustHaveSpec constraintAnnotation) {
+        }
+
+        @Override
+        public boolean isValid(PartialConnectionTaskProperty value, ConstraintValidatorContext context) {
+            ConnectionTypePluggableClass connectionTypePluggableClass = value.getPartialConnectionTask().getPluggableClass();
+            PropertySpec propertySpec = connectionTypePluggableClass.getPropertySpec(value.getName());
+            if (propertySpec != null) {
+                return value.getValue() == null || propertySpec.getValueFactory().getValueType().isInstance(value.getValue());
+            }
+            return true; // missing spec is covered by different validation
+        }
     }
 }

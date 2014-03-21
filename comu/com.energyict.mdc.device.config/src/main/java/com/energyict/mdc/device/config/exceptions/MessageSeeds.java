@@ -142,7 +142,13 @@ public enum MessageSeeds implements MessageSeed {
     PROTOCOL_DIALECT_NAME_DOES_NOT_EXIST(13013, "protocolConfigurationProperties.doesNotExistName", "A protocolDialectConfigurationProperties with name {0} does not exist", Level.SEVERE),
     PROTOCOL_DIALECT_ID_DOES_NOT_EXIST(13014, "protocolConfigurationProperties.doesNotExistId", "A protocolDialectConfigurationProperties with id {0} does not exist", Level.SEVERE),
     PARTIAL_CONNECTION_TASK_NAME_DOES_NOT_EXIST(13015, "partialConnectionTask.doesNotExistName", "There is no Partial Connection Task by name {0}", SEVERE),
-    PARTIAL_CONNECTION_TASK_ID_DOES_NOT_EXIST(13016, "partialConnectionTask.doesNotExistId", "There is no Partial Connection Task with id {0}", SEVERE);
+    PARTIAL_CONNECTION_TASK_ID_DOES_NOT_EXIST(13016, "partialConnectionTask.doesNotExistId", "There is no Partial Connection Task with id {0}", SEVERE),
+    PARTIAL_CONNECTION_TASK_DUPLICATE(13017, Constants.PARTIAL_CONNECTION_TASK_DUPLICATE_KEY, "There is already a Connection task with name {0}", SEVERE),
+    PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC(13018, Constants.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC_KEY, "There is no spec for connection type property with name {0}", SEVERE),
+    PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE(13019, Constants.PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE_KEY, "The value for property {0} is of the wrong type.", SEVERE),
+    CONNECTION_STRATEGY_REQUIRED(13020, Constants.CONNECTION_STRATEGY_REQUIRED_KEY, "Connection Strategy is required", SEVERE),
+    NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS(13021, Constants.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS_KEY, "Next Execution Spec is required for OutboundConnectionTasks that minimize connections.", SEVERE),
+    NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY(13022, Constants.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY, "Next Execution Spec is invalid for Communication Window.", SEVERE);
 
     private final int number;
     private final String key;
@@ -214,6 +220,11 @@ public enum MessageSeeds implements MessageSeed {
         public static final String PROTOCOLDIALECT_CONF_PROPS_DUPLICATE_KEY = "DTC.protocolDialectConfigurationProperties.duplicate";
         public static final String PROTOCOLDIALECT_CONF_PROPS_MISSING_REQUIRED = "DTC.protocolDialectConfigurationProperties.missing.required.properties";
         public static final String PARTIAL_CONNECTION_TASK_DUPLICATE_KEY = "DTC.partialConnectionTask.duplicate";
+        public static final String PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC_KEY = "DTC.partialConnectionTaskProperty.hasNoSpec";
+        public static final String PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE_KEY = "DTC.partialConnectionTaskProperty.wrongValueType";
+        public static final String CONNECTION_STRATEGY_REQUIRED_KEY = "DTC.partialOutboundConnectionTask.connectionStrategyRequired";
+        public static final String NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS_KEY = "DTC.partialOutboundConnectionTask.executionSpecRequiredForMinimizeConnections";
+        public static final String NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY = "DTC.partialOutboundConnectionTask.executionSpecInvalidForComWindow";
     }
 
 }

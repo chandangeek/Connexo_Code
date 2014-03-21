@@ -18,5 +18,7 @@ public interface PartialOutboundConnectionTaskBuilder extends PartialScheduledCo
 
     PartialOutboundConnectionTaskBuilder allowSimultaneousConnections(boolean simultaneousConnectionsAllowed);
 
+    PartialOutboundConnectionTaskBuilder asDefault(boolean asDefault);
+
     PartialOutboundConnectionTaskBuilder initiatonTask(PartialConnectionInitiationTask connectionInitiationTask);
 }

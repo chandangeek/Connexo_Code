@@ -102,8 +102,6 @@ public interface PartialConnectionTask extends HasName, HasId {
 
     void setConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass);
 
-    void setDefault(boolean asDefault);
-
     void setProperty(String key, Object value);
 
     void removeProperty(String key);

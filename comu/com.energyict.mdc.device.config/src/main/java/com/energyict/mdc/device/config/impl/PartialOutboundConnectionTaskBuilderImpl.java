@@ -47,6 +47,12 @@ public class PartialOutboundConnectionTaskBuilderImpl extends AbstractScheduledP
     }
 
     @Override
+    public PartialOutboundConnectionTaskBuilder asDefault(boolean asDefault) {
+        this.asDefault = asDefault;
+        return myself;
+    }
+
+    @Override
     PartialOutboundConnectionTask newInstance() {
         return PartialOutboundConnectionTaskImpl.from(dataModel, configuration);
     }
@@ -54,6 +60,7 @@ public class PartialOutboundConnectionTaskBuilderImpl extends AbstractScheduledP
     @Override
     void populate(PartialOutboundConnectionTask instance) {
         super.populate(instance);
+        instance.setDefault(asDefault);
         instance.setComWindow(comWindow);
         instance.setConnectionStrategy(connectionStrategy);
         instance.setAllowSimultaneousConnections(allowSimultaneousConnections);

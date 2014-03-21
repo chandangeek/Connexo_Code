@@ -36,68 +36,11 @@ public abstract class PartialScheduledConnectionTaskImpl extends PartialConnecti
         super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService);
     }
 
-//    @Override
-//    protected void doLoad(ResultSetIterator resultSet) throws SQLException {
-//        super.doLoad(resultSet);
-//        this.nextExecutionSpecsId = resultSet.nextInt();
-//        final int count = resultSet.nextInt();
-//        final int timeUnitCode = resultSet.nextInt();
-//        if (count != 0) {
-//            this.rescheduleRetryDelay = new TimeDuration(count, timeUnitCode);
-//        }
-//    }
-
 //    protected DeviceCommunicationConfiguration validate(PartialScheduledConnectionTaskShadow shadow) throws BusinessException {
 //        DeviceCommunicationConfiguration configuration = super.validate(shadow);
 //        this.validateRescheduleRetryDelay(shadow.getRescheduleDelay());
 //        this.validateNextExecutionSpecs(shadow.getNextExecutionSpecs());
 //        return configuration;
-//    }
-//
-//    @Override
-//    protected boolean validateComPortPoolType (ComPortPool comPortPool) throws InvalidReferenceException {
-//        return !comPortPool.isInbound();
-//    }
-
-//    protected void doInitNextExecutionSpecs(PartialScheduledConnectionTaskShadow shadow) throws BusinessException, SQLException {
-//        boolean autoSchedule = shadow.getNextExecutionSpecs() != null;
-//        if (autoSchedule) {
-//            this.nextExecutionSpecs = this.getNextExecutionSpecFactory().create(shadow.getNextExecutionSpecs());
-//            this.nextExecutionSpecsId = (int) this.nextExecutionSpecs.getId();
-//        } else {
-//            this.nextExecutionSpecs = null;
-//            this.nextExecutionSpecsId = 0;
-//        }
-//    }
-
-//    protected boolean doUpdateNextExecutionSpecs(PartialScheduledConnectionTaskShadow shadow) throws BusinessException, SQLException {
-//        boolean deleteCurrentNextExecutionSpec = false;
-//        ServerNextExecutionSpecs currentNextExecutionSpecs = this.getNextExecutionSpecs();
-//        if (currentNextExecutionSpecs != null) {
-//            if (shadow.getNextExecutionSpecs() == null) {
-//                deleteCurrentNextExecutionSpec = true;
-//                this.nextExecutionSpecs = null;
-//                this.nextExecutionSpecsId = 0;
-//            } else {
-//                currentNextExecutionSpecs.update(shadow.getNextExecutionSpecs());
-//            }
-//        } else {
-//            this.createNextExecutionSpecsIfAny(shadow);
-//        }
-//
-//        return deleteCurrentNextExecutionSpec;
-//    }
-
-//    private boolean createNextExecutionSpecsIfAny(PartialScheduledConnectionTaskShadow shadow) throws BusinessException, SQLException {
-//        if (shadow.getNextExecutionSpecs() != null) {
-//            this.nextExecutionSpecs = this.getNextExecutionSpecFactory().create(shadow.getNextExecutionSpecs());
-//            this.nextExecutionSpecsId = (int) this.nextExecutionSpecs.getId();
-//            return true;
-//        } else {
-//            this.nextExecutionSpecs = null;
-//            this.nextExecutionSpecsId = 0;
-//            return false;
-//        }
 //    }
 
 //    /**
@@ -138,29 +81,6 @@ public abstract class PartialScheduledConnectionTaskImpl extends PartialConnecti
     private boolean isNotNull(TimeDuration offset) {
         return offset != null && offset.getMilliSeconds() != 0;
     }
-
-//    @Override
-//    protected int bindBody(PreparedStatement preparedStatement, int firstParameterNumber) throws SQLException {
-//        int parameterNumber = super.bindBody(preparedStatement, firstParameterNumber);
-//        parameterNumber = this.bindNextExecutionSpec(preparedStatement, parameterNumber);
-//        if (getRescheduleDelay() != null) {
-//            preparedStatement.setInt(parameterNumber++, getRescheduleDelay().getCount());
-//            preparedStatement.setInt(parameterNumber++, getRescheduleDelay().getTimeUnitCode());
-//        } else {
-//            preparedStatement.setNull(parameterNumber++, Types.INTEGER);
-//            preparedStatement.setNull(parameterNumber++, Types.INTEGER);
-//        }
-//        return parameterNumber;
-//    }
-
-//    private int bindNextExecutionSpec(PreparedStatement preparedStatement, int parameterNumber) throws SQLException {
-//        if (this.nextExecutionSpecsId != 0) {
-//            preparedStatement.setInt(parameterNumber++, this.nextExecutionSpecsId);
-//        } else {
-//            preparedStatement.setNull(parameterNumber++, Types.INTEGER);
-//        }
-//        return parameterNumber;
-//    }
 
     @Override
     public TimeDuration getRescheduleDelay() {

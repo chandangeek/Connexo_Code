@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -13,6 +14,8 @@ import javax.inject.Inject;
  * @author sva
  * @since 22/01/13 - 9:05
  */
+@PartialConnectionTaskPropertyMustHaveSpec(groups = {Save.Create.class, Save.Update.class})
+@PartialConnectionTaskPropertyValueHasCorrectType(groups = {Save.Create.class, Save.Update.class})
 class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty {
 
     private Reference<PartialConnectionTask> partialConnectionTask = ValueReference.absent();

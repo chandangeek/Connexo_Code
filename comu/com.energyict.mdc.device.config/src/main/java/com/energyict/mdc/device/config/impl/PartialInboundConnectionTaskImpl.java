@@ -33,62 +33,10 @@ public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl 
         return this;
     }
 
-
-//    public void init(final PartialInboundConnectionTaskShadow shadow) throws SQLException, BusinessException {
-//        this.execute(new Transaction<Void>() {
-//            public Void doExecute () throws BusinessException, SQLException {
-//                doInit(shadow);
-//                return null;
-//            }
-//        });
-//    }
-
-//    private void doInit(PartialInboundConnectionTaskShadow shadow) throws BusinessException, SQLException {
-//        this.validateNew(shadow);
-//        this.copyNew(shadow);
-//        this.postNew();
-//        this.postProperties(shadow);
-//        this.created();
-//    }
-
-//    private void validateNew(PartialInboundConnectionTaskShadow shadow) throws BusinessException {
-//        this.validate(shadow);
-//    }
-
-//    @Override
-//    protected boolean validateComPortPoolType (ComPortPool comPortPool) throws InvalidReferenceException {
-//        return comPortPool.isInbound();
-//    }
-
-//    private void copyNew(PartialInboundConnectionTaskShadow shadow) {
-//        copy(shadow);
-//    }
-
-//    @Override
-//    public void update(final PartialInboundConnectionTaskShadow shadow) throws BusinessException, SQLException {
-//        this.execute(new Transaction<Void>() {
-//            public Void doExecute() throws BusinessException, SQLException {
-//                doUpdate(shadow);
-//                return null;
-//            }
-//        });
-//    }
-
-//    private void doUpdate(PartialInboundConnectionTaskShadow shadow) throws BusinessException, SQLException {
-//        this.validateUpdate(shadow);
-//        this.copyUpdate(shadow);
-//        this.post();
-//        this.postProperties(shadow);
-//        this.updated();
-//    }
-
-//    private void validateUpdate(PartialInboundConnectionTaskShadow shadow) throws BusinessException {
-//        validate(shadow);
-//    }
-//
-//    private void copyUpdate(PartialInboundConnectionTaskShadow shadow) {
-//        copy(shadow);
-//    }
+    @Override
+    public void setDefault(boolean asDefault) {
+        super.setDefault(asDefault);
+    }
 
     @Override
     protected final CreateEventType createEventType() {

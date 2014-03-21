@@ -44,12 +44,6 @@ public abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortP
         return myself;
     }
 
-    @Override
-    public S asDefault(boolean asDefault) {
-        this.asDefault = asDefault;
-        return myself;
-    }
-
     public S addProperty(String key, Object value) {
         properties.put(key, value);
         return myself;
@@ -66,7 +60,6 @@ public abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortP
         U instance = newInstance();
         instance.setName(name);
         instance.setConnectionTypePluggableClass(connectionTypePluggableClass);
-        instance.setDefault(asDefault);
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
             instance.setProperty(entry.getKey(), entry.getValue());
             instance.getProperties().add(PartialConnectionTaskPropertyImpl.from(instance, entry.getKey(), entry.getValue()));
