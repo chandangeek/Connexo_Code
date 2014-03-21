@@ -255,21 +255,10 @@ Ext.define('Isu.controller.Issues', {
         }
     },
 
-    setDefaults: function (sortPanel) {
+    setDefaults: function () {
         var defaultSort = new Isu.model.IssueSort();
         defaultSort.addSortParam('dueDate');
         this.store.setProxySort(defaultSort);
-    },
-
-    updateIssueList: function () {
-        var extraParams = {};
-        if (this.groupParams != undefined) {
-            Ext.merge(extraParams, this.groupParams);
-        };
-        this.store.proxy.extraParams = extraParams;
-        console.log(extraParams);
-
-        this.store.load(extraParams);
     },
 
     changeSortDirection: function (btn) {
@@ -350,11 +339,11 @@ Ext.define('Isu.controller.Issues', {
         fullList.getSelectionModel().deselectAll();
         fullList.hide();
 
-        this.groupStore.loadPage(1);
         this.showDefaultItems();
 
         if (newValue != '(none)') {
-            this.groupStore.proxy.extraParams = {field: newValue};
+            this.groupStore.proxy.extraParams.field = newValue;
+        //    this.groupStore.load();
             this.groupStore.load();
             this.group = newValue;
             grid.show();
@@ -363,7 +352,7 @@ Ext.define('Isu.controller.Issues', {
             this.groupStore.removeAll();
             grid.hide();
             this.groupParams = {};
-            this.updateIssueList();
+            this.store.load();
             groupItemsShown.hide();
             this.groupStore.un('load', XtoYof);
             this.getIssueNoGroup().hide();
