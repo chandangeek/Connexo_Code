@@ -24,8 +24,11 @@ Ext.define('Isu.controller.history.Workspace', {
         crossroads.addRoute('workspace/datacollection/issues/{id}',function(id){
             Isu.getApplication().getIssueDetailController().showOverview(id);
         });
-        crossroads.addRoute('workspace/datacollection/issues/{id}/assignissue',function(id){
+        crossroads.addRoute('workspace/datacollection/issues/{id}/assign',function(id){
             Isu.getApplication().getAssignIssuesController().showOverview(id);
+        });
+        crossroads.addRoute('workspace/datacollection/issues/{id}/close',function(id){
+            Isu.getApplication().getCloseIssuesController().showOverview(id);
         });
 
         this.callParent(arguments);

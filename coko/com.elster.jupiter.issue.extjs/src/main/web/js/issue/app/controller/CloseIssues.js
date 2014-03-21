@@ -27,6 +27,21 @@ Ext.define('Isu.controller.CloseIssues', {
         this.getApplication().on('closeissue', this.submitIssueClosing)
     },
 
+    showOverview: function (issueId) {
+        var self = this,
+            model = self.getModel('Issues'),
+            widget;
+
+        model.load(issueId, {
+            success: function (record) {
+                widget = Ext.widget('issues-close', {
+                    record: record
+                });
+                self.getApplication().fireEvent('changecontentevent', widget);
+            }
+        });
+    },
+
     setBreadcrumb: function (breadcrumbs) {
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
                 text: 'Workspace',
