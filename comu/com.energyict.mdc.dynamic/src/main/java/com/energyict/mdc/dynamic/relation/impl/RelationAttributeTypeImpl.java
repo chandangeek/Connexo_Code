@@ -7,12 +7,14 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObjectFactory;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.SqlBuilder;
-import com.energyict.mdc.dynamic.ReferenceFactory;
+import com.energyict.mdc.dynamic.JupiterReferenceFactory;
+import com.energyict.mdc.dynamic.LegacyReferenceFactory;
 import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.dynamic.relation.exceptions.CannotDeleteDefaultRelationAttributeException;
 import com.energyict.mdc.dynamic.relation.CompositeAttributeTypeDetective;
@@ -235,8 +237,11 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
 
     private ValueFactory newValueFactory (String valueFactoryClassName, int objectFactoryId) {
         try {
-            if (valueFactoryClassName.equals(ReferenceFactory.class.getCanonicalName())) {
-                return new ReferenceFactory((IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(objectFactoryId));
+            if (valueFactoryClassName.equals(LegacyReferenceFactory.class.getCanonicalName())) {
+                return new LegacyReferenceFactory((IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(objectFactoryId));
+            }
+            else if (valueFactoryClassName.equals(JupiterReferenceFactory.class.getCanonicalName())) {
+                return new JupiterReferenceFactory(Environment.DEFAULT.get().finderFor(FactoryIds.forId(objectFactoryId)));
             }
             return (ValueFactory) Class.forName(valueFactoryClassName).newInstance();
         }

@@ -3,6 +3,7 @@ package com.energyict.mdc.dynamic.relation.impl;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.DatabaseException;
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.PrimaryKeyExternalRepresentationConvertor;
 import com.energyict.mdc.common.SqlBuilder;
@@ -421,7 +422,7 @@ public final class RelationFactory {
     public List<Relation> findByParticipantAndAttributeType(RelationParticipant participant, RelationAttributeType attribType, Date date, boolean includeObsolete, int fromRow, int toRow) {
         List<Relation> result = new ArrayList<>();
         if (this.relationType.isActive()) {
-            SqlBuilder builder = this.findByParticipantAndAttributeTypeSqlBuilder(includeObsolete, (IdBusinessObject) participant, attribType, date);
+            SqlBuilder builder = this.findByParticipantAndAttributeTypeSqlBuilder(includeObsolete, participant, attribType, date);
             result = this.fetch(builder.asPageSqlBuilder(fromRow, toRow));
             for (Relation aResult : result) {
                 RelationImpl each = (RelationImpl) aResult;
@@ -431,7 +432,7 @@ public final class RelationFactory {
         return result;
     }
 
-    private SqlBuilder findByParticipantAndAttributeTypeSqlBuilder(boolean includeObsolete, IdBusinessObject participant, RelationAttributeType attribType, Date date) {
+    private SqlBuilder findByParticipantAndAttributeTypeSqlBuilder(boolean includeObsolete, RelationParticipant participant, RelationAttributeType attribType, Date date) {
         SqlBuilder builder;
         if (includeObsolete) {
             builder = new SqlBuilder(this.selectUnionClause());
@@ -442,7 +443,7 @@ public final class RelationFactory {
         builder.appendWhereOrAnd();
         builder.append(attribType.getName());
         builder.append(" = ? ");
-        builder.bindInt(participant.getId());
+        this.bindParticipantIdentifier(participant, builder);
         if (date != null) {
             builder.append(" and fromdate <= ? and (todate is null or todate > ?) ");
             if (this.relationType.hasTimeResolution()) {
@@ -455,6 +456,15 @@ public final class RelationFactory {
             }
         }
         return builder;
+    }
+
+    private void bindParticipantIdentifier(RelationParticipant participant, SqlBuilder builder) {
+        if (participant instanceof IdBusinessObject) {
+            builder.bindInt(((IdBusinessObject) participant).getId());
+        }
+        else {
+            builder.bindLong(((HasId) participant).getId());
+        }
     }
 
     /**
