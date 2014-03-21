@@ -10,9 +10,11 @@ import com.energyict.mdc.common.BusinessEventManager;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.CacheHolder;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.DatabaseException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryFinder;
+import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.FormatPreferences;
 import com.energyict.mdc.common.JmsSessionContext;
 import com.energyict.mdc.common.MultiBundleTranslator;
@@ -87,6 +89,8 @@ public class EnvironmentImpl implements Environment {
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile BundleContext context;
+    private volatile Map<FactoryIds, CanFindByLongPrimaryKey> findersById = new HashMap<>();
+    private volatile Map<Class, CanFindByLongPrimaryKey> findersByClass = new HashMap<>();
 
     public EnvironmentImpl () {
         this.localNamedObjectsHolder = new ThreadLocal<NamedObjects>() {
@@ -550,6 +554,22 @@ public class EnvironmentImpl implements Environment {
         protected GlobalNamedObjects () {
             super(Collections.synchronizedMap(new HashMap<String, Object>()));
         }
+    }
+
+    @Override
+    public void registerFinder(CanFindByLongPrimaryKey finder) {
+        this.findersById.put(finder.registrationKey(), finder);
+        this.findersByClass.put(finder.valueDomain(), finder);
+    }
+
+    @Override
+    public CanFindByLongPrimaryKey finderFor(Class valueDomain) {
+        return this.findersByClass.get(valueDomain);
+    }
+
+    @Override
+    public CanFindByLongPrimaryKey finderFor(FactoryIds registrationKey) {
+        return this.findersById.get(registrationKey);
     }
 
     private class ConnectionUnwrapper {
