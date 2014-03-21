@@ -32,7 +32,7 @@ public enum TableSpecs {
             table.column("BASICMAXCLOCKDIFFVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(BasicCheckTaskImpl.Fields.MAXIMUM_CLOCK_DIFFERENCE.fieldName()+".count").add();
             table.column("BASICMAXCLOCKDIFFUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(BasicCheckTaskImpl.Fields.MAXIMUM_CLOCK_DIFFERENCE.fieldName()+".timeUnitCode").add();
 
-            table.foreignKey("FK_REMOTE_ONLINE").on(comTaskId).references(MDCCOMTASK.name()).map("comTask").add();
+            table.foreignKey("FK_COM_TASK").on(comTaskId).references(MDCCOMTASK.name()).map("comTask").add();
             table.primaryKey("TSK_PK_PROTOCOLTASK").on(idColumn).add();
         }
     },
@@ -46,6 +46,18 @@ public enum TableSpecs {
             table.column("MAXNROFTRIES").number().conversion(ColumnConversion.NUMBER2INT).map("").add();// TODO complete
             table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
             table.primaryKey("TSK_PK_COMTASK").on(idColumn).add();
+        }
+    },
+    MDCRTUMESSAGETYPEUSAGE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<MessagesTaskTypeUsage> table = dataModel.addTable(name(), MessagesTaskTypeUsage.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column messageTaskId = table.column("MESSAGETASK").number().conversion(ColumnConversion.NUMBER2INT).add(); // DO NOT MAP
+            table.column("MESSAGECATEGORY").number().conversion(ColumnConversion.NUMBER2INT).map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_CATEGORY.fieldName()).add();
+            table.column("MESSAGESPEC").number().conversion(ColumnConversion.NUMBER2INT).map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_SPEC.fieldName()).add();
+            table.foreignKey("FK_COM_TASK").on(messageTaskId).references(MDCPROTOCOLTASK.name()).map(MessagesTaskTypeUsageImpl.Fields.PROTOCOL_TASK.fieldName()).add();
+            table.primaryKey("TSK_PK_MTTU").on(idColumn).add();
         }
     };
 
