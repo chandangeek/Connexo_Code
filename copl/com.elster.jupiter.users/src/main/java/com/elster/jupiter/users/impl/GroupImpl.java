@@ -37,14 +37,15 @@ final class GroupImpl implements Group , PersistenceAware {
         this.dataModel = dataModel;
     }
 	
-	GroupImpl init(String name) {
+	GroupImpl init(String name, String description) {
         validateName(name);
         this.name = name;
+        this.description = description;
         return this;
 	}
 
-    static GroupImpl from(DataModel dataModel, String name) {
-        return dataModel.getInstance(GroupImpl.class).init(name);
+    static GroupImpl from(DataModel dataModel, String name, String description) {
+        return dataModel.getInstance(GroupImpl.class).init(name, description);
     }
 
     private void validateName(String name) {

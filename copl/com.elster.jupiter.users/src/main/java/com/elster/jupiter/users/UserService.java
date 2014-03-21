@@ -11,7 +11,7 @@ public interface UserService {
 
     User createUser(String name, String description);
 
-    Group createGroup(String name);
+    Group createGroup(String name, String description);
 
     Privilege createPrivilege(String componentName, String name, String description);
 
@@ -33,7 +33,7 @@ public interface UserService {
 
     Query<User> getUserQuery();
 
-    Group newGroup(String name);
+    Group newGroup(String name, String description);
 
     List<Privilege> getPrivileges();
 

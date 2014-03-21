@@ -37,7 +37,7 @@ public class InstallerImpl {
     }
 
     private GroupImpl createAdministrators() {
-		GroupImpl group = GroupImpl.from(dataModel, "Administrators");
+		GroupImpl group = GroupImpl.from(dataModel, "Administrators", "Administrative privileges");
 		group.save();
 		group.grant(Privileges.MANAGE_USERS);
 		return group;

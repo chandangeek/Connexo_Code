@@ -113,8 +113,8 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Override
-    public Group createGroup(String name) {
-        GroupImpl result = GroupImpl.from(dataModel, name);
+    public Group createGroup(String name, String description) {
+        GroupImpl result = GroupImpl.from(dataModel, name, description);
         result.persist();
         return result;
     }
@@ -204,8 +204,8 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Override
-    public Group newGroup(String name) {
-        return GroupImpl.from(dataModel, name);
+    public Group newGroup(String name, String description) {
+        return GroupImpl.from(dataModel, name, description);
     }
 
     @Override
