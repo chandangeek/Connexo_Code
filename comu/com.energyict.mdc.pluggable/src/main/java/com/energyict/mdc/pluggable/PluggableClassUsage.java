@@ -1,6 +1,6 @@
 package com.energyict.mdc.pluggable;
 
-import com.energyict.mdc.common.IdBusinessObject;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.HasDynamicProperties;
 
@@ -18,8 +18,7 @@ import java.util.List;
 public interface PluggableClassUsage
                 <T extends HasDynamicProperties,
                 PC extends PluggableClass,
-                PT extends PluggableClassUsageProperty<T>>
-        extends IdBusinessObject {
+                PT extends PluggableClassUsageProperty<T>> extends HasId {
 
     /**
      * Gets the {@link PluggableClass} that is used here.
@@ -35,6 +34,24 @@ public interface PluggableClassUsage
      * @return the requested property or <code>null</code> when property is not found
      */
     public PluggableClassUsageProperty<T> getProperty (String propertyName);
+
+    /**
+     * Sets the value of the property with the specified name.
+     *
+     * @param propertyName the name of the property
+     * @param value The property value
+     */
+    public void setProperty (String propertyName, Object value);
+
+    /**
+     * Removes the property with the specified name.
+     * In case the property was inherited from the {@link PluggableClass}
+     * then this actually means that this ConnectionMethod is reverting
+     * the setting of the property back to the PluggableClass level.
+     *
+     * @param propertyName The name of the property
+     */
+    public void removeProperty (String propertyName);
 
     /**
      * Provides the current properties ({@link #getAllProperties(Date)} in the TypedProperties format.
