@@ -379,9 +379,6 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             case 'ALL':
                 grid.getSelectionModel().selectAll(true);
                 grid.fireEvent('selectionchange', grid);
-                break;
-            case 'SELECTED':
-                // Do something
         }
     },
 
