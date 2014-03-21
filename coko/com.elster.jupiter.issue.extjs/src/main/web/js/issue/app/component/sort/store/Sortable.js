@@ -14,11 +14,11 @@ Ext.define('Isu.component.sort.store.Sortable', {
      * @param sortModel Isu.component.filter.model.Filter
      */
     setProxySort: function(sortModel) {
+        //<debug>
         if (!sortModel instanceof Isu.component.filter.model.Filter) {
-            //<debug>
             Ext.Error.raise('!sortModel instanceof Isu.component.filter.model.Filter');
-            //</debug>
         }
+        //</debug>
 
         this.proxySort = sortModel;
         this.updateProxySort();
