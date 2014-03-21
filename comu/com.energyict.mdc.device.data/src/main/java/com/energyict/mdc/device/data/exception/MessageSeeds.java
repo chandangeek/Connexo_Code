@@ -12,8 +12,8 @@ import java.util.logging.Level;
  */
 public enum MessageSeeds implements MessageSeed {
 
-    DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(100, Constants.PHYSICAL_GATEWAY_STILL_IN_USE,"You can not delete device '{0}' because it is still used as a physical gateway for '{1}'", Level.SEVERE),
-    DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(101, Constants.COMMUNICATION_GATEWAY_STILL_IN_USE,"You can not delete device '{0}' because it is still used as a communication gateway for '{1}'", Level.SEVERE),
+    DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(101, Constants.PHYSICAL_GATEWAY_STILL_IN_USE,"You can not delete device '{0}' because it is still used as a physical gateway for '{1}'", Level.SEVERE),
+    DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(102, Constants.COMMUNICATION_GATEWAY_STILL_IN_USE,"You can not delete device '{0}' because it is still used as a communication gateway for '{1}'", Level.SEVERE),
     ;
 
     private final int number;

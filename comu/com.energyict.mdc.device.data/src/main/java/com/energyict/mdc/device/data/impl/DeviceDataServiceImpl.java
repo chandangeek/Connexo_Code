@@ -13,7 +13,6 @@ import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -27,9 +26,11 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Provides a straightforward implementation of the {@link com.energyict.mdc.device.data.DeviceDataService} interface
@@ -193,5 +194,20 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     @Override
     public LoadProfile findLoadProfileById(long id) {
         return dataModel.mapper(LoadProfile.class).getUnique("id", id).orNull();
+    }
+
+    @Override
+    public List<Device> findDevicesBySerialNumber(String serialNumber) {
+        return this.dataModel.mapper(Device.class).find("serialNumber", serialNumber);
+    }
+
+    @Override
+    public List<Device> findAllDevices() {
+        return this.dataModel.mapper(Device.class).find();
+    }
+
+    @Override
+    public List<Device> findDevicesByTimeZone(TimeZone timeZone) {
+        return this.dataModel.mapper(Device.class).find("timeZoneId", timeZone.getID());
     }
 }

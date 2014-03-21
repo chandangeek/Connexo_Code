@@ -19,12 +19,12 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
@@ -127,6 +127,7 @@ public class DeviceImpl implements Device {
 
     @Override
     public void delete() {
+        //TODO delete the cache!
         this.validateDelete();
         this.doDelete();
         this.notifyDeleted();

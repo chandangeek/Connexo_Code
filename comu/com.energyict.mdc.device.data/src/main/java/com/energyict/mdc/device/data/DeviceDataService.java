@@ -4,7 +4,9 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Provides services that relate to:
@@ -39,4 +41,10 @@ public interface DeviceDataService {
     public List<BaseDevice<Channel, LoadProfile, Register>> findCommunicationReferencingDevicesFor(Device device);
 
     public LoadProfile findLoadProfileById(long id);
+
+    public List<Device> findDevicesBySerialNumber(String serialNumber);
+
+    public List<Device> findAllDevices();
+
+    public List<Device> findDevicesByTimeZone(TimeZone timeZone);
 }

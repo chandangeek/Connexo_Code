@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.impl.offline;
 
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdw.amrimpl.EndDeviceRegister;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 
 /**
  * The Offline implementation of a {@link com.energyict.mdc.protocol.api.device.BaseRegister}
@@ -16,7 +16,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
     /**
      * The Register which will go Offline
      */
-    private final EndDeviceRegister register;
+    private final Register register;
 
     /**
      * The ObisCode of the register which is know/used by the Device
@@ -49,7 +49,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
     private String meterSerialNumber;
     private int deviceId;
 
-    public OfflineRegisterImpl(final EndDeviceRegister register) {
+    public OfflineRegisterImpl(final Register register) {
         this.register = register;
         this.deviceId = (int) register.getDevice().getId();
         this.goOffline();
@@ -67,7 +67,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
         this.registerUnit = this.register.getRegisterSpec().getUnit();
 
         // We don't use the rtuRegister.getOverruledRegisterGroup as this can be overruled!
-        this.registerGroupId = this.register.getRegisterGroup() == null ? 0 : (int) this.register.getRegisterGroup().getId();
+        this.registerGroupId = this.register.getRegisterSpec().getRegisterMapping().getRegisterGroup() == null ? 0 : (int) this.register.getRegisterSpec().getRegisterMapping().getRegisterGroup().getId();
         this.meterSerialNumber = this.register.getDevice().getSerialNumber();
     }
 

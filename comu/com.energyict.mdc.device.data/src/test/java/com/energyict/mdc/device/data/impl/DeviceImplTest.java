@@ -19,6 +19,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
