@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -16,6 +17,9 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -28,12 +32,14 @@ import java.util.List;
  * @author sva
  * @since 21/01/13 - 16:44
  */
+@PartialConnectionTaskCannotHaveDuplicateName(groups = {Save.Create.class, Save.Update.class})
 public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialConnectionTask> implements ServerPartialConnectionTask {
 
     private final EngineModelService engineModelService;
     private final ProtocolPluggableService protocolPluggableService;
 
     private Reference<DeviceCommunicationConfiguration> configuration = ValueReference.absent();
+    @NotNull()
     private long pluggableClassId;
     private ConnectionTypePluggableClass pluggableClass;
     private Reference<ComPortPool> comPortPool = ValueReference.absent();
@@ -51,101 +57,8 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     void setConfiguration(DeviceCommunicationConfiguration configuration) {
         this.configuration.set(configuration);
     }
-//    protected DeviceCommunicationConfiguration validate (PartialConnectionTaskShadow shadow) throws BusinessException {
-//        DeviceCommunicationConfiguration configuration = this.validateConfiguration(shadow);
-//        this.validateConnectionTypePluggableClass(shadow.getConnectionTypePluggableClassId());
-//        String name = shadow.getName();
-//        this.validate(name);
-//        if (!name.equals(this.getName())) {
-//            this.validateConstraint(name, configuration);
-//        }
-//        this.validateComPortPool(shadow.getComPortPoolId());
-//        this.validateProperties(shadow);
-//        return configuration;
-//    }
-//
-//    protected ConnectionTypePluggableClass validateConnectionTypePluggableClass (long connectionTypePluggableClassId) throws BusinessException {
-//        ConnectionTypePluggableClass connectionTypePluggableClass = this.findConnectionTypePluggableClass(connectionTypePluggableClassId);
-//        if (connectionTypePluggableClass == null) {
-//            throw InvalidReferenceException.newForIdBusinessObject((int) connectionTypePluggableClassId, ConnectionTypePluggableClass.class.getName());
-//        }
-//        return connectionTypePluggableClass;
-//    }
-//
-//    private void validateConstraint (String name, DeviceCommunicationConfiguration configuration) throws DuplicateException {
-//        PartialConnectionTaskFactory factory = this.factoryInstance();
-//        PartialConnectionTask connectionTaskWithTheSameName = factory.find(name, configuration);
-//        if (connectionTaskWithTheSameName != null) {
-//            if (this.getId() != connectionTaskWithTheSameName.getId()) {
-//                throw new DuplicateException(
-//                    "duplicatePartialConnectionTaskX",
-//                    "A partial connection task with the name '{0}' already exists on configuration '{1}' (id={2,number})",
-//                    name, configuration.getDeviceConfiguration().getName(), connectionTaskWithTheSameName.getId());
-//            }
-//        }
-//    }
-//
-//    private void validateComPortPool (int comPortPoolId) throws InvalidReferenceException {
-//        if (comPortPoolId != 0) {
-//            ComPortPool comPortPool = this.findComPortPool(comPortPoolId);
-//            if (comPortPool == null) {
-//                throw InvalidReferenceException.newForIdBusinessObject(comPortPoolId, ComPortPool.class.getName());
-//            }
-//            if (!this.validateComPortPoolType(comPortPool)) {
-//                throw InvalidReferenceException.newForIdBusinessObjectSubClass(comPortPoolId,  ComPortPool.class.getName(), this.expectedComPortPoolType());
-//            }
-//        }
-//    }
-//
-//    protected abstract boolean validateComPortPoolType (ComPortPool comPortPool) throws InvalidReferenceException;
 
     protected abstract Class<? extends ComPortPool> expectedComPortPoolType ();
-
-//    private void validateProperties (PartialConnectionTaskShadow shadow) throws BusinessException {
-//        this.validatePropertiesAreLinkedToPropertySpecs(shadow);
-//        this.validatePropertyValues(shadow);
-//    }
-
-//    private void validatePropertiesAreLinkedToPropertySpecs (PartialConnectionTaskShadow shadow) throws BusinessException {
-//        ConnectionTypePluggableClass connectionTypePluggableClass = this.findConnectionTypePluggableClass(shadow.getConnectionTypePluggableClassId());
-//        for (String propertyName : shadow.getTypedProperties().localPropertyNames()) {
-//            if (connectionTypePluggableClass.getPropertySpec(propertyName) == null) {
-//                throw new BusinessException(
-//                        "connectionTaskPropertyXIsNotInConnectionTypeSpec",
-//                        "ConnectionType '{0}' does not contain a specification for attribute '{1}'",
-//                        connectionTypePluggableClass.getName(),
-//                        propertyName);
-//            }
-//        }
-//    }
-
-//    private void validatePropertyValues (PartialConnectionTaskShadow shadow) throws BusinessException {
-//        ConnectionTypePluggableClass connectionTypePluggableClass = this.findConnectionTypePluggableClass(shadow.getConnectionTypePluggableClassId());
-//        for (String propertyName : shadow.getTypedProperties().localPropertyNames()) {
-//            this.validatePropertyValue(connectionTypePluggableClass, propertyName, shadow.getTypedProperties().getProperty(propertyName));
-//        }
-//    }
-
-//    private void validatePropertyValue (ConnectionTypePluggableClass connectionTypePluggableClass, String propertyName, Object propertyValue)
-//        throws InvalidValueException {
-//        ConnectionType connectionType = connectionTypePluggableClass.getConnectionType();
-//        PropertySpec propertySpec = connectionType.getPropertySpec(propertyName);
-//        propertySpec.validateValue(propertyValue);
-//    }
-//
-//    protected DeviceCommunicationConfiguration validateConfiguration (PartialConnectionTaskShadow shadow) throws InvalidReferenceException, InvalidValueException {
-//        int configurationId = shadow.getConfigurationId();
-//        DeviceCommunicationConfiguration configuration = this.findConfiguration(configurationId);
-//        if (configuration == null) {
-//            if (configurationId != 0) {
-//                throw InvalidReferenceException.newForIdBusinessObject(configurationId, this.getDeviceCommunicationConfigurationFactory());
-//            }
-//            else {
-//                throw new InvalidValueException("XcannotBeEmpty", "\"{0}\" is a required property", "partialConnectionTask.configuration");
-//            }
-//        }
-//        return configuration;
-//    }
 
     @Override
     protected void validateDelete () {
@@ -262,5 +175,25 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     @Override
     public void setDefault(boolean asDefault) {
         this.isDefault = asDefault;
+    }
+
+    public static class DuplicateValidator implements ConstraintValidator<PartialConnectionTaskCannotHaveDuplicateName, PartialConnectionTask> {
+
+        @Override
+        public void initialize(PartialConnectionTaskCannotHaveDuplicateName constraintAnnotation) {
+        }
+
+        @Override
+        public boolean isValid(PartialConnectionTask value, ConstraintValidatorContext context) {
+            ArrayList<PartialConnectionTask> partialConnectionTasks = new ArrayList<>(value.getConfiguration().getPartialConnectionTasks());
+            partialConnectionTasks.remove(value);
+            for (PartialConnectionTask partialConnectionTask : partialConnectionTasks) {
+                if (partialConnectionTask.getName().equals(value.getName())) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
     }
 }

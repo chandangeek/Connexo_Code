@@ -213,6 +213,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String PROTOCOLDIALECT_REQUIRED_KEY = "DTC.protocolDialectConfigurationProperties.dialectName.required";
         public static final String PROTOCOLDIALECT_CONF_PROPS_DUPLICATE_KEY = "DTC.protocolDialectConfigurationProperties.duplicate";
         public static final String PROTOCOLDIALECT_CONF_PROPS_MISSING_REQUIRED = "DTC.protocolDialectConfigurationProperties.missing.required.properties";
+        public static final String PARTIAL_CONNECTION_TASK_DUPLICATE_KEY = "DTC.partialConnectionTask.duplicate";
     }
 
 }
