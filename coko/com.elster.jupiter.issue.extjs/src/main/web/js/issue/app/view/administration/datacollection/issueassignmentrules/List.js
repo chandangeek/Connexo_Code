@@ -47,19 +47,18 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
                         width: 70
                     }
                 ]
-            }
-        }
-    ],
-
-    dockedItems: [
-        {
-            xtype: 'toolbar',
-            dock: 'top',
-            items: [
+            },
+            dockedItems: [
                 {
-                    xtype: 'pagingtoolbartop',
-                    store: 'Isu.store.AssignmentRules',
-                    border: false
+                    xtype: 'toolbar',
+                    dock: 'top',
+                    items: [
+                        {
+                            xtype: 'pagingtoolbartop',
+                            store: 'Isu.store.AssignmentRules',
+                            border: false
+                        }
+                    ]
                 }
             ]
         }
@@ -72,6 +71,8 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
         self.callParent(arguments);
 
         store = this.down('grid').getStore();
+
+        self.onStoreLoad(store);
 
         store.on({
             load: {
@@ -92,14 +93,23 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
     },
 
     showEmptyText: function () {
-        this.down('button[name=bulk-change-issues-assignment-rules]').setDisabled(true);
-        this.down('grid').hide();
-        this.down('panel[name=empty-text]').show();
+        var grid = this.down('grid'),
+            emtyText = this.down('panel[name=empty-text]');
+
+        if (grid && emtyText) {
+            grid.hide();
+            emtyText.show();
+        }
     },
 
     hideEmptyText: function () {
-        this.down('grid').show();
-        this.down('panel[name=empty-text]').hide();
+        var grid = this.down('grid'),
+            emtyText = this.down('panel[name=empty-text]');
+
+        if (grid && emtyText) {
+            grid.show();
+            emtyText.hide();
+        }
     }
 });
 

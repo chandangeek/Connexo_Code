@@ -58,22 +58,20 @@ Ext.define('Isu.util.IsuGrid', {
                 cellInner = cell.down('.x-grid-cell-inner'),
                 text = cellInner.getHTML();
 
-            if (cellInner.getTextWidth() > cellInner.getWidth()) {
-                cell.tooltip = Ext.create('Ext.tip.ToolTip', {
-                    target: cell,
-                    html: text,
-                    style: {
-                        borderColor: 'black'
-                    }
-                });
+            cell.tooltip = Ext.create('Ext.tip.ToolTip', {
+                target: cell,
+                html: text,
+                style: {
+                    borderColor: 'black'
+                }
+            });
 
-                cell.on('mouseenter', function () {
-                    cell.tooltip.show();
-                });
-                cell.on('mouseleave', function () {
-                    cell.tooltip.hide();
-                });
-            }
+            cell.on('mouseenter', function () {
+                cell.tooltip.show();
+            });
+            cell.on('mouseleave', function () {
+                cell.tooltip.hide();
+            });
         });
     },
 
