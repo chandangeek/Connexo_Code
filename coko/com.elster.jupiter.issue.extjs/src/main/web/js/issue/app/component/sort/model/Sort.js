@@ -1,3 +1,36 @@
+/**
+ * @class Isu.component.sort.model.Sort
+ *
+ * Model of sorting params.
+ * params should be set via model fields:
+ *
+ * @Example
+ *
+ *  Ext.define('App.model.Sort', {
+ *      extend: 'Isu.component.sort.model.Sort',
+ *      fields: [{
+ *           name: 'dueDate',
+ *           displayValue: 'Due date'
+ *      }, {
+ *          name: 'created',
+ *          displayValue: 'Created time'
+ *      }]
+ *  });
+ *
+ *  var sort = new App.model.Sort();
+ *
+ *  sort.addSortParam('dueDate');
+ *  sort.addSortParam('created', App.model.Sort.ASC);
+ *
+ *  Model allows you to get plain data
+ *
+ *  @Example
+ *
+ *  {
+ *      'sort': ['dueDate', '-created']
+ *  }
+ *
+ */
 Ext.define('Isu.component.sort.model.Sort', {
     extend: 'Ext.data.Model',
 
@@ -17,6 +50,10 @@ Ext.define('Isu.component.sort.model.Sort', {
     },
 
     default: 'ASC',
+
+    /**
+     * returned object key property
+     */
     key: 'sort',
 
     /**
@@ -28,6 +65,12 @@ Ext.define('Isu.component.sort.model.Sort', {
         return [this.key];
     },
 
+    /**
+     * Add sorting param to the model. If sort order is not present it uses default value.
+     *
+     * @param key sorting key
+     * @param order sorting order
+     */
     addSortParam: function(key, order) {
         order = order || this.statics()[this.default];
 
@@ -37,6 +80,11 @@ Ext.define('Isu.component.sort.model.Sort', {
         }
     },
 
+    /**
+     * Toddles sorting direction of the specified param
+     *
+     * @param key sorting key
+     */
     toggleSortParam: function(key) {
         var field = this.fields.getByKey(key);
 
@@ -50,10 +98,20 @@ Ext.define('Isu.component.sort.model.Sort', {
         }
     },
 
+    /**
+     * Removes param from sorting
+     *
+     * @param key sorting key
+     */
     removeSortParam: function(key) {
         delete this.data[key];
     },
 
+    /**
+     * Returns plain object of sorting params
+     *
+     * @returns {Object}
+     */
     getPlainData: function() {
         var data = this.getData(),
             map = {};
