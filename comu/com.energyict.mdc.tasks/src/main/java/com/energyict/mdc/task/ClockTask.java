@@ -8,7 +8,7 @@ import com.energyict.mdc.common.TimeDuration;
  * @author gna
  * @since 19/04/12 - 15:23
  */
-public interface ClockTask extends ProtocolTask<ClockTask> {
+public interface ClockTask extends ProtocolTask {
 
     /**
      * Return the ClockTaskType for this task
@@ -16,6 +16,7 @@ public interface ClockTask extends ProtocolTask<ClockTask> {
      * @return the ClockTaskType
      */
     public ClockTaskType getClockTaskType();
+    public void setClockTaskType(ClockTaskType clockTaskType);
 
     /**
      * Get the minimum clock difference a Device must have before setting/synchronizing the Clock.
@@ -23,6 +24,7 @@ public interface ClockTask extends ProtocolTask<ClockTask> {
      * @return the minimum clock difference
      */
     public TimeDuration getMinimumClockDifference();
+    public void setMinimumClockDifference(TimeDuration minimumClockDiff);
 
     /**
      * Get the maximum clock difference a Device may have before setting the Clock.
@@ -30,6 +32,7 @@ public interface ClockTask extends ProtocolTask<ClockTask> {
      * @return the maximum clock difference
      */
     public TimeDuration getMaximumClockDifference();
+    public void setMaximumClockDifference(TimeDuration maximumClockDiff);
 
     /**
      * Get the maximum shift which may be done by a Clock synchronization.
@@ -37,12 +40,5 @@ public interface ClockTask extends ProtocolTask<ClockTask> {
      * @return the maximum clock shift
      */
     public TimeDuration getMaximumClockShift();
-
-    void setClockTaskType(ClockTaskType clockTaskType);
-
-    void setMinimumClockDifference(TimeDuration minimumClockDiff);
-
-    void setMaximumClockDifference(TimeDuration maximumClockDiff);
-
-    void setMaximumClockShift(TimeDuration maximumClockShift);
+    public void setMaximumClockShift(TimeDuration maximumClockShift);
 }

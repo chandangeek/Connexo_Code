@@ -1,14 +1,6 @@
 package com.energyict.mdc.task;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.protocol.tasks.BasicCheckTask;
-import com.energyict.mdc.protocol.tasks.LoadProfilesTask;
-import com.energyict.mdc.protocol.tasks.LogBooksTask;
-import com.energyict.mdc.protocol.tasks.MessagesTask;
-import com.energyict.mdc.protocol.tasks.RegistersTask;
-import com.energyict.mdc.protocol.tasks.StatusInformationTask;
-import com.energyict.mdc.protocol.tasks.TopologyTask;
-import com.energyict.mdc.shadow.protocol.task.ClockTaskShadow;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -47,12 +39,11 @@ public interface ComTask {
     /**
      * Create a {@link ClockTask} based on the given shadow for this {@link ComTask}
      *
-     * @param clockTask the shadow to use for modeling the new {@link ClockTask}
      * @return the newly created {@link ClockTask}
      * @throws BusinessException if some validation of the {@link ClockTask} failed or another business related error occurred
      * @throws SQLException      if a database related error occurred
      */
-    public ClockTask createClockTask(final ClockTaskShadow clockTask) throws BusinessException, SQLException;
+    public ClockTask createClockTask() throws BusinessException, SQLException;
 
     /**
      * Create a {@link LoadProfilesTask} based on the given shadow for this {@link ComTask}
