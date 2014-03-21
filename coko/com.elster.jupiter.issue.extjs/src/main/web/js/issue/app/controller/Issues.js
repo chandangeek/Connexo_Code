@@ -385,7 +385,10 @@ Ext.define('Isu.controller.Issues', {
             this.groupStore.un('load', XtoYof);
             this.getIssueNoGroup().hide();
             fullList.show();
-            this.store.updateProxyFilter();
+/*            this.store.getProxyFilter().set('reason', undefined);
+            this.store.updateProxyFilter();*/
+            this.store.setGroup(undefined);
+            this.store.load();
         }
     },
 
@@ -404,12 +407,15 @@ Ext.define('Isu.controller.Issues', {
         this.getIssueNoGroup().hide();
 //        this.groupParams[this.group] = record.data.id;
 
-        var model = new Isu.model.IssueReason({
-            id: record.getId(),
-            name: record.get('reason')
-        })
-        this.store.getProxyFilter().set('reason', model);
-        this.store.updateProxyFilter();
+//        var model = new Isu.model.IssueReason({
+//            id: record.getId(),
+//            name: record.get('reason')
+//        });
+//        console.log(this.store.getProxyFilter());
+//        this.store.getProxyFilter().set('reason', model);
+//        this.store.updateProxyFilter();
+        this.store.setGroup(record);
+        this.store.load();
 
 //        this.updateIssueList();
         this.showDefaultItems();

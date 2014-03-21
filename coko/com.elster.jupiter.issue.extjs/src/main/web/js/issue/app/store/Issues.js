@@ -15,6 +15,18 @@ Ext.define('Isu.store.Issues', {
     pageSize: 10,
     autoLoad: false,
 
+    group: null,
+
+    setGroup: function(record) {
+        this.group = record;
+    },
+
+    getGroupParams: function() {
+        return {
+            'reason': this.group.getId()
+        }
+    },
+
     listeners: {
         "beforeLoad": function() {
             var extraParams = this.proxy.extraParams;
@@ -29,6 +41,11 @@ Ext.define('Isu.store.Issues', {
                 extraParams = _.omit(extraParams, this.proxySort.getFields());
                 Ext.merge(extraParams, this.getSortParams());
             }
+
+            if (this.group) {
+                Ext.merge(extraParams, this.getGroupParams());
+            }
+
             this.proxy.extraParams = extraParams;
         }
     }

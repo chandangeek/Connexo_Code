@@ -63,7 +63,7 @@ Ext.define('Isu.controller.IssueFilter', {
         store.filter('name', 'Open'); //todo: hardcoded value! remove after proper REST API is implemented.
 
         if (!store.count()) {
-            store.on('load', function(){
+            store.on('load', function () {
                 me.loadDefaults();
             });
         } else {
@@ -71,13 +71,13 @@ Ext.define('Isu.controller.IssueFilter', {
         }
     },
 
-    loadDefaults: function() {
+    loadDefaults: function () {
         var form = this.getIssueFilter().down('filter-form'),
             defaultFilter = new Isu.model.IssueFilter(),
             store = this.getStore('IssueStatus'),
             me = this;
 
-        store.each(function(item) {
+        store.each(function (item) {
             defaultFilter.status().add(item);
         });
 
@@ -96,6 +96,16 @@ Ext.define('Isu.controller.IssueFilter', {
      * @param filter
      */
     filterUpdate: function (filter) {
+        var grstore = this.getStore('Isu.store.IssuesGroups');
+        reason = filter.get('reason');
+        if (reason) {
+            grstore.proxy.extraParams.id = reason.get('id');
+            grstore.load();
+        } else {
+            delete grstore.proxy.extraParams.id ;
+            grstore.load();
+        }
+        console.log(grstore, reason);
         this.getIssueFilter().down('filter-form').loadRecord(filter);
     },
 
@@ -104,7 +114,6 @@ Ext.define('Isu.controller.IssueFilter', {
             filter = form.getRecord();
 
         form.updateRecord(filter);
-        console.log(filter);
 
         this.getStore('Issues').setProxyFilter(filter);
     }
