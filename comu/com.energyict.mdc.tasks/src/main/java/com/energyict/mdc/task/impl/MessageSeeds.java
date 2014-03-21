@@ -18,7 +18,7 @@ public enum MessageSeeds implements MessageSeed {
     CAN_NOT_BE_EMPTY(5, Constants.TSK_CAN_NOT_BE_EMPTY, "This field can not be empty", Level.SEVERE),
     MIN_ABOVE_MAX(6, Constants.TSK_MIN_MUST_BE_BELOW_MAX, "Invalid range: minimum value exceeds maximum value", Level.SEVERE),
     MIN_EQUALS_MAX(7, Constants.TSK_MIN_EQUALS_MAX, "Invalid range: minimum value equals maximum value ", Level.SEVERE),
-    TIMEDURATION_IS_NULL(8, Constants.TSK_TIMEDURATION_IS_NULL, "Field must denote non-0 duration", Level.SEVERE),
+    TIMEDURATION_IS_NULL(8, Constants.TSK_TIMEDURATION_IS_ZERO, "Field must denote non-0 duration", Level.SEVERE),
     VALUE_NOT_IN_RANGE(999, Constants.TSK_VALUE_NOT_IN_RANGE, "{value} not in range {min} to {max}", Level.SEVERE);
 
     private final int number;
@@ -66,6 +66,6 @@ final class Constants {
     public static final String TSK_VALUE_NOT_IN_RANGE = TaskService.COMPONENT_NAME+".ValueNotInRange";
     public static final String TSK_MIN_MUST_BE_BELOW_MAX = TaskService.COMPONENT_NAME+".MinMustBeBelowMax";
     public static final String TSK_MIN_EQUALS_MAX = TaskService.COMPONENT_NAME+".MinEqualsMax";
-    public static final String TSK_TIMEDURATION_IS_NULL = TaskService.COMPONENT_NAME+".TimeDurationMustBePositive";
+    public static final String TSK_TIMEDURATION_IS_ZERO = TaskService.COMPONENT_NAME+".TimeDurationMustBePositive";
 }
 

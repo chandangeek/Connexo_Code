@@ -28,57 +28,54 @@ public class ClockTaskValidator implements ConstraintValidator<ValidClockTask, C
             case SETCLOCK: {
                 // both should be filled in
                 if (value.getMinimumClockDifference()==null) {
-                    context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate("{"+Constants.TSK_CAN_NOT_BE_EMPTY+"}").addPropertyNode(ClockTaskImpl.Fields.MINIMUMCLOCKDIFF.getName());
+                    fail(context, Constants.TSK_CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MINIMUMCLOCKDIFF.getName());
                     valid=false;
                 }
                 if (value.getMaximumClockDifference()==null) {
-                    context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate("{"+Constants.TSK_CAN_NOT_BE_EMPTY+"}").addPropertyNode(ClockTaskImpl.Fields.MAXIMUMCLOCKDIFF.getName());
+                    fail(context, Constants.TSK_CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MAXIMUMCLOCKDIFF.getName());
                     valid=false;
                 }
                 switch (value.getMinimumClockDifference().compareTo(value.getMaximumClockDifference())) {
                     case 0: {  // both can not be the same
-                        context.disableDefaultConstraintViolation();
-                        context.buildConstraintViolationWithTemplate("{"+Constants.TSK_MIN_EQUALS_MAX+"}").addPropertyNode(ClockTaskImpl.Fields.MINIMUMCLOCKDIFF.getName());
-                        context.buildConstraintViolationWithTemplate("{"+Constants.TSK_MIN_EQUALS_MAX+"}").addPropertyNode(ClockTaskImpl.Fields.MAXIMUMCLOCKDIFF.getName());
+                        fail(context, Constants.TSK_MIN_EQUALS_MAX, ClockTaskImpl.Fields.MINIMUMCLOCKDIFF.getName());
+                        fail(context, Constants.TSK_MIN_EQUALS_MAX, ClockTaskImpl.Fields.MAXIMUMCLOCKDIFF.getName());
                         valid=false;
                     }
                     case 1: {  // max. should be greater then min.
-                        context.disableDefaultConstraintViolation();
-                        context.buildConstraintViolationWithTemplate("{"+Constants.TSK_MIN_MUST_BE_BELOW_MAX+"}").addPropertyNode(ClockTaskImpl.Fields.MINIMUMCLOCKDIFF.getName());
-                        context.buildConstraintViolationWithTemplate("{"+Constants.TSK_MIN_MUST_BE_BELOW_MAX+"}").addPropertyNode(ClockTaskImpl.Fields.MAXIMUMCLOCKDIFF.getName());
+                        fail(context, Constants.TSK_MIN_MUST_BE_BELOW_MAX, ClockTaskImpl.Fields.MINIMUMCLOCKDIFF.getName());
+                        fail(context, Constants.TSK_MIN_MUST_BE_BELOW_MAX, ClockTaskImpl.Fields.MAXIMUMCLOCKDIFF.getName());
                         valid=false;
                     }
                 }
                 if (value.getMaximumClockDifference().getCount()<=0) {
-                    context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate("{"+Constants.TSK_TIMEDURATION_IS_NULL+"}").addPropertyNode(ClockTaskImpl.Fields.MAXIMUMCLOCKDIFF.getName());
+                    fail(context, Constants.TSK_TIMEDURATION_IS_ZERO, ClockTaskImpl.Fields.MAXIMUMCLOCKDIFF.getName());
                     valid=false;
                 }
             }
             break;
             case SYNCHRONIZECLOCK: {
                 if (value.getMaximumClockShift()==null) {
-                    context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate("{"+Constants.TSK_CAN_NOT_BE_EMPTY+"}").addPropertyNode(ClockTaskImpl.Fields.MAXIMUMCLOCKSHIFT.getName());
+                    fail(context, Constants.TSK_CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MAXIMUMCLOCKSHIFT.getName());
                     valid=false;
                 }
                 if (value.getMinimumClockDifference()==null) {
                     if (value.getMinimumClockDifference()==null) {
-                        context.disableDefaultConstraintViolation();
-                        context.buildConstraintViolationWithTemplate("{"+Constants.TSK_CAN_NOT_BE_EMPTY+"}").addPropertyNode(ClockTaskImpl.Fields.MINIMUMCLOCKDIFF.getName());
+                        fail(context, Constants.TSK_CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MINIMUMCLOCKDIFF.getName());
                         valid=false;
                     }
                 }
                 if (value.getMaximumClockShift().getCount()<=0) {
-                    context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate("{"+Constants.TSK_TIMEDURATION_IS_NULL+"}").addPropertyNode(ClockTaskImpl.Fields.MAXIMUMCLOCKSHIFT.getName());
+                    fail(context, Constants.TSK_TIMEDURATION_IS_ZERO, ClockTaskImpl.Fields.MAXIMUMCLOCKSHIFT.getName());
                     valid=false;
                 }
             }
         }
 
         return valid;
+    }
+
+    private void fail(ConstraintValidatorContext context, String msg, String fieldName) {
+        context.disableDefaultConstraintViolation();
+        context.buildConstraintViolationWithTemplate("{"+ msg +"}").addPropertyNode(fieldName);
     }
 }
