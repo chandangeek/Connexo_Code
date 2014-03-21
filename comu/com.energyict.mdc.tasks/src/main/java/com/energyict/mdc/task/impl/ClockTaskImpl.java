@@ -13,7 +13,7 @@ import javax.inject.Inject;
  * @author gna
  * @since 24/04/12 - 8:35
  */
-@ValidClockTask
+@ValidLoadProfileTask
 class ClockTaskImpl extends ProtocolTaskImpl implements ClockTask {
 
     private static final DeviceOfflineFlags FLAGS = new DeviceOfflineFlags();

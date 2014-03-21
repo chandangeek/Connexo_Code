@@ -7,10 +7,10 @@ import javax.validation.ConstraintValidatorContext;
 /**
  * Validates the ClockTask fields all at once
  */
-public class ClockTaskValidator implements ConstraintValidator<ValidClockTask, ClockTask> {
+public class ClockTaskValidator implements ConstraintValidator<ValidLoadProfileTask, ClockTask> {
 
     @Override
-    public void initialize(ValidClockTask constraintAnnotation) {
+    public void initialize(ValidLoadProfileTask constraintAnnotation) {
     }
 
     /*

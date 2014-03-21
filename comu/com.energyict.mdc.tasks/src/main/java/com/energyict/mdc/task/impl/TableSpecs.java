@@ -17,6 +17,10 @@ import static com.energyict.mdc.task.impl.ClockTaskImpl.Fields.CLOCK_TASK_TYPE;
 import static com.energyict.mdc.task.impl.ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF;
 import static com.energyict.mdc.task.impl.ClockTaskImpl.Fields.MAXIMUM_CLOCK_SHIFT;
 import static com.energyict.mdc.task.impl.ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF;
+import static com.energyict.mdc.task.impl.LoadProfilesTaskImpl.Fields.CREATE_METER_EVENTS_FROM_STATUS_FLAGS;
+import static com.energyict.mdc.task.impl.LoadProfilesTaskImpl.Fields.FAIL_IF_CONFIGURATION_MISMATCH;
+import static com.energyict.mdc.task.impl.LoadProfilesTaskImpl.Fields.MARK_INTERVALS_AS_BAD_TIME;
+import static com.energyict.mdc.task.impl.LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME;
 import static com.energyict.mdc.task.impl.MessagesTaskImpl.Fields.ALL_CATEGORIES;
 import static com.energyict.mdc.task.impl.TopologyTaskImpl.Fields.TOPOLOGY_ACTION;
 
@@ -48,6 +52,12 @@ public enum TableSpecs {
             table.column("ALLCATEGORIES").number().conversion(NUMBER2BOOLEAN).map(ALL_CATEGORIES.fieldName()).add();
 
             table.column("TOPOLOGYACTION").number().conversion(NUMBER2ENUM).map(TOPOLOGY_ACTION.fieldName()).add();
+
+            table.column("FAILIFCONFIGMISMATCH").number().conversion(NUMBER2BOOLEAN).map(FAIL_IF_CONFIGURATION_MISMATCH.fieldName()).add();
+            table.column("MARKASBADTIME").number().conversion(NUMBER2BOOLEAN).map(MARK_INTERVALS_AS_BAD_TIME.fieldName()).add();
+            table.column("CREATEMETEREVENTS").number().conversion(NUMBER2BOOLEAN).map(CREATE_METER_EVENTS_FROM_STATUS_FLAGS.fieldName()).add();
+            table.column("MINCLOCKDIFFBADTIMEVALUE").number().conversion(NUMBER2INT).map(MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()+".count").add();
+            table.column("MINCLOCKDIFFBADTIMEUNIT").number().conversion(NUMBER2INT).map(MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()+".timeUnitCode").add();
 
             table.foreignKey("FK_COM_TASK").on(comTaskId).references(MDCCOMTASK.name()).map("comTask").add();
             table.primaryKey("TSK_PK_PROTOCOLTASK").on(idColumn).add();
