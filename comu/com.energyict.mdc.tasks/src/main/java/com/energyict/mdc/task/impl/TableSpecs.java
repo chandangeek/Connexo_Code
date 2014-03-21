@@ -91,6 +91,23 @@ public enum TableSpecs {
                     add();
             table.primaryKey("TSK_PK_MTTU").on(idColumn).add();
         }
+    },
+    MDCRTUREGISTERGROUPUSAGE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<RegisterGroupUsage> table = dataModel.addTable(name(), RegisterGroupUsage.class);
+            Column registerTaskId = table.column("REGISTERTASK").number().conversion(NUMBER2INT).add(); // DO NOT MAP
+            Column registerGroupId = table.column("REGISTERGROUP").number().conversion(NUMBER2INT).add(); // DO NOT MAP
+
+            table.foreignKey("FK_PROTOCOLTASK").
+                    on(registerTaskId).references(MDCPROTOCOLTASK.name()).
+                    map(RegisterGroupUsageImpl.Fields.REGISTERS_TASK_REFERENCE.fieldName()).
+                    reverseMap(RegistersTaskImpl.Fields.REGISTER_GROUP_USAGES.fieldName()).
+                    composition().
+                    add();
+            table.foreignKey("FK_REGISTERGROUP").on(registerGroupId).map(RegisterGroupUsageImpl.Fields.REGISTERS_GROUP_REFERENCE.fieldName()).add();
+            table.primaryKey("PK_REGISTERGROUPUSAGE").on(registerTaskId, registerGroupId).add();
+        }
     };
 
 
