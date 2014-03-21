@@ -57,13 +57,15 @@ Ext.define('Isu.controller.IssueDetail', {
         });
     },
 
-    showOverview: function (issueId) {
+    showOverview: function (issueId, showCommentForm) {
         var self = this,
             widget = Ext.widget('issue-detail-overview'),
             issueDetailModel = self.getModel('Isu.model.Issues'),
             detailPanel = self.getDetailPanel();
 
         self.commentsAPI = '/api/isu/issue/' + issueId + '/comments';
+
+        showCommentForm && self.showCommentForm();
 
         issueDetailModel.load(issueId, {
             success: function (record) {
@@ -144,6 +146,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 var data = Ext.JSON.decode(response.responseText).data,
                     newComment;
 
+                !commentsPanel.getStore().getTotalCount() && commentsPanel.removeAll();
                 newComment = commentsPanel.addcomment(data);
             }
         });
