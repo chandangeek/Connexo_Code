@@ -250,7 +250,7 @@ Ext.define('Isu.controller.Issues', {
                 window.location.href = '#/workspace/datacollection/issues/' + menu.issueId + '/close';
                 break;
             case 'addcomment':
-                Isu.getApplication().getIssueDetailController().showOverview(menu.record.data.id, true);
+                Isu.getApplication().getIssueDetailController().showOverview(menu.issueId, true);
                 break;
         }
     },
