@@ -65,11 +65,11 @@ public class ReferenceFactory extends AbstractValueFactory {
     }
 
     public Object valueFromWS(Object object, ValueDomain domain) throws BusinessException {
-        throw new UnsupportedOperationException("ReferenceFactory#valueFromWS(Object, ValueDomain) is no longer supported");
+        throw new UnsupportedOperationException("LegacyReferenceFactory#valueFromWS(Object, ValueDomain) is no longer supported");
     }
 
     public Object valueToWS(Object object) {
-        throw new UnsupportedOperationException("ReferenceFactory#valueToWS(Object, ValueDomain) is no longer supported");
+        throw new UnsupportedOperationException("LegacyReferenceFactory#valueToWS(Object, ValueDomain) is no longer supported");
     }
 
     public Class getValueType() {
