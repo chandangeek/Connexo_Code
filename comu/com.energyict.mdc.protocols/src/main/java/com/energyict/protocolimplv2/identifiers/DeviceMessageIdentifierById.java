@@ -2,8 +2,8 @@ package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+import com.energyict.mdc.protocol.api.device.messages.BaseDeviceMessageFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageFactory;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 
 import java.util.List;
@@ -51,10 +51,10 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
         return messageId;
     }
 
-    private DeviceMessageFactory getDeviceMessageFactory () {
-        List<DeviceMessageFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceMessageFactory.class);
+    private BaseDeviceMessageFactory getDeviceMessageFactory () {
+        List<BaseDeviceMessageFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(BaseDeviceMessageFactory.class);
         if (factories.isEmpty()) {
-            throw CommunicationException.missingModuleException(DeviceMessageFactory.class);
+            throw CommunicationException.missingModuleException(BaseDeviceMessageFactory.class);
         }
         else {
             return factories.get(0);

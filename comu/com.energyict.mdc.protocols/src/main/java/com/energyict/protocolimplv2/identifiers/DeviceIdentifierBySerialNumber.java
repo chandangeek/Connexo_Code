@@ -102,8 +102,8 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
         }
         List<OfflineDevice> allOfflineDevices = new ArrayList<>();
         OfflineDeviceContext offlineDeviceContext = new DeviceOfflineFlags();
-        for (BaseDevice deviceToGoOffline : this.allDevices) {
-            OfflineDevice offline = (OfflineDevice) deviceToGoOffline.goOffline(offlineDeviceContext);
+        for (BaseDevice<?,?,?> deviceToGoOffline : this.allDevices) {
+            OfflineDevice offline = deviceToGoOffline.goOffline(offlineDeviceContext);
             allOfflineDevices.add(offline);
         }
         return allOfflineDevices;
