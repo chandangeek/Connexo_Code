@@ -57,7 +57,7 @@ Ext.define('Isu.controller.CloseIssues', {
             }),
             breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem', {
                 text: 'Close Issue',
-                href: 'closeissue'
+                href: 'close'
             });
         breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2).setChild(breadcrumbChild3);
 

@@ -192,7 +192,7 @@ Ext.define('Isu.view.workspace.issues.bulk.Wizard', {
                             itemId: 'cancel',
                             action: 'cancelWizard',
                             scope: this,
-                            cls: Ext.baseCSSPrefix + 'btn-plain-toolbar-medium',
+                            cls: 'isu-btn-link',
                             handler: this.onCancelButtonClick
                         }
                     ]

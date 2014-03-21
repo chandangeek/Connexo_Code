@@ -64,7 +64,7 @@ Ext.define('Isu.controller.AssignIssues', {
                 }),
                 breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem', {
                     text: 'Assign Issue',
-                    href: 'assignissue'
+                    href: 'assign'
                 });
             breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2).setChild(breadcrumbChild3);
 
