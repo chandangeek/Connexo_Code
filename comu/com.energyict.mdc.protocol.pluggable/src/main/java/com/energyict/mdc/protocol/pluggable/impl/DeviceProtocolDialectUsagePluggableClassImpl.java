@@ -8,7 +8,7 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.ReferenceFactory;
+import com.energyict.mdc.dynamic.LegacyReferenceFactory;
 import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.dynamic.relation.ConstraintShadow;
 import com.energyict.mdc.dynamic.relation.Relation;
@@ -132,7 +132,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
         shadow.setRequired(true);
         shadow.setIsDefault(true);
         shadow.setObjectFactoryId(FactoryIds.DEVICE_PROTOCOL_DIALECT.id());
-        shadow.setValueFactoryClass(ReferenceFactory.class);
+        shadow.setValueFactoryClass(LegacyReferenceFactory.class);
         return shadow;
     }
 

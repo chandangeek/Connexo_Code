@@ -41,7 +41,7 @@ public final class InboundDeviceProtocolPluggableClassImpl extends PluggableClas
 
     @Override
     protected Discriminator discriminator() {
-        return Discriminator.DEVICEPROTOCOL;
+        return Discriminator.DISCOVERYPROTOCOL;
     }
 
     @Override
@@ -69,21 +69,6 @@ public final class InboundDeviceProtocolPluggableClassImpl extends PluggableClas
         InboundDeviceProtocol inboundDeviceProtocol = this.newInstance();
         inboundDeviceProtocol.copyProperties(this.getProperties(inboundDeviceProtocol.getPropertySpecs()));
         return inboundDeviceProtocol;
-    }
-
-    @Override
-    public void notifyDeleted() {
-//        List<InboundComPortPool> inboundComPortPools = ManagerFactory.getCurrent().getComPortPoolFactory().findByDiscoveryProtocol(this);
-//        if (!inboundComPortPools.isEmpty()) {
-//            throw new BusinessException(
-//                    "discoveryProtocolXIsStillUsedByInboundComPortPoolsY",
-//                    "The discovery protocol pluggable class {0} is still in use by the following inbound com port pools {1}",
-//                    this.getName(),
-//                    this.toSeparatedList(inboundComPortPools));
-//        }
-        // Todo: throw event that will allow the ComPortPool factory to check if this protocol is still used or not
-        //       until then, this method is marked as unsupported
-        throw new UnsupportedOperationException("InboundDeviceProtocolPluggableClassImpl#notifyDelete");
     }
 
     @Override
