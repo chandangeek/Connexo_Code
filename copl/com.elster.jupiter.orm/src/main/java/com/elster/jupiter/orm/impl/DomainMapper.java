@@ -11,6 +11,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 
 
 public enum DomainMapper {
@@ -147,6 +148,7 @@ public enum DomainMapper {
 		return result;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public static Class<?> extractDomainClass (Field field) {
 		Type type = field.getGenericType();
 		if (type instanceof Class<?>) {
@@ -154,11 +156,16 @@ public enum DomainMapper {
 		} else if (type instanceof ParameterizedType) {
 			Type subType = ((ParameterizedType) type).getActualTypeArguments()[0];
 			if (subType instanceof Class<?>) {
+				// e.g. Reference<DomainModel>
 				return (Class<?>) subType;
-			} else if (type instanceof ParameterizedType) {
+			} else if (subType instanceof ParameterizedType) {
+				// e.g. Reference<DomainModel<Template>>
 				return (Class<?>) ((ParameterizedType) subType).getRawType();
+			} else if (subType instanceof TypeVariable) {
+				// e.g. Reference<Template>
+                return (Class<?>) ((TypeVariable) subType).getBounds()[0];
 			}
-		} 
+        }
 		throw new IllegalArgumentException("" + type);
 	}
 }
