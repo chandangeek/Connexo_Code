@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-28 (16:51)
  */
-public interface DeviceIdentifier extends Serializable {
+public interface DeviceIdentifier<T extends BaseDevice< ? extends BaseChannel, ? extends BaseLoadProfile<?  extends BaseChannel>, ? extends  BaseRegister>> extends Serializable {
 
     public String getIdentifier();
 
@@ -22,6 +22,6 @@ public interface DeviceIdentifier extends Serializable {
      *
      * @return The Device
      */
-    public BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> findDevice();
+    public T findDevice();
 
 }

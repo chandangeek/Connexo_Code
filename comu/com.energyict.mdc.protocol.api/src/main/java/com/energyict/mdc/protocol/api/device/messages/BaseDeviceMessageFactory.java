@@ -9,7 +9,7 @@ import com.energyict.mdc.common.ApplicationComponent;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-10 (10:06)
  */
-public interface DeviceMessageFactory {
+public interface BaseDeviceMessageFactory {
 
     public DeviceMessage findDeviceMessage(int messageId);
 
