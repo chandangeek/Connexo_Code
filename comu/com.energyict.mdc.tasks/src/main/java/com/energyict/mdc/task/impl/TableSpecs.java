@@ -18,13 +18,13 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column comTaskId = table.column("COMTASKID").number().conversion(ColumnConversion.NUMBER2INT).add(); // DO NOT MAP
-            table.column("CLOCKTASKTYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map("clockTaskType").add();
-            table.column("MINCLOCKDIFFVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("minimumClockDiff.count").add();
-            table.column("MINCLOCKDIFFUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("minimumClockDiff.timeUnitCode").add();
-            table.column("MAXCLOCKDIFFVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("maximumClockDiff.count").add();
-            table.column("MAXCLOCKDIFFUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("maximumClockDiff.timeUnitCode").add();
-            table.column("MAXCLOCKSHIFTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("maximumClockShift.count").add();
-            table.column("MAXCLOCKSHIFTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("maximumClockShift.timeUnitCode").add();
+            table.column("CLOCKTASKTYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(ClockTaskImpl.Fields.CLOCKTASKTYPE.getName()).add();
+            table.column("MINCLOCKDIFFVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MINIMUMCLOCKDIFF.getName()+".count").add();
+            table.column("MINCLOCKDIFFUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MINIMUMCLOCKDIFF.getName()+".timeUnitCode").add();
+            table.column("MAXCLOCKDIFFVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MAXIMUMCLOCKDIFF.getName()+".count").add();
+            table.column("MAXCLOCKDIFFUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MAXIMUMCLOCKDIFF.getName()+".timeUnitCode").add();
+            table.column("MAXCLOCKSHIFTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MAXIMUMCLOCKSHIFT.getName()+".count").add();
+            table.column("MAXCLOCKSHIFTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MAXIMUMCLOCKSHIFT.getName()+".timeUnitCode").add();
 
             table.foreignKey("FK_REMOTE_ONLINE").on(comTaskId).references(MDCCOMTASK.name()).map("comTask").add();
             table.primaryKey("TSK_PK_PROTOCOLTASK").on(idColumn).add();
@@ -36,8 +36,8 @@ public enum TableSpecs {
             Table<ComTask> table = dataModel.addTable(name(), ComTask.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").type("varchar2(256)").map("name").add();
-            table.column("STOREDATA").number().conversion(ColumnConversion.NUMBER2INT).map("").add();
-            table.column("MAXNROFTRIES").number().conversion(ColumnConversion.NUMBER2INT).map("").add();
+            table.column("STOREDATA").number().conversion(ColumnConversion.NUMBER2INT).map("").add(); // TODO complete
+            table.column("MAXNROFTRIES").number().conversion(ColumnConversion.NUMBER2INT).map("").add();// TODO complete
             table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
             table.primaryKey("TSK_PK_COMTASK").on(idColumn).add();
         }
