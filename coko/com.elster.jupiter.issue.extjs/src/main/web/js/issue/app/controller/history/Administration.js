@@ -2,39 +2,40 @@ Ext.define('Isu.controller.history.Administration', {
     extend: 'Uni.controller.history.Converter',
 
     rootToken: 'administration',
+    previousPath: '',
+    currentPath: null,
 
-    doConversion: function (tokens) {
-        if (tokens.length > 1) {
-            if (tokens.length == 3) {
-                switch (tokens[2]) {
-                    case 'issueassignmentrules':
-                        this.showAssigmentRules();
-                        break;
-                    case 'issueautomaticcreationrules':
-                        this.showAutoCreationRules();
-                        break;
-                }
-            } else if (tokens.length == 2 && tokens[1] == 'datacollection') {
-                this.showDataCollection();
-            }
-        } else {
-            this.showWorkspace();
+    init: function () {
+        var me = this;
+
+        crossroads.addRoute('administration',function(){
+            Isu.getApplication().getAdministrationController().showOverview();
+        });
+
+        crossroads.addRoute('administration/datacollection',function(){
+            Isu.getApplication().getAdministrationDataCollectionController().showOverview();
+        });
+        crossroads.addRoute('administration/datacollection/issueassignmentrules',function(){
+            Isu.getApplication().getIssueAssignmentRulesController().showOverview();
+        });
+        crossroads.addRoute('administration/datacollection/issueautomaticcreationrules',function(){
+            Isu.getApplication().getIssueAutoCreationRulesController().showOverview();
+        });
+
+        this.callParent(arguments);
+    },
+
+    doConversion: function (tokens,token) {
+        //now has tokens and token (which is you complete path)
+
+        var queryStringIndex = token.indexOf('?');
+        if (queryStringIndex > 0) {
+            token = token.substring(0, queryStringIndex);
         }
-    },
-
-    showWorkspace: function () {
-        Isu.getApplication().getAdministrationController().showOverview();
-    },
-
-    showDataCollection: function () {
-        Isu.getApplication().getAdministrationDataCollectionController().showOverview();
-    },
-
-    showAssigmentRules: function () {
-        Isu.getApplication().getIssueAssignmentRulesController().showOverview();
-    },
-
-    showAutoCreationRules: function () {
-        Isu.getApplication().getIssueAutoCreationRulesController().showOverview();
+        if (this.currentPath !== null) {
+            this.previousPath = this.currentPath;
+        }
+        this.currentPath = token;
+        crossroads.parse(token);
     }
 });

@@ -248,9 +248,7 @@ Ext.define('Isu.controller.Issues', {
 
         switch (action) {
             case 'assign':
-                widget = Ext.widget('issues-assign', {
-                    record: menu.record
-                });
+                window.location.href = '#/workspace/datacollection/issues/' + menu.issueId + '/assignissue';
                 break;
             case 'close':
                 widget = Ext.widget('issues-close', {

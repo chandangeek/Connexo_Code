@@ -34,6 +34,21 @@ Ext.define('Isu.controller.AssignIssues', {
             this.getApplication().on('assignissue', this.onSubmitForm)
         },
 
+        showOverview: function (issueId) {
+            var self = this,
+                model = self.getModel('Issues'),
+                widget;
+
+            model.load(issueId, {
+                success: function (record) {
+                    widget = Ext.widget('issues-assign', {
+                        record: record
+                    });
+                    self.getApplication().fireEvent('changecontentevent', widget);
+                }
+            });
+        },
+
         setBreadcrumb: function (breadcrumbs) {
             var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
                     text: 'Workspace',
