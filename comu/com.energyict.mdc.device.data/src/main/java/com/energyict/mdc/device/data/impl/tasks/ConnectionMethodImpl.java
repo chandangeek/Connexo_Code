@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.TypedProperties;
@@ -45,7 +46,11 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
  * @since 2012-05-31 (08:54)
  */
 @ComPortPoolIsCompatibleWithConnectionType(groups = {Save.Create.class, Save.Update.class})
-public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<ConnectionMethod, ConnectionType, ConnectionTaskProperty> implements ConnectionMethod, ConnectionTaskPropertyProvider {
+public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<ConnectionMethod, ConnectionType, ConnectionTaskProperty>
+        implements
+        ConnectionMethod,
+        ConnectionTaskPropertyProvider,
+        PersistenceAware {
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
     private ConnectionTypePluggableClass pluggableClass;
@@ -68,6 +73,11 @@ public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<Connectio
         this.setPluggableClassId(pluggableClass.getId());
         this.comPortPool.set(comPortPool);
         return this;
+    }
+
+    @Override
+    public void postLoad() {
+        this.loadPluggableClass();
     }
 
     @Override
@@ -158,9 +168,13 @@ public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<Connectio
     @Override
     public ConnectionTypePluggableClass getPluggableClass() {
         if (this.pluggableClass == null) {
-            this.pluggableClass = this.findConnectionTypePluggableClass(this.getPluggableClassId());
+            this.loadPluggableClass();
         }
         return pluggableClass;
+    }
+
+    private void loadPluggableClass() {
+        this.pluggableClass = this.findConnectionTypePluggableClass(this.getPluggableClassId());
     }
 
     @Override

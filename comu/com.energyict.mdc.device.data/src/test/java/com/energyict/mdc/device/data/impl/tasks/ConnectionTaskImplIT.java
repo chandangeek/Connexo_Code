@@ -11,6 +11,7 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
+import com.energyict.mdc.device.data.DeviceFactory;
 import com.energyict.mdc.device.data.PartialConnectionTaskFactory;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
@@ -59,7 +60,8 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static final int PARTIAL_OUTBOUND_CONNECTION_TASK3_ID = PARTIAL_OUTBOUND_CONNECTION_TASK2_ID + 1;
     protected static final int PARTIAL_INBOUND_CONNECTION_TASK1_ID = PARTIAL_OUTBOUND_CONNECTION_TASK3_ID + 1;
     protected static final int PARTIAL_INBOUND_CONNECTION_TASK2_ID = PARTIAL_INBOUND_CONNECTION_TASK1_ID + 1;
-    protected static final int PARTIAL_INITIATION_CONNECTION_TASK_ID = PARTIAL_INBOUND_CONNECTION_TASK2_ID + 1;
+    protected static final int PARTIAL_INBOUND_CONNECTION_TASK3_ID = PARTIAL_INBOUND_CONNECTION_TASK2_ID + 1;
+    protected static final int PARTIAL_INITIATION_CONNECTION_TASK_ID = PARTIAL_INBOUND_CONNECTION_TASK3_ID + 1;
 
     protected static final long IP_COMPORT_POOL_ID = 1;
     protected static final long MODEM_COMPORT_POOL_ID = IP_COMPORT_POOL_ID + 1;
@@ -231,6 +233,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     public void initializeMocks () {
         super.initializeMocks();
         when(this.device.getId()).thenReturn(DEVICE_ID);
+        DeviceFactory deviceFactory = mock(DeviceFactory.class);
+        when(deviceFactory.findDevice(DEVICE_ID)).thenReturn(this.device);
+        List<DeviceFactory> deviceFactories = Arrays.asList(deviceFactory);
+        when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class)).thenReturn(deviceFactories);
 
         when(this.deviceCommunicationConfiguration.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
 
@@ -240,17 +246,17 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         when(this.partialInboundConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
 
         when(this.partialInboundConnectionTask2.getId()).thenReturn(PARTIAL_INBOUND_CONNECTION_TASK2_ID);
-        when(this.partialInboundConnectionTask.getName()).thenReturn("Inbound (2)");
+        when(this.partialInboundConnectionTask2.getName()).thenReturn("Inbound (2)");
         when(this.partialInboundConnectionTask2.getConfiguration()).thenReturn(this.deviceCommunicationConfiguration);
         when(this.partialInboundConnectionTask2.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
 
         when(this.partialOutboundConnectionTask.getId()).thenReturn(PARTIAL_OUTBOUND_CONNECTION_TASK1_ID);
-        when(this.partialInboundConnectionTask.getName()).thenReturn("Outbound (1)");
+        when(this.partialOutboundConnectionTask.getName()).thenReturn("Outbound (1)");
         when(this.partialOutboundConnectionTask.getConfiguration()).thenReturn(this.deviceCommunicationConfiguration);
         when(this.partialOutboundConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
 
         when(this.partialOutboundConnectionTask2.getId()).thenReturn(PARTIAL_OUTBOUND_CONNECTION_TASK2_ID);
-        when(this.partialInboundConnectionTask.getName()).thenReturn("Outbound (2)");
+        when(this.partialOutboundConnectionTask2.getName()).thenReturn("Outbound (2)");
         when(this.partialOutboundConnectionTask2.getConfiguration()).thenReturn(this.deviceCommunicationConfiguration);
         when(this.partialOutboundConnectionTask2.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
 

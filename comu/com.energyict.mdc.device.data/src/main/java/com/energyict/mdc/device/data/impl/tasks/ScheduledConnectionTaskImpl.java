@@ -6,8 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
@@ -72,8 +70,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private final DeviceConfigurationService deviceConfigurationService;
 
     @Inject
-    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, TransactionService transactionService, Clock clock, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
-        super(dataModel, eventService, thesaurus, transactionService, clock, deviceDataService, connectionMethodProvider);
+    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
+        super(dataModel, eventService, thesaurus, clock, deviceDataService, connectionMethodProvider);
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
@@ -200,7 +198,13 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private void updateNextExecutionTimeStampBasedOnComTask() {
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = this.getEarliestNextExecutionTimeStampAndPriority();
         if (earliestNextExecutionTimeStampAndPriority != null) {
-            this.doSchedule(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp);
+            Date result;
+            if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
+                result = this.doAsSoonAsPossibleSchedule(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp);
+            }
+            else {
+                result = this.doMinimizeConnectionsSchedule(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp, PostingMode.NOW);
+            }
         }
     }
 
@@ -416,31 +420,27 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         return this.schedule(this.now());
     }
 
-    public Date schedule(final Date when) {
-        return this.execute(new Transaction<Date>() {
-            @Override
-            public Date perform() {
-                return doSchedule(when);
-            }
-        });
+    public Date schedule(Date when) {
+        if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
+            return this.doAsSoonAsPossibleSchedule(when);
+        }
+        else {
+            return this.doMinimizeConnectionsSchedule(when, PostingMode.NOW);
+        }
     }
 
     @Override
     public Date trigger (final Date when) {
-        return this.execute(new Transaction<Date>() {
-            @Override
-            public Date perform() {
-                return doTrigger(when);
-            }
-        });
-    }
-
-    private Date doTrigger (Date when) {
         if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
             this.triggerComTasks(when);
         }
         this.resetCurrentRetryCount();
-        return this.doSchedule(when);
+        if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
+            return this.doAsSoonAsPossibleSchedule(when);
+        }
+        else {
+            return this.doMinimizeConnectionsSchedule(when, PostingMode.NOW);
+        }
     }
 
     private void triggerComTasks (Date when) {
@@ -488,15 +488,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     public TaskStatus getStatus() {
         return ServerConnectionTaskStatus.getApplicableStatusFor(this, this.now());
-    }
-
-    private Date doSchedule(Date when) {
-        if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
-            return this.doAsSoonAsPossibleSchedule(when);
-        }
-        else {
-            return this.doMinimizeConnectionsSchedule(when, PostingMode.NOW);
-        }
     }
 
     private Date doAsSoonAsPossibleSchedule (Date when) {

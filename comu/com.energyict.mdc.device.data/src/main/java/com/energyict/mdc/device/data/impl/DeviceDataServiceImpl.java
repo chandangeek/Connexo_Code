@@ -8,8 +8,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
@@ -62,21 +60,19 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     private volatile Thesaurus thesaurus;
 
     private volatile Clock clock;
-    private volatile TransactionService transactionService;
     private volatile RelationService relationService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile MeteringService meteringService;
 
     @Inject
-    public DeviceDataServiceImpl(OrmService ormService, TransactionService transactionService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService) {
-        this(ormService, transactionService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, deviceConfigurationService, meteringService, false);
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService) {
+        this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, deviceConfigurationService, meteringService, false);
 ;    }
 
-    public DeviceDataServiceImpl(OrmService ormService, TransactionService transactionService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData) {
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData) {
         super();
         this.setOrmService(ormService);
-        this.setTransactionService(transactionService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
         this.setEnvironment(environment);
@@ -149,22 +145,16 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
 
     public void doSetDefaultConnectionTask(final Device device, final ConnectionTaskImpl newDefaultConnectionTask) {
-        this.transactionService.execute(new Transaction<Object>() {
-            @Override
-            public Object perform() {
-                List<ConnectionTask> connectionTasks = getDataModel().mapper(ConnectionTask.class).find("device", device);
-                for (ConnectionTask connectionTask : connectionTasks) {
-                    if (isPreviousDefault(newDefaultConnectionTask, connectionTask)) {
-                        ((ConnectionTaskImpl) connectionTask).clearDefault();
-                    }
-                }
-                if (newDefaultConnectionTask != null) {
-                    newDefaultConnectionTask.setAsDefault();
-                }
-                defaultConnectionTaskChanged(device, newDefaultConnectionTask);
-                return null;
+        List<ConnectionTask> connectionTasks = getDataModel().mapper(ConnectionTask.class).find("deviceId", device.getId());
+        for (ConnectionTask connectionTask : connectionTasks) {
+            if (isPreviousDefault(newDefaultConnectionTask, connectionTask)) {
+                ((ConnectionTaskImpl) connectionTask).clearDefault();
             }
-        });
+        }
+        if (newDefaultConnectionTask != null) {
+            newDefaultConnectionTask.setAsDefault();
+        }
+        defaultConnectionTaskChanged(device, newDefaultConnectionTask);
     }
 
     private boolean isPreviousDefault(ConnectionTask newDefaultConnectionTask, ConnectionTask connectionTask) {
@@ -244,11 +234,6 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
         this.dataModel = dataModel;
     }
 
-    @Reference
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-
     DataModel getDataModel() {
         return dataModel;
     }
@@ -301,12 +286,12 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
         return new AbstractModule() {
             @Override
             public void configure() {
+                bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(DeviceDataService.class).toInstance(DeviceDataServiceImpl.this);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(RelationService.class).toInstance(relationService);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
-                bind(TransactionService.class).toInstance(transactionService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
             }

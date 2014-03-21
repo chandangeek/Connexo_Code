@@ -36,8 +36,8 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialScheduledCo
     private int currentRetryCount;
     private boolean lastExecutionFailed;
 
-    protected OutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, TransactionService transactionService, Clock clock, DeviceDataService deviceDataService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
-        super(dataModel, eventService, thesaurus, transactionService, clock, deviceDataService, connectionMethodProvider);
+    protected OutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
+        super(dataModel, eventService, thesaurus, clock, deviceDataService, connectionMethodProvider);
     }
 
     @Override

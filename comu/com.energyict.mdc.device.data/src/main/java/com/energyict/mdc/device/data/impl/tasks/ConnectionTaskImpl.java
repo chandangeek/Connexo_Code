@@ -6,8 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
@@ -66,10 +65,10 @@ import static com.elster.jupiter.util.Checks.is;
  * @since 2012-04-16 (09:08)
  */
 @XmlRootElement
-@HasValidProperties
+@HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPPT extends ComPortPool>
         extends PersistentIdObject<ConnectionTask>
-        implements ConnectionTask<CPPT, PCTT> {
+        implements ConnectionTask<CPPT, PCTT>, PersistenceAware {
 
     public static final String INITIATOR_DISCRIMINATOR = "0";
     public static final String INBOUND_DISCRIMINATOR = "1";
@@ -102,14 +101,12 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Date modificationDate;
 
     private final Clock clock;
-    private final TransactionService transactionService;
     private final DeviceDataService deviceDataService;
 
     private Provider<ConnectionMethodImpl> connectionMethodProvider;
 
-    protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, TransactionService transactionService, Clock clock, DeviceDataService deviceDataService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
+    protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
         super(ConnectionTask.class, dataModel, eventService, thesaurus);
-        this.transactionService = transactionService;
         this.clock = clock;
         this.deviceDataService = deviceDataService;
         this.connectionMethodProvider = connectionMethodProvider;
@@ -127,6 +124,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.partialConnectionTaskId = partialConnectionTask.getId();
         this.comPortPool.set(comPortPool);
         this.connectionMethod.set(this.connectionMethodProvider.get().initialize(this, partialConnectionTask.getPluggableClass(), comPortPool));
+    }
+
+    @Override
+    public void postLoad() {
+        this.loadDevice();
     }
 
     private void validatePartialConnectionTaskType(PCTT partialConnectionTask) {
@@ -162,7 +164,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         }
     }
 
-    // Inline once JP-1122 is complete and the getConfiguration method is ressurected
+    // Todo: Inline once JP-1122 is complete and the getConfiguration method is ressurected
     private long getDeviceConfigurationId(Device device) {
         //return device.getConfiguration().getId();
         return 0;
@@ -230,10 +232,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.modificationDate = this.now();
         this.getConnectionMethod().save();
         super.save();
-    }
-
-    protected <T> T execute (Transaction<T> transaction) {
-        return this.transactionService.execute(transaction);
     }
 
     protected Date now() {
@@ -376,9 +374,13 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @Override
     public Device getDevice() {
         if (this.device == null) {
-            this.device = this.findDevice(this.deviceId);
+            this.loadDevice();
         }
         return this.device;
+    }
+
+    private void loadDevice() {
+        this.device = this.findDevice(this.deviceId);
     }
 
     @Override

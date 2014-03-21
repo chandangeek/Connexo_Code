@@ -10,15 +10,10 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.protocol.api.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.protocol.api.device.Device;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.sql.SQLException;
 
 /**
  * Provides an implementation for the {@link InboundConnectionTask} interface.
@@ -31,8 +26,8 @@ import java.sql.SQLException;
 public class InboundConnectionTaskImpl extends ConnectionTaskImpl<PartialInboundConnectionTask, InboundComPortPool> implements InboundConnectionTask {
 
     @Inject
-    protected InboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, TransactionService transactionService, Clock clock, DeviceDataService deviceDataService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
-        super(dataModel, eventService, thesaurus, transactionService, clock, deviceDataService, connectionMethodProvider);
+    protected InboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
+        super(dataModel, eventService, thesaurus, clock, deviceDataService, connectionMethodProvider);
     }
 
     @Override

@@ -28,8 +28,8 @@ import java.util.List;
 public class ConnectionInitiationTaskImpl extends OutboundConnectionTaskImpl<PartialConnectionInitiationTask> implements ConnectionInitiationTask {
 
     @Inject
-    protected ConnectionInitiationTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, TransactionService transactionService, Clock clock, DeviceDataService deviceDataService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
-        super(dataModel, eventService, thesaurus, transactionService, clock, deviceDataService, connectionMethodProvider);
+    protected ConnectionInitiationTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
+        super(dataModel, eventService, thesaurus, clock, deviceDataService, connectionMethodProvider);
     }
 
     @Override
