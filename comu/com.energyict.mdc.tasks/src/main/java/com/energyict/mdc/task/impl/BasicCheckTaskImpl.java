@@ -16,6 +16,21 @@ class BasicCheckTaskImpl extends ProtocolTaskImpl implements BasicCheckTask {
 
     private static final DeviceOfflineFlags FLAGS = new DeviceOfflineFlags();
 
+    enum Fields {
+        VERIFY_CLOCK_DIFFERENCE("verifyClockDifference"),
+        VERIFY_SERIAL_NUMBER("verifySerialNumber"),
+        MAXIMUM_CLOCK_DIFFERENCE("maximumClockDifference"),;
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
+
     private boolean verifyClockDifference;
     private boolean verifySerialNumber;
     private TimeDuration maximumClockDifference;

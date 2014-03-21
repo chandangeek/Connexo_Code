@@ -18,13 +18,19 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column comTaskId = table.column("COMTASKID").number().conversion(ColumnConversion.NUMBER2INT).add(); // DO NOT MAP
-            table.column("CLOCKTASKTYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(ClockTaskImpl.Fields.CLOCKTASKTYPE.getName()).add();
-            table.column("MINCLOCKDIFFVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MINIMUMCLOCKDIFF.getName()+".count").add();
-            table.column("MINCLOCKDIFFUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MINIMUMCLOCKDIFF.getName()+".timeUnitCode").add();
-            table.column("MAXCLOCKDIFFVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MAXIMUMCLOCKDIFF.getName()+".count").add();
-            table.column("MAXCLOCKDIFFUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MAXIMUMCLOCKDIFF.getName()+".timeUnitCode").add();
-            table.column("MAXCLOCKSHIFTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MAXIMUMCLOCKSHIFT.getName()+".count").add();
-            table.column("MAXCLOCKSHIFTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MAXIMUMCLOCKSHIFT.getName()+".timeUnitCode").add();
+
+            table.column("CLOCKTASKTYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(ClockTaskImpl.Fields.CLOCK_TASK_TYPE.fieldName()).add();
+            table.column("MINCLOCKDIFFVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName() + ".count").add();
+            table.column("MINCLOCKDIFFUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName()+".timeUnitCode").add();
+            table.column("MAXCLOCKDIFFVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName()+".count").add();
+            table.column("MAXCLOCKDIFFUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName()+".timeUnitCode").add();
+            table.column("MAXCLOCKSHIFTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MAXIMUM_CLOCK_SHIFT.fieldName()+".count").add();
+            table.column("MAXCLOCKSHIFTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(ClockTaskImpl.Fields.MAXIMUM_CLOCK_SHIFT.fieldName()+".timeUnitCode").add();
+
+            table.column("CHECKCLOCKDIFF").bool().conversion(ColumnConversion.NUMBER2BOOLEAN).map(BasicCheckTaskImpl.Fields.VERIFY_CLOCK_DIFFERENCE.fieldName()).add();
+            table.column("VERIFYSERIAL").bool().conversion(ColumnConversion.NUMBER2BOOLEAN).map(BasicCheckTaskImpl.Fields.VERIFY_SERIAL_NUMBER.fieldName()).add();
+            table.column("BASICMAXCLOCKDIFFVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(BasicCheckTaskImpl.Fields.MAXIMUM_CLOCK_DIFFERENCE.fieldName()+".count").add();
+            table.column("BASICMAXCLOCKDIFFUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(BasicCheckTaskImpl.Fields.MAXIMUM_CLOCK_DIFFERENCE.fieldName()+".timeUnitCode").add();
 
             table.foreignKey("FK_REMOTE_ONLINE").on(comTaskId).references(MDCCOMTASK.name()).map("comTask").add();
             table.primaryKey("TSK_PK_PROTOCOLTASK").on(idColumn).add();

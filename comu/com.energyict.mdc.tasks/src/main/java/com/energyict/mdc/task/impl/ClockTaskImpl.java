@@ -19,17 +19,17 @@ class ClockTaskImpl extends ProtocolTaskImpl implements ClockTask {
     private static final DeviceOfflineFlags FLAGS = new DeviceOfflineFlags();
 
     enum Fields {
-        CLOCKTASKTYPE("clockTaskType"),
-        MINIMUMCLOCKDIFF("minimumClockDiff"),
-        MAXIMUMCLOCKDIFF("maximumClockDiff"),
-        MAXIMUMCLOCKSHIFT("maximumClockShift");
+        CLOCK_TASK_TYPE("clockTaskType"),
+        MINIMUM_CLOCK_DIFF("minimumClockDiff"),
+        MAXIMUM_CLOCK_DIFF("maximumClockDiff"),
+        MAXIMUM_CLOCK_SHIFT("maximumClockShift");
         private final String objectFieldName;
 
-        Fields(String objectFieldName) {
-            this.objectFieldName = objectFieldName;
+        Fields(String javaFieldName) {
+            this.objectFieldName = javaFieldName;
         }
 
-        String getName() {
+        String fieldName() {
             return objectFieldName;
         }
     }
