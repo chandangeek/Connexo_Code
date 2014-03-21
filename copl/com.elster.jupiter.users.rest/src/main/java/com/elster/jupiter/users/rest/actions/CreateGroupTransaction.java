@@ -5,18 +5,15 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
 
-public class CreateGroupTransaction implements Transaction<Group> {
-
-    private final GroupInfo info;
-    private final UserService userService;
+public class CreateGroupTransaction extends UpdateMembership implements Transaction<Group> {
 
     public CreateGroupTransaction(GroupInfo info, UserService userService) {
-        this.info = info;
-        this.userService = userService;
+        super(info, userService);
     }
 
     @Override
     public Group perform() {
-        return userService.createGroup(info.name);
+        Group group = userService.createGroup(info.name, info.description);
+        return doUpdate(group);
     }
 }
