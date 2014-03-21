@@ -25,9 +25,21 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
 
     private static final DeviceOfflineFlags FLAGS = new DeviceOfflineFlags(PENDING_MESSAGES_FLAG, SENT_MESSAGES_FLAG, SLAVE_DEVICES_FLAG);
 
+    enum Fields {
+        ALL_CATEGORIES("allCategories"),
+        DEVICE_MESSAGE_USAGES("deviceMessageUsages");
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
     private long id;
-    private List<MessagesTaskTypeUsage> deviceMessageCategoriesUsages;
-    private List<MessagesTaskTypeUsage> deviceMessageSpecsUsages;
+    private List<MessagesTaskTypeUsage> deviceMessageUsages;
     private boolean allCategories;
 
     @Inject
@@ -43,9 +55,11 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
 
     @Override
     public List<DeviceMessageCategory> getDeviceMessageCategories() {
-        List<DeviceMessageCategory> deviceMessageCategories = new ArrayList<>(this.deviceMessageCategoriesUsages.size());
-        for (MessagesTaskTypeUsage deviceMessageCategoriesUsage : deviceMessageCategoriesUsages) {
-            deviceMessageCategories.add(deviceMessageCategoriesUsage.getDeviceMessageCategory());
+        List<DeviceMessageCategory> deviceMessageCategories = new ArrayList<>(this.deviceMessageUsages.size());
+        for (MessagesTaskTypeUsage deviceMessageCategoriesUsage : deviceMessageUsages) {
+            if (deviceMessageCategoriesUsage.hasDeviceMessageCategory()) {
+                deviceMessageCategories.add(deviceMessageCategoriesUsage.getDeviceMessageCategory());
+            }
         }
         return deviceMessageCategories;
     }
@@ -62,9 +76,11 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
 
     @Override
     public List<DeviceMessageSpec> getDeviceMessageSpecs() {
-        List<DeviceMessageSpec> deviceMessageSpecs = new ArrayList<>(this.deviceMessageSpecsUsages.size());
-        for (MessagesTaskTypeUsage deviceMessageSpecUsage : deviceMessageSpecsUsages) {
-            deviceMessageSpecs.add(deviceMessageSpecUsage.getDeviceMessageSpec());
+        List<DeviceMessageSpec> deviceMessageSpecs = new ArrayList<>(this.deviceMessageUsages.size());
+        for (MessagesTaskTypeUsage deviceMessageSpecUsage : deviceMessageUsages) {
+            if (deviceMessageSpecUsage.hasDeviceMessageSpec()) {
+                deviceMessageSpecs.add(deviceMessageSpecUsage.getDeviceMessageSpec());
+            }
         }
         return deviceMessageSpecs;
     }
@@ -74,9 +90,13 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
         return allCategories;
     }
 
+    @Override
+    public void setAllCategories(boolean allCategories) {
+        this.allCategories = allCategories;
+    }
+
     private void deleteDependents() {
-        this.deviceMessageSpecsUsages.clear();
-        this.deviceMessageCategoriesUsages.clear();
+        this.deviceMessageUsages.clear();
     }
 
     public void toJournalMessageDescription(DescriptionBuilder builder) {
@@ -91,15 +111,15 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
 
     private void writeCategoriesToJournalDescription (DescriptionBuilder builder) {
         PropertyDescriptionBuilder messageCategoriesBuilder = builder.addListProperty("messageCategories");
-        for (MessagesTaskTypeUsage messagesTaskTypeUsage : this.deviceMessageCategoriesUsages) {
-            messageCategoriesBuilder = messageCategoriesBuilder.append(messagesTaskTypeUsage.getDeviceMessageCategory().getName()).next();
+        for (DeviceMessageCategory deviceMessageCategory : this.getDeviceMessageCategories()) {
+            messageCategoriesBuilder = messageCategoriesBuilder.append(deviceMessageCategory.getName()).next();
         }
     }
 
     private void writeMessagesSpecsToJournalDescription (DescriptionBuilder builder) {
         PropertyDescriptionBuilder messageSpecsBuilder = builder.addListProperty("messageSpecs");
-        for (MessagesTaskTypeUsage usage : this.deviceMessageSpecsUsages) {
-            messageSpecsBuilder = messageSpecsBuilder.append(usage.getDeviceMessageSpec().getName()).next();
+        for (DeviceMessageSpec deviceMessageSpec : this.getDeviceMessageSpecs()) {
+            messageSpecsBuilder = messageSpecsBuilder.append(deviceMessageSpec.getName()).next();
         }
     }
 

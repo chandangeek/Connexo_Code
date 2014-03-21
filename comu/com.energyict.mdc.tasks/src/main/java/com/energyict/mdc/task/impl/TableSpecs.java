@@ -32,6 +32,7 @@ public enum TableSpecs {
             table.column("BASICMAXCLOCKDIFFVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(BasicCheckTaskImpl.Fields.MAXIMUM_CLOCK_DIFFERENCE.fieldName()+".count").add();
             table.column("BASICMAXCLOCKDIFFUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(BasicCheckTaskImpl.Fields.MAXIMUM_CLOCK_DIFFERENCE.fieldName()+".timeUnitCode").add();
 
+            table.column("ALLCATEGORIES").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map(MessagesTaskImpl.Fields.ALL_CATEGORIES.fieldName()).add();
             table.foreignKey("FK_COM_TASK").on(comTaskId).references(MDCCOMTASK.name()).map("comTask").add();
             table.primaryKey("TSK_PK_PROTOCOLTASK").on(idColumn).add();
         }
@@ -56,7 +57,12 @@ public enum TableSpecs {
             Column messageTaskId = table.column("MESSAGETASK").number().conversion(ColumnConversion.NUMBER2INT).add(); // DO NOT MAP
             table.column("MESSAGECATEGORY").number().conversion(ColumnConversion.NUMBER2INT).map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_CATEGORY.fieldName()).add();
             table.column("MESSAGESPEC").number().conversion(ColumnConversion.NUMBER2INT).map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_SPEC.fieldName()).add();
-            table.foreignKey("FK_COM_TASK").on(messageTaskId).references(MDCPROTOCOLTASK.name()).map(MessagesTaskTypeUsageImpl.Fields.PROTOCOL_TASK.fieldName()).add();
+            table.foreignKey("FK_COM_TASK").
+                    on(messageTaskId).references(MDCPROTOCOLTASK.name()).
+                    map(MessagesTaskTypeUsageImpl.Fields.PROTOCOL_TASK.fieldName()).
+                    reverseMap(MessagesTaskImpl.Fields.DEVICE_MESSAGE_USAGES.fieldName()).
+                    composition().
+                    add();
             table.primaryKey("TSK_PK_MTTU").on(idColumn).add();
         }
     };

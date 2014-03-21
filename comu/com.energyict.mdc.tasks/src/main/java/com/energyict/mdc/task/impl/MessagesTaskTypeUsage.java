@@ -30,4 +30,8 @@ public interface MessagesTaskTypeUsage {
     public void setDeviceMessageCategory(DeviceMessageCategory deviceMessageCategory);
 
     public ProtocolTask getProtocolTask();
+
+    boolean hasDeviceMessageCategory();
+
+    boolean hasDeviceMessageSpec();
 }

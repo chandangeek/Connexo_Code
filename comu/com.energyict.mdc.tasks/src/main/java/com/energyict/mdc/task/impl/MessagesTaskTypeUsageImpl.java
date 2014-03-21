@@ -2,6 +2,7 @@ package com.energyict.mdc.task.impl;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -64,6 +65,18 @@ public class MessagesTaskTypeUsageImpl implements MessagesTaskTypeUsage {
     @Override
     public void setDeviceMessageCategory(DeviceMessageCategory deviceMessageCategory) {
         this.deviceMessageCategory = deviceMessageCategory.getPrimaryKey().getValue();
+    }
+
+    @Override
+    public boolean hasDeviceMessageCategory() {
+        return !Checks.is(deviceMessageCategory).emptyOrOnlyWhiteSpace();
+
+    }
+
+    @Override
+    public boolean hasDeviceMessageSpec() {
+        return !Checks.is(deviceMessageSpec).emptyOrOnlyWhiteSpace();
+
     }
 
     @Override

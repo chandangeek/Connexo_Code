@@ -42,6 +42,8 @@ public interface MessagesTask extends ProtocolTask {
      * @return boolean
      */
     boolean isAllCategories();
+    void setAllCategories(boolean allCategories);
 
     public long getId();
+
 }
