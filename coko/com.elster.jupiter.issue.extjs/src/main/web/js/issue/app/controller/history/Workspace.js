@@ -24,6 +24,9 @@ Ext.define('Isu.controller.history.Workspace', {
         crossroads.addRoute('workspace/datacollection/issues/{id}',function(id){
             Isu.getApplication().getIssueDetailController().showOverview(id);
         });
+        crossroads.addRoute('workspace/datacollection/issues/{id}/addcomment',function(id){
+            Isu.getApplication().getIssueDetailController().showOverview(id, true);
+        });
         crossroads.addRoute('workspace/datacollection/bulkaction',function(){
             Isu.getApplication().getBulkChangeIssuesController().showOverview();
         });
