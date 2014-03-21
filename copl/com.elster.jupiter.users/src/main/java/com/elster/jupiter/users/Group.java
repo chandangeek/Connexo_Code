@@ -30,4 +30,6 @@ public interface Group extends HasName {
     Date getCreationDate();
 
     Date getModifiedDate();
+
+    String getDescription();
 }

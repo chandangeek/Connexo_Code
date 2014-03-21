@@ -30,6 +30,7 @@ final class GroupImpl implements Group , PersistenceAware {
 	//transient fields
 	private List<PrivilegeInGroup> privilegeInGroups;
     private final DataModel dataModel;
+    private String description;
 
     @Inject
 	private GroupImpl(DataModel dataModel) {
@@ -122,6 +123,11 @@ final class GroupImpl implements Group , PersistenceAware {
     @Override
     public Date getModifiedDate() {
         return modTime.toDate();
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
     }
 
     void persist() {

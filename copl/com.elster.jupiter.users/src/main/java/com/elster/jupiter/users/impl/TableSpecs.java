@@ -30,6 +30,7 @@ public enum TableSpecs {
 			table.map(GroupImpl.class);
 			Column idColumn = table.addAutoIdColumn();
 			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
+            table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
 			table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");
