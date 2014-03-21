@@ -33,18 +33,19 @@
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
+      <artifactId>mdc.device.config</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
       <artifactId>mdc-common</artifactId>
       <version>${project.version}</version>
-        <scope>provided</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc-protocols-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.energyict</groupId>
-      <artifactId>mdc-common</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
