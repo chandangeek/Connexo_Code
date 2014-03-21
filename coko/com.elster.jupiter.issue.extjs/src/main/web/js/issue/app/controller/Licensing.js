@@ -1,4 +1,4 @@
-Ext.define('Isu.controller.IssueAutoCreationRules', {
+Ext.define('Isu.controller.Licensing', {
     extend: 'Ext.app.Controller',
 
     requires: [
@@ -6,12 +6,14 @@ Ext.define('Isu.controller.IssueAutoCreationRules', {
     ],
 
     stores: [
-        'Isu.store.AutoCreationRules'
+        'Isu.store.Licensing'
     ],
+
     views: [
-        'administration.datacollection.issueautomaticcreationrules.Overview',
+        'administration.datacollection.licensing.Overview',
         'ext.button.GridAction',
-        'administration.datacollection.issueautomaticcreationrules.ActionMenu'
+        'administration.datacollection.licensing.ActionMenu',
+        'administration.datacollection.licensing.SideFilter'
     ],
 
     mixins: {
@@ -20,25 +22,22 @@ Ext.define('Isu.controller.IssueAutoCreationRules', {
 
     init: function () {
         this.control({
-            'issue-autocreation-rules-overview breadcrumbTrail': {
+            'administration-licensing-overview breadcrumbTrail': {
                 afterrender: this.setBreadcrumb
             },
-            'issue-autocreation-rules-overview issues-autocreation-rules-list gridview': {
-                refresh: this.onGridRefresh
-            },
-            'issue-autocreation-rules-overview issues-autocreation-rules-list actioncolumn': {
+            'administration-licensing-overview licensing-list actioncolumn': {
                 click: this.showItemAction
             },
-            'auto-rule-action-menu': {
+            'licensing-action-menu': {
                 beforehide: this.hideItemAction
             }
         });
 
-        this.actionMenuXtype = 'auto-rule-action-menu';
+        this.actionMenuXtype = 'licensing-action-menu';
     },
 
     showOverview: function () {
-        var widget = Ext.widget('issue-autocreation-rules-overview');
+        var widget = Ext.widget('administration-licensing-overview');
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
@@ -52,16 +51,11 @@ Ext.define('Isu.controller.IssueAutoCreationRules', {
                 href: 'datacollection'
             }),
             breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Issue automatic creation rules',
-                href: 'issueautomaticcreationrules'
+                text: 'Licensing',
+                href: 'licensing'
             });
+
         breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2);
-
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
-    },
-
-    onGridRefresh: function (grid) {
-        this.setAssigneeTypeIconTooltip(grid);
-        this.setDescriptionTooltip(grid);
     }
 });

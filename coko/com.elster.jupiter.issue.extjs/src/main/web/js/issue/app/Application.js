@@ -22,6 +22,8 @@ Ext.define('Isu.Application', {
         'MessageWindow',
         'IssueAssignmentRules',
         'IssueAutoCreationRules',
+        'Licensing',
+        'AddLicense',
         'history.Workspace',
         'IssueFilter',
         'IssueDetail',
