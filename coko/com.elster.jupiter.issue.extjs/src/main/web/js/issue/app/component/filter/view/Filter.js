@@ -1,3 +1,57 @@
+/**
+ * @class Isu.component.filter.view.Filter
+ *
+ * Filter panel is an extension over Ext js form panel See {@link Ext.form.Panel}.
+ *
+ * Filter panel fixes form data binding (loading data from model to the form and update model from form's data).
+ * Panel allows you to bind models that contains associations (hasOne, hasMany). Note that form should contain
+ * components with the binded stores (See: {@link Ext.util.Bindable}) to properly fetch data between models and have name
+ * the same as association name.
+ *
+ * @Example
+ *
+ *    Ext.define('App.view.Filter', {
+ *      extend: 'Isu.component.filter.view.Filter',
+ *      alias: 'widget.filter',
+ *      title: 'Filter',
+ *
+ *      items: [{
+ *          xtype: 'combobox',
+ *          name: 'reason',
+ *          fieldLabel: 'Reason',
+  *         displayField: 'name',
+ *          valueField: 'id',
+ *          store: 'App.store.Reason',
+ *      }]
+ *   });
+ *
+ * Ext.define('App.model.IssueFilter', {
+ *     extend: 'Isu.component.filter.model.Filter',
+ *
+ *     requires: [
+ *         'Isu.model.Reason'
+ *     ],
+ *
+ *     hasOne: [{
+ *         model: 'Isu.model.IssueReason',
+ *         associationKey: 'reason',
+ *         name: 'reason'
+ *     }],
+ * });
+ *
+ * // Now model App.model.IssueFilter can be binded to Filter panel as usual:
+ *
+ * var model = new App.model.IssueFilter();
+ * var filter = new App.view.Filter();
+ *
+ * filter.loadRecord(model);
+ *
+ * // After form chandes by user you can update binded filter model by calling^
+ *
+ * var filterModel = form.getRecord();
+ * form.updateRecord(filterModel);
+ *
+ */
 Ext.define('Isu.component.filter.view.Filter', {
     extend: 'Ext.form.Panel',
     alias: 'widget.filter-form',

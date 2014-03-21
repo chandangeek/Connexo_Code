@@ -105,6 +105,7 @@ Ext.define('Isu.controller.IssueFilter', {
             delete grstore.proxy.extraParams.id ;
             grstore.load();
         }
+
         this.getIssueFilter().down('filter-form').loadRecord(filter);
     },
 

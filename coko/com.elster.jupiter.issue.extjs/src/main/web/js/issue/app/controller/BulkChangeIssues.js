@@ -133,14 +133,13 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     onIssuesListAfterRender: function (grid) {
-        var self = this,
-            step1RadioGroup = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step1').down('radiogroup'),
+        var step1RadioGroup = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step1').down('radiogroup'),
             step1SelectedIssuesTxtHolder = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step1').down('[name=selected-issues-txt-holder]');
-        grid.store.extraParams = {pageSize: 99999};
         step1RadioGroup.mask();
         step1SelectedIssuesTxtHolder.mask();
         grid.mask();
         grid.store.load({
+            params: {status: 1},
             start: 0,
             limit: 99999,
             callback: function () {
@@ -157,20 +156,22 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     onIssueListViewSelectAndDeselect: function (grid) {
         grid.view.refresh();
         this.step1SelectedIssuesTxtHolderUptade(grid);
-
         var step1RadioGroup = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step1').down('radiogroup'),
             step1ErrorPanel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step1').down('[name=step1-errors]');
-
         if (grid.view.getSelectionModel().getSelection().length > 0) {
-            step1RadioGroup.query('[inputValue=SELECTED]')[0].setBoxLabel('<b>Selected issues</b><br/><span style="color: gray;">Select issues in table</span>')
+            step1RadioGroup.query('[inputValue=SELECTED]')[0].setBoxLabel('<b>Selected issues</b><br/><span style="color: gray;">Select issues in table</span>');
             step1ErrorPanel.setVisible(false);
+        }
+        if (grid.view.getSelectionModel().getSelection().length == grid.store.getCount()) {
+            step1RadioGroup.query('[inputValue=ALL]')[0].setValue(true);
+        } else {
+            step1RadioGroup.query('[inputValue=SELECTED]')[0].setValue(true);
         }
     },
 
     onUncheckAllIssuesEvent: function (btn) {
         var grid = btn.up('panel').down('issues-list'),
             radioGroup = btn.up('panel').down('radiogroup');
-        grid.getSelectionModel().setLocked(false);
         grid.getSelectionModel().deselectAll(true);
         radioGroup.query('[inputValue=SELECTED]')[0].setValue(true);
         grid.fireEvent('selectionchange', grid);
@@ -347,7 +348,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     onWizardCancelledEvent: function (wizard) {
-        Ext.History.back();
+        window.location.href = '#/workspace/datacollection/issues/'
     },
 
     setBulkActionListActiveItem: function (wizard) {
@@ -376,11 +377,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         switch (newValue.issuesRange) {
             case 'ALL':
                 grid.getSelectionModel().selectAll(true);
-                grid.getSelectionModel().setLocked(true);
                 grid.fireEvent('selectionchange', grid);
-                break;
-            case 'SELECTED':
-                grid.getSelectionModel().setLocked(false);
         }
     },
 

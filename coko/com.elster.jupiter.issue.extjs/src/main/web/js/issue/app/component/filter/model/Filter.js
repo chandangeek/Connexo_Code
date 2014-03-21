@@ -1,3 +1,10 @@
+/**
+ * @class Isu.component.filter.model.Filter
+ *
+ * Filter model extends Ext.data.Model.
+ * Model allows you to retrieve model data as plain object {one level key-value pair}.
+ *
+ */
 Ext.define('Isu.component.filter.model.Filter', {
     extend: 'Ext.data.Model',
 

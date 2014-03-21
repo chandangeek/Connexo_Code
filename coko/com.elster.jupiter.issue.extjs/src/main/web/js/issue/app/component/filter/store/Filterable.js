@@ -1,3 +1,11 @@
+/**
+ * @class Isu.component.filter.store.Filterable
+ *
+ * Filterable store is a mixin that allow you to bind Filter model (See: {@Link Isu.component.filter.model.Filter})
+ * to the store, and retrieve plain (ready for sending via configured proxy) data from this model;
+ *
+ * Class fires "updateProxyFilter" event with an filter model parameter.
+ */
 Ext.define('Isu.component.filter.store.Filterable', {
 
     proxyFilter: null,
@@ -6,11 +14,11 @@ Ext.define('Isu.component.filter.store.Filterable', {
      * @param filter Isu.component.filter.model.Filter
      */
     setProxyFilter: function(filter) {
+        //<debug>
         if (!filter instanceof Isu.component.filter.model.Filter) {
-            //<debug>
             Ext.Error.raise('!filter instanceof Isu.component.filter.model.Filter');
-            //</debug>
         }
+        //</debug>
 
         this.proxyFilter = filter;
         this.updateProxyFilter();

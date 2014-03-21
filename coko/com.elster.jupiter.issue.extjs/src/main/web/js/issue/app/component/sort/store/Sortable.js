@@ -1,3 +1,11 @@
+/**
+ * @class Isu.component.sort.store.Sortable
+ *
+ * Sortable store is a mixin that allow you to bind Sort model (See: {@Link Isu.component.sort.model.Sort})
+ * to the store, and retrieve plain (ready for sending via configured proxy) data from this model;
+ *
+ * Class fires "updateProxySort" event with an sort model parameter.
+ */
 Ext.define('Isu.component.sort.store.Sortable', {
 
     proxySort: null,
@@ -6,11 +14,11 @@ Ext.define('Isu.component.sort.store.Sortable', {
      * @param sortModel Isu.component.filter.model.Filter
      */
     setProxySort: function(sortModel) {
+        //<debug>
         if (!sortModel instanceof Isu.component.filter.model.Filter) {
-            //<debug>
             Ext.Error.raise('!sortModel instanceof Isu.component.filter.model.Filter');
-            //</debug>
         }
+        //</debug>
 
         this.proxySort = sortModel;
         this.updateProxySort();
