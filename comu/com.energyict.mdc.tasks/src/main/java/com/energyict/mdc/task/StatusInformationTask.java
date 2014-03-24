@@ -9,4 +9,6 @@ import com.energyict.mdc.protocol.api.device.Device;
  * @since 19/04/12 - 16:17
  */
 public interface StatusInformationTask extends ProtocolTask {
+
+    // no need for a builder here I guess
 }

@@ -1,6 +1,7 @@
 package com.energyict.mdc.task;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -24,17 +25,16 @@ public interface ComTask {
     /**
      * @return a List of {@link ProtocolTask ProtocolTasks} for this ComTask
      */
-    public List<ProtocolTask> getProtocolTasks();
+    public List<? extends ProtocolTask> getProtocolTasks();
 
     /**
      * Create a {@link BasicCheckTask} based on the given shadow for this {@link ComTask}
      *
-     * @param basicCheckTaskShadow to shadow to use for modeling the new {@link BasicCheckTask}
      * @return the newly created {@link BasicCheckTask}
      * @throws BusinessException if some validation of the {@link BasicCheckTask} failed or another business related error occurred
      * @throws SQLException      if a database related error occurred
      */
-//    public BasicCheckTask createBasicCheckTask(final BasicCheckTaskShadow basicCheckTaskShadow) throws BusinessException, SQLException;
+    public BasicCheckTask.BasicCheckTaskBuilder createBasicCheckTask() throws BusinessException, SQLException;
 
     /**
      * Create a {@link ClockTask} based on the given shadow for this {@link ComTask}
@@ -43,67 +43,61 @@ public interface ComTask {
      * @throws BusinessException if some validation of the {@link ClockTask} failed or another business related error occurred
      * @throws SQLException      if a database related error occurred
      */
-    public ClockTask createClockTask() throws BusinessException, SQLException;
+    public ClockTask.ClockTaskBuilder createClockTask(ClockTaskType clockTaskType) throws BusinessException, SQLException;
 
     /**
      * Create a {@link LoadProfilesTask} based on the given shadow for this {@link ComTask}
      *
-     * @param loadProfilesTaskShadow the shadow to use for modeling the new {@link LoadProfilesTask}
      * @return the newly created {@link LoadProfilesTask}
      * @throws BusinessException if some validation of the {@link LoadProfilesTask} failed or another business related error occurred
      * @throws SQLException      if a database related error occurred
      */
-//    public LoadProfilesTask createLoadProfilesTask(final LoadProfilesTaskShadow loadProfilesTaskShadow) throws BusinessException, SQLException;
+    public LoadProfilesTask.LoadProfilesTaskBuilder createLoadProfilesTask() throws BusinessException, SQLException;
 
     /**
-     * Create a {@link com.energyict.mdc.protocol.tasks.LogBooksTask} based on the given shadow for this {@link ComTask}
+     * Create a {@link com.energyict.mdc.task.LogBooksTask} based on the given shadow for this {@link ComTask}
      *
-     * @param logBooksTaskShadow the shadow to use for modeling the new {@link com.energyict.mdc.protocol.tasks.LogBooksTask}
-     * @return the newly created {@link com.energyict.mdc.protocol.tasks.LogBooksTask}
-     * @throws BusinessException if some validation of the {@link com.energyict.mdc.protocol.tasks.LogBooksTask} failed or another business related error occurred
+     * @return the newly created {@link com.energyict.mdc.task.LogBooksTask}
+     * @throws BusinessException if some validation of the {@link com.energyict.mdc.task.LogBooksTask} failed or another business related error occurred
      * @throws SQLException      if a database related error occurred
      */
-//    public LogBooksTask createLogbooksTask(final LogBooksTaskShadow logBooksTaskShadow) throws BusinessException, SQLException;
+    public LogBooksTask.LogBooksTaskBuilder createLogbooksTask() throws BusinessException, SQLException;
 
     /**
      * Create a {@link MessagesTask} based on the given shadow for this {@link ComTask}
      *
-     * @param messagesTaskShadow the shadow to use for modeling the new {@link MessagesTask}
      * @return the newly created {@link MessagesTask}
      * @throws BusinessException if some validation of the {@link MessagesTask} failed or another business related error occurred
      * @throws SQLException      if a database related error occurred
      */
-//    public MessagesTask createMessagesTask(final MessagesTaskShadow messagesTaskShadow) throws BusinessException, SQLException;
+    public MessagesTask.MessagesTaskBuilder createMessagesTask() throws BusinessException, SQLException;
 
     /**
      * Create a {@link RegistersTask} based on the given shadow for this {@link ComTask}
      *
-     * @param registersTaskShadow the shadow to use for modeling the new {@link RegistersTask}
      * @return the newly created {@link RegistersTask}
      * @throws BusinessException if some validation of the {@link RegistersTask} failed or another business related error occurred
      * @throws SQLException      if a database related error occurred
      */
-//    public RegistersTask createRegistersTask(final RegistersTaskShadow registersTaskShadow) throws BusinessException, SQLException;
+    public RegistersTask.RegistersTaskBuilder createRegistersTask() throws BusinessException, SQLException;
 
     /**
      * Create a {@link StatusInformationTask} based on the given shadow for this {@link ComTask}
      *
-     * @param statusInformationTaskShadow the shadow to use for modeling the new {@link StatusInformationTask}
      * @return the newly created {@link StatusInformationTask}
      * @throws BusinessException if some validation of the {@link StatusInformationTask} failed or another business related error occurred
      * @throws SQLException      if a database related error occurred
      */
-//    public StatusInformationTask createStatusInformationTask(final StatusInformationTaskShadow statusInformationTaskShadow) throws BusinessException, SQLException;
+    public StatusInformationTask createStatusInformationTask() throws BusinessException, SQLException;
 
     /**
      * Create a {@link TopologyTask} based on the given shadow for this {@link ComTask}
      *
-     * @param topologyTaskShadow the shadow to use for modeling the new {@link TopologyTask}
      * @return the newly created {@link TopologyTask}
      * @throws BusinessException if some validation of the {@link TopologyTask} failed or another business related error occurred
      * @throws SQLException      if a database related error occurred
      */
-//    public TopologyTask createTopologyTask(final TopologyTaskShadow topologyTaskShadow) throws BusinessException, SQLException;
+    public TopologyTask createTopologyTask(TopologyAction topologyAction) throws BusinessException, SQLException;
 
     /**
      * Keeps track of the maximum number of consecutive failures a comTask can have before marking it as failed.
@@ -112,4 +106,5 @@ public interface ComTask {
      */
     public int getMaxNumberOfTries();
 
+    String getType();
 }

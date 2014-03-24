@@ -34,6 +34,7 @@ public interface LoadProfilesTask extends ProtocolTask {
      * @return a list containing the LoadProfileTypes
      */
     public List<LoadProfileType> getLoadProfileTypes();
+    public void setLoadProfileTypes(List<LoadProfileType> loadProfileTypes);
 
     /**
      * Returns true if a LoadProfile should <b>NOT</b> be read if his configuration does not match,
@@ -42,6 +43,7 @@ public interface LoadProfilesTask extends ProtocolTask {
      * @return the indication whether to fail if the configuration does not match
      */
     public boolean failIfLoadProfileConfigurationMisMatch();
+    public void setFailIfConfigurationMisMatch(boolean failIfConfigurationMisMatch);
 
     /**
      * Returns true if the intervals should be marked as BadTime (if timeDifference exceeds the max),
@@ -50,6 +52,7 @@ public interface LoadProfilesTask extends ProtocolTask {
      * @return the indication whether to mark the intervals as BadTime
      */
     public boolean isMarkIntervalsAsBadTime();
+    public void setMarkIntervalsAsBadTime(boolean markIntervalsAsBadTime);
 
     /**
      * Returns the minimum clock difference before intervals can be marked as BadTime
@@ -57,6 +60,7 @@ public interface LoadProfilesTask extends ProtocolTask {
      * @return the minimum clock difference
      */
     public TimeDuration getMinClockDiffBeforeBadTime();
+    public void setMinClockDiffBeforeBadTime(TimeDuration minClockDiffBeforeBadTime);
 
     /**
      * Returns true if we should create MeterEvents from statusFlags, false otherwise.
@@ -64,12 +68,12 @@ public interface LoadProfilesTask extends ProtocolTask {
      * @return the indication whether to create MeterEvents
      */
     public boolean createMeterEventsFromStatusFlags();
+    public void setCreateMeterEventsFromStatusFlags(boolean createMeterEventsFromStatusFlags);
 
-    void setFailIfConfigurationMisMatch(boolean failIfConfigurationMisMatch);
-
-    void setMarkIntervalsAsBadTime(boolean markIntervalsAsBadTime);
-
-    void setMinClockDiffBeforeBadTime(TimeDuration minClockDiffBeforeBadTime);
-
-    void setCreateMeterEventsFromStatusFlags(boolean createMeterEventsFromStatusFlags);
+    interface LoadProfilesTaskBuilder {
+        public LoadProfilesTaskBuilder failIfConfigurationMisMatch(boolean failIfConfigurationMisMatch);
+        public LoadProfilesTaskBuilder markIntervalsAsBadTime(boolean markIntervalsAsBadTime);
+        public LoadProfilesTaskBuilder minClockDiffBeforeBadTime(TimeDuration minClockDiffBeforeBadTime);
+        public LoadProfilesTask add();
+    }
 }

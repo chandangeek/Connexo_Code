@@ -1,6 +1,7 @@
 package com.energyict.mdc.task;
 
 import com.energyict.mdc.device.config.RegisterGroup;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -24,5 +25,10 @@ public interface RegistersTask extends ProtocolTask {
      * @return the list of RtuRegisterGroups
      */
     public List<RegisterGroup> getRegisterGroups();
+    void setRegisterGroups(Collection<RegisterGroup> registerGroups);
 
+    interface RegistersTaskBuilder {
+        public RegistersTaskBuilder registerGroups(Collection<RegisterGroup> registerGroups);
+        public RegistersTask add();
+    }
 }

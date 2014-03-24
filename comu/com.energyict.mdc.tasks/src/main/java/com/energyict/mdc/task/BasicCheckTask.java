@@ -37,4 +37,11 @@ public interface BasicCheckTask extends ProtocolTask {
     public boolean verifySerialNumber();
     public void setVerifySerialNumber(boolean verifySerialNumber);
 
+
+    interface BasicCheckTaskBuilder {
+        public BasicCheckTaskBuilder verifyClockDifference(boolean verifyClockDifference);
+        public BasicCheckTaskBuilder maximumClockDifference(TimeDuration maximumClockDifference);
+        public BasicCheckTaskBuilder verifySerialNumber(boolean verifySerialNumber);
+        public BasicCheckTask add();
+    }
 }

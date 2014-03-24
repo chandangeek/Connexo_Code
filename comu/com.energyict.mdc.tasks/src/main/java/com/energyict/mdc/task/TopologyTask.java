@@ -16,6 +16,5 @@ public interface TopologyTask extends ProtocolTask {
      * @return the TopologyAction
      */
     public TopologyAction getTopologyAction();
-
     public void setTopologyAction(TopologyAction topologyAction);
 }

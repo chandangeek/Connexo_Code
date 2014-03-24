@@ -1,12 +1,12 @@
 package com.energyict.mdc.task.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.task.RegistersTask;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javax.inject.Inject;
 
@@ -36,7 +36,7 @@ class RegistersTaskImpl extends ProtocolTaskImpl implements RegistersTask {
         }
     }
 
-    private List<RegisterGroupUsage> registerGroupUsages;
+    private List<RegisterGroupUsage> registerGroupUsages = new ArrayList<>();
 
     @Inject
     public RegistersTaskImpl(DataModel dataModel) {
@@ -52,6 +52,11 @@ class RegistersTaskImpl extends ProtocolTaskImpl implements RegistersTask {
         }
 
         return registerGroups;
+    }
+
+    @Override
+    public void setRegisterGroups(Collection<RegisterGroup> registerGroups) {
+        // TODO implement
     }
 
     /**
@@ -71,7 +76,7 @@ class RegistersTaskImpl extends ProtocolTaskImpl implements RegistersTask {
     }
 
 
-    private void deleteDependents() throws SQLException, BusinessException {
+    void deleteDependents() {
         this.registerGroupUsages.clear();
     }
 

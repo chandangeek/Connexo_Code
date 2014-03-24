@@ -19,6 +19,10 @@ public enum MessageSeeds implements MessageSeed {
     MIN_ABOVE_MAX(6, Constants.TSK_MIN_MUST_BE_BELOW_MAX, "Invalid range: minimum value exceeds maximum value", Level.SEVERE),
     MIN_EQUALS_MAX(7, Constants.TSK_MIN_EQUALS_MAX, "Invalid range: minimum value equals maximum value ", Level.SEVERE),
     TIMEDURATION_IS_NULL(8, Constants.TSK_TIMEDURATION_IS_ZERO, "Field must denote non-0 duration", Level.SEVERE),
+    SIZE_TOO_LONG(9, Constants.TSK_SIZE_TOO_LONG, "Field exceeds max size of {max} characters", Level.SEVERE),
+    DUPLICATE_COMTASK_NAME(10, Constants.TSK_DUPLICATE_COMTASK_NAME, "A ComTask by this name already exists", Level.SEVERE),
+    PROTOCOL_TASK_REQUIRED(11, Constants.TSK_DUPLICATE_COMTASK_NAME, "No protocol task defined for communication task. At least one is required.", Level.SEVERE),
+    DUPLICATE_PROTOCOL_TASK_TYPE_IN_COMTASK(12, Constants.TSK_DUPLICATE_PROTOCOL_TASK_TYPE_IN_COM_TASK, "ComTask contains multiple ProtocolTasks of the same type", Level.SEVERE),
     VALUE_NOT_IN_RANGE(999, Constants.TSK_VALUE_NOT_IN_RANGE, "{value} not in range {min} to {max}", Level.SEVERE);
 
     private final int number;
@@ -67,5 +71,9 @@ final class Constants {
     public static final String TSK_MIN_MUST_BE_BELOW_MAX = TaskService.COMPONENT_NAME+".MinMustBeBelowMax";
     public static final String TSK_MIN_EQUALS_MAX = TaskService.COMPONENT_NAME+".MinEqualsMax";
     public static final String TSK_TIMEDURATION_IS_ZERO = TaskService.COMPONENT_NAME+".TimeDurationMustBePositive";
+    public static final String TSK_SIZE_TOO_LONG = TaskService.COMPONENT_NAME+".MaxSizeExceeded";
+    public static final String TSK_DUPLICATE_COMTASK_NAME = TaskService.COMPONENT_NAME + ".comTask.name.duplicated";
+    public static final String TSK_COMTASK_WITHOUT_PROTOCOLTASK = TaskService.COMPONENT_NAME + ".comTask.requiresProtocolTask";
+    public static final String TSK_DUPLICATE_PROTOCOL_TASK_TYPE_IN_COM_TASK = TaskService.COMPONENT_NAME + ".duplicateProtocolTaskInComTask";
 }
 

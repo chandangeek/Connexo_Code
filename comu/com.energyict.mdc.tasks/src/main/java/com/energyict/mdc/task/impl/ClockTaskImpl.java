@@ -1,11 +1,13 @@
 package com.energyict.mdc.task.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.task.ClockTask;
 import com.energyict.mdc.task.ClockTaskType;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 
 /**
  * Implementation for a {@link com.energyict.mdc.task.ClockTask}.
@@ -13,7 +15,7 @@ import javax.inject.Inject;
  * @author gna
  * @since 24/04/12 - 8:35
  */
-@ValidLoadProfileTask
+@ValidClockTask( groups = {Save.Create.class, Save.Update.class} )
 class ClockTaskImpl extends ProtocolTaskImpl implements ClockTask {
 
     private static final DeviceOfflineFlags FLAGS = new DeviceOfflineFlags();
@@ -33,6 +35,7 @@ class ClockTaskImpl extends ProtocolTaskImpl implements ClockTask {
             return objectFieldName;
         }
     }
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.TSK_CAN_NOT_BE_EMPTY+"}")
     private ClockTaskType clockTaskType;
     private TimeDuration minimumClockDiff;
     private TimeDuration maximumClockDiff;

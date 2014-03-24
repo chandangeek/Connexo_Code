@@ -50,11 +50,11 @@ abstract class ProtocolTaskImpl implements ProtocolTask, OfflineDeviceContext {
      * @return the ComTask of this ProtocolTask
      */
     @Override
-    public ComTask getComTask () {
+    public ComTask getComTask() {
         return comTask.get();
     }
 
-    protected void ownedBy (final ComTask comTask) {
+    public void ownedBy(final ComTask comTask) {
         this.comTask.set(comTask);
     }
 
@@ -91,6 +91,14 @@ abstract class ProtocolTaskImpl implements ProtocolTask, OfflineDeviceContext {
     @Override
     public boolean needsAllLoadProfiles() {
         return flags.needsAllLoadProfiles();
+    }
+
+    /**
+     * Inheritors should implement this method if they have internal elements that
+     * require explicit removal before the element itself van be deleted,
+     */
+    void deleteDependents() {
+
     }
 
 }

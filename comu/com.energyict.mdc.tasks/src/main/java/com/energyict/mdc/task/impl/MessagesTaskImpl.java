@@ -39,7 +39,7 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
         }
     }
     private long id;
-    private List<MessagesTaskTypeUsage> deviceMessageUsages;
+    private List<MessagesTaskTypeUsage> deviceMessageUsages = new ArrayList<>();
     private boolean allCategories;
 
     @Inject
@@ -95,7 +95,7 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
         this.allCategories = allCategories;
     }
 
-    private void deleteDependents() {
+    void deleteDependents() {
         this.deviceMessageUsages.clear();
     }
 

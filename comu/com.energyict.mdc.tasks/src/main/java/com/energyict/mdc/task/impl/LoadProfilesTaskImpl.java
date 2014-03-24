@@ -58,9 +58,10 @@ class LoadProfilesTaskImpl extends ProtocolTaskImpl implements LoadProfilesTask 
      */
     @Override
     public List<LoadProfileType> getLoadProfileTypes() {
-        return Collections.emptyList();
+        return Collections.emptyList(); // TODO Implements once JP-343 is done
     }
 
+    @Override
     public void setLoadProfileTypes(List<LoadProfileType> loadProfileTypes) {
         // TODO Implements once JP-343 is done
     }

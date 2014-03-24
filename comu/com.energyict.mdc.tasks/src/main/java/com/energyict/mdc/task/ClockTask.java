@@ -41,4 +41,11 @@ public interface ClockTask extends ProtocolTask {
      */
     public TimeDuration getMaximumClockShift();
     public void setMaximumClockShift(TimeDuration maximumClockShift);
+
+    interface ClockTaskBuilder {
+        public ClockTaskBuilder minimumClockDifference(TimeDuration minimumClockDiff);
+        public ClockTaskBuilder maximumClockDifference(TimeDuration maximumClockDiff);
+        public ClockTaskBuilder maximumClockShift(TimeDuration maximumClockShift);
+        public ClockTask add();
+    }
 }

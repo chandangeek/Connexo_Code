@@ -29,7 +29,7 @@ class LogBooksTaskImpl extends ProtocolTaskImpl implements LogBooksTask {
 
     @Override
     public List<LogBookType> getLogBookTypes() {
-        return Collections.emptyList();
+        return Collections.emptyList(); // TODO Implement once JP-343 is done
     }
 
     @Override
