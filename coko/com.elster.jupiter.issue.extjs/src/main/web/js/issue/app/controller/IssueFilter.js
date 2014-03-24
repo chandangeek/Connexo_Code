@@ -20,6 +20,10 @@ Ext.define('Isu.controller.IssueFilter', {
         }
     ],
 
+    mixins: [
+        'Isu.util.IsuCombo'
+    ],
+
     init: function () {
         this.control({
             'issues-side-filter button[action="filter"]': {
@@ -35,10 +39,14 @@ Ext.define('Isu.controller.IssueFilter', {
                 afterrender: this.loadFormModel
             },
             'issues-side-filter filter-form combobox[name=assignee]': {
-                change: this.clearCombo
+                change: this.clearCombo,
+                focus: this.onFocusCombo,
+                blur: this.onBlurCombo
             },
             'issues-side-filter filter-form combobox[name=reason]': {
-                change: this.clearCombo
+                change: this.clearCombo,
+                focus: this.onFocusCombo,
+                blur: this.onBlurCombo
             }
         });
         this.listen({
@@ -48,17 +56,6 @@ Ext.define('Isu.controller.IssueFilter', {
                 }
             }
         });
-    },
-
-    clearCombo: function (combo, newValue) {
-        var listValues = combo.picker;
-
-        if (newValue == null) {
-            combo.reset();
-            listValues && listValues.hide();
-        } else {
-            listValues && listValues.show();
-        }
     },
 
     loadFormModel: function (form) {

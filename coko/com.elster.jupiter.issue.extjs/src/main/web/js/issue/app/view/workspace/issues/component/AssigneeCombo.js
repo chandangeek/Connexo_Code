@@ -21,7 +21,6 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
     typeAhead: true,
 
     anchor: '100%',
-    emptyText: 'start typing a user',
 
     forceSelection: true,
 

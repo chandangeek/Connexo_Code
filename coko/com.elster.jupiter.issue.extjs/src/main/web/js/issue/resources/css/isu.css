@@ -319,6 +319,14 @@ span[class^=isu-assignee-] {
     border-color: #D6E8F6;
 }
 
+.isu-combo-tooltip {
+    position: absolute;
+    padding: 3px 5px;
+    background-color: #fff;
+    border: 1px solid #C0C0C0;
+    color: gray;
+}
+
 /* Message Window */
 
 /* Window */
