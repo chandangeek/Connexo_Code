@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                 {
                     xtype: 'component',
                     html: Uni.I18n.translate('registerMapping.deviceType', 'MDC', 'Device type'),
-                    margins: '10 10 0 20'
+                    margins: '10 10 0 10'
                 },
                 {
                     xtype: 'component',
