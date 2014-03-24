@@ -51,14 +51,7 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
             dockedItems: [
                 {
                     xtype: 'toolbar',
-                    dock: 'top',
-                    items: [
-                        {
-                            xtype: 'pagingtoolbartop',
-                            store: 'Isu.store.AssignmentRules',
-                            border: false
-                        }
-                    ]
+                    dock: 'top'
                 }
             ]
         }
@@ -85,7 +78,15 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
     },
 
     onStoreLoad: function (store) {
-        if (store.getTotalCount()) {
+        var storeTotal = store.getTotalCount(),
+            gridTop = this.down('grid').getDockedItems('toolbar[dock="top"]')[0];
+
+        if (storeTotal) {
+            gridTop.removeAll();
+            gridTop.add({
+                xtype: 'component',
+                html: storeTotal + ' rules'
+            });
             this.hideEmptyText();
         } else {
             this.showEmptyText();
