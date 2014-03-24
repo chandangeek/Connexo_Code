@@ -38,7 +38,7 @@ Ext.define('Isu.controller.Issues', {
         },
         {
             ref: 'issueNoGroup',
-            selector: 'issue-no-group'
+            selector: 'issues-browse issue-no-group'
         },
         {
             ref: 'issuesOverview',
@@ -117,7 +117,8 @@ Ext.define('Isu.controller.Issues', {
 
     issueStoreLoad: function (store, records) {
         var issueNoGroup = this.getIssueNoGroup(),
-            issueList = this.getIssuesList()
+            issueList = this.getIssuesList();
+
         if (records.length < 1) {
 
             issueNoGroup.removeAll();
@@ -127,10 +128,10 @@ Ext.define('Isu.controller.Issues', {
                 border: false
             });
             issueList.hide();
-            issueNoGroup.show();
+            issueNoGroup && issueNoGroup.show();
         } else {
             issueList.show();
-            issueNoGroup.hide();
+            issueNoGroup && issueNoGroup.hide();
         }
     },
 
