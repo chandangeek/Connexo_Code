@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
             },
             {
                 header: Uni.I18n.translate('registerConfigs.obisCode', 'MDC', 'OBIS code'),
-                dataIndex: 'obisCode',
+                dataIndex: 'overruledObisCode',
                 sortable: false,
                 hideable: false,
                 flex: 1
