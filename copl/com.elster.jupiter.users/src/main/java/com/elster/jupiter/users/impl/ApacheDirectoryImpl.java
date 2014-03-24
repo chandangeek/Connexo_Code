@@ -37,54 +37,48 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
 
     @Override
     public List<Group> getGroups(User user) {
+        if (isManageGroupsInternal()){
+            return ((UserImpl) user).doGetGroups();
+        }
+
         Hashtable<String, Object> env = new Hashtable();
-        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+        env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, getUrl());
-        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        env.put(Context.SECURITY_PRINCIPAL, "uid="+getDirectoryUser()+",ou=users,"+getDomain());
+        env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
         env.put(Context.SECURITY_CREDENTIALS, getPassword());
 
         List<Group> groupList = new ArrayList<>();
-
         try {
             DirContext context = new InitialDirContext(env);
-            SearchControls controls = new SearchControls(SearchControls.SUBTREE_SCOPE,0,0,null,true,true);
-
-            NamingEnumeration<SearchResult> answer = context.search("ou=groups,"+getDomain(),"(&(objectClass=groupOfNames)(member=uid="+user.getName()+",ou=users,"+getDomain()+"))",controls);
+            String[] attrIDs = {"cn"};
+            SearchControls controls = new SearchControls(SearchControls.ONELEVEL_SCOPE, 0, 0, attrIDs, true, true);
+            NamingEnumeration<SearchResult> answer = context.search(getBaseGroup(),"(&(objectClass=groupOfNames)(member=uid=" + user.getName() + "," + getBaseUser()+"))",controls);
             while(answer.hasMore()) {
-                System.out.println(answer.next());
-                // TODO: get each group name
-                // search group name in database
-                // add to the list
+                Group group = userService.findOrCreateGroup(answer.next().getAttributes().get("cn").get().toString());
+                groupList.add(group);
             }
-
-            //return userService.findOrCreateUser(name, this.getDomain());
         } catch (NamingException e) {
-            // TODO: add exception handling
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-
         return groupList;
     }
 
     @Override
     public Optional<User> authenticate(String name, String password) {
         Hashtable<String, Object> env = new Hashtable();
-        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+        env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, getUrl());
-        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        env.put(Context.SECURITY_PRINCIPAL, "uid="+name+",ou=users,"+getDomain());
+        env.put(Context.SECURITY_PRINCIPAL,"uid=" + name + "," + getBaseUser());
         env.put(Context.SECURITY_CREDENTIALS, password);
-
         try {
             new InitialDirContext(env);
-
-            return userService.findOrCreateUser(name, this.getDomain());
+            return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER));
         } catch (NamingException e) {
-            // TODO: add exception handling
-            e.printStackTrace();
+            return Optional.absent();
         }
+    }
 
-        return Optional.absent();
+    private String getRealDomain(String rdn) {
+        return rdn.substring(rdn.contains("dc=") ? rdn.indexOf("dc=") : 0);
     }
 }

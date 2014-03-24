@@ -3,7 +3,6 @@ package com.elster.jupiter.users.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.UserService;
-import com.google.inject.Inject;
 
 import javax.naming.Context;
 import java.util.Hashtable;
@@ -12,13 +11,13 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     private String directoryUser;
     private String password;
     private String url;
-    private String baseDN;
+    private String baseUser;
+    private String baseGroup;
     private boolean manageGroupsInternal;
 
     final Hashtable<String, Object> commonEnvLDAP = new Hashtable<String, Object>(){{
         put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         put(Context.SECURITY_AUTHENTICATION, "simple");
-        put(Context.PROVIDER_URL, getUrl());
     }};
 
     public AbstractLdapDirectoryImpl(DataModel dataModel, UserService userService) {
@@ -61,12 +60,22 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     }
 
     @Override
-    public String getBaseDN(){
-        return baseDN;
+    public String getBaseUser(){
+        return baseUser;
     }
 
     @Override
-    public void setBaseDN(String baseDN) {
-        this.baseDN = baseDN;
+    public void setBaseUser(String baseUser) {
+        this.baseUser = baseUser;
+    }
+
+    @Override
+    public String getBaseGroup() {
+        return baseGroup;
+    }
+
+    @Override
+    public void setBaseGroup(String baseGroup) {
+        this.baseGroup = baseGroup;
     }
 }

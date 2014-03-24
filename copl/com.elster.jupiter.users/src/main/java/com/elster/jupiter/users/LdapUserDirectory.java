@@ -14,8 +14,12 @@ public interface LdapUserDirectory extends UserDirectory {
 
     void setPassword(String password);
 
-    String getBaseDN();
+    String getBaseUser();
 
-    void setBaseDN(String baseDN);
+    void setBaseUser(String baseUser);
+
+    String getBaseGroup();
+
+    void setBaseGroup(String baseGroup);
 
 }

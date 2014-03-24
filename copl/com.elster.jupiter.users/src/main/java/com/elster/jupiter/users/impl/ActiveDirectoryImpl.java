@@ -7,7 +7,16 @@ import com.elster.jupiter.users.UserService;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
+
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
 
@@ -29,13 +38,66 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
 
     @Override
     public List<Group> getGroups(User user) {
-        //TODO get the groups
-        return null;
+        if (isManageGroupsInternal()){
+            return ((UserImpl) user).doGetGroups();
+        }
+
+        Hashtable<String, Object> env = new Hashtable();
+        env.putAll(commonEnvLDAP);
+        env.put(Context.PROVIDER_URL, getUrl());
+        env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
+        env.put(Context.SECURITY_CREDENTIALS, getPassword());
+
+        List<Group> groupList = new ArrayList<>();
+        try {
+            DirContext context = new InitialDirContext(env);
+            String attrIDs[] = {"memberOf"};
+            SearchControls controls = new SearchControls(SearchControls.SUBTREE_SCOPE, 0, 0, attrIDs, true, true);
+            NamingEnumeration<SearchResult> answer = context.search(getBaseUser(), "(&(objectClass=person)(userPrincipalName="+user.getName()+"@"+getRealDomain(getBaseUser())+"))", controls);
+            while (answer.hasMoreElements()) {
+                Attributes attrs = answer.nextElement().getAttributes();
+                NamingEnumeration e = attrs.getAll();
+                while (e.hasMoreElements()) {
+                    Attribute attr = (Attribute) e.nextElement();
+                    for (int i = 0; i < attr.size(); ++i){
+                        Group group = userService.findOrCreateGroup(getRealGroupName(attr.get(i).toString()));
+                        groupList.add(group);
+                    }
+                }
+            }
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+        return groupList;
     }
 
     @Override
     public Optional<User> authenticate(String name, String password) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        Hashtable<String, Object> env = new Hashtable();
+        env.putAll(commonEnvLDAP);
+        env.put(Context.PROVIDER_URL, getUrl());
+        env.put(Context.SECURITY_PRINCIPAL,  name + "@" + getRealDomain(getBaseUser()));
+        env.put(Context.SECURITY_CREDENTIALS, password);
+        try {
+            new InitialDirContext(env);
+            return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER));
+        } catch (NamingException e) {
+            return Optional.absent();
+        }
+    }
+
+    private String getRealDomain(String baseDN) {
+        return baseDN.toLowerCase().replace("dc=","").replace(",",".");
+    }
+
+    private String getRealGroupName(String rdn) {
+        String result = rdn;
+        Pattern pattern = Pattern.compile("=(.*?),");
+        Matcher matcher = pattern.matcher(rdn);
+        if (matcher.find()) {
+            result = matcher.group(1);
+        }
+        return result;
     }
 
 }
