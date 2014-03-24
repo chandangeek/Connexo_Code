@@ -49,6 +49,12 @@ Ext.define('Isu.view.administration.datacollection.Overview', {
             href: '#/administration/datacollection/issueautomaticcreationrules',
             hrefTarget: '_self'
         });
+
+        menu.add({
+            text: 'Licensing',
+            href: '#/administration/datacollection/licensing',
+            hrefTarget: '_self'
+        });
     },
 
     getSideMenuCmp: function () {

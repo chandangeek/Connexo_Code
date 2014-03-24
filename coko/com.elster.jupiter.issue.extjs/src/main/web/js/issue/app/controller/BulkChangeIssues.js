@@ -138,14 +138,13 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     onIssuesListAfterRender: function (grid) {
-        var self = this,
-            step1RadioGroup = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step1').down('radiogroup'),
+        var step1RadioGroup = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step1').down('radiogroup'),
             step1SelectedIssuesTxtHolder = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step1').down('[name=selected-issues-txt-holder]');
-        grid.store.extraParams = {pageSize: 99999};
         step1RadioGroup.mask();
         step1SelectedIssuesTxtHolder.mask();
         grid.mask();
         grid.store.load({
+            params: {status: 1},
             start: 0,
             limit: 99999,
             callback: function () {

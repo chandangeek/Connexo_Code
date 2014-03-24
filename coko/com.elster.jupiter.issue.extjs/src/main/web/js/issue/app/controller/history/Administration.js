@@ -15,12 +15,19 @@ Ext.define('Isu.controller.history.Administration', {
         crossroads.addRoute('administration/datacollection',function(){
             Isu.getApplication().getAdministrationDataCollectionController().showOverview();
         });
+        crossroads.addRoute('administration/datacollection/licensing',function(){
+            Isu.getApplication().getLicensingController().showOverview();
+        });
+        crossroads.addRoute('administration/datacollection/licensing/addlicense',function(){
+            Isu.getApplication().getAddLicenseController().showOverview();
+        });
         crossroads.addRoute('administration/datacollection/issueassignmentrules',function(){
             Isu.getApplication().getIssueAssignmentRulesController().showOverview();
         });
         crossroads.addRoute('administration/datacollection/issueautomaticcreationrules',function(){
             Isu.getApplication().getIssueAutoCreationRulesController().showOverview();
         });
+
 
         this.callParent(arguments);
     },
