@@ -7,4 +7,5 @@ public interface TaskService {
     String COMPONENT_NAME = "CTS";
 
     public List<ComTask> getComTasks();
+
 }

@@ -44,8 +44,6 @@ public interface MessagesTask extends ProtocolTask {
     public boolean isAllCategories();
     public void setAllCategories(boolean allCategories);
 
-    public long getId();
-
     interface MessagesTaskBuilder {
         public MessagesTaskBuilder deviceMessageCategories(List<DeviceMessageCategory> deviceMessageCategories);
         public MessagesTaskBuilder deviceMessageSpecs(List<DeviceMessageSpec> deviceMessageSpecs);

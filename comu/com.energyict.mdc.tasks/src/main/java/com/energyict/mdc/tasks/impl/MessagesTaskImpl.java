@@ -38,7 +38,6 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
             return javaFieldName;
         }
     }
-    private long id;
     private List<MessagesTaskTypeUsage> deviceMessageUsages = new ArrayList<>();
     private boolean allCategories;
 
@@ -46,11 +45,6 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
     public MessagesTaskImpl(DataModel dataModel) {
         super(dataModel);
         setFlags(FLAGS);
-    }
-
-    @Override
-    public long getId() {
-        return id;
     }
 
     @Override

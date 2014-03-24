@@ -27,6 +27,7 @@ abstract class ProtocolTaskImpl implements ProtocolTask, OfflineDeviceContext {
 
     private final DataModel dataModel;
 
+    private long id;
     private final Reference<ComTask> comTask= ValueReference.absent();
     private DeviceOfflineFlags flags;
 
@@ -37,6 +38,10 @@ abstract class ProtocolTaskImpl implements ProtocolTask, OfflineDeviceContext {
 
     protected void setFlags(DeviceOfflineFlags flags) {
         this.flags = flags;
+    }
+
+    public long getId() {
+        return id;
     }
 
     @Override

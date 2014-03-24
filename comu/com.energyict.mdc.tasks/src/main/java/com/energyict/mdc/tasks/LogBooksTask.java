@@ -29,7 +29,7 @@ public interface LogBooksTask extends ProtocolTask {
     public void setLogBookTypes(List<LogBookType> logBookTypes);
 
     interface LogBooksTaskBuilder {
-        // TODO Implement once JP-343 is done (LogBookTypes)
+        public LogBooksTaskBuilder logBookTypes(List<LogBookType> logBookTypes);
         public LogBooksTask add();
     }
 }

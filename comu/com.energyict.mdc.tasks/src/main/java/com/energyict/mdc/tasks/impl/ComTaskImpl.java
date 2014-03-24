@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
@@ -381,6 +382,12 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
 
         LogBooksTaskBuilderImpl(ComTask comTask) {
             logBooksTask.ownedBy(comTask);
+        }
+
+        @Override
+        public LogBooksTask.LogBooksTaskBuilder logBookTypes(List<LogBookType> logBookTypes) {
+            logBooksTask.setLogBookTypes(logBookTypes);
+            return this;
         }
 
         @Override

@@ -16,6 +16,8 @@ public interface ProtocolTask {
      */
     public ComTask getComTask ();
 
+    public long getId();
+
     public void save();
 
 }
