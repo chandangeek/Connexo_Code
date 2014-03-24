@@ -286,7 +286,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             href: 'devicetypes'
         });
         var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
+            text: Uni.I18n.translate('devicetype.createDeviceType', 'MDC', 'Create device type'),
             href: 'create'
         });
         breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3);
