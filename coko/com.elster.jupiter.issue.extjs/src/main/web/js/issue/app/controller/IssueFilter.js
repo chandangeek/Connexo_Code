@@ -51,8 +51,13 @@ Ext.define('Isu.controller.IssueFilter', {
     },
 
     clearCombo: function (combo, newValue) {
-        if (newValue == '') {
+        var listValues = combo.picker;
+
+        if (newValue == null) {
             combo.reset();
+            listValues && listValues.hide();
+        } else {
+            listValues && listValues.show();
         }
     },
 
@@ -102,7 +107,7 @@ Ext.define('Isu.controller.IssueFilter', {
             grstore.proxy.extraParams.id = reason.get('id');
             grstore.loadPage(1);
         } else {
-            delete grstore.proxy.extraParams.id ;
+            delete grstore.proxy.extraParams.id;
             grstore.loadPage(1);
         }
 
