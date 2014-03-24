@@ -37,6 +37,14 @@ import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -45,13 +53,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import javax.inject.Inject;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import static com.energyict.mdc.engine.model.impl.ComPortImpl.OUTBOUND_DISCRIMINATOR;
 import static com.energyict.mdc.engine.model.impl.ComServerImpl.OFFLINE_COMSERVER_DISCRIMINATOR;
@@ -84,7 +85,9 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public void install() {
-        dataModel.install(true, true);
+        if(!dataModel.isInstalled()){
+            dataModel.install(true, true);
+        }
     }
 
     private void createTranslations() {
