@@ -30,12 +30,14 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.mockito.Mock;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
 
+@Ignore("Base functionality for all tests")
 public class BaseTest {
     protected static Injector injector;
 
