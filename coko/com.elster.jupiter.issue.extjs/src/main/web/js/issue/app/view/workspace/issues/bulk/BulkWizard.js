@@ -104,6 +104,8 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
 
     onCancelButtonClick: function (cancel) {
         var wizard = cancel.up('wizard');
+        Ext.state.Manager.clear('formAssignValues');
+        Ext.state.Manager.clear('formCloseValues');
         wizard.fireEvent('wizardcancelled', wizard);
     },
 
