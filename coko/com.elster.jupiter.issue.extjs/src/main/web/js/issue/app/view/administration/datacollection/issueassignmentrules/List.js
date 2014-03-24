@@ -78,15 +78,10 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
     },
 
     onStoreLoad: function (store) {
-        var storeTotal = store.getTotalCount(),
-            gridTop = this.down('grid').getDockedItems('toolbar[dock="top"]')[0];
+        var storeTotal = store.getTotalCount();
 
         if (storeTotal) {
-            gridTop.removeAll();
-            gridTop.add({
-                xtype: 'component',
-                html: storeTotal + ' rules'
-            });
+            this.setTotal(storeTotal);
             this.hideEmptyText();
         } else {
             this.showEmptyText();
@@ -110,6 +105,20 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
         if (grid && emtyText) {
             grid.show();
             emtyText.hide();
+        }
+    },
+
+    setTotal: function (total) {
+        var grid = this.down('grid'),
+            gridTop;
+
+        if (grid) {
+            gridTop = grid.getDockedItems('toolbar[dock="top"]')[0];
+            gridTop.removeAll();
+            gridTop.add({
+                xtype: 'component',
+                html: total + ' rule' + (total > 1 ? 's' : '')
+            });
         }
     }
 });
