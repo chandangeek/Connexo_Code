@@ -123,7 +123,7 @@ Ext.define('Isu.controller.Issues', {
 
             issueNoGroup.removeAll();
             issueNoGroup.add({
-                html: '<h3>No issues found</h3><p>Possibly there is no one issue satisfying to the filters applied</p>',
+                html: '<h3>No issues found</h3><p>The filter is too narrow</p>',
                 bodyPadding: 10,
                 border: false
             });
