@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                 dataIndex: 'name',
                 sortable: false,
                 hideable: false,
-//                renderer: function(value,b,record){men
+//                renderer: function(value,b,record){
 //                    return '<a href="#/setup/devicetypes/' + record.get('id') + '">' + value + '</a>';;
 //                },
                 fixed: true,
