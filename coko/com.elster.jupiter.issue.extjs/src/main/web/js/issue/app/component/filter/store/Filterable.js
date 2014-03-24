@@ -32,7 +32,7 @@ Ext.define('Isu.component.filter.store.Filterable', {
     },
 
     updateProxyFilter: function() {
-        this.load();
+        this.loadPage(1);
         this.fireEvent('updateProxyFilter', this.proxyFilter);
     },
 

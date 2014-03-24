@@ -23,7 +23,7 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.Overview
                 },
                 {
                     xtype: 'issues-assignment-rules-list',
-                    margin: '0 0 20 0'
+                    margin: '0 15 20 0'
                 }
             ]
         }
