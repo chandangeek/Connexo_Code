@@ -8,26 +8,26 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
         this.callParent(this);
         this.add(
             {
-                text: 'Overview',
+                text: Uni.I18n.translate('deviceconfigurationmenu.overview', 'MDC', 'Overview'),
                 pressed: false,
                 itemId: 'deviceConfigurationOverviewLink',
                 href: '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId,
                 hrefTarget: '_self'
             },
             {
-                text: 'Register types',
+                text: Uni.I18n.translate('deviceconfigurationmenu.registerTypes', 'MDC', 'Register types'),
                 pressed: false,
                 itemId: 'registerConfigsLink',
                 href: '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/registerconfigurations',
                 hrefTarget: '_self'
             }, {
-                text: 'Load profiles',
+                text: Uni.I18n.translate('deviceconfigurationmenu.loadProfiles', 'MDC', 'Load profiles'),
                 pressed: false,
                 itemId: 'loadProfilesLink',
                 href: '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles',
                 hrefTarget: '_self'
             }, {
-                text: 'Logbooks',
+                text: Uni.I18n.translate('deviceconfigurationmenu.logbooks', 'MDC', 'Logbooks'),
                 pressed: false,
                 itemId: 'logbooksLink',
                 href: '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId+ '/logbooks',

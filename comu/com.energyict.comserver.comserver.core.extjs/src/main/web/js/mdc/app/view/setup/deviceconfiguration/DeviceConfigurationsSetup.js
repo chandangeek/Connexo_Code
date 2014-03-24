@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
                 },
                 {
                     xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('deviceconfig.deviceConfigurations', 'MDC', 'Device configurations') + '</h1>',
+                    html: '<h1>' + Uni.I18n.translate('deviceconfiguration.deviceConfigurations', 'MDC', 'Device configurations') + '</h1>',
                     margins: '10 10 10 10'
                 },
                 {

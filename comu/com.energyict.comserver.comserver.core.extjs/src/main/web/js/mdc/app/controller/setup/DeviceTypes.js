@@ -3,7 +3,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
     requires: [
         'Uni.model.BreadcrumbItem',
-        'Ext.ux.window.Notification'
+        'Ext.ux.window.Notification',
+        'Uni.util.When'
     ],
 
     views: [
@@ -165,18 +166,44 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         this.getApplication().getController('Mdc.controller.Main').showContent(widget);
         widget.setLoading(true);
         var me = this;
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
-            success: function (deviceType) {
-                me.editBreadCrumb(deviceType.get('name'), deviceTypeId)
-                protocolStore.load({
-                    callback: function (store) {
-                        widget.down('form').loadRecord(deviceType);
-                        widget.down('#deviceTypeEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name')+'"</H2>');
-                        widget.setLoading(false);
-                    }
-                })
+
+        var when = new Uni.util.When();
+        when.when([
+                {action: Ext.ModelManager.getModel('Mdc.model.DeviceType').load,context:Ext.ModelManager.getModel('Mdc.model.DeviceType'),args:[deviceTypeId]},
+                {action: protocolStore.load,context:protocolStore,simple:true}
+
+            ]).then(
+            {
+                success: function(results){
+                    debugger;
+                    var deviceType = results[0][0];
+                    me.editBreadCrumb(deviceType.get('name'), deviceTypeId)
+                    widget.down('form').loadRecord(deviceType);
+                    widget.down('#deviceTypeEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name')+'"</H2>');
+                    widget.setLoading(false);
+                },
+                failure:  function(){
+                    me.editBreadCrumb(deviceType.get('name'), deviceTypeId)
+                    widget.down('form').loadRecord(deviceType);
+                    widget.down('#deviceTypeEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name')+'"</H2>');
+                    widget.setLoading(false);
+                }
             }
-        });
+        );
+
+
+//        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+//            success: function (deviceType) {
+//                me.editBreadCrumb(deviceType.get('name'), deviceTypeId)
+//                protocolStore.load({
+//                    callback: function (store) {
+//                        widget.down('form').loadRecord(deviceType);
+//                        widget.down('#deviceTypeEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name')+'"</H2>');
+//                        widget.setLoading(false);
+//                    }
+//                })
+//            }
+//        });
 
 
     },
