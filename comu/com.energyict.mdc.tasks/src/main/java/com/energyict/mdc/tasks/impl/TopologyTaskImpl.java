@@ -33,7 +33,7 @@ class TopologyTaskImpl extends ProtocolTaskImpl implements TopologyTask {
         }
     }
 
-    @NotNull(groups = { Save.Create.class, Save.Update.class}, message = "{"+Constants.TSK_CAN_NOT_BE_EMPTY+"}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class}, message = "{"+Constants.CAN_NOT_BE_EMPTY +"}")
     private TopologyAction topologyAction;
 
     @Inject

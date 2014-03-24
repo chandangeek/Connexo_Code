@@ -11,19 +11,19 @@ import java.util.logging.Level;
  * @since 2014-01-23 (11:00)
  */
 public enum MessageSeeds implements MessageSeed {
-    SET_CLOCK(1, "clockTaskType.setClock", "Set the clock", Level.SEVERE),
-    FORCE_CLOCK(2, "clockTaskType.forceClock", "Force the clock", Level.SEVERE),
-    SYNC_CLOCK(3, "clockTaskType.synchronizeClock", "Synchronize the clock", Level.SEVERE),
-    SHOULD_BE_AT_LEAST(4, Constants.TSK_VALUE_TOO_SMALL, "Minimal acceptable value is {min}, was {value}", Level.SEVERE),
-    CAN_NOT_BE_EMPTY(5, Constants.TSK_CAN_NOT_BE_EMPTY, "This field can not be empty", Level.SEVERE),
-    MIN_ABOVE_MAX(6, Constants.TSK_MIN_MUST_BE_BELOW_MAX, "Invalid range: minimum value exceeds maximum value", Level.SEVERE),
-    MIN_EQUALS_MAX(7, Constants.TSK_MIN_EQUALS_MAX, "Invalid range: minimum value equals maximum value ", Level.SEVERE),
-    TIMEDURATION_IS_NULL(8, Constants.TSK_TIMEDURATION_IS_ZERO, "Field must denote non-0 duration", Level.SEVERE),
-    SIZE_TOO_LONG(9, Constants.TSK_SIZE_TOO_LONG, "Field exceeds max size of {max} characters", Level.SEVERE),
-    DUPLICATE_COMTASK_NAME(10, Constants.TSK_DUPLICATE_COMTASK_NAME, "A ComTask by this name already exists", Level.SEVERE),
-    PROTOCOL_TASK_REQUIRED(11, Constants.TSK_DUPLICATE_COMTASK_NAME, "No protocol task defined for communication task. At least one is required.", Level.SEVERE),
-    DUPLICATE_PROTOCOL_TASK_TYPE_IN_COMTASK(12, Constants.TSK_DUPLICATE_PROTOCOL_TASK_TYPE_IN_COM_TASK, "ComTask contains multiple ProtocolTasks of the same type", Level.SEVERE),
-    VALUE_NOT_IN_RANGE(999, Constants.TSK_VALUE_NOT_IN_RANGE, "{value} not in range {min} to {max}", Level.SEVERE);
+    SET_CLOCK(1, Constants.CLOCK_TASK_TYPE_SET_CLOCK, "Set the clock", Level.SEVERE),
+    FORCE_CLOCK(2, Constants.CLOCK_TASK_TYPE_FORCE_CLOCK, "Force the clock", Level.SEVERE),
+    SYNC_CLOCK(3, Constants.CLOCK_TASK_TYPE_SYNCHRONIZE_CLOCK, "Synchronize the clock", Level.SEVERE),
+    SHOULD_BE_AT_LEAST(4, Constants.VALUE_TOO_SMALL, "Minimal acceptable value is {min}, was {value}", Level.SEVERE),
+    CAN_NOT_BE_EMPTY(5, Constants.CAN_NOT_BE_EMPTY, "This field can not be empty", Level.SEVERE),
+    MIN_ABOVE_MAX(6, Constants.MIN_MUST_BE_BELOW_MAX, "Invalid range: minimum value exceeds maximum value", Level.SEVERE),
+    MIN_EQUALS_MAX(7, Constants.MIN_EQUALS_MAX, "Invalid range: minimum value equals maximum value ", Level.SEVERE),
+    TIMEDURATION_IS_NULL(8, Constants.TIMEDURATION_IS_ZERO, "Field must denote non-0 duration", Level.SEVERE),
+    SIZE_TOO_LONG(9, Constants.SIZE_TOO_LONG, "Field exceeds max size of {max} characters", Level.SEVERE),
+    DUPLICATE_COMTASK_NAME(10, Constants.DUPLICATE_COMTASK_NAME, "A ComTask by this name already exists", Level.SEVERE),
+    PROTOCOL_TASK_REQUIRED(11, Constants.DUPLICATE_COMTASK_NAME, "No protocol task defined for communication task. At least one is required.", Level.SEVERE),
+    DUPLICATE_PROTOCOL_TASK_TYPE_IN_COMTASK(12, Constants.DUPLICATE_PROTOCOL_TASK_TYPE_IN_COM_TASK, "ComTask contains multiple ProtocolTasks of the same type", Level.SEVERE),
+    VALUE_NOT_IN_RANGE(999, Constants.VALUE_NOT_IN_RANGE, "{value} not in range {min} to {max}", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -65,15 +65,18 @@ public enum MessageSeeds implements MessageSeed {
 }
 
 final class Constants {
-    public static final String TSK_VALUE_TOO_SMALL = TaskService.COMPONENT_NAME+".ValueTooSmall";
-    public static final String TSK_CAN_NOT_BE_EMPTY = TaskService.COMPONENT_NAME+".CanNotBeEmpty";
-    public static final String TSK_VALUE_NOT_IN_RANGE = TaskService.COMPONENT_NAME+".ValueNotInRange";
-    public static final String TSK_MIN_MUST_BE_BELOW_MAX = TaskService.COMPONENT_NAME+".MinMustBeBelowMax";
-    public static final String TSK_MIN_EQUALS_MAX = TaskService.COMPONENT_NAME+".MinEqualsMax";
-    public static final String TSK_TIMEDURATION_IS_ZERO = TaskService.COMPONENT_NAME+".TimeDurationMustBePositive";
-    public static final String TSK_SIZE_TOO_LONG = TaskService.COMPONENT_NAME+".MaxSizeExceeded";
-    public static final String TSK_DUPLICATE_COMTASK_NAME = TaskService.COMPONENT_NAME + ".comTask.name.duplicated";
-    public static final String TSK_COMTASK_WITHOUT_PROTOCOLTASK = TaskService.COMPONENT_NAME + ".comTask.requiresProtocolTask";
-    public static final String TSK_DUPLICATE_PROTOCOL_TASK_TYPE_IN_COM_TASK = TaskService.COMPONENT_NAME + ".duplicateProtocolTaskInComTask";
+    public static final String VALUE_TOO_SMALL = TaskService.COMPONENT_NAME+".ValueTooSmall";
+    public static final String CAN_NOT_BE_EMPTY = TaskService.COMPONENT_NAME+".CanNotBeEmpty";
+    public static final String VALUE_NOT_IN_RANGE = TaskService.COMPONENT_NAME+".ValueNotInRange";
+    public static final String MIN_MUST_BE_BELOW_MAX = TaskService.COMPONENT_NAME+".MinMustBeBelowMax";
+    public static final String MIN_EQUALS_MAX = TaskService.COMPONENT_NAME+".MinEqualsMax";
+    public static final String TIMEDURATION_IS_ZERO = TaskService.COMPONENT_NAME+".TimeDurationMustBePositive";
+    public static final String SIZE_TOO_LONG = TaskService.COMPONENT_NAME+".MaxSizeExceeded";
+    public static final String DUPLICATE_COMTASK_NAME = TaskService.COMPONENT_NAME + ".comTask.name.duplicated";
+    public static final String COMTASK_WITHOUT_PROTOCOLTASK = TaskService.COMPONENT_NAME + ".comTask.requiresProtocolTask";
+    public static final String DUPLICATE_PROTOCOL_TASK_TYPE_IN_COM_TASK = TaskService.COMPONENT_NAME + ".duplicateProtocolTaskInComTask";
+    public static final String CLOCK_TASK_TYPE_SET_CLOCK = TaskService.COMPONENT_NAME + ".clockTaskType.setClock";
+    public static final String CLOCK_TASK_TYPE_FORCE_CLOCK = TaskService.COMPONENT_NAME + ".clockTaskType.forceClock";
+    public static final String CLOCK_TASK_TYPE_SYNCHRONIZE_CLOCK = TaskService.COMPONENT_NAME + ".clockTaskType.synchronizeClock";
 }
 

@@ -15,12 +15,12 @@ public class LoadProfileTaskValidator implements ConstraintValidator<ValidLoadPr
         if (value.isMarkIntervalsAsBadTime()) {
             if (value.getMinClockDiffBeforeBadTime()==null) {
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("{"+Constants.TSK_CAN_NOT_BE_EMPTY+"}").addPropertyNode(LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()).addConstraintViolation();
+                context.buildConstraintViolationWithTemplate("{"+Constants.CAN_NOT_BE_EMPTY +"}").addPropertyNode(LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()).addConstraintViolation();
                 valid=false;
             }
             if (value.getMinClockDiffBeforeBadTime()!=null && value.getMinClockDiffBeforeBadTime().getCount()<=0) {
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("{"+Constants.TSK_VALUE_TOO_SMALL+"}").addPropertyNode(LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()).addConstraintViolation();
+                context.buildConstraintViolationWithTemplate("{"+Constants.VALUE_TOO_SMALL +"}").addPropertyNode(LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()).addConstraintViolation();
                 valid=false;
             }
         }

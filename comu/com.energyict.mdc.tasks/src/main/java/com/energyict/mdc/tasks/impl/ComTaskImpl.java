@@ -41,7 +41,7 @@ import javax.validation.constraints.Size;
  * @author gna
  * @since 2/05/12 - 16:10
  */
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.TSK_DUPLICATE_COMTASK_NAME+"}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.DUPLICATE_COMTASK_NAME +"}")
 public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
 
     private static final int NAME_MAX_DB_LENGTH = 80;
@@ -73,7 +73,7 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
     }
 
     private long id;
-    @Size(max = NAME_MAX_DB_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.TSK_SIZE_TOO_LONG+"}")
+    @Size(max = NAME_MAX_DB_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.SIZE_TOO_LONG +"}")
     private String name;
 
     /**
@@ -84,14 +84,14 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
     /**
      * Holds a list of all {@link ProtocolTask ProtocolTasks} which must be performed during the execution of this kind of ComTask
      */
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.TSK_COMTASK_WITHOUT_PROTOCOLTASK+"}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.COMTASK_WITHOUT_PROTOCOLTASK +"}")
     @Valid
     private final List<ProtocolTaskImpl> protocolTasks = new ArrayList<>();
 
     /**
      * Keeps track of the maximum number of tries a ComTask may execute before failing
      */
-    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message="{"+Constants.TSK_VALUE_TOO_SMALL+"}")
+    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message="{"+Constants.VALUE_TOO_SMALL +"}")
     private int maxNrOfTries;
 
     @Inject
