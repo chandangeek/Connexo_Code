@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
     listeners: {
         selectionchange: function (view, selections, options) {
             this.nbrOfSelectedItems = selections.length;
-            this.down('#pagingt').displayMsg = this.nbrOfSelectedItems + ' ' + Uni.I18n.translate('registerMappingsAdd.pagingtoolbartop.displayMsg', 'MDC', 'register types selected');
+            this.down('#pagingt').displayMsg = this.nbrOfSelectedItems + ' ' + Uni.I18n.translatePlural('registerMappingsAdd.pagingtoolbartop.displayMsg', this.nbrOfSelectedItems, 'MDC', 'register types selected');
             this.down('#pagingt').onLoad();
         }
     },
@@ -87,7 +87,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 store: this.store,
                 dock: 'top',
                 itemId: 'pagingt',
-                displayMsg: this.nbrOfSelectedItems + ' ' + Uni.I18n.translate('registerMappingsAdd.pagingtoolbartop.displayMsg', 'MDC', ' register types selected'),
+                displayMsg: this.nbrOfSelectedItems + ' ' + Uni.I18n.translatePlural('registerMappingsAdd.pagingtoolbartop.displayMsg', this.nbrOfSelectedItems, 'MDC', ' register types selected'),
                 items: [
                     {
                         xtype: 'component',
