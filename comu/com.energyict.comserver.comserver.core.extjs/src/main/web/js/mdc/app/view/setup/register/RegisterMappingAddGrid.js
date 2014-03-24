@@ -33,6 +33,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 dataIndex: 'name',
                 flex: 3,
                 sortable: false,
+                fixed: true,
                 hideable: false
             },
             {
@@ -56,6 +57,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 ],
                 tdCls: 'view',
                 sortable: false,
+                fixed: true,
                 hideable: false
             },
             {
@@ -63,6 +65,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 dataIndex: 'obisCode',
                 flex: 1,
                 sortable: false,
+                fixed: true,
                 hideable: false
             },
             {
@@ -74,6 +77,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 },
                 flex: 1,
                 sortable: false,
+                fixed: true,
                 hideable: false
             }
         ];

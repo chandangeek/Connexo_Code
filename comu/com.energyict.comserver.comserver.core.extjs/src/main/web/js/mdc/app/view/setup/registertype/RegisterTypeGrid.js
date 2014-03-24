@@ -21,6 +21,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 dataIndex: 'name',
                 sortable: false,
                 hideable: false,
+                fixed: true,
                 flex: 3
             },
             {
@@ -44,6 +45,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 flex: 2,
                 tdCls: 'view',
                 sortable: false,
+                fixed: true,
                 hideable: false
 
             },
@@ -52,6 +54,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 dataIndex: 'obisCode',
                 sortable: false,
                 hideable: false,
+                fixed: true,
                 flex: 1
             },
             {
@@ -60,6 +63,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
+                fixed: true,
                 items: [
                     {
                         icon: '../mdc/resources/images/gear-16x16.png',
