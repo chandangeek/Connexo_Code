@@ -387,7 +387,7 @@ Ext.define('Isu.controller.Issues', {
 //        this.store.getProxyFilter().set('reason', model);
 //        this.store.updateProxyFilter();
         this.store.setGroup(record);
-        this.store.load();
+        this.store.loadPage(1);
 
 //        this.updateIssueList();
         this.showDefaultItems();
