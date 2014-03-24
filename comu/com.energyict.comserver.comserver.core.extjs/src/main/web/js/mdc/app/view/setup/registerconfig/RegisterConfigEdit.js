@@ -74,9 +74,10 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         queryMode: 'local',
                                         displayField: 'name',
                                         valueField: 'id',
+                                        emptyText: Uni.I18n.translate('registerConfig.selectRegisterType', 'MDC', 'Select register type'),
                                         required: true,
                                         forceSelection: true,
-                                        editable: false,
+                                        typeAhead: true,
                                         width: 650
                                     },
                                     {
