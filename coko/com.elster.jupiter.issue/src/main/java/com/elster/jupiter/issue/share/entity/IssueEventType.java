@@ -39,9 +39,9 @@ public enum IssueEventType {
             type = DEVICE_COMMUNICATION_FAILURE;
         } else if (DEVICE_CONNECTION_SETUP_FAILURE.topic().equals(topicName)) {
             type = DEVICE_CONNECTION_SETUP_FAILURE;
-        } /*else if (DEVICE_CONNECTION_FAILURE.topic().equals(topicName)) {
+        } else if (DEVICE_CONNECTION_FAILURE.topic().equals(topicName)) {
             type = DEVICE_CONNECTION_FAILURE;
-        }*/
+        }
         return type;
     }
 

@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueHelpService;
 import com.elster.jupiter.issue.share.service.IssueMainService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -20,6 +21,7 @@ public class IssueHelpServiceImpl implements IssueHelpService {
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile IssueMainService issueMainService;
+    private volatile IssueService issueService;
 
     public IssueHelpServiceImpl(){}
 
@@ -39,6 +41,10 @@ public class IssueHelpServiceImpl implements IssueHelpService {
     @Reference
     public void setIssueMainService(IssueMainService issueMainService) {
         this.issueMainService = issueMainService;
+    }
+    @Reference
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
     }
 
     @Override
@@ -66,14 +72,9 @@ public class IssueHelpServiceImpl implements IssueHelpService {
         reason.setName(reasonStr);
         reason = issueMainService.searchFirst(reason).get();
 
-        IssueAssignee assignee = new IssueAssignee();
-        assignee.setType(IssueAssigneeType.ROLE);
-        assignee.setRole(issueMainService.get(AssigneeRole.class, 1).get());
-
         Issue issue = new Issue();
         issue.setStatus(status);
         issue.setReason(reason);
-        issue.setAssignee(assignee);
         issue.setDueDate(new UtcInstant(dueDate));
 
         Optional<AmrSystem> amrSystemRef = meteringService.findAmrSystem(1);
@@ -83,6 +84,9 @@ public class IssueHelpServiceImpl implements IssueHelpService {
                 issue.setDevice(meterRef.get());
             }
         }
-        return issueMainService.save(issue);
+
+        Optional<Issue> result = issueMainService.save(issue);
+        issueService.processAutoAssign(issue);
+        return result;
     }
 }

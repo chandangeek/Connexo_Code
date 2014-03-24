@@ -69,6 +69,14 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
+        <!-- Drools dependencies -->
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>drools-integration</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <type>pom</type>
+        </dependency>
+
 
         <!-- Test dependencies -->
         <dependency>

@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.impl.module;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.issue.impl.database.CreateIssueViewOperation;
 import com.elster.jupiter.issue.impl.event.EventConst;
 import com.elster.jupiter.issue.share.entity.IssueEventType;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -23,9 +24,14 @@ public class Installer {
 
     public void install(boolean executeDDL) {
         dataModel.install(executeDDL, false);
+        createCommonIssueView();
         setDefaultReasons();
         setDefaultStatuses();
         setAQSubscriber();
+    }
+
+    private void createCommonIssueView(){
+        CreateIssueViewOperation.init(dataModel).execute();
     }
 
     private void setDefaultReasons(){
@@ -53,16 +59,16 @@ public class Installer {
 
     private void setDefaultStatuses(){
         IssueStatus status = new IssueStatus();
+        status.setFinal(false);
         status.setName("Open");
         issueMainService.save(status);
 
-        status.setName("Closed");
+        status.setFinal(true);
+        status.setName("Resolved");
         issueMainService.save(status);
 
-        status.setName("Rejected");
-        issueMainService.save(status);
-
-        status.setName("In progress");
+        status.setFinal(true);
+        status.setName("Won't fix");
         issueMainService.save(status);
     }
 

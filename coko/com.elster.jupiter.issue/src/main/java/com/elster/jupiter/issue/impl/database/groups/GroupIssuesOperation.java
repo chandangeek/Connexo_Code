@@ -1,5 +1,6 @@
 package com.elster.jupiter.issue.impl.database.groups;
 
+import com.elster.jupiter.issue.share.entity.GroupByReasonEntity;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -7,19 +8,21 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public abstract class GroupIssuesOperation{
-    protected static Logger LOG = Logger.getLogger(GroupIssuesOperation.class.getName());
+    protected static final Logger LOG = Logger.getLogger(GroupIssuesOperation.class.getName());
 
+    protected static final String GROUP_ID = "idcol";
     protected static final String GROUP_TITLE = "col";
     protected static final String GROUP_COUNT = "num";
 
     protected final DataModel dataModel;
 
+    protected long id;
     protected long to;
     protected long from;
     protected boolean isAsc = true;
@@ -38,6 +41,15 @@ public abstract class GroupIssuesOperation{
         this.dataModel = dataModel;
     }
 
+    public GroupIssuesOperation setId(long id){
+        this.id = id;
+        return this;
+    }
+
+    protected long getId() {
+        return this.id;
+    }
+
     public GroupIssuesOperation setTo(long to){
         this.to = to;
         return this;
@@ -53,14 +65,14 @@ public abstract class GroupIssuesOperation{
         return this;
     }
 
-    public Map<String, Long> execute(){
-        Map<String, Long> groups = new LinkedHashMap<>();
+    public List<GroupByReasonEntity> execute(){
+        List<GroupByReasonEntity> groups = new LinkedList<>();
         SqlBuilder sql = buildSQL();
         try (Connection conn = dataModel.getConnection(false)) {
             PreparedStatement groupingStatement = buildStatement(conn, sql);
             ResultSet rs = groupingStatement.executeQuery();
             while (rs.next()) {
-                groups.put(rs.getString(GROUP_TITLE), rs.getLong(GROUP_COUNT));
+                groups.add(new GroupByReasonEntity(rs.getLong(GROUP_ID), rs.getString(GROUP_TITLE), rs.getLong(GROUP_COUNT)));
             }
         } catch (SQLException sqlEx){
             LOG.log(Level.SEVERE, "Unable to retrieve grouped list from database", sqlEx);
@@ -75,8 +87,15 @@ public abstract class GroupIssuesOperation{
             throw new IllegalArgumentException("[ GroupIssuesOperation ] Connection can't be null");
         }
         PreparedStatement statement = sql.prepare(connection);
-        statement.setLong(1, this.to);
-        statement.setLong(2, this.from);
+        if (this.id != 0) {
+            statement.setLong(1, this.id);
+            statement.setLong(2, this.to);
+            statement.setLong(3, this.from);
+        }
+        else {
+            statement.setLong(1, this.to);
+            statement.setLong(2, this.from);
+        }
         return statement;
     }
 

@@ -25,4 +25,8 @@ public enum IssueAssigneeType {
         }
         return null;
     }
+
+    public String toString() {
+        return type.toUpperCase();
+    }
 }

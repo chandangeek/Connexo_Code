@@ -15,14 +15,14 @@ public class GroupByReasonImplementer extends GroupIssuesOperation {
     /**
      SQL example with 'REASON' grouping column:
      <code>
-        SELECT col, num
+        SELECT idcol, col, num
         FROM
             (SELECT ROWNUM as rnum, intr.*
             FROM
-                (SELECT DISTINCT r.REASON_NAME as col, count(isu.REASON_ID) as num
+                (SELECT DISTINCT r.ID as idcol, r.REASON_NAME as col, count(isu.REASON_ID) as num
                 FROM ISU_ISSUE isu, ISU_REASON r
-                WHERE isu.REASON_ID = r.ID
-                GROUP BY (r.REASON_NAME)
+                WHERE isu.REASON_ID = r.ID AND r.ID = 3
+                GROUP BY (r.ID, r.REASON_NAME)
                 ORDER BY num DESC, col ASC
             ) intr
             WHERE ROWNUM <= 5
@@ -33,10 +33,14 @@ public class GroupByReasonImplementer extends GroupIssuesOperation {
     @Override
     public SqlBuilder buildSQL() {
         SqlBuilder builder = new SqlBuilder();
-        builder.append("SELECT " + GROUP_TITLE + ", " + GROUP_COUNT + " FROM " + "(SELECT ROWNUM as rnum, intr.*");
-        builder.append(" FROM (SELECT DISTINCT r.REASON_NAME as " + GROUP_TITLE + ", count(isu.REASON_ID) as " + GROUP_COUNT);
+        builder.append("SELECT " + GROUP_ID + ", " + GROUP_TITLE + ", " + GROUP_COUNT + " FROM " + "(SELECT ROWNUM as rnum, intr.*");
+        builder.append(" FROM (SELECT DISTINCT r.ID as " + GROUP_ID + ", r.REASON_NAME as " + GROUP_TITLE + ", count(isu.REASON_ID) as " + GROUP_COUNT);
         builder.append(" FROM " + TableSpecs.ISU_ISSUE.name() + " isu, " + TableSpecs.ISU_REASON.name());
-        builder.append(" r WHERE isu.REASON_ID = r.ID GROUP BY (r.REASON_NAME)");
+        builder.append(" r WHERE isu.REASON_ID = r.ID");
+        if (this.getId() != 0) {
+            builder.append(" AND r.ID = ?");
+        }
+        builder.append(" GROUP BY (r.ID, r.REASON_NAME)");
         builder.append(" ORDER BY " + GROUP_COUNT + " " + (isAsc ? "ASC" : "DESC") + ", " + GROUP_TITLE + " ASC ) intr");
         builder.append(" WHERE ROWNUM <= ? ) ext WHERE ext.rnum >= ? ");
         return builder;

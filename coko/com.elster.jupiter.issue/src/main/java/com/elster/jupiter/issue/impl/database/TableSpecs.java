@@ -3,8 +3,8 @@ package com.elster.jupiter.issue.impl.database;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.users.UserService;
 
@@ -37,6 +37,7 @@ public enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
             table.column(DatabaseConst.ISSUE_STATUS_COLUMN_NAME).map("name").type("varchar(200)").notNull().add();
+            table.column(DatabaseConst.ISSUE_STATUS_COLUMN_IS_FINAL).map("isFinal").type("char(1)").conversion(CHAR2BOOLEAN).notNull().add();
 
             table.addAuditColumns();
             table.primaryKey(DatabaseConst.ISSUE_STATUS_PK_NAME).on(idColumn).add();
@@ -71,13 +72,32 @@ public enum TableSpecs {
             table.primaryKey(DatabaseConst.ISSUE_ASSIGNEE_ROLE_PK_NAME).on(idColumn).add();
         }
     },
-    ISU_ISSUEHISTORY { // No journalling
+
+    ISU_COMMENT {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<IssueComment> table = dataModel.addTable(name(), IssueComment.class);
+            table.map(IssueComment.class);
+            table.setJournalTableName(DatabaseConst.ISSUE_COMMENT_JOURNAL_TABLE_NAME);
+            Column idColumn = table.addAutoIdColumn();
+
+            table.column(DatabaseConst.ISSUE_COMMENT_COMMENT).type("CLOB").map("comment").conversion(ColumnConversion.CLOB2STRING).add();
+            table.column(DatabaseConst.ISSUE_COMMENT_ISSUE_ID).map("issueId").type("number").conversion(NUMBER2LONG).notNull().add();
+            Column userRefIdColumn = table.column(DatabaseConst.ISSUE_COMMENT_USER_ID).type("number").conversion(NUMBER2LONG).notNull().add();
+            table.primaryKey(DatabaseConst.ISSUE_COMMENT_PK_NAME).on(idColumn).add();
+
+            table.addAuditColumns();
+            table.foreignKey(DatabaseConst.ISSUE_COMMENT_FK_TO_USER).map("user").on(userRefIdColumn).references(UserService.COMPONENTNAME, DatabaseConst.USER_TABLE).add();
+        }
+    },
+    ISU_ISSUEHISTORY {
         @Override
         public void addTo(DataModel dataModel) {
             Table<HistoricalIssue> table = dataModel.addTable(name(), HistoricalIssue.class);
             table.map(HistoricalIssue.class);
+            Column idColumn = table.column(DatabaseConst.ISSUE_HIST_COLUMN_ID).map("id").type("number").conversion(NUMBER2LONG).add();
 
-            TableBuilder.buildIssueTable(table, DatabaseConst.ISSUE_HIST_PK_NAME,
+            TableBuilder.buildIssueTable(table, idColumn, DatabaseConst.ISSUE_HIST_PK_NAME,
                     // Foreign keys
                     DatabaseConst.ISSUE_HIST_FK_TO_REASON,
                     DatabaseConst.ISSUE_HIST_FK_TO_STATUS,
@@ -91,11 +111,12 @@ public enum TableSpecs {
     ISU_ISSUE {
         @Override
         public void addTo(DataModel dataModel) {
-			Table<Issue> table = dataModel.addTable(name(), Issue.class);
-			table.map(Issue.class);
-			table.setJournalTableName(DatabaseConst.ISSUE_JOURNAL_TABLE_NAME);
+            Table<Issue> table = dataModel.addTable(name(), Issue.class);
+            table.map(Issue.class);
+            table.setJournalTableName(DatabaseConst.ISSUE_JOURNAL_TABLE_NAME);
+            Column idColumn = table.addAutoIdColumn();
 
-            TableBuilder.buildIssueTable(table, DatabaseConst.ISSUE_PK_NAME,
+            TableBuilder.buildIssueTable(table, idColumn, DatabaseConst.ISSUE_PK_NAME,
                     // Foreign keys
                     DatabaseConst.ISSUE_FK_TO_REASON,
                     DatabaseConst.ISSUE_FK_TO_STATUS,
@@ -104,15 +125,49 @@ public enum TableSpecs {
                     DatabaseConst.ISSUE_FK_TO_TEAM,
                     DatabaseConst.ISSUE_FK_TO_ROLE);
             table.addAuditColumns();
-		}
-	}
+        }
+    },
+    ISU_BASE_ISSUES {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<BaseIssue> table = dataModel.addTable(DatabaseConst.ALL_ISSUES_VIEW_NAME, BaseIssue.class);
+            table.map(BaseIssue.class);
+            Column idColumn = table.addAutoIdColumn();
+            TableBuilder.buildIssueTable(table, idColumn, DatabaseConst.ALL_ISSUES_PK_NAME,
+                    // Foreign keys
+                    DatabaseConst.ALL_ISSUES_FK_TO_REASON,
+                    DatabaseConst.ALL_ISSUES_FK_TO_STATUS,
+                    DatabaseConst.ALL_ISSUES_FK_TO_DEVICE,
+                    DatabaseConst.ALL_ISSUES_FK_TO_USER,
+                    DatabaseConst.ALL_ISSUES_FK_TO_TEAM,
+                    DatabaseConst.ALL_ISSUES_FK_TO_ROLE);
+            table.addAuditColumns();
+        }
+    },
+    ISU_ASSIGMENTRULES {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<Rule> table = dataModel.addTable(name(), Rule.class);
+            table.map(Rule.class);
+            table.setJournalTableName(DatabaseConst.ASSIGNEE_RULE_JOURNAL_TABLE_NAME);
+
+            Column idColumn = table.addAutoIdColumn();
+            table.column(DatabaseConst.ASSIGNMENT_RULES_PRIORITY).map("priority").type("number").conversion(NUMBER2INT).add();
+            table.column(DatabaseConst.ASSIGNMENT_RULES_DESCRIPTION).map("description").type("varchar(400)").add();
+            table.column(DatabaseConst.ASSIGNMENT_RULES_TITLE).map("title").type("varchar(400)").notNull().add();
+            table.column(DatabaseConst.ASSIGNMENT_RULES_ENABLED).map("enabled").type("number").conversion(NUMBER2BOOLEAN).add();
+            table.column(DatabaseConst.ASSIGNMENT_RULES_RULE_DATA).map("ruleData").type("clob").conversion(CLOB2STRING).notNull().add();
+
+            table.addAuditColumns();
+            table.primaryKey(DatabaseConst.ASSIGNMENT_RULES_PK).on(idColumn).add();
+        }
+    }
     ;
 
-	public abstract void addTo(DataModel component);
+	public abstract void addTo(DataModel dataModel);
 
     private static class TableBuilder{
-        static void buildIssueTable(Table table, String pkKey, String... fkKeys){
-            Column idColumn = table.addAutoIdColumn();
+        static void buildIssueTable(Table table, Column idColumn, String pkKey, String... fkKeys){
             table.column(DatabaseConst.ISSUE_COLUMN_DUE_DATE).map("dueDate").type("number").conversion(NUMBER2UTCINSTANT).add();
             Column reasonRefIdColumn = table.column(DatabaseConst.ISSUE_COLUMN_REASON_ID).type("number").conversion(NUMBER2LONG).notNull().add();
             Column statusRefIdColumn = table.column(DatabaseConst.ISSUE_COLUMN_STATUS_ID).type("number").conversion(NUMBER2LONG).notNull().add();
@@ -131,7 +186,7 @@ public enum TableSpecs {
             table.foreignKey(fkKeys[0]).map("reason").on(reasonRefIdColumn).references(ISU_REASON.name()).add();
             table.foreignKey(fkKeys[1]).map("status").on(statusRefIdColumn).references(ISU_STATUS.name()).add();
             table.foreignKey(fkKeys[2]).map("device").on(deviceRefIdColumn).references(MeteringService.COMPONENTNAME, DatabaseConst.METERING_DEVICE_TABLE).add();
-            table.foreignKey(fkKeys[3]).map("user").on(userRefIdColumn).references(UserService.COMPONENTNAME, DatabaseConst.USER_DEVICE_TABLE).add();
+            table.foreignKey(fkKeys[3]).map("user").on(userRefIdColumn).references(UserService.COMPONENTNAME, DatabaseConst.USER_TABLE).add();
             table.foreignKey(fkKeys[4]).map("team").on(teamRefIdColumn).references(ISU_ASSIGNEETEAM.name()).add();
             table.foreignKey(fkKeys[5]).map("role").on(roleRefIdColumn).references(ISU_ASSIGNEEROLE.name()).add();
         }
