@@ -67,4 +67,6 @@ public interface User extends Principal, HasName {
     Date getCreationDate();
 
     Date getModifiedDate();
+
+    boolean isAllowPwdChange();
 }

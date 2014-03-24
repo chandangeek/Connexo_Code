@@ -89,7 +89,7 @@ public class UserIT {
                 UserService userService = injector.getInstance(UserService.class);
 
                 UserDirectory userDirectory = userService.findDefaultUserDirectory();
-                User user = userDirectory.newUser("authName", "description");
+                User user = userDirectory.newUser("authName", "description", false);
                 user.setLocale(Locale.CANADA_FRENCH);
                 user.setPassword("password");
                 user.save();

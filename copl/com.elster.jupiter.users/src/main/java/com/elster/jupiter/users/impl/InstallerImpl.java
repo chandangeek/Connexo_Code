@@ -44,7 +44,7 @@ public class InstallerImpl {
 	}
 	
 	private void createAdmin(InternalDirectoryImpl directory, GroupImpl administrators) {
-        UserImpl user = directory.newUser("admin", "System Administrator");
+        UserImpl user = directory.newUser("admin", "System Administrator", true);
 
 		user.setPassword("admin");
 		user.save();

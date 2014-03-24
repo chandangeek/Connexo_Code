@@ -107,21 +107,21 @@ public class UserServiceImpl implements UserService, InstallService {
 
     @Override
     public User createUser(String name, String description){
-        UserImpl result = createInternalDirectory(getRealm()).newUser(name, description);
+        UserImpl result = createInternalDirectory(getRealm()).newUser(name, description, false);
         result.save();
         return result;
     }
 
     @Override
     public User createApacheDirectoryUser(String name, String domain) {
-        UserImpl result = createApacheDirectory(domain).newUser(name, domain);
+        UserImpl result = createApacheDirectory(domain).newUser(name, domain, false);
         result.save();
         return result;
     }
 
     @Override
     public User createActiveDirectoryUser(String name, String domain) {
-        UserImpl result = createActiveDirectory(domain).newUser(name, domain);
+        UserImpl result = createActiveDirectory(domain).newUser(name, domain, false);
         result.save();
         return result;
     }

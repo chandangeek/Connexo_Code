@@ -78,7 +78,7 @@ public class UserServiceImplTest {
     	UserService userService = injector.getInstance(UserService.class);
     	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             UserDirectory userDirectory = userService.findDefaultUserDirectory();
-    		User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION);
+    		User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false);
             user.save();
 
     		assertThat(user.getName()).isEqualTo(AUTH_NAME);
@@ -93,7 +93,7 @@ public class UserServiceImplTest {
     	UserService userService = injector.getInstance(UserService.class);
     	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
             UserDirectory userDirectory = userService.findDefaultUserDirectory();
-            User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION);
+            User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false);
     		user.save();
 
     		assertThat(userService.findUser(AUTH_NAME)).isPresent();

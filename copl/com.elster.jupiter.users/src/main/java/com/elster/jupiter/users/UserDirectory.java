@@ -19,5 +19,5 @@ public interface UserDirectory {
 
     void save();
 
-    UserImpl newUser(String userName, String description);
+    UserImpl newUser(String userName, String description, boolean allowPwdChange);
 }

@@ -29,6 +29,7 @@ public class UserImpl implements User {
     private UtcInstant createTime;
     private UtcInstant modTime;
     private String languageTag;
+    private boolean allowPwdChange;
     private Reference<UserDirectory> userDirectory = ValueReference.absent();
 
     // transient
@@ -41,19 +42,28 @@ public class UserImpl implements User {
         this.dataModel = dataModel;
     }
 
-    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName) {
+    /*static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName) {
         return from(dataModel, userDirectory, authenticationName, null);
     }
 
     static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, String description) {
-        return dataModel.getInstance(UserImpl.class).init(userDirectory, authenticationName, description);
+        return dataModel.getInstance(UserImpl.class).init(userDirectory, authenticationName, description, false);
+    }*/
+
+    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, boolean allowPwdChange) {
+        return from(dataModel, userDirectory, authenticationName, null, allowPwdChange);
     }
 
-    UserImpl init(UserDirectory userDirectory, String authenticationName, String description) {
+    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange) {
+        return dataModel.getInstance(UserImpl.class).init(userDirectory, authenticationName, description, allowPwdChange);
+    }
+
+    UserImpl init(UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange) {
         validateAuthenticationName(authenticationName);
         this.userDirectory.set(userDirectory);
         this.authenticationName = authenticationName;
         this.description = description;
+        this.allowPwdChange = allowPwdChange;
         return this;
     }
 
@@ -272,5 +282,10 @@ public class UserImpl implements User {
     @Override
     public Date getModifiedDate() {
         return modTime.toDate();
+    }
+
+    @Override
+    public boolean isAllowPwdChange() {
+        return allowPwdChange;
     }
 }
