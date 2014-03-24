@@ -12,41 +12,53 @@ Ext.define('Isu.view.workspace.issues.bulk.Navigation', {
     items: [
         {
             xtype: 'button',
+            baseCls: 'isu-bulk-navigation-btns',
+            disabledCls: 'disabled-bulk-navigation-btns',
+            componentCls: 'active-bulk-list-action',
             name: 'select-issues',
             number: 0,
-            text: '1. Select issues',
+            disabled: true,
+            text: '1- Select issues',
             renderTo: Ext.getBody()
         },
         {
             xtype: 'button',
+            baseCls: 'isu-bulk-navigation-btns',
+            disabledCls: 'disabled-bulk-navigation-btns',
             name: 'select-action',
             number: 1,
             disabled: true,
-            text: '2. Select action',
+            text: '2- Select action',
             renderTo: Ext.getBody()
         },
         {
             xtype: 'button',
+            baseCls: 'isu-bulk-navigation-btns',
+            disabledCls: 'disabled-bulk-navigation-btns',
             name: 'action-details',
             number: 2,
             disabled: true,
-            text: '3. Action details',
+            text: '3- Action details',
             renderTo: Ext.getBody()
         },
         {
             xtype: 'button',
+            baseCls: 'isu-bulk-navigation-btns',
+            disabledCls: 'disabled-bulk-navigation-btns',
             name: 'confirmation',
             number: 3,
             disabled: true,
-            text: '4. Confirmation',
+            text: '4- Confirmation',
             renderTo: Ext.getBody()
         },
         {
             xtype: 'button',
+            baseCls: 'isu-bulk-navigation-btns',
+            disabledCls: 'disabled-bulk-navigation-btns',
             name: 'status',
             number: 4,
             disabled: true,
-            text: '5. Status',
+            text: '5- Status',
             renderTo: Ext.getBody()
         }
     ]
