@@ -1,19 +1,14 @@
 package com.elster.jupiter.issue.rest.resource;
 
-import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
-import com.elster.jupiter.issue.share.entity.*;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
 
-import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 @Path("/issue")

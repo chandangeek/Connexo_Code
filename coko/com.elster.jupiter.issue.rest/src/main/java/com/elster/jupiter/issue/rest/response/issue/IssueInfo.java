@@ -1,25 +1,26 @@
 package com.elster.jupiter.issue.rest.response.issue;
 
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
+import com.elster.jupiter.issue.rest.response.IssueStatusInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
-import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.BaseIssue;
 import com.elster.jupiter.metering.EndDevice;
 
 public class IssueInfo<T extends DeviceInfo> {
     private long id;
     private String reason;
-    private String status;
+    private IssueStatusInfo status;
     private long dueDate;
     private IssueAssigneeInfo assignee;
     private T device;
     private long creationDate;
     private long version;
 
-    public IssueInfo(Issue issue, Class<T> deviceType){
+    public IssueInfo(BaseIssue issue, Class<T> deviceType){
         if (issue != null) {
             this.setId(issue.getId());
             this.setReason(issue.getReason().getName());
-            this.setStatus(issue.getStatus().getName());
+            this.setStatus(new IssueStatusInfo(issue.getStatus()));
             this.setDueDate(issue.getDueDate() != null ? issue.getDueDate().getTime() : 0);
             this.setAssignee(issue.getAssignee() != null ? new IssueAssigneeInfo(issue.getAssignee()) : null);
             try {
@@ -47,11 +48,11 @@ public class IssueInfo<T extends DeviceInfo> {
         this.reason = reason;
     }
 
-    public String getStatus() {
+    public IssueStatusInfo getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(IssueStatusInfo status) {
         this.status = status;
     }
 

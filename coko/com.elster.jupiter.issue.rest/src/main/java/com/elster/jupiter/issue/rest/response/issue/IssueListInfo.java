@@ -1,25 +1,25 @@
 package com.elster.jupiter.issue.rest.response.issue;
 
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
-import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.BaseIssue;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class IssueListInfo {
-    private List<IssueInfo> issueList;
+    private List<IssueInfo> data;
     private long total;
 
     public IssueListInfo() {
-        issueList = new ArrayList<>();
+        data = new ArrayList<>();
     }
 
-    public IssueListInfo(List<Issue> allIssues, int start, int limit){
+    public IssueListInfo(List<? extends BaseIssue> allIssues, int start, int limit) {
         this();
         if (allIssues != null && allIssues.size() > 0){
-            for (Issue issue : allIssues) {
+            for (BaseIssue issue : allIssues) {
                 IssueInfo<DeviceShortInfo> rowIssue = new IssueInfo<>(issue, DeviceShortInfo.class);
-                issueList.add(rowIssue);
+                data.add(rowIssue);
             }
             total = start + allIssues.size();
             if (allIssues.size() == limit) {
@@ -28,12 +28,12 @@ public class IssueListInfo {
         }
     }
 
-    public List<IssueInfo> getIssueList() {
-        return issueList;
+    public List<IssueInfo> getData() {
+        return data;
     }
 
     public void add(IssueInfo issue) {
-        getIssueList().add(issue);
+        getData().add(issue);
     }
 
     public long getTotal() {

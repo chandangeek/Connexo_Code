@@ -1,37 +1,39 @@
 package com.elster.jupiter.issue.rest.response;
 
+import com.elster.jupiter.issue.share.entity.GroupByReasonEntity;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class IssueGroupListInfo {
     private long total;
-    private List<IssueGroupInfo> groups;
+    private List<IssueGroupInfo> data;
 
     public IssueGroupListInfo() {
-        this.groups = new ArrayList<>();
+        this.data = new ArrayList<>();
     }
 
-    public IssueGroupListInfo(Map<String, Long> groups, int start, int limit){
+    public IssueGroupListInfo(List<GroupByReasonEntity> list, int start, int limit){
         this();
-        for(Map.Entry<String, Long> groupEntry : groups.entrySet()) {
+        for(GroupByReasonEntity groupEntry : list) {
             IssueGroupInfo groupInfo = new IssueGroupInfo();
-            groupInfo.setReason(groupEntry.getKey());
-            groupInfo.setNumber(groupEntry.getValue());
-            this.groups.add(groupInfo);
+            groupInfo.setId(groupEntry.getId());
+            groupInfo.setReason(groupEntry.getReason());
+            groupInfo.setNumber(groupEntry.getCount());
+            this.data.add(groupInfo);
         }
-        this.total = start + groups.size();
-        if (groups.size() == limit){
+        this.total = start + list.size();
+        if (list.size() == limit){
             this.total++;
         }
     }
 
-    public List<IssueGroupInfo> getGroups() {
-        return groups;
+    public List<IssueGroupInfo> getData() {
+        return data;
     }
 
     public void add(IssueGroupInfo row) {
-        getGroups().add(row);
+        getData().add(row);
     }
 
     public long getTotal() {

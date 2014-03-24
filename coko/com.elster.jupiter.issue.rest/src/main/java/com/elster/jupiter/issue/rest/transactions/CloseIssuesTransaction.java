@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.share.entity.OperationResult;
 import com.elster.jupiter.issue.share.service.IssueMainService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.users.User;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -22,12 +23,14 @@ public class CloseIssuesTransaction implements Transaction<ActionInfo> {
     private final IssueService issueService;
     private final IssueMainService issueMainService;
     private final CloseIssueRequest request;
+    private final User author;
 
 
-    public CloseIssuesTransaction(CloseIssueRequest request, IssueService issueService, IssueMainService issueMainService) {
+    public CloseIssuesTransaction(CloseIssueRequest request, IssueService issueService, IssueMainService issueMainService, User author) {
         this.request = request;
         this.issueService = issueService;
         this.issueMainService = issueMainService;
+        this.author = author;
     }
 
     @Override
@@ -36,12 +39,13 @@ public class CloseIssuesTransaction implements Transaction<ActionInfo> {
 
         IssueStatus newIssueStatus = new IssueStatus();
         newIssueStatus.setName(request.getStatus());
+        newIssueStatus.setFinal(true);
         newIssueStatus = issueMainService.searchFirst(newIssueStatus).orNull();
         if (request.getIssues() != null && newIssueStatus != null) {
             List<IssueShortInfo> success = new ArrayList<>();
             Map<String, ActionFailInfo> allFails = new HashMap<>();
             for (EntityReference issue : request.getIssues()) {
-                OperationResult<String, String[]> result = issueService.closeIssue(issue.getId(), issue.getVersion(), newIssueStatus, request.getComment());
+                OperationResult<String, String[]> result = issueService.closeIssue(issue.getId(), issue.getVersion(), newIssueStatus, request.getComment(), author);
                 checkForFails(result, allFails, issue);
                 checkForSuccess(result, success, issue);
             }

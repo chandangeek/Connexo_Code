@@ -1,9 +1,7 @@
 package com.elster.jupiter.issue.rest;
 
 
-import com.elster.jupiter.issue.rest.resource.HelpResource;
-import com.elster.jupiter.issue.rest.resource.IssueAssignResource;
-import com.elster.jupiter.issue.rest.resource.IssueResource;
+import com.elster.jupiter.issue.rest.resource.*;
 import com.elster.jupiter.issue.share.service.IssueHelpService;
 import com.elster.jupiter.issue.share.service.IssueMainService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -49,7 +47,7 @@ public class IssueApplication extends Application implements BinderProvider {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(IssueResource.class, IssueAssignResource.class, HelpResource.class);
+        return ImmutableSet.<Class<?>>of(IssueResource.class, AssigneeResource.class, RuleResource.class, HelpResource.class, ReasonResource.class, StatusResource.class);
     }
 
     @Activate

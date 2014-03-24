@@ -17,15 +17,12 @@ public class StandardParametersBean {
     @QueryParam("sort")
     private List<String> sort;
 
-    @QueryParam("order")
-    private List<String> order;
-
     @QueryParam("start")
     @DefaultValue("0")
     private int start;
 
     @QueryParam("limit")
-    @DefaultValue("10")
+    @DefaultValue("50")
     private int limit;
 
     private UriInfo uriInfo;
@@ -36,21 +33,14 @@ public class StandardParametersBean {
 
     public Order[] getOrder() {
         List<Order> orders = new ArrayList<Order>();
-        if (this.sort != null) {
-            if (this.order == null || sort.size() == order.size()) {
-                for (int i = 0; i < sort.size(); i++) {
-                    if (this.order != null) {
-                        if ("DESC".equalsIgnoreCase(this.order.get(i))) {
-                            orders.add(Order.descending(sort.get(i)));
-                        } else {
-                            orders.add(Order.ascending(sort.get(i)));
-                        }
-                    } else {
-                        orders.add(Order.ascending(sort.get(i)));
-                    }
+        if (!this.sort.isEmpty()) {
+            for (String field : sort) {
+                if(field.startsWith("-")) {
+                    orders.add(Order.descending(field.substring(1)));
                 }
-            } else {
-                LOG.warning("Size of passed orders doesn't match to size of passed sorts");
+                else {
+                    orders.add(Order.ascending(field));
+                }
             }
         }
         return orders.toArray(new Order[orders.size()]);

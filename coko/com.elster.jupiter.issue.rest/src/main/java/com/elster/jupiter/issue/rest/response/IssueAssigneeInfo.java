@@ -4,23 +4,30 @@ import com.elster.jupiter.issue.share.entity.IssueAssignee;
 
 public class IssueAssigneeInfo {
     private String type;
-    private String title;
+    private Long id;
+    private String name;
 
     public IssueAssigneeInfo(IssueAssignee assignee){
         if (assignee != null) {
             this.setType(assignee.getType().getType());
             switch (assignee.getType()){
                 case USER:
-                    this.setTitle(assignee.getUser() != null ? assignee.getUser().getName() : "");
+                    this.setName(assignee.getUser() != null ? assignee.getUser().getName() : "");
                     break;
                 case TEAM:
-                    this.setTitle(assignee.getTeam() != null ? assignee.getTeam().getName() : "");
+                    this.setName(assignee.getTeam() != null ? assignee.getTeam().getName() : "");
                     break;
                 case ROLE:
-                    this.setTitle(assignee.getRole() != null ? assignee.getRole().getName() : "");
+                    this.setName(assignee.getRole() != null ? assignee.getRole().getName() : "");
                     break;
             }
         }
+    }
+
+    public IssueAssigneeInfo(String type, Long id, String name) {
+        this.type = type;
+        this.id = id;
+        this.name = name;
     }
 
     public String getType() {
@@ -31,11 +38,19 @@ public class IssueAssigneeInfo {
         this.type = type;
     }
 
-    public String getTitle() {
-        return title;
+    public Long getId() {
+        return id;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

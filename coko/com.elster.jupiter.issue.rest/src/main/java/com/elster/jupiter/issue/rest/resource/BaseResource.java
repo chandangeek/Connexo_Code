@@ -5,8 +5,13 @@ import com.elster.jupiter.issue.share.service.IssueMainService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class BaseResource {
     private RestQueryService queryService;
@@ -15,6 +20,8 @@ public abstract class BaseResource {
     private IssueService issueService;
     private IssueMainService issueMainService;
     private IssueHelpService issueHelpService; // TODO remove parameter when events will be defined by MDC
+
+    private UserService userService;
 
     public BaseResource(){
     }
@@ -55,5 +62,27 @@ public abstract class BaseResource {
     }
     protected TransactionService getTransactionService() {
         return transactionService;
+    }
+
+    @Inject
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+    protected UserService getUserService() {
+        return userService;
+    }
+
+    protected List<Long> validateLongParams(List<String> list) {
+        List<Long> resultList = new ArrayList<>();
+        if (list != null) {
+            for (String param : list){
+                try {
+                    resultList.add(Long.parseLong(param));
+                } catch (NumberFormatException ex) {
+                    throw new WebApplicationException(Response.Status.BAD_REQUEST);
+                }
+            }
+        }
+        return resultList;
     }
 }

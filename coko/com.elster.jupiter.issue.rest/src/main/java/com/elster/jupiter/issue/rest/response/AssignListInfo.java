@@ -6,31 +6,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AssignListInfo {
-    private List<AssignInfo> assignees;
+    private List<AssignInfo> data;
 
     public AssignListInfo() {
-        assignees = new ArrayList<AssignInfo>();
+        data = new ArrayList<AssignInfo>();
     }
 
     public AssignListInfo(List<? extends AssigneeBaseInformation> list) {
         this();
         if (list != null && list.size() > 0){
             for (AssigneeBaseInformation assignee : list){
-                assignees.add(new AssignInfo(assignee));
+                data.add(new AssignInfo(assignee));
             }
         }
     }
 
     public long getTotal() {
-        return assignees.size();
+        return data.size();
     }
 
-    public List<AssignInfo> getAssignees() {
-        return assignees;
+    public List<AssignInfo> getData() {
+        return data;
     }
 
-    public void setAssignees(List<AssignInfo> assignees) {
-        this.assignees = assignees;
+    public void setData(List<AssignInfo> assignees) {
+        this.data = assignees;
     }
 
     public static class AssignInfo {

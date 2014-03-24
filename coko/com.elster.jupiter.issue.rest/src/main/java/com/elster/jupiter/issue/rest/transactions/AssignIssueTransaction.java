@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.share.entity.IssueAssigneeType;
 import com.elster.jupiter.issue.share.entity.OperationResult;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.users.User;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -21,10 +22,12 @@ import java.util.Map;
 public class AssignIssueTransaction  implements Transaction<ActionInfo> {
     private final IssueService issueService;
     private final AssignIssueRequest request;
+    private final User author;
 
-    public AssignIssueTransaction(AssignIssueRequest request, IssueService issueService){
+    public AssignIssueTransaction(AssignIssueRequest request, IssueService issueService, User author){
         this.request = request;
         this.issueService = issueService;
+        this.author = author;
     }
 
     @Override
@@ -36,7 +39,7 @@ public class AssignIssueTransaction  implements Transaction<ActionInfo> {
             Map<String, ActionFailInfo> allFails = new HashMap<>();
             for (EntityReference issue : request.getIssues()) {
                 OperationResult<String, String[]> result = issueService.assignIssue(issue.getId(),
-                        issue.getVersion(), newAssigneeType, request.getAssignee().getId(), request.getComment());
+                        issue.getVersion(), newAssigneeType, request.getAssignee().getId(), request.getComment(), author);
                 checkForFails(result, allFails, issue);
                 checkForSuccess(result, success, issue);
             }
