@@ -72,8 +72,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         });
     },
 
-    editRegisterConfigurationHistory: function () {
-        location.href = '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/' + this.getRegisterConfigGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
+    editRegisterConfigurationHistory: function (record) {
+        location.href = '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/' + record.get('id') + '/edit';
     },
 
     createRegisterConfigurationHistory: function () {
@@ -325,9 +325,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         }
     },
 
-    deleteRegisterConfiguration: function () {
+    deleteRegisterConfiguration: function (registerConfigurationToDelete) {
         var me = this;
-        var registerConfigurationToDelete = this.getRegisterConfigGrid().getSelectionModel().getSelection()[0];
         Ext.MessageBox.show({
             msg: Uni.I18n.translate('registerConfig.removeUsedRegisterConfig', 'MDC', 'The register configuration will no longer be available.'),
             title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + registerConfigurationToDelete.get('name') + '?',

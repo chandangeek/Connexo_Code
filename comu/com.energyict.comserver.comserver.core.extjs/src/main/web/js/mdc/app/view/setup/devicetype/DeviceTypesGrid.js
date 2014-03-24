@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 flex: 0.1,
                 items: [{
                     icon: '../mdc/resources/images/gear-16x16.png',
-                    handler: function(grid, rowIndex, colIndex,item,e) {
+                    handler: function(grid, rowIndex, colIndex,item,e, record, row) {
                         var menu = Ext.widget('menu', {
                             items: [{
                                 xtype: 'menuitem',
@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                                     click: {
                                         element: 'el',
                                         fn: function(){
-                                            this.fireEvent('editItem',grid,grid.getSelectionModel().getSelection());
+                                            this.fireEvent('editItem',record);
                                         },
                                         scope: this
                                     }
@@ -68,7 +68,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                                     click: {
                                         element: 'el',
                                         fn: function(){
-                                            this.fireEvent('deleteItem',grid,grid.getSelectionModel().getSelection());
+                                            this.fireEvent('deleteItem',record);
                                         },
                                         scope: this
                                     }

@@ -11,7 +11,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.AvailableRegisterTypes'
-        //       'Ext.grid.plugin.BufferedRenderer'
     ],
     nbrOfSelectedItems: 0,
     listeners: {
@@ -22,8 +21,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
         }
     },
     store: 'AvailableRegisterTypes',
-    //   plugins: 'bufferedrenderer',
     padding: '10 10 10 10',
+    selModel: {
+            checkOnly: true
+        },
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -47,8 +48,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                     {
                         icon: '../mdc/resources/images/information.png',
                         tooltip: Uni.I18n.translate('readingType.tooltip','MDC','Reading type info'),
-                        handler: function (grid, rowIndex, colIndex, item, e) {
-                            var record = grid.getStore().getAt(rowIndex);
+                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
+                            //var record = grid.getStore().getAt(rowIndex);
                             this.fireEvent('showReadingTypeInfo', record);
                         }
                     }

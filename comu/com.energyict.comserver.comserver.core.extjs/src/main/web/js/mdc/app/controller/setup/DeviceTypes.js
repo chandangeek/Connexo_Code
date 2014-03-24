@@ -135,12 +135,11 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         location.href = '#setup/devicetypes/create';
     },
 
-    editDeviceTypeHistory: function () {
-        location.href = '#setup/devicetypes/' + this.getDeviceTypeGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
+    editDeviceTypeHistory: function (record) {
+        location.href = '#setup/devicetypes/' + record.get('id') + '/edit';
     },
 
-    deleteDeviceType: function () {
-        var deviceTypeToDelete = this.getDeviceTypeGrid().getSelectionModel().getSelection()[0];
+    deleteDeviceType: function (deviceTypeToDelete) {
         deviceTypeToDelete.destroy({
             callback: function () {
                 location.href = '#setup/devicetypes/';

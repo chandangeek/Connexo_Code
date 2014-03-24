@@ -163,8 +163,8 @@ Ext.define('Mdc.controller.setup.ComServers', {
 
     },
 
-    editComServer: function () {
-        this.comserver = this.getComServerGrid().getSelectionModel().getSelection()[0];
+    editComServer: function (record) {
+        this.comserver = record;
         this.showEditView(this.comserver.getId());
     },
 
@@ -227,21 +227,22 @@ Ext.define('Mdc.controller.setup.ComServers', {
         this.showEditView();
     },
 
-    deleteComserver: function () {
-        var recordArray = this.getComServerGrid().getSelectionModel().getSelection();
+    deleteComserver: function (record) {
+        //var recordArray = this.getComServerGrid().getSelectionModel().getSelection();
         var me = this;
-        var callbackCount = recordArray.length;
-        if (recordArray.length > 0) {
-            recordArray[0].destroy({
+        //var callbackCount = recordArray.length;
+        //if (recordArray.length > 0) {
+            //recordArray[0].destroy({
+                record.destroy({
                 callback: function () {
-                    callbackCount--;
-                    callbackCount--;
-                    if (callbackCount == 0) {
+                  //  callbackCount--;
+                  //  callbackCount--;
+                  //  if (callbackCount == 0) {
                         me.getComServerGrid().getStore().load();
-                    }
+                  //  }
                 }
             });
-        }
+       // }
     },
 
     editComPort: function (grid, record) {

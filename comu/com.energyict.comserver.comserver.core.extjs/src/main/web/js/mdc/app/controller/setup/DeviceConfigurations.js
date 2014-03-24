@@ -148,18 +148,16 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/create';
     },
 
-    editDeviceConfigurationHistory: function(){
-        location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0].get('id') +'/edit';
-    },
-
-    editDeviceConfigurationFromDetailsHistory: function(){
-        var record = this.getDeviceConfigurationDetailForm().getRecord();
+    editDeviceConfigurationHistory: function(record){
         location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ record.get('id') +'/edit';
     },
 
-    activateDeviceConfiguration: function(){
+    editDeviceConfigurationFromDetailsHistory: function(){
+        this.editDeviceConfigurationHistory(this.getDeviceConfigurationDetailForm().getRecord());
+    },
+
+    activateDeviceConfiguration: function(deviceConfigurationToActivateDeactivate){
         var me=this;
-       var deviceConfigurationToActivateDeactivate = this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0];
         if(deviceConfigurationToActivateDeactivate.get('active')===true){
             deviceConfigurationToActivateDeactivate.set('active',false);
         } else {
@@ -189,9 +187,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         });
     },
 
-    deleteDeviceConfiguration: function(){
+    deleteDeviceConfiguration: function(deviceConfigurationToDelete){
         var me = this;
-        var deviceConfigurationToDelete = this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0];
         deviceConfigurationToDelete.getProxy().setExtraParam('deviceType',this.deviceTypeId);
         deviceConfigurationToDelete.destroy({
             callback: function () {

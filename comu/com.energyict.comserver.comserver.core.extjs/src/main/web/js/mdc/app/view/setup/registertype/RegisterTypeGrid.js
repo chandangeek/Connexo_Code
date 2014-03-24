@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 items: [
                     {
                         icon: '../mdc/resources/images/information.png',
-                        tooltip: Uni.I18n.translate('readingType.tooltip','MDC','Reading type info'),
+                        tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
                         handler: function (grid, rowIndex, colIndex, item, e) {
                             var record = grid.getStore().getAt(rowIndex);
                             this.fireEvent('showReadingTypeInfo', record);
@@ -45,6 +45,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 tdCls: 'view',
                 sortable: false,
                 hideable: false
+
             },
             {
                 header: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
@@ -62,7 +63,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 items: [
                     {
                         icon: '../mdc/resources/images/gear-16x16.png',
-                        handler: function (grid, rowIndex, colIndex, item, e) {
+                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             var menu = Ext.widget('menu', {
                                 items: [
                                     {
@@ -72,7 +73,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                                             click: {
                                                 element: 'el',
                                                 fn: function () {
-                                                    this.fireEvent('editItem', grid, grid.getSelectionModel().getSelection());
+                                                    this.fireEvent('editItem', record);
                                                 },
                                                 scope: this
                                             }
@@ -86,7 +87,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                                             click: {
                                                 element: 'el',
                                                 fn: function () {
-                                                    this.fireEvent('deleteItem', grid, grid.getSelectionModel().getSelection());
+                                                    this.fireEvent('deleteItem',record);
                                                 },
                                                 scope: this
                                             }
@@ -138,4 +139,5 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
 
         this.callParent();
     }
-});
+})
+;

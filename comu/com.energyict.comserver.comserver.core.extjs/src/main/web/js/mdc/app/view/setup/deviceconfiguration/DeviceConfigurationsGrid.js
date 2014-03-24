@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                 flex: 0.1,
                 items: [{
                     icon: '../mdc/resources/images/gear-16x16.png',
-                    handler: function(grid, rowIndex, colIndex,item,e) {
+                    handler: function(grid, rowIndex, colIndex,item,e, record, row) {
                         grid.getSelectionModel().select(rowIndex);
                         var menu = Ext.widget('menu', {
                             items: [{
@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                                     click: {
                                         element: 'el',
                                         fn: function(){
-                                            this.fireEvent('editItem',grid,grid.getSelectionModel().getSelection());
+                                            this.fireEvent('editItem',record);
                                         },
                                         scope: this
                                     }
@@ -73,7 +73,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                                     click: {
                                         element: 'el',
                                         fn: function(){
-                                            this.fireEvent('deleteItem',grid,grid.getSelectionModel().getSelection());
+                                            this.fireEvent('deleteItem',record);
                                         },
                                         scope: this
                                     }
@@ -82,12 +82,12 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                             },
                                 {
                                     xtype: 'menuitem',
-                                    text: grid.getSelectionModel().getSelection()[0].get('active')===true?Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate'):Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+                                    text: record.get('active')===true?Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate'):Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
                                     listeners: {
                                         click: {
                                             element: 'el',
                                             fn: function(){
-                                                this.fireEvent('activateItem',grid,grid.getSelectionModel().getSelection());
+                                                this.fireEvent('activateItem',record);
                                             },
                                             scope: this
                                         }

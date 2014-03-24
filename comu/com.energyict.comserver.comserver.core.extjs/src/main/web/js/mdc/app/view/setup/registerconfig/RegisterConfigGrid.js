@@ -37,8 +37,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                     {
                         icon: '../mdc/resources/images/information.png',
                         tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
-                        handler: function (grid, rowIndex, colIndex, item, e) {
-                            var record = grid.getStore().getAt(rowIndex);
+                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
+                            //var record = grid.getStore().getAt(rowIndex);
                             this.fireEvent('showReadingTypeInfo', record);
                         }
                     }
@@ -64,7 +64,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                 items: [
                     {
                         icon: '../mdc/resources/images/gear-16x16.png',
-                        handler: function (grid, rowIndex, colIndex, item, e) {
+                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             var menu = Ext.widget('menu', {
                                 items: [
                                     {
@@ -74,7 +74,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                                             click: {
                                                 element: 'el',
                                                 fn: function () {
-                                                    this.fireEvent('editItem', grid, grid.getSelectionModel().getSelection());
+                                                    this.fireEvent('editItem', record);
                                                 },
                                                 scope: this
                                             }
@@ -89,7 +89,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                                                 element: 'el',
                                                 fn: function () {
                                                     console.log('Delete');
-                                                    this.fireEvent('deleteItem', grid, grid.getSelectionModel().getSelection(), me.deviceTypeId, me.deviceConfigId);
+                                                    this.fireEvent('deleteItem', record, me.deviceTypeId, me.deviceConfigId);
                                                 },
                                                 scope: this
                                             }

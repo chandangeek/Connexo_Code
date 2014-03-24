@@ -206,9 +206,8 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         });
     },
 
-    removeRegisterMapping: function (grid, selectionmodel, id) {
+    removeRegisterMapping: function (registerMappingToDelete, id) {
         var me = this;
-        var registerMappingToDelete = me.getRegisterMappingGrid().getSelectionModel().getSelection()[0];
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
             success: function (deviceType) {
                 if (deviceType.get('isLinkedByActiveRegisterConfig') === false &&

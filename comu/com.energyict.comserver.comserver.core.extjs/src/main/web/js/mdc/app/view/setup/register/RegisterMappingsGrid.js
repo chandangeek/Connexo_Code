@@ -36,8 +36,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                     {
                         icon: '../mdc/resources/images/information.png',
                         tooltip: Uni.I18n.translate('readingType.tooltip','MDC','Reading type info'),
-                        handler: function (grid, rowIndex, colIndex, item, e) {
-                            var record = grid.getStore().getAt(rowIndex);
+                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
+                            //var record = grid.getStore().getAt(rowIndex);
                             this.fireEvent('showReadingTypeInfo', record);
                         }
                     }
@@ -63,7 +63,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 items: [
                     {
                         icon: '../mdc/resources/images/gear-16x16.png',
-                        handler: function (grid, rowIndex, colIndex, item, e) {
+                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             var menu = Ext.widget('menu', {
                                 items: [
                                     {
@@ -73,8 +73,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                                             click: {
                                                 element: 'el',
                                                 fn: function () {
-                                                    console.log('Remove');
-                                                    this.fireEvent('removeItem', grid, grid.getSelectionModel().getSelection(), me.deviceTypeId);
+                                                    this.fireEvent('removeItem', record, me.deviceTypeId);
                                                 },
                                                 scope: this
                                             }
