@@ -86,6 +86,9 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                                         }
                                     },
                                     {
+                                        xtype: 'menuseparator'
+                                    },
+                                    {
                                         xtype: 'menuitem',
                                         text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
                                         listeners: {

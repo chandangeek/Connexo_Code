@@ -85,13 +85,16 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                                         }
                                     },
                                     {
+                                        xtype: 'menuseparator'
+                                    },
+                                    {
                                         xtype: 'menuitem',
                                         text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
                                         listeners: {
                                             click: {
                                                 element: 'el',
                                                 fn: function () {
-                                                    this.fireEvent('deleteItem',record);
+                                                    this.fireEvent('deleteItem', record);
                                                 },
                                                 scope: this
                                             }
