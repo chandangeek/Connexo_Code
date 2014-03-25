@@ -146,7 +146,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         me.store.load({
             params: me.params,
             callback: function (records) {
-                if (records !== null && records.length === 0 && pageNum > 1) {
+                if (records !== null && records.length === 0 && newPage > 1) {
                     me.initPageSizeAndStart(pageSize, pageStart - pageSize);
                 }
             }
