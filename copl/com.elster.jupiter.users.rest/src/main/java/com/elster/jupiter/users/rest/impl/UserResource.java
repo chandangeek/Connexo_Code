@@ -9,6 +9,9 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.UserInfo;
 import com.elster.jupiter.users.rest.UserInfos;
+import com.elster.jupiter.users.rest.actions.CreateUserTransaction;
+import com.elster.jupiter.users.rest.actions.DeleteUserTransaction;
+import com.elster.jupiter.users.rest.actions.UpdateUserTransaction;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
