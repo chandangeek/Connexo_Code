@@ -24,16 +24,9 @@ Ext.define('Isu.controller.Main', {
     ],
 
     init: function () {
-        this.initDependencies();
         this.initNavigation();
         this.initDefaultHistoryToken();
         this.getApplication().on('changecontentevent', this.showContent, this);
-    },
-
-    initDependencies: function() {
-        Ext.Loader.addClassPathMappings({
-            'Ext.ux': "resources/js/Ext/ux"
-        });
     },
 
     initNavigation: function () {
