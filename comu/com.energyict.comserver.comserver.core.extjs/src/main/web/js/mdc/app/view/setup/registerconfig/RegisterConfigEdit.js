@@ -184,7 +184,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         },
                                         items: [
                                             {
-                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo', 'MDC', 'Maximum overflow value is 100 000 000 with 1 number of digit') + '</i></span>',
+                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo', 'MDC', 'Maximum overflow value is 100 000 000 with 1 number of digit.') + '</i></span>',
                                                 xtype: 'component'
 
                                             }
@@ -210,7 +210,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         },
                                         items: [
                                             {
-                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.multiplierInfo', 'MDC', 'Multiplies the collected value.  The multiplied value will be stored in the register') + '</i></span>',
+                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.multiplierInfo', 'MDC', 'Multiplies the collected value.  The multiplied value will be stored in the register.') + '</i></span>',
                                                 xtype: 'component'
 
                                             }
