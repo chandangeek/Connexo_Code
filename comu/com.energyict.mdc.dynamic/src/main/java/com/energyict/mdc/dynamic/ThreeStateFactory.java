@@ -1,6 +1,10 @@
 package com.energyict.mdc.dynamic;
 
+import com.energyict.mdc.common.SqlBuilder;
+
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -22,7 +26,7 @@ public class ThreeStateFactory extends AbstractValueFactory<Boolean> {
     }
 
     public int getJdbcType() {
-        return java.sql.Types.INTEGER;
+        return Types.INTEGER;
     }
 
     @Override
@@ -64,6 +68,29 @@ public class ThreeStateFactory extends AbstractValueFactory<Boolean> {
         }
         else {
             return "0";
+        }
+    }
+
+    @Override
+    public void bind(SqlBuilder builder, Boolean value) {
+        if (value != null) {
+            builder.bindBoolean(value);
+        }
+        else {
+            builder.bindNull(this.getJdbcType());
+        }
+    }
+
+    @Override
+    public void bind(PreparedStatement statement, int offset, Boolean value) throws SQLException {
+        if (value == null) {
+            statement.setNull(offset, this.getJdbcType());
+        }
+        else if (value) {
+            statement.setInt(offset, 1);
+        }
+        else {
+            statement.setInt(offset, 0);
         }
     }
 

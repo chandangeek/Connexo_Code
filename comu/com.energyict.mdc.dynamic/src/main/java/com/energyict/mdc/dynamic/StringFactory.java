@@ -1,5 +1,8 @@
 package com.energyict.mdc.dynamic;
 
+import com.energyict.mdc.common.SqlBuilder;
+
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
@@ -49,6 +52,26 @@ public class StringFactory extends AbstractValueFactory<String> {
     @Override
     public String toStringValue (String object) {
         return object;
+    }
+
+    @Override
+    public void bind(SqlBuilder builder, String value) {
+        if (value != null) {
+            builder.bindString(value);
+        }
+        else {
+            builder.bindNull(this.getJdbcType());
+        }
+    }
+
+    @Override
+    public void bind(PreparedStatement statement, int offset, String value) throws SQLException {
+        if (value != null) {
+            statement.setString(offset, value);
+        }
+        else {
+            statement.setNull(offset, this.getJdbcType());
+        }
     }
 
 }

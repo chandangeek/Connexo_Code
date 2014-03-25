@@ -630,7 +630,7 @@ public final class RelationFactory {
     }
 
     private Connection getConnection() {
-        return Environment.DEFAULT.get().getConnection();
+        return Environment.DEFAULT.get().getRelationConnection();
     }
 
 }

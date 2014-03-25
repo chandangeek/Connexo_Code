@@ -489,15 +489,12 @@ public class RelationTypeDdlGenerator {
         try (Statement statement = getConnection().createStatement()) {
             statement.execute(sqlStatement);
         }
-
     }
 
     protected void executeSql(SqlBuilder builder) throws SQLException {
         try (PreparedStatement statement = builder.getStatement(getConnection())) {
             statement.executeUpdate();
         }
-
-
     }
 
     protected Connection getConnection() throws SQLException {

@@ -1,6 +1,9 @@
 package com.energyict.mdc.dynamic;
 
+import com.energyict.mdc.common.SqlBuilder;
+
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
@@ -54,6 +57,26 @@ public class BigDecimalFactory extends AbstractValueFactory<BigDecimal> {
         }
         else {
             return object.toString();
+        }
+    }
+
+    @Override
+    public void bind(SqlBuilder builder, BigDecimal value) {
+        if (value != null) {
+            builder.bindBigDecimal(value);
+        }
+        else {
+            builder.bindNull(this.getJdbcType());
+        }
+    }
+
+    @Override
+    public void bind(PreparedStatement statement, int offset, BigDecimal value) throws SQLException {
+        if (value != null) {
+            statement.setBigDecimal(offset, value);
+        }
+        else {
+            statement.setNull(offset, this.getJdbcType());
         }
     }
 

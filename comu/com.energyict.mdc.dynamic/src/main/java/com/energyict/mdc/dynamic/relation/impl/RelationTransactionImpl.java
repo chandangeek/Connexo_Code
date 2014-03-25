@@ -7,6 +7,7 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.dynamic.DynamicAttributeOwner;
+import com.energyict.mdc.dynamic.relation.CanLock;
 import com.energyict.mdc.dynamic.relation.Constraint;
 import com.energyict.mdc.dynamic.relation.ConstraintViolationException;
 import com.energyict.mdc.dynamic.relation.Relation;
@@ -60,10 +61,23 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
 
     private void lock() {
         RelationAttributeType lockAttrib = this.relationType.getLockAttributeType();
-        IdBusinessObject object = (IdBusinessObject) this.get(lockAttrib);
-        if (object != null) {
-            IdBusinessObjectFactory factory = (IdBusinessObjectFactory) object.getFactory();
-            PersistentIdObject.lock(object, factory.getTableName());
+        Object attributeValue = this.get(lockAttrib);
+        if (attributeValue instanceof IdBusinessObject) {
+            this.lockIdBusinessObject((IdBusinessObject) attributeValue);
+        }
+        else if (attributeValue instanceof CanLock) {
+            CanLock canLock = (CanLock) attributeValue;
+            canLock.lock();
+        }
+        else {
+            throw new IllegalArgumentException("Values of a relation's lock attribute should implement the IdBusinessObject or CanLock interface");
+        }
+    }
+
+    private void lockIdBusinessObject(IdBusinessObject idBusinessObject) {
+        if (idBusinessObject != null) {
+            IdBusinessObjectFactory factory = (IdBusinessObjectFactory) idBusinessObject.getFactory();
+            PersistentIdObject.lock(idBusinessObject, factory.getTableName());
         }
     }
 

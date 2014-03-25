@@ -1,7 +1,9 @@
 package com.energyict.mdc.dynamic;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.SqlBuilder;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
@@ -44,7 +46,7 @@ public class ObisCodeValueFactory extends AbstractValueFactory<ObisCode> {
             return null;
         }
         else {
-            return object.toString();
+            return this.toStringValue(object);
         }
     }
 
@@ -65,6 +67,26 @@ public class ObisCodeValueFactory extends AbstractValueFactory<ObisCode> {
         }
         else {
             return object.toString();
+        }
+    }
+
+    @Override
+    public void bind(SqlBuilder builder, ObisCode value) {
+        if (value != null) {
+            builder.bindString(this.toStringValue(value));
+        }
+        else {
+            builder.bindNull(this.getJdbcType());
+        }
+    }
+
+    @Override
+    public void bind(PreparedStatement statement, int offset, ObisCode value) throws SQLException {
+        if (value != null) {
+            statement.setString(offset, this.toStringValue(value));
+        }
+        else {
+            statement.setNull(offset, this.getJdbcType());
         }
     }
 

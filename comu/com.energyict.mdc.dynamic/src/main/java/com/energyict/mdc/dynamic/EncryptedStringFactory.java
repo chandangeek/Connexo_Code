@@ -2,7 +2,9 @@ package com.energyict.mdc.dynamic;
 
 import com.energyict.mdc.common.DataVault;
 import com.energyict.mdc.common.DataVaultProvider;
+import com.energyict.mdc.common.SqlBuilder;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
@@ -70,6 +72,26 @@ public class EncryptedStringFactory extends AbstractValueFactory<String> {
     @Override
     public String toStringValue(String object) {
         return this.encrypt(object);
+    }
+
+    @Override
+    public void bind(SqlBuilder builder, String value) {
+        if (value != null) {
+            builder.bindString(this.encrypt(value));
+        }
+        else {
+            builder.bindNull(this.getJdbcType());
+        }
+    }
+
+    @Override
+    public void bind(PreparedStatement statement, int offset, String value) throws SQLException {
+        if (value != null) {
+            statement.setString(offset, this.encrypt(value));
+        }
+        else {
+            statement.setNull(offset, this.getJdbcType());
+        }
     }
 
 }

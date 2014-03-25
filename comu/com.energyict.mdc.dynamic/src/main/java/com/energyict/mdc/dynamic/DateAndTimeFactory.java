@@ -1,8 +1,10 @@
 package com.energyict.mdc.dynamic;
 
 import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.SqlBuilder;
 import org.joda.time.DateTimeConstants;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.logging.Level;
@@ -80,6 +82,26 @@ public class DateAndTimeFactory extends AbstractValueFactory<Date> {
         }
         else {
             return "";
+        }
+    }
+
+    @Override
+    public void bind(SqlBuilder builder, Date value) {
+        if (value != null) {
+            builder.bindDate(value);
+        }
+        else {
+            builder.bindNull(this.getJdbcType());
+        }
+    }
+
+    @Override
+    public void bind(PreparedStatement statement, int offset, Date value) throws SQLException {
+        if (value != null) {
+            statement.setDate(offset, new java.sql.Date(value.getTime()));
+        }
+        else {
+            statement.setNull(offset, this.getJdbcType());
         }
     }
 
