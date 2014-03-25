@@ -30,6 +30,7 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.exception.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exception.MessageSeeds;
 import com.energyict.mdc.device.data.exception.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
@@ -84,7 +85,7 @@ public class DeviceImpl implements Device {
     @Valid
     private TemporalReference<PhysicalGatewayReference> physicalGatewayReferenceDevice = Temporals.absent();
     @Valid
-    private List<DeviceProtocolPropertyImpl> deviceProperties = new ArrayList<>();
+    private List<DeviceProtocolProperty> deviceProperties = new ArrayList<>();
 
     @Inject
     public DeviceImpl(DataModel dataModel,
@@ -104,14 +105,14 @@ public class DeviceImpl implements Device {
     @Override
     public void save() {
         this.modificationDate = this.clock.now();
-        Save.action(this.getId()).save(dataModel, this);
         if (this.id > 0) {
+            Save.UPDATE.save(dataModel, this);
             this.notifyUpdated();
         } else {
+            Save.CREATE.save(dataModel, this);
             this.notifyCreated();
         }
     }
-
 
     private void notifyUpdated() {
         this.eventService.postEvent(UpdateEventType.DEVICE.topic(), this);
@@ -127,7 +128,8 @@ public class DeviceImpl implements Device {
 
     @Override
     public void delete() {
-        //TODO delete the cache!
+        // TODO delete the cache!
+        // TODO delete the properties
         this.validateDelete();
         this.doDelete();
         this.notifyDeleted();
@@ -254,7 +256,7 @@ public class DeviceImpl implements Device {
     @Override
     public BaseChannel getChannel(int index) {
         List<Channel> channels = getChannels();
-        if(channels.size() > index){
+        if (channels.size() > index) {
             return channels.get(index);
         } else {
             return null;
@@ -389,7 +391,7 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public LoadProfile.LoadProfileUpdater getLoadProfileUpdaterFor(LoadProfile loadProfile){
+    public LoadProfile.LoadProfileUpdater getLoadProfileUpdaterFor(LoadProfile loadProfile) {
         return new LoadProfileUpdaterForDevice((LoadProfileImpl) loadProfile);
     }
 
@@ -400,10 +402,6 @@ public class DeviceImpl implements Device {
         }
     }
 
-    public void loadProfilesChanged() {
-        // todo, still required?
-    }
-
     public TypedProperties getDeviceProtocolProperties() {
         TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceProtocolPluggableClass().getProperties());
         TypedProperties localProperties = getLocalProperties(this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs());
@@ -411,12 +409,66 @@ public class DeviceImpl implements Device {
         return properties;
     }
 
+
+    private String getPropertyValue(String name, Object value) {
+        String propertyValue = null;
+        for (PropertySpec propertySpec : this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs()) {
+            if (propertySpec.getName().equals(name)) {
+                propertyValue = propertySpec.getValueFactory().toStringValue(value);
+            }
+        }
+        return propertyValue;
+    }
+
+    private boolean propertyExistsOnDeviceProtocol(String name) {
+        for (PropertySpec propertySpec : this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs()) {
+            if (propertySpec.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
-    public void setDeviceProtocolProperties(TypedProperties allDeviceProtocolProperties) {
-        //TODO check the property implementation rudi made.
-        /*
-            Consider creating multiple methods for create/update/delete properties with name/value pair
-         */
+    public void setProperty(String name, Object value) {
+        if (propertyExistsOnDeviceProtocol(name)) {
+            String propertyValue = getPropertyValue(name, value);
+            boolean updated = updatePropertyIfExists(name, propertyValue);
+            if (!updated) {
+                addDeviceProperty(name, propertyValue);
+            }
+        } else {
+            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(thesaurus, name, this.getDeviceProtocolPluggableClass().getDeviceProtocol(), this);
+        }
+    }
+
+    private void addDeviceProperty(String name, String propertyValue) {
+        if (propertyValue != null) {
+            InfoType infoType = this.deviceDataService.findInfoType(name);
+            DeviceProtocolPropertyImpl deviceProtocolProperty = this.dataModel.getInstance(DeviceProtocolPropertyImpl.class).initialize(this, infoType, propertyValue);
+            this.deviceProperties.add(deviceProtocolProperty);
+        }
+    }
+
+    private boolean updatePropertyIfExists(String name, String propertyValue) {
+        for (DeviceProtocolProperty deviceProperty : deviceProperties) {
+            if (deviceProperty.getName().equals(name)) {
+                deviceProperty.setValue(propertyValue);
+                deviceProperty.update();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void removeProperty(String name) {
+        for (DeviceProtocolProperty deviceProtocolProperty : deviceProperties) {
+            if (deviceProtocolProperty.getName().equals(name)) {
+                this.deviceProperties.remove(deviceProtocolProperty);
+                break;
+            }
+        }
     }
 
     private TypedProperties getLocalProperties(List<PropertySpec> propertySpecs) {
@@ -424,14 +476,14 @@ public class DeviceImpl implements Device {
         for (PropertySpec propertySpec : propertySpecs) {
             DeviceProtocolProperty deviceProtocolProperty = findDevicePropertyFor(propertySpec);
             if (deviceProtocolProperty != null) {
-                properties.setProperty(deviceProtocolProperty.getName(), propertySpec.getValueFactory().fromStringValue(deviceProtocolProperty.getStringValue()));
+                properties.setProperty(deviceProtocolProperty.getName(), propertySpec.getValueFactory().fromStringValue(deviceProtocolProperty.getPropertyValue()));
             }
         }
         return properties;
     }
 
     private DeviceProtocolProperty findDevicePropertyFor(PropertySpec propertySpec) {
-        for (DeviceProtocolPropertyImpl deviceProperty : this.deviceProperties) {
+        for (DeviceProtocolProperty deviceProperty : this.deviceProperties) {
             if (deviceProperty.getName().equals(propertySpec.getName())) {
                 return deviceProperty;
             }

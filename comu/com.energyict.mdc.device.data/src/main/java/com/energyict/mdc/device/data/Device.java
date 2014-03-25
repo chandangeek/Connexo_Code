@@ -122,14 +122,11 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register> {
 
     LoadProfile.LoadProfileUpdater getLoadProfileUpdaterFor(LoadProfile loadProfile);
 
-    /**
-     * Notification method to signal that something on the device's load profile(s) changed
-     */
-    void loadProfilesChanged();
-
     TypedProperties getDeviceProtocolProperties();
 
-    void setDeviceProtocolProperties(TypedProperties allDeviceProtocolProperties);
+    void setProperty(String name, Object value);
+
+    void removeProperty(String name);
 
     /**
      * Stores the given MeterReadings

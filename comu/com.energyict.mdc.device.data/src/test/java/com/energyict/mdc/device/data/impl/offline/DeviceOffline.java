@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.impl;
+package com.energyict.mdc.device.data.impl.offline;
 
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 

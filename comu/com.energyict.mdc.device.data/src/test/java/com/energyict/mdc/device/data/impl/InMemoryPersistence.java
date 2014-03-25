@@ -94,7 +94,6 @@ public class InMemoryPersistence {
                 new IdsModule(),
                 new MeteringModule(),
                 new InMemoryMessagingModule(),
-                new EventsModule(),
                 new OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new DeviceConfigurationModule(),
@@ -186,6 +185,10 @@ public class InMemoryPersistence {
 
     public DeviceDataServiceImpl getDeviceService() {
         return deviceService;
+    }
+
+    public EventService getEventService() {
+        return eventService;
     }
 
     public static String query(String sql) {

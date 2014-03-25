@@ -40,8 +40,7 @@ import java.util.TimeZone;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Fail.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link com.energyict.mdc.device.data.impl.DeviceImpl} component

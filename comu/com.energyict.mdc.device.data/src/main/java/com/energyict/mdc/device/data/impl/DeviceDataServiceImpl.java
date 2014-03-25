@@ -26,7 +26,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -209,5 +208,20 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     @Override
     public List<Device> findDevicesByTimeZone(TimeZone timeZone) {
         return this.dataModel.mapper(Device.class).find("timeZoneId", timeZone.getID());
+    }
+
+    @Override
+    public InfoType newInfoType(String name) {
+        return this.dataModel.getInstance(InfoTypeImpl.class).initialize(name);
+    }
+
+    @Override
+    public InfoType findInfoType(String name) {
+        return this.dataModel.mapper(InfoType.class).getUnique("name", name).orNull();
+    }
+
+    @Override
+    public InfoType findInfoTypeById(long infoTypeId) {
+        return this.dataModel.mapper(InfoType.class).getUnique("id", infoTypeId).orNull();
     }
 }

@@ -7,7 +7,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceCacheFactory;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceMessageFactory;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
@@ -15,8 +14,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
+import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
@@ -43,11 +42,6 @@ import java.util.TimeZone;
  * @since 12/04/12 - 13:58
  */
 public class OfflineDeviceImpl implements OfflineDevice {
-
-    /**
-     * The used DeviceDataService
-     */
-    private final DeviceDataService deviceDataService;
 
     /**
      * The Device which is going offline
@@ -113,9 +107,8 @@ public class OfflineDeviceImpl implements OfflineDevice {
      */
     private DeviceProtocolCache deviceProtocolCache;
 
-    public OfflineDeviceImpl(final Device device, OfflineDeviceContext offlineDeviceContext, DeviceDataService deviceDataService) {
+    public OfflineDeviceImpl(final Device device, OfflineDeviceContext offlineDeviceContext) {
         this.device = device;
-        this.deviceDataService = deviceDataService;
         goOffline(offlineDeviceContext);
     }
 
@@ -185,7 +178,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
     private List<BaseRegister> createCompleteRegisterList() {
         List<BaseRegister> registers = new ArrayList<>();
         registers.addAll(this.device.getRegisters());
-        for (BaseDevice slave : this.device.getPhysicalConnectedDevices()) {
+        for (BaseDevice<?,?,?> slave : this.device.getPhysicalConnectedDevices()) {
             if (checkTheNeedToGoOffline((Device) slave)) {
                 registers.addAll(slave.getRegisters());
             }

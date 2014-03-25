@@ -1,14 +1,21 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.exception.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exception.MessageSeeds;
-import com.energyict.mdc.dynamic.PropertySpec;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 /**
  * Represents a <i>typed</i> property of a Device
@@ -17,63 +24,56 @@ import javax.validation.constraints.Size;
  * Date: 3/14/14
  * Time: 9:03 AM
  */
-public class DeviceProtocolPropertyImpl<T> implements DeviceProtocolProperty {
+public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Serializable {
 
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
-    private String name;
+    private final DataModel dataModel;
+    private final DeviceDataService deviceDataService;
+    private final Thesaurus thesaurus;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.VALUE_IS_REQUIRED_KEY + "}")
     @Size(min = 1, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.VALUE_IS_REQUIRED_KEY + "}")
-    private String stringValue;
-    private Device device;
+    private String propertyValue;
+    private long infoTypeId = 0;
+    private Reference<Device> device = ValueReference.absent();
 
     @Inject
-    public DeviceProtocolPropertyImpl() {
+    public DeviceProtocolPropertyImpl(DataModel dataModel, DeviceDataService deviceDataService, Thesaurus thesaurus) {
+        this.dataModel = dataModel;
+        this.deviceDataService = deviceDataService;
+        this.thesaurus = thesaurus;
     }
 
-    DeviceProtocolPropertyImpl<T> initialize(Device device, String name, String stringValue) {
-        this.device = device;
-        this.name = name;
-        this.stringValue = stringValue;
-        return this;
-    }
-
-    DeviceProtocolPropertyImpl<T> initialize(Device device, String name, T value) {
-        this.device = device;
-        this.name = name;
-        this.stringValue = convertToStringValue(value);
+    DeviceProtocolPropertyImpl initialize(Device device, InfoType infoType, String stringValue) {
+        this.device.set(device);
+        if(infoType != null){
+            this.infoTypeId = infoType.getId();
+        } else {
+            throw DeviceProtocolPropertyException.infoTypeDoesNotExist(thesaurus, stringValue);
+        }
+        this.propertyValue = stringValue;
         return this;
     }
 
     @Override
     public String getName() {
-        return name;
+        InfoType infoType = this.deviceDataService.findInfoTypeById(infoTypeId);
+        if (infoType != null) {
+            return infoType.getName();
+        }
+        return "";
     }
 
     @Override
-    public String getStringValue() {
-        return stringValue;
+    public String getPropertyValue() {
+        return propertyValue;
     }
 
     @Override
-    public T getValue() {
-        for (PropertySpec<T> propertySpec : device.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs()) {
-            if (propertySpec.getName().equals(this.name)) {
-                return propertySpec.getValueFactory().fromStringValue(this.stringValue);
-            }
-        }
-        return null;
+    public void setValue(String value) {
+        this.propertyValue = value;
     }
 
-    private String convertToStringValue(T value) {
-        if (this.device != null) {
-            for (PropertySpec<T> propertySpec : device.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs()) {
-                if (propertySpec.getName().equals(this.name)) {
-                    return propertySpec.getValueFactory().toStringValue(value);
-                }
-            }
-        }
-        return null;
+    @Override
+    public void update() {
+        Save.UPDATE.save(dataModel, this);
     }
-
 }

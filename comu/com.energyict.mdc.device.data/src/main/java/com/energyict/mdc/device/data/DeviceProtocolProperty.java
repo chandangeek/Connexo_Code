@@ -19,7 +19,10 @@ public interface DeviceProtocolProperty {
      *
      * @return the string value of the Property
      */
-    public String getStringValue();
+    public String getPropertyValue();
 
-    Object getValue();
+    public void setValue(String value);
+
+    public void update();
+
 }

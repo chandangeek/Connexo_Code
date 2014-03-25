@@ -13,7 +13,6 @@ import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
-import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
 /**
  * Models the database tables that hold the data of the
@@ -40,17 +39,31 @@ public enum TableSpecs {
         }
     },
 
-//    MDCDEVICEPROPERTIES{
-//        @Override
-//        public void addTo(DataModel dataModel) {
-//            Table<DeviceProtocolProperty> table = dataModel.addTable(name(), DeviceProtocolProperty.class);
-//            table.map(DeviceProtocolPropertyImpl.class);
-//            Column rtuid = table.column("RTUID").number().add();
-//            table.column("NAME").varChar(255).notNull().map("name").add();
-//            table.column("VALUE").varChar(255).map("stringValue").add();
-//            table.foreignKey("FK_PROTOCOLINFOTYPEID").on(rtuid).references(EISRTU.name()).map("device").reverseMap("deviceProperties").composition().add();
-//        }
-//    },
+    EISINFOTYPE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<InfoType> table = dataModel.addTable(name(), InfoType.class);
+            table.map(InfoTypeImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column name = table.column("NAME").varChar(80).notNull().map("name").add();
+            table.primaryKey("PK_INFOTYPE").on(id).add();
+            table.unique("UK_INFOTYPE").on(name).add();
+        }
+    },
+
+    EISRTUINFO {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<DeviceProtocolProperty> table = dataModel.addTable(name(), DeviceProtocolProperty.class);
+            table.map(DeviceProtocolPropertyImpl.class);
+            Column deviceId = table.column("RTUID").number().notNull().conversion(NUMBER2LONG).add();
+            Column infoTypeId = table.column("INFOTYPEID").map("infoTypeId").number().conversion(NUMBER2LONG).notNull().add();
+            table.column("INFOVALUE").varChar(255).map("propertyValue").add();
+            table.primaryKey("PK_RTUINFO").on(deviceId,infoTypeId).add();
+            table.foreignKey("FK_RTUINFOTYPEID").on(infoTypeId).references(EISINFOTYPE.name()).map("infoTypeId").add();
+            table.foreignKey("FK_RTUINFOTYPEDEVID").on(deviceId).references(EISRTU.name()).map("device").reverseMap("deviceProperties").composition().add();
+        }
+    },
 
     MDCPHYSICALGATEWAYREFERENCE {
         @Override

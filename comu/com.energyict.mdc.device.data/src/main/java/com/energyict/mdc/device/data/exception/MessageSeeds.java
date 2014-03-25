@@ -14,6 +14,8 @@ public enum MessageSeeds implements MessageSeed {
 
     DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(101, Constants.PHYSICAL_GATEWAY_STILL_IN_USE,"You can not delete device '{0}' because it is still used as a physical gateway for '{1}'", Level.SEVERE),
     DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(102, Constants.COMMUNICATION_GATEWAY_STILL_IN_USE,"You can not delete device '{0}' because it is still used as a communication gateway for '{1}'", Level.SEVERE),
+    DEVICE_PROPERTY_INFO_TYPE_DOENST_EXIST(103, Constants.INFOTYPE_DOESNT_EXIST,"The intotype for property value '{0}' does not exist.", Level.SEVERE),
+    DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL(104, Constants.PROPERTY_NOT_ON_DEVICE_PROTOCOL,"The property '{0}' is not defined by the device protocol '{1}' of device '{2}'", Level.SEVERE),
     ;
 
     private final int number;
@@ -60,6 +62,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY = "DDC.gateway.not.origin";
         public static final String PHYSICAL_GATEWAY_STILL_IN_USE = "DDC.device.delete.linked.physical.gateway";
         public static final String COMMUNICATION_GATEWAY_STILL_IN_USE = "DDC.device.delete.linked.communication.gateway";
+        public static final String INFOTYPE_DOESNT_EXIST = "DDC.device.property.infotype.required";
+        public static final String PROPERTY_NOT_ON_DEVICE_PROTOCOL = "DDC.not.deviceprotocol.property";
 
     }
 }

@@ -2,9 +2,9 @@ package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.data.impl.InfoType;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -47,4 +47,10 @@ public interface DeviceDataService {
     public List<Device> findAllDevices();
 
     public List<Device> findDevicesByTimeZone(TimeZone timeZone);
+
+    public InfoType newInfoType(String name);
+
+    public InfoType findInfoType(String name);
+
+    public InfoType findInfoTypeById(long infoTypeId);
 }
