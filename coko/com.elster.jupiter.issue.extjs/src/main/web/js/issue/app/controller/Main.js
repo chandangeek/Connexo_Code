@@ -31,6 +31,7 @@ Ext.define('Isu.controller.Main', {
     ],
 
     init: function () {
+        console.log('Isu.controller.Main - init');
         this.initNavigation();
         this.initDefaultHistoryToken();
         this.getApplication().on('changecontentevent', this.showContent, this);

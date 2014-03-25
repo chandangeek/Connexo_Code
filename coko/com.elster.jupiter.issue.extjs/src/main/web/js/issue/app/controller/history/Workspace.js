@@ -11,6 +11,8 @@ Ext.define('Isu.controller.history.Workspace', {
     init: function () {
         var me = this;
 
+        console.log('Isu.controller.history.Workspace - init');
+
         crossroads.addRoute('workspace',function(){
             me.getController('Isu.controller.Workspace').showOverview();
         });
