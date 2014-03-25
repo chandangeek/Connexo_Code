@@ -226,7 +226,7 @@ public class EnvironmentImpl implements Environment {
     @Override
     public Connection getConnection () {
         return this.getTransactionContext().getConnection();
-        }
+    }
 
     @Override
     public Connection getUnwrappedConnection () {

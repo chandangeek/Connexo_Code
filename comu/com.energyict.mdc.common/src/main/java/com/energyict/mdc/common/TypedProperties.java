@@ -243,13 +243,7 @@ public class TypedProperties {
      * @return The number of properties that are defined
      */
     public int size () {
-        int localSize = this.localSize();
-        if (this.inheritedProperties != null) {
-            return localSize + this.inheritedProperties.size();
-        }
-        else {
-            return localSize;
-        }
+        return this.propertyNames().size();
     }
 
     public String getStringProperty(String propertyName) {

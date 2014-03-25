@@ -295,6 +295,10 @@ public class SqlBuilder {
                 case BIGDECIMAL:
                     stmnt.setBigDecimal(i + 1, (BigDecimal) bindVar);
                     break;
+                case Types.NUMERIC:
+                    // Should only get here if value is null
+                    stmnt.setNull(i + 1, Types.NUMERIC);
+                    break;
                 case DOUBLE:
                     stmnt.setDouble(i + 1, (Double) bindVar);
                     break;

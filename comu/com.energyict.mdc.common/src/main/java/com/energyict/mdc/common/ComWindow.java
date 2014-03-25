@@ -15,6 +15,10 @@ public class ComWindow {
     private PartialTime start;
     private PartialTime end;
 
+    public ComWindow() {
+        this(PartialTime.fromSeconds(0), PartialTime.fromHours(24));
+    }
+
     public ComWindow (PartialTime start, PartialTime end) {
         super();
         this.start = start;
@@ -125,12 +129,7 @@ public class ComWindow {
     }
 
     public String toString () {
-        StringBuilder builder = new StringBuilder();
-        builder.append("between ");
-        builder.append(this.getStart().toString());
-        builder.append(" and ");
-        builder.append(this.getEnd().toString());
-        return builder.toString();
+        return "between " + this.getStart().toString() + " and " + this.getEnd().toString();
     }
 
 }

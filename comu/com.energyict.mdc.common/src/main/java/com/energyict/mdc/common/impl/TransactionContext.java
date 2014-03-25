@@ -109,12 +109,28 @@ public class TransactionContext {
     }
 
     public Connection getConnection () {
-        if (!this.isFinished() || connection!=null) {
-            return this.connection;
-        }
-        else {
+        if (this.isFinished() && ((this.connection == null || this.isClosed(this.connection)))) {
             this.obtainConnection();
-            return this.connection;
+        }
+        return this.connection;
+    }
+
+    private boolean isClosed(Connection connection) {
+        try {
+            return connection.isClosed();
+        }
+        catch (SQLException e) {
+            // Really?
+            throw new DatabaseException(e);
+        }
+    }
+
+    public Connection getRelationConnection () {
+        try {
+            return this.dataSource.getConnection();
+        }
+        catch (SQLException e) {
+            throw new DatabaseException(e);
         }
     }
 
