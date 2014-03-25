@@ -569,6 +569,18 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         }
 
         @Override
+        public DeviceConfigurationBuilder isDirectlyAddressable(boolean isDirectlyAddressable) {
+            underConstruction.setCanBeDirectlyAddressed(isDirectlyAddressable);
+            return this;
+        }
+
+        @Override
+        public DeviceConfigurationBuilder canActAsGateway(boolean canActAsGateway) {
+            underConstruction.setCanActAsGateway(canActAsGateway);
+            return this;
+        }
+
+        @Override
         public ChannelSpec.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
             ChannelSpec.ChannelSpecBuilder builder = this.underConstruction.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
             this.nestedBuilders.add(new ChannelSpecBuilder(builder));

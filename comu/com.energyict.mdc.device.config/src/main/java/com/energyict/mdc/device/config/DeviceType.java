@@ -198,6 +198,8 @@ public interface DeviceType {
         public DeviceConfiguration add ();
 
         DeviceConfigurationBuilder description(String description);
+        DeviceConfigurationBuilder canActAsGateway(boolean canActAsGateway);
+        DeviceConfigurationBuilder isDirectlyAddressable(boolean canBeDirectlyAddressed);
     }
 
 }
