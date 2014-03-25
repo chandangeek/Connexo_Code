@@ -108,36 +108,24 @@ public class UserServiceImpl implements UserService, InstallService {
 
     @Override
     public User createUser(String name, String description){
-        UserImpl result;
-        try (TransactionContext context = transactionService.getContext()) {
-            result = createInternalDirectory(getRealm()).newUser(name, description, false);
-            result.save();
-            context.commit();
-        }
+        UserImpl result = createInternalDirectory(getRealm()).newUser(name, description, false);
+        result.save();
 
         return result;
     }
 
     @Override
     public User createApacheDirectoryUser(String name, String domain) {
-        UserImpl result;
-        try (TransactionContext context = transactionService.getContext()) {
-            result = createApacheDirectory(domain).newUser(name, domain, false);
-            result.save();
-            context.commit();
-        }
+        UserImpl result= createApacheDirectory(domain).newUser(name, domain, false);
+        result.save();
 
         return result;
     }
 
     @Override
     public User createActiveDirectoryUser(String name, String domain) {
-        UserImpl result;
-        try (TransactionContext context = transactionService.getContext()) {
-            result = createActiveDirectory(domain).newUser(name, domain, false);
-            result.save();
-            context.commit();
-        }
+        UserImpl result = createActiveDirectory(domain).newUser(name, domain, false);
+        result.save();
 
         return result;
     }
@@ -145,24 +133,16 @@ public class UserServiceImpl implements UserService, InstallService {
 
     @Override
     public Group createGroup(String name, String description) {
-        GroupImpl result;
-        try (TransactionContext context = transactionService.getContext()) {
-            result = GroupImpl.from(dataModel, name, description);
-            result.persist();
-            context.commit();
-        }
+        GroupImpl result = GroupImpl.from(dataModel, name, description);
+        result.persist();
 
         return result;
     }
 
     @Override
     public Privilege createPrivilege(String componentName, String privilegeName, String description) {
-        PrivilegeImpl result;
-        try (TransactionContext context = transactionService.getContext()) {
-            result = PrivilegeImpl.from(dataModel, componentName, privilegeName, description);
-            result.persist();
-            context.commit();
-        }
+        PrivilegeImpl result = PrivilegeImpl.from(dataModel, componentName, privilegeName, description);
+        result.persist();
 
         return result;
     }
