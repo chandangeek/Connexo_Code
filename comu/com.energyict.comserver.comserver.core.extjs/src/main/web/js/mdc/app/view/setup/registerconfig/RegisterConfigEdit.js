@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                     {
                         xtype: 'component',
                         html: Uni.I18n.translate('registerConfig.deviceConfiguration', 'MDC', 'Device configuration'),
-                        margins: '10 10 0 20'
+                        margins: '10 10 0 0'
                     },
                     {
                         xtype: 'component',
@@ -74,9 +74,10 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         queryMode: 'local',
                                         displayField: 'name',
                                         valueField: 'id',
+                                        emptyText: Uni.I18n.translate('registerConfig.selectRegisterType', 'MDC', 'Select register type'),
                                         required: true,
                                         forceSelection: true,
-                                        editable: false,
+                                        typeAhead: true,
                                         width: 650
                                     },
                                     {

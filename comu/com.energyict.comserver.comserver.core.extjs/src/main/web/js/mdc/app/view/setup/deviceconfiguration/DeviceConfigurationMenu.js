@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 hrefTarget: '_self'
             },
             {
-                text: Uni.I18n.translate('deviceconfigurationmenu.registerTypes', 'MDC', 'Register types'),
+                text: Uni.I18n.translate('deviceconfigurationmenu.registerTypes', 'MDC', 'Register configurations'),
                 pressed: false,
                 itemId: 'registerConfigsLink',
                 href: '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/registerconfigurations',

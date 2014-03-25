@@ -121,12 +121,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         location.href = '#setup/registertypes/create';
     },
 
-    editRegisterTypeHistory: function () {
-        location.href = '#setup/registertypes/' + this.getRegisterTypeGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
+    editRegisterTypeHistory: function (item) {
+        location.href = '#setup/registertypes/' + item.get('id') + '/edit';
     },
 
-    deleteRegisterType: function () {
-        var registerTypeToDelete = this.getRegisterTypeGrid().getSelectionModel().getSelection()[0];
+    deleteRegisterType: function (registerTypeToDelete) {
         var me = this;
         Ext.MessageBox.show({
             msg: Uni.I18n.translate('registerType.deleteRegisterType', 'MDC', 'The register type will no longer be available.'),
@@ -353,15 +352,10 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             text: Uni.I18n.translate('registertype.registerTypes', 'MDC', 'Register types'),
             href: 'registertypes'
         });
-        /* var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-         text: registerTypeName,
-         href: registerTypeId
-         });*/
         var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('registertype.edit', 'MDC', 'Edit register type'),
             href: 'edit'
         });
-        //breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3).setChild(breadcrumb4);
         breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb4);
         this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
     },

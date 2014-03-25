@@ -21,6 +21,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 dataIndex: 'name',
                 sortable: false,
                 hideable: false,
+                fixed: true,
                 flex: 3
             },
             {
@@ -34,7 +35,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 items: [
                     {
                         icon: '../mdc/resources/images/information.png',
-                        tooltip: Uni.I18n.translate('readingType.tooltip','MDC','Reading type info'),
+                        tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
                         handler: function (grid, rowIndex, colIndex, item, e) {
                             var record = grid.getStore().getAt(rowIndex);
                             this.fireEvent('showReadingTypeInfo', record);
@@ -44,13 +45,16 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 flex: 2,
                 tdCls: 'view',
                 sortable: false,
+                fixed: true,
                 hideable: false
+
             },
             {
                 header: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
                 dataIndex: 'obisCode',
                 sortable: false,
                 hideable: false,
+                fixed: true,
                 flex: 1
             },
             {
@@ -59,10 +63,11 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
+                fixed: true,
                 items: [
                     {
                         icon: '../mdc/resources/images/gear-16x16.png',
-                        handler: function (grid, rowIndex, colIndex, item, e) {
+                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             var menu = Ext.widget('menu', {
                                 items: [
                                     {
@@ -72,12 +77,15 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                                             click: {
                                                 element: 'el',
                                                 fn: function () {
-                                                    this.fireEvent('editItem', grid, grid.getSelectionModel().getSelection());
+                                                    this.fireEvent('editItem', record);
                                                 },
                                                 scope: this
                                             }
 
                                         }
+                                    },
+                                    {
+                                        xtype: 'menuseparator'
                                     },
                                     {
                                         xtype: 'menuitem',
@@ -86,7 +94,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                                             click: {
                                                 element: 'el',
                                                 fn: function () {
-                                                    this.fireEvent('deleteItem', grid, grid.getSelectionModel().getSelection());
+                                                    this.fireEvent('deleteItem', record);
                                                 },
                                                 scope: this
                                             }
@@ -138,4 +146,5 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
 
         this.callParent();
     }
-});
+})
+;
