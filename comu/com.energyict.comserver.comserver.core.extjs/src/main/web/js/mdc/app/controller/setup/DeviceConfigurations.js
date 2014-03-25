@@ -315,7 +315,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
     createBreadCrumb: function (id,name) {
         var breadcrumbChild4 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
+            text: Uni.I18n.translate('deviceconfiguration.createDeviceConfiguration', 'MDC', 'Create device configuration'),
             href: 'create'
         });
         var breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem',{
