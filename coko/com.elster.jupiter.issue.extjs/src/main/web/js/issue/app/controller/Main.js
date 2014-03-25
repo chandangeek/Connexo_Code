@@ -31,7 +31,7 @@ Ext.define('Isu.controller.Main', {
     },
 
     initDependencies: function() {
-        Ext.loader.addClassPathMappings({
+        Ext.Loader.addClassPathMappings({
             'Ext.ux': "resources/js/Ext/ux"
         });
     },
