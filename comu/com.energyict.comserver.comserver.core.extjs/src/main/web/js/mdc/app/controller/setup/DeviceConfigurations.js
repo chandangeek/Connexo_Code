@@ -101,7 +101,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             var deviceConfigurationId = deviceConfigurations[0].get('id');
             this.getActivateDeviceconfigurationMenuItem().setText(deviceConfigurations[0].get('active')===true?Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate'):Uni.I18n.translate('general.activate', 'MDC', 'Activate'));
             this.getDeviceConfigurationRegisterLink().getEl().set({href: '#/setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/registerconfigurations'});
-            this.getDeviceConfigurationRegisterLink().getEl().setHTML(deviceConfigurations[0].get('registerCount') + ' ' + Uni.I18n.translatePlural('devicetype.registers', deviceConfigurations[0].get('registerCount'), 'MDC', 'register types'));
+            this.getDeviceConfigurationRegisterLink().getEl().setHTML(deviceConfigurations[0].get('registerCount') + ' ' + Uni.I18n.translatePlural('deviceconfig.registerconfigs', deviceConfigurations[0].get('registerCount'), 'MDC', 'register configurations'));
             this.getDeviceConfigurationLogBookLink().getEl().set({href: '#/setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/logbooks'});
             this.getDeviceConfigurationLogBookLink().getEl().setHTML(deviceConfigurations[0].get('logBookCount') + ' ' + Uni.I18n.translatePlural('devicetype.logbooks', deviceConfigurations[0].get('logBookCount'), 'MDC', 'logbook types'));
             this.getDeviceConfigurationLoadProfilesLink().getEl().set({href: '#/setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/loadprofiles'});

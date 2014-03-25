@@ -138,7 +138,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                                             autoEl: {
                                                 tag: 'a',
                                                 href: '#',
-                                                html: Uni.I18n.translate('deviceconfiguration.registers', 'MDC', 'registers')
+                                                html: Uni.I18n.translate('deviceconfiguration.registers', 'MDC', 'register configurations')
                                             },
                                             itemId: 'deviceConfigurationRegistersLink'
                                         },

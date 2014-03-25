@@ -28,7 +28,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'registerConfigEditForm', selector: '#registerConfigEditForm'},
         {ref: 'createRegisterConfigBtn', selector: '#createRegisterConfigBtn'},
-        {ref: 'previewMrId', selector: '#preview_mrid'}
+        {ref: 'previewMrId', selector: '#preview_mrid'},
+        {ref: 'readingTypeContainer', selector: '#readingTypeContainer'}
     ],
 
     deviceTypeId: null,
@@ -49,6 +50,9 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 deleteItem: this.deleteRegisterConfiguration
             },
             '#registerConfigPreviewForm button[action = showReadingTypeInfo]': {
+                showReadingTypeInfo: this.showReadingType
+            },
+            '#registerConfigEditForm button[action = showReadingTypeInfo]': {
                 showReadingTypeInfo: this.showReadingType
             },
             '#registerConfigEditForm combobox': {
@@ -291,6 +295,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 view.down('#create_mrid').setValue(registerType.getReadingType().get('mrid'));
                 view.down('#editObisCodeField').setValue(registerType.get('obisCode'));
                 view.down('#editOverruledObisCodeField').setValue(registerType.get('obisCode'));
+                view.down('#readingTypeContainer').enable();
             }
         }
     },
