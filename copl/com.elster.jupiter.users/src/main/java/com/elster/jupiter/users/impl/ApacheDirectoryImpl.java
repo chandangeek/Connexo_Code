@@ -77,8 +77,4 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             return Optional.absent();
         }
     }
-
-    private String getRealDomain(String rdn) {
-        return rdn.substring(rdn.contains("dc=") ? rdn.indexOf("dc=") : 0);
-    }
 }
