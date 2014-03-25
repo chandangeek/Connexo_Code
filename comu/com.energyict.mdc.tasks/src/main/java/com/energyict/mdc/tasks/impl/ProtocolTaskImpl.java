@@ -27,6 +27,19 @@ abstract class ProtocolTaskImpl implements ProtocolTask, OfflineDeviceContext {
 
     private final DataModel dataModel;
 
+    enum Fields {
+        COM_TASK("comTask");
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
+
     private long id;
     private final Reference<ComTask> comTask= ValueReference.absent();
     private DeviceOfflineFlags flags;

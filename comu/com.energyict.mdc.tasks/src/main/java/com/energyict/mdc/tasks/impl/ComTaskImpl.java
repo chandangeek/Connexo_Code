@@ -30,6 +30,7 @@ import com.google.inject.Provider;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -61,7 +62,9 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
     enum Fields {
         NAME("name"),
         PROTOCOL_TASKS("protocolTasks"),
-        MAX_NR_OF_TRIES("maxNrOfTries");
+        STORE_DATE("storeData"),
+        MAX_NR_OF_TRIES("maxNrOfTries"),
+        MOD_DATE("modificationDate");
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -81,6 +84,7 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
      * Indication whether to store the data which is read
      */
     private boolean storeData;
+    private Date modificationDate;
 
     /**
      * Holds a list of all {@link ProtocolTask ProtocolTasks} which must be performed during the execution of this kind of ComTask

@@ -59,7 +59,7 @@ public enum TableSpecs {
             table.column("MINCLOCKDIFFBADTIMEVALUE").number().conversion(NUMBER2INT).map(MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()+".count").add();
             table.column("MINCLOCKDIFFBADTIMEUNIT").number().conversion(NUMBER2INT).map(MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()+".timeUnitCode").add();
 
-            table.foreignKey("FK_COM_TASK").on(comTaskId).references(MDCCOMTASK.name()).map("comTask").add();
+            table.foreignKey("FK_COM_TASK").on(comTaskId).references(MDCCOMTASK.name()).map(ProtocolTaskImpl.Fields.COM_TASK.fieldName()).reverseMap(ComTaskImpl.Fields.PROTOCOL_TASKS.fieldName()).add();
             table.primaryKey("TSK_PK_PROTOCOLTASK").on(idColumn).add();
         }
     },
@@ -68,14 +68,14 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<ComTask> table = dataModel.addTable(name(), ComTask.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").type("varchar2(256)").map("name").add();
-            table.column("STOREDATA").number().conversion(NUMBER2INT).map("").add(); // TODO complete
-            table.column("MAXNROFTRIES").number().conversion(NUMBER2INT).map("").add();// TODO complete
-            table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
+            table.column("NAME").type("varchar2(256)").map(ComTaskImpl.Fields.NAME.fieldName()).add();
+            table.column("STOREDATA").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).add();
+            table.column("MAXNROFTRIES").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.MAX_NR_OF_TRIES.fieldName()).add();
+            table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).insert("sysdate").update("sysdate").add();
             table.primaryKey("TSK_PK_COMTASK").on(idColumn).add();
         }
     },
-    MDCRTUMESSAGETYPEUSAGE {
+    MDCRTUMSGTYPEUSAGE {
         @Override
         void addTo(DataModel dataModel) {
             Table<MessagesTaskTypeUsage> table = dataModel.addTable(name(), MessagesTaskTypeUsage.class);
