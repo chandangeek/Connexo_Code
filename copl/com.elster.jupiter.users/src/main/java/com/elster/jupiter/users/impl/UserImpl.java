@@ -29,7 +29,6 @@ public class UserImpl implements User {
     private UtcInstant createTime;
     private UtcInstant modTime;
     private String languageTag;
-    private boolean allowPwdChange;
     private Reference<UserDirectory> userDirectory = ValueReference.absent();
 
     // transient
@@ -63,7 +62,6 @@ public class UserImpl implements User {
         this.userDirectory.set(userDirectory);
         this.authenticationName = authenticationName;
         this.description = description;
-        this.allowPwdChange = allowPwdChange;
         return this;
     }
 
@@ -282,10 +280,5 @@ public class UserImpl implements User {
     @Override
     public Date getModifiedDate() {
         return modTime.toDate();
-    }
-
-    @Override
-    public boolean isAllowPwdChange() {
-        return allowPwdChange;
     }
 }

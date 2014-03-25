@@ -66,7 +66,6 @@ public enum TableSpecs {
 			table.column("HA1").type("varchar2(32)").map("ha1").add();
             table.column("LANGUAGETAG").type("varchar2(64)").map("languageTag").add();
             Column userDirColumn = table.column("USER_DIRECTORY").varChar(128).notNull().add();
-            table.column("ALLOW_PWD_CHANGE").bool().map("allowPwdChange").add();
             table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");
