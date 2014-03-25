@@ -94,10 +94,13 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         for (PartialConnectionTaskProperty property : properties) {
             if (property.getName().equals(key)) {
                 property.setValue(value);
+                if (this.getId() != 0) {
+                    property.save();
+                }
                 return;
             }
         }
-        properties.add(PartialConnectionTaskPropertyImpl.from(this, key, value));
+        properties.add(PartialConnectionTaskPropertyImpl.from(dataModel, this, key, value));
     }
 
     @Override

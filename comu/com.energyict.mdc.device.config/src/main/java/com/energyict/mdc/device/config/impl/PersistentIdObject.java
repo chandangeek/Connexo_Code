@@ -38,7 +38,7 @@ public abstract class PersistentIdObject<T> {
         return thesaurus;
     }
 
-    protected <T> DataMapper<T> mapper(Class<T> api) {
+    protected <U> DataMapper<U> mapper(Class<U> api) {
         return this.dataModel.mapper(api);
     }
 

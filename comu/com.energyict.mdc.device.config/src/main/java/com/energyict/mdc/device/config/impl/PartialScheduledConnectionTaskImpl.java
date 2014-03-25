@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -11,21 +12,20 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import javax.inject.Inject;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
 /**
  *  Provides an implementation for an {@link PartialScheduledConnectionTask}
  *
  * @author sva
  * @since 22/01/13 - 11:52
  */
+@CheckMinimumRescheduleDelay(groups = {Save.Create.class, Save.Update.class}, minimumRescheduleDelayInSeconds = 60)
 public abstract class PartialScheduledConnectionTaskImpl extends PartialConnectionTaskImpl implements PartialScheduledConnectionTask {
 
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
-
-    /**
-     * Defines the minimum reschedule delay of a connectionTask.
-     * Values below this must be rejected.
-     */
-    public static final int MINIMUM_RESCHEDULE_DELAY = 60;
 
     /**
      * Defines the delay to wait before retrying when this connectionTask failed
@@ -36,52 +36,6 @@ public abstract class PartialScheduledConnectionTaskImpl extends PartialConnecti
         super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService);
     }
 
-//    protected DeviceCommunicationConfiguration validate(PartialScheduledConnectionTaskShadow shadow) throws BusinessException {
-//        DeviceCommunicationConfiguration configuration = super.validate(shadow);
-//        this.validateRescheduleRetryDelay(shadow.getRescheduleDelay());
-//        this.validateNextExecutionSpecs(shadow.getNextExecutionSpecs());
-//        return configuration;
-//    }
-
-//    /**
-//     * Validate if the rescheduleDelay is a positive integer
-//     *
-//     * @param rescheduleRetryDelay the delay to validate
-//     */
-//    private void validateRescheduleRetryDelay(TimeDuration rescheduleRetryDelay) throws BusinessException {
-//        if (rescheduleRetryDelay != null) {
-//            final int rescheduleDelay = rescheduleRetryDelay.getSeconds();
-//            if (rescheduleDelay < 0) {
-//                throw new InvalidValueException("invalidNegativeValueForY", "{0} can not be negative", UserEnvironment.getDefault().getTranslation("retryDelay"));
-//            } else if (rescheduleDelay != 0 && rescheduleDelay < MINIMUM_RESCHEDULE_DELAY) {
-//                throw new BusinessException("invalidValueXForYBelowZ", "{0} is an invalid value for {1}, minimum {2} required",
-//                        rescheduleDelay, UserEnvironment.getDefault().getTranslation("retryDelay"), MINIMUM_RESCHEDULE_DELAY);
-//            }
-//        }
-//    }
-
-//    private void validateNextExecutionSpecs(NextExecutionSpecsShadow nextExecutionSpecsShadow) throws BusinessException {
-//        if (nextExecutionSpecsShadow != null) {
-//            this.validateOffsetNotBiggerThenFrequency(nextExecutionSpecsShadow);
-//        }
-//    }
-
-//    private void validateOffsetNotBiggerThenFrequency(NextExecutionSpecsShadow nextExecutionSpecs) throws BusinessException {
-//        if (this.isNotNull(nextExecutionSpecs.getOffset())) {
-//            if (nextExecutionSpecs.getFrequency().getSeconds() < nextExecutionSpecs.getOffset().getSeconds()) {
-//                throw new BusinessException(
-//                        "OffsetXIsBiggerThanFrequencyY",
-//                        "The offset ({0}) should not extend the frequency ({1}",
-//                        nextExecutionSpecs.getOffset(),
-//                        nextExecutionSpecs.getFrequency());
-//            }
-//        }
-//    }
-
-    private boolean isNotNull(TimeDuration offset) {
-        return offset != null && offset.getMilliSeconds() != 0;
-    }
-
     @Override
     public TimeDuration getRescheduleDelay() {
         return rescheduleRetryDelay;
@@ -89,7 +43,7 @@ public abstract class PartialScheduledConnectionTaskImpl extends PartialConnecti
 
     @Override
     public NextExecutionSpecs getNextExecutionSpecs() {
-        return this.nextExecutionSpecs.get();
+        return this.nextExecutionSpecs.orNull();
     }
 
     @Override
@@ -110,5 +64,30 @@ public abstract class PartialScheduledConnectionTaskImpl extends PartialConnecti
     @Override
     public void setNextExecutionSpecs(NextExecutionSpecs nextExecutionSpec) {
         nextExecutionSpecs.set(nextExecutionSpec);
+    }
+
+    @Override
+    public void setRescheduleRetryDelay(TimeDuration rescheduleRetryDelay) {
+        this.rescheduleRetryDelay = rescheduleRetryDelay;
+    }
+
+    public static class MinimumRescheduleDelayValidator implements ConstraintValidator<CheckMinimumRescheduleDelay, PartialScheduledConnectionTaskImpl> {
+
+        private int minimalDelayInSeconds;
+
+        @Inject
+        public MinimumRescheduleDelayValidator() {
+        }
+
+        @Override
+        public void initialize(CheckMinimumRescheduleDelay constraintAnnotation) {
+            minimalDelayInSeconds = constraintAnnotation.minimumRescheduleDelayInSeconds();
+        }
+
+        @Override
+        public boolean isValid(PartialScheduledConnectionTaskImpl value, ConstraintValidatorContext context) {
+            TimeDuration rescheduleDelay = value.getRescheduleDelay();
+            return rescheduleDelay!= null && rescheduleDelay.getSeconds() >= minimalDelayInSeconds;
+        }
     }
 }

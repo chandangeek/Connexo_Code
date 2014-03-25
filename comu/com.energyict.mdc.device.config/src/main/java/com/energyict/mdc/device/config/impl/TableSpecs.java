@@ -320,7 +320,7 @@ public enum TableSpecs {
             Table<ProtocolDialectConfigurationProperties> table = dataModel.addTable(name(), ProtocolDialectConfigurationProperties.class);
             table.map(ProtocolDialectConfigurationPropertiesImpl.class);
             Column id = table.addAutoIdColumn();
-            Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().map("deviceCommunicationConfiguration").add(); // TODO remove map when enabling foreign key constraint
+            Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add(); // TODO remove map when enabling foreign key constraint
             table.column("DEVICEPROTOCOLDIALECT").varChar(255).notNull().map("protocolDialectName").add();
             table.column("MOD_DATE").type("DATE").map("modDate").add();
             table.column("NAME").varChar(255).notNull().map("name").add();
@@ -359,10 +359,10 @@ public enum TableSpecs {
             table.column("SIMULTANEOUSCONNECTIONS").number().conversion(NUMBER2BOOLEAN).map("allowSimultaneousConnections").add();
             table.column("ISDEFAULT").number().conversion(NUMBER2BOOLEAN).map("isDefault").add();
             Column nextexecutionspecs = table.column("NEXTEXECUTIONSPECS").number().add();
-            table.column("RESCHEDULERETRYDELAY").number().map("rescheduleRetryDelay.count").add();
+            table.column("RESCHEDULERETRYDELAY").number().conversion(NUMBER2INT).map("rescheduleRetryDelay.count").add();
             table.column("MOD_DATE").type("DATE").map("modDate").insert("sysdate").update("sysdate").add();
             Column comportpool = table.column("COMPORTPOOL").number().add();
-            table.column("RESCHEDULERETRYDELAYCODE").number().map("rescheduleRetryDelay.timeUnitCode").add();
+            table.column("RESCHEDULERETRYDELAYCODE").number().conversion(NUMBER2INT).map("rescheduleRetryDelay.timeUnitCode").add();
             table.primaryKey("PK_MDCPARTIALCONNTASK").on(id).add();
             table.foreignKey("FK_MDCPARTIALCT_PLUGGABLE").on(connectionType).references(PluggableService.COMPONENTNAME, "EISPLUGGABLECLASS").map("pluggableClass").add();
             table.foreignKey("FK_MDCPARTIALCT_COMPORTPOOL").on(comportpool).references(EngineModelService.COMPONENT_NAME, "MDCCOMPORTPOOL").map("comPortPool").add();

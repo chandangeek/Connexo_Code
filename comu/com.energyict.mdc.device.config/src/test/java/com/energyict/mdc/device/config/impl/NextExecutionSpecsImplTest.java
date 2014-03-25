@@ -151,7 +151,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY + "}", strict = false)
     public void testCreateWithNegativeFrequency () throws BusinessException, SQLException {
         DeviceConfigurationService service = inMemoryPersistence.getDeviceConfigurationService();
         NextExecutionSpecs specs = service.newNextExecutionSpecs(new TemporalExpression(new TimeDuration(-1, TimeDuration.MINUTES)));

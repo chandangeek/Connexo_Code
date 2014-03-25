@@ -22,6 +22,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +44,9 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     private long userActions; // temp place holder for the enumset
 //    private EnumSet<DeviceMessageUserAction> userActions = EnumSet.noneOf(DeviceMessageUserAction.class);
 //    private List<DeviceMessageEnablement> deviceMessageEnablements;
+    @Valid
     private List<PartialConnectionTask> partialConnectionTasks = new ArrayList<>();
+    @Valid
     private List<ProtocolDialectConfigurationProperties> configurationPropertiesList = new ArrayList<>();
 
     @Inject

@@ -84,6 +84,9 @@ public class NextExecutionSpecsImpl extends PersistentIdObject<NextExecutionSpec
 
         @Override
         public boolean isValid(NextExecutionSpecs value, ConstraintValidatorContext context) {
+            if (value.getTemporalExpression() == null) {
+                return true; // checked by a different validation
+            }
             TimeDuration offset = value.getTemporalExpression().getOffset();
             TimeDuration every = value.getTemporalExpression().getEvery();
             return offset == null || every.getSeconds() >= offset.getSeconds();

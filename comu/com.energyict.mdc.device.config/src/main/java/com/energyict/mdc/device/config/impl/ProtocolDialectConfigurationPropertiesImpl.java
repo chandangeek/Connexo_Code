@@ -167,7 +167,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         TypedProperties properties = TypedProperties.empty();
         for (ProtocolDialectConfigurationProperty property : propertyList) {
             ValueFactory<?> valueFactory = getPropertySpec(property.getName()).getValueFactory();
-            typedProperties.setProperty(property.getName(), valueFactory.fromStringValue(property.getValue()));
+            properties.setProperty(property.getName(), valueFactory.fromStringValue(property.getValue()));
         }
         return properties;
     }

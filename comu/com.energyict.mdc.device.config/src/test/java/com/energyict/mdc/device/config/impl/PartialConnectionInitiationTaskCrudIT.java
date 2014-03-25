@@ -232,13 +232,13 @@ public class PartialConnectionInitiationTaskCrudIT {
             deviceConfiguration.save();
 
             communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
-            communicationConfiguration.save();
 
             connectionInitiationTask = communicationConfiguration.createPartialConnectionInitiationTask()
                     .name("MyInitiation")
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
-                    .asDefault(true).build();
+                    .rescheduleDelay(TimeDuration.seconds(60))
+                    .build();
             communicationConfiguration.save();
 
             context.commit();
@@ -254,7 +254,7 @@ public class PartialConnectionInitiationTaskCrudIT {
         PartialConnectionInitiationTask partialConnectionInitiationTask = (PartialConnectionInitiationTask) partialConnectionTask;
 
         assertThat(partialConnectionInitiationTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
-        assertThat(partialConnectionInitiationTask.isDefault()).isTrue();
+        assertThat(partialConnectionInitiationTask.isDefault()).isFalse();
         assertThat(partialConnectionInitiationTask.getConfiguration().getId()).isEqualTo(communicationConfiguration.getId());
         assertThat(partialConnectionInitiationTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialConnectionInitiationTask.getName()).isEqualTo("MyInitiation");
@@ -281,7 +281,8 @@ public class PartialConnectionInitiationTaskCrudIT {
                     .name("MyInitiation")
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
-                    .asDefault(true).build();
+                    .rescheduleDelay(TimeDuration.seconds(60))
+                    .build();
             communicationConfiguration.save();
 
             context.commit();
@@ -291,7 +292,6 @@ public class PartialConnectionInitiationTaskCrudIT {
         try (TransactionContext context = transactionService.getContext()) {
             DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceConfigurationService(communicationConfiguration.getId());
             PartialConnectionInitiationTask partialConnectionInitiationTask = configuration.getPartialConnectionInitiationTasks().get(0);
-            partialConnectionInitiationTask.setDefault(false);
             partialConnectionInitiationTask.setComportPool(outboundComPortPool1);
             partialConnectionInitiationTask.setConnectionTypePluggableClass(connectionTypePluggableClass2);
             partialConnectionInitiationTask.setName("Changed");
@@ -334,7 +334,8 @@ public class PartialConnectionInitiationTaskCrudIT {
                     .name("MyOutbound")
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
-                    .asDefault(true).build();
+                    .rescheduleDelay(TimeDuration.seconds(60))
+                    .build();
             communicationConfiguration.save();
 
             context.commit();

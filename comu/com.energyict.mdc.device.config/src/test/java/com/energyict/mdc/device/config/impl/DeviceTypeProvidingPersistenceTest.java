@@ -14,7 +14,7 @@ public abstract class DeviceTypeProvidingPersistenceTest extends PersistenceTest
     protected DeviceType deviceType;
 
     @Before
-    private void initializeDeviceType() {
+    public void initializeDeviceType() {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         deviceType.save();
     }

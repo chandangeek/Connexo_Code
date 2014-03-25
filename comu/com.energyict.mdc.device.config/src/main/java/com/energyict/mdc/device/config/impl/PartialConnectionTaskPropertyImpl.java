@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -18,6 +19,8 @@ import javax.inject.Inject;
 @PartialConnectionTaskPropertyValueHasCorrectType(groups = {Save.Create.class, Save.Update.class})
 class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty {
 
+    private final DataModel dataModel;
+
     private Reference<PartialConnectionTask> partialConnectionTask = ValueReference.absent();
 
     private String name;
@@ -25,11 +28,12 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
     private transient Object objectValue;
 
     @Inject
-    PartialConnectionTaskPropertyImpl() {
+    PartialConnectionTaskPropertyImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
     }
 
-    static PartialConnectionTaskPropertyImpl from(PartialConnectionTask partialConnectionTask, String name, Object value) {
-        PartialConnectionTaskPropertyImpl partialConnectionTaskProperty = new PartialConnectionTaskPropertyImpl();
+    static PartialConnectionTaskPropertyImpl from(DataModel dataModel, PartialConnectionTask partialConnectionTask, String name, Object value) {
+        PartialConnectionTaskPropertyImpl partialConnectionTaskProperty = new PartialConnectionTaskPropertyImpl(dataModel);
         partialConnectionTaskProperty.partialConnectionTask.set(partialConnectionTask);
         partialConnectionTaskProperty.name = name;
         partialConnectionTaskProperty.setValue(value);
@@ -80,5 +84,10 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
     public void setValue(Object value) {
         objectValue = value;
         this.value = asStringValue(value);
+    }
+
+    @Override
+    public void save() {
+        dataModel.mapper(PartialConnectionTaskProperty.class).update(this);
     }
 }

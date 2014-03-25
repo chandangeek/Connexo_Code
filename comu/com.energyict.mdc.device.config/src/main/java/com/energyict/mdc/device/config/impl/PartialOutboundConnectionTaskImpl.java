@@ -138,7 +138,11 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
         this.initiator.set(partialConnectionInitiationTask);
     }
 
-    public class NextExecutionSpecValidator implements ConstraintValidator<NextExecutionSpecsRequiredForMinimizeConnections, PartialOutboundConnectionTask> {
+    public static class NextExecutionSpecValidator implements ConstraintValidator<NextExecutionSpecsRequiredForMinimizeConnections, PartialOutboundConnectionTask> {
+
+        @Inject
+        public NextExecutionSpecValidator() {
+        }
 
         @Override
         public void initialize(NextExecutionSpecsRequiredForMinimizeConnections constraintAnnotation) {
@@ -146,11 +150,15 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
 
         @Override
         public boolean isValid(PartialOutboundConnectionTask value, ConstraintValidatorContext context) {
-            return !value.getConnectionStrategy().equals(ConnectionStrategy.MINIMIZE_CONNECTIONS) || value.getNextExecutionSpecs() != null;
+            return !ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(value.getConnectionStrategy()) || value.getNextExecutionSpecs() != null;
         }
     }
 
-    public class NextExecutionSpecVsComWindowValidator implements ConstraintValidator<NextExecutionSpecsValidForComWindow, PartialOutboundConnectionTask> {
+    public static class NextExecutionSpecVsComWindowValidator implements ConstraintValidator<NextExecutionSpecsValidForComWindow, PartialOutboundConnectionTask> {
+
+        @Inject
+        public NextExecutionSpecVsComWindowValidator() {
+        }
 
         @Override
         public void initialize(NextExecutionSpecsValidForComWindow constraintAnnotation) {
@@ -158,7 +166,7 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
 
         @Override
         public boolean isValid(PartialOutboundConnectionTask value, ConstraintValidatorContext context) {
-            if (value.getNextExecutionSpecs() == null || comWindow == null) {
+            if (value.getNextExecutionSpecs() == null || value.getCommunicationWindow() == null) {
                 return true;
             }
             TemporalExpression temporalExpression = value.getNextExecutionSpecs().getTemporalExpression();
@@ -169,7 +177,7 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
             * So we need to truncate the offset to be within one day.
             * In the above example we would get 16:30:00 as a result
             * and we check if that is still within the ComWindow. */
-            return offset == null || comWindow.includes(truncateToDay(offset)) || isMoreFrequentThanDaily(temporalExpression);
+            return offset == null || value.getCommunicationWindow().includes(truncateToDay(offset)) || isMoreFrequentThanDaily(temporalExpression);
         }
 
         private boolean isMoreFrequentThanDaily(TemporalExpression temporalExpression) {

@@ -30,4 +30,6 @@ public interface PartialConnectionTaskProperty {
     public PartialConnectionTask getPartialConnectionTask();
 
     void setValue(Object value);
+
+    void save();
 }

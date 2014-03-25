@@ -17,6 +17,7 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends PartialScheduledConnectionTask> extends AbstractPartialConnectionTaskBuilder<S, OutboundComPortPool, U> implements PartialScheduledConnectionTaskBuilder<S, U> {
 
     private NextExecutionSpecs nextExecutionSpecs;
+    private TimeDuration retryDelay;
 
     AbstractScheduledPartialConnectionTaskBuilder(Class<?> selfType, DataModel dataModel, DeviceCommunicationConfiguration configuration) {
         super(selfType, dataModel, configuration);
@@ -25,6 +26,12 @@ public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends
     @Override
     public NextExecutionSpecBuilder<S> nextExecutionSpec() {
         return new InternalNextExecutionSpecBuilder();
+    }
+
+    @Override
+    public S rescheduleDelay(TimeDuration duration) {
+        retryDelay = duration;
+        return myself;
     }
 
     private class InternalNextExecutionSpecBuilder implements NextExecutionSpecBuilder<S> {
@@ -57,5 +64,6 @@ public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends
             nextExecutionSpecs.save();
             instance.setNextExecutionSpecs(nextExecutionSpecs);
         }
+        instance.setRescheduleRetryDelay(retryDelay);
     }
 }

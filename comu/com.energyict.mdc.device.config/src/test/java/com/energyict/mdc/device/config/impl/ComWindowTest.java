@@ -195,7 +195,7 @@ public class ComWindowTest {
     public void testXmlDecoding() throws Exception {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<java version=\"1.7.0_25\" class=\"java.beans.XMLDecoder\">" +
-                " <object class=\"com.energyict.mdc.tasks.ComWindow\">" +
+                " <object class=\"com.energyict.mdc.common.ComWindow\">" +
                 "  <int>3650</int>" +
                 "  <int>7500</int>" +
                 " </object>" +

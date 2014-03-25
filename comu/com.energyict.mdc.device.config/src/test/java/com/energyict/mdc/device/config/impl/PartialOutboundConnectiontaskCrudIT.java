@@ -239,6 +239,8 @@ public class PartialOutboundConnectiontaskCrudIT {
                     .pluggableClass(connectionTypePluggableClass)
                     .comWindow(COM_WINDOW)
                     .nextExecutionSpec().temporalExpression(TimeDuration.minutes(15)).set()
+                    .rescheduleDelay(TimeDuration.seconds(60))
+                    .connectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
                     .asDefault(true).build();
             communicationConfiguration.save();
 
@@ -262,6 +264,8 @@ public class PartialOutboundConnectiontaskCrudIT {
         assertThat(partialOutboundConnectionTask.getNextExecutionSpecs()).isNotNull();
         assertThat(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(new TemporalExpression(TimeDuration.minutes(15)));
         assertThat(partialOutboundConnectionTask.getName()).isEqualTo("MyOutbound");
+        assertThat(partialOutboundConnectionTask.getRescheduleDelay()).isEqualTo(TimeDuration.seconds(60));
+        assertThat(partialOutboundConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
 
     }
 
@@ -286,6 +290,8 @@ public class PartialOutboundConnectiontaskCrudIT {
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
                     .comWindow(COM_WINDOW)
+                    .rescheduleDelay(TimeDuration.seconds(60))
+                    .connectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                     .asDefault(true).build();
             communicationConfiguration.save();
 
@@ -343,6 +349,8 @@ public class PartialOutboundConnectiontaskCrudIT {
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
                     .comWindow(COM_WINDOW)
+                    .rescheduleDelay(TimeDuration.seconds(60))
+                    .connectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                     .asDefault(true).build();
             communicationConfiguration.save();
 
@@ -384,7 +392,8 @@ public class PartialOutboundConnectiontaskCrudIT {
                     .name("MyInitiation")
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
-                    .asDefault(true).build();
+                    .rescheduleDelay(TimeDuration.seconds(60))
+                    .build();
             communicationConfiguration.save();
 
             context.commit();
@@ -402,6 +411,8 @@ public class PartialOutboundConnectiontaskCrudIT {
                     .comWindow(COM_WINDOW)
                     .nextExecutionSpec().temporalExpression(TimeDuration.minutes(15)).set()
                     .initiatonTask(connectionInitiationTask)
+                    .connectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                    .rescheduleDelay(TimeDuration.seconds(60))
                     .asDefault(true).build();
             communicationConfiguration.save();
 

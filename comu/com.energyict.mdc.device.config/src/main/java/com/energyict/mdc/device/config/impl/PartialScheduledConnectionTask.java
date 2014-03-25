@@ -34,4 +34,6 @@ public interface PartialScheduledConnectionTask extends PartialConnectionTask {
 
     @Override
     OutboundComPortPool getComPortPool();
+
+    void setRescheduleRetryDelay(TimeDuration rescheduleRetryDelay);
 }
