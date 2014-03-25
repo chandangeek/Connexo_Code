@@ -9,21 +9,19 @@ Ext.define('Usr.controller.Home', {
 
     init: function () {
         this.control({
-            'groupBrowse breadcrumbTrail': {
+            /*'Home breadcrumbTrail': {
                 afterrender: this.onAfterRender
-            }
+            }*/
         })
     },
-    onAfterRender: function (breadcrumbs) {
+    /*onAfterRender: function (breadcrumbs) {
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('user.root', 'USM', 'User Management'),
             href: '#'
         });
 
-        //breadcrumbParent.setChild(breadcrumbChild);
-
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
-    },
+    },*/
     showOverview: function () {
         var widget = Ext.widget('Home');
         this.getApplication().fireEvent('changecontentevent', widget);

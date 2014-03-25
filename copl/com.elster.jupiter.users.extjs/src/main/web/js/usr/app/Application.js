@@ -17,7 +17,7 @@ Ext.define('Usr.Application', {
         'UserGroups',
         'Group',
         'GroupPrivileges',
-        'history.Setup',
+        //'history.Setup',
         'history.Group',
         'history.User',
         'history.Home'
@@ -29,6 +29,7 @@ Ext.define('Usr.Application', {
 
     init: function () {
         this.callParent(arguments);
+
     },
 
     launch: function () {
@@ -37,8 +38,5 @@ Ext.define('Usr.Application', {
         this.callParent(arguments);
 
         this.getApplication().fireEvent('changeapptitleevent', Uni.I18n.translate('user.application', 'USM', 'Jupiter System Administration'));
-
-        //var widget = Ext.widget('Home');
-        //this.getApplication().fireEvent('changecontentevent', widget);
     }
 });

@@ -38,7 +38,7 @@ Ext.define('Usr.view.user.List', {
             {
                 xtype:'actioncolumn',
                 tdCls:'view',
-                header : Uni.I18n.translate('general.actions', 'USM', 'Actions'),
+                //header : Uni.I18n.translate('general.actions', 'USM', 'Actions'),
                 sortable: false,
                 hideable: false,
                 fixed: true,
