@@ -4,7 +4,8 @@ Ext.define('Isu.controller.Main', {
     requires: [
         'Ext.window.Window',
         'Uni.controller.Navigation',
-        'Uni.controller.Configuration'
+        'Uni.controller.Configuration',
+        'Isu.controller.history.Workspace'
     ],
 
     config: {

@@ -4,6 +4,9 @@ Ext.define('Isu.controller.history.Workspace', {
     rootToken: 'workspace',
     previousPath: '',
     currentPath: null,
+    requires: [
+        'Isu.controller.Workspace'
+    ],
 
     init: function () {
         var me = this;
