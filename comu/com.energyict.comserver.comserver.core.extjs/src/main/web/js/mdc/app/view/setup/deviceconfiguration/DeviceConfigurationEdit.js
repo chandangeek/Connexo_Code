@@ -33,9 +33,9 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
 
                 items: [
                     {
-                        xtype: 'breadcrumbTrail',
-                        region: 'north',
-                        padding: 6
+                        xtype: 'component',
+                        html: Uni.I18n.translate('deviceconfiguration.deviceConfiguration', 'MDC', 'Device configuration'),
+                        margins: '10 10 0 10'
                     },
                     {
                         xtype: 'component',
