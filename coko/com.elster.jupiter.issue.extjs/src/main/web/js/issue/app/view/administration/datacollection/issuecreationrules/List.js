@@ -9,17 +9,28 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
     ],
     alias: 'widget.issues-creation-rules-list',
     border: false,
+    height: 365,
     items: [
         {
             name: 'empty-text',
             border: false,
             hidden: true,
-            html: '<h3>No rules found</h3>' +
-                '<p>There are no rules have been created yet</p>'
+            html: '<h3>No rule found</h3>' +
+                '<p>No issue creation rules have been created yet.</p>' +
+                '<p>Possible steps:</p>',
+            bbar: {
+                padding: 0,
+                items: [
+                    {
+                        text: 'Create rule',
+                        action: 'create'
+                    }
+                ]
+            }
         },
         {
             xtype: 'grid',
-            store: 'Isu.store.CreationRules',
+            store: 'CreationRules',
             height: 285,
             columns: {
                 defaults: {
@@ -28,40 +39,28 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
                 },
                 items: [
                     {
-                        header: 'Priority',
-                        dataIndex: 'priority',
+                        header: 'Name',
+                        dataIndex: 'name',
+                        tdCls: 'isu-grid-description',
                         flex: 1
                     },
                     {
-                        header: 'Active',
-                        dataIndex: 'active',
+                        header: 'Rule template',
+                        dataIndex: 'template',
+                        tdCls: 'isu-grid-description',
                         flex: 1
-                    },
-                    {
-                        header: 'Issue type',
-                        dataIndex: 'type',
-                        flex: 2
                     },
                     {
                         header: 'Issue reason',
                         dataIndex: 'reason',
-                        flex: 2
-                    },
-                    {
-                        header: 'Issue title',
-                        dataIndex: 'title',
-                        flex: 3
-                    },
-                    {
-                        header: 'Rule',
-                        dataIndex: 'rule',
-                        flex: 2
+                        tdCls: 'isu-grid-description',
+                        flex: 1
                     },
                     {
                         header: 'Assignee',
                         xtype: 'templatecolumn',
-                        tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type} isu-assignee-type-icon"></span></tpl> {assignee.name}',
-                        flex: 2
+                        tpl: '<tpl if="assignee"><tpl if="assignee.type"><span class="isu-icon-{assignee.type} isu-assignee-type-icon"></span></tpl> {assignee.name}<tpl else>Automatic</tpl>',
+                        flex: 1
                     },
                     {
                         header: 'Action',
@@ -79,13 +78,25 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
         {
             xtype: 'toolbar',
             dock: 'top',
+            layout: 'hbox',
             items: [
                 {
                     xtype: 'pagingtoolbartop',
-                    store: 'Isu.store.CreationRules',
-                    border: false
+                    store: 'CreationRules',
+                    border: false,
+                    flex: 1
+                },
+                {
+                    xtype: 'button',
+                    text: 'Create rule',
+                    action: 'create'
                 }
             ]
+        },
+        {
+            xtype: 'pagingtoolbarbottom',
+            store: 'CreationRules',
+            dock: 'bottom'
         }
     ],
 
@@ -93,10 +104,11 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
         var self = this,
             store;
 
-
         self.callParent(arguments);
 
         store = this.down('grid').getStore();
+
+        self.onStoreLoad(store);
 
         store.on({
             load: {
@@ -106,6 +118,35 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
         });
 
         store.load();
+    },
 
+    onStoreLoad: function (store) {
+        var storeTotal = store.getCount();
+
+        if (storeTotal) {
+            this.hideEmptyText();
+        } else {
+            this.showEmptyText();
+        }
+    },
+
+    showEmptyText: function () {
+        var grid = this.down('grid'),
+            emtyText = this.down('panel[name=empty-text]');
+
+        if (grid && emtyText) {
+            grid.hide();
+            emtyText.show();
+        }
+    },
+
+    hideEmptyText: function () {
+        var grid = this.down('grid'),
+            emtyText = this.down('panel[name=empty-text]');
+
+        if (grid && emtyText) {
+            grid.show();
+            emtyText.hide();
+        }
     }
 });

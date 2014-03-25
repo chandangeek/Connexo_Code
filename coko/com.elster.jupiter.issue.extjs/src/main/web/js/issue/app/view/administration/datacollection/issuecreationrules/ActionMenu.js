@@ -5,6 +5,13 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.ActionMenu
     border: false,
     shadow: false,
     items: [
-
+        {
+            text: 'Edit',
+            action: 'edit'
+        },
+        {
+            text: 'Delete',
+            action: 'delete'
+        }
     ]
 });
