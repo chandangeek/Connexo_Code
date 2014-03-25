@@ -98,24 +98,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                                 xtype: 'displayfield',
                                                 name: 'mrid',
                                                 itemId: 'create_mrid'
-                                            },
-                                            {
-                                                xtype: 'component',
-                                                html: '&nbsp;&nbsp;'
-                                            },
-                                            {
-                                                xtype: 'button',
-                                                icon: '../mdc/resources/images/information.png',
-                                                tooltip: 'Reading type info',
-                                                cls: 'uni-btn-transparent',
-                                                 handler: function (item, test) {
-                                                 var record = me.down('#registerConfigEditForm').form.getRecord();
-                                                 this.fireEvent('showReadingTypeInfo', record);
-                                                 },
-                                                itemId: 'readingTypeBtn',
-                                                action: 'showReadingTypeInfo'
                                             }
-
                                         ]
                                     },
                                     {
