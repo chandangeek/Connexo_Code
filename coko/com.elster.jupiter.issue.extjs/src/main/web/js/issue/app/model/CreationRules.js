@@ -7,34 +7,26 @@ Ext.define('Isu.model.CreationRules', {
         },
         {
             name: 'name',
-            type: 'string'
+            type: 'text'
         },
         {
-            name: 'priority',
-            type: 'string'
-        },
-        {
-            name: 'active',
-            type: 'string'
-        },
-        {
-            name: 'type',
-            type: 'string'
+            name: 'template',
+            type: 'text'
         },
         {
             name: 'reason',
-            type: 'string'
+            type: 'text'
         },
         {
-            name: 'title',
-            type: 'string'
-        },
-        {
-            name: 'rule',
-            type: 'string'
+            name: 'status',
+            type: 'text'
         },
         {
             name: 'assignee',
+            type: 'auto'
+        },
+        {
+            name: 'duein',
             type: 'auto'
         },
         {
@@ -45,9 +37,10 @@ Ext.define('Isu.model.CreationRules', {
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/rules/auto',
+        url: '/api/isu/rules/creation',
         reader: {
-            type: 'json'
+            type: 'json',
+            root: 'data'
         }
     }
 });
