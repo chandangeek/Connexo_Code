@@ -25,8 +25,13 @@ public class DecoratedConnection implements Connection {
 
     private final Connection decorated;
 
-    public DecoratedConnection(Connection decorated) {
+    private final int identifier;
+    private final StackTraceElement[] stackTrace;
+
+    public DecoratedConnection(Connection decorated, int identifier) {
         this.decorated = decorated;
+        this.identifier = identifier;
+        stackTrace = Thread.currentThread().getStackTrace();
     }
 
     public void abort(Executor executor) throws SQLException {
@@ -259,5 +264,13 @@ public class DecoratedConnection implements Connection {
 
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
         decorated.setNetworkTimeout(executor, milliseconds);
+    }
+
+    public StackTraceElement[] getOriginatingStackTrace() {
+        return stackTrace;
+    }
+
+    public int getIdentifier() {
+        return identifier;
     }
 }
