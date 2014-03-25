@@ -33,7 +33,9 @@ public abstract class PersistentNamedObject<T> extends PersistentIdObject<T> {
     }
 
     public void setName(String name) {
-        name = name.trim();
+        if(name!=null){
+            name = name.trim();
+        }
         if (!is(name).equalTo(this.getName())) {
             this.validateUniqueName(name);
         }
