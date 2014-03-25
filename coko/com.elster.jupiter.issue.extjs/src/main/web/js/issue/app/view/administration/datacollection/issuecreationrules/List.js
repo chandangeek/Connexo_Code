@@ -1,4 +1,4 @@
-Ext.define('Isu.view.administration.datacollection.issueautomaticcreationrules.List', {
+Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
     extend: 'Ext.panel.Panel',
     requires: [
         'Ext.layout.container.Column',
@@ -7,7 +7,7 @@ Ext.define('Isu.view.administration.datacollection.issueautomaticcreationrules.L
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
     ],
-    alias: 'widget.issues-autocreation-rules-list',
+    alias: 'widget.issues-creation-rules-list',
     border: false,
     items: [
         {
@@ -19,7 +19,7 @@ Ext.define('Isu.view.administration.datacollection.issueautomaticcreationrules.L
         },
         {
             xtype: 'grid',
-            store: 'Isu.store.AutoCreationRules',
+            store: 'Isu.store.CreationRules',
             height: 285,
             columns: {
                 defaults: {
@@ -82,7 +82,7 @@ Ext.define('Isu.view.administration.datacollection.issueautomaticcreationrules.L
             items: [
                 {
                     xtype: 'pagingtoolbartop',
-                    store: 'Isu.store.AutoCreationRules',
+                    store: 'Isu.store.CreationRules',
                     border: false
                 }
             ]

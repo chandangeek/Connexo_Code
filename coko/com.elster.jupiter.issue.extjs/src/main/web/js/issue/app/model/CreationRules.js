@@ -1,4 +1,4 @@
-Ext.define('Isu.model.AutoCreationRules', {
+Ext.define('Isu.model.CreationRules', {
     extend: 'Ext.data.Model',
     fields: [
         {

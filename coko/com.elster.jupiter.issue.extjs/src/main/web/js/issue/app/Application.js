@@ -21,7 +21,7 @@ Ext.define('Isu.Application', {
         'BulkChangeIssues',
         'MessageWindow',
         'IssueAssignmentRules',
-        'IssueAutoCreationRules',
+        'IssueCreationRules',
         'Licensing',
         'AddLicense',
         'history.Workspace',

@@ -1,9 +1,9 @@
-Ext.define('Isu.store.AutoCreationRules', {
+Ext.define('Isu.store.CreationRules', {
     extend: 'Ext.data.Store',
     requires: [
         'Ext.data.proxy.Rest'
     ],
-    model: 'Isu.model.AutoCreationRules',
+    model: 'Isu.model.CreationRules',
     pageSize: 100,
     autoLoad: false
 });
