@@ -422,4 +422,15 @@ public class LoadProfileImplTest extends PersistenceTest{
             }
         });
     }
+
+    @Test
+    @Transactional
+    public void verifyLoadProfileIsDeletedAfterDeviceIsDeletedTest() {
+        Device device = createSimpleDeviceWithLoadProfiles();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        reloadedDevice.delete();
+
+        assertThat(inMemoryPersistence.getDeviceService().getDataModel().mapper(LoadProfile.class).find()).isEmpty();
+    }
 }

@@ -31,6 +31,7 @@ import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -183,21 +184,21 @@ public class OfflineDeviceImplTest {
         assertNotNull("The DeviceProtocol PluggableClass should not be null", offlineRtu.getDeviceProtocolPluggableClass());
 
     }
-//
-//    @Test
-//    public void propertiesTest() {
-//        OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(createMockDevice(), DeviceOffline.needsEverything, deviceDataService);
-//        offlineRtu.addProperties(getDeviceProperties(), getDeviceProtocolProperties());
-//        assertEquals("Size should be equal to seven", getTotalSizeOfProperties(), offlineRtu.getAllProperties().localSize());
-//        assertEquals(cp_propValue1, offlineRtu.getAllProperties().getProperty(cp_prop1));
-//        assertEquals(cp_propValue2, offlineRtu.getAllProperties().getProperty(cp_prop2));
-//        assertEquals(cp_propValue3, offlineRtu.getAllProperties().getProperty(cp_prop3));
-//        assertEquals(rtu_propValue1, offlineRtu.getAllProperties().getProperty(rtu_prop1));
-//        assertEquals(rtu_propValue2, offlineRtu.getAllProperties().getProperty(rtu_prop2));
-//        assertEquals(rtu_propValue3, offlineRtu.getAllProperties().getProperty(rtu_prop3));
-//        assertEquals(rtu_propValue3, offlineRtu.getAllProperties().getProperty(rtu_prop3));
-//        assertEquals(offlineRtu.getSerialNumber(), offlineRtu.getAllProperties().getProperty(MeterProtocol.SERIALNUMBER));
-//    }
+
+    @Test
+    public void propertiesTest() {
+        OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(createMockDevice(), DeviceOffline.needsEverything);
+        offlineRtu.addProperties(getDeviceProperties(), getDeviceProtocolProperties());
+        assertEquals("Size should be equal to seven", getTotalSizeOfProperties(), offlineRtu.getAllProperties().localSize());
+        assertEquals(cp_propValue1, offlineRtu.getAllProperties().getProperty(cp_prop1));
+        assertEquals(cp_propValue2, offlineRtu.getAllProperties().getProperty(cp_prop2));
+        assertEquals(cp_propValue3, offlineRtu.getAllProperties().getProperty(cp_prop3));
+        assertEquals(rtu_propValue1, offlineRtu.getAllProperties().getProperty(rtu_prop1));
+        assertEquals(rtu_propValue2, offlineRtu.getAllProperties().getProperty(rtu_prop2));
+        assertEquals(rtu_propValue3, offlineRtu.getAllProperties().getProperty(rtu_prop3));
+        assertEquals(rtu_propValue3, offlineRtu.getAllProperties().getProperty(rtu_prop3));
+        assertEquals(offlineRtu.getSerialNumber(), offlineRtu.getAllProperties().getProperty(MeterProtocol.SERIALNUMBER));
+    }
 
     @Test
     public void convertToOfflineRtuTest() {

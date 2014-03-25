@@ -21,6 +21,7 @@ import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceCacheFactory;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exception.MessageSeeds;
@@ -859,6 +860,18 @@ public class DeviceImplTest extends PersistenceTest {
         reloadedCommunicationMaster.delete();
 
         assertThat(inMemoryPersistence.getDeviceService().findDeviceById(masterId)).isNull();
+    }
+
+    @Test
+    @Transactional
+    public void noDeviceCacheAfterDeviceDeleteTest() {
+        DeviceCacheFactory deviceCacheFactory = mock(DeviceCacheFactory.class);
+        when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceCacheFactory.class)).thenReturn(Arrays.asList(deviceCacheFactory));
+        Device simpleDevice = createSimpleDevice();
+        long deviceId = simpleDevice.getId();
+        simpleDevice.delete();
+
+        verify(deviceCacheFactory).removeDeviceCacheFor(deviceId);
     }
 
     @Test

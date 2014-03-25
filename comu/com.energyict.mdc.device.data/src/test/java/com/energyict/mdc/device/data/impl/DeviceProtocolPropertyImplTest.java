@@ -4,6 +4,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.exception.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exception.MessageSeeds;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
@@ -48,15 +49,20 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTest{
         return inMemoryPersistence.getDeviceService().findDeviceById(device.getId());
     }
 
+    private Device createSimpleDeviceWithProperty(String name, String value) {
+        setupStringPropertyWithName(name);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
+        device.setProperty(name, value);
+        device.save();
+        return device;
+    }
+
     @Test
     @Transactional
     public void successfulCreateTest() {
         String name = "MyProperty";
         String value = "MyValueOfTheProperty";
-        setupStringPropertyWithName(name);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
-        device.setProperty(name, value);
-        device.save();
+        Device device = createSimpleDeviceWithProperty(name, value);
 
         Device reloadedDevice = getReloadedDevice(device);
 
@@ -69,10 +75,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTest{
     public void createWithEmptyPropertyValue() {
         String name = "MyProperty";
         String value = "";
-        setupStringPropertyWithName(name);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
-        device.setProperty(name, value);
-        device.save();
+        Device device = createSimpleDeviceWithProperty(name, value);
     }
 
     @Test
@@ -81,10 +84,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTest{
         String name = "MyProperty";
         String value = "MyValueOfTheProperty";
         String updatedValue = "TheUpdatedValue";
-        setupStringPropertyWithName(name);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
-        device.setProperty(name, value);
-        device.save();
+        Device device = createSimpleDeviceWithProperty(name, value);
 
         Device reloadedDevice = getReloadedDevice(device);
         reloadedDevice.setProperty(name, updatedValue);
@@ -101,10 +101,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTest{
         String name = "MyProperty";
         String value = "MyValueOfTheProperty";
         String updatedValue = null;
-        setupStringPropertyWithName(name);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
-        device.setProperty(name, value);
-        device.save();
+        Device device = createSimpleDeviceWithProperty(name, value);
 
         Device reloadedDevice = getReloadedDevice(device);
         reloadedDevice.setProperty(name, updatedValue);
@@ -174,10 +171,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTest{
         String name = "MyProperty";
         String value = "MyValueOfTheProperty";
         String updateValue = "ValueFromTheSecondAdd";
-        setupStringPropertyWithName(name);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
-        device.setProperty(name, value);
-        device.save();
+        Device device = createSimpleDeviceWithProperty(name, value);
 
         Device reloadedDevice = getReloadedDevice(device);
         reloadedDevice.setProperty(name, updateValue);
@@ -220,5 +214,18 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTest{
                 throw e;
             }
         }
+    }
+
+    @Test
+    @Transactional
+    public void removePropertiesWhenDeleteOfDeviceTest() {
+        String name = "MyProperty";
+        String value = "MyValueOfTheProperty";
+        Device device = createSimpleDeviceWithProperty(name, value);
+
+        Device reloadedDevice = getReloadedDevice(device);
+        reloadedDevice.delete();
+
+        assertThat(inMemoryPersistence.getDeviceService().getDataModel().mapper(DeviceProtocolProperty.class).find()).isEmpty();
     }
 }
