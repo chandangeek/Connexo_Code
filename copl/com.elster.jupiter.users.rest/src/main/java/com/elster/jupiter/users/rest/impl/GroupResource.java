@@ -5,6 +5,9 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
 import com.elster.jupiter.users.rest.GroupInfos;
+import com.elster.jupiter.users.rest.actions.CreateGroupTransaction;
+import com.elster.jupiter.users.rest.actions.DeleteGroupTransaction;
+import com.elster.jupiter.users.rest.actions.UpdateGroupTransaction;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;

@@ -1,32 +1,36 @@
-package com.elster.jupiter.users.rest.impl;
+package com.elster.jupiter.users.rest.actions;
 
-import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
-import com.elster.jupiter.users.rest.PrivilegeInfo;
 import com.google.common.base.Optional;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
-public class UpdateGroupTransaction extends UpdateMembership implements Transaction<Group> {
+public class DeleteGroupTransaction extends VoidTransaction {
 
-    public UpdateGroupTransaction(GroupInfo info, UserService userService) {
-        super(info, userService);
+    private final GroupInfo info;
+    private final UserService userService;
+
+    public DeleteGroupTransaction(GroupInfo info, UserService userService) {
+        this.info = info;
+        this.userService = userService;
     }
 
     @Override
-    public Group perform() {
+    protected void doPerform() {
         Group group = fetchGroup();
-        validateUpdate(group);
-        return doUpdate(group);
+        validateDelete(group);
+        doDelete(group);
     }
 
-    private void validateUpdate(Group group) {
+    private void doDelete(Group group) {
+        group.delete();
+    }
+
+    private void validateDelete(Group group) {
         if (group.getVersion() != info.version) {
             throw new WebApplicationException(Response.Status.CONFLICT);
         }
@@ -39,4 +43,5 @@ public class UpdateGroupTransaction extends UpdateMembership implements Transact
         }
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
+
 }
