@@ -8,6 +8,12 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.history.Workspace'
     ],
 
+    controllers: [
+        'Uni.controller.Navigation',
+        'Uni.controller.Configuration',
+        'Isu.controller.history.Workspace'
+    ],
+
     config: {
         navigationController: null,
         configurationController: null
