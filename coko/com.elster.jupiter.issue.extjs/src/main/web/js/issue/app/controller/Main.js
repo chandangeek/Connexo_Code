@@ -9,7 +9,6 @@ Ext.define('Isu.controller.Main', {
     ],
 
     controllers: [
-        'Isu.controller.Main',
         'Isu.controller.Workspace',
         'Isu.controller.DataCollection',
         'Isu.controller.Issues',
