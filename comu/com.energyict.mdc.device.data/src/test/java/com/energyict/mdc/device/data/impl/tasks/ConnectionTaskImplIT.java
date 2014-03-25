@@ -1,11 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.ApplicationContext;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.Transaction;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
@@ -20,7 +21,9 @@ import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -35,6 +38,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -61,14 +65,11 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static final int PARTIAL_INBOUND_CONNECTION_TASK1_ID = PARTIAL_OUTBOUND_CONNECTION_TASK3_ID + 1;
     protected static final int PARTIAL_INBOUND_CONNECTION_TASK2_ID = PARTIAL_INBOUND_CONNECTION_TASK1_ID + 1;
     protected static final int PARTIAL_INBOUND_CONNECTION_TASK3_ID = PARTIAL_INBOUND_CONNECTION_TASK2_ID + 1;
-    protected static final int PARTIAL_INITIATION_CONNECTION_TASK_ID = PARTIAL_INBOUND_CONNECTION_TASK3_ID + 1;
 
     protected static final long IP_COMPORT_POOL_ID = 1;
     protected static final long MODEM_COMPORT_POOL_ID = IP_COMPORT_POOL_ID + 1;
     protected static final long INBOUND_COMPORT_POOL1_ID = MODEM_COMPORT_POOL_ID + 1;
     protected static final long INBOUND_COMPORT_POOL2_ID = INBOUND_COMPORT_POOL1_ID + 1;
-    protected static final long COMSERVER_ID = PARTIAL_INITIATION_CONNECTION_TASK_ID + 1;
-    protected static final long COMSERVER2_ID = COMSERVER_ID + 1;
     protected static final String IP_ADDRESS_PROPERTY_VALUE = "192.168.2.100";
     protected static final String UPDATED_IP_ADDRESS_PROPERTY_VALUE = "192.168.100.2";
     protected static final BigDecimal PORT_PROPERTY_VALUE = new BigDecimal(1521);
@@ -99,25 +100,36 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     protected static Code codeTable;
     private static IdBusinessObjectFactory<Code> codeTableFactory;
+    private OnlineComServer onlineComServer;
+
+    public OnlineComServer getOnlineComServer() {
+        return onlineComServer;
+    }
 
     @BeforeClass
     public static void registerConnectionTypePluggableClasses () {
         initializeCodeTable();
-        inMemoryPersistence.getTransactionService().execute(new Transaction<Object>() {
-            @Override
-            public Object perform() {
-                noParamsConnectionTypePluggableClass = registerConnectionTypePluggableClass(NoParamsConnectionType.class);
-                ipConnectionTypePluggableClass = registerConnectionTypePluggableClass(IpConnectionType.class);
-                modemConnectionTypePluggableClass = registerConnectionTypePluggableClass(ModemConnectionType.class);
-                return null;
-            }
-        });
+        try {
+            Environment.DEFAULT.get().execute(new Transaction<Object>() {
+                @Override
+                public Object doExecute() {
+                    noParamsConnectionTypePluggableClass = registerConnectionTypePluggableClass(NoParamsConnectionType.class);
+                    ipConnectionTypePluggableClass = registerConnectionTypePluggableClass(IpConnectionType.class);
+                    modemConnectionTypePluggableClass = registerConnectionTypePluggableClass(ModemConnectionType.class);
+                    return null;
+                }
+            });
+        }
+        catch (BusinessException | SQLException e) {
+            // Not thrown by the transaction
+        }
     }
 
     private static void initializeCodeTable () {
         codeTable = mock(Code.class);
         when(codeTable.getId()).thenReturn(CODE_TABLE_ID);
         when(codeTable.getName()).thenReturn("ConnectionTaskImplIT");
+        when(codeTable.getBusinessObject()).thenReturn(codeTable);
         codeTableFactory = mock(IdBusinessObjectFactory.class);
         when(codeTableFactory.getInstanceType()).thenReturn(Code.class);
         when(codeTableFactory.findAll()).thenReturn(Arrays.asList(codeTable));
@@ -154,26 +166,36 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     @AfterClass
     public static void deleteConnectionTypePluggableClasses () {
-        inMemoryPersistence.getTransactionService().execute(new Transaction<Object>() {
-            @Override
-            public Object perform() {
-                noParamsConnectionTypePluggableClass.delete();
-                ipConnectionTypePluggableClass.delete();
-                modemConnectionTypePluggableClass.delete();
-                return null;
-            }
-        });
+        try {
+            Environment.DEFAULT.get().execute(new Transaction<Object>() {
+                @Override
+                public Object doExecute() {
+                    noParamsConnectionTypePluggableClass.delete();
+                    ipConnectionTypePluggableClass.delete();
+                    modemConnectionTypePluggableClass.delete();
+                    return null;
+                }
+            });
+        }
+        catch (BusinessException | SQLException e) {
+            // Not thrown by the transaction
+        }
     }
 
     @AfterClass
     public static void deleteDiscoveryProtocolPluggableClasses () {
-        inMemoryPersistence.getTransactionService().execute(new Transaction<Object>() {
-            @Override
-            public Object perform() {
-                discoveryProtocolPluggableClass.delete();
-                return null;
-            }
-        });
+        try {
+            Environment.DEFAULT.get().execute(new Transaction<Object>() {
+                @Override
+                public Object doExecute() {
+                    discoveryProtocolPluggableClass.delete();
+                    return null;
+                }
+            });
+        }
+        catch (BusinessException | SQLException e) {
+            // Not thrown by the transaction
+        }
     }
 
     @BeforeClass
@@ -183,26 +205,36 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     public static void registerDiscoveryProtocolPluggableClasses() {
-        inMemoryPersistence.getTransactionService().execute(new Transaction<Object>() {
-            @Override
-            public Object perform() {
-                discoveryProtocolPluggableClass = registerDiscoveryProtocolPluggableClass(SimpleDiscoveryProtocol.class);
-                return null;
-            }
-        });
+        try {
+            Environment.DEFAULT.get().execute(new Transaction<Object>() {
+                @Override
+                public Object doExecute() {
+                    discoveryProtocolPluggableClass = registerDiscoveryProtocolPluggableClass(SimpleDiscoveryProtocol.class);
+                    return null;
+                }
+            });
+        }
+        catch (BusinessException | SQLException e) {
+            // Not thrown by the transaction
+        }
     }
 
     private static void createIpComPortPools() {
-        inMemoryPersistence.getTransactionService().execute(new Transaction<Object>() {
-            @Override
-            public Object perform() {
-                outboundTcpipComPortPool = createOutboundIpComPortPool("TCP/IP out(1)");
-                outboundTcpipComPortPool2 = createOutboundIpComPortPool("TCP/IP out(2)");
-                inboundTcpipComPortPool = createInboundIpComPortPool("TCP/IP in(1)");
-                inboundTcpipComPortPool2 = createInboundIpComPortPool("TCP/IP in(2)");
-                return null;
-            }
-        });
+        try {
+            Environment.DEFAULT.get().execute(new Transaction<Object>() {
+                @Override
+                public Object doExecute() {
+                    outboundTcpipComPortPool = createOutboundIpComPortPool("TCP/IP out(1)");
+                    outboundTcpipComPortPool2 = createOutboundIpComPortPool("TCP/IP out(2)");
+                    inboundTcpipComPortPool = createInboundIpComPortPool("TCP/IP in(1)");
+                    inboundTcpipComPortPool2 = createInboundIpComPortPool("TCP/IP in(2)");
+                    return null;
+                }
+            });
+        }
+        catch (BusinessException | SQLException e) {
+            // Not thrown by the transaction
+        }
     }
 
     private static OutboundComPortPool createOutboundIpComPortPool(String name) {
@@ -227,6 +259,32 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     protected DeviceDataServiceImpl getDeviceDataService() {
         return inMemoryPersistence.getDeviceDataService();
+    }
+
+    @Before
+    public void setupComServers () {
+        this.onlineComServer = createComServer("First");
+    }
+
+    protected OnlineComServer createComServer(String name) {
+        OnlineComServer onlineComServer = inMemoryPersistence.getEngineModelService().newOnlineComServerInstance();
+        onlineComServer.setName(name);
+        onlineComServer.setNumberOfStoreTaskThreads(ComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS);
+        onlineComServer.setStoreTaskQueueSize(ComServer.MINIMUM_STORE_TASK_QUEUE_SIZE);
+        onlineComServer.setStoreTaskThreadPriority(ComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY);
+        onlineComServer.setChangesInterPollDelay(TimeDuration.minutes(5));
+        onlineComServer.setSchedulingInterPollDelay(TimeDuration.minutes(5));
+        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.save();
+        return onlineComServer;
+    }
+
+    @Before
+    public void reloadConnectionTypePluggableClasses () {
+        noParamsConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().findConnectionTypePluggableClass(noParamsConnectionTypePluggableClass.getId());
+        ipConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().findConnectionTypePluggableClass(ipConnectionTypePluggableClass.getId());
+        modemConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().findConnectionTypePluggableClass(modemConnectionTypePluggableClass.getId());
     }
 
     @Before

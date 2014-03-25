@@ -67,7 +67,12 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
 
     private void validatePropertyValue(ConnectionType connectionType, String propertyName, Object propertyValue, ConstraintValidatorContext context) {
         try {
-            connectionType.getPropertySpec(propertyName).validateValue(propertyValue);
+            /* Not using fail-fast anymore so it is possible
+             * that there is not spec for the propertyName. */
+            PropertySpec propertySpec = connectionType.getPropertySpec(propertyName);
+            if (propertySpec != null) {
+                propertySpec.validateValue(propertyValue);
+            }
         }
         catch (InvalidValueException e) {
             context.disableDefaultConstraintViolation();

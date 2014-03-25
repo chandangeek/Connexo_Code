@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.transaction.TransactionService;
@@ -39,6 +40,8 @@ public abstract class PersistenceIntegrationTest {
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
     @Rule
     public TestRule expectedErrorRule = new ExpectedExceptionRule();
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;

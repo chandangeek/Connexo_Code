@@ -44,6 +44,8 @@ public interface ConnectionMethod extends PluggableClassUsage<ConnectionType, Co
 
     public void save ();
 
+    public void saveAllProperties ();
+
     public void delete();
 
 }

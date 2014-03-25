@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionExcepti
 import com.energyict.mdc.device.data.exceptions.RelationIsAlreadyObsoleteException;
 import com.energyict.mdc.dynamic.HasDynamicProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.relation.CanLock;
 import com.energyict.mdc.dynamic.relation.DefaultRelationParticipant;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
@@ -20,6 +21,7 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 import com.energyict.mdc.pluggable.PluggableClassWithRelationSupport;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,10 +38,13 @@ import java.util.List;
  */
 public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProperties, PT extends PluggableClassUsageProperty<T>>
         extends PersistentNamedObject<D>
-        implements DefaultRelationParticipant, PropertyFactory<T, PT> {
+        implements
+            CanLock,
+            DefaultRelationParticipant,
+            PropertyFactory<T, PT> {
 
     private long pluggableClassId;
-    private PropertyCache<T, PT> cache;
+    private transient PropertyCache<T, PT> cache;
 
     private RelationService relationService;
     private Clock clock;
@@ -49,6 +54,11 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
         this.cache = new PropertyCache<>(this);
         this.relationService = relationService;
         this.clock = clock;
+    }
+
+    @Override
+    public void lock() {
+        this.getDataMapper().lock(this.getId());
     }
 
     @Override

@@ -129,6 +129,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @Override
     public void postLoad() {
         this.loadDevice();
+        this.loadPartialConnectionTask();
     }
 
     private void validatePartialConnectionTaskType(PCTT partialConnectionTask) {
@@ -186,12 +187,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    protected void post() {
-        super.post();
-        this.getConnectionMethod().save();
-    }
-
-    @Override
     protected void doDelete() {
         if (this.getConnectionMethod() != null) {
             this.getConnectionMethod().delete(); // this will delete all the relationProperties as well
@@ -232,6 +227,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.modificationDate = this.now();
         this.getConnectionMethod().save();
         super.save();
+        this.getConnectionMethod().saveAllProperties();
     }
 
     protected Date now() {
@@ -283,7 +279,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         if (this.isObsolete()) {
             throw new ConnectionTaskIsAlreadyObsoleteException(this.getThesaurus(), this);
         }
-        else if (!this.comServer.isPresent()) {
+        else if (this.comServer.isPresent()) {
             throw new ConnectionTaskIsExecutingAndCannotBecomeObsoleteException(this.getThesaurus(), this, this.getExecutingComServer());
         }
     }
@@ -397,9 +393,13 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @Override
     public PCTT getPartialConnectionTask() {
         if (this.partialConnectionTask == null) {
-            this.partialConnectionTask = this.findPartialConnectionTask(this.partialConnectionTaskId);
+            this.loadPartialConnectionTask();
         }
         return this.partialConnectionTask;
+    }
+
+    private void loadPartialConnectionTask() {
+        this.partialConnectionTask = this.findPartialConnectionTask(this.partialConnectionTaskId);
     }
 
     @Override

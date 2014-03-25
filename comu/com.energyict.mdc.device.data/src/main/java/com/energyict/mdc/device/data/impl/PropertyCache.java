@@ -5,6 +5,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.dynamic.HasDynamicProperties;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -61,7 +62,7 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
      */
     public boolean isCached (Date date) {
         return (this.activePeriod != null && this.activePeriod.toSpanningInterval().contains(date, Interval.EndpointBehavior.OPEN_CLOSED))
-            || (this.activeDate != null && this.activeDate.equals(date));
+            || (this.activeDate != null && !this.activeDate.after(date));
     }
 
     /**

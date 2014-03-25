@@ -65,11 +65,11 @@ public enum TableSpecs {
             // Todo: change to FK and reference once PartialConnectionTask (JP-809) is properly moved to the mdc.device.config bundle
             table.column("PARTIALCONNECTIONTASK").number().conversion(NUMBER2LONG).map("partialConnectionTaskId").add();
             // Common columns for sheduled connection tasks
-            table.column("CURRENTRETRYCOUNT").number().conversion(NUMBER2LONG).map("currentRetryCount").add();
+            table.column("CURRENTRETRYCOUNT").number().conversion(NUMBER2INT).map("currentRetryCount").add();
             table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map("lastExecutionFailed").add();
             // ScheduledConnectionTaskImpl columns
-            table.column("COMWINDOWSTART").number().conversion(NUMBER2LONG).map("comWindow.start.millis").add();
-            table.column("COMWINDOWEND").number().conversion(NUMBER2LONG).map("comWindow.end.millis").add();
+            table.column("COMWINDOWSTART").number().conversion(NUMBER2INT).map("comWindow.start.millis").add();
+            table.column("COMWINDOWEND").number().conversion(NUMBER2INT).map("comWindow.end.millis").add();
             Column nextExecutionSpecs = table.column("NEXTEXECUTIONSPECS").number().add();
             table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBER2UTCINSTANT).map("nextExecutionTimestamp").add();
             table.column("PLANNEDNEXTEXECUTIONTIMESTAMP").number().conversion(NUMBER2UTCINSTANT).map("plannedNextExecutionTimestamp").add();

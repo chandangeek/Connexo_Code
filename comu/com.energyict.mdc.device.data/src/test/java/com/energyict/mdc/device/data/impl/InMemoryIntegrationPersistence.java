@@ -24,6 +24,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ApplicationContext;
+import com.energyict.mdc.common.BusinessEventManager;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
@@ -107,7 +108,6 @@ public class InMemoryIntegrationPersistence {
                 new IdsModule(),
                 new MeteringModule(),
                 new InMemoryMessagingModule(),
-                new EventsModule(),
                 new OrmModule(),
                 new IssuesModule(),
                 new ProtocolsModule(),
@@ -119,6 +119,8 @@ public class InMemoryIntegrationPersistence {
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new DeviceDataModule());
+        BusinessEventManager eventManager = mock(BusinessEventManager.class);
+        when(this.applicationContext.createEventManager()).thenReturn(eventManager);
         this.transactionService = injector.getInstance(TransactionService.class);
         this.environment = injector.getInstance(Environment.class);
         this.environment.put(InMemoryIntegrationPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);

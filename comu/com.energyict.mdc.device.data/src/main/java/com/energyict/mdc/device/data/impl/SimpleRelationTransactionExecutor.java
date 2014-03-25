@@ -59,7 +59,7 @@ public class SimpleRelationTransactionExecutor<T extends HasDynamicProperties> i
     public void execute () {
         if (this.transaction != null) {
             try {
-                this.transaction.execute();
+                this.transaction.doExecute();   // Use doExecute now that we are in Jupiter orbit
             }
             catch (BusinessException e) {
                 throw new NestedRelationTransactionException(this.thesaurus, e, this.transaction.getRelationType().getName());

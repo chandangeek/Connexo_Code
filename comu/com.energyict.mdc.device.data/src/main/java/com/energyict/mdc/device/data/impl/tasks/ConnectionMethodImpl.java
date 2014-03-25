@@ -20,6 +20,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.relation.CanLock;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationService;
@@ -48,9 +49,9 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
 @ComPortPoolIsCompatibleWithConnectionType(groups = {Save.Create.class, Save.Update.class})
 public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<ConnectionMethod, ConnectionType, ConnectionTaskProperty>
         implements
-        ConnectionMethod,
-        ConnectionTaskPropertyProvider,
-        PersistenceAware {
+            ConnectionMethod,
+            ConnectionTaskPropertyProvider,
+            PersistenceAware {
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
     private ConnectionTypePluggableClass pluggableClass;
@@ -88,7 +89,12 @@ public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<Connectio
     @Override
     public void save () {
         super.save();
-        this.saveAllProperties();
+    }
+
+    @Override
+    public void saveAllProperties() {
+        // Make superclass' method public
+        super.saveAllProperties();
     }
 
     @Override

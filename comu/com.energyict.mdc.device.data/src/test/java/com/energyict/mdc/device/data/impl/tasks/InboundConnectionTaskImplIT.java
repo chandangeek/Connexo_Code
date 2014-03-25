@@ -6,7 +6,6 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.ValueRequiredException;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
@@ -49,7 +48,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void createWithoutViolations() throws BusinessException, SQLException {
+    public void createWithoutViolations() {
         InboundConnectionTask inboundConnectionTask = this.createSimpleInboundConnectionTask();
 
         // asserts
@@ -65,7 +64,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     // Todo (JP-1125): Enable when ComTaskExecution has been moved to this bundle
     @Ignore
-    public void testCreateDefaultWithAlreadyExistingComTasksThatUseTheDefault() throws BusinessException, SQLException {
+    public void testCreateDefaultWithAlreadyExistingComTasksThatUseTheDefault() {
 /*
         ComTaskExecution comTask = mock(ComTaskExecution.class);
         List<ComTaskExecution> comTasksThatRelyOnTheDefault = new ArrayList<>(1);
@@ -84,7 +83,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_TASK_UNIQUE_INBOUND_COMPORT_POOL_PER_DEVICE_KEY + "}")
-    public void createTwoTasksWithTheSamePool() throws BusinessException, SQLException {
+    public void createTwoTasksWithTheSamePool() {
         this.createSimpleInboundConnectionTask();
 
         // Business method
@@ -95,7 +94,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void createTwoTasksWithDifferentPool() throws BusinessException, SQLException {
+    public void createTwoTasksWithDifferentPool() {
         this.createSimpleInboundConnectionTask();
 
         // Business method
@@ -110,7 +109,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test(expected = DuplicateConnectionTaskException.class)
     @Transactional
-    public void createTwoTasksAgainstTheSameDeviceBasedOnTheSamePartialConnectionTask() throws BusinessException, SQLException {
+    public void createTwoTasksAgainstTheSameDeviceBasedOnTheSamePartialConnectionTask() {
         this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
 
         // Business method
@@ -123,7 +122,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     // Todo (JP-1122): enable this test when done
     @Ignore
-    public void testCreateOfDifferentConfig() throws BusinessException, SQLException {
+    public void testCreateOfDifferentConfig() {
         DeviceCommunicationConfiguration mockCommunicationConfig = mock(DeviceCommunicationConfiguration.class);
         when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         PartialInboundConnectionTask partialInboundConnectionTask = mock(PartialInboundConnectionTask.class);
@@ -180,7 +179,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test(expected = CannotUpdateObsoleteConnectionTaskException.class)
     @Transactional
-    public void testUpdateAfterObsolete() throws BusinessException, SQLException {
+    public void testUpdateAfterObsolete() {
         InboundConnectionTask inboundConnectionTask = createSimpleInboundConnectionTask();
         inboundConnectionTask.makeObsolete();
 
@@ -195,7 +194,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     @Ignore
     // Todo: Wait for ComTaskExecution to be moved to this bundle and then create one that explicitly uses the InboundConnectionTask
-    public void testCannotDeleteDefaultTaskThatIsInUse() throws BusinessException, SQLException {
+    public void testCannotDeleteDefaultTaskThatIsInUse() {
         InboundConnectionTask connectionTask = createSimpleInboundConnectionTask();
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
 
@@ -209,7 +208,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     @Ignore
     // Todo: Wait for ComTaskExecution to be moved to this bundle and then create one that simple uses the default
-    public void testDeletedAndSetComTaskToNoConnectionTask() throws BusinessException, SQLException {
+    public void testDeletedAndSetComTaskToNoConnectionTask() {
         InboundConnectionTask connectionTask = createSimpleInboundConnectionTask();
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
         List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
@@ -227,26 +226,22 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testAttemptLock () throws BusinessException, SQLException {
+    public void testAttemptLock () {
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask();
-        OnlineComServer comServer = mock(OnlineComServer.class);
-        when(comServer.getId()).thenReturn(COMSERVER_ID);
 
         // Business method
-        InboundConnectionTask locked = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, comServer);
+        InboundConnectionTask locked = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
 
         // Asserts
         assertThat(locked).isNotNull();
-        assertThat(locked.getExecutingComServer()).isEqualTo(comServer);
+        assertThat(locked.getExecutingComServer().getId()).isEqualTo(this.getOnlineComServer().getId());
     }
 
     @Test
     @Transactional
-    public void testUnlock () throws BusinessException, SQLException {
-        final OnlineComServer comServer = mock(OnlineComServer.class);
-        when(comServer.getId()).thenReturn(COMSERVER_ID);
+    public void testUnlock () {
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask();
-        InboundConnectionTask locked = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, comServer);
+        InboundConnectionTask locked = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
 
         // Business method
         inMemoryPersistence.getDeviceDataService().unlockConnectionTask(locked);
@@ -257,14 +252,12 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testAttemptLockWillFailWhenAlreadyLockedByTheSameComServer () throws BusinessException, SQLException {
-        OnlineComServer comServer = mock(OnlineComServer.class);
-        when(comServer.getId()).thenReturn(COMSERVER_ID);
+    public void testAttemptLockWillFailWhenAlreadyLockedByTheSameComServer () {
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask();
-        InboundConnectionTask locked = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, comServer);
+        InboundConnectionTask locked = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
 
         // Business method
-        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, comServer);
+        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
 
         // Asserts
         assertThat(lockedForSecondTime).isNull();
@@ -273,15 +266,13 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testAttemptLockTwiceWillFail() throws BusinessException, SQLException {
-        OnlineComServer comServer = mock(OnlineComServer.class);
-        when(comServer.getId()).thenReturn(COMSERVER_ID);
+    public void testAttemptLockTwiceWillFail() {
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask();
-        InboundConnectionTask locked = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, comServer);
+        InboundConnectionTask locked = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
 
         /* Business method: here the test is a little different from testAttemptLockWillFailWhenAlreadyLockedByTheSameComServer
          *                  because we are locking on the already locked ConnectionTask instead of the original connectionTask that is not locked in memory. */
-        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(locked, comServer);
+        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(locked, this.getOnlineComServer());
 
         // Asserts
         assertThat(lockedForSecondTime).isNull();
@@ -290,26 +281,23 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testAttemptLockWillFailWhenAlreadyLockedByAnotherComServer () throws BusinessException, SQLException {
-        OnlineComServer comServer = mock(OnlineComServer.class);
-        when(comServer.getId()).thenReturn(COMSERVER_ID);
-        OnlineComServer otherComServer = mock(OnlineComServer.class);
-        when(otherComServer.getId()).thenReturn(COMSERVER2_ID);
+    public void testAttemptLockWillFailWhenAlreadyLockedByAnotherComServer () {
+        OnlineComServer otherComServer = this.createComServer("Other");
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask();
-        InboundConnectionTask locked = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, comServer);
+        InboundConnectionTask locked = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
 
         // Business method
-        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, comServer);
+        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, otherComServer);
 
         // Asserts
         assertThat(lockedForSecondTime).isNull();
         assertThat(locked.getExecutingComServer()).isNotNull();
-        assertThat(locked.getExecutingComServer().getId()).isEqualTo(COMSERVER_ID);
+        assertThat(locked.getExecutingComServer().getId()).isEqualTo(this.getOnlineComServer().getId());
     }
 
     @Test
     @Transactional
-    public void testCreateWithAllIpProperties() throws BusinessException, SQLException {
+    public void testCreateWithAllIpProperties() {
         when(this.partialInboundConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
         when(this.partialInboundConnectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
@@ -333,7 +321,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testCreateWithOnlyRequiredIpPropertiesAndNoDefaultsOnPluggableClass () throws BusinessException, SQLException {
+    public void testCreateWithOnlyRequiredIpPropertiesAndNoDefaultsOnPluggableClass () {
         when(this.partialInboundConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
         when(this.partialInboundConnectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
@@ -357,11 +345,11 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testCreateWithOnlyRequiredIpPropertiesAndSomeDefaultsOnPluggableClass () throws BusinessException, SQLException {
+    public void testCreateWithOnlyRequiredIpPropertiesAndSomeDefaultsOnPluggableClass () {
         // First update the properties of the ipConnectionType pluggable class
-        ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME), null);
+        ipConnectionTypePluggableClass.removeProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME));
         ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
-        ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.CODE_TABLE_PROPERTY_NAME), null);
+        ipConnectionTypePluggableClass.removeProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.CODE_TABLE_PROPERTY_NAME));
         ipConnectionTypePluggableClass.save();
 
         when(this.partialInboundConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
@@ -371,7 +359,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         this.addIpConnectionProperties(connectionTask, inboundTcpipComPortPool, IP_ADDRESS_PROPERTY_VALUE, null, null);
 
         // Business method
-        connectionTask.save();;
+        connectionTask.save();
 
         // Asserts
         assertThat(connectionTask).isNotNull();
@@ -389,7 +377,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testCreateWithAllPropertiesInheritedFromConnectionTypePluggableClass () throws BusinessException, SQLException {
+    public void testCreateWithAllPropertiesInheritedFromConnectionTypePluggableClass () {
         // First update the properties of the ipConnectionType pluggable class
         ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME), IP_ADDRESS_PROPERTY_VALUE);
         ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
@@ -397,7 +385,8 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         ipConnectionTypePluggableClass.save();
 
         when(this.partialInboundConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
-        when(this.partialInboundConnectionTask.getTypedProperties()).thenReturn(TypedProperties.inheritingFrom(ipConnectionTypePluggableClass.getProperties(this.getOutboundIpPropertySpecs())));
+        TypedProperties partialInboundProperties = TypedProperties.inheritingFrom(ipConnectionTypePluggableClass.getProperties(this.getOutboundIpPropertySpecs()));
+        when(this.partialInboundConnectionTask.getTypedProperties()).thenReturn(partialInboundProperties);
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
         connectionTask.setComPortPool(inboundTcpipComPortPool);
         // Do not add any properties to the ConnectionTask
@@ -417,13 +406,16 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(typedProperties.hasInheritedValueFor(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isTrue();
         assertThat(typedProperties.getProperty(IpConnectionType.PORT_PROPERTY_NAME)).isEqualTo(PORT_PROPERTY_VALUE);
         assertThat(typedProperties.hasInheritedValueFor(IpConnectionType.PORT_PROPERTY_NAME)).isTrue();
-        assertThat(typedProperties.getProperty(IpConnectionType.CODE_TABLE_PROPERTY_NAME)).isEqualTo(codeTable);
+        Object codeTablePropertyValue = typedProperties.getProperty(IpConnectionType.CODE_TABLE_PROPERTY_NAME);
+        assertThat(codeTablePropertyValue).isInstanceOf(Code.class);
+        Code actualCodeTable = (Code) codeTablePropertyValue;
+        assertThat(actualCodeTable.getId()).isEqualTo(codeTable.getId());
         assertThat(typedProperties.hasInheritedValueFor(IpConnectionType.CODE_TABLE_PROPERTY_NAME)).isTrue();
     }
 
     @Test
     @Transactional
-    public void testCreateWithAllPropertiesInheritedFromConnectionTypePluggableClassAndPartialConnectionTask () throws BusinessException, SQLException {
+    public void testCreateWithAllPropertiesInheritedFromConnectionTypePluggableClassAndPartialConnectionTask () {
         // First update the properties of the ipConnectionType pluggable class
         ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME), IP_ADDRESS_PROPERTY_VALUE);
         ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
@@ -449,13 +441,16 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getTypedProperties().hasInheritedValueFor(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isTrue();
         assertThat(connectionTask.getTypedProperties().getProperty(IpConnectionType.PORT_PROPERTY_NAME)).isEqualTo(UPDATED_PORT_PROPERTY_VALUE);
         assertThat(connectionTask.getTypedProperties().hasInheritedValueFor(IpConnectionType.PORT_PROPERTY_NAME)).isTrue();
-        assertThat(connectionTask.getTypedProperties().getProperty(IpConnectionType.CODE_TABLE_PROPERTY_NAME)).isEqualTo(codeTable);
+        Object codeTablePropertyValue = connectionTask.getTypedProperties().getProperty(IpConnectionType.CODE_TABLE_PROPERTY_NAME);
+        assertThat(codeTablePropertyValue).isInstanceOf(Code.class);
+        Code actualCodeTable = (Code) codeTablePropertyValue;
+        assertThat(actualCodeTable.getId()).isEqualTo(codeTable.getId());
         assertThat(connectionTask.getTypedProperties().hasInheritedValueFor(IpConnectionType.CODE_TABLE_PROPERTY_NAME)).isTrue();
     }
 
     @Test
     @Transactional
-    public void testCreateWithAllPropertiesInheritedFromPartialConnectionTask () throws BusinessException, SQLException {
+    public void testCreateWithAllPropertiesInheritedFromPartialConnectionTask () {
         TypedProperties partialConnectionTaskTypedProperties = TypedProperties.empty();
         partialConnectionTaskTypedProperties.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, IP_ADDRESS_PROPERTY_VALUE);
         partialConnectionTaskTypedProperties.setProperty(IpConnectionType.PORT_PROPERTY_NAME, PORT_PROPERTY_VALUE);
@@ -498,7 +493,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testUpdateIpConnectionTypeProperty() throws BusinessException, SQLException {
+    public void testUpdateIpConnectionTypeProperty() {
         when(this.partialInboundConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
         when(this.partialInboundConnectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
@@ -520,7 +515,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testAddIpConnectionTypeProperty() throws BusinessException, SQLException {
+    public void testAddIpConnectionTypeProperty() {
         when(this.partialInboundConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
         when(this.partialInboundConnectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
@@ -542,7 +537,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testRemoveIpConnectionTypeProperty() throws BusinessException, SQLException {
+    public void testRemoveIpConnectionTypeProperty() {
         when(this.partialInboundConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
         when(this.partialInboundConnectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
@@ -564,7 +559,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testReturnToInheritedProperty () throws BusinessException, SQLException {
+    public void testReturnToInheritedProperty () {
         // First update the properties of the ipConnectionType pluggable class
         ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME), IP_ADDRESS_PROPERTY_VALUE);
         ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), UPDATED_PORT_PROPERTY_VALUE);
@@ -597,7 +592,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY + "}")
-    public void testCreateWithMissingRequiredProperty() throws BusinessException, SQLException {
+    public void testCreateWithMissingRequiredProperty() {
         when(this.partialInboundConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
         when(this.partialInboundConnectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
@@ -612,7 +607,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_TASK_PROPERTY_NOT_IN_SPEC_KEY + "}")
-    public void testCreateWithNonExistingProperty() throws BusinessException, SQLException {
+    public void testCreateWithNonExistingProperty() {
         when(this.partialInboundConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
         this.addIpConnectionProperties(connectionTask, inboundTcpipComPortPool, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE, codeTable);
@@ -627,7 +622,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testDeleteWithNoProperties() throws BusinessException, SQLException {
+    public void testDeleteWithNoProperties() {
         InboundConnectionTask connectionTask = this.createWithNoPropertiesWithoutViolations();
         long id = connectionTask.getId();
 
@@ -640,7 +635,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testDeleteWithProperties() throws BusinessException, SQLException {
+    public void testDeleteWithProperties() {
         InboundConnectionTaskImpl connectionTask = (InboundConnectionTaskImpl) this.createInboundWithIpPropertiesWithoutViolations();
         long id = connectionTask.getId();
         RelationParticipant ipConnectionMethod = (RelationParticipant) connectionTask.getConnectionMethod();
@@ -657,7 +652,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testMakeObsoleteWithNoProperties() throws BusinessException, SQLException {
+    public void testMakeObsoleteWithNoProperties() {
         InboundConnectionTask connectionTask = this.createWithNoPropertiesWithoutViolations();
 
         // Business method
@@ -670,7 +665,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testMakeObsoleteAlsoMakesRelationsObsolete() throws BusinessException, SQLException {
+    public void testMakeObsoleteAlsoMakesRelationsObsolete() {
         InboundConnectionTaskImpl connectionTask = (InboundConnectionTaskImpl) this.createInboundWithIpPropertiesWithoutViolations();
         RelationParticipant ipConnectionMethod = (RelationParticipant) connectionTask.getConnectionMethod();
 
@@ -698,8 +693,10 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
 
         // Asserts
-        verify(outboundDefault).clearDefault();
         assertThat(connectionTask.isDefault()).isTrue();
+        // Reload the outbound default
+        ScheduledConnectionTask oldDefault = inMemoryPersistence.getDeviceDataService().findScheduledConnectionTask(outboundDefault.getId()).get();
+        assertThat(oldDefault.isDefault()).isFalse();
     }
 
     @Test
@@ -725,7 +722,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         inMemoryPersistence.getDeviceDataService().clearDefaultConnectionTask(connectionTask.getDevice());
 
         // Need to reload the outbound default as the changes are done in the background
-        ScheduledConnectionTask reloadedOutboundDefault = inMemoryPersistence.getDeviceDataService().findScheduledConnectionTask(connectionTask.getId()).get();
+        ScheduledConnectionTask reloadedOutboundDefault = inMemoryPersistence.getDeviceDataService().findScheduledConnectionTask(outboundDefault.getId()).get();
 
         // Asserts
         assertThat(connectionTask.isDefault()).isFalse();
