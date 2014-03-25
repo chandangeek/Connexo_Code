@@ -95,22 +95,24 @@ public class DeviceProtocolPluggableClassImplTest {
     private static final int CODE_ID = 97;
     private static final String CODE_NAME = "Code for DeviceProtocolPluggableClassImplTest";
 
-    private static TransactionService transactionService;
-    private static ProtocolPluggableService protocolPluggableService;
-    private static DeviceProtocolService deviceProtocolService = mock(DeviceProtocolService.class);
+    private TransactionService transactionService;
+    private ProtocolPluggableService protocolPluggableService;
+    private DeviceProtocolService deviceProtocolService = mock(DeviceProtocolService.class);
 
-    private static DataModel dataModel;
-    private static IdBusinessObjectFactory codeFactory = mock(IdBusinessObjectFactory.class);
+    private DataModel dataModel;
+    private IdBusinessObjectFactory codeFactory = mock(IdBusinessObjectFactory.class);
     @Mock
     private License license;
+    private InMemoryBootstrapModule bootstrapModule;
+    private Connection toClose;
 
-    @BeforeClass
-    public static void initializeDatabase() throws SQLException {
+    @Before
+    public void initializeDatabase() throws SQLException {
         BundleContext bundleContext = mock(BundleContext.class);
         EventAdmin eventAdmin = mock(EventAdmin.class);
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("InMemoryPersistence.mdc.protocol.pluggable");
-        InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+        bootstrapModule = new InMemoryBootstrapModule();
         Injector injector = Guice.createInjector(
                 new MockModule(bundleContext, eventAdmin, deviceProtocolService),
                 bootstrapModule,
@@ -128,7 +130,7 @@ public class DeviceProtocolPluggableClassImplTest {
                 new MdcCommonModule(),
                 new MdcDynamicModule(),
                 new ProtocolPluggableModule());
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(OrmService.class);
             transactionService = injector.getInstance(TransactionService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
@@ -156,7 +158,8 @@ public class DeviceProtocolPluggableClassImplTest {
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(applicationContext.getTranslator()).thenReturn(translator);
         environment.setApplicationContext(applicationContext);
-        createOracleMetaDataTables(environment.getConnection());
+        toClose = environment.getConnection();
+        createOracleMetaDataTables(toClose);
     }
 
     private static void createOracleMetaDataTables(Connection connection) throws SQLException {
@@ -172,8 +175,8 @@ public class DeviceProtocolPluggableClassImplTest {
         }
     }
 
-    @BeforeClass
-    public static void initializeDeviceProtocolService () {
+    @Before
+    public void initializeDeviceProtocolService() {
         when(deviceProtocolService.loadProtocolClass(MOCK_DEVICE_PROTOCOL)).thenReturn(MockDeviceProtocol.class);
         when(deviceProtocolService.loadProtocolClass(MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES)).thenReturn(MockDeviceProtocolWithTestPropertySpecs.class);
         when(deviceProtocolService.loadProtocolClass(MOCK_METER_PROTOCOL)).thenReturn(MockMeterProtocol.class);
@@ -181,13 +184,8 @@ public class DeviceProtocolPluggableClassImplTest {
         when(deviceProtocolService.loadProtocolClass(MOCK_NOT_A_DEVICE_PROTOCOL)).thenReturn(NotADeviceProtocol.class);
     }
 
-    @AfterClass
-    public static void cleanupDatabase () throws SQLException {
-        new InMemoryPersistence().cleanUpDataBase();
-    }
-
     @Before
-    public void initializeLicense () {
+    public void initializeLicense() {
         when(this.license.hasAllProtocols()).thenReturn(true);
         LicenseServer.licenseHolder.set(this.license);
     }
@@ -203,6 +201,8 @@ public class DeviceProtocolPluggableClassImplTest {
                 }
             });
         }
+        toClose.close();
+        bootstrapModule.deactivate();
     }
 
     @Test
@@ -419,7 +419,7 @@ public class DeviceProtocolPluggableClassImplTest {
     }
 
 
-    private static class MockModule extends AbstractModule {
+    private class MockModule extends AbstractModule {
 
         private BundleContext bundleContext;
         private EventAdmin eventAdmin;
