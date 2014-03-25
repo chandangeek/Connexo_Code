@@ -24,8 +24,8 @@ Ext.define('Isu.controller.history.Administration', {
         crossroads.addRoute('administration/datacollection/issueassignmentrules',function(){
             Isu.getApplication().getIssueAssignmentRulesController().showOverview();
         });
-        crossroads.addRoute('administration/datacollection/issueautomaticcreationrules',function(){
-            Isu.getApplication().getIssueAutoCreationRulesController().showOverview();
+        crossroads.addRoute('administration/datacollection/issuecreationrules',function(){
+            Isu.getApplication().getIssueCreationRulesController().showOverview();
         });
 
 
