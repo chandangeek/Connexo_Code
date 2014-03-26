@@ -3,21 +3,34 @@ package com.energyict.mdc.tasks;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import java.sql.SQLException;
@@ -51,6 +64,17 @@ public class PersistenceTest {
                 new PubSubModule(),
                 new MdcCommonModule(),
                 new InMemoryMessagingModule(),
+                new ProtocolsModule(),
+                new IssuesModule(),
+                new MdcDynamicModule(),
+                new ProtocolPluggableModule(),
+                new MdcReadingTypeUtilServiceModule(),
+                new UserModule(),
+                new PartyModule(),
+                new IdsModule(),
+                new DomainUtilModule(),
+                new MeteringModule(),
+                new DeviceConfigurationModule(),
                 new EventsModule(),
                 new PluggableModule(),
                 new TransactionModule(true),
@@ -58,7 +82,8 @@ public class PersistenceTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
         	injector.getInstance(EnvironmentImpl.class); // fake call to make sure component is initialized
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
-//            injector.getInstance(TaskService.class); // fake call to make sure component is initialized
+            injector.getInstance(EventService.class); // fake call to make sure component is initialized
+            injector.getInstance(DeviceConfigurationService.class); // fake call to make sure component is initialized
             ctx.commit();
         }
     }

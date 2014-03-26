@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
@@ -30,12 +31,13 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<ComTask> table = dataModel.addTable(name(), ComTask.class);
+            table.map(ComTaskImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").type("varchar2(256)").map(ComTaskImpl.Fields.NAME.fieldName()).add();
             table.column("STOREDATA").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).add();
             table.column("MAXNROFTRIES").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.MAX_NR_OF_TRIES.fieldName()).add();
             table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).insert("sysdate").update("sysdate").add();
-            table.primaryKey("TSK_PK_COMTASK").on(idColumn).add();
+            table.primaryKey("PK_COMTASK").on(idColumn).add();
         }
     },
     MDCPROTOCOLTASK {
@@ -45,7 +47,7 @@ public enum TableSpecs {
             Table<ProtocolTask> table = dataModel.addTable(name(), ProtocolTask.class);
             table.map(ProtocolTaskImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
-            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
+            table.addDiscriminatorColumn("DISCRIMINATOR", "number");
             Column comTaskId = table.column("COMTASKID").number().conversion(NUMBER2LONG).add(); // DO NOT MAP
 
             table.column("CLOCKTASKTYPE").number().conversion(NUMBER2ENUM).map(CLOCK_TASK_TYPE.fieldName()).add();
@@ -71,14 +73,18 @@ public enum TableSpecs {
             table.column("MINCLOCKDIFFBADTIMEVALUE").number().conversion(NUMBER2INT).map(MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()+".count").add();
             table.column("MINCLOCKDIFFBADTIMEUNIT").number().conversion(NUMBER2INT).map(MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()+".timeUnitCode").add();
 
-            table.foreignKey("FK_COM_TASK").on(comTaskId).references(MDCCOMTASK.name()).map(ProtocolTaskImpl.Fields.COM_TASK.fieldName()).reverseMap(ComTaskImpl.Fields.PROTOCOL_TASKS.fieldName()).add();
-            table.primaryKey("TSK_PK_PROTOCOLTASK").on(idColumn).add();
+            table.foreignKey("FK_MDCPROTOCOLTASK_COMTASK").on(comTaskId).
+                    references(MDCCOMTASK.name()).
+                    map(ProtocolTaskImpl.Fields.COM_TASK.fieldName()).
+                    reverseMap(ComTaskImpl.Fields.PROTOCOL_TASKS.fieldName()).add();
+            table.primaryKey("PK_MDCPROTOCOLTASK").on(idColumn).add();
         }
     },
     MDCRTUMSGTYPEUSAGE {
         @Override
         void addTo(DataModel dataModel) {
             Table<MessagesTaskTypeUsage> table = dataModel.addTable(name(), MessagesTaskTypeUsage.class);
+            table.map(MessagesTaskTypeUsageImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column messageTaskId = table.column("MESSAGETASK").number().conversion(NUMBER2INT).add(); // DO NOT MAP
             table.column("MESSAGECATEGORY").number().conversion(NUMBER2INT).map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_CATEGORY.fieldName()).add();
@@ -89,13 +95,14 @@ public enum TableSpecs {
                     reverseMap(MessagesTaskImpl.Fields.DEVICE_MESSAGE_USAGES.fieldName()).
                     composition().
                     add();
-            table.primaryKey("TSK_PK_MTTU").on(idColumn).add();
+            table.primaryKey("PK_MTTU").on(idColumn).add();
         }
     },
     MDCRTUREGISTERGROUPUSAGE {
         @Override
         void addTo(DataModel dataModel) {
             Table<RegisterGroupUsage> table = dataModel.addTable(name(), RegisterGroupUsage.class);
+            table.map(RegisterGroupUsageImpl.class);
             Column registerTaskId = table.column("REGISTERTASK").number().conversion(NUMBER2INT).add(); // DO NOT MAP
             Column registerGroupId = table.column("REGISTERGROUP").number().conversion(NUMBER2INT).add(); // DO NOT MAP
 
@@ -105,7 +112,7 @@ public enum TableSpecs {
                     reverseMap(RegistersTaskImpl.Fields.REGISTER_GROUP_USAGES.fieldName()).
                     composition().
                     add();
-            table.foreignKey("FK_REGISTERGROUP").on(registerGroupId).map(RegisterGroupUsageImpl.Fields.REGISTERS_GROUP_REFERENCE.fieldName()).add();
+            table.foreignKey("FK_REGISTERGROUP").on(registerGroupId).references(DeviceConfigurationService.COMPONENTNAME, "EISRTUREGISTERGROUP").map(RegisterGroupUsageImpl.Fields.REGISTERS_GROUP_REFERENCE.fieldName()).add();
             table.primaryKey("PK_REGISTERGROUPUSAGE").on(registerTaskId, registerGroupId).add();
         }
     };

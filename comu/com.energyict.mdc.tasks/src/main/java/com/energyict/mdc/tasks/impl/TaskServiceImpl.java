@@ -1,5 +1,6 @@
 package com.energyict.mdc.tasks.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -27,18 +28,20 @@ import org.osgi.service.component.annotations.Reference;
 @Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, InstallService.class}, property = "name=" + TaskService.COMPONENT_NAME)
 public class TaskServiceImpl implements TaskService, InstallService {
 
-    private NlsService nlsService;
-    private DataModel dataModel;
-    private Thesaurus thesaurus;
+    private volatile EventService eventService;
+    private volatile NlsService nlsService;
+    private volatile DataModel dataModel;
+    private volatile Thesaurus thesaurus;
 
     public TaskServiceImpl() {
 
     }
 
     @Inject
-    public TaskServiceImpl(OrmService ormService, NlsService nlsService) {
+    public TaskServiceImpl(OrmService ormService, NlsService nlsService, EventService eventService) {
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
+        this.setEventService(eventService);
         activate();
         if (!dataModel.isInstalled()) {
             dataModel.install(true, false);
@@ -58,6 +61,11 @@ public class TaskServiceImpl implements TaskService, InstallService {
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel);
         }
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Reference
@@ -83,6 +91,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
                 bind(TopologyTask.class).to(TopologyTaskImpl.class);
                 bind(MessagesTask.class).to(MessagesTaskImpl.class);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(EventService.class).toInstance(eventService);
             }
         };
     }

@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
 
@@ -28,17 +28,17 @@ abstract class ProtocolTaskImpl implements ProtocolTask, OfflineDeviceContext {
     protected static final String STATUS_INFORMATION_DISCRIMINATOR = "6";
     protected static final String TOPOLOGY_DISCRIMINATOR = "7";
 
-    static final Map<String, Class<? extends ProtocolTask>> IMPLEMENTERS =
-            ImmutableMap.<String, Class<? extends ProtocolTask>>of(
-                    BASIC_CHECK_DISCRIMINATOR, BasicCheckTaskImpl.class,
-                    CLOCK_DISCRIMINATOR, ClockTaskImpl.class,
-//                    MESSAGES_DISCRIMINATOR, MessagesTaskImpl.class,
-//                    LOAD_PROFILES_DISCRIMINATOR, LoadProfilesTaskImpl.class,
-//                    LOG_BOOKS_DISCRIMINATOR, LogBooksTaskImpl.class,
-//                    REGISTER_TASK_DISCRIMINATOR, RegistersTaskImpl.class,
-//                    STATUS_INFORMATION_DISCRIMINATOR, StatusInformationTaskImpl.class,
-                    TOPOLOGY_DISCRIMINATOR, TopologyTaskImpl.class
-                    );
+    static final Map<String, Class<? extends ProtocolTask>> IMPLEMENTERS = new HashMap<>();
+    static {
+        IMPLEMENTERS.put(BASIC_CHECK_DISCRIMINATOR, BasicCheckTaskImpl.class);
+        IMPLEMENTERS.put(CLOCK_DISCRIMINATOR, ClockTaskImpl.class);
+        IMPLEMENTERS.put(MESSAGES_DISCRIMINATOR, MessagesTaskImpl.class);
+        IMPLEMENTERS.put(LOAD_PROFILES_DISCRIMINATOR, LoadProfilesTaskImpl.class);
+        IMPLEMENTERS.put(LOG_BOOKS_DISCRIMINATOR, LogBooksTaskImpl.class);
+        IMPLEMENTERS.put(REGISTER_TASK_DISCRIMINATOR, RegistersTaskImpl.class);
+        IMPLEMENTERS.put(STATUS_INFORMATION_DISCRIMINATOR, StatusInformationTaskImpl.class);
+        IMPLEMENTERS.put(TOPOLOGY_DISCRIMINATOR, TopologyTaskImpl.class);
+    }
 
     private final DataModel dataModel;
 
