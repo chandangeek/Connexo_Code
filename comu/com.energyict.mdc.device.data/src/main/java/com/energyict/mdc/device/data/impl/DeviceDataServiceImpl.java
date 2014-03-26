@@ -7,29 +7,38 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.ComTaskExecutionFactory;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.TimedOutTasksSqlBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.device.Device;
@@ -37,14 +46,21 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.joda.time.DateTimeConstants;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import static com.elster.jupiter.util.conditions.Where.*;
 
 /**
  * Provides an implementation for the {@link DeviceDataService} interface.
@@ -63,14 +79,15 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     private volatile RelationService relationService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile EngineModelService engineModelService;
     private volatile MeteringService meteringService;
 
     @Inject
-    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService) {
-        this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, deviceConfigurationService, meteringService, false);
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService) {
+        this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false);
 ;    }
 
-    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData) {
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData) {
         super();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -79,11 +96,59 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
         this.setRelationService(relationService);
         this.setClock(clock);
         this.setProtocolPluggableService(protocolPluggableService);
+        this.setEngineModelService(engineModelService);
         this.setDeviceConfigurationService(deviceConfigurationService);
         this.setMeteringService(meteringService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install(true, createMasterData);
+        }
+    }
+
+    @Override
+    public void releaseInterruptedConnectionTasks(ComServer comServer) {
+        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.MDCCONNECTIONTASK.name() + " SET comserver = NULL WHERE comserver = ?");
+        sqlBuilder.bindLong(comServer.getId());
+        this.executeUpdate(sqlBuilder);
+    }
+
+    @Override
+    public void releaseTimedOutConnectionTasks(ComServer outboundCapableComServer) {
+        List<ComPortPool> containingComPortPoolsForComServer = this.engineModelService.findContainingComPortPoolsForComServer(outboundCapableComServer);
+        for (ComPortPool comPortPool : containingComPortPoolsForComServer) {
+            this.releaseTimedOutComTasks((OutboundComPortPool) comPortPool);
+        }
+    }
+
+    private void releaseTimedOutComTasks(OutboundComPortPool outboundComPortPool) {
+        long now = this.toSeconds(this.clock.now());
+        int timeOutSeconds = outboundComPortPool.getTaskExecutionTimeout().getSeconds();
+        this.executeUpdate(this.releaseTimedOutTasksSqlBuilder(outboundComPortPool, now, timeOutSeconds));
+    }
+
+    private SqlBuilder releaseTimedOutTasksSqlBuilder(OutboundComPortPool outboundComPortPool, long now, int timeOutSeconds) {
+        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.MDCCONNECTIONTASK.name());
+        sqlBuilder.append("   set comserver = null");
+        sqlBuilder.append(" where id in (select connectiontask from mdccomtaskexec");
+        sqlBuilder.append(" where id in (");
+        TimedOutTasksSqlBuilder.appendTimedOutComTaskExecutionSql(sqlBuilder, outboundComPortPool, now, timeOutSeconds);
+        sqlBuilder.append("))");
+        return sqlBuilder;
+    }
+
+    private long toSeconds(Date time) {
+        return time.getTime() / DateTimeConstants.MILLIS_PER_SECOND;
+    }
+
+    private void executeUpdate(SqlBuilder sqlBuilder) {
+        try (Connection connection = this.dataModel.getConnection(false)) {
+            try (PreparedStatement statement = sqlBuilder.getStatement(connection)) {
+                statement.executeUpdate();
+                // Don't care about how many rows were updated and if that matches the expected number of updates
+            }
+        }
+        catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
     }
 
@@ -110,6 +175,13 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
 
     @Override
+    public ConnectionInitiationTask newConnectionInitiationTask(Device device, PartialConnectionInitiationTask partialConnectionTask, OutboundComPortPool comPortPool) {
+        ConnectionInitiationTaskImpl connectionTask = this.dataModel.getInstance(ConnectionInitiationTaskImpl.class);
+        connectionTask.initialize(device, partialConnectionTask, comPortPool);
+        return connectionTask;
+    }
+
+    @Override
     public Optional<ConnectionTask> findConnectionTask(long id) {
         return this.getDataModel().mapper(ConnectionTask.class).getUnique("id", id);
     }
@@ -126,17 +198,42 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     @Override
     public ConnectionTask findConnectionTaskForPartialOnDevice(PartialConnectionTask partialConnectionTask, Device device) {
-        return this.getDataModel().mapper(ConnectionTask.class).getUnique("deviceId", device.getId(), "partialConnectionTaskId", partialConnectionTask.getId()).orNull();
+        return this.getDataModel().mapper(ConnectionTask.class).getUnique("deviceId", device.getId(), "obsoleteDate", null, "partialConnectionTaskId", partialConnectionTask.getId()).orNull();
+    }
+
+    @Override
+    public List<ConnectionTask> findConnectionTasksByDevice(Device device) {
+        return this.getDataModel().mapper(ConnectionTask.class).find("deviceId", device.getId(), "obsoleteDate", null);
+    }
+
+    @Override
+    public List<ConnectionTask> findAllConnectionTasksByDevice(Device device) {
+        return this.getDataModel().mapper(ConnectionTask.class).find("deviceId", device.getId());
     }
 
     @Override
     public List<InboundConnectionTask> findInboundConnectionTasksByDevice(Device device) {
-        return this.getDataModel().mapper(InboundConnectionTask.class).find("deviceId", device.getId());
+        return this.getDataModel().mapper(InboundConnectionTask.class).find("deviceId", device.getId(), "obsoleteDate", null);
     }
 
     @Override
-    public void clearDefaultConnectionTask(Device device) {
-        this.doSetDefaultConnectionTask(device, null);
+    public List<ScheduledConnectionTask> findScheduledConnectionTasksByDevice(Device device) {
+        return this.getDataModel().mapper(ScheduledConnectionTask.class).find("deviceId", device.getId(), "obsoleteDate", null);
+    }
+
+    @Override
+    public ConnectionTask findDefaultConnectionTaskForDevice(Device device) {
+        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("isdefault").isNotEqual(0)).and(where("obsoleteDate").isNotNull());
+        List<ConnectionTask> connectionTasks = this.getDataModel().mapper(ConnectionTask.class).select(condition);
+        if (connectionTasks != null && connectionTasks.size() == 1) {
+            return connectionTasks.get(0);
+        }
+        else {
+            if (device.getGateway() != null) {
+                return this.findDefaultConnectionTaskForDevice(device.getGateway());
+            }
+        }
+        return null;  //if no default is found, null is returned
     }
 
     @Override
@@ -155,6 +252,11 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
             newDefaultConnectionTask.setAsDefault();
         }
         defaultConnectionTaskChanged(device, newDefaultConnectionTask);
+    }
+
+    @Override
+    public void clearDefaultConnectionTask(Device device) {
+        this.doSetDefaultConnectionTask(device, null);
     }
 
     private boolean isPreviousDefault(ConnectionTask newDefaultConnectionTask, ConnectionTask connectionTask) {
@@ -270,6 +372,11 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
+    public void setEngineModelService(EngineModelService engineModelService) {
+        this.engineModelService = engineModelService;
     }
 
     @Reference

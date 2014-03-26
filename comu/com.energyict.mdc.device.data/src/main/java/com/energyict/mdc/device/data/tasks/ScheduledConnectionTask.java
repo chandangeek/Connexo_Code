@@ -133,12 +133,16 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      */
     public ConnectionInitiationTask getInitiatorTask();
 
+    public void setInitiatorTask(ConnectionInitiationTask initiatorTask);
+
     /**
      * Returns whether this ConnectionTask is allowed to perform simultaneous connections to the same endPoint
      *
      * @return true if simultaneous connections are allowed, false otherwise
      */
     public boolean isSimultaneousConnectionsAllowed();
+
+    public void setSimultaneousConnectionsAllowed (boolean allowSimultaneousConnections);
 
     /**
      * Gets this ComTaskExecution's status.

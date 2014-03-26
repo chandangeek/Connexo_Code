@@ -481,8 +481,18 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
+    public void setInitiatorTask(ConnectionInitiationTask initiatorTask) {
+        this.initiationTask.set(initiatorTask);
+    }
+
+    @Override
     public boolean isSimultaneousConnectionsAllowed() {
         return allowSimultaneousConnections;
+    }
+
+    @Override
+    public void setSimultaneousConnectionsAllowed (boolean allowSimultaneousConnections) {
+        this.allowSimultaneousConnections = allowSimultaneousConnections;
     }
 
     @Override
