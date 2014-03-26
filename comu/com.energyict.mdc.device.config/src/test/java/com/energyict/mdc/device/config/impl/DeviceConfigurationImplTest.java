@@ -27,13 +27,12 @@ import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -331,7 +330,7 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.DEVICE_CONFIG_GATEWAY_NOT_ALLOWED+"}", property = "isGateway")
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.DEVICE_CONFIG_GATEWAY_NOT_ALLOWED+"}", property = "canActAsGateway")
     public void testSetDeviceConfigGatewayWhenProtocolDoesNotAllowIt() throws Exception {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Collections.<DeviceProtocolCapabilities>emptyList());
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("gateway").add();

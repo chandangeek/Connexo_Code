@@ -32,10 +32,6 @@ import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,6 +42,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
 
 /**
  *     //TODO the creation of the CommunicationConfiguration is currently skipped ...
@@ -57,6 +56,20 @@ import java.util.Set;
 public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfiguration> implements DeviceConfiguration, ServerDeviceConfiguration {
 
     private static final DeviceCommunicationFunctionSetPersister deviceCommunicationFunctionSetPersister = new DeviceCommunicationFunctionSetPersister();
+
+    enum Fields {
+        CAN_ACT_AS_GATEWAY("canActAsGateway"), // 'virtual' BeanProperty not backed by actual member
+        IS_DIRECTLY_ADDRESSABLE("isDirectlyAddressable"); // 'virtual' BeanProperty not backed by actual member
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
 
     private String description;
 
