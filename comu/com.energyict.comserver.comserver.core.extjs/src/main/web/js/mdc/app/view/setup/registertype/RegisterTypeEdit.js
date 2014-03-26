@@ -101,7 +101,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         },
                                         items: [
                                             {
-                                                html: Uni.I18n.translate('registerType.obisCodeInfo','MDC','Provide this value for the 6 attributes of the Obis code.  Devide each value with a "."'),
+                                                html: '<span style="color: grey"><i>' +Uni.I18n.translate('registerType.obisCodeInfo','MDC','Provide this value for the 6 attributes of the Obis code.  Devide each value with a "."')  + '</i></span>',
                                                 xtype: 'component'
 
                                             }
@@ -162,7 +162,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         },
                                         items: [
                                             {
-                                                html: Uni.I18n.translate('registerType.readingTypeInfo','MDC','Provide this value for the 18 attributes of the reading type.  Devide each value with a "."'),
+                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerType.readingTypeInfo','MDC','Provide this value for the 18 attributes of the reading type.  Devide each value with a "."') + '</i></span>',
                                                 xtype: 'component'
 
                                             }
