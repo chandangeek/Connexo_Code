@@ -161,6 +161,18 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
+    public boolean canActAsGateway() {
+        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = getDeviceProtocolPluggableClass().getDeviceProtocol().getDeviceProtocolCapabilities();
+        return deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_MASTER);
+    }
+
+    @Override
+    public boolean isDirectlyAddressable() {
+        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = getDeviceProtocolPluggableClass().getDeviceProtocol().getDeviceProtocolCapabilities();
+        return deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SESSION);
+    }
+
+    @Override
     public String toString() {
         return getName();
     }

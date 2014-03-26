@@ -116,6 +116,10 @@ public interface DeviceType {
 
     public void delete ();
 
+    public boolean canActAsGateway();
+
+    public boolean isDirectlyAddressable();
+
     public interface DeviceConfigurationBuilder {
 
         /**
