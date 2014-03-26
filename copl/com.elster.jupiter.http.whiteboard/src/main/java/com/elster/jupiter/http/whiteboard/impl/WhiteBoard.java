@@ -1,6 +1,7 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.http.whiteboard.HttpResource;
+import com.elster.jupiter.http.whiteboard.UnderlyingNetworkException;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
@@ -18,11 +19,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.http.whiteboard", service = Application.class, property = {"alias=/apps"}, immediate = true)
 public class WhiteBoard extends Application implements BinderProvider {
     private volatile HttpService httpService;
     private List<HttpResource> resources = new CopyOnWriteArrayList<>();
+
+    private static final Logger LOGGER = Logger.getLogger(WhiteBoard.class.getName());
 
     public WhiteBoard() {
     }
@@ -39,8 +44,8 @@ public class WhiteBoard extends Application implements BinderProvider {
             httpService.registerResources(getAlias(resource.getAlias()), resource.getLocalName(), httpContext);
             resources.add(resource);
         } catch (NamespaceException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new UnderlyingNetworkException(e);
         }
     }
 

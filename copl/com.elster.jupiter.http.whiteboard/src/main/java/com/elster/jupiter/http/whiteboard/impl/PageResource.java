@@ -1,16 +1,15 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.elster.jupiter.http.whiteboard.HttpResource;
+import com.elster.jupiter.http.whiteboard.StartPage;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
-import com.elster.jupiter.http.whiteboard.HttpResource;
-import com.elster.jupiter.http.whiteboard.StartPage;
+import java.util.ArrayList;
+import java.util.List;
 
 @Path("/pages")
 public class PageResource {
@@ -26,10 +25,20 @@ public class PageResource {
 			if (startPage != null) {
 				PageInfo info = new PageInfo();
 				info.name = startPage.getName();
-				info.url = whiteBoard.getAlias(each.getAlias()) + startPage.getHtmlPath();
+				info.basePath = whiteBoard.getAlias(each.getAlias());
+                info.startPage = startPage.getHtmlPath();
 				if (startPage.getIconPath() != null) {
-					info.icon = whiteBoard.getAlias(each.getAlias()) + startPage.getIconPath();
+					info.icon = startPage.getIconPath();
 				}
+                if(startPage.getMainController()!=null){
+                    info.mainController = startPage.getMainController();
+                }
+                if(startPage.getScripts()!=null && !startPage.getScripts().isEmpty()){
+                    info.scripts = startPage.getScripts();
+                }
+                if(startPage.getTranslationComponents()!=null && !startPage.getTranslationComponents().isEmpty()){
+                    info.translationComponents = startPage.getTranslationComponents();
+                }
 				result.add(info);
 			}				
 		}
