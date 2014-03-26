@@ -108,17 +108,12 @@ public class TaskServiceImpl implements TaskService, InstallService {
     }
 
     @Override
-    public List<ComTask> getComTasks() {
-        return null;
-    }
-
-    @Override
     public ComTask findComTask(long id) {
-        return null;
+        return dataModel.mapper(ComTask.class).getUnique("id", id).orNull();
     }
 
     @Override
     public List<ComTask> findAllComTasks() {
-        return null;
+        return dataModel.mapper(ComTask.class).find();
     }
 }

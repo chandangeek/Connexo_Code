@@ -8,8 +8,6 @@ public interface TaskService {
 
     public ComTask createComTask();
 
-    public List<ComTask> getComTasks();
-
     public ComTask findComTask(long id);
 
     public List<ComTask> findAllComTasks();

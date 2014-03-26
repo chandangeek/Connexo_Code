@@ -23,7 +23,7 @@ public class UniqueComTaskNameValidator implements ConstraintValidator<UniqueNam
 
     @Override
     public boolean isValid(ComTask comTaskUnderEvaluation, ConstraintValidatorContext context) {
-        for (ComTask comTask : taskService.getComTasks()) {
+        for (ComTask comTask : taskService.findAllComTasks()) {
             if (comTask.getId()!=comTaskUnderEvaluation.getId() && comTask.getName().equals(comTaskUnderEvaluation.getName())) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(message).addPropertyNode(ComTaskImpl.Fields.NAME.fieldName()).addConstraintViolation();

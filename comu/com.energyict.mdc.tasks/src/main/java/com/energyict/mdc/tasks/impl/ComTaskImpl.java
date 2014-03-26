@@ -4,7 +4,6 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.device.config.LogBookType;
@@ -27,7 +26,6 @@ import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -35,6 +33,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
@@ -77,7 +76,8 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
     }
 
     private long id;
-    @Size(max = NAME_MAX_DB_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.SIZE_TOO_LONG +"}")
+    @Size(min=1, groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.CAN_NOT_BE_EMPTY +"}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.CAN_NOT_BE_EMPTY +"}")
     private String name;
     private boolean storeData; // Indication whether to store the data which is read
     private Date modificationDate;
@@ -131,7 +131,7 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
 
     @Override
     public void setName(String name) {
-        this.name = name;
+        this.name = name.trim();
     }
 
     @Override
@@ -150,9 +150,8 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
 
     private void addProtocolTask(ProtocolTaskImpl protocolTask) {
         verifyUniqueProtocolTaskType(protocolTask.getClass());
-        Save.CREATE.save(dataModel, this); // explicit call for validation
+        Save.CREATE.validate(dataModel, protocolTask); // explicit call for validation
         ComTaskImpl.this.protocolTasks.add(protocolTask);
-
     }
 
     @Override
@@ -172,37 +171,37 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
     }
 
     @Override
-    public BasicCheckTask.BasicCheckTaskBuilder createBasicCheckTask() throws BusinessException, SQLException {
+    public BasicCheckTask.BasicCheckTaskBuilder createBasicCheckTask() {
         return new BasicCheckTaskBuilderImpl(this);
     }
 
     @Override
-    public ClockTask.ClockTaskBuilder createClockTask(ClockTaskType clockTaskType) throws BusinessException, SQLException {
+    public ClockTask.ClockTaskBuilder createClockTask(ClockTaskType clockTaskType) {
         return new ClockTaskBuilderImpl(this, clockTaskType);
     }
 
     @Override
-    public LoadProfilesTask.LoadProfilesTaskBuilder createLoadProfilesTask() throws BusinessException, SQLException {
+    public LoadProfilesTask.LoadProfilesTaskBuilder createLoadProfilesTask() {
         return new LoadProfilesTaskBuilderImpl(this);
     }
 
     @Override
-    public LogBooksTask.LogBooksTaskBuilder createLogbooksTask() throws BusinessException, SQLException {
+    public LogBooksTask.LogBooksTaskBuilder createLogbooksTask() {
         return new LogBooksTaskBuilderImpl(this);
     }
 
     @Override
-    public MessagesTask.MessagesTaskBuilder createMessagesTask() throws BusinessException, SQLException {
+    public MessagesTask.MessagesTaskBuilder createMessagesTask() {
         return new MessagesTaskBuilderImpl(this);
     }
 
     @Override
-    public RegistersTask.RegistersTaskBuilder createRegistersTask() throws BusinessException, SQLException {
+    public RegistersTask.RegistersTaskBuilder createRegistersTask() {
         return new RegistersTaskBuilderImpl(this);
     }
 
     @Override
-    public StatusInformationTask createStatusInformationTask() throws BusinessException, SQLException {
+    public StatusInformationTask createStatusInformationTask()  {
         StatusInformationTaskImpl statusInformationTask = statusInformationTaskProvider.get();
         statusInformationTask.ownedBy(this);
         addProtocolTask(statusInformationTask);
@@ -210,7 +209,7 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
     }
 
     @Override
-    public TopologyTask createTopologyTask(TopologyAction topologyAction) throws BusinessException, SQLException {
+    public TopologyTask createTopologyTask(TopologyAction topologyAction) {
         TopologyTaskImpl topologyTask = topologyTaskProvider.get();
         topologyTask.ownedBy(this);
         topologyTask.setTopologyAction(topologyAction);
