@@ -139,7 +139,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                         },
                                         {
                                             xtype: 'displayfield',
-                                            name: 'isGateway',
+                                            name: 'canBeGateway',
                                             fieldLabel: Uni.I18n.translate('deviceconfiguration.isGateway', 'MDC', 'Can act as gateway'),
                                             itemId: 'deviceConfigurationIsGateway',
                                             renderer: function (item) {
