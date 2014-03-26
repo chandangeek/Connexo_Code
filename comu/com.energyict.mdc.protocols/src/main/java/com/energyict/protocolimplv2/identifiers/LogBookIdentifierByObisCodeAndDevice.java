@@ -4,7 +4,7 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.LogBook;
+import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
@@ -31,11 +31,11 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
     }
 
     @Override
-    public LogBook getLogBook() {
+    public BaseLogBook getLogBook() {
         List<LogBookFactory> logBookFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(LogBookFactory.class);
         BaseDevice device = deviceIdentifier.findDevice();
         for (LogBookFactory factory : logBookFactories) {
-            LogBook logBook = factory.findLogBooksByDeviceAndDeviceObisCode(device, logBookObisCode);
+            BaseLogBook logBook = factory.findLogBooksByDeviceAndDeviceObisCode(device, logBookObisCode);
             if (logBook != null) {
                 return logBook;
             }
@@ -54,7 +54,7 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
     /**
      * Check if the given {@link Object} is equal to this {@link LogBookIdentifierByObisCodeAndDevice}. <BR>
      * WARNING: if comparing with a {@link LogBookIdentifier} of another type (not of type {@link LogBookIdentifierByObisCodeAndDevice}),
-     * this check will always return false, regardless of the fact they can both point to the same {@link LogBook}!
+     * this check will always return false, regardless of the fact they can both point to the same {@link com.energyict.mdc.protocol.api.device.BaseLogBook}!
      */
     public boolean equals(Object o) {
         if (this == o) {

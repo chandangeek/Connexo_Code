@@ -2,7 +2,7 @@ package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.LogBook;
+import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -41,10 +41,10 @@ public class EventFrame extends AbstractInboundFrame {
         List<MeterProtocolEvent> meterEvents = new ArrayList<>();
         LogBookIdentifier logBookIdentifier;
         BaseDevice device = this.getDevice();
-        LogBook genericLogBook = this.findGenericLogBook(device);
+        BaseLogBook genericLogBook = this.findGenericLogBook(device);
 
         if (!device.getLogBooks().isEmpty()) {
-            logBookIdentifier = new LogBookIdentifierById(genericLogBook.getId());
+            logBookIdentifier = new LogBookIdentifierById((int) genericLogBook.getId());
         } else {
             getCollectedDatas().add(this.getCollectedDataFactory().createNoLogBookCollectedData(new DeviceIdentifierBySerialNumber(getInboundParameters().getSerialNumber())));
             return;
@@ -54,7 +54,7 @@ public class EventFrame extends AbstractInboundFrame {
             if (parameter.contains(EVENT_TAG)) {
                 String[] nameAndEvent = parameter.split("=");
                 if (nameAndEvent.length == 2) {
-                    EventInfo eventInfo = new EventInfo(nameAndEvent[1], genericLogBook.getId());
+                    EventInfo eventInfo = new EventInfo(nameAndEvent[1], (int) genericLogBook.getId());
                     MeterProtocolEvent meterProtocolEvent = eventInfo.parse();
                     meterEvents.add(meterProtocolEvent);
                 }
@@ -67,10 +67,10 @@ public class EventFrame extends AbstractInboundFrame {
         }
     }
 
-    protected LogBook findGenericLogBook(BaseDevice device) {
+    protected BaseLogBook findGenericLogBook(BaseDevice device) {
         List<LogBookFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(LogBookFactory.class);
         for (LogBookFactory factory : factories) {
-            LogBook genericLogBook = factory.findGenericLogBook(device);
+            BaseLogBook genericLogBook = factory.findGenericLogBook(device);
             if (genericLogBook != null) {
                 return genericLogBook;
             }
