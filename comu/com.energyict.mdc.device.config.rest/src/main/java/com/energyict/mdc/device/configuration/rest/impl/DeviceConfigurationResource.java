@@ -91,11 +91,15 @@ public class DeviceConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceConfigurationInfo createDeviceConfiguration(@PathParam("deviceTypeId") long deviceTypeId, DeviceConfigurationInfo deviceConfigurationInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration(deviceConfigurationInfo.name).
-                description(deviceConfigurationInfo.description).
-                canActAsGateway(deviceConfigurationInfo.canBeGateway).
-                isDirectlyAddressable(deviceConfigurationInfo.isDirectlyAddressable).
-                add();
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(deviceConfigurationInfo.name).
+                description(deviceConfigurationInfo.description);
+        if (deviceConfigurationInfo.canBeGateway!=null) {
+            deviceConfigurationBuilder.canActAsGateway(deviceConfigurationInfo.canBeGateway);
+        }
+        if (deviceConfigurationInfo.isDirectlyAddressable!=null) {
+            deviceConfigurationBuilder.isDirectlyAddressable(deviceConfigurationInfo.isDirectlyAddressable);
+        }
+        DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         return new DeviceConfigurationInfo(deviceConfiguration);
     }
 

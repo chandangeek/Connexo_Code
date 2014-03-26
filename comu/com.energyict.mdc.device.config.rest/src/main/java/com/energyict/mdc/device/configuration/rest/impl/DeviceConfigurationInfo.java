@@ -73,7 +73,11 @@ public class DeviceConfigurationInfo {
     public void writeTo(DeviceConfiguration deviceConfiguration) {
         deviceConfiguration.setDescription(this.description);
         deviceConfiguration.setName(this.name);
-        deviceConfiguration.setCanActAsGateway(this.canBeGateway);
-        deviceConfiguration.setCanBeDirectlyAddressed(this.isDirectlyAddressable);
+        if (this.canBeGateway!=null) {
+            deviceConfiguration.setCanActAsGateway(this.canBeGateway);
+        }
+        if (this.isDirectlyAddressable!=null) {
+            deviceConfiguration.setCanBeDirectlyAddressed(this.isDirectlyAddressable);
+        }
     }
 }
