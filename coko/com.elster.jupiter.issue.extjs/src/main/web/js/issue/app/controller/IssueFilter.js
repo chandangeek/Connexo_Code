@@ -39,7 +39,7 @@ Ext.define('Isu.controller.IssueFilter', {
                 click: this.reset
             },
             'issues-side-filter filter-form': {
-                render: this.loadFormModel
+                afterrender: this.loadFormModel
             },
             'issues-side-filter filter-form combobox[name=assignee]': {
                 change: this.clearCombo,

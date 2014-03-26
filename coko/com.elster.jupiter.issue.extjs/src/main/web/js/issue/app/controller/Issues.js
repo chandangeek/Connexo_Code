@@ -84,10 +84,10 @@ Ext.define('Isu.controller.Issues', {
                 click: this.clearSort
             },
             'panel[name=sortitemspanel]': {
-                render: this.setDefaults
+                afterrender: this.setDefaults
             },
             'issues-overview breadcrumbTrail': {
-                render: this.setBreadcrumb
+                afterrender: this.setBreadcrumb
             },
             'button[name=sortitembtn]': {
                 click: this.changeSortDirection,
