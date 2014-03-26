@@ -5,7 +5,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -20,6 +20,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 public class DeviceConfigurationResource {
 
