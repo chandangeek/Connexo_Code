@@ -3,6 +3,7 @@ package com.elster.jupiter.http.whiteboard.impl;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.http.whiteboard.UnderlyingNetworkException;
 import com.elster.jupiter.rest.util.BinderProvider;
+import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -25,11 +26,21 @@ import java.util.logging.Logger;
 @Component(name = "com.elster.jupiter.http.whiteboard", service = Application.class, property = {"alias=/apps"}, immediate = true)
 public class WhiteBoard extends Application implements BinderProvider {
     private volatile HttpService httpService;
+    private volatile UserService userService;
     private List<HttpResource> resources = new CopyOnWriteArrayList<>();
 
     private static final Logger LOGGER = Logger.getLogger(WhiteBoard.class.getName());
 
     public WhiteBoard() {
+    }
+
+    UserService getUserService() {
+        return userService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Reference
@@ -39,7 +50,7 @@ public class WhiteBoard extends Application implements BinderProvider {
 
     @Reference(name = "ZResource", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(HttpResource resource) {
-        HttpContext httpContext = new HttpContextImpl(resource.getResolver());
+        HttpContext httpContext = new HttpContextImpl(resource.getResolver(), userService);
         try {
             httpService.registerResources(getAlias(resource.getAlias()), resource.getLocalName(), httpContext);
             resources.add(resource);
