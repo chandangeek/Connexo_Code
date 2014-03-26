@@ -34,7 +34,12 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'deviceConfigurationDetailForm', selector: '#deviceConfigurationDetailForm'},
         {ref: 'deviceConfigurationEditForm', selector: '#deviceConfigurationEditForm'},
         {ref: 'activateDeviceconfigurationMenuItem', selector: '#activateDeviceconfigurationMenuItem'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
+        {ref: 'gatewayCheckbox', selector: '#gatewayCheckbox'},
+        {ref: 'addressableCheckbox', selector: '#addressableCheckbox'},
+        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
+        {ref: 'gatewayMessage', selector: '#gatewayMessage'},
+        {ref: 'addressableMessage', selector: '#addressableMessage'}
+
     ],
 
     init: function () {
@@ -74,6 +79,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             '#createEditButton[action=editDeviceConfiguration]': {
                 click: this.editDeviceConfiguration
             }
+
         });
     },
 
@@ -220,9 +226,21 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             success: function(deviceType){
                 me.getApplication().getController('Mdc.controller.Main').showContent(widget);
                 widget.down('#deviceConfigurationEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device configuration'+'</H2>');
+                me.setCheckBoxes(deviceType);
                 me.createBreadCrumb(deviceTypeId,deviceType.get('name'));
             }
         });
+    },
+
+    setCheckBoxes: function(deviceType){
+        if(!deviceType.get('canBeGateway')){
+            this.getGatewayCheckbox().setDisabled(!deviceType.get('canBeGateway'));
+            this.getGatewayMessage().show();
+        }
+        if(!deviceType.get('canBeDirectlyAddressed')){
+            this.getAddressableCheckbox().setDisabled(!deviceType.get('canBeDirectlyAddressed'));
+            this.getAddressableMessageMessage().show();
+        }
     },
 
     showDeviceConfigurationEditView: function(deviceTypeId,deviceConfigurationId){
@@ -244,6 +262,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                         me.editBreadCrumb(deviceTypeId, deviceType.get('name'), deviceConfigurationId, deviceConfiguration.get('name'));
                         widget.down('form').loadRecord(deviceConfiguration);
                         widget.down('#deviceConfigurationEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceConfiguration.get('name')+'"</H2>');
+                        me.setCheckBoxes(deviceType);
                         widget.setLoading(false);
                     }
                 });
