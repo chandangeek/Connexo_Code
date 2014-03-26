@@ -32,6 +32,10 @@ import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,9 +46,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
 
 /**
  *     //TODO the creation of the CommunicationConfiguration is currently skipped ...
@@ -165,9 +166,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public void setCanActAsGateway(boolean actAsGateway) {
         if (actAsGateway) {
-            this.getCommunicationFunctions().add(DeviceCommunicationFunction.GATEWAY);
+            addCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
         } else {
-            this.getCommunicationFunctions().remove(DeviceCommunicationFunction.GATEWAY);
+            removeCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
         }
     }
 
@@ -179,9 +180,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public void setCanBeDirectlyAddressed(boolean canBeDirectlyAddressed) {
         if (canBeDirectlyAddressed) {
-            this.getCommunicationFunctions().add(DeviceCommunicationFunction.PROTOCOL_SESSION);
+            addCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);
         } else {
-            this.getCommunicationFunctions().remove(DeviceCommunicationFunction.PROTOCOL_SESSION);
+            removeCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);
         }
     }
 
