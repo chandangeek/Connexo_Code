@@ -19,6 +19,10 @@ public class BasicAuthentication implements Authentication {
 
 	@Override
 	public boolean handleSecurity(HttpServletRequest request,HttpServletResponse response) throws IOException {
+        User currentSessionUser = getUserAuthenticated(request);
+        if (currentSessionUser != null){
+            return allow(request, currentSessionUser);
+        }
 		String authentication = request.getHeader("Authorization");
         if (authentication == null) {
             return deny(response);
@@ -39,6 +43,10 @@ public class BasicAuthentication implements Authentication {
         response.addHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         return false;
+    }
+
+    private User getUserAuthenticated(HttpServletRequest request) {
+        return (User)request.getSession().getAttribute("user");
     }
 
 }
