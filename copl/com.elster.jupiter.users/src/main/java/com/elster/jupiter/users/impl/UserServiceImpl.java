@@ -95,6 +95,10 @@ public class UserServiceImpl implements UserService, InstallService {
         String plainText = new String(DatatypeConverter.parseBase64Binary(base64));
         String[] names = plainText.split(":");
 
+        if(names.length <= 1){
+            return Optional.absent();
+        }
+
         String domain = null;
         String userName = names[0];
 
@@ -103,7 +107,8 @@ public class UserServiceImpl implements UserService, InstallService {
             domain = items[0];
             userName = items[1];
         }
-        return authenticate(domain, userName, names.length > 0 ? names[1] : null);
+
+        return authenticate(domain, userName, names[1]);
     }
 
     @Override
