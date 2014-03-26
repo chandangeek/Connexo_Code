@@ -26,7 +26,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     protected static final String INBOUND_COMPORTPOOL_DISCRIMINATOR = "0";
     protected static final String OUTBOUND_COMPORTPOOL_DISCRIMINATOR = "1";
 
-    enum FieldNames {
+    enum Fields {
         // The field definitions below must match the exact name of the field in the class.
         NAME("name"),
         ACTIVE("active"),
@@ -35,11 +35,11 @@ public abstract class ComPortPoolImpl implements ComPortPool {
         COMPORTTYPE("comPortType");
         private final String name;
 
-        FieldNames(String name) {
+        Fields(String name) {
             this.name = name;
         }
 
-        String getName() {
+        String fieldName() {
             return name;
         }
     }

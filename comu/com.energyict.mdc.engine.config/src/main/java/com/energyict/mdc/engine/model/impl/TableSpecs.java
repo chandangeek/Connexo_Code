@@ -21,11 +21,11 @@ public enum TableSpecs {
             table.map(ComPortPoolImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
-            table.column("NAME").type("varchar2(80)").map(ComPortPoolImpl.FieldNames.NAME.getName()).add();
-            table.column("ACTIVE").type("varchar2(1)").notNull().map(ComPortPoolImpl.FieldNames.ACTIVE.getName()).conversion(ColumnConversion.NUMBER2BOOLEAN).add();
-            table.column("DESCRIPTION").type("varchar2(80)").map(ComPortPoolImpl.FieldNames.DESCRIPTION.getName()).add();
-            table.column("OBSOLETE_DATE").type("DATE").map(ComPortPoolImpl.FieldNames.OBSOLETEDATE.getName()).add();
-            table.column("COMPORTTYPE").number().notNull().map(ComPortPoolImpl.FieldNames.COMPORTTYPE.getName()).conversion(ColumnConversion.NUMBER2ENUM).add();
+            table.column("NAME").type("varchar2(80)").map(ComPortPoolImpl.Fields.NAME.fieldName()).add();
+            table.column("ACTIVE").type("varchar2(1)").notNull().map(ComPortPoolImpl.Fields.ACTIVE.fieldName()).conversion(ColumnConversion.NUMBER2BOOLEAN).add();
+            table.column("DESCRIPTION").type("varchar2(80)").map(ComPortPoolImpl.Fields.DESCRIPTION.fieldName()).add();
+            table.column("OBSOLETE_DATE").type("DATE").map(ComPortPoolImpl.Fields.OBSOLETEDATE.fieldName()).add();
+            table.column("COMPORTTYPE").number().notNull().map(ComPortPoolImpl.Fields.COMPORTTYPE.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).add();
             table.column("TASKEXECUTIONTIMEOUTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT+".count").add();
             table.column("TASKEXECUTIONTIMEOUTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT+".timeUnitCode").add();
             table.column("DISCOVERYPROTOCOL").number().conversion(ColumnConversion.NUMBER2INT).map(InboundComPortPoolImpl.FIELD_DISCOVEYPROTOCOL).add();
