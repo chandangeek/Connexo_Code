@@ -113,7 +113,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     success: function (deviceConfig) {
                         var deviceTypeName = deviceType.get('name');
                         var deviceConfigName = deviceConfig.get('name');
-                        widget.down('#registerConfigTitle').html = '<h1>' + deviceConfigName + ' > ' + Uni.I18n.translate('registerConfig.registerConfigurations', 'MDC', 'Register configurations') + '</h1>';
+                        //widget.down('#registerConfigTitle').html = '<h1>' + deviceConfigName + ' > ' + Uni.I18n.translate('registerConfig.registerConfigurations', 'MDC', 'Register configurations') + '</h1>';
                         me.getApplication().getController('Mdc.controller.Main').showContent(widget);
                         me.overviewBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName);
                     }
