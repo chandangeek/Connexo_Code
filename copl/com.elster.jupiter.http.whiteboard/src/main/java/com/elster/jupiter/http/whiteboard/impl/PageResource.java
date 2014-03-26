@@ -39,6 +39,12 @@ public class PageResource {
                 if(startPage.getTranslationComponents()!=null && !startPage.getTranslationComponents().isEmpty()){
                     info.translationComponents = startPage.getTranslationComponents();
                 }
+                if(startPage.getStyleSheets()!=null && !startPage.getStyleSheets().isEmpty()){
+                    info.styleSheets = startPage.getStyleSheets();
+                }
+                if(startPage.getDependencies()!=null && !startPage.getDependencies().isEmpty()){
+                    info.dependencies = startPage.getDependencies();
+                }
 				result.add(info);
 			}				
 		}
