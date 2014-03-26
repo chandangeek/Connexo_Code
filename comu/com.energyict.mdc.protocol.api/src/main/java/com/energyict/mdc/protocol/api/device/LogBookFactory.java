@@ -5,7 +5,7 @@ import com.energyict.mdc.common.ObisCode;
 
 /**
  * Defines the behavior of an {@link ApplicationComponent}
- * that is capable of finding {@link LogBook}s.
+ * that is capable of finding {@link BaseLogBook}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-08 (16:34)
@@ -17,9 +17,9 @@ public interface LogBookFactory {
      */
     public static final ObisCode GENERIC_LOGBOOK_TYPE_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
 
-    public LogBook findLogBooksByDeviceAndDeviceObisCode(BaseDevice device, ObisCode obisCode);
+    public BaseLogBook findLogBooksByDeviceAndDeviceObisCode(BaseDevice device, ObisCode obisCode);
 
-    public LogBook findGenericLogBook(BaseDevice device);
+    public BaseLogBook findGenericLogBook(BaseDevice device);
 
-    public LogBook findLogBook(int logBookId);
+    public BaseLogBook findLogBook(int logBookId);
 }

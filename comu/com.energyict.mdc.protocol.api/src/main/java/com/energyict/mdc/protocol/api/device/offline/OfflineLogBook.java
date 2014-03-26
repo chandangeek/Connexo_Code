@@ -18,7 +18,7 @@ public interface OfflineLogBook extends Offline {
      *
      * @return the ID of the LogBook
      */
-    public int getLogBookId();
+    public long getLogBookId();
 
     /**
      * Returns the Id of the Device which owns this LogBookType.

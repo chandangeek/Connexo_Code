@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.device.data.identifiers;
 
-import com.energyict.mdc.protocol.api.device.LogBook;
+import com.energyict.mdc.protocol.api.device.BaseLogBook;
 
 import java.io.Serializable;
 
@@ -13,10 +13,10 @@ import java.io.Serializable;
 public interface LogBookIdentifier extends Serializable {
 
     /**
-     * Finds the {@link LogBook} that is uniquely identified by this LogBookIdentifier.
+     * Finds the {@link com.energyict.mdc.protocol.api.device.BaseLogBook} that is uniquely identified by this LogBookIdentifier.
      *
      * @return the LogBook
      */
-    public LogBook getLogBook();
+    public BaseLogBook getLogBook();
 
 }

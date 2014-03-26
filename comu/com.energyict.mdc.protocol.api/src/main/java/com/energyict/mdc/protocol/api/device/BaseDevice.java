@@ -94,6 +94,6 @@ public interface BaseDevice<C extends BaseChannel, LP extends BaseLoadProfile<C>
      *
      * @return the LogBooks
      */
-    List<LogBook> getLogBooks();
+    List<BaseLogBook> getLogBooks();
 
 }
