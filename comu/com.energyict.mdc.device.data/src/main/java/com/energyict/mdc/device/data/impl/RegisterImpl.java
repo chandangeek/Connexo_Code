@@ -1,10 +1,16 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Provides an implementation of a Register of a {@link com.energyict.mdc.device.data.Device},
@@ -24,9 +30,9 @@ public class RegisterImpl implements Register {
     /**
      * The Device which <i>owns</i> this Register
      */
-    private final Device device;
+    private final DeviceImpl device;
 
-    public RegisterImpl(RegisterSpec registerSpec, Device device) {
+    public RegisterImpl(RegisterSpec registerSpec, DeviceImpl device) {
         this.registerSpec = registerSpec;
         this.device = device;
     }
@@ -39,6 +45,11 @@ public class RegisterImpl implements Register {
     @Override
     public RegisterSpec getRegisterSpec() {
         return registerSpec;
+    }
+
+    @Override
+    public List<ReadingRecord> getRegisterReadings(Interval interval) {
+        return device.getReadingsFor(this, interval);
     }
 
     @Override

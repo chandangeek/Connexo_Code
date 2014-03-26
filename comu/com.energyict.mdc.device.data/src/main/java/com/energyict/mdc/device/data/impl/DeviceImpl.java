@@ -3,8 +3,10 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -38,6 +40,8 @@ import com.energyict.mdc.device.data.exception.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exception.MessageSeeds;
 import com.energyict.mdc.device.data.exception.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
+import com.energyict.mdc.device.data.impl.offline.DeviceOffline;
+import com.energyict.mdc.device.data.impl.offline.OfflineDeviceImpl;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
@@ -129,19 +133,21 @@ public class DeviceImpl implements Device {
 
     private void notifyDeleted() {
         this.eventService.postEvent(DeleteEventType.DEVICE.topic(), this);
-
-        //TODO this required?
-        List<DeviceDependant> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceDependant.class);
-        if(!modulesImplementing.isEmpty()){
-            modulesImplementing.get(0).notifyDeviceDelete(this);
-        }
     }
 
     @Override
     public void delete() {
         this.validateDelete();
+        this.notifyDeviceIsGoingToBeDeleted();
         this.doDelete();
         this.notifyDeleted();
+    }
+
+    private void notifyDeviceIsGoingToBeDeleted() {
+        List<DeviceDependant> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceDependant.class);
+        for (DeviceDependant deviceDependant : modulesImplementing) {
+            deviceDependant.notifyDeviceDelete(this);
+        }
     }
 
     private void doDelete() {
@@ -149,6 +155,7 @@ public class DeviceImpl implements Device {
         deleteCache();
         deleteLoadProfiles();
         deleteLogBooks();
+        //TODO delete communication stuff, if necessary
         this.getDataMapper().remove(this);
     }
 
@@ -543,23 +550,46 @@ public class DeviceImpl implements Device {
 
     @Override
     public void store(MeterReading meterReading) {
-        Optional<AmrSystem> amrSystem = this.meteringService.findAmrSystem(1);
+        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
-            Optional<Meter> holder = amrSystem.get().findMeter(String.valueOf(getId()));
-            Meter meter;
-            if (!holder.isPresent()) {
-                // create meter
-                if (getExternalName() != null) {
-                    meter = amrSystem.get().newMeter(String.valueOf(getId()), getExternalName());
-                } else {
-                    meter = amrSystem.get().newMeter(String.valueOf(getId()));
-                }
-                meter.save();
-            } else {
-                meter = holder.get();
-            }
+            Meter meter = findOrCreateMeterInKore(amrSystem);
             meter.store(meterReading);
         }
+    }
+
+    private Meter findOrCreateMeterInKore(Optional<AmrSystem> amrSystem) {
+        Optional<Meter> holder = amrSystem.get().findMeter(String.valueOf(getId()));
+        Meter meter;
+        if (!holder.isPresent()) {
+            // create meter
+            if (getExternalName() != null) {
+                meter = amrSystem.get().newMeter(String.valueOf(getId()), getExternalName());
+            } else {
+                meter = amrSystem.get().newMeter(String.valueOf(getId()));
+            }
+            meter.save();
+        } else {
+            meter = holder.get();
+        }
+        return meter;
+    }
+
+    private Optional<AmrSystem> getMdcAmrSystem() {
+        return this.meteringService.findAmrSystem(1);
+    }
+
+    List<ReadingRecord> getReadingsFor(Register register, Interval interval){
+        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            Meter meter = findOrCreateMeterInKore(amrSystem);
+            List<? extends BaseReadingRecord> readings = meter.getReadings(interval, register.getRegisterSpec().getRegisterMapping().getReadingType());
+            List<ReadingRecord> readingRecords = new ArrayList<>(readings.size());
+            for (BaseReadingRecord reading : readings) {
+                readingRecords.add((ReadingRecord) reading);
+            }
+            return readingRecords;
+        }
+        return Collections.emptyList();
     }
 
     public List<DeviceMultiplier> getDeviceMultipliers() {
@@ -576,12 +606,12 @@ public class DeviceImpl implements Device {
 
     @Override
     public OfflineDevice goOffline() {
-        return null;
+        return new OfflineDeviceImpl(this, DeviceOffline.needsEverything);
     }
 
     @Override
     public OfflineDevice goOffline(OfflineDeviceContext context) {
-        return null;
+        return new OfflineDeviceImpl(this, context);
     }
 
     public DataMapper<DeviceImpl> getDataMapper() {

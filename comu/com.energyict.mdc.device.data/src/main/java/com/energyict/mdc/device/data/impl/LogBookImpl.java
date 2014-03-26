@@ -11,6 +11,7 @@ import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.impl.offline.OfflineLogBookImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 
 import javax.inject.Inject;
@@ -24,7 +25,6 @@ import java.util.Date;
 public class LogBookImpl implements LogBook {
 
     private final DataModel dataModel;
-    private final DeviceConfigurationService deviceConfigurationService;
 
     private long id;
     private Reference<Device> device = ValueReference.absent();
@@ -33,9 +33,8 @@ public class LogBookImpl implements LogBook {
 
 
     @Inject
-    public LogBookImpl(DataModel dataModel, DeviceConfigurationService deviceConfigurationService) {
+    public LogBookImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     LogBookImpl initialize(LogBookSpec logBookSpec, Device device) {
@@ -84,7 +83,7 @@ public class LogBookImpl implements LogBook {
 
     @Override
     public OfflineLogBook goOffline() {
-        return null;
+        return new OfflineLogBookImpl(this);
     }
 
     abstract static class LogBookUpdater implements LogBook.LogBookUpdater {
