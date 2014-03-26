@@ -11,7 +11,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ListFinderTest {
+public class ListPagerTest {
 
     @Test
     public void testListFindPaged() throws Exception {
