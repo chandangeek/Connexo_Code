@@ -257,7 +257,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             record.set(values);
             record.save({
                 callback: function (record) {
-                    location.href = me.getApplication().getHistorySetupController().tokenizePreviousTokens();
+                    location.href = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
                 }
             });
 
