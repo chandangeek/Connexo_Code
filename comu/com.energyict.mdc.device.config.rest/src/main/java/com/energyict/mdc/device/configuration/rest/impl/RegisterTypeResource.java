@@ -6,22 +6,13 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.RegisterMapping;
-import com.google.common.base.Optional;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 
 @Path("/registertypes")
 public class RegisterTypeResource {
@@ -86,11 +77,7 @@ public class RegisterTypeResource {
     }
 
     private ReadingType findReadingTypeOrThrowException(RegisterMappingInfo registerMappingInfo) {
-        Optional<ReadingType> readingType = meteringService.getReadingType(registerMappingInfo.readingTypeInfo.mrid);
-        if (!readingType.isPresent()) {
-            throw new WebApplicationException("No reading type " + registerMappingInfo.readingTypeInfo.mrid, Response.Status.BAD_REQUEST);
-        }
-        return readingType.get();
+        return meteringService.getReadingType(registerMappingInfo.readingTypeInfo.mrid).orNull();
     }
 
     private RegisterMapping findRegisterTypeOrThrowException(long id) {
