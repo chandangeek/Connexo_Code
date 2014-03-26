@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -29,8 +28,8 @@ public class DeviceConfigurationInfo {
     public Integer registerCount;
     @JsonProperty("logBookCount")
     public Integer logBookCount;
-    @JsonProperty("isGateway")
-    public Boolean isGateway;
+    @JsonProperty("canBeGateway")
+    public Boolean canBeGateway;
     @JsonProperty("isDirectlyAddressable")
     public Boolean isDirectlyAddressable;
     @JsonUnwrapped // As requested by ExtJS people
@@ -50,7 +49,7 @@ public class DeviceConfigurationInfo {
         loadProfileCount = deviceConfiguration.getLoadProfileSpecs().size();
         registerCount = deviceConfiguration.getRegisterSpecs().size();
         logBookCount = deviceConfiguration.getLogBookSpecs().size();
-        isGateway = deviceConfiguration.canActAsGateway();
+        canBeGateway = deviceConfiguration.canActAsGateway();
         isDirectlyAddressable = deviceConfiguration.canBeDirectlyAddressable();
 
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass();
@@ -74,19 +73,7 @@ public class DeviceConfigurationInfo {
     public void writeTo(DeviceConfiguration deviceConfiguration) {
         deviceConfiguration.setDescription(this.description);
         deviceConfiguration.setName(this.name);
-        if (this.isGateway!=null) {
-            if (this.isGateway) {
-                deviceConfiguration.addCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
-            } else {
-                deviceConfiguration.removeCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
-            }
-        }
-        if (this.isDirectlyAddressable!=null) {
-            if (this.isDirectlyAddressable) {
-                deviceConfiguration.addCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);
-            } else {
-                deviceConfiguration.removeCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);
-            }
-        }
+        deviceConfiguration.setCanActAsGateway(this.canBeGateway);
+        deviceConfiguration.setCanBeDirectlyAddressed(this.isDirectlyAddressable);
     }
 }

@@ -269,7 +269,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(jsonDeviceConfiguration.get("registerCount")).isEqualTo(2).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("logBookCount")).isEqualTo(3).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("loadProfileCount")).isEqualTo(4).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonDeviceConfiguration.get("isGateway")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("canBeGateway")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("isDirectlyAddressable")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 
@@ -439,10 +439,14 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
         DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo();
         deviceConfigurationInfo.name="new name";
+        deviceConfigurationInfo.canBeGateway=true;
+        deviceConfigurationInfo.isDirectlyAddressable=true;
         Entity<DeviceConfigurationInfo> json = Entity.json(deviceConfigurationInfo);
         Response response = target("/devicetypes/31/deviceconfigurations/101").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(deviceConfiguration101).setName("new name");
+        verify(deviceConfiguration101).setCanBeDirectlyAddressed(true);
+        verify(deviceConfiguration101).setCanActAsGateway(true);
     }
 
     @Test
