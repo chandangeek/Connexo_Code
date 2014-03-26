@@ -15,7 +15,7 @@ import java.util.TimeZone;
  *     <li>{@link com.energyict.mdc.protocol.api.device.BaseChannel Channels}</li>
  *     <li>{@link com.energyict.mdc.protocol.api.device.BaseRegister Registers}</li>
  *     <li>{@link com.energyict.mdc.protocol.api.device.BaseLoadProfile LoadProfiles}</li>
- *     <li>{@link com.energyict.mdc.protocol.api.device.LogBook LogBooks}</li>
+ *     <li>{@link com.energyict.mdc.protocol.api.device.BaseLogBook LogBooks}</li>
  * </ul>
  *
  * Copyrights EnergyICT
@@ -53,4 +53,8 @@ public interface DeviceDataService {
     public InfoType findInfoType(String name);
 
     public InfoType findInfoTypeById(long infoTypeId);
+
+    public LogBook findLogBookById(long id);
+
+    public List<LogBook> findLogBooksByDevice(Device device);
 }

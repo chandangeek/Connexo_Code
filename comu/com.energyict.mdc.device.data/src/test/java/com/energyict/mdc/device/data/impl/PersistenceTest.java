@@ -6,6 +6,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import org.junit.AfterClass;
@@ -19,7 +20,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -77,5 +77,9 @@ public abstract class PersistenceTest {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
         deviceType.save();
+    }
+
+    protected Device getReloadedDevice(Device device) {
+        return inMemoryPersistence.getDeviceService().findDeviceById(device.getId());
     }
 }

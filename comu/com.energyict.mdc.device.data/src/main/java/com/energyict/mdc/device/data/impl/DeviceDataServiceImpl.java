@@ -17,6 +17,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.google.inject.AbstractModule;
@@ -223,5 +224,15 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     @Override
     public InfoType findInfoTypeById(long infoTypeId) {
         return this.dataModel.mapper(InfoType.class).getUnique("id", infoTypeId).orNull();
+    }
+
+    @Override
+    public LogBook findLogBookById(long id) {
+        return this.dataModel.mapper(LogBook.class).getUnique("id", id).orNull();
+    }
+
+    @Override
+    public List<LogBook> findLogBooksByDevice(Device device) {
+        return this.dataModel.mapper(LogBook.class).find("device", device);
     }
 }

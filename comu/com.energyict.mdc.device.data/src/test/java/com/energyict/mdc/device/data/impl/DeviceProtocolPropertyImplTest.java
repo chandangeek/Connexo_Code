@@ -45,10 +45,6 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTest{
         infoType.save();
     }
 
-    private Device getReloadedDevice(Device device) {
-        return inMemoryPersistence.getDeviceService().findDeviceById(device.getId());
-    }
-
     private Device createSimpleDeviceWithProperty(String name, String value) {
         setupStringPropertyWithName(name);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");

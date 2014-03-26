@@ -13,10 +13,13 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
@@ -26,6 +29,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exception.MessageSeeds;
 import com.energyict.mdc.device.data.exception.StillGatewayException;
+import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import org.fest.assertions.core.Condition;
 import org.junit.After;
@@ -53,9 +57,11 @@ import static org.mockito.Mockito.*;
 public class DeviceImplTest extends PersistenceTest {
 
     private static final String DEVICENAME = "deviceName";
+    private static final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
     private final TimeZone testDefaultTimeZone = TimeZone.getTimeZone("Canada/East-Saskatchewan");
-    private TimeZone actualDefaultTimeZone;
+    private final TimeDuration interval = TimeDuration.minutes(15);
 
+    private TimeZone actualDefaultTimeZone;
     private ReadingType readingType1;
     private ReadingType readingType2;
     private Phenomenon phenomenon1;
@@ -64,6 +70,7 @@ public class DeviceImplTest extends PersistenceTest {
     private ObisCode obisCode2;
     private Unit unit1;
     private Unit unit2;
+    private LoadProfileType loadProfileType;
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -97,10 +104,6 @@ public class DeviceImplTest extends PersistenceTest {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name);
         device.save();
         return device;
-    }
-
-    private Device getReloadedDevice(Device device) {
-        return inMemoryPersistence.getDeviceService().findDeviceById(device.getId());
     }
 
     private void createTestDefaultTimeZone() {
@@ -395,10 +398,6 @@ public class DeviceImplTest extends PersistenceTest {
         DeviceConfiguration deviceConfiguration = configurationWithRegisterMappings.add();
         deviceType.save();
         return deviceConfiguration;
-    }
-
-    DeviceConfiguration createDeviceConfigurationWithTwoChannelSpecs(){
-        return null;
     }
 
     @Test
@@ -707,12 +706,12 @@ public class DeviceImplTest extends PersistenceTest {
         device2.setPhysicalGateway(physicalMaster);
         device2.save();
 
-        List<BaseDevice<Channel,LoadProfile,Register>> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
+        List<BaseDevice<Channel, LoadProfile, Register>> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
 
         assertThat(downstreamDevices).hasSize(2);
-        assertThat(downstreamDevices).has(new Condition<List<BaseDevice<Channel,LoadProfile,Register>>>() {
+        assertThat(downstreamDevices).has(new Condition<List<BaseDevice<Channel, LoadProfile, Register>>>() {
             @Override
-            public boolean matches(List<BaseDevice<Channel,LoadProfile,Register>> value) {
+            public boolean matches(List<BaseDevice<Channel, LoadProfile, Register>> value) {
                 boolean bothMatch = true;
                 for (BaseDevice baseDevice : value) {
                     bothMatch &= ((baseDevice.getId() == device1.getId()) || (baseDevice.getId() == device2.getId()));
@@ -737,7 +736,7 @@ public class DeviceImplTest extends PersistenceTest {
         device1.clearPhysicalGateway();
         device1.save();
 
-        List<BaseDevice<Channel,LoadProfile,Register>> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
+        List<BaseDevice<Channel, LoadProfile, Register>> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
 
         assertThat(downstreamDevices).hasSize(1);
         assertThat(downstreamDevices.get(0).getId()).isEqualTo(device2.getId());
@@ -757,7 +756,7 @@ public class DeviceImplTest extends PersistenceTest {
         //business method
         device1.delete();
 
-        List<BaseDevice<Channel,LoadProfile,Register>> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
+        List<BaseDevice<Channel, LoadProfile, Register>> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
 
         assertThat(downstreamDevices).hasSize(1);
         assertThat(downstreamDevices.get(0).getId()).isEqualTo(device2.getId());
@@ -780,7 +779,7 @@ public class DeviceImplTest extends PersistenceTest {
         device1.save();
 
 
-        List<BaseDevice<Channel,LoadProfile,Register>> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
+        List<BaseDevice<Channel, LoadProfile, Register>> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
 
         assertThat(downstreamDevices).hasSize(1);
         assertThat(downstreamDevices.get(0).getId()).isEqualTo(device2.getId());
@@ -882,5 +881,61 @@ public class DeviceImplTest extends PersistenceTest {
         assertThat(simpleDevice.getChannels()).isEmpty();
     }
 
-    // todo complete the channel tests
+
+    @Test
+    @Transactional
+    public void createDeviceWithTwoChannelsTest() {
+        DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs();
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels");
+        device.save();
+        Device reloadedDevice = getReloadedDevice(device);
+
+        assertThat(reloadedDevice.getChannels()).isNotEmpty();
+        assertThat(reloadedDevice.getChannels()).hasSize(2);
+    }
+
+    @Test
+    @Transactional
+    public void getChannelWithExistingNameTest() {
+        DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs();
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels");
+        device.save();
+        Device reloadedDevice = getReloadedDevice(device);
+
+        BaseChannel channel = reloadedDevice.getChannel("RegisterMapping1");
+        assertThat(channel).isNotNull();
+        assertThat(channel.getRegisterTypeObisCode()).isEqualTo(obisCode1);
+    }
+
+    @Test
+    @Transactional
+    public void getChannelWithNonExistingNameTest() {
+        DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs();
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels");
+        device.save();
+        Device reloadedDevice = getReloadedDevice(device);
+
+        BaseChannel channel = reloadedDevice.getChannel("IamJustASpiritChannel");
+        assertThat(channel).isNull();
+    }
+
+    private DeviceConfiguration createDeviceConfigurationWithTwoChannelSpecs() {
+        RegisterMapping registerMapping1 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RegisterMapping1", obisCode1, unit1, readingType1, 0);
+        registerMapping1.save();
+        RegisterMapping registerMapping2 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RegisterMapping2", obisCode2, unit2, readingType2, 0);
+        registerMapping2.save();
+        loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType("LoadProfileType", loadProfileObisCode, interval);
+        loadProfileType.addRegisterMapping(registerMapping1);
+        loadProfileType.addRegisterMapping(registerMapping2);
+        loadProfileType.save();
+        deviceType.addLoadProfileType(loadProfileType);
+        DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = deviceType.newConfiguration("ConfigurationWithLoadProfileAndChannel");
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
+        configurationWithLoadProfileAndChannel.newChannelSpec(registerMapping1, phenomenon1, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(registerMapping2, phenomenon2, loadProfileSpecBuilder);
+        DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
+        deviceType.save();
+        return deviceConfiguration;
+    }
+
 }

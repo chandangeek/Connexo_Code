@@ -115,10 +115,6 @@ public class LoadProfileImplTest extends PersistenceTest{
         return deviceConfiguration;
     }
 
-    private Device getReloadedDevice(Device device) {
-        return inMemoryPersistence.getDeviceService().findDeviceById(device.getId());
-    }
-
     private Device createSimpleDeviceWithLoadProfiles() {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceName");
         device.save();

@@ -130,8 +130,8 @@ public class LoadProfileImpl implements LoadProfile {
         return getLoadProfileSpec().getLoadProfileType().getObisCode();
     }
 
-    private void save() {
-        Save.action(getId()).save(dataModel, this);
+    private void update() {
+        Save.UPDATE.save(dataModel, this);
     }
 
     @Override
@@ -149,8 +149,8 @@ public class LoadProfileImpl implements LoadProfile {
 
         @Override
         public LoadProfile.LoadProfileUpdater setLastReadingIfLater(Date lastReading) {
-            Date date = this.loadProfile.lastReading.toDate();
-            if (lastReading != null && (this.loadProfile.lastReading == null || lastReading.after(date))) {
+            UtcInstant loadProfileLastReading = this.loadProfile.lastReading;
+            if (lastReading != null && (loadProfileLastReading == null || lastReading.after(loadProfileLastReading.toDate()))) {
                 this.loadProfile.lastReading = new UtcInstant(lastReading);
             }
             return this;
@@ -164,7 +164,7 @@ public class LoadProfileImpl implements LoadProfile {
 
         @Override
         public void update() {
-            this.loadProfile.save();
+            this.loadProfile.update();
         }
     }
 

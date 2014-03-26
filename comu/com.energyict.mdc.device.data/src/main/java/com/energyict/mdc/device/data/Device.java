@@ -120,6 +120,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register> {
      */
     Date getModDate();
 
+    LogBook.LogBookUpdater getLogBookUpdaterFor(LogBook logBook);
+
     LoadProfile.LoadProfileUpdater getLoadProfileUpdaterFor(LoadProfile loadProfile);
 
     TypedProperties getDeviceProtocolProperties();
@@ -169,11 +171,4 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register> {
      */
     BaseChannel getChannel(String name);
 
-    /**
-     * Returns the channel with the given index.
-     *
-     * @param index the zero based index.
-     * @return the Channel.
-     */
-    BaseChannel getChannel(int index);
 }

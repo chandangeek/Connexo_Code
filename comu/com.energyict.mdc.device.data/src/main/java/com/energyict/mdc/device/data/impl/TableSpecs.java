@@ -8,6 +8,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LogBook;
 
 import java.util.List;
 
@@ -108,6 +109,22 @@ public enum TableSpecs {
 
         }
     },
+
+    EISLOGBOOK {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<LogBook> table = dataModel.addTable(name(), LogBook.class);
+            table.map(LogBookImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column logBookSpecId = table.column("LOGBOOKSPECID").number().notNull().add();
+            Column deviceid = table.column("DEVICEID").number().notNull().add();
+            table.column("LASTLOGBOOK").number().map("lastReading").conversion(ColumnConversion.NUMBER2UTCINSTANT).add();
+            table.primaryKey("PK_EISLOGBOOKID").on(id).add();
+            table.foreignKey("FK_EISLOGBOOK_LOGBOOKSPEC").on(logBookSpecId).references(DeviceConfigurationService.COMPONENTNAME, "EISLOGBOOKSPEC").map("logBookSpec").add();
+            table.foreignKey("FK_EISLOGBOOK_DEVICE").on(deviceid).references(EISRTU.name()).map("device").reverseMap("logBooks").composition().add();
+        }
+    },
+
 //
 //    EISDEVICECACHE {
 //        @Override

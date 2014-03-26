@@ -22,14 +22,17 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceCacheFactory;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceDependant;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exception.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exception.MessageSeeds;
@@ -39,8 +42,8 @@ import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
-import com.energyict.mdc.protocol.api.device.LogBook;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -68,6 +71,7 @@ public class DeviceImpl implements Device {
     private final MeteringService meteringService;
     private final DeviceDataService deviceDataService;
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
+    private final List<LogBook> logBooks = new ArrayList<>();
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private long id;
 
@@ -125,11 +129,16 @@ public class DeviceImpl implements Device {
 
     private void notifyDeleted() {
         this.eventService.postEvent(DeleteEventType.DEVICE.topic(), this);
+
+        //TODO this required?
+        List<DeviceDependant> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceDependant.class);
+        if(!modulesImplementing.isEmpty()){
+            modulesImplementing.get(0).notifyDeviceDelete(this);
+        }
     }
 
     @Override
     public void delete() {
-        // TODO delete the cache!
         this.validateDelete();
         this.doDelete();
         this.notifyDeleted();
@@ -139,7 +148,12 @@ public class DeviceImpl implements Device {
         deleteProperties();
         deleteCache();
         deleteLoadProfiles();
+        deleteLogBooks();
         this.getDataMapper().remove(this);
+    }
+
+    private void deleteLogBooks() {
+        this.logBooks.clear();
     }
 
     private void deleteLoadProfiles() {
@@ -177,12 +191,19 @@ public class DeviceImpl implements Device {
         this.deviceConfiguration.set(deviceConfiguration);
         setName(name);
         createLoadProfiles();
+        createLogBooks();
         return this;
     }
 
     private void createLoadProfiles() {
         for (LoadProfileSpec loadProfileSpec : this.getDeviceConfiguration().getLoadProfileSpecs()) {
             this.loadProfiles.add(this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this));
+        }
+    }
+
+    private void createLogBooks() {
+        for (LogBookSpec logBookSpec : this.getDeviceConfiguration().getLogBookSpecs()) {
+            this.logBooks.add(this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this));
         }
     }
 
@@ -272,16 +293,6 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public BaseChannel getChannel(int index) {
-        List<Channel> channels = getChannels();
-        if (channels.size() > index) {
-            return channels.get(index);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
     public List<Register> getRegisters() {
         List<Register> registers = new ArrayList<>();
         for (RegisterSpec registerSpec : getDeviceConfiguration().getRegisterSpecs()) {
@@ -314,6 +325,13 @@ public class DeviceImpl implements Device {
         return null;
     }
 
+    private void topologyChanged() {
+        List<DeviceDependant> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceDependant.class);
+        if(!modulesImplementing.isEmpty()){
+            modulesImplementing.get(0).topologyChanged(this);
+        }
+    }
+
     @Override
     public void setPhysicalGateway(BaseDevice gateway) {
         if (gateway != null) {
@@ -321,6 +339,7 @@ public class DeviceImpl implements Device {
             terminateTemporal(currentTime, this.physicalGatewayReferenceDevice);
             PhysicalGatewayReferenceImpl physicalGatewayReference = this.dataModel.getInstance(PhysicalGatewayReferenceImpl.class).createFor(Interval.startAt(currentTime), (Device) gateway, this);
             savePhysicalGateway(physicalGatewayReference);
+            topologyChanged();
         }
     }
 
@@ -332,6 +351,7 @@ public class DeviceImpl implements Device {
     @Override
     public void clearPhysicalGateway() {
         terminateTemporal(clock.now(), this.physicalGatewayReferenceDevice);
+        topologyChanged();
     }
 
     private void terminateTemporal(Date currentTime, TemporalReference<? extends GatewayReference> temporalReference) {
@@ -350,6 +370,7 @@ public class DeviceImpl implements Device {
             terminateTemporal(currentTime, this.communicationGatewayReferenceDevice);
             CommunicationGatewayReferenceImpl communicationGatewayReference = this.dataModel.getInstance(CommunicationGatewayReferenceImpl.class).createFor(Interval.startAt(currentTime), gateway, this);
             saveCommunicationGateway(communicationGatewayReference);
+            topologyChanged();
         }
     }
 
@@ -361,6 +382,7 @@ public class DeviceImpl implements Device {
     @Override
     public void clearCommunicationGateway() {
         terminateTemporal(clock.now(), this.communicationGatewayReferenceDevice);
+        topologyChanged();
     }
 
     @Override
@@ -398,14 +420,24 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public List<LogBook> getLogBooks() {
-        //TODO
-        return Collections.emptyList();
+    public List<BaseLogBook> getLogBooks() {
+        return Collections.<BaseLogBook>unmodifiableList(this.logBooks);
     }
 
     @Override
+    public LogBook.LogBookUpdater getLogBookUpdaterFor(LogBook logBook){
+        return new LogBookUpdaterForDevice((LogBookImpl) logBook);
+    }
+
+    class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
+
+        protected LogBookUpdaterForDevice(LogBookImpl logBook) {
+            super(logBook);
+        }
+    }
+
     public List<LoadProfile> getLoadProfiles() {
-        return this.loadProfiles;
+        return Collections.unmodifiableList(this.loadProfiles);
     }
 
     @Override
@@ -565,6 +597,5 @@ public class DeviceImpl implements Device {
     public void setExternalName(String externalName) {
         this.externalName = externalName;
     }
-
 
 }
