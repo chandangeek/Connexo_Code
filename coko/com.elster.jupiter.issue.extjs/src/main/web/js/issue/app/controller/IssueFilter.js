@@ -1,14 +1,17 @@
 Ext.define('Isu.controller.IssueFilter', {
     extend: 'Ext.app.Controller',
+
     requires: [
         'Isu.model.IssueFilter'
     ],
+
     stores: [
         'Isu.store.Assignee',
         'Isu.store.IssueStatus',
         'Isu.store.IssueReason',
-        'Issues'
+        'Isu.store.Issues'
     ],
+
     views: [
         'workspace.issues.SideFilter'
     ],
@@ -36,7 +39,7 @@ Ext.define('Isu.controller.IssueFilter', {
                 click: this.reset
             },
             'issues-side-filter filter-form': {
-                afterrender: this.loadFormModel
+                render: this.loadFormModel
             },
             'issues-side-filter filter-form combobox[name=assignee]': {
                 change: this.clearCombo,
@@ -49,20 +52,19 @@ Ext.define('Isu.controller.IssueFilter', {
                 blur: this.onBlurCombo
             }
         });
+
         this.listen({
             store: {
-                '#Issues': {
+                '#Isu.store.Issues': {
                     updateProxyFilter: this.filterUpdate
                 }
             }
         });
     },
 
-    loadFormModel: function (form) {
-        var store = this.getStore('IssueStatus'),
+    loadFormModel: function () {
+        var store = this.getStore('Isu.store.IssueStatus'),
             me = this;
-
-        store.filter('name', 'Open'); //todo: hardcoded value! remove after proper REST API is implemented.
 
         if (!store.count()) {
             store.on('load', function () {
@@ -76,22 +78,21 @@ Ext.define('Isu.controller.IssueFilter', {
     loadDefaults: function () {
         var form = this.getIssueFilter().down('filter-form'),
             defaultFilter = new Isu.model.IssueFilter(),
-            store = this.getStore('IssueStatus'),
+            store = this.getStore('Isu.store.IssueStatus'),
             me = this;
 
-        store.each(function (item) {
-            defaultFilter.status().add(item);
-        });
+        var item = store.findRecord('name', 'Open'); //todo: hardcoded value! remove after proper REST API is implemented.
+        defaultFilter.status().add(item);
 
         form.loadRecord(defaultFilter);
-        me.getStore('Issues').setProxyFilter(defaultFilter);
+        me.getStore('Isu.store.Issues').setProxyFilter(defaultFilter);
     },
 
     reset: function () {
         var filter = new Isu.model.IssueFilter();
 
         this.getIssueFilter().down('filter-form').loadRecord(filter);
-        this.getStore('Issues').setProxyFilter(filter);
+        this.getStore('Isu.store.Issues').setProxyFilter(filter);
     },
 
     /**
@@ -117,6 +118,6 @@ Ext.define('Isu.controller.IssueFilter', {
 
         form.updateRecord(filter);
 
-        this.getStore('Issues').setProxyFilter(filter);
+        this.getStore('Isu.store.Issues').setProxyFilter(filter);
     }
 });

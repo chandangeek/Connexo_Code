@@ -6,7 +6,7 @@ Ext.define('Isu.controller.Workspace', {
     ],
 
     init: function () {
-
+        this.callParent(arguments);
     },
 
     showOverview: function () {

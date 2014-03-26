@@ -6,7 +6,7 @@ Ext.define('Isu.controller.Administration', {
     ],
 
     init: function () {
-
+        this.callParent(arguments);
     },
 
     showOverview: function () {

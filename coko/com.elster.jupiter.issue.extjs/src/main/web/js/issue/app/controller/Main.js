@@ -5,10 +5,11 @@ Ext.define('Isu.controller.Main', {
         'Ext.window.Window',
         'Uni.controller.Navigation',
         'Uni.controller.Configuration',
-        'Isu.controller.history.Workspace'
+        'Uni.controller.history.EventBus'
     ],
 
     controllers: [
+        'Isu.controller.history.Workspace',
         'Isu.controller.Workspace',
         'Isu.controller.DataCollection',
         'Isu.controller.Issues',
@@ -28,6 +29,10 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.AdministrationDataCollection'
     ],
 
+    stores: [
+        'Isu.store.Issues'
+    ],
+
     config: {
         navigationController: null,
         configurationController: null
@@ -45,15 +50,10 @@ Ext.define('Isu.controller.Main', {
     ],
 
     init: function () {
-        this.initDependencies();
-        this.initMenu();
-        this.initNavigation();
-        this.initDefaultHistoryToken();
         this.getApplication().on('changecontentevent', this.showContent, this);
-    },
-
-    initDependencies: function() {
-        Ext.Loader.setPath('Ext.ux.Rixo', '/apps/issue/resources/js/Ext/ux/Rixo');
+        this.initDefaultHistoryToken();
+        this.initNavigation();
+        this.initMenu();
     },
 
     initMenu: function () {

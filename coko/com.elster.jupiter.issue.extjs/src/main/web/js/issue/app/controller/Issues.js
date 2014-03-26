@@ -7,9 +7,11 @@ Ext.define('Isu.controller.Issues', {
     ],
 
     stores: [
-        'Issues',
+        'Isu.store.Issues',
         'Isu.store.IssuesGroups',
-        'Isu.store.Assignee'
+        'Isu.store.Assignee',
+        'Isu.store.IssueStatus',
+        'Isu.store.IssueReason'
     ],
 
     views: [
@@ -82,10 +84,10 @@ Ext.define('Isu.controller.Issues', {
                 click: this.clearSort
             },
             'panel[name=sortitemspanel]': {
-                afterrender: this.setDefaults
+                render: this.setDefaults
             },
             'issues-overview breadcrumbTrail': {
-                afterrender: this.setBreadcrumb
+                render: this.setBreadcrumb
             },
             'button[name=sortitembtn]': {
                 click: this.changeSortDirection,
@@ -100,7 +102,7 @@ Ext.define('Isu.controller.Issues', {
 
         this.listen({
             store: {
-                '#Issues': {
+                '#Isu.store.Issues': {
                     load: this.issueStoreLoad,
                     updateProxyFilter: this.filterUpdate,
                     updateProxySort: this.sortUpdate
@@ -109,7 +111,7 @@ Ext.define('Isu.controller.Issues', {
         });
 
         this.groupStore = this.getStore('Isu.store.IssuesGroups');
-        this.store = this.getStore('Issues');
+        this.store = this.getStore('Isu.store.Issues');
         this.sortParams = {};
         this.actionMenuXtype = 'issue-action-menu';
         this.gridItemModel = this.getModel('Isu.model.Issues');

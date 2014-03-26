@@ -8,7 +8,9 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
     requires: [
         'Isu.view.workspace.issues.component.AssigneeCombo',
         'Isu.util.FilterCheckboxgroup',
-        'Isu.component.filter.view.Filter'
+        'Isu.component.filter.view.Filter',
+        'Isu.store.IssueStatus',
+        'Isu.store.IssueReason'
     ],
 
     items: [
