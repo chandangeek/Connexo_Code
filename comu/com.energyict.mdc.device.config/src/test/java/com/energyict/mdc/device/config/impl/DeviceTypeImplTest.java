@@ -34,6 +34,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import org.junit.Before;
@@ -145,6 +146,34 @@ public class DeviceTypeImplTest extends PersistenceTest {
 
         // Asserts
         assertThat(deviceType2).isNotNull();
+    }
+
+    @Test
+    @Transactional
+    public void testCanActAsGateway() throws Exception {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        String deviceTypeName = "canActAsGateway";
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+        deviceType.setDescription("For testing purposes only");
+        deviceType.save();
+
+        assertThat(deviceType.canActAsGateway()).isTrue();
+        assertThat(deviceType.isDirectlyAddressable()).isFalse();
+
+    }
+
+    @Test
+    @Transactional
+    public void testIsDirectlyAddressable() throws Exception {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SESSION));
+        String deviceTypeName = "directaddress";
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+        deviceType.setDescription("For testing purposes only");
+        deviceType.save();
+
+        assertThat(deviceType.isDirectlyAddressable()).isTrue();
+        assertThat(deviceType.canActAsGateway()).isFalse();
+
     }
 
     @Test(expected = DuplicateNameException.class)
