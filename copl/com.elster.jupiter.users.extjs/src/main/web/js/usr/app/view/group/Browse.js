@@ -8,7 +8,7 @@ Ext.define('Usr.view.group.Browse', {
         'Usr.view.group.Details'
     ],
 
-    side: [
+    /*side: [
         {
             xtype: 'container',
             cls: 'content-container',
@@ -61,7 +61,7 @@ Ext.define('Usr.view.group.Browse', {
                 }
             ]
         }
-    ],
+    ],*/
 
     content: [
         {

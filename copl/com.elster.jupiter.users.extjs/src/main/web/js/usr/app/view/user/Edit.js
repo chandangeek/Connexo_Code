@@ -137,26 +137,42 @@ Ext.define('Usr.view.user.Edit', {
                                 maxWidth: 500,
                                 items: [
                                     {
-                                        xtype: 'button',
-                                        action: 'save',
-                                        text: Uni.I18n.translate('general.save', 'USM', 'Save'),
-                                        margin: '10 0 0 100 '
+                                        xtype: 'container',
+                                        layout: {
+                                            type: 'vbox',
+                                                align: 'center',
+                                                pack: 'center'
+                                        },
+                                        minHeight: 50,
+                                        margin: '10 0 0 100 ',
+                                        items: [
+                                            {
+                                                xtype: 'button',
+                                                action: 'save',
+                                                text: Uni.I18n.translate('general.save', 'USM', 'Save')
+                                            }
+                                        ]
                                     },
                                     {
-                                        xtype: 'button',
-                                        action: 'cancel',
-                                        text: Uni.I18n.translate('general.cancel', 'USM', 'Cancel'),
-                                        margin: '10 0 0 10 '
-                                    }/*,
-                                     {
-                                     xtype: 'box',
-                                     margins: '0 0 10 50',
-                                     autoEl: {
-                                     tag: 'a',
-                                     href: '#/roles',
-                                     html: Uni.I18n.translate('general.cancel', 'USM', 'Cancel')
+                                            xtype: 'container',
+                                            layout: {
+                                            type: 'vbox',
+                                                align: 'center',
+                                                pack: 'center'
+                                            },
+                                            minHeight: 50,
+                                            margins: '10 0 0 20',
+                                            items: [
+                                                 {
+                                                     xtype: 'box',
+                                                     autoEl: {
+                                                         tag: 'a',
+                                                         href: '#/users',
+                                                         html: Uni.I18n.translate('general.cancel', 'USM', 'Cancel')
+                                                     }
+                                                 }
+                                            ]
                                      }
-                                     }*/
                                 ]
                             }
                         ]

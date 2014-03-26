@@ -13,7 +13,7 @@ Ext.define('Usr.Application', {
     controllers: [
         'Main',
         'Home',
-	    'User',
+        'User',
         'UserGroups',
         'Group',
         'GroupPrivileges',
@@ -29,9 +29,14 @@ Ext.define('Usr.Application', {
 
     init: function () {
         this.callParent(arguments);
+
     },
 
     launch: function () {
+        // Removes the loading indicator.
+        Ext.fly('appLoadingWrapper').destroy();
         this.callParent(arguments);
+
+        this.getApplication().fireEvent('changeapptitleevent', Uni.I18n.translate('user.application', 'USM', 'Jupiter System Administration'));
     }
 });

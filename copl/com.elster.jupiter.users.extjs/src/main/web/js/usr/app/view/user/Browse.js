@@ -8,7 +8,7 @@ Ext.define('Usr.view.user.Browse', {
         'Usr.view.user.Details'
     ],
 
-    side: [
+    /*side: [
         {
             xtype: 'container',
             cls: 'content-container',
@@ -70,7 +70,7 @@ Ext.define('Usr.view.user.Browse', {
                 }
             ]
         }
-    ],
+    ],*/
 
     content: [
         {
