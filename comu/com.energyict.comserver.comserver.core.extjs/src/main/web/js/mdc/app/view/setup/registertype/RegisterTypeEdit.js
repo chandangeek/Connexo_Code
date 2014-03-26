@@ -45,11 +45,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                     },
                     {
                         xtype: 'component',
-                        html: Uni.I18n.translate('registerType.registerTypes', 'MDC', 'Register types'),
-                        margins: '10 10 0 10'
-                    },
-                    {
-                        xtype: 'component',
                         html: '',
                         itemId: 'registerTypeEditCreateTitle',
                         margins: '10 10 10 10'
@@ -172,13 +167,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                     {
                                         xtype: 'textfield',
                                         name: 'name',
-                                        validator: function (currentValue) {
-                                            if (currentValue.length > 0) {
-                                                return true;
-                                            } else {
-                                                return Uni.I18n.translate('registerType.emptyName', 'MDC', 'The name of a register type can not be empty.')
-                                            }
-                                        },
                                         msgTarget: 'under',
                                         required: true,
                                         fieldLabel: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
