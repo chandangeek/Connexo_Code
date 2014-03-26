@@ -21,7 +21,7 @@ public class DeviceFunctionsAreSupportedByProtocolValidator implements Constrain
         boolean valid=true;
         if (communicationFunctions.contains(DeviceCommunicationFunction.GATEWAY) && !deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_MASTER)) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{"+MessageSeeds.DEVICE_CONFIGURATION_CAN_NOT_BE_GATEWAY.getKey()+"}").addPropertyNode("isGateway").addConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{"+MessageSeeds.DEVICE_CONFIGURATION_CAN_NOT_BE_GATEWAY.getKey()+"}").addPropertyNode("canActAsGateway").addConstraintViolation();
             valid=false;
         }
         if (communicationFunctions.contains(DeviceCommunicationFunction.PROTOCOL_SESSION) && !deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SESSION)) {
