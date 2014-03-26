@@ -57,6 +57,23 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                                 items: [
                                     {
                                         xtype: 'menuitem',
+                                        text: record.get('active') === true ? Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate') : Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+                                        listeners: {
+                                            click: {
+                                                element: 'el',
+                                                fn: function () {
+                                                    this.fireEvent('activateItem', record);
+                                                },
+                                                scope: this
+                                            }
+
+                                        }
+                                    },
+                                    {
+                                        xtype: 'menuseparator'
+                                    },
+                                    {
+                                        xtype: 'menuitem',
                                         text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                         listeners: {
                                             click: {
@@ -80,23 +97,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                                                 element: 'el',
                                                 fn: function () {
                                                     this.fireEvent('deleteItem', record);
-                                                },
-                                                scope: this
-                                            }
-
-                                        }
-                                    },
-                                    {
-                                        xtype: 'menuseparator'
-                                    },
-                                    {
-                                        xtype: 'menuitem',
-                                        text: record.get('active') === true ? Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate') : Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('activateItem', record);
                                                 },
                                                 scope: this
                                             }
