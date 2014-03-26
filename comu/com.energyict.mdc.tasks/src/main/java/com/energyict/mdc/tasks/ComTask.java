@@ -106,5 +106,17 @@ public interface ComTask {
      */
     public int getMaxNumberOfTries();
 
-    String getType();
+    public String getType();
+
+    public void save();
+
+    public void delete();
+
+    void setName(String name);
+
+    int getMaxNrOfTries();
+
+    void setMaxNrOfTries(int maxNrOfTries);
+
+    void setStoreData(boolean storeData);
 }

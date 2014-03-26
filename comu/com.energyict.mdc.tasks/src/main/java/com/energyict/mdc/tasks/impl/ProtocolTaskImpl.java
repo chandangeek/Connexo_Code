@@ -19,11 +19,26 @@ import javax.inject.Inject;
  * @since 23/04/12 - 11:47
  */
 abstract class ProtocolTaskImpl implements ProtocolTask, OfflineDeviceContext {
-    protected static final String CLOCK_DISCRIMINATOR = "0";
+    protected static final String BASIC_CHECK_DISCRIMINATOR = "0";
+    protected static final String CLOCK_DISCRIMINATOR = "1";
+    protected static final String MESSAGES_DISCRIMINATOR = "2";
+    protected static final String LOAD_PROFILES_DISCRIMINATOR = "3";
+    protected static final String LOG_BOOKS_DISCRIMINATOR = "4";
+    protected static final String REGISTER_TASK_DISCRIMINATOR = "5";
+    protected static final String STATUS_INFORMATION_DISCRIMINATOR = "6";
+    protected static final String TOPOLOGY_DISCRIMINATOR = "7";
 
     static final Map<String, Class<? extends ProtocolTask>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends ProtocolTask>>of(
-                    CLOCK_DISCRIMINATOR, ClockTaskImpl.class);
+                    BASIC_CHECK_DISCRIMINATOR, BasicCheckTaskImpl.class,
+                    CLOCK_DISCRIMINATOR, ClockTaskImpl.class,
+//                    MESSAGES_DISCRIMINATOR, MessagesTaskImpl.class,
+//                    LOAD_PROFILES_DISCRIMINATOR, LoadProfilesTaskImpl.class,
+//                    LOG_BOOKS_DISCRIMINATOR, LogBooksTaskImpl.class,
+//                    REGISTER_TASK_DISCRIMINATOR, RegistersTaskImpl.class,
+//                    STATUS_INFORMATION_DISCRIMINATOR, StatusInformationTaskImpl.class,
+                    TOPOLOGY_DISCRIMINATOR, TopologyTaskImpl.class
+                    );
 
     private final DataModel dataModel;
 

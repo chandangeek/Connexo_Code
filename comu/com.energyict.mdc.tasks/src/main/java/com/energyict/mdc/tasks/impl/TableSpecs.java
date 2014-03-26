@@ -10,6 +10,7 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.MAXIMUM_CLOCK_DIFFERENCE;
 import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.VERIFY_CLOCK_DIFFERENCE;
 import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.VERIFY_SERIAL_NUMBER;
@@ -25,7 +26,18 @@ import static com.energyict.mdc.tasks.impl.MessagesTaskImpl.Fields.ALL_CATEGORIE
 import static com.energyict.mdc.tasks.impl.TopologyTaskImpl.Fields.TOPOLOGY_ACTION;
 
 public enum TableSpecs {
-
+    MDCCOMTASK {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ComTask> table = dataModel.addTable(name(), ComTask.class);
+            Column idColumn = table.addAutoIdColumn();
+            table.column("NAME").type("varchar2(256)").map(ComTaskImpl.Fields.NAME.fieldName()).add();
+            table.column("STOREDATA").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).add();
+            table.column("MAXNROFTRIES").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.MAX_NR_OF_TRIES.fieldName()).add();
+            table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).insert("sysdate").update("sysdate").add();
+            table.primaryKey("TSK_PK_COMTASK").on(idColumn).add();
+        }
+    },
     MDCPROTOCOLTASK {
 
         @Override
@@ -34,7 +46,7 @@ public enum TableSpecs {
             table.map(ProtocolTaskImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
-            Column comTaskId = table.column("COMTASKID").number().conversion(NUMBER2INT).add(); // DO NOT MAP
+            Column comTaskId = table.column("COMTASKID").number().conversion(NUMBER2LONG).add(); // DO NOT MAP
 
             table.column("CLOCKTASKTYPE").number().conversion(NUMBER2ENUM).map(CLOCK_TASK_TYPE.fieldName()).add();
             table.column("MINCLOCKDIFFVALUE").number().conversion(NUMBER2INT).map(MINIMUM_CLOCK_DIFF.fieldName() + ".count").add();
@@ -61,18 +73,6 @@ public enum TableSpecs {
 
             table.foreignKey("FK_COM_TASK").on(comTaskId).references(MDCCOMTASK.name()).map(ProtocolTaskImpl.Fields.COM_TASK.fieldName()).reverseMap(ComTaskImpl.Fields.PROTOCOL_TASKS.fieldName()).add();
             table.primaryKey("TSK_PK_PROTOCOLTASK").on(idColumn).add();
-        }
-    },
-    MDCCOMTASK {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<ComTask> table = dataModel.addTable(name(), ComTask.class);
-            Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").type("varchar2(256)").map(ComTaskImpl.Fields.NAME.fieldName()).add();
-            table.column("STOREDATA").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).add();
-            table.column("MAXNROFTRIES").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.MAX_NR_OF_TRIES.fieldName()).add();
-            table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).insert("sysdate").update("sysdate").add();
-            table.primaryKey("TSK_PK_COMTASK").on(idColumn).add();
         }
     },
     MDCRTUMSGTYPEUSAGE {

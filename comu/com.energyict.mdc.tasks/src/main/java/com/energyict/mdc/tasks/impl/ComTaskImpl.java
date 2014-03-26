@@ -79,11 +79,7 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
     private long id;
     @Size(max = NAME_MAX_DB_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.SIZE_TOO_LONG +"}")
     private String name;
-
-    /**
-     * Indication whether to store the data which is read
-     */
-    private boolean storeData;
+    private boolean storeData; // Indication whether to store the data which is read
     private Date modificationDate;
 
     /**
@@ -123,14 +119,17 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
         this.topologyTaskProvider = topologyTaskProvider;
     }
 
+    @Override
     public long getId() {
         return id;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }
@@ -138,6 +137,11 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
     @Override
     public boolean storeData() {
         return storeData;
+    }
+
+    @Override
+    public void setStoreData(boolean storeData) {
+        this.storeData = storeData;
     }
 
     public List<? extends ProtocolTask> getProtocolTasks() {
@@ -151,12 +155,20 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
 
     }
 
+    @Override
     public int getMaxNrOfTries() {
         return maxNrOfTries;
     }
 
+    @Override
     public void setMaxNrOfTries(int maxNrOfTries) {
         this.maxNrOfTries = maxNrOfTries;
+    }
+
+    @Override
+    public void save() {
+        this.modificationDate=new Date();
+        Save.action(getId()).save(this.dataModel, this);
     }
 
     @Override
@@ -273,6 +285,7 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
         }
     }
 
+    @Override
     public void delete() {
         this.eventService.postEvent(EventType.COMTASK_DELETED.topic(), this);
 

@@ -6,6 +6,8 @@ public interface TaskService {
 
     String COMPONENT_NAME = "CTS";
 
+    public ComTask createComTask();
+
     public List<ComTask> getComTasks();
 
     public ComTask findComTask(long id);
