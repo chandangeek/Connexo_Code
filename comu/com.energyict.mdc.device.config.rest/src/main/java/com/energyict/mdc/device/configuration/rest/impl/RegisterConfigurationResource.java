@@ -3,7 +3,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -83,18 +82,10 @@ public class RegisterConfigurationResource {
     @DELETE
     @Path("/{registerConfigId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("registerConfigId") long registerTypeId, RegisterConfigInfo registerConfigInfo) {
+    public Response deleteRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("registerConfigId") long registerTypeId) {
         RegisterSpec registerSpec = findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerTypeId);
         registerSpec.getDeviceConfiguration().deleteRegisterSpec(registerSpec);
         return Response.ok().build();
-    }
-
-    private ChannelSpec findChannelSpecOrThrowException(long linkedChannelConfigId) {
-        ChannelSpec channelSpec = deviceConfigurationService.findChannelSpec(linkedChannelConfigId);
-        if (channelSpec==null) {
-            throw new WebApplicationException("No channel spec with id "+linkedChannelConfigId, Response.status(Response.Status.NOT_FOUND).entity("No channel spec with id "+linkedChannelConfigId).build());
-        }
-        return channelSpec;
     }
 
     private RegisterMapping findRegisterMappingOrThrowException(long registerTypeId) {
