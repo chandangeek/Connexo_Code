@@ -40,6 +40,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     ],
 
     init: function () {
+        this.getReadingTypesStore().on('load', this.onStoreLoad, this);
+
         this.control({
             '#registertypegrid': {
                 selectionchange: this.previewRegisterType
@@ -82,8 +84,16 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             '#registerTypeEditForm textfield[cls=obisCode]': {
                 blur: this.getReadingType
             }
-
         });
+    },
+
+    onStoreLoad: function () {
+        var widget = this.getRegisterTypeEditForm();
+        widget.down('#editMrIdField').setDisabled(false);
+        widget.down('#editMrIdField').setReadOnly(false);
+        if (this.getReadingTypesStore().getCount() !== 0) {
+            widget.down('#editMrIdField').setValue(this.getReadingTypesStore().first().get('mrid'));
+        }
     },
 
     showEditView: function (id) {
@@ -398,22 +408,10 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var mrId = widget.down('#editMrIdField').getValue();
 
         if (obisCode !== '' && measurementUnit !== null && mrId === '') {
-
-            var readingTypeStore = Ext.data.StoreManager.lookup('ReadingTypes');
-            readingTypeStore.filter([
+            this.getReadingTypesStore().filter([
                 {property: 'obisCode', value: obisCode},
                 {property: 'unit', value: measurementUnit}
             ]);
-            readingTypeStore.load({
-                scope: this,
-                callback: function () {
-                    widget.down('#editMrIdField').setDisabled(false);
-                    widget.down('#editMrIdField').setReadOnly(false);
-                    if (readingTypeStore.getCount() !== 0) {
-                        widget.down('#editMrIdField').setValue(readingTypeStore.first().get('mrid'));
-                    }
-                }
-            });
         }
 
     }
