@@ -47,7 +47,20 @@ Ext.define('Usr.view.Home', {
                         href: '#/roles',
                         html: Uni.I18n.translate('group.title', 'USM', 'Roles')
                     }
+                },
+                {
+                    xtype: 'button',
+                    margins: '0 0 10 50',
+                    maxWidth: 80,
+                    itemId: 'logout',
+                    text: Uni.I18n.translate('general.logout', 'USM', 'Logout'),
+                    listeners: {
+                        click: function(){
+                            this.fireEvent('signout', this);
+                        }
+                    }
                 }
+
             ]
         }
     ],

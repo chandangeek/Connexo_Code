@@ -4,39 +4,34 @@
     Sencha Cmd when upgrading.
 */
 
-Ext.require('Uni.Loader');
+Ext.application( {
+    name: 'Usr',
 
-Ext.Loader.setConfig({
-    enabled: true,
-    disableCaching: true, // For debug only.
-    paths: {
-        'Uni' : '../uni/src'
+    extend: 'Ext.app.Application',
+
+    requires: [
+    ],
+
+    views: [
+        // Views are loaded in through their respective controller.
+    ],
+
+    controllers: [
+        'Login'
+    ],
+
+    stores: [
+        // Stores are required through their controllers.
+    ],
+
+    launch: function () {
+        // Removes the loading indicator.
+        Ext.fly('appLoadingWrapper').destroy();
+
+        this.callParent(arguments);
+        var login = Ext.create("widget.login");
+
+        // Show window
+        login.show();
     }
 });
-
-Ext.onReady(function () {
-    var loader = Ext.create('Uni.Loader');
-    loader.initI18n(['USM']);
-
-    //Uni.I18n.currencyFormatKey = 'mtr.playground.i18n.currencyformat';
-    //Uni.I18n.decimalSeparatorKey = 'mtr.playground.i18n.decimalseparator';
-    //Uni.I18n.thousandsSeparatorKey = 'mtr.playground.i18n.thousandsseparator';
-
-    loader.onReady(function () {
-        Ext.Loader.setConfig({
-            enabled: true,
-            disableCaching: true // For debug only.
-        });
-
-        // Start up the application.
-        Ext.application({
-            name: 'Usr',
-
-            extend: 'Usr.Application',
-
-            autoCreateViewport: true
-        });
-    });
-});
-
-
