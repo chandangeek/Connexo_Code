@@ -2,8 +2,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,16 +53,10 @@ public class DeviceTypeInfo {
         deviceTypeInfo.logBookCount=deviceType.getLogBookTypes().size();
         deviceTypeInfo.deviceConfigurationCount=deviceType.getConfigurations().size();
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceType.getDeviceProtocolPluggableClass();
+        deviceTypeInfo.canBeGateway= deviceType.canActAsGateway();
+        deviceTypeInfo.canBeDirectlyAddressed = deviceType.isDirectlyAddressable();
         if (deviceProtocolPluggableClass!=null) {
             deviceTypeInfo.deviceProtocolInfo=new DeviceProtocolInfo(deviceProtocolPluggableClass);
-            DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
-            if (deviceProtocol!=null) {
-                List<DeviceProtocolCapabilities> deviceProtocolCapabilities = deviceProtocol.getDeviceProtocolCapabilities();
-                if (deviceProtocolCapabilities!=null) {
-                    deviceTypeInfo.canBeGateway= deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_MASTER);
-                    deviceTypeInfo.canBeDirectlyAddressed = deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SESSION);
-                }
-            }
         }
         return deviceTypeInfo;
     }

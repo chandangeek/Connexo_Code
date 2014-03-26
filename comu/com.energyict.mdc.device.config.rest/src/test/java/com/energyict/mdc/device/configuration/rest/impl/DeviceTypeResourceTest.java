@@ -23,7 +23,6 @@ import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -192,12 +191,11 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(logBooksList.size()).thenReturn(NUMBER_OF_LOGBOOKS);
 
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER, DeviceProtocolCapabilities.PROTOCOL_SESSION));
-        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol name");
         when(deviceType.getConfigurations()).thenReturn(configsList);
         when(deviceType.getLoadProfileTypes()).thenReturn(loadProfileList);
+        when(deviceType.canActAsGateway()).thenReturn(true);
+        when(deviceType.isDirectlyAddressable()).thenReturn(true);
         when(deviceType.getLogBookTypes()).thenReturn(logBooksList);
         when(deviceType.getRegisterMappings()).thenReturn(registerList);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
