@@ -50,6 +50,7 @@ import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -445,6 +446,72 @@ public class DeviceTypeResourceTest extends JerseyTest {
         verify(deviceConfiguration101).setName("new name");
         verify(deviceConfiguration101).setCanBeDirectlyAddressed(true);
         verify(deviceConfiguration101).setCanActAsGateway(true);
+    }
+
+    @Test
+    public void testUpdateDeviceConfigurationWithoutGatewayAndDirectAddrressJsonFields() throws Exception {
+        DeviceType deviceType = mockDeviceType("updater", 31L);
+        DeviceConfiguration deviceConfiguration101 = mock(DeviceConfiguration.class);
+        when(deviceConfiguration101.getId()).thenReturn(101L);
+        when(deviceConfiguration101.getDeviceType()).thenReturn(deviceType);
+        DeviceConfiguration deviceConfiguration102 = mock(DeviceConfiguration.class);
+        when(deviceConfiguration102.getId()).thenReturn(102L);
+        when(deviceConfiguration102.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration101, deviceConfiguration102));
+        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(deviceType);
+
+        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo();
+        deviceConfigurationInfo.name="new name";
+        Entity<DeviceConfigurationInfo> json = Entity.json(deviceConfigurationInfo);
+        Response response = target("/devicetypes/31/deviceconfigurations/101").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(deviceConfiguration101).setName("new name");
+        verify(deviceConfiguration101, never()).setCanBeDirectlyAddressed(anyBoolean());
+        verify(deviceConfiguration101, never()).setCanActAsGateway(anyBoolean());
+    }
+
+    @Test
+    public void testCreateDeviceConfigurationWithoutGatewayAndDirectAddressJsonFields() throws Exception {
+        DeviceType deviceType = mockDeviceType("creater", 31L);
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = mock(DeviceType.DeviceConfigurationBuilder.class, Answers.RETURNS_SELF);
+        when(deviceType.newConfiguration("new name")).thenReturn(deviceConfigurationBuilder);
+        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(deviceType);
+        DeviceConfiguration returnValue = mock(DeviceConfiguration.class);
+        when(deviceConfigurationBuilder.add()).thenReturn(returnValue);
+        when(returnValue.getId()).thenReturn(1L);
+        when(returnValue.getDeviceType()).thenReturn(deviceType);
+        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo();
+        deviceConfigurationInfo.name="new name";
+        deviceConfigurationInfo.description="desc";
+        Entity<DeviceConfigurationInfo> json = Entity.json(deviceConfigurationInfo);
+        Response response = target("/devicetypes/31/deviceconfigurations/").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(deviceConfigurationBuilder, never()).canActAsGateway(anyBoolean());
+        verify(deviceConfigurationBuilder, never()).isDirectlyAddressable(anyBoolean());
+        verify(deviceConfigurationBuilder).description("desc");
+    }
+
+    @Test
+    public void testCreateDeviceConfiguration() throws Exception {
+        DeviceType deviceType = mockDeviceType("creater", 31L);
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = mock(DeviceType.DeviceConfigurationBuilder.class, Answers.RETURNS_SELF);
+        when(deviceType.newConfiguration("new name")).thenReturn(deviceConfigurationBuilder);
+        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(deviceType);
+        DeviceConfiguration returnValue = mock(DeviceConfiguration.class);
+        when(deviceConfigurationBuilder.add()).thenReturn(returnValue);
+        when(returnValue.getId()).thenReturn(1L);
+        when(returnValue.getDeviceType()).thenReturn(deviceType);
+        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo();
+        deviceConfigurationInfo.name="new name";
+        deviceConfigurationInfo.description="desc";
+        deviceConfigurationInfo.canBeGateway=true;
+        deviceConfigurationInfo.isDirectlyAddressable=false;
+        Entity<DeviceConfigurationInfo> json = Entity.json(deviceConfigurationInfo);
+        Response response = target("/devicetypes/31/deviceconfigurations/").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(deviceConfigurationBuilder).canActAsGateway(true);
+        verify(deviceConfigurationBuilder).isDirectlyAddressable(false);
+        verify(deviceConfigurationBuilder).description("desc");
     }
 
     @Test
