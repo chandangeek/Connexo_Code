@@ -1,9 +1,6 @@
 package com.elster.jupiter.issue.extjs;
 
-import com.elster.jupiter.http.whiteboard.DefaultStartPage;
-import com.elster.jupiter.http.whiteboard.FileResolver;
-import com.elster.jupiter.http.whiteboard.HttpResource;
-import com.elster.jupiter.http.whiteboard.Script;
+import com.elster.jupiter.http.whiteboard.*;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
