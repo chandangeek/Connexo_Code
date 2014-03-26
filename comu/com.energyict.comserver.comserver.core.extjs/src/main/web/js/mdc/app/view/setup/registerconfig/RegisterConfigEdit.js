@@ -38,12 +38,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         region: 'north',
                         padding: 6
                     },
-
-                    {
-                        xtype: 'component',
-                        html: Uni.I18n.translate('registerConfig.deviceConfiguration', 'MDC', 'Device configuration'),
-                        margins: '10 10 0 0'
-                    },
                     {
                         xtype: 'component',
                         html: '',
