@@ -31,9 +31,9 @@ public enum LoadProfileMessage implements DeviceMessageSpec {
 
     PARTIAL_LOAD_PROFILE_REQUEST(
             RequiredPropertySpecFactory.newInstance().
-                    referencePropertySpec(
+                    idReferencePropertySpec(
                             loadProfileAttributeName,
-                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.LOADPROFILE.id())),
+                            Environment.DEFAULT.get().finderFor(FactoryIds.LOADPROFILE)),
             RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(fromDateAttributeName),
             RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(toDateAttributeName)
     ),
@@ -46,9 +46,9 @@ public enum LoadProfileMessage implements DeviceMessageSpec {
     WriteConsumerProducerMode(RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(consumerProducerModeAttributeName, LoadProfileMode.getAllDescriptions())),
     LOAD_PROFILE_REGISTER_REQUEST(
             RequiredPropertySpecFactory.newInstance().
-                    referencePropertySpec(
+                    idReferencePropertySpec(
                             loadProfileAttributeName,
-                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.LOADPROFILE.id())),
+                            Environment.DEFAULT.get().finderFor(FactoryIds.LOADPROFILE)),
             RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(fromDateAttributeName)
     );
 
