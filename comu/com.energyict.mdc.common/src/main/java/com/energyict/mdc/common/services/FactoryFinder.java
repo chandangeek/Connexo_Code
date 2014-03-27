@@ -34,6 +34,11 @@ public class FactoryFinder<T> implements Finder<T> {
     }
 
     @Override
+    public Finder<T> defaultSortColumn(String sortColumn) {
+        return this;
+    }
+
+    @Override
     public Finder<T> from(QueryParameters queryParameters) {
         return this;
     }

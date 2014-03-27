@@ -17,6 +17,8 @@ import java.util.Calendar;
 @XmlJavaTypeAdapter(TimeDurationXmlMarshallAdapter.class)
 public class TimeDuration implements Comparable, Serializable {
 
+    public static final TimeDuration NONE = TimeDuration.seconds(0);
+
     private static final String MILLISECONDS_STRING = "milliseconds";
     private static final String SECONDS_STRING = "seconds";
     private static final String MINUTES_STRING = "minutes";

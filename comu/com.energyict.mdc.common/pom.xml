@@ -102,6 +102,11 @@
       <artifactId>jersey-media-json-jackson</artifactId>
       <scope>test</scope>
     </dependency>
+      <dependency>
+          <groupId>com.google.inject.extensions</groupId>
+          <artifactId>guice-assistedinject</artifactId>
+          <version>3.0-rc2</version>
+      </dependency>
   </dependencies>
 
 </project>
