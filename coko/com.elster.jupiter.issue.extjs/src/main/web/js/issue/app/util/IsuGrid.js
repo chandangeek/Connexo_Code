@@ -143,6 +143,9 @@ Ext.define('Isu.util.IsuGrid', {
             success: function (rec) {
                 itemPanel.fireEvent('change', itemPanel, rec);
                 preloader.destroy();
+            },
+            failure: function(rec) {
+                preloader.destroy();
             }
         });
     }

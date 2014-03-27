@@ -6,7 +6,7 @@ Ext.define('Isu.controller.IssueCreationRules', {
     ],
 
     stores: [
-        'Isu.store.CreationRules'
+        'CreationRules'
     ],
     views: [
         'administration.datacollection.issuecreationrules.Overview',
@@ -18,12 +18,20 @@ Ext.define('Isu.controller.IssueCreationRules', {
         isuGrid: 'Isu.util.IsuGrid'
     },
 
+    refs: [
+        {
+            ref: 'itemPanel',
+            selector: 'issue-creation-rules-overview issue-creation-rules-item'
+        }
+    ],
+
     init: function () {
         this.control({
             'issue-creation-rules-overview breadcrumbTrail': {
                 afterrender: this.setBreadcrumb
             },
             'issue-creation-rules-overview issues-creation-rules-list gridview': {
+                itemclick: this.loadGridItemDetail,
                 refresh: this.onGridRefresh
             },
             'issue-creation-rules-overview issues-creation-rules-list actioncolumn': {
@@ -35,6 +43,7 @@ Ext.define('Isu.controller.IssueCreationRules', {
         });
 
         this.actionMenuXtype = 'creation-rule-action-menu';
+        this.gridItemModel = this.getModel('CreationRules');
     },
 
     showOverview: function () {
@@ -63,5 +72,14 @@ Ext.define('Isu.controller.IssueCreationRules', {
     onGridRefresh: function (grid) {
         this.setAssigneeTypeIconTooltip(grid);
         this.setDescriptionTooltip(grid);
+        this.selectFirstRule(grid);
+    },
+
+    selectFirstRule: function (grid) {
+        var index = 0,
+            item = grid.getNode(index),
+            record = grid.getRecord(item);
+
+        grid.fireEvent('itemclick', grid, record, item, index);
     }
 });

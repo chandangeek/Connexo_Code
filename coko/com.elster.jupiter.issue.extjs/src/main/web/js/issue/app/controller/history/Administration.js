@@ -9,25 +9,24 @@ Ext.define('Isu.controller.history.Administration', {
         var me = this;
 
         crossroads.addRoute('administration',function(){
-            Isu.getApplication().getAdministrationController().showOverview();
+            me.getController('Isu.controller.Administration').showOverview();
         });
 
         crossroads.addRoute('administration/datacollection',function(){
-            Isu.getApplication().getAdministrationDataCollectionController().showOverview();
+            me.getController('Isu.controller.AdministrationDataCollection').showOverview();
         });
         crossroads.addRoute('administration/datacollection/licensing',function(){
-            Isu.getApplication().getLicensingController().showOverview();
+            me.getController('Isu.controller.Licensing').showOverview();
         });
         crossroads.addRoute('administration/datacollection/licensing/addlicense',function(){
-            Isu.getApplication().getAddLicenseController().showOverview();
+            me.getController('Isu.controller.AddLicense').showOverview();
         });
         crossroads.addRoute('administration/datacollection/issueassignmentrules',function(){
-            Isu.getApplication().getIssueAssignmentRulesController().showOverview();
+            me.getController('Isu.controller.IssueAssignmentRules').showOverview();
         });
         crossroads.addRoute('administration/datacollection/issuecreationrules',function(){
-            Isu.getApplication().getIssueCreationRulesController().showOverview();
+            me.getController('Isu.controller.IssueCreationRules').showOverview();
         });
-
 
         this.callParent(arguments);
     },

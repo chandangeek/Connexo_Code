@@ -76,7 +76,7 @@ Ext.define('Isu.controller.CloseIssues', {
                     if (!Ext.isEmpty(status.allowForClosing) && status.allowForClosing) {
                         statusesContainer.add({
                             boxLabel: status.name,
-                            inputValue: status.name,
+                            inputValue: status.id,
                             name: 'status'
                         })
                     }

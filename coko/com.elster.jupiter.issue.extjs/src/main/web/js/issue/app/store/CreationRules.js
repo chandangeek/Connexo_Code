@@ -4,6 +4,6 @@ Ext.define('Isu.store.CreationRules', {
         'Ext.data.proxy.Rest'
     ],
     model: 'Isu.model.CreationRules',
-    pageSize: 100,
+    pageSize: 10,
     autoLoad: false
 });

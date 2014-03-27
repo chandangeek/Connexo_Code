@@ -2,7 +2,8 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview',
     extend: 'Uni.view.container.ContentContainer',
     requires: [
         'Uni.view.navigation.SubMenu',
-        'Isu.view.administration.datacollection.issuecreationrules.List'
+        'Isu.view.administration.datacollection.issuecreationrules.List',
+        'Isu.view.administration.datacollection.issuecreationrules.Item'
     ],
     alias: 'widget.issue-creation-rules-overview',
     side: [
@@ -21,7 +22,11 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview',
                 },
                 {
                     xtype: 'issues-creation-rules-list',
-                    margin: '0 0 20 0'
+                    margin: '0 15 20 0'
+                },
+                {
+                    xtype: 'issue-creation-rules-item',
+                    margin: '0 15 0 0'
                 }
             ]
         }
