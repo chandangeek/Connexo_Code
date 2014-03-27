@@ -297,10 +297,7 @@ public class TableImpl<T> implements Table<T> {
 	
 	@SuppressWarnings("unchecked")
 	<S> DataMapperImpl<S> getDataMapper(Class<S> api) {
-		if (mapperType == null) {
-			throw new IllegalStateException("Implementation not specified");
-		}
-		if (mapperType.getInjector() == null) {
+		if (getMapperType().getInjector() == null) {
 			throw new IllegalStateException("Datamodel not registered");
 		}
 		if (maps(api)) {
@@ -577,10 +574,10 @@ public class TableImpl<T> implements Table<T> {
 	@Override
 	public TableImpl<T> map(Class<? extends T> implementation) {
 		if (this.mapperType != null) {
-			throw new IllegalStateException("Implementer(s) already specified");
+			throw new IllegalTableMappingException("Table : " + getName() + " : Implementer(s) already specified");
 		}
 		if (!api.isAssignableFrom(implementation)) {
-			throw new IllegalArgumentException("" + implementation + " does not implement " + api);
+			throw new IllegalTableMappingException("Table : " + getName() + " : " + implementation + " does not implement " + api);
 		}
 		this.mapperType = new SingleDataMapperType<T>(this,implementation);
 		return this;
@@ -588,11 +585,11 @@ public class TableImpl<T> implements Table<T> {
 
 	@Override
 	public TableImpl<T> map(Map<String, Class<? extends T>> implementations) {
-		if (this.mapperType != null) {
-			throw new IllegalStateException("Implementer(s) already specified");
-		}
+        if (this.mapperType != null) {
+            throw new IllegalTableMappingException("Table : " + getName() + " : Implementer(s) already specified");
+        }
 		if (Objects.requireNonNull(implementations).isEmpty()) {
-			throw new IllegalArgumentException("Empty map");
+			throw new IllegalArgumentException("Table : " + getName() + " : Empty map of implementors");
 		}
 		for (Class<?> implementation : implementations.values()) {
 			if (!api.isAssignableFrom(implementation)) {
@@ -614,7 +611,7 @@ public class TableImpl<T> implements Table<T> {
 
 	void prepare() {
 		checkActiveBuilder();
-		Objects.requireNonNull(mapperType,"No implementation has been set");
+		checkMapperTypeIsSet();
 		PrimaryKeyConstraintImpl primaryKey = Objects.requireNonNull(getPrimaryKeyConstraint(),"No primary key defined");
 		List<ColumnImpl> primaryKeyColumns = primaryKey.getColumns();
 		for (int i = 0 ; i < primaryKeyColumns.size() ; i++) {
@@ -641,7 +638,7 @@ public class TableImpl<T> implements Table<T> {
 				}
 			}
 		} else {
-			if (mapperType.getType(column.getFieldName()) == null) {
+			if (getMapperType().getType(column.getFieldName()) == null) {
 				throw new IllegalStateException(
 					Joiner.on(" ").
 						join("Table " + getName() + " : No field available for column",column.getName(),"mapped by",column.getFieldName()));
@@ -655,8 +652,8 @@ public class TableImpl<T> implements Table<T> {
 	private void buildReferenceConstraints() {
 		ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
 		for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
-			if (mapperType.isReference(constraint.getFieldName())) {
-				mapperType.getField(constraint.getFieldName());
+			if (getMapperType().isReference(constraint.getFieldName())) {
+				getMapperType().getField(constraint.getFieldName());
 				builder.add(constraint);
 			}
 		}
@@ -719,7 +716,7 @@ public class TableImpl<T> implements Table<T> {
 	}
 	
 	public Field getField(String fieldName) {
-		return mapperType.getField(fieldName);
+		return getMapperType().getField(fieldName);
 	}
 	
 	void renewCache() {
@@ -732,10 +729,17 @@ public class TableImpl<T> implements Table<T> {
 	}
 	
 	DataMapperType<T> getMapperType() {
-		return mapperType;
+        checkMapperTypeIsSet();
+        return mapperType;
 	}
-	
-	Optional<ColumnImpl> getDiscriminator() {
+
+    private void checkMapperTypeIsSet() {
+        if (mapperType == null) {
+            throw new IllegalTableMappingException("Table : " + getName() + " Implementation class not (yet?) specified");
+        }
+    }
+
+    Optional<ColumnImpl> getDiscriminator() {
 		for (ColumnImpl column : columns) {
 			if (column.isDiscriminator()) {
 				return Optional.of(column);
