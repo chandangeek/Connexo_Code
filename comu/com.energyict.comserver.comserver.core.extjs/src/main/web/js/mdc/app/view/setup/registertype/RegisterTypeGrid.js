@@ -59,6 +59,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
             },
             {
                 xtype: 'actioncolumn',
+                iconCls: 'uni-centered-icon',
                 tdCls: 'view',
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
