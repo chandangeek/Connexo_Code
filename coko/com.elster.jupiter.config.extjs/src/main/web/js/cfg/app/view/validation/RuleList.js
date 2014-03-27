@@ -36,7 +36,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                 //width:150,
                 flex: 0.1,
                 items: [{
-                    icon: 'resources/images/gear-16x16.png',
+                    icon: '../cfg/resources/images/gear-16x16.png',
                     handler: function(grid, rowIndex, colIndex,item,e) {
                         var menu = Ext.widget('menu', {
                             items: [{
