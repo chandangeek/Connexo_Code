@@ -6,5 +6,11 @@ Ext.define('Isu.store.Assignee', {
     model: 'Isu.model.Assignee',
     pageSize: 100,
     groupField: 'type',
-    autoLoad: false
+    autoLoad: false,
+    sorters: [{
+        sorterFn: function(o1, o2){
+            return o1.get('name').toUpperCase() > o2.get('name').toUpperCase()
+        }
+    }]
+
 });

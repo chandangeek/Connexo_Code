@@ -172,7 +172,7 @@ Ext.define('Isu.component.filter.view.Filter', {
         var name = association.name,
             store = record[name](),
             cmp = this.down('[name="' + name + '"]');
-
+        console.log(arguments);
         if (!values[name]) {
             store.removeAll();
 
