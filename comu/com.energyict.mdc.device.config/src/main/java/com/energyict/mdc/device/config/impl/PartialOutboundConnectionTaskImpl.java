@@ -181,7 +181,7 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
         }
 
         private boolean isMoreFrequentThanDaily(TemporalExpression temporalExpression) {
-            return temporalExpression.getEvery().getSeconds() < DateTimeConstants.SECONDS_PER_DAY;
+            return temporalExpression.getEvery().getSeconds() > DateTimeConstants.SECONDS_PER_DAY;
         }
 
         private TimeDuration truncateToDay(TimeDuration timeDuration) {

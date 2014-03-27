@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,6 +45,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     private ConnectionTypePluggableClass pluggableClass;
     private Reference<ComPortPool> comPortPool = ValueReference.absent();
     private boolean isDefault;
+    @Valid
     private List<PartialConnectionTaskProperty> properties = new ArrayList<>();
     private Date modDate;
 
@@ -95,12 +97,15 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
             if (property.getName().equals(key)) {
                 property.setValue(value);
                 if (this.getId() != 0) {
+                    Save.UPDATE.validate(dataModel, property);
                     property.save();
                 }
                 return;
             }
         }
-        properties.add(PartialConnectionTaskPropertyImpl.from(dataModel, this, key, value));
+        PartialConnectionTaskPropertyImpl property = PartialConnectionTaskPropertyImpl.from(dataModel, this, key, value);
+        Save.CREATE.validate(dataModel, property);
+        properties.add(property);
     }
 
     @Override
@@ -212,10 +217,10 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         }
     }
 
-    public static class ValueValidator implements ConstraintValidator<PartialConnectionTaskPropertyMustHaveSpec, PartialConnectionTaskProperty> {
+    public static class ValueValidator implements ConstraintValidator<PartialConnectionTaskPropertyValueHasCorrectType, PartialConnectionTaskProperty> {
 
         @Override
-        public void initialize(PartialConnectionTaskPropertyMustHaveSpec constraintAnnotation) {
+        public void initialize(PartialConnectionTaskPropertyValueHasCorrectType constraintAnnotation) {
         }
 
         @Override

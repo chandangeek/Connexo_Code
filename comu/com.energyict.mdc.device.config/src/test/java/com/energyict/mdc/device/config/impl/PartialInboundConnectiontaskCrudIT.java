@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -30,6 +32,8 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -56,7 +60,9 @@ import com.google.inject.Injector;
 import com.google.inject.Provider;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -65,8 +71,8 @@ import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
 
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -76,6 +82,9 @@ public class PartialInboundConnectiontaskCrudIT {
 
     private InboundComPortPool inboundComPortPool, inboundComPortPool2;
     private ConnectionTypePluggableClass connectionTypePluggableClass, connectionTypePluggableClass2;
+
+    @Rule
+    public final TestRule rule1 = new ExpectedConstraintViolationRule();
 
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
@@ -347,6 +356,71 @@ public class PartialInboundConnectiontaskCrudIT {
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
         assertThat(found).isAbsent();
+
+    }
+
+    @Test
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC_KEY + '}')
+    public void testCreateWithUnspeccedProperty() {
+
+        PartialInboundConnectionTask inboundConnectionTask;
+        DeviceCommunicationConfiguration communicationConfiguration;
+        try (TransactionContext context = transactionService.getContext()) {
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            deviceType.save();
+
+            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration.save();
+
+            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
+            communicationConfiguration.save();
+
+            inboundConnectionTask = communicationConfiguration.createPartialInboundConnectionTask()
+                    .name("MyInbound")
+                    .comPortPool(inboundComPortPool)
+                    .pluggableClass(connectionTypePluggableClass)
+                    .asDefault(true)
+                    .addProperty("unspecced", true)
+                    .build();
+            communicationConfiguration.save();
+
+            context.commit();
+        }
+    }
+
+    @Test(expected = DuplicateNameException.class)
+//    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.PARTIAL_CONNECTION_TASK_DUPLICATE_KEY + '}')
+    public void testCreateWithDuplicateName() {
+
+        PartialInboundConnectionTask inboundConnectionTask;
+        DeviceCommunicationConfiguration communicationConfiguration;
+        try (TransactionContext context = transactionService.getContext()) {
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            deviceType.save();
+
+            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration.save();
+
+            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
+            communicationConfiguration.save();
+
+            inboundConnectionTask = communicationConfiguration.createPartialInboundConnectionTask()
+                    .name("MyInbound")
+                    .comPortPool(inboundComPortPool)
+                    .pluggableClass(connectionTypePluggableClass)
+                    .asDefault(true).build();
+            communicationConfiguration.save();
+
+            inboundConnectionTask = communicationConfiguration.createPartialInboundConnectionTask()
+                    .name("MyInbound")
+                    .comPortPool(inboundComPortPool)
+                    .pluggableClass(connectionTypePluggableClass)
+                    .asDefault(true).build();
+            communicationConfiguration.save();
+
+            context.commit();
+        }
+
 
     }
 

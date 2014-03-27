@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = {PartialConnectionTaskImpl.DuplicateValidator.class})
+@Constraint(validatedBy = {PartialConnectionTaskImpl.HasSpecValidator.class})
 public @interface PartialConnectionTaskPropertyMustHaveSpec {
 
     String message() default "{" + MessageSeeds.Constants.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC_KEY + "}";

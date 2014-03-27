@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -33,6 +35,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.TemporalExpression;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
@@ -59,7 +62,9 @@ import com.google.inject.Injector;
 import com.google.inject.Provider;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -80,6 +85,9 @@ public class PartialOutboundConnectiontaskCrudIT {
     private static final ComWindow COM_WINDOW = new ComWindow(3600, 7200);
     private OutboundComPortPool outboundComPortPool, outboundComPortPool1;
     private ConnectionTypePluggableClass connectionTypePluggableClass, connectionTypePluggableClass2;
+
+    @Rule
+    public final TestRule thereIsNOOOORuleNumber6 = new ExpectedConstraintViolationRule();
 
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
@@ -238,7 +246,7 @@ public class PartialOutboundConnectiontaskCrudIT {
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
                     .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TimeDuration.minutes(15)).set()
+                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), TimeDuration.minutes(90)).set()
                     .rescheduleDelay(TimeDuration.seconds(60))
                     .connectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
                     .asDefault(true).build();
@@ -262,7 +270,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(COM_WINDOW);
         assertThat(partialOutboundConnectionTask.getNextExecutionSpecs()).isNotNull();
-        assertThat(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(new TemporalExpression(TimeDuration.minutes(15)));
+        assertThat(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(new TemporalExpression(TimeDuration.days(1), TimeDuration.minutes(90)));
         assertThat(partialOutboundConnectionTask.getName()).isEqualTo("MyOutbound");
         assertThat(partialOutboundConnectionTask.getRescheduleDelay()).isEqualTo(TimeDuration.seconds(60));
         assertThat(partialOutboundConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
@@ -409,7 +417,7 @@ public class PartialOutboundConnectiontaskCrudIT {
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
                     .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TimeDuration.minutes(15)).set()
+                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), TimeDuration.minutes(90)).set()
                     .initiatonTask(connectionInitiationTask)
                     .connectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
                     .rescheduleDelay(TimeDuration.seconds(60))
@@ -434,11 +442,134 @@ public class PartialOutboundConnectiontaskCrudIT {
         assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(COM_WINDOW);
         assertThat(partialOutboundConnectionTask.getNextExecutionSpecs()).isNotNull();
-        assertThat(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(new TemporalExpression(TimeDuration.minutes(15)));
+        assertThat(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(new TemporalExpression(TimeDuration.days(1), TimeDuration.minutes(90)));
         assertThat(partialOutboundConnectionTask.getInitiatorTask().getId()).isEqualTo(connectionInitiationTask.getId());
         assertThat(partialOutboundConnectionTask.getName()).isEqualTo("MyOutbound");
 
     }
+
+    @Test
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.CONNECTION_STRATEGY_REQUIRED_KEY + '}')
+    public void testCreateWithoutConnectionStrategy() {
+
+        PartialOutboundConnectionTask outboundConnectionTask;
+        DeviceCommunicationConfiguration communicationConfiguration;
+        try (TransactionContext context = transactionService.getContext()) {
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            deviceType.save();
+
+            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration.save();
+
+            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
+            communicationConfiguration.save();
+
+            outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+                    .name("MyOutbound")
+                    .comPortPool(outboundComPortPool)
+                    .pluggableClass(connectionTypePluggableClass)
+                    .comWindow(COM_WINDOW)
+                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), TimeDuration.minutes(90)).set()
+                    .rescheduleDelay(TimeDuration.seconds(60))
+                    .asDefault(true).build();
+            communicationConfiguration.save();
+
+            context.commit();
+        }
+    }
+
+    @Test
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS_KEY + '}')
+    public void testCreateMinimizingConnectionsWithoutNextExecutionSpecs() {
+
+        PartialOutboundConnectionTask outboundConnectionTask;
+        DeviceCommunicationConfiguration communicationConfiguration;
+        try (TransactionContext context = transactionService.getContext()) {
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            deviceType.save();
+
+            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration.save();
+
+            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
+            communicationConfiguration.save();
+
+            outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+                    .name("MyOutbound")
+                    .comPortPool(outboundComPortPool)
+                    .pluggableClass(connectionTypePluggableClass)
+                    .comWindow(COM_WINDOW)
+                    .rescheduleDelay(TimeDuration.seconds(60))
+                    .connectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                    .asDefault(true).build();
+            communicationConfiguration.save();
+
+            context.commit();
+        }
+    }
+
+    @Test
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY + '}')
+    public void testCreateWithNextExecutionSpecsOffsetNotWithinComWindowTest() {
+
+        PartialOutboundConnectionTask outboundConnectionTask;
+        DeviceCommunicationConfiguration communicationConfiguration;
+        try (TransactionContext context = transactionService.getContext()) {
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            deviceType.save();
+
+            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration.save();
+
+            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
+            communicationConfiguration.save();
+
+            outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+                    .name("MyOutbound")
+                    .comPortPool(outboundComPortPool)
+                    .pluggableClass(connectionTypePluggableClass)
+                    .comWindow(COM_WINDOW)
+                    .nextExecutionSpec().temporalExpression(TimeDuration.hours(15), TimeDuration.hours(4)).set()
+                    .rescheduleDelay(TimeDuration.seconds(60))
+                    .connectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                    .asDefault(true).build();
+            communicationConfiguration.save();
+
+            context.commit();
+        }
+    }
+
+    @Test
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.UNDER_MINIMUM_RESCHEDULE_DELAY_KEY + '}')
+    public void testCreateWithTooLowReschedulingRetryDelayTest() {
+
+        PartialOutboundConnectionTask outboundConnectionTask;
+        DeviceCommunicationConfiguration communicationConfiguration;
+        try (TransactionContext context = transactionService.getContext()) {
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            deviceType.save();
+
+            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration.save();
+
+            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
+            communicationConfiguration.save();
+
+            outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+                    .name("MyOutbound")
+                    .comPortPool(outboundComPortPool)
+                    .pluggableClass(connectionTypePluggableClass)
+                    .comWindow(COM_WINDOW)
+                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), TimeDuration.minutes(90)).set()
+                    .rescheduleDelay(TimeDuration.seconds(59))
+                    .connectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                    .asDefault(true).build();
+            communicationConfiguration.save();
+
+            context.commit();
+        }
+    }
+
 
     public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
     }
