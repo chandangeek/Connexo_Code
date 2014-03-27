@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LogBookSpec;
@@ -19,6 +20,9 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.finders.DeviceFinder;
+import com.energyict.mdc.device.data.finders.LoadProfileFinder;
+import com.energyict.mdc.device.data.finders.LogBookFinder;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -47,6 +51,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile MeteringService meteringService;
+    private volatile Environment environment;
 
     public DeviceDataServiceImpl() {
         super();
@@ -69,6 +74,13 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
+        registerFinders();
+    }
+
+    private void registerFinders() {
+        environment.registerFinder(new DeviceFinder(this.dataModel));
+        environment.registerFinder(new LoadProfileFinder(this.dataModel));
+        environment.registerFinder(new LogBookFinder(this.dataModel));
     }
 
     private Module getModule() {
@@ -121,6 +133,11 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 
     public DataModel getDataModel() {

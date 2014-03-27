@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
@@ -15,7 +16,7 @@ import java.util.List;
  * Date: 3/17/14
  * Time: 3:30 PM
  */
-public interface LoadProfile extends BaseLoadProfile<Channel> {
+public interface LoadProfile extends BaseLoadProfile<Channel>, HasId {
 
     /**
      * return the end time of the last interval read from the device.
