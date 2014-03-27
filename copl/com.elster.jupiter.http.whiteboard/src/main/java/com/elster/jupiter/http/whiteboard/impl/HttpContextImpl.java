@@ -7,9 +7,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.google.common.base.Optional;
+
 import org.osgi.service.http.HttpContext;
 
 import com.elster.jupiter.http.whiteboard.Resolver;
@@ -20,10 +23,12 @@ public class HttpContextImpl implements HttpContext {
 
 	private final Resolver resolver;
     private final UserService userService;
+    private final TransactionService transactionService;
 
-    HttpContextImpl(Resolver resolver, UserService userService) {
+    HttpContextImpl(Resolver resolver, UserService userService, TransactionService transactionService) {
         this.resolver = resolver;
         this.userService = userService;
+        this.transactionService = transactionService;
     }
 
     @Override
@@ -48,7 +53,12 @@ public class HttpContextImpl implements HttpContext {
             }
             return true;
         }
-        Optional<User> user = userService.authenticateBase64(authentication.split(" ")[1]);
+        Optional<User> user = Optional.absent();
+        try (TransactionContext context = transactionService.getContext()) {
+
+            user = userService.authenticateBase64(authentication.split(" ")[1]);
+            context.commit();
+        }
         return user.isPresent() ? allow(request, user.get()) : deny(response);
     }
 
