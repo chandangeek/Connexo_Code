@@ -94,7 +94,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
             success: function (deviceType) {
                 var deviceTypeName = deviceType.get('name');
-                widget.down('#registerTypeTitle').html = '<h1>' + deviceTypeName + ' > ' + Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types') + '</h1>';
+               // widget.down('#registerTypeTitle').html = '<h1>' + deviceTypeName + ' > ' + Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types') + '</h1>';
                 me.getApplication().getController('Mdc.controller.Main').showContent(widget);
                 me.createBreadCrumbs(id, deviceTypeName);
             }
@@ -112,7 +112,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                     Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
                         success: function (deviceType) {
                             var deviceTypeName = deviceType.get('name');
-                            widget.down('#registerTypeAddTitle').html = '<h1>' + deviceTypeName + ' > ' + Uni.I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types') + '</h1>';
+                            //widget.down('#registerTypeAddTitle').html = '<h1>' + deviceTypeName + ' > ' + Uni.I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types') + '</h1>';
                             me.getApplication().getController('Mdc.controller.Main').showContent(widget);
                             me.createBreadCrumbsAddRegisterType(id, deviceTypeName);
                         }

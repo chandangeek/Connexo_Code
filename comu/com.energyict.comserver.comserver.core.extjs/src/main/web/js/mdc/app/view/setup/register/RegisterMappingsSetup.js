@@ -25,11 +25,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
             items: [
                 {
                     xtype: 'component',
-                    html: Uni.I18n.translate('registerMapping.deviceType', 'MDC', 'Device type'),
-                    margins: '10 10 0 10'
-                },
-                {
-                    xtype: 'component',
                     html: '<h1>' + Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types') + '</h1>',
                     margins: '10 10 10 10',
                     itemId: 'registerTypeTitle'
