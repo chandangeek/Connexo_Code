@@ -47,7 +47,7 @@ public class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
     }
 
     private boolean checkPassword(User user, String name, String password) {
-        return user.getDigestHa1().equals(new DigestHa1Util().createHa1(getDomain(), name, password));
+        return new DigestHa1Util().createHa1(getDomain(), name, password).equals(user.getDigestHa1());
     }
 
     @Override
