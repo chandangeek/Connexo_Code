@@ -307,6 +307,17 @@ public class TypedPropertiesTest {
     }
 
     @Test
+    public void testSizeWithLocalValuesAndOverruledInheritedValues () {
+        TypedProperties parentProperties = TypedProperties.empty();
+        parentProperties.setProperty(NUMERIC_PROP2_NAME, NUMERIC_PROP1_VALUE);
+        TypedProperties typedProperties = TypedProperties.inheritingFrom(parentProperties);
+        typedProperties.setProperty(NUMERIC_PROP2_NAME, NUMERIC_PROP2_VALUE);
+
+        // Asserts
+        assertThat(typedProperties.size()).isEqualTo(1);
+    }
+
+    @Test
     public void testIsLocalValueForWithoutInheritance () {
         TypedProperties typedProperties = TypedProperties.empty();
         typedProperties.setProperty(NUMERIC_PROP1_NAME, NUMERIC_PROP1_VALUE);

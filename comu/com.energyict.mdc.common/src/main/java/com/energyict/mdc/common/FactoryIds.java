@@ -32,6 +32,15 @@ public enum FactoryIds {
         return this.id;
     }
 
+    public static FactoryIds forId (int id) {
+        for (FactoryIds factoryId : values()) {
+            if (factoryId.id() == id) {
+                return factoryId;
+            }
+        }
+        throw new ApplicationException("No FactoryId found for " + id);
+    }
+
     public static class Constants {
         public static final int DEVICE_FACTORY_ID = 2;
         public static final int CHANNEL_FACTORY_ID = 3;
