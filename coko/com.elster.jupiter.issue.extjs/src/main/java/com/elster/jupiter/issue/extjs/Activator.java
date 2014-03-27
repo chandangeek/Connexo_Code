@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Activator implements BundleActivator {
 	public static final String HTTP_RESOURCE_ALIAS = "/issue";
