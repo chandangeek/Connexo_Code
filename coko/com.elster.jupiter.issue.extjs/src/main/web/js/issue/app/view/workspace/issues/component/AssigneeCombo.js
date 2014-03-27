@@ -39,7 +39,7 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
             {
                 header: false,
                 xtype: 'templatecolumn',
-                tpl: "<tpl if='id &gt; "empty" '>Child</tpl>",
+                tpl: "<tpl if='id &gt '>Child</tpl>",
                 flex: 1
             }
            /* {
