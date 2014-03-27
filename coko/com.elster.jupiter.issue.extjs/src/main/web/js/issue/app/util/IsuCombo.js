@@ -37,10 +37,10 @@ Ext.define('Isu.util.IsuCombo', {
      * If value of combobox is null shows tooltip.
      */
     onFocusCombo: function (combo) {
-        var tooltip = combo.tooltip || this.setComboTooltip(combo);
-
+        var qstr = combo.getValue();
+        console.log(qstr);
         if (!combo.getValue()) {
-            tooltip && tooltip.show();
+            combo.doQuery(combo.getValue());
         }
     },
 
@@ -50,26 +50,13 @@ Ext.define('Isu.util.IsuCombo', {
      */
     onBlurCombo: function (combo) {
         var tooltip = combo.tooltip;
-
+        console.log(combo.getValue());
         tooltip && tooltip.hide();
-    },
+    }
 
     /**
      * Handle 'change' event.
      * If value of combobox is null resets combobox and shows tooltip otherwise hides tooltip
      * and shows list of values.
      */
-    clearCombo: function (combo, newValue) {
-        var listValues = combo.picker,
-            tooltip = combo.tooltip;
-
-        if (newValue == null) {
-            combo.reset();
-            listValues && listValues.hide();
-            tooltip && tooltip.show();
-        } else {
-            tooltip && tooltip.hide();
-            listValues && listValues.show();
-        }
-    }
 });
