@@ -246,10 +246,12 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     abstract static class RegisterSpecBuilder implements RegisterSpec.RegisterSpecBuilder {
 
+        private static final BigDecimal DEFAULT_MULTIPLIER = BigDecimal.ONE;
         final RegisterSpecImpl registerSpec;
 
         RegisterSpecBuilder(Provider<RegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping) {
             registerSpec = registerSpecProvider.get().initialize(deviceConfiguration, registerMapping);
+            registerSpec.setMultiplier(DEFAULT_MULTIPLIER);
         }
 
         @Override
@@ -296,8 +298,18 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
         @Override
         public RegisterSpec add() {
+            applyDefaultsIfApplicable();
             this.registerSpec.validateBeforeAddToConfiguration();
             return this.registerSpec;
+        }
+
+        private void applyDefaultsIfApplicable() {
+            if (this.registerSpec.getMultiplier()==null) {
+                registerSpec.setMultiplier(DEFAULT_MULTIPLIER);
+            }
+            if (this.registerSpec.getOverflowValue()==null) {
+                registerSpec.setOverflow(BigDecimal.valueOf(Math.round(Math.pow(10, registerSpec.getNumberOfDigits()))));
+            }
         }
     }
 

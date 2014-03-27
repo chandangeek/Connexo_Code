@@ -110,9 +110,27 @@ public class RegisterSpecImplTest extends PersistenceTest {
         assertThat(registerSpec.getDeviceConfiguration()).isEqualTo(this.deviceConfiguration);
         assertThat(registerSpec.getNumberOfDigits()).isEqualTo(this.numberOfDigits);
         assertThat(registerSpec.getNumberOfFractionDigits()).isEqualTo(this.numberOfFractionDigits);
-        assertThat(registerSpec.getOverflowValue()).isNull();
+        assertThat(registerSpec.getOverflowValue()).isEqualTo(BigDecimal.valueOf(1000000000));
         assertThat(registerSpec.getMultiplier()).isEqualTo(BigDecimal.ONE);
         assertThat(registerSpec.getMultiplierMode()).isEqualTo(MultiplierMode.NONE);
+    }
+
+    @Test
+    @Transactional
+    public void createRegisterSpecTestMultiplierDefaultToOne() {
+        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(1).add();
+
+        assertThat(registerSpec.getRegisterMapping()).isEqualTo(registerMapping);
+        assertThat(registerSpec.getMultiplier()).isEqualTo(BigDecimal.ONE);
+        assertThat(registerSpec.getMultiplierMode()).isEqualTo(MultiplierMode.CONFIGURED_ON_OBJECT);
+    }
+
+    @Test
+    @Transactional
+    public void createRegisterSpecTestOverflowDefaultIsApplied() {
+        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(5).add();
+
+        assertThat(registerSpec.getOverflowValue()).isEqualTo(BigDecimal.valueOf(100000));
     }
 
     @Test
