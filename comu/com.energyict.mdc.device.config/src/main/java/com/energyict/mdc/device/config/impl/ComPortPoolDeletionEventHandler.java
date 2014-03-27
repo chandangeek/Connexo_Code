@@ -5,7 +5,7 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.engine.model.ComPortPool;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -17,16 +17,16 @@ import java.util.List;
  * Time: 10:37
  */
 @Component(name="com.energyict.mdc.device.config.protocol.delete.connectiontypepluggableclass.eventhandler", service = Subscriber.class, immediate = true)
-public class ConnectionTypePluggableClassDeletionEventHandler implements TopicHandler {
+public class ComPortPoolDeletionEventHandler implements TopicHandler {
 
     private volatile DeviceConfigurationService deviceConfigurationService;
 
     @Override
     public void handle(LocalEvent localEvent) {
-        ConnectionTypePluggableClass source = (ConnectionTypePluggableClass) localEvent.getSource();
-        List<PartialConnectionTask> found = deviceConfigurationService.findByConnectionTypePluggableClass(source);
+        ComPortPool source = (ComPortPool) localEvent.getSource();
+        List<PartialConnectionTask> found = deviceConfigurationService.findByComPortPool(source);
         if (!found.isEmpty()) {
-            throw new VetoDeleteConnectionTypePluggableClassException(getThesaurus(), source, found);
+            throw new VetoDeleteComPortPoolException(getThesaurus(), source, found);
         }
     }
 
@@ -36,7 +36,7 @@ public class ConnectionTypePluggableClassDeletionEventHandler implements TopicHa
 
     @Override
     public String getTopicMatcher() {
-        return "com/energyict/mdc/protocol/pluggable/connectiontype/DELETED";
+        return "com/energyict/mdc/engine/model/comportpool/DELETED";
     }
 
     @Reference

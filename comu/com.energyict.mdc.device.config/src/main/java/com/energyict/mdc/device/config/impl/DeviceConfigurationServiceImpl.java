@@ -33,6 +33,7 @@ import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.config.exceptions.UnitHasNoMatchingPhenomenonException;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -377,6 +378,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public List<PartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass) {
         return dataModel.query(PartialConnectionTask.class).select(where("pluggableClass").isEqualTo(connectionTypePluggableClass));
+    }
+
+    @Override
+    public List<PartialConnectionTask> findByComPortPool(ComPortPool comPortPool) {
+        return dataModel.query(PartialConnectionTask.class).select(where("comPortPool").isEqualTo(comPortPool));
     }
 
     @Override

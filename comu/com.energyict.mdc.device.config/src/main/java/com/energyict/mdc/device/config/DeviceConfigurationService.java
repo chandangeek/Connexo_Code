@@ -7,6 +7,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.impl.PartialConnectionTask;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.google.common.base.Optional;
@@ -276,4 +277,6 @@ public interface DeviceConfigurationService {
     public List<PartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass);
 
     public Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(long id);
+
+    List<PartialConnectionTask> findByComPortPool(ComPortPool comPortPool);
 }

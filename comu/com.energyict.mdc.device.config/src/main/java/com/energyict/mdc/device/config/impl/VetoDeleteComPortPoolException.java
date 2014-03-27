@@ -5,7 +5,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.engine.model.ComPortPool;
 
 import java.util.List;
 
@@ -14,10 +14,10 @@ import java.util.List;
  * Date: 27/03/2014
  * Time: 11:19
  */
-public class VetoDeleteConnectionTypePluggableClassException extends LocalizedException {
+public class VetoDeleteComPortPoolException extends LocalizedException {
 
-    public VetoDeleteConnectionTypePluggableClassException(Thesaurus thesaurus, ConnectionTypePluggableClass connectionTypePluggableClass, List<PartialConnectionTask> clients) {
-        super(thesaurus, MessageSeeds.VETO_CONNECTIONTYPE_PLUGGABLECLASS_DELETION, connectionTypePluggableClass.getJavaClassName(), asString(clients));
+    public VetoDeleteComPortPoolException(Thesaurus thesaurus, ComPortPool comPortPool, List<PartialConnectionTask> clients) {
+        super(thesaurus, MessageSeeds.VETO_COMPORTPOOL_DELETION, comPortPool, asString(clients));
     }
 
     private static String asString(List<PartialConnectionTask> clients) {
