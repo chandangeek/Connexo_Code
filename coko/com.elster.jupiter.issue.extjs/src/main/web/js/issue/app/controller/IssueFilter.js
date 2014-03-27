@@ -58,7 +58,7 @@ Ext.define('Isu.controller.IssueFilter', {
                 }
             }
         });
-        this.getStore('Isu.store.Assignee').on('load', this.assigneeLoad);
+     //   this.getStore('Isu.store.Assignee').on('load', this.assigneeLoad);
     },
 
     assigneeLoad: function (store, records, success) {
@@ -146,10 +146,10 @@ Ext.define('Isu.controller.IssueFilter', {
 
         if (reason) {
             grstore.proxy.extraParams.id = reason.get('id');
-            grstore.loadPage(1);
+
         } else {
             delete grstore.proxy.extraParams.id;
-            grstore.loadPage(1);
+
         }
         if (status) {
             var stat = [];
@@ -157,9 +157,9 @@ Ext.define('Isu.controller.IssueFilter', {
                 stat.push(item.get('id'))
             });
             grstore.proxy.extraParams.status = stat;
-            grstore.loadPage(1);
-        }
 
+        }
+        grstore.loadPage(1);
         this.getIssueFilter().down('filter-form').loadRecord(filter);
     },
 

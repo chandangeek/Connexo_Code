@@ -34,18 +34,18 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
                 groupHeaderTpl: '<span class="isu-icon-{name}"></span> {name}',
                 collapsible: false
             }
-        ],
-        columns: [
+        ]
+       /* columns: [
             {
                 header: false,
                 xtype: 'templatecolumn',
                 tpl: "<tpl if='id &gt '>Child</tpl>",
                 flex: 1
             }
-           /* {
+           *//* {
                 dataIndex: 'name', flex: 1
-            }*/
-        ]
+            }*//*
+        ]*/
     }
 });
 
