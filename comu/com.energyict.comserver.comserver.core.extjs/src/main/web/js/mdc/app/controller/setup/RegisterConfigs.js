@@ -29,7 +29,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         {ref: 'registerConfigEditForm', selector: '#registerConfigEditForm'},
         {ref: 'createRegisterConfigBtn', selector: '#createRegisterConfigBtn'},
         {ref: 'previewMrId', selector: '#preview_mrid'},
-        {ref: 'readingTypeContainer', selector: '#readingTypeContainer'}
+        {ref: 'readingTypeContainer', selector: '#readingTypeContainer'},
+        {ref: 'overflowValueInfo', selector: '#overflowValueInfo'},
+        {ref: 'numberOfDigits', selector: '#numberOfDigits'}
+
     ],
 
     deviceTypeId: null,
@@ -145,7 +148,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                     returnLink: '#setup/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigId + '/registerconfigurations'
                                 });
                                 me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-                                widget.down('#registerConfigEditCreateTitle').update('<H2>' + Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration')  + '</H2>');
+                                widget.down('#registerConfigEditCreateTitle').update('<H2>' + Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration') + '</H2>');
                                 widget.down('#editNumberOfDigitsField').setValue(8);
                                 widget.down('#editNumberOfFractionDigitsField').setValue(0);
                                 me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName);
@@ -363,6 +366,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     changeNumberOfDigits: function () {
         var view = this.getRegisterConfigEditForm();
         view.down('#editOverflowValueField').setValue(null);
+        var numberOfDigits = view.down('#editNumberOfDigitsField').getValue();
+        var maxOverFlowValue = Math.pow(10,numberOfDigits);
+        this.getOverflowValueInfo().update('<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo','MDC', 'The maximum overflow value is {0} with {1} number of digits.', [maxOverFlowValue, numberOfDigits]) + '</i></span>');
+        view.down('#editOverflowValueField').setMaxValue(maxOverFlowValue);
     },
 
     showRegisterConfigurationEditView: function (deviceTypeId, deviceConfigurationId, registerConfigurationId) {
