@@ -42,9 +42,10 @@ Ext.define('Isu.controller.Licensing', {
     },
 
     setBreadcrumb: function (breadcrumbs) {
+        var me = this;
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
                 text: 'Administration',
-                href: '#/administration'
+                href: me.getController('Isu.controller.history.Administration').tokenizeShowOverview()
             }),
             breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
                 text: 'Data collection',

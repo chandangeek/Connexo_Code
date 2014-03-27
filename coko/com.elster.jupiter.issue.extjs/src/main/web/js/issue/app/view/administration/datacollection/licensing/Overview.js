@@ -78,7 +78,7 @@ Ext.define('Isu.view.administration.datacollection.licensing.Overview', {
         menu.add({
             text: 'Licensing',
             pressed: true,
-            href: '#/administration/datacollection/licensing',
+            href: '#/issue-administration/datacollection/licensing',
             hrefTarget: '_self'
         });
 

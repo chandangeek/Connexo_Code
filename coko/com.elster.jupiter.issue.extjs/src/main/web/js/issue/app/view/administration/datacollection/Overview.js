@@ -34,25 +34,25 @@ Ext.define('Isu.view.administration.datacollection.Overview', {
         menu.add({
             text: 'Data collection',
             pressed: true,
-            href: '#/administration/datacollection',
+            href: '#/issue-administration/datacollection',
             hrefTarget: '_self'
         });
 
         menu.add({
             text: 'Issue assignment rules',
-            href: '#/administration/datacollection/issueassignmentrules',
+            href: '#/issue-administration/datacollection/issueassignmentrules',
             hrefTarget: '_self'
         });
 
         menu.add({
             text: 'Issue creation rules',
-            href: '#/administration/datacollection/issuecreationrules',
+            href: '#/issue-administration/datacollection/issuecreationrules',
             hrefTarget: '_self'
         });
 
         menu.add({
             text: 'Licensing',
-            href: '#/administration/datacollection/licensing',
+            href: '#/issue-administration/datacollection/licensing',
             hrefTarget: '_self'
         });
     },

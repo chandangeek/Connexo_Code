@@ -47,7 +47,7 @@ Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview
                             text: 'Browse...',
                             margin: '0 0 0 10',
                             hrefTarget: '',
-                            href: '#/administration/datacollection/licensing'
+                            href: '#/issue-administration/datacollection/licensing'
                         }
                     ]
                 },
@@ -64,7 +64,7 @@ Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview
                         {
                             text: 'Cancel',
                             hrefTarget: '',
-                            href: '#/administration/datacollection/licensing',
+                            href: '#/issue-administration/datacollection/licensing',
                             cls: 'isu-btn-link'
                         }
                     ]
@@ -86,7 +86,7 @@ Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview
         menu.add({
             text: 'Add license',
             pressed: true,
-            href: '#/administration/datacollection/licensing/addlicense',
+            href: '#/issue-administration/datacollection/licensing/addlicense',
             hrefTarget: '_self'
         });
     },

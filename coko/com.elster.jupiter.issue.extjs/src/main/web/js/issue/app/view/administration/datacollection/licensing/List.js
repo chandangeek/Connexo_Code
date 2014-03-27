@@ -70,7 +70,7 @@ Ext.define('Isu.view.administration.datacollection.licensing.List', {
                     text: 'Add license',
                     action: 'addlicense',
                     hrefTarget: '',
-                    href: '#/administration/datacollection/licensing/addlicense'
+                    href: '#/issue-administration/datacollection/licensing/addlicense'
                 }
             ]
         },
