@@ -110,7 +110,6 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<LogBookTypeInfo> getLogBookTypesForDeviceType(@PathParam("id") long id) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        List<LogBookTypeInfo> logBookTypeInfos = new ArrayList<>();
         return LogBookTypeInfo.from(ListPager.of(deviceType.getLogBookTypes(), new LogBookTypeComparator()).find());
     }
 
