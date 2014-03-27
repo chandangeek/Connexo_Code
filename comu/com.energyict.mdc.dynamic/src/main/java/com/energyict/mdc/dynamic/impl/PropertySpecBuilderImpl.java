@@ -1,7 +1,10 @@
 package com.energyict.mdc.dynamic.impl;
 
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.IdBusinessObject;
+import com.energyict.mdc.dynamic.JupiterReferenceFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecBuilder;
 import com.energyict.mdc.dynamic.PropertySpecPossibleValues;
@@ -68,6 +71,20 @@ public class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
     public static <D extends IdBusinessObject> PropertySpecBuilder<D> forReference (IdBusinessObjectFactory<D> factory) {
         ValueFactory<D> referenceFactory = new LegacyReferenceFactory<>(factory);
         return new PropertySpecBuilderImpl<>(referenceFactory);
+    }
+
+    /**
+     * Creates a new PropertySpecBuilder for {@link com.energyict.mdc.common.HasId}s that are
+     * findable by the specified {@link com.energyict.mdc.common.CanFindByLongPrimaryKey}.
+     *
+     * @param finder the finder that can provider D
+     * @param <D> the object type to find
+     * @return the PropertySpecBuilder
+     */
+    public static <D extends HasId> PropertySpecBuilder<D> forIdReference (CanFindByLongPrimaryKey<D> finder) {
+        ValueFactory<D> finderFactory = new JupiterReferenceFactory<>(finder);
+        return new PropertySpecBuilderImpl<>(finderFactory);
+
     }
 
     @Override
