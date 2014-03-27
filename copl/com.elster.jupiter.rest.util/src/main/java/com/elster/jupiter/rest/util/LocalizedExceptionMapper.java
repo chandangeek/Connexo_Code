@@ -9,12 +9,12 @@ import javax.ws.rs.ext.Provider;
 
 
 @Provider
-public class LocalizableExceptionMapper implements ExceptionMapper<LocalizedException>{
+public class LocalizedExceptionMapper implements ExceptionMapper<LocalizedException>{
 
     private final NlsService nlsService;
 
     @Inject
-    public LocalizableExceptionMapper(NlsService nlsService) {
+    public LocalizedExceptionMapper(NlsService nlsService) {
         this.nlsService = nlsService;
     }
 
