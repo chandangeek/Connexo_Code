@@ -13,6 +13,13 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.tests.Answers;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
@@ -26,6 +33,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,6 +61,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -64,11 +73,13 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
     private static DeviceConfigurationService deviceConfigurationService;
     private static ProtocolPluggableService protocolPluggableService;
+    private static NlsService nlsService;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         deviceConfigurationService = mock(DeviceConfigurationService.class);
         protocolPluggableService = mock(ProtocolPluggableService.class);
+        nlsService = mock(NlsService.class);
     }
 
     @Override
@@ -82,13 +93,14 @@ public class DeviceTypeResourceTest extends JerseyTest {
     protected Application configure() {
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
-        ResourceConfig resourceConfig = new ResourceConfig(ResourceHelper.class, DeviceTypeResource.class, DeviceConfigurationResource.class, RegisterConfigurationResource.class);
+        ResourceConfig resourceConfig = new ResourceConfig(ResourceHelper.class, DeviceTypeResource.class, DeviceConfigurationResource.class, RegisterConfigurationResource.class, ConstraintViolationExceptionMapper.class, LocalizedExceptionMapper.class);
         resourceConfig.register(JacksonFeature.class); // Server side JSON processing
         resourceConfig.register(new AbstractBinder() {
             @Override
             protected void configure() {
                 bind(deviceConfigurationService).to(DeviceConfigurationService.class);
                 bind(protocolPluggableService).to(ProtocolPluggableService.class);
+                bind(nlsService).to(NlsService.class);
                 bind(ResourceHelper.class).to(ResourceHelper.class);
             }
         });
@@ -607,10 +619,6 @@ public class DeviceTypeResourceTest extends JerseyTest {
         registerMappingInfo1.id=RM_ID_1;
         registerMappingInfo1.name="mapping 1";
         registerMappingInfo1.obisCode=new ObisCode(1,11,2,12,3,13);
-        RegisterMappingInfo registerMappingInfo2 = new RegisterMappingInfo();
-        registerMappingInfo2.id=RM_ID_2;
-        registerMappingInfo2.name="mapping 2";
-        registerMappingInfo2.obisCode=new ObisCode(11,111,12,112,13,113);
 
         DeviceType deviceType = mockDeviceType("updater", 31);
         RegisterMapping registerMapping101 = mock(RegisterMapping.class);
@@ -878,6 +886,47 @@ public class DeviceTypeResourceTest extends JerseyTest {
         verify(deviceConfiguration).deleteRegisterSpec(registerSpec);
     }
 
+    @Test
+    public void testConstraintViolationResultsInProperJson() throws Exception {
+        // Backend has RM 101 and 102, UI sets for 101: delete 102
+        long RM_ID_1 = 101L;
+        long RM_ID_2 = 102L;
+
+        RegisterMappingInfo registerMappingInfo1 = new RegisterMappingInfo();
+        registerMappingInfo1.id=RM_ID_1;
+        registerMappingInfo1.name="mapping 1";
+        registerMappingInfo1.obisCode=new ObisCode(1,11,2,12,3,13);
+
+        DeviceType deviceType = mockDeviceType("updater", 31);
+        RegisterMapping registerMapping101 = mock(RegisterMapping.class);
+        when(registerMapping101.getId()).thenReturn(RM_ID_1);
+        RegisterMapping registerMapping102 = mock(RegisterMapping.class);
+        when(registerMapping102.getId()).thenReturn(RM_ID_2);
+        when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101, registerMapping102));
+        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(Collections.<DeviceProtocolPluggableClass>emptyList());
+        when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
+        when(deviceConfigurationService.findRegisterMapping(RM_ID_1)).thenReturn(registerMapping101);
+        when(deviceConfigurationService.findRegisterMapping(RM_ID_2)).thenReturn(registerMapping102);
+
+        Thesaurus thesaurus = mock(Thesaurus.class);
+        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
+        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
+        MessageSeed messageSeed = mock(MessageSeed.class);
+        doThrow(new SomeLocalizedException(thesaurus, messageSeed)).when(deviceType).save();
+
+        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
+        deviceTypeInfo.registerMappings=Arrays.asList(registerMappingInfo1);
+        Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
+        Response response = target("/devicetypes/31").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        ByteArrayInputStream entity = (ByteArrayInputStream) response.getEntity();
+        byte[] bytes = new byte[entity.available()];
+        entity.read(bytes,0, entity.available());
+        String answer = new String(bytes);
+        assertThat(answer).contains("\"message\"").contains("\"errors\"");
+    }
+
+
     private <T> Finder<T> mockFinder(List<T> list) {
         Finder<T> finder = mock(Finder.class);
 
@@ -916,6 +965,13 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
         return readingType;
+    }
+
+    class SomeLocalizedException extends LocalizedException {
+
+        protected SomeLocalizedException(Thesaurus thesaurus, MessageSeed messageSeed) {
+            super(thesaurus, messageSeed);
+        }
     }
 
 }
