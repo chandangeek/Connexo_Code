@@ -385,7 +385,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
     detailBreadCrumb: function (deviceTypeId,deviceTypeName,deviceConfigurationId,deviceConfigurationName) {
         var breadcrumbChild5 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '"' + deviceConfigurationName + '"',
+            text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
             href: 'overview'
         });
         var breadcrumbChild4 = Ext.create('Uni.model.BreadcrumbItem',{
