@@ -29,7 +29,7 @@ public class ReasonResource extends BaseResource {
             condition = where("name").likeIgnoreCase(value);
         }
 
-        Query<IssueReason> query = getIssueMainService().query(IssueReason.class);
+        Query<IssueReason> query = getIssueService().query(IssueReason.class);
         List<IssueReason> list = getQueryService().wrap(query).select(queryParameters, condition);
         return new IssueReasonListInfo(list);
     }

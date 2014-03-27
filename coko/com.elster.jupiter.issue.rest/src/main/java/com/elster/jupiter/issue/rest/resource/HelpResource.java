@@ -34,8 +34,8 @@ public class HelpResource extends BaseResource {
         IssueInfo<DeviceInfo> response = null;
         try (TransactionContext context = getTransactionService().getContext()) {
             Issue issue = getIssueHelpService().createTestIssue(
-                    params.get("status").get(0),
-                    params.get("reason").get(0),
+                    Long.parseLong(params.get("status").get(0)),
+                    Long.parseLong(params.get("reason").get(0)),
                     params.get("device").get(0),
                     Long.parseLong(params.get("due").get(0))).get();
             response = new IssueInfo<>(issue, DeviceInfo.class);

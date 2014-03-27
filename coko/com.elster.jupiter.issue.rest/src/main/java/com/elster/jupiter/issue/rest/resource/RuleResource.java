@@ -4,8 +4,10 @@ import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
 import com.elster.jupiter.issue.rest.response.rules.AssignmentRuleInfo;
 import com.elster.jupiter.issue.rest.response.rules.AssignmentRuleListInfo;
 import com.elster.jupiter.issue.share.entity.Rule;
+import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.util.conditions.Condition;
 
+import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -15,16 +17,21 @@ import java.util.List;
 
 @Path("/rules")
 public class RuleResource extends BaseResource{
+    private IssueAssignmentService issueAssignmentService;
+
+    @Inject
+    public void setIssueAssignmentService(IssueAssignmentService issueAssignmentService) {
+        this.issueAssignmentService = issueAssignmentService;
+    }
 
     @GET
     @Path("/assign")
     public Response getAssignmentRules(@BeanParam StandardParametersBean params){
-        List<Rule> rulesFromDB = getIssueMainService().query(Rule.class)
-                .select(Condition.TRUE, params.getFrom(), params.getTo(), params.getOrder());
+        List<Rule> rulesFromDB = issueAssignmentService.getAssignmentRuleQuery().select(Condition.TRUE);
         List<AssignmentRuleInfo> ruleInfoList = new ArrayList<>();
         for (Rule rule : rulesFromDB) {
             AssignmentRuleInfo ruleInfo = new AssignmentRuleInfo(rule);
-            ruleInfo.setAssignee(new IssueAssigneeInfo(getIssueService().getAssigneeFromRule(rule)));
+            ruleInfo.setAssignee(new IssueAssigneeInfo(rule.getAssignee()));
             ruleInfoList.add(ruleInfo);
         }
 

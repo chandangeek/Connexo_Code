@@ -20,7 +20,7 @@ public class StatusResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public IssueStatusListInfo getStatuses(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        Query<IssueStatus> query = getIssueMainService().query(IssueStatus.class);
+        Query<IssueStatus> query = getIssueService().query(IssueStatus.class);
         List<IssueStatus> list = getQueryService().wrap(query).select(queryParameters);
         return new IssueStatusListInfo(list);
     }

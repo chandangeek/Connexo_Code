@@ -14,6 +14,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
@@ -21,15 +22,13 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/assignees")
 public class AssigneeResource extends BaseResource {
-    private static final String UNASSIGNED_TITLE = "Unassigned";
-
     public AssigneeResource() {
         super();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public AssigneeFilterListInfo getAllAssignees(@Context UriInfo uriInfo) {
+    public AssigneeFilterListInfo getAllAssignees(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
         // We shouldn't return aything if the 'like' parameter is absent or it is an empty string.
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         if (queryParameters.get("like") != null) {
@@ -40,17 +39,11 @@ public class AssigneeResource extends BaseResource {
                 Condition condition = where("name").likeIgnoreCase(dbSearchText);
                 Condition conditionUser = where("authenticationName").likeIgnoreCase(dbSearchText);
 
-                Query<AssigneeTeam> queryTeam = getIssueMainService().query(AssigneeTeam.class);
+                Query<AssigneeTeam> queryTeam = getIssueService().query(AssigneeTeam.class);
                 List<AssigneeTeam> listTeam = getQueryService().wrap(queryTeam).select(queryParameters, condition, "name");
 
-                Query<AssigneeRole> queryRole = getIssueMainService().query(AssigneeRole.class);
+                Query<AssigneeRole> queryRole = getIssueService().query(AssigneeRole.class);
                 List<AssigneeRole> listRole = getQueryService().wrap(queryRole).select(queryParameters, condition, "name");
-
-                if (UNASSIGNED_TITLE.toLowerCase().indexOf(searchText.toLowerCase()) >-1){
-                    AssigneeRole role = new AssigneeRole();
-                    role.setName(UNASSIGNED_TITLE);
-                    listRole.add(role);
-                }
 
                 Query<User> queryUser = getUserService().getUserQuery();
                 List<User> listUsers = getQueryService().wrap(queryUser).select(queryParameters, conditionUser, "authname");
@@ -58,7 +51,7 @@ public class AssigneeResource extends BaseResource {
                 return new AssigneeFilterListInfo(listTeam, listRole, listUsers);
             }
         }
-        return new AssigneeFilterListInfo();
+        return AssigneeFilterListInfo.defaults((User)securityContext.getUserPrincipal());
     }
 
 
@@ -67,7 +60,7 @@ public class AssigneeResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public AssignListInfo getGroups(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        Query<AssigneeTeam> query = getIssueMainService().query(AssigneeTeam.class);
+        Query<AssigneeTeam> query = getIssueService().query(AssigneeTeam.class);
         List<AssigneeTeam> list = getQueryService().wrap(query).select(queryParameters);
         return new AssignListInfo(list);
     }
@@ -77,7 +70,7 @@ public class AssigneeResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public AssignListInfo getTeams(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        Query<AssigneeRole> query = getIssueMainService().query(AssigneeRole.class);
+        Query<AssigneeRole> query = getIssueService().query(AssigneeRole.class);
         List<AssigneeRole> list = getQueryService().wrap(query).select(queryParameters);
         return new AssignListInfo(list);
     }

@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AssigneeFilterListInfo {
+    private static final String UNASSIGNED_TITLE = "Unassigned";
+    private static final String ME_TITLE = "Me";
+
     private List<IssueAssigneeInfo> data;
 
     public AssigneeFilterListInfo() {
@@ -18,13 +21,13 @@ public class AssigneeFilterListInfo {
     public AssigneeFilterListInfo(List<AssigneeTeam> teamList, List<AssigneeRole> roleList, List<User> userList) {
         this();
         for (AssigneeTeam team : teamList) {
-            data.add(new IssueAssigneeInfo(IssueAssigneeType.TEAM.toString(), team.getId(), team.getName()));
+            data.add(new IssueAssigneeInfo(IssueAssigneeType.TEAM.getType(), team.getId(), team.getName()));
         }
         for (AssigneeRole role : roleList) {
-            data.add(new IssueAssigneeInfo(IssueAssigneeType.ROLE.name(), role.getId(), role.getName()));
+            data.add(new IssueAssigneeInfo(IssueAssigneeType.ROLE.getType(), role.getId(), role.getName()));
         }
         for (User user : userList) {
-            data.add(new IssueAssigneeInfo(IssueAssigneeType.USER.name(), user.getId(), user.getName()));
+            data.add(new IssueAssigneeInfo(IssueAssigneeType.USER.getType(), user.getId(), user.getName()));
         }
     }
     public List<IssueAssigneeInfo> getData() {
@@ -36,4 +39,14 @@ public class AssigneeFilterListInfo {
     }
 
 
+    public static AssigneeFilterListInfo defaults(User currentUser) {
+        AssigneeFilterListInfo info = new AssigneeFilterListInfo();
+        // Adding 'Unassigned'
+        info.data.add(new IssueAssigneeInfo("UnexistingType", -1L, UNASSIGNED_TITLE));
+        if (currentUser != null) {
+            // Adding 'Me'
+            info.data.add(new IssueAssigneeInfo(IssueAssigneeType.USER.getType(), currentUser.getId(), ME_TITLE));
+        }
+        return info;
+    }
 }

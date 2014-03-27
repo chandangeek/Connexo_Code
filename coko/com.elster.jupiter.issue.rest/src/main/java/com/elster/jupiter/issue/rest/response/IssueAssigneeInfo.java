@@ -8,7 +8,7 @@ public class IssueAssigneeInfo {
     private String name;
 
     public IssueAssigneeInfo(IssueAssignee assignee){
-        if (assignee != null) {
+        if (assignee != null && assignee.getType() != null) {
             this.setType(assignee.getType().getType());
             switch (assignee.getType()){
                 case USER:

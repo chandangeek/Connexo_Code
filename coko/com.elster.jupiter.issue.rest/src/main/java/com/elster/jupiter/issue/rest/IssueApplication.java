@@ -2,8 +2,8 @@ package com.elster.jupiter.issue.rest;
 
 
 import com.elster.jupiter.issue.rest.resource.*;
+import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueHelpService;
-import com.elster.jupiter.issue.share.service.IssueMainService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -27,7 +27,7 @@ public class IssueApplication extends Application implements BinderProvider {
     private volatile RestQueryService restQueryService;
     private volatile UserService userService;
     private volatile IssueService issueService;
-    private volatile IssueMainService issueMainService;
+    private volatile IssueAssignmentService issueAssignmentService;
     private volatile IssueHelpService issueHelpService;
 
     @Override
@@ -36,8 +36,8 @@ public class IssueApplication extends Application implements BinderProvider {
             @Override
             protected void configure() {
                 bind(issueService).to(IssueService.class);
-                bind(issueMainService).to(IssueMainService.class);
                 bind(issueHelpService).to(IssueHelpService.class);
+                bind(issueAssignmentService).to(IssueAssignmentService.class);
                 bind(userService).to(UserService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(restQueryService).to(RestQueryService.class);
@@ -64,10 +64,6 @@ public class IssueApplication extends Application implements BinderProvider {
     }
 
     @Reference
-    public void setIssueService(IssueService issueService) {
-        this.issueService = issueService;
-    }
-    @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
@@ -76,8 +72,12 @@ public class IssueApplication extends Application implements BinderProvider {
         this.restQueryService = restQueryService;
     }
     @Reference
-    public void setIssueMainService(IssueMainService issueMainService) {
-        this.issueMainService = issueMainService;
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
+    }
+    @Reference
+    public void setIssueAssignmentService(IssueAssignmentService issueAssignmentService) {
+        this.issueAssignmentService = issueAssignmentService;
     }
     @Reference
     public void setIssueHelpService(IssueHelpService issueHelpService) {

@@ -33,14 +33,12 @@ public class StandardParametersBean {
 
     public Order[] getOrder() {
         List<Order> orders = new ArrayList<Order>();
-        if (!this.sort.isEmpty()) {
-            for (String field : sort) {
-                if(field.startsWith("-")) {
-                    orders.add(Order.descending(field.substring(1)));
-                }
-                else {
-                    orders.add(Order.ascending(field));
-                }
+        for (String field : this.sort) {
+            if(field.startsWith("-")) {
+                orders.add(Order.descending(field.substring(1)));
+            }
+            else {
+                orders.add(Order.ascending(field));
             }
         }
         return orders.toArray(new Order[orders.size()]);

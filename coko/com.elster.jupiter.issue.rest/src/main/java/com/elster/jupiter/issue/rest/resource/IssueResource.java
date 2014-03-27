@@ -12,6 +12,7 @@ import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.rest.transactions.CloseIssuesTransaction;
 import com.elster.jupiter.issue.rest.transactions.CreateCommentTransaction;
 import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.service.GroupQueryBuilder;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
@@ -38,31 +39,10 @@ public class IssueResource extends BaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllIssues(@BeanParam StandardParametersBean params) {
-        Query<IssueStatus> statusQuery = getIssueMainService().query(IssueStatus.class);
-        boolean isHistorical = false;
-        boolean isActual = false;
+        Class<? extends BaseIssue> apiClass = getQueryApiClass(params);
 
-        if(params.getQueryParameters().size() > 0) {
-            for(Long status : validateLongParams(params.get("status"))) {
-                Optional<IssueStatus> issueStatusRef = statusQuery.get(status);
-                if (issueStatusRef.isPresent()) {
-                    if ( issueStatusRef.get().isFinal()) {
-                        isHistorical = true;
-                    } else {
-                        isActual = true;
-                    }
-                }
-            }
-        }
-
-        Class<? extends BaseIssue> apiClass = Issue.class;
-        if (isHistorical && isActual) {
-            apiClass = BaseIssue.class;
-        } else if (isHistorical){
-            apiClass = HistoricalIssue.class;
-        }
-
-        Query<? extends BaseIssue> query = getIssueMainService().query(apiClass, EndDevice.class, User.class, IssueReason.class, IssueStatus.class, AssigneeRole.class, AssigneeTeam.class);
+        Query<? extends BaseIssue> query = getIssueService().query(apiClass, EndDevice.class, User.class, IssueReason.class,
+                IssueStatus.class, AssigneeRole.class, AssigneeTeam.class);
         Condition condition = getQueryCondition(params);
         List<? extends BaseIssue> list = query.select(condition, params.getFrom(), params.getTo(), params.getOrder());
         IssueListInfo resultList = new IssueListInfo(list, params.getStart(), params.getLimit());
@@ -74,9 +54,14 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public IssueGroupListInfo getGroupedList(@BeanParam StandardParametersBean params) {
         List<GroupByReasonEntity> resultList = Collections.<GroupByReasonEntity>emptyList();
-        if (params.getQueryParameters().size() > 0 && params.get("field") != null) {
+        if (params.get("field") != null) {
             try (TransactionContext context = getTransactionService().getContext()) {
-                resultList = getIssueService().getIssueGroupList(params.get("field").get(0), false, params.getFrom(), params.getTo(), validateLongParams(params.get("id")));
+                List<Long> ids = parseLongParams(params.get("id"));
+                long id = ids.size() > 0 ? ids.get(0) : 0;
+                GroupQueryBuilder builder = new GroupQueryBuilder();
+                builder.setId(id).setFrom(params.getFrom()).setTo(params.getTo()).setStatuses(params.get("status"))
+                        .setSourceClass(getQueryApiClass(params)).setGroupColumn(params.get("field").get(0));
+                resultList = getIssueService().getIssueGroupList(builder);
                 context.commit();
             }
         }
@@ -87,15 +72,11 @@ public class IssueResource extends BaseResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public RootEntity getIssueById(@PathParam("id") long id) {
-        Optional<Issue> issue = getIssueMainService().get(Issue.class, id);
-        Optional<HistoricalIssue> issueHist = Optional.absent();
+        Optional<Issue> issue = getIssueService().findIssue(id, true);
         if (!issue.isPresent()) {
-            issueHist = getIssueMainService().get(HistoricalIssue.class, id);
-            if (!issueHist.isPresent()) {
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
-            }
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        return new RootEntity<IssueInfo>(new IssueInfo<DeviceInfo>(issue.isPresent() ? issue.get() : issueHist.get(), DeviceInfo.class));
+        return new RootEntity<IssueInfo>(new IssueInfo<DeviceInfo>(issue.get(), DeviceInfo.class));
     }
 
     @GET
@@ -103,7 +84,7 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public IssueCommentListInfo getComments(@PathParam("id") long id, @BeanParam StandardParametersBean params) {
         Condition condition = where("issueId").isEqualTo(id);
-        Query<IssueComment> query = getIssueMainService().query(IssueComment.class, User.class);
+        Query<IssueComment> query = getIssueService().query(IssueComment.class, User.class);
         List<IssueComment> commentsList = query.select(condition, params.getStart(), 0, params.getOrder());
         return new IssueCommentListInfo(commentsList);
     }
@@ -117,7 +98,7 @@ public class IssueResource extends BaseResource {
         if (request.getComment() == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
-        IssueComment comment = getTransactionService().execute(new CreateCommentTransaction(id, request.getComment(), author, getIssueMainService()));
+        IssueComment comment = getTransactionService().execute(new CreateCommentTransaction(id, request.getComment(), author, getIssueService()));
         return Response.status(Response.Status.CREATED).entity(new RootEntity<IssueCommentInfo>(new IssueCommentInfo(comment))).build();
     }
 
@@ -127,7 +108,7 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RootEntity closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext){
         User author = (User)securityContext.getUserPrincipal();
-        ActionInfo info = getTransactionService().execute(new CloseIssuesTransaction(request, getIssueService(), getIssueMainService(), author));
+        ActionInfo info = getTransactionService().execute(new CloseIssuesTransaction(request, getIssueService(), author));
         return new RootEntity<ActionInfo>(info);
     }
 
@@ -139,6 +120,31 @@ public class IssueResource extends BaseResource {
         User author = (User)securityContext.getUserPrincipal();
         ActionInfo info = getTransactionService().execute(new AssignIssueTransaction(request, getIssueService(), author));
         return new RootEntity<ActionInfo>(info);
+    }
+
+    private Class<? extends BaseIssue> getQueryApiClass(StandardParametersBean params){
+        boolean isHistorical = false;
+        boolean isActual = false;
+
+        Query<IssueStatus> statusQuery = getIssueService().query(IssueStatus.class);
+        for(Long status : parseLongParams(params.get("status"))) {
+            Optional<IssueStatus> issueStatusRef = statusQuery.get(status);
+            if (issueStatusRef.isPresent()) {
+                if ( issueStatusRef.get().isFinal()) {
+                    isHistorical = true;
+                } else {
+                    isActual = true;
+                }
+            }
+        }
+
+        Class<? extends BaseIssue> apiClass = BaseIssue.class;
+        if (isActual && !isHistorical) {
+            apiClass = Issue.class;
+        } else if (isHistorical){
+            apiClass = HistoricalIssue.class;
+        }
+        return apiClass;
     }
 
     private Condition getQueryCondition(StandardParametersBean params) {
@@ -169,7 +175,7 @@ public class IssueResource extends BaseResource {
 
     private Condition addReasonQueryCondition(StandardParametersBean params) {
         Condition conditionReason = Condition.FALSE;
-        for(Long reason : validateLongParams(params.get("reason"))) {
+        for(Long reason : parseLongParams(params.get("reason"))) {
             conditionReason = conditionReason.or(where("reason.id").isEqualTo(reason));
         }
         conditionReason = conditionReason == Condition.FALSE ? Condition.TRUE : conditionReason;
@@ -178,7 +184,7 @@ public class IssueResource extends BaseResource {
 
     private Condition addStatusQueryCondition(StandardParametersBean params) {
         Condition conditionStatus = Condition.FALSE;
-            for(Long status : validateLongParams(params.get("status"))) {
+            for(Long status : parseLongParams(params.get("status"))) {
                 conditionStatus = conditionStatus.or(where("status.id").isEqualTo(status));
             }
         conditionStatus = conditionStatus == Condition.FALSE ? Condition.TRUE : conditionStatus;
