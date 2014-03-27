@@ -9,7 +9,7 @@ Ext.define('Uni.view.user.Menu', {
     cls: 'user-menu',
 
     menu: [
-        {
+        /*{
             text: 'Profile'
         },
         {
@@ -18,10 +18,11 @@ Ext.define('Uni.view.user.Menu', {
         },
         {
             xtype: 'menuseparator'
-        },
+        },*/
         {
             text: 'Logout',
-            glyph: 'xe00d@icomoon'
+            glyph: 'xe00d@icomoon',
+            action: 'logout'
         }
     ],
 

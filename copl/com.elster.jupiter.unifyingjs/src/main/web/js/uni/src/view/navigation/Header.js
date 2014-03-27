@@ -32,7 +32,7 @@ Ext.define('Uni.view.navigation.Header', {
 //        },
         {
             xtype: 'navigationLogo'
-        }
+        },
 //        {
 //            xtype: 'component',
 //            flex: 1
@@ -50,9 +50,9 @@ Ext.define('Uni.view.navigation.Header', {
 //        {
 //            xtype: 'navigationHelp'
 //        },
-//        {
-//            xtype: 'userMenu'
-//        }
+        {
+            xtype: 'userMenu'
+        }
     ],
 
     initComponent: function () {
