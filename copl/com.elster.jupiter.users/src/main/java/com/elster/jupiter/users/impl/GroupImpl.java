@@ -131,6 +131,12 @@ final class GroupImpl implements Group , PersistenceAware {
         return description;
     }
 
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
+
+    }
+
     void persist() {
 		groupFactory().persist(this);
 	}

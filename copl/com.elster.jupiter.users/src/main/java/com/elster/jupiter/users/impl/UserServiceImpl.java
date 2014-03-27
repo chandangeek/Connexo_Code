@@ -79,6 +79,11 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Override
+    public List<UserDirectory> getUserDirectories() {
+        return dataModel.mapper(UserDirectory.class).find();
+    }
+
+    @Override
     public UserDirectory findDefaultUserDirectory() {
         List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUAL.compare("isDefault", true));
         if (found.isEmpty()) {

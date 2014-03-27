@@ -32,4 +32,6 @@ public interface Group extends HasName {
     Date getModifiedDate();
 
     String getDescription();
+
+    void setDescription(String description);
 }

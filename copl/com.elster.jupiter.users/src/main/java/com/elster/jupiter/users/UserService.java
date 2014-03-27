@@ -54,4 +54,6 @@ public interface UserService {
     User findOrCreateUser(String name, String domain, String directoryType);
 
     Group findOrCreateGroup(String group);
+
+    List<UserDirectory> getUserDirectories();
 }
