@@ -26,7 +26,7 @@ public class Activator implements BundleActivator {
 			"/index.html", 
 			"Isu.controller.Main", 
 			scripts, 
-			Arrays.asList("ISU")
+			Arrays.asList("ISU"),
 			Arrays.asList("/resources/css/isu.css"),
             dependencies
 		);
