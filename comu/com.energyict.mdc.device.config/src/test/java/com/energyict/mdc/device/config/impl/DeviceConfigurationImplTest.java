@@ -27,12 +27,13 @@ import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;

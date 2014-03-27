@@ -42,6 +42,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 

@@ -45,6 +45,7 @@ import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -70,6 +71,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -89,7 +91,7 @@ public class PartialInboundConnectiontaskCrudIT {
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
-    DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     DeviceProtocol deviceProtocol;
 
@@ -190,6 +192,8 @@ public class PartialInboundConnectiontaskCrudIT {
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(applicationContext.getTranslator()).thenReturn(translator);
         when(applicationContext.findFactory(5011)).thenReturn(businessObjectFactory);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Collections.<DeviceProtocolCapabilities>emptyList());
 
         initializeDatabase(false, false);
         protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
@@ -231,7 +235,7 @@ public class PartialInboundConnectiontaskCrudIT {
         PartialInboundConnectionTask inboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
@@ -273,7 +277,7 @@ public class PartialInboundConnectiontaskCrudIT {
         PartialInboundConnectionTask inboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
@@ -326,7 +330,7 @@ public class PartialInboundConnectiontaskCrudIT {
         PartialInboundConnectionTask inboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
@@ -366,7 +370,7 @@ public class PartialInboundConnectiontaskCrudIT {
         PartialInboundConnectionTask inboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
@@ -395,7 +399,7 @@ public class PartialInboundConnectiontaskCrudIT {
         PartialInboundConnectionTask inboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();

@@ -92,7 +92,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
-    DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     DeviceProtocol deviceProtocol;
 
@@ -193,6 +193,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(applicationContext.getTranslator()).thenReturn(translator);
         when(applicationContext.findFactory(5011)).thenReturn(businessObjectFactory);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
 
         initializeDatabase(false, false);
         protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
@@ -232,7 +233,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         PartialOutboundConnectionTask outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
@@ -284,7 +285,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         PartialOutboundConnectionTask outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
@@ -343,7 +344,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         PartialOutboundConnectionTask outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
@@ -387,7 +388,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         DeviceType deviceType;
         DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
-            deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
@@ -455,7 +456,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         PartialOutboundConnectionTask outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
@@ -485,7 +486,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         PartialOutboundConnectionTask outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
@@ -515,7 +516,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         PartialOutboundConnectionTask outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
@@ -546,7 +547,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         PartialOutboundConnectionTask outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", mock(MyDeviceProtocolPluggableClass.class));
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
