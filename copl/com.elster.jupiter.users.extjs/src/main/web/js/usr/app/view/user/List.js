@@ -47,14 +47,16 @@ Ext.define('Usr.view.user.List', {
                     icon: '../usr/resources/images/gear-16x16.png',
                     handler: function(grid, rowIndex, colIndex,item,e) {
                         var menu = Ext.widget('menu', {
+                                itemId: 'menuUsersList',
                                 items: [{
                                     xtype: 'menuitem',
+                                    itemId: 'menuUsersListEdit',
                                     text: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
                                     listeners: {
                                         click: {
                                             element: 'el',
                                             fn: function(){
-                                                this.fireEvent('editUserItem',grid.getSelectionModel().getSelection()[0]);
+                                                this.fireEvent('editUserItem',grid.getRecord(rowIndex));
                                             },
                                             scope: this
                                         }

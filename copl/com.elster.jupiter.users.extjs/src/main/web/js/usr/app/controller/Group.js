@@ -19,8 +19,6 @@ Ext.define('Usr.controller.Group', {
     ],
 
     init: function () {
-        this.initMenu();
-
         this.control({
             'groupBrowse breadcrumbTrail': {
                 afterrender: this.onAfterRender
@@ -40,21 +38,9 @@ Ext.define('Usr.controller.Group', {
         });
     },
 
-    initMenu: function () {
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('group.title', 'USM', 'Roles'),
-            href: Usr.getApplication().getHistoryGroupController().tokenizeShowOverview(),
-            glyph: 'xe020@icomoon'
-        });
-
-        Uni.store.MenuItems.add(menuItem);
-    },
-
     showOverview: function () {
         var widget = Ext.widget('groupBrowse');
-        //widget.getBreadcrumbTrail().show();
         this.getApplication().fireEvent('changecontentevent', widget);
-        //this.getPrivilegesStore().load();
     },
 
     onAfterRender: function (breadcrumbs) {
@@ -79,12 +65,11 @@ Ext.define('Usr.controller.Group', {
     },
 
     editGroup: function (record) {
-        this.getApplication().getGroupPrivilegesController().showOverview(record, 'edit');
+        this.getApplication().getGroupPrivilegesController().showEditOverviewWithHistory(record.get('id'));
     },
 
     createGroup: function () {
-        var record = Ext.create(Usr.model.Group);
-        this.getApplication().getGroupPrivilegesController().showOverview(record, 'create');
+        this.getApplication().getGroupPrivilegesController().showCreateOverviewWithHistory();
     },
 
     selectGroup: function (grid, record) {

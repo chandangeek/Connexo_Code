@@ -33,34 +33,64 @@ Ext.define('Usr.controller.GroupPrivileges', {
         });
     },
 
-      showOverview: function (record, type) {
-        var widget = Ext.widget('groupEdit'),
-            form = widget.down('form');
+    showEditOverviewWithHistory: function(groupId) {
+        location.href = '#roles/' + groupId + '/edit';
+    },
+
+    showEditOverview: function (groupId) {
+        var groupStore = Ext.StoreManager.get('Groups');
+        var widget = Ext.widget('groupEdit');
+
+        widget.setLoading(true);
+        var me = this;
+        Ext.ModelManager.getModel('Usr.model.Group').load(groupId, {
+            success: function (group) {
+                groupStore.load({
+                    callback: function (store) {
+                        title = Uni.I18n.translate('group.edit', 'USM', 'Edit role');
+                        widget.down('form').loadRecord(group);
+                        widget.down('#els_usm_groupEditHeader').update('<h1>' + title + ' "' + group.get('name') + '"' + '</h1>');
+                        widget.down('[name=name]').disable();
+                        widget.down('[name=description]').disable();
+                        me.displayBreadcrumb(title + ' "' + group.get("name") + '"');
+
+                        me.getPrivilegesStore().load(function () {
+                            me.resetPrivilegesForRecord(group);
+                        });
+
+                        widget.setLoading(false);
+                    }
+                })
+            }
+        });
+
+        widget.down('#cancelLink').autoEl.href = this.getApplication().getHistoryGroupController().tokenizePreviousTokens();
+
         this.getApplication().fireEvent('changecontentevent', widget);
+    },
 
-        form.loadRecord(record);
+    showCreateOverviewWithHistory: function(groupId) {
+        location.href = '#roles/create';
+    },
 
-        this.operation = type;
+    showCreateOverview: function () {
+        var widget = Ext.widget('groupEdit');
 
-        var editHeader = Ext.getCmp('els_usm_groupEditHeader');
-        var title = '';
-        if(type == 'create'){
-            title = Uni.I18n.translate('group.create', 'USM', 'Create role');
-            editHeader.update('<h1>' + title + '</h1>');
-            this.displayBreadcrumb(title);
-        }
-        else{
-            title = Uni.I18n.translate('group.edit', 'USM', 'Edit role');
-            editHeader.update('<h1>' + title + ' "' + record.get('name') + '"' + '</h1>');
-            this.displayBreadcrumb(title + ' "' + record.get("name") + '"');
-            form.down('[name=name]').disable();
-            form.down('[name=description]').disable();
-        }
+        title = Uni.I18n.translate('group.create', 'USM', 'Create role');
+        widget.down('#els_usm_groupEditHeader').update('<h1>' + title + '</h1>');
+        this.displayBreadcrumb(title);
+
+        var record = Ext.create(Usr.model.Group);
+        widget.down('form').loadRecord(record);
 
         var me = this;
         this.getPrivilegesStore().load(function () {
             me.resetPrivilegesForRecord(record);
         });
+
+        widget.down('#cancelLink').autoEl.href = this.getApplication().getHistoryGroupController().tokenizePreviousTokens();
+
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     displayBreadcrumb: function (current) {
@@ -98,10 +128,6 @@ Ext.define('Usr.controller.GroupPrivileges', {
             }
         }
 
-        if (this.operation == 'create') {
-            record = Ext.create(Usr.model.Group);
-        }
-
         record.set(values);
         record.privileges().removeAll();
         record.privileges().add(selected);
@@ -109,8 +135,7 @@ Ext.define('Usr.controller.GroupPrivileges', {
         var me=this;
         record.save({
             success: function (record) {
-                var widget = Ext.widget('groupBrowse');
-                me.getApplication().fireEvent('changecontentevent', widget);
+                location.href = form.down('#cancelLink').autoEl.href
             },
             failure: function(record,operation){
                 var json = Ext.decode(operation.response.responseText);
@@ -119,16 +144,8 @@ Ext.define('Usr.controller.GroupPrivileges', {
                 }
             }
         });
-
-        //record.commit();
-
     },
-    /*saveSuccess: function () {
-        alert('Saved');
-    },
-    saveFailed: function () {
-        alert('Failed');
-    },*/
+
     resetPrivilegesForRecord: function (record) {
         var privileges = this.getPrivilegesStore(),
             currentPrivileges = [];

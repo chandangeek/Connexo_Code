@@ -165,6 +165,7 @@ Ext.define('Usr.view.user.Edit', {
                                             items: [
                                                  {
                                                      xtype: 'box',
+                                                     itemId: 'cancelLink',
                                                      autoEl: {
                                                          tag: 'a',
                                                          href: '#/users',

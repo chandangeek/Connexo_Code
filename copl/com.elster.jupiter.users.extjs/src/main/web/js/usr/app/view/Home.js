@@ -33,6 +33,7 @@ Ext.define('Usr.view.Home', {
                 {
                     xtype: 'box',
                     margins: '0 0 10 50',
+                    itemId: 'usersLink',
                     autoEl: {
                         tag: 'a',
                         href: '#/users',
@@ -42,6 +43,7 @@ Ext.define('Usr.view.Home', {
                 {
                     xtype: 'box',
                     margins: '0 0 10 50',
+                    itemId: 'groupsLink',
                     autoEl: {
                         tag: 'a',
                         href: '#/roles',

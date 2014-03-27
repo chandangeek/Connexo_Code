@@ -25,17 +25,36 @@ Ext.define('Usr.controller.Main', {
         this.initNavigation();
         this.initDefaultHistoryToken();
         this.getApplication().on('changecontentevent', this.showContent, this);
+
+        var menuItemGroup = Ext.create('Uni.model.MenuItem', {
+            text: Uni.I18n.translate('group.title', 'USM', 'Roles'),
+            href: Usr.getApplication().getHistoryGroupController().tokenizeShowOverview(),
+            glyph: 'xe020@icomoon'
+        });
+
+        var menuItemUser = Ext.create('Uni.model.MenuItem', {
+            text: Uni.I18n.translate('user.title', 'USM', 'Users'),
+            href: Usr.getApplication().getHistoryUserController().tokenizeShowOverview(),
+            glyph: 'xe01e@icomoon'
+        });
+
+        Uni.store.MenuItems.add(menuItemUser);
+        Uni.store.MenuItems.add(menuItemGroup);
+
+        this.control({
+            'viewport menuitem[action=logout]': {
+                click: this.signout
+            }
+        });
     },
 
     initNavigation: function () {
         var controller = this.getController('Uni.controller.Navigation');
         this.setNavigationController(controller);
-
-        //this.getViewport().setText(Uni.I18n.translate('user.application', 'USM', 'Jupiter system administration'));
     },
 
     initDefaultHistoryToken: function () {
-        var setupController = this.getController('Usr.controller.history.Home'),
+        var setupController = this.getApplication().getHistoryHomeController(),
             eventBus = this.getController('Uni.controller.history.EventBus'),
             defaultToken = setupController.tokenizeShowOverview();
 
@@ -53,5 +72,8 @@ Ext.define('Usr.controller.Main', {
         while (widget = this.getContentPanel().items.first()) {
             this.getContentPanel().remove(widget, true);
         }
+    },
+    signout: function () {
+        this.getApplication().getHomeController().signout();
     }
 });

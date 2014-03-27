@@ -27,7 +27,12 @@ Ext.define('Usr.controller.Home', {
     },*/
     showOverview: function () {
         var widget = Ext.widget('Home');
+
+        location.href = '#home';
         this.getApplication().fireEvent('changecontentevent', widget);
+
+        widget.down('#usersLink').autoEl.href = this.getApplication().getHistoryUserController().tokenizePreviousTokens();
+        widget.down('#groupsLink').autoEl.href = this.getApplication().getHistoryGroupController().tokenizePreviousTokens();
     },
     signout: function (button) {
         var request = Ext.Ajax.request({

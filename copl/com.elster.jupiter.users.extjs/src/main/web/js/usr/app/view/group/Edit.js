@@ -154,6 +154,7 @@ Ext.define('Usr.view.group.Edit', {
                                         items: [
                                             {
                                                 xtype: 'box',
+                                                itemId: 'cancelLink',
                                                 autoEl: {
                                                     tag: 'a',
                                                     href: '#/roles',

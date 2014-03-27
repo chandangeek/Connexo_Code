@@ -17,7 +17,6 @@ Ext.define('Usr.Application', {
         'UserGroups',
         'Group',
         'GroupPrivileges',
-        //'history.Setup',
         'history.Group',
         'history.User',
         'history.Home'
@@ -33,8 +32,6 @@ Ext.define('Usr.Application', {
     },
 
     launch: function () {
-        // Removes the loading indicator.
-        Ext.fly('appLoadingWrapper').destroy();
         this.callParent(arguments);
 
         this.getApplication().fireEvent('changeapptitleevent', Uni.I18n.translate('user.application', 'USM', 'Jupiter System Administration'));

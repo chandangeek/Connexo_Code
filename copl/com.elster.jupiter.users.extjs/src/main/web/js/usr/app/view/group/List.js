@@ -40,14 +40,16 @@ Ext.define('Usr.view.group.List', {
                     icon: '../usr/resources/images/gear-16x16.png',
                     handler: function(grid, rowIndex, colIndex,item,e) {
                         var menu = Ext.widget('menu', {
+                            itemId: 'menuGroupsList',
                             items: [{
                                 xtype: 'menuitem',
+                                itemId: 'menuGroupsListEdit',
                                 text: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
                                 listeners: {
                                     click: {
                                         element: 'el',
                                         fn: function(){
-                                            this.fireEvent('editGroupItem',grid.getSelectionModel().getSelection()[0]);
+                                            this.fireEvent('editGroupItem',grid.getRecord(rowIndex));
                                         },
                                         scope: this
                                     }

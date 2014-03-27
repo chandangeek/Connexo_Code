@@ -36,22 +36,41 @@ Ext.define('Usr.controller.UserGroups', {
          });
     },
 
-    showOverview: function (record) {
-        var widget = Ext.widget('userEdit'),
-            form = widget.down('form');
-        this.getApplication().fireEvent('changecontentevent', widget);
+    showEditOverviewWithHistory: function(groupId) {
+        location.href = '#users/' + groupId + '/edit';
+    },
 
-        form.loadRecord(record);
+    showEditOverview: function (userId) {
+        var userStore = Ext.StoreManager.get('Users');
+        var widget = Ext.widget('userEdit');
 
-        var editHeader = Ext.getCmp('els_usm_userEditHeader');
-        editHeader.update('<h1>' + Uni.I18n.translate('user.edit.with.name', 'USM', 'Edit user') + ' "' + record.get('authenticationName') + '"' + '</h1>');
-
+        widget.setLoading(true);
         var me = this;
-        this.getGroupsStore().load(function () {
-            me.resetGroupsForRecord(record);
+        Ext.ModelManager.getModel('Usr.model.User').load(userId, {
+            success: function (user) {
+                userStore.load({
+                    callback: function (store) {
+                        title = Uni.I18n.translate('user.edit.with.name', 'USM', 'Edit user');
+                        widget.down('form').loadRecord(user);
+                        widget.down('#els_usm_userEditHeader').update('<h1>' + title + ' "' + user.get('authenticationName') + '"' + '</h1>');
+                        widget.down('[name=authenticationName]').disable();
+                        widget.down('[name=description]').disable();
+                        widget.down('[name=domain]').disable();
+                        me.displayBreadcrumb(user.get("authenticationName"));
+
+                        me.getGroupsStore().load(function () {
+                            me.resetGroupsForRecord(user);
+                        });
+
+                        widget.setLoading(false);
+                    }
+                })
+            }
         });
 
-        this.displayBreadcrumb(record.get("authenticationName"));
+        widget.down('#cancelLink').autoEl.href = this.getApplication().getHistoryUserController().tokenizePreviousTokens();
+
+        this.getApplication().getMainController().showContent(widget);
     },
 
     displayBreadcrumb: function (userName) {
@@ -93,8 +112,7 @@ Ext.define('Usr.controller.UserGroups', {
         var me=this;
         record.save({
             success: function (record) {
-                var widget = Ext.widget('userBrowse');
-                me.getApplication().fireEvent('changecontentevent', widget);
+                location.href = form.down('#cancelLink').autoEl.href;
             },
             failure: function(record,operation){
                 var json = Ext.decode(operation.response.responseText);
@@ -103,9 +121,8 @@ Ext.define('Usr.controller.UserGroups', {
                 }
             }
         });
-
-        //record.commit();
     },
+
     resetGroupsForRecord: function (record) {
         var groups = this.getGroupsStore(),
             currentGroups = record.groups().data.items;

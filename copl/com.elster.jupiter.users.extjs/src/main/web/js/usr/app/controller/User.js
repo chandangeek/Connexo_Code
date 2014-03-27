@@ -21,8 +21,6 @@ Ext.define('Usr.controller.User', {
     ],
 
     init: function () {
-        this.initMenu();
-
         this.control({
             'userBrowse breadcrumbTrail': {
                 afterrender: this.onAfterRender
@@ -39,20 +37,9 @@ Ext.define('Usr.controller.User', {
         });
     },
 
-    initMenu: function () {
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('user.title', 'USM', 'Users'),
-            href: Usr.getApplication().getHistoryUserController().tokenizeShowOverview(),
-            glyph: 'xe01e@icomoon'
-        });
-
-        Uni.store.MenuItems.add(menuItem);
-    },
-
     showOverview: function () {
         var widget = Ext.widget('userBrowse');
         this.getApplication().fireEvent('changecontentevent', widget);
-        //this.getGroupsStore().load();
     },
 
     onAfterRender: function (breadcrumbs) {
@@ -77,7 +64,7 @@ Ext.define('Usr.controller.User', {
     },
 
     editUser: function (record) {
-        this.getApplication().getUserGroupsController().showOverview(record);
+        this.getApplication().getUserGroupsController().showEditOverviewWithHistory(record.get('id'));
     },
 
     selectUser: function (grid, record) {
