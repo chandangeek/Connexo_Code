@@ -12,9 +12,6 @@ Ext.define('Usr.controller.Home', {
             /*'Home breadcrumbTrail': {
                 afterrender: this.onAfterRender
             },*/
-            'Home #logout':{
-                signout: this.signout
-            }
         })
     },
     /*onAfterRender: function (breadcrumbs) {
