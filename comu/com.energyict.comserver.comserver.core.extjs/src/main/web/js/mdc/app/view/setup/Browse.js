@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.Browse', {
                     items: [
                         {
                             xtype: 'component',
-                            html: '<a href="#/setup/devicetypes">devicetypes</a>'
+                            html: '<a href="#/setup/devicetypes">Devicetypes</a>'
                         },
                         {
                             xtype: 'component',
