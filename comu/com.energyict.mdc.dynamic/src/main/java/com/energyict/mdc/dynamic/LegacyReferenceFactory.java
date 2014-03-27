@@ -10,16 +10,16 @@ import com.energyict.mdc.common.SqlBuilder;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class ReferenceFactory<T extends IdBusinessObject> extends AbstractValueFactory<T> {
+public class LegacyReferenceFactory<T extends IdBusinessObject> extends AbstractValueFactory<T> {
 
     private IdBusinessObjectFactory<T> factory;
     private Class<T> domainClass;
 
-    public ReferenceFactory () {
+    public LegacyReferenceFactory() {
         super();
     }
 
-    public ReferenceFactory (IdBusinessObjectFactory<T> factory) {
+    public LegacyReferenceFactory(IdBusinessObjectFactory<T> factory) {
         this();
         this.factory = factory;
         this.domainClass = factory.getInstanceType();

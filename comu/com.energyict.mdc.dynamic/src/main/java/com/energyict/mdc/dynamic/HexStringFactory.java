@@ -1,7 +1,9 @@
 package com.energyict.mdc.dynamic;
 
 import com.energyict.mdc.common.HexString;
+import com.energyict.mdc.common.SqlBuilder;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
@@ -43,7 +45,7 @@ public class HexStringFactory extends AbstractValueFactory<HexString> {
             return null;
         }
         else {
-            return object.toString();
+            return this.toStringValue(object);
         }
     }
 
@@ -64,6 +66,26 @@ public class HexStringFactory extends AbstractValueFactory<HexString> {
         }
         else {
             return object.toString();
+        }
+    }
+
+    @Override
+    public void bind(SqlBuilder builder, HexString value) {
+        if (value != null) {
+            builder.bindString(this.toStringValue(value));
+        }
+        else {
+            builder.bindNull(this.getJdbcType());
+        }
+    }
+
+    @Override
+    public void bind(PreparedStatement statement, int offset, HexString value) throws SQLException {
+        if (value != null) {
+            statement.setString(offset,  this.toStringValue(value));
+        }
+        else {
+            statement.setNull(offset, this.getJdbcType());
         }
     }
 

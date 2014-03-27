@@ -5,7 +5,7 @@ import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecBuilder;
 import com.energyict.mdc.dynamic.PropertySpecPossibleValues;
-import com.energyict.mdc.dynamic.ReferenceFactory;
+import com.energyict.mdc.dynamic.LegacyReferenceFactory;
 import com.energyict.mdc.dynamic.ValueFactory;
 
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
      */
     @SuppressWarnings("unchecked")
     public static <D extends IdBusinessObject> PropertySpecBuilder<D> forReference (IdBusinessObjectFactory<D> factory) {
-        ValueFactory<D> referenceFactory = new ReferenceFactory<>(factory);
+        ValueFactory<D> referenceFactory = new LegacyReferenceFactory<>(factory);
         return new PropertySpecBuilderImpl<>(referenceFactory);
     }
 

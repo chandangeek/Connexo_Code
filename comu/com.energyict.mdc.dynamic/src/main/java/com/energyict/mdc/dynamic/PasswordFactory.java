@@ -3,7 +3,9 @@ package com.energyict.mdc.dynamic;
 import com.energyict.mdc.common.DataVault;
 import com.energyict.mdc.common.DataVaultProvider;
 import com.energyict.mdc.common.Password;
+import com.energyict.mdc.common.SqlBuilder;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
@@ -76,6 +78,26 @@ public class PasswordFactory extends AbstractValueFactory<Password> {
         }
         else {
             return this.encrypt(object);
+        }
+    }
+
+    @Override
+    public void bind(SqlBuilder builder, Password value) {
+        if (value != null) {
+            builder.bindString(this.encrypt(value));
+        }
+        else {
+            builder.bindNull(this.getJdbcType());
+        }
+    }
+
+    @Override
+    public void bind(PreparedStatement statement, int offset, Password value) throws SQLException {
+        if (value != null) {
+            statement.setString(offset, this.encrypt(value));
+        }
+        else {
+            statement.setNull(offset, this.getJdbcType());
         }
     }
 

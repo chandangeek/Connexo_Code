@@ -164,7 +164,7 @@ public class RelationImpl implements Relation {
             ValueFactory valueFactory = each.getValueFactory();
             if (valueFactory.isReference()) {
                 Object reference = transaction.get(each);
-                if (!valueFactory.isPersistent(reference)) {
+                if (reference != null && !valueFactory.isPersistent(reference)) {
                     throw new BusinessException("invalidReferenceObjectForX", "Invalid reference object for \"{0}\"", each.getName());
                 }
             }

@@ -1,8 +1,10 @@
 package com.energyict.mdc.dynamic;
 
+import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.ean.Ean13;
 import com.energyict.mdc.common.ApplicationException;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.logging.Level;
@@ -81,6 +83,26 @@ public class Ean13Factory extends AbstractValueFactory<Ean13> {
         }
         else {
             return object.toString();
+        }
+    }
+
+    @Override
+    public void bind(SqlBuilder builder, Ean13 value) {
+        if (value != null) {
+            builder.bindString(this.toStringValue(value));
+        }
+        else {
+            builder.bindNull(this.getJdbcType());
+        }
+    }
+
+    @Override
+    public void bind(PreparedStatement statement, int offset, Ean13 value) throws SQLException {
+        if (value != null) {
+            statement.setString(offset, this.toStringValue(value));
+        }
+        else {
+            statement.setNull(offset, this.getJdbcType());
         }
     }
 

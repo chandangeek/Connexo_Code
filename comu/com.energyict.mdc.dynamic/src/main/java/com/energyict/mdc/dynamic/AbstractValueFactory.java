@@ -1,7 +1,6 @@
 package com.energyict.mdc.dynamic;
 
 import com.energyict.mdc.common.SqlBuilder;
-import com.energyict.mdc.dynamic.ValueFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -45,13 +44,23 @@ public abstract class AbstractValueFactory<T> implements ValueFactory<T> {
     }
 
     @Override
-    public void bind(PreparedStatement statement, int offset, T value) throws SQLException {
-        statement.setObject(offset, value);
+    public void bind(SqlBuilder builder, T value) {
+        if (value != null) {
+            builder.bindObject(value);
+        }
+        else {
+            builder.bindNull(this.getJdbcType());
+        }
     }
 
     @Override
-    public void bind(SqlBuilder builder, T value) {
-        builder.bindObject(value);
+    public void bind(PreparedStatement statement, int offset, T value) throws SQLException {
+        if (value != null) {
+            statement.setObject(offset, value);
+        }
+        else {
+            statement.setNull(offset, this.getJdbcType());
+        }
     }
 
 }
