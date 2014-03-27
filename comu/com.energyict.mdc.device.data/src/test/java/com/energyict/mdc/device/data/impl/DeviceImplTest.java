@@ -10,7 +10,13 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.Reading;
+import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.metering.readings.beans.ReadingImpl;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
@@ -39,8 +45,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -411,6 +419,39 @@ public class DeviceImplTest extends PersistenceTest {
         Device reloadedDevice = getReloadedDevice(device);
 
         assertThat(reloadedDevice.getRegisters()).hasSize(2);
+    }
+
+    @Test
+    @Transactional
+    public void getRegisterReadingsShouldReturnEmptyListTest() {
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME);
+        device.save();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        assertThat(reloadedDevice.getRegisterWithDeviceObisCode(obisCode1).getRegisterReadings(Interval.sinceEpoch())).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void getRegisterReadingsShouldReturnResultsTest() {
+        BigDecimal readingValue = new BigDecimal(5432.32);
+        Date readingTimeStamp = new Date(123456789);
+        Reading reading = new ReadingImpl(readingType1.getMRID(), readingValue, readingTimeStamp);
+        MeterReadingImpl meterReading = new MeterReadingImpl();
+        meterReading.addReading(reading);
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME);
+        device.save();
+        device.store(meterReading);
+
+        Device reloadedDevice = getReloadedDevice(device);
+        List<ReadingRecord> registerReadings = reloadedDevice.getRegisterWithDeviceObisCode(obisCode1).getRegisterReadings(Interval.sinceEpoch());
+        assertThat(registerReadings).isNotEmpty();
+        assertThat(registerReadings).hasSize(1);
+        assertThat(registerReadings.get(0).getReadingType().getMRID()).isEqualTo(readingType1.getMRID());
+        assertThat(registerReadings.get(0).getTimeStamp()).isEqualTo(readingTimeStamp);
+        assertThat(registerReadings.get(0).getQuantity(0).getValue()).isEqualTo(readingValue);
     }
 
     @Test
