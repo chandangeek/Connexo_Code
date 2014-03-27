@@ -247,20 +247,17 @@ public enum TableSpecs {
             table.map(RegisterSpecImpl.class);
             Column id = table.addAutoIdColumn();
             Column registerMapping = table.column("REGISTERMAPPINGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            table.column("NUMBEROFDIGITS").number().conversion(ColumnConversion.NUMBER2INT).notNull().map("numberOfDigits").add();
+            table.column("NUMBEROFDIGITS").number().conversion(ColumnConversion.NUMBER2INT).notNull().map(RegisterSpecImpl.NUMBER_OF_DIGITS).add();
             table.column("MOD_DATE").type("DATE").notNull().map("modificationDate").insert("sysdate").update("sysdate").add();
             table.column("DEVICEOBISCODE").varChar(80).map("overruledObisCodeString").add();
-            table.column("NUMBEROFFRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map("numberOfFractionDigits").add();
+            table.column("NUMBEROFFRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map(RegisterSpecImpl.NUMBER_OF_FRACTION_DIGITS).add();
             table.column("OVERFLOWVALUE").number().map("overflow").add();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            table.column("MULTIPLIER").number().map("multiplier").add();
+            table.column("MULTIPLIER").number().map(RegisterSpecImpl.MULTIPLIER).add();
             table.column("MULTIPLIERMODE").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("multiplierMode").add();
-            Column channelSpec = table.column("CHANNELSPECID").number().add();
-            table.column("CHANNELLINKTYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map("channelSpecLinkType").add();
             table.primaryKey("PK_RTUREGISTERSPEC").on(id).add();
-            table.foreignKey("FK_EISRTUREGSPEC_REGMAP").on(registerMapping).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
+            table.foreignKey("FK_EISRTUREGSPEC_REGMAP").on(registerMapping).references(EISRTUREGISTERMAPPING.name()).map(RegisterSpecImpl.REGISTER_MAPPING).add();
             table.foreignKey("FK_EISRTUREGSPEC_DEVCFG").on(deviceConfiguration).references(EISDEVICECONFIG.name()).map("deviceConfig").reverseMap("registerSpecs").composition().onDelete(DeleteRule.CASCADE).add();
-            table.foreignKey("FK_REGSPEC_CHANNELSPEC").on(channelSpec).references(EISCHANNELSPEC.name()).map("linkedChannelSpec").add();
         }
     },
 

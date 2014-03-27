@@ -109,7 +109,10 @@ public interface DeviceConfiguration extends HasId {
     boolean hasCommunicationFunction(DeviceCommunicationFunction function);
 
     public boolean canActAsGateway();
+    public void setCanActAsGateway(boolean actAsGateway);
 
     public boolean canBeDirectlyAddressable();
+    public void setCanBeDirectlyAddressed(boolean canBeDirectlyAddressed);
+
     //TODO we remove 'CreateDeviceTransaction' and 'DeviceConfigurationChanges' from the API, must be included when time comes ...
 }

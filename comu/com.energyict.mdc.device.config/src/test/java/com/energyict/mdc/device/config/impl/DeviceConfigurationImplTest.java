@@ -114,6 +114,15 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
         this.deviceType.save();
     }
 
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}",property = "name")
+    public void createWithWhiteSpaceNameTest() {
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration(" ");
+        deviceConfigurationBuilder.add();
+        this.deviceType.save();
+    }
+
     @Test(expected = DuplicateNameException.class)
     @Transactional
     public void duplicateNameTest() {
@@ -271,7 +280,7 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder1.add();
         deviceConfiguration.activate();
 
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = deviceConfiguration.createRegisterSpec(registerMapping);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(10);
         try {
             registerSpecBuilder.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {
@@ -321,7 +330,7 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.DEVICE_CONFIG_GATEWAY_NOT_ALLOWED+"}", property = "isGateway")
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.DEVICE_CONFIG_GATEWAY_NOT_ALLOWED+"}", property = "canActAsGateway")
     public void testSetDeviceConfigGatewayWhenProtocolDoesNotAllowIt() throws Exception {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Collections.<DeviceProtocolCapabilities>emptyList());
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("gateway").add();

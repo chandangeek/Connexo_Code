@@ -56,6 +56,20 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     private static final DeviceCommunicationFunctionSetPersister deviceCommunicationFunctionSetPersister = new DeviceCommunicationFunctionSetPersister();
 
+    enum Fields {
+        CAN_ACT_AS_GATEWAY("canActAsGateway"), // 'virtual' BeanProperty not backed by actual member
+        IS_DIRECTLY_ADDRESSABLE("isDirectlyAddressable"); // 'virtual' BeanProperty not backed by actual member
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
+
     private String description;
 
     private boolean active;
@@ -145,9 +159,28 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
+    public void setCanActAsGateway(boolean actAsGateway) {
+        if (actAsGateway) {
+            addCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
+        } else {
+            removeCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
+        }
+    }
+
+    @Override
     public boolean canBeDirectlyAddressable() {
         return hasCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);
     }
+
+    @Override
+    public void setCanBeDirectlyAddressed(boolean canBeDirectlyAddressed) {
+        if (canBeDirectlyAddressed) {
+            addCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);
+        } else {
+            removeCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);
+        }
+    }
+
 
     @Override
     public void addCommunicationFunction(DeviceCommunicationFunction function) {
