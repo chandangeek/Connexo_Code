@@ -81,12 +81,8 @@ public class DeviceTypeResource {
         if (deviceTypeInfo.registerMappings != null) {
             updateRegisterMappingAssociations(deviceType, deviceTypeInfo.registerMappings);
         }
-        try {
-            deviceType.save();
-            return DeviceTypeInfo.from(deviceType);
-        } catch (Exception e) {
-            throw new WebApplicationException("failed to update device type " + deviceTypeInfo.id, e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build());
-        }
+        deviceType.save();
+        return DeviceTypeInfo.from(deviceType);
     }
 
     @GET
