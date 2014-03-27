@@ -155,7 +155,8 @@ public class DeviceImpl implements Device {
         deleteCache();
         deleteLoadProfiles();
         deleteLogBooks();
-        //TODO delete communication stuff, if necessary
+        // TODO delete communication stuff, if necessary
+        // TODO delete messages
         this.getDataMapper().remove(this);
     }
 
