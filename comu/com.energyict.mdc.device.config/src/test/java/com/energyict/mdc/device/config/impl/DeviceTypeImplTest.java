@@ -22,6 +22,7 @@ import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
+import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
@@ -62,7 +63,7 @@ import static org.mockito.Mockito.when;
  * @since 2014-02-10 (17:44)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DeviceTypeImplTest extends PersistenceTest {
+public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     private static final TimeDuration INTERVAL_15_MINUTES = new TimeDuration(15, TimeDuration.MINUTES);
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
@@ -81,6 +82,8 @@ public class DeviceTypeImplTest extends PersistenceTest {
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass2;
     @Mock
     private DeviceProtocol deviceProtocol;
+    @Mock
+    private DeviceProtocol deviceProtocol2;
 
     private ReadingType readingType1;
     private ReadingType readingType2;
@@ -101,6 +104,7 @@ public class DeviceTypeImplTest extends PersistenceTest {
         when(this.deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         when(this.deviceProtocolPluggableClass2.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID_2);
+        when(this.deviceProtocolPluggableClass2.getDeviceProtocol()).thenReturn(this.deviceProtocol2);
 
         when(deviceCommunicationConfiguration.getDeviceConfiguration()).thenReturn(deviceConfig);
 
@@ -124,7 +128,6 @@ public class DeviceTypeImplTest extends PersistenceTest {
         assertThat(deviceType.getLogBookTypes()).isEmpty();
         assertThat(deviceType.getLoadProfileTypes()).isEmpty();
         assertThat(deviceType.getRegisterMappings()).isEmpty();
-        assertThat(deviceType.getCommunicationFunctions()).isEmpty();
         assertThat(deviceType.getDeviceProtocolPluggableClass()).isEqualTo(this.deviceProtocolPluggableClass);
         assertThat(deviceType.getDescription()).isNotEmpty();
         assertThat(deviceType.getDeviceUsageType()).isEqualTo(DeviceUsageType.NONE);
@@ -143,6 +146,34 @@ public class DeviceTypeImplTest extends PersistenceTest {
 
         // Asserts
         assertThat(deviceType2).isNotNull();
+    }
+
+    @Test
+    @Transactional
+    public void testCanActAsGateway() throws Exception {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        String deviceTypeName = "canActAsGateway";
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+        deviceType.setDescription("For testing purposes only");
+        deviceType.save();
+
+        assertThat(deviceType.canActAsGateway()).isTrue();
+        assertThat(deviceType.isDirectlyAddressable()).isFalse();
+
+    }
+
+    @Test
+    @Transactional
+    public void testIsDirectlyAddressable() throws Exception {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SESSION));
+        String deviceTypeName = "directaddress";
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+        deviceType.setDescription("For testing purposes only");
+        deviceType.save();
+
+        assertThat(deviceType.isDirectlyAddressable()).isTrue();
+        assertThat(deviceType.canActAsGateway()).isFalse();
+
     }
 
     @Test(expected = DuplicateNameException.class)
@@ -749,6 +780,48 @@ public class DeviceTypeImplTest extends PersistenceTest {
         // Asserts
         List<DeviceTypeRegisterMappingUsage> usages = inMemoryPersistence.getDeviceConfigurationService().getDataModel().mapper(DeviceTypeRegisterMappingUsage.class).find("RTUTYPEID", deviceTypeId);
         assertThat(usages).as("Was not expecting to find any register mapping usages for device type {0} after deletion", deviceType).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testAddDeviceConfiguration() throws Exception {
+        deviceType.newConfiguration("first").description("this is it!").add();
+
+        DeviceType refreshed = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        assertThat(refreshed.getConfigurations()).hasSize(1);
+        assertThat(refreshed.getConfigurations().get(0).getName()).isEqualTo("first");
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{DTC.X.name.required}", property = "name")
+    public void testCanNotAddDeviceConfigurationWithoutName() throws Exception {
+        deviceType.newConfiguration(null).description("this is it!").add();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{DTC.X.name.required}", property = "name")
+    public void testCanNotAddDeviceConfigurationWithEmptyName() throws Exception {
+        deviceType.newConfiguration("").description("this is it!").add();
+    }
+
+    @Test
+    @Transactional
+    public void testRemoveDeviceConfigFromDeviceType() throws Exception {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
+
+        deviceType.removeConfiguration(deviceConfiguration);
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId())).isNull();
+    }
+
+    @Test(expected = DeviceConfigurationIsActiveException.class)
+    @Transactional
+    public void testCanNotRemoveDeviceConfigIfInUse() throws Exception {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
+        deviceConfiguration.activate();
+
+        deviceType.removeConfiguration(deviceConfiguration);
     }
 
     private void setupLogBookTypesInExistingTransaction(String logBookTypeBaseName) {

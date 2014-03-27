@@ -42,12 +42,11 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import java.util.List;
+import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -95,7 +94,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Finder<DeviceType> findAllDeviceTypes() {
-        return DefaultFinder.of(DeviceType.class, this.getDataModel());
+        return DefaultFinder.of(DeviceType.class, this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override
@@ -122,7 +121,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Finder<RegisterMapping> findAllRegisterMappings() {
-        return DefaultFinder.of(RegisterMapping.class, this.getDataModel());
+        return DefaultFinder.of(RegisterMapping.class, this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override
@@ -203,9 +202,19 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public List<RegisterSpec> findRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
-        Condition condition = where("deviceType").isEqualTo(deviceType).and(where("registerMapping").isEqualTo(registerMapping));
-        return this.getDataModel().query(RegisterSpec.class, RegisterMapping.class, DeviceTypeRegisterMappingUsage.class).select(condition);
+    public List<RegisterSpec> findActiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
+        Condition condition = where("deviceConfig.deviceType").isEqualTo(deviceType).
+                and(where("registerMapping").isEqualTo(registerMapping)).
+                and(where("deviceConfig.active").isEqualTo(Boolean.TRUE));
+        return this.getDataModel().query(RegisterSpec.class, DeviceConfiguration.class).select(condition);
+    }
+
+    @Override
+    public List<RegisterSpec> findInactiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
+        Condition condition = where("deviceConfig.deviceType").isEqualTo(deviceType).
+                and(where("registerMapping").isEqualTo(registerMapping)).
+                and(where("deviceConfig.active").isEqualTo(Boolean.FALSE));
+        return this.getDataModel().query(RegisterSpec.class, DeviceConfiguration.class).select(condition);
     }
 
     @Override
@@ -340,8 +349,14 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public boolean isRegisterMappingUsedByDeviceType(RegisterMapping registerMapping) {
+        return !this.getDataModel().
+                query(DeviceTypeRegisterMappingUsage.class).select(where("registerMapping").isEqualTo(registerMapping)).isEmpty();
+    }
+
+    @Override
     public Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType) {
-        return DefaultFinder.of(DeviceConfiguration.class, where("deviceType").isEqualTo(deviceType), this.getDataModel());
+        return DefaultFinder.of(DeviceConfiguration.class, where("deviceType").isEqualTo(deviceType), this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override

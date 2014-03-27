@@ -10,15 +10,10 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.exceptions.DuplicatePrimeRegisterSpecException;
-import com.energyict.mdc.device.config.exceptions.InCorrectDeviceConfigOfChannelSpecException;
 import com.energyict.mdc.device.config.exceptions.InvalidValueException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
@@ -27,33 +22,30 @@ import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfigured
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.constraints.Min;
 
+@ValidRegisterSpec(groups = { Save.Update.class })
 public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implements RegisterSpec {
-
-    private final DeviceConfigurationService deviceConfigurationService;
 
     private final Reference<DeviceConfiguration> deviceConfig = ValueReference.absent();
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY + "}")
-    private final Reference<RegisterMapping> registerMapping = ValueReference.absent();
-    private final Reference<ChannelSpec> linkedChannelSpec = ValueReference.absent();
-    private int numberOfDigits;
-    private int numberOfFractionDigits;
+    private final Reference<RegisterMapping> registerMapping = ValueReference.absent(); static final String REGISTER_MAPPING = "registerMapping";
+    @Min(value = 1, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS + "}")
+    private int numberOfDigits; static final String NUMBER_OF_DIGITS="numberOfDigits";
+    private int numberOfFractionDigits; static final String NUMBER_OF_FRACTION_DIGITS="numberOfFractionDigits";
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
     private BigDecimal overflow;
-    private BigDecimal multiplier = BigDecimal.ONE;
+    private BigDecimal multiplier = BigDecimal.ONE; static final String MULTIPLIER="multiplier";
     private MultiplierMode multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
 
-    private ChannelSpecLinkType channelSpecLinkType;
     private Date modificationDate;
 
     @Inject
-    public RegisterSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {
+    public RegisterSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(RegisterSpec.class, dataModel, eventService, thesaurus);
-        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     private RegisterSpecImpl initialize(DeviceConfiguration deviceConfig, RegisterMapping registerMapping) {
@@ -75,11 +67,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     @Override
     public ObisCode getObisCode() {
         return getRegisterMapping().getObisCode();
-    }
-
-    @Override
-    public ChannelSpec getLinkedChannelSpec() {
-        return linkedChannelSpec.orNull();
     }
 
     @Override
@@ -127,12 +114,11 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     private void validateBeforeAddToConfiguration() {
-        Save.CREATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
+        Save.CREATE.validate(this.dataModel, this);
         this.validate();
     }
 
     private void validate() {
-        validateLinkedChannelSpec();
         validateOverFlowAndNumberOfDigits();
         validateNumberOfFractionDigitsOfOverFlowValue();
         validateDeviceTypeContainsRegisterMapping();
@@ -140,7 +126,14 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     private void validateDeviceTypeContainsRegisterMapping() {
         DeviceType deviceType = getDeviceConfiguration().getDeviceType();
-        if (!deviceType.getRegisterMappings().contains(getRegisterMapping())) {
+        boolean found = false;
+        for (RegisterMapping mapping : deviceType.getRegisterMappings()) {
+            if (mapping.getId()==getRegisterMapping().getId()) {
+                found=true;
+            }
+        }
+
+        if (!found) {
             throw new RegisterMappingIsNotConfiguredOnDeviceTypeException(this.thesaurus, getRegisterMapping());
         }
     }
@@ -181,7 +174,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         return getDeviceConfiguration().getName() + " - " + getRegisterMapping().getName();
     }
 
-    @Override
     public void setDeviceConfig(DeviceConfiguration deviceConfig) {
         this.deviceConfig.set(deviceConfig);
     }
@@ -192,29 +184,8 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     @Override
-    public void setLinkedChannelSpec(ChannelSpec linkedChannelSpec) {
-        this.linkedChannelSpec.set(linkedChannelSpec);
-    }
-
-    private void validateLinkedChannelSpec() {
-        if (this.linkedChannelSpec.isPresent()) {
-            if (this.deviceConfig.isPresent() && getLinkedChannelSpec().getDeviceConfiguration().getId() != getDeviceConfiguration().getId()) {
-                throw new InCorrectDeviceConfigOfChannelSpecException(this.thesaurus, getLinkedChannelSpec(), getLinkedChannelSpec().getDeviceConfiguration(), getDeviceConfiguration());
-            }
-            validateChannelSpecLinkType(channelSpecLinkType, getLinkedChannelSpec());
-        }
-    }
-
-    @Override
     public void setNumberOfDigits(int numberOfDigits) {
-        validateNumberOfDigits(numberOfDigits);
         this.numberOfDigits = numberOfDigits;
-    }
-
-    private void validateNumberOfDigits(int numberOfDigits) {
-        if (numberOfDigits < 1) {
-            throw InvalidValueException.registerSpecNumberOfDigitsShouldBeLargerThanOne(this.thesaurus);
-        }
     }
 
     @Override
@@ -224,8 +195,8 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     @Override
     public void setOverruledObisCode(ObisCode overruledObisCode) {
-        this.overruledObisCodeString = overruledObisCode.toString();
         this.overruledObisCode = overruledObisCode;
+        this.overruledObisCodeString = overruledObisCode==null?null:overruledObisCode.toString();
     }
 
     @Override
@@ -273,47 +244,19 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         this.modificationDate = modificationDate;
     }
 
-    @Override
-    public ChannelSpecLinkType getChannelSpecLinkType() {
-        return channelSpecLinkType;
-    }
-
-    @Override
-    public void setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType) {
-        this.channelSpecLinkType = channelSpecLinkType;
-    }
-
-    // TODO check if this validation is oké
-    private void validateChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType, ChannelSpec channelSpec) {
-        if (channelSpec != null && channelSpecLinkType != null) {
-            ServerDeviceConfigurationService deviceConfigurationService = (ServerDeviceConfigurationService) this.deviceConfigurationService;
-            List<RegisterSpec> registerSpecs = deviceConfigurationService.findRegisterSpecsByChannelSpecAndLinkType(channelSpec, channelSpecLinkType);
-            if (!registerSpecs.isEmpty()) {
-                RegisterSpec currentPrimeRegisterSpec = registerSpecs.get(0);
-                if (currentPrimeRegisterSpec != null && channelSpecLinkType == ChannelSpecLinkType.PRIME) {
-                    throw new DuplicatePrimeRegisterSpecException(this.thesaurus, channelSpec, currentPrimeRegisterSpec);
-                }
-            }
-        }
-    }
-
     abstract static class RegisterSpecBuilder implements RegisterSpec.RegisterSpecBuilder {
 
+        private static final BigDecimal DEFAULT_MULTIPLIER = BigDecimal.ONE;
         final RegisterSpecImpl registerSpec;
 
         RegisterSpecBuilder(Provider<RegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping) {
             registerSpec = registerSpecProvider.get().initialize(deviceConfiguration, registerMapping);
+            registerSpec.setMultiplier(DEFAULT_MULTIPLIER);
         }
 
         @Override
         public RegisterSpec.RegisterSpecBuilder setRegisterMapping(RegisterMapping registerMapping) {
             this.registerSpec.setRegisterMapping(registerMapping);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecBuilder setLinkedChannelSpec(ChannelSpec linkedChannelSpec) {
-            this.registerSpec.setLinkedChannelSpec(linkedChannelSpec);
             return this;
         }
 
@@ -354,15 +297,19 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         }
 
         @Override
-        public RegisterSpec.RegisterSpecBuilder setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType) {
-            this.registerSpec.setChannelSpecLinkType(channelSpecLinkType);
-            return this;
-        }
-
-        @Override
         public RegisterSpec add() {
+            applyDefaultsIfApplicable();
             this.registerSpec.validateBeforeAddToConfiguration();
             return this.registerSpec;
+        }
+
+        private void applyDefaultsIfApplicable() {
+            if (this.registerSpec.getMultiplier()==null) {
+                registerSpec.setMultiplier(DEFAULT_MULTIPLIER);
+            }
+            if (this.registerSpec.getOverflowValue()==null) {
+                registerSpec.setOverflow(BigDecimal.valueOf(Math.round(Math.pow(10, registerSpec.getNumberOfDigits()))));
+            }
         }
     }
 
@@ -377,12 +324,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         @Override
         public RegisterSpec.RegisterSpecUpdater setRegisterMapping(RegisterMapping registerMapping) {
             this.registerSpec.setRegisterMapping(registerMapping);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecUpdater setLinkedChannelSpec(ChannelSpec linkedChannelSpec) {
-            this.registerSpec.setLinkedChannelSpec(linkedChannelSpec);
             return this;
         }
 
@@ -419,12 +360,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         @Override
         public RegisterSpec.RegisterSpecUpdater setMultiplierMode(MultiplierMode multiplierMode) {
             this.registerSpec.setMultiplierMode(multiplierMode);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecUpdater setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType) {
-            this.registerSpec.setChannelSpecLinkType(channelSpecLinkType);
             return this;
         }
 

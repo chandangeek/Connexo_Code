@@ -4,7 +4,6 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import java.util.List;
-import java.util.Set;
 
 /**
  * DeviceType defines the basic common attributes of a
@@ -99,14 +98,6 @@ public interface DeviceType {
 
     public void setDeviceUsageType(DeviceUsageType deviceUsageType);
 
-    public Set<DeviceCommunicationFunction> getCommunicationFunctions();
-
-    public boolean hasCommunicationFunction(DeviceCommunicationFunction function);
-
-    public void addCommunicationFunction(DeviceCommunicationFunction function);
-
-    public void removeCommunicationFunction(DeviceCommunicationFunction function);
-
     public List<DeviceConfiguration> getConfigurations();
 
     /**
@@ -119,9 +110,15 @@ public interface DeviceType {
      */
     public DeviceConfigurationBuilder newConfiguration (String name);
 
+    public void removeConfiguration(DeviceConfiguration deviceConfigurationToDelete);
+
     public void save ();
 
     public void delete ();
+
+    public boolean canActAsGateway();
+
+    public boolean isDirectlyAddressable();
 
     public interface DeviceConfigurationBuilder {
 
@@ -205,6 +202,8 @@ public interface DeviceType {
         public DeviceConfiguration add ();
 
         DeviceConfigurationBuilder description(String description);
+        DeviceConfigurationBuilder canActAsGateway(boolean canActAsGateway);
+        DeviceConfigurationBuilder isDirectlyAddressable(boolean canBeDirectlyAddressed);
     }
 
 }

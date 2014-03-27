@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -29,10 +28,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -44,8 +41,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private boolean useChannelJournal;
     private int deviceUsageTypeId;
     private DeviceUsageType deviceUsageType;
-    private int communicationFunctionMask;
-    private Set<DeviceCommunicationFunction> deviceCommunicationFunctions;
     @Valid
     private List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
     private List<DeviceTypeLogBookTypeUsage> logBookTypeUsages = new ArrayList<>();
@@ -166,33 +161,21 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public Set<DeviceCommunicationFunction> getCommunicationFunctions() {
-        if (this.deviceCommunicationFunctions == null) {
-            this.deviceCommunicationFunctions = this.createSetFromMasks(this.communicationFunctionMask);
+    public boolean canActAsGateway() {
+        if (getDeviceProtocolPluggableClass()==null || getDeviceProtocolPluggableClass().getDeviceProtocol()==null) {
+            return false;
         }
-        return EnumSet.copyOf(this.deviceCommunicationFunctions);
-    }
-
-    private Set<DeviceCommunicationFunction> createSetFromMasks(int communicationFunctionMask) {
-        return new DeviceCommunicationFunctionSetPersister().fromDb(communicationFunctionMask);
-    }
-
-    public boolean hasCommunicationFunction(DeviceCommunicationFunction function) {
-        return this.getCommunicationFunctions().contains(function);
+        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = getDeviceProtocolPluggableClass().getDeviceProtocol().getDeviceProtocolCapabilities();
+        return deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_MASTER);
     }
 
     @Override
-    public void addCommunicationFunction(DeviceCommunicationFunction function) {
-        this.getCommunicationFunctions();   // Load the current set
-        this.deviceCommunicationFunctions.add(function);
-        this.communicationFunctionMask = new DeviceCommunicationFunctionSetPersister().toDb(this.deviceCommunicationFunctions);
-    }
-
-    @Override
-    public void removeCommunicationFunction(DeviceCommunicationFunction function) {
-        this.getCommunicationFunctions();   // Load the current set
-        this.deviceCommunicationFunctions.remove(function);
-        this.communicationFunctionMask = new DeviceCommunicationFunctionSetPersister().toDb(this.deviceCommunicationFunctions);
+    public boolean isDirectlyAddressable() {
+        if (getDeviceProtocolPluggableClass()==null || getDeviceProtocolPluggableClass().getDeviceProtocol()==null) {
+            return false;
+        }
+        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = getDeviceProtocolPluggableClass().getDeviceProtocol().getDeviceProtocolCapabilities();
+        return deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SESSION);
     }
 
     @Override
@@ -477,10 +460,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         return localDeviceProtocol;
     }
 
-    public int getCommunicationFunctionMask() {
-        return communicationFunctionMask;
-    }
-
     @Override
     public List<DeviceConfiguration> getConfigurations() {
         return ImmutableList.copyOf(this.deviceConfigurations);
@@ -488,6 +467,18 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     private void addConfiguration(DeviceConfiguration deviceConfiguration) {
         this.deviceConfigurations.add(deviceConfiguration);
+    }
+
+    @Override
+    public void removeConfiguration(DeviceConfiguration deviceConfigurationToDelete) {
+        Iterator<DeviceConfiguration> iterator = this.deviceConfigurations.iterator();
+        while (iterator.hasNext()) {
+            DeviceConfiguration configuration = iterator.next();
+            if (configuration.getId()==deviceConfigurationToDelete.getId()) {
+                ((ServerDeviceConfiguration)configuration).notifyDelete();
+                iterator.remove();
+            }
+        }
     }
 
     @Override
@@ -596,6 +587,18 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         }
 
         @Override
+        public DeviceConfigurationBuilder isDirectlyAddressable(boolean isDirectlyAddressable) {
+            underConstruction.setCanBeDirectlyAddressed(isDirectlyAddressable);
+            return this;
+        }
+
+        @Override
+        public DeviceConfigurationBuilder canActAsGateway(boolean canActAsGateway) {
+            underConstruction.setCanActAsGateway(canActAsGateway);
+            return this;
+        }
+
+        @Override
         public ChannelSpec.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
             ChannelSpec.ChannelSpecBuilder builder = this.underConstruction.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
             this.nestedBuilders.add(new ChannelSpecBuilder(builder));
@@ -634,6 +637,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         public DeviceConfiguration add() {
             this.mode.verify();
             this.doNestedBuilders();
+            Save.CREATE.validate(dataModel, this.underConstruction);
             addConfiguration(this.underConstruction);
             this.mode = BuildingMode.COMPLETE;
             return this.underConstruction;
