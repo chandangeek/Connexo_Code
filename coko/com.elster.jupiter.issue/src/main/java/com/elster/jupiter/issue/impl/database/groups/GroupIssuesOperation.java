@@ -1,6 +1,11 @@
 package com.elster.jupiter.issue.impl.database.groups;
 
+import com.elster.jupiter.issue.impl.database.DatabaseConst;
+import com.elster.jupiter.issue.impl.database.TableSpecs;
+import com.elster.jupiter.issue.share.entity.BaseIssue;
 import com.elster.jupiter.issue.share.entity.GroupByReasonEntity;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.service.GroupQueryBuilder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -21,48 +26,34 @@ public abstract class GroupIssuesOperation{
     protected static final String GROUP_COUNT = "num";
 
     protected final DataModel dataModel;
+    private GroupQueryBuilder builder;
 
-    protected long id;
-    protected long to;
-    protected long from;
-    protected boolean isAsc = true;
-
-    public static GroupIssuesOperation init(IssueGroupColumns groupBy, DataModel dataModel) {
+    public static GroupIssuesOperation init(GroupQueryBuilder builder, DataModel dataModel) {
         if (dataModel == null){
             throw new IllegalArgumentException("[ GroupIssuesOperation ] Data model can't be null");
         }
-        if (groupBy == null){
-            throw new IllegalArgumentException("[ GroupIssuesOperation ] Column is required for issue grouping operation");
+        if (builder == null){
+            throw new IllegalArgumentException("[ GroupIssuesOperation ] Query builder can't be null");
         }
-        return groupBy.getOperationImplementer(dataModel);
+        IssueGroupColumns groupColumn = IssueGroupColumns.fromString(builder.getGroupColumn());
+        if (groupColumn == null){
+            throw new IllegalArgumentException("[ GroupIssuesOperation ] Grouping column can't be null");
+        }
+        GroupIssuesOperation operation = groupColumn.getOperationImplementer(dataModel);
+        operation.setBuilder(builder);
+        return operation;
     }
 
     protected GroupIssuesOperation(DataModel dataModel){
         this.dataModel = dataModel;
     }
 
-    public GroupIssuesOperation setId(long id){
-        this.id = id;
-        return this;
+    protected GroupQueryBuilder getBuilder() {
+        return builder;
     }
 
-    protected long getId() {
-        return this.id;
-    }
-
-    public GroupIssuesOperation setTo(long to){
-        this.to = to;
-        return this;
-    }
-
-    public GroupIssuesOperation setFrom(long from){
-        this.from = from;
-        return this;
-    }
-
-    public GroupIssuesOperation setOrderDirection(boolean isAsc) {
-        this.isAsc = isAsc;
-        return this;
+    private void setBuilder(GroupQueryBuilder builder) {
+        this.builder = builder;
     }
 
     public List<GroupByReasonEntity> execute(){
@@ -87,16 +78,24 @@ public abstract class GroupIssuesOperation{
             throw new IllegalArgumentException("[ GroupIssuesOperation ] Connection can't be null");
         }
         PreparedStatement statement = sql.prepare(connection);
-        if (this.id != 0) {
-            statement.setLong(1, this.id);
-            statement.setLong(2, this.to);
-            statement.setLong(3, this.from);
-        }
-        else {
-            statement.setLong(1, this.to);
-            statement.setLong(2, this.from);
+        if (getBuilder().getId() != 0) {
+            statement.setLong(1, getBuilder().getId());
+            statement.setLong(2, getBuilder().getTo());
+            statement.setLong(3, getBuilder().getFrom());
+        } else {
+            statement.setLong(1, getBuilder().getTo());
+            statement.setLong(2, getBuilder().getFrom());
         }
         return statement;
     }
 
+    protected String getTableName(){
+        Class<?> apiClass = getBuilder().getSourceClass();
+        if (BaseIssue.class.equals(apiClass)){
+            return DatabaseConst.ALL_ISSUES_VIEW_NAME;
+        } else if (HistoricalIssue.class.equals(apiClass)){
+            return TableSpecs.ISU_ISSUEHISTORY.name();
+        }
+        return TableSpecs.ISU_ISSUE.name();
+    }
 }

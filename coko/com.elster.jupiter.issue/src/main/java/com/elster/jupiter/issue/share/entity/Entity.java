@@ -1,20 +1,22 @@
 package com.elster.jupiter.issue.share.entity;
 
-import com.elster.jupiter.issue.impl.database.NonSearchable;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
 
-public class Entity {
-    @NonSearchable
+public abstract class Entity {
     protected long id;
 
     // Audit fields
-    @NonSearchable
     protected long version;
-    @NonSearchable
     protected UtcInstant createTime;
-    @NonSearchable
     protected UtcInstant modTime;
     protected String userName;
+
+    protected DataModel dataModel;
+
+    protected Entity(DataModel dataModel){
+        this.dataModel = dataModel;
+    }
 
     public long getId() {
         return id;
@@ -55,5 +57,17 @@ public class Entity {
 
     void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public void save(){
+        dataModel.persist(this);
+    }
+
+    public void update(){
+        dataModel.update(this);
+    }
+
+    public void delete(){
+        dataModel.remove(this);
     }
 }

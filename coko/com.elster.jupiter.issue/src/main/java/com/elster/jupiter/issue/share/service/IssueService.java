@@ -1,7 +1,7 @@
 package com.elster.jupiter.issue.share.service;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.entity.*;
-import com.elster.jupiter.users.User;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -10,11 +10,21 @@ import java.util.Map;
 public interface IssueService {
     String COMPONENT_NAME = "ISU";
 
-    List<GroupByReasonEntity> getIssueGroupList (String groupColumn, boolean isAsc, long from, long to, List<Long> id);
-    Optional<Issue> createIssue(Map<?, ?> map);
+    public Optional<Issue>        findIssue(long id);
+    public Optional<Issue>        findIssue(long id, boolean searchInHistory);
+    public Optional<IssueStatus>  findStatus(long id);
+    public Optional<IssueReason>  findReason(long id);
+    public Optional<IssueComment> findComment(long id);
+    public Optional<AssigneeRole> findAssigneeRole(long id);
+    public Optional<AssigneeTeam> findAssigneeTeam(long id);
 
-    OperationResult<String, String[]> closeIssue(long issueId, long version, IssueStatus newStatus, String comment, User author);
-    IssueAssignee getAssigneeFromRule(Rule rule);
-    OperationResult<String, String[]> assignIssue(long issueId, long version, IssueAssigneeType type, long assignId, String comment, User author);
-    void processAutoAssign (Issue issue);
+    public Issue        createIssue();
+    public IssueStatus  createStatus(String name, boolean isFinal);
+    public IssueReason  createReason(String name, String topic);
+    public AssigneeRole createAssigneeRole();
+    public AssigneeTeam createAssigneeTeam();
+
+    public <T extends Entity> Query<T> query(Class<T> clazz, Class<?> ... eagers);
+    List<GroupByReasonEntity> getIssueGroupList (GroupQueryBuilder builder);
+    Optional<Issue> createIssue(Map<?, ?> map);
 }

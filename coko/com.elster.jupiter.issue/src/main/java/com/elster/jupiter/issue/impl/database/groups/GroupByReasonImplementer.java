@@ -1,5 +1,6 @@
 package com.elster.jupiter.issue.impl.database.groups;
 
+import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
@@ -35,14 +36,32 @@ public class GroupByReasonImplementer extends GroupIssuesOperation {
         SqlBuilder builder = new SqlBuilder();
         builder.append("SELECT " + GROUP_ID + ", " + GROUP_TITLE + ", " + GROUP_COUNT + " FROM " + "(SELECT ROWNUM as rnum, intr.*");
         builder.append(" FROM (SELECT DISTINCT r.ID as " + GROUP_ID + ", r.REASON_NAME as " + GROUP_TITLE + ", count(isu.REASON_ID) as " + GROUP_COUNT);
-        builder.append(" FROM " + TableSpecs.ISU_ISSUE.name() + " isu, " + TableSpecs.ISU_REASON.name());
-        builder.append(" r WHERE isu.REASON_ID = r.ID");
-        if (this.getId() != 0) {
+        builder.append(" FROM " + getTableName() + " isu, " + TableSpecs.ISU_REASON.name());
+        builder.append(" r WHERE isu.REASON_ID = r.ID" + getStatusCondition());
+        if (getBuilder().getId() != 0) {
             builder.append(" AND r.ID = ?");
         }
         builder.append(" GROUP BY (r.ID, r.REASON_NAME)");
-        builder.append(" ORDER BY " + GROUP_COUNT + " " + (isAsc ? "ASC" : "DESC") + ", " + GROUP_TITLE + " ASC ) intr");
+        builder.append(" ORDER BY " + GROUP_COUNT + " " + (getBuilder().isAsc() ? "ASC" : "DESC") + ", " + GROUP_TITLE + " ASC ) intr");
         builder.append(" WHERE ROWNUM <= ? ) ext WHERE ext.rnum >= ? ");
         return builder;
+    }
+
+    private String getStatusCondition(){
+        if (getBuilder().getStatuses() != null) {
+            StringBuilder builder = new StringBuilder();
+            for (String status : getBuilder().getStatuses()) {
+                if (builder.length() != 0){
+                    builder.append(" OR ");
+
+                }
+                builder.append("isu." + DatabaseConst.ISSUE_COLUMN_STATUS_ID).append(" = ").append(status);
+            }
+            if (builder.length() != 0){
+                builder.insert(0, " AND (").append(") ");
+                return builder.toString();
+            }
+        }
+        return "";
     }
 }

@@ -90,9 +90,9 @@ public class DatabaseAPI {
         Condition condition = Condition.TRUE;
         do {
             for ( Field field : current.getDeclaredFields() ) {
-                if (!field.isAnnotationPresent(NonSearchable.class)) {
+//                if (!field.isAnnotationPresent(NonSearchable.class)) {
                     condition = getConditionForField(entity, field, condition);
-                }
+//                }
             }
             current = current.getSuperclass();
         } while ( current != null );
@@ -115,21 +115,19 @@ public class DatabaseAPI {
                 }
             }
         } catch (IllegalAccessException e) {
+            throw new RuntimeException("Unable to build condition for field", e);
         }
         return condition;
     }
 
-    private Condition getConditionForReference(String originalFieldName, Object value, Condition condition) {
-        try {
-            Field refField = getField(value.getClass(), "value");
-            if (refField != null) {
-                refField.setAccessible(true);
-                value = refField.get(value);
-                if (value != null) {
-                    condition = condition.and(where(originalFieldName).isEqualTo(value));
-                }
+    private Condition getConditionForReference(String originalFieldName, Object value, Condition condition) throws IllegalAccessException{
+        Field refField = getField(value.getClass(), "value");
+        if (refField != null) {
+            refField.setAccessible(true);
+            value = refField.get(value);
+            if (value != null) {
+                condition = condition.and(where(originalFieldName).isEqualTo(value));
             }
-        } catch (ReflectiveOperationException e) {
         }
         return condition;
     }

@@ -1,21 +1,16 @@
 package com.elster.jupiter.issue.tests;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
-import com.elster.jupiter.issue.share.entity.HistoricalIssue;
-import com.elster.jupiter.issue.share.service.IssueMainService;
+import com.elster.jupiter.issue.impl.service.InstallServiceImpl;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -28,42 +23,36 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
-import org.mockito.Mock;
+import org.kie.api.io.KieResources;
+import org.kie.internal.KnowledgeBaseFactoryService;
+import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import java.sql.SQLException;
+import static org.mockito.Mockito.mock;
 
 @Ignore("Base functionality for all tests")
 public class BaseTest {
-    protected static Injector injector;
+    private static Injector injector;
+    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
-    protected static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    @Mock
-    protected static BundleContext bundleContext;
-    @Mock
-    protected static EventAdmin eventAdmin;
-    @Mock
-    protected DataModel dataModel;
-    @Mock
-    protected DataMapper<HistoricalIssue> dataModelFactory;
-    @Mock
-    protected QueryService queryService;
-
-    private class MockModule extends AbstractModule {
+    private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
 
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-
+            bind(KieResources.class).toInstance(mock(KieResources.class));
+            bind(KnowledgeBaseFactoryService.class).toInstance(mock(KnowledgeBaseFactoryService.class));
+            bind(KnowledgeBuilderFactoryService.class).toInstance(mock(KnowledgeBuilderFactoryService.class));
         }
     }
-    @Before
-    public void setUp() throws SQLException {
+
+    @BeforeClass
+    public static void setEnvironment(){
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
@@ -83,29 +72,29 @@ public class BaseTest {
                 new IssueModule()
         );
 
-        try (TransactionContext ctx = getTransactionService().getContext() ) {
-            getInstallService();
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            injector.getInstance(InstallServiceImpl.class);
             ctx.commit();
         }
     }
 
-    @After
-    public void tearDown() throws SQLException {
+    @AfterClass
+    public static void deactivateEnvironment(){
         inMemoryBootstrapModule.deactivate();
     }
-    private InstallService getInstallService(){
-        return injector.getInstance(InstallService.class);
+
+    protected TransactionService getTransactionService() {
+        return injector.getInstance(TransactionService.class);
     }
+    protected TransactionContext getContext(){
+        return getTransactionService().getContext();
+    }
+
+
     protected IssueService getIssueService() {
         return injector.getInstance(IssueService.class);
     }
-    protected IssueMainService getIssueMainService(){
-        return injector.getInstance(IssueMainService.class);
-    }
-    protected IssueMappingService getIssueInternalService(){
+    protected IssueMappingService getIssueMappingService(){
         return injector.getInstance(IssueMappingService.class);
-    }
-    protected TransactionService getTransactionService() {
-        return injector.getInstance(TransactionService.class);
     }
 }

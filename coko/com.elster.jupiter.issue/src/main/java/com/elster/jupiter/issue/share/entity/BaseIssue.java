@@ -1,10 +1,13 @@
 package com.elster.jupiter.issue.share.entity;
 
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.UtcInstant;
+
+import javax.inject.Inject;
 
 public class BaseIssue extends Entity{
     protected UtcInstant dueDate;
@@ -21,6 +24,11 @@ public class BaseIssue extends Entity{
     private Reference<AssigneeRole> role = ValueReference.absent();
 
     protected Reference<EndDevice> device = ValueReference.absent();
+
+    @Inject
+    public BaseIssue(DataModel dataModel) {
+        super(dataModel);
+    }
 
     public String getTitle() {
         String title = getReason().getName();

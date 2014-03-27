@@ -3,7 +3,6 @@ package com.elster.jupiter.issue.impl.service;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueHelpService;
-import com.elster.jupiter.issue.share.service.IssueMainService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
@@ -20,14 +19,15 @@ import javax.inject.Inject;
 public class IssueHelpServiceImpl implements IssueHelpService {
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
-    private volatile IssueMainService issueMainService;
     private volatile IssueService issueService;
 
     public IssueHelpServiceImpl(){}
 
     @Inject
-    public IssueHelpServiceImpl(EventService eventService){
+    public IssueHelpServiceImpl(EventService eventService, MeteringService meteringService, IssueService issueService) {
         setEventService(eventService);
+        setMeteringService(meteringService);
+        setIssueService(issueService);
     }
 
     @Reference
@@ -37,10 +37,6 @@ public class IssueHelpServiceImpl implements IssueHelpService {
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
-    }
-    @Reference
-    public void setIssueMainService(IssueMainService issueMainService) {
-        this.issueMainService = issueMainService;
     }
     @Reference
     public void setIssueService(IssueService issueService) {
@@ -63,16 +59,12 @@ public class IssueHelpServiceImpl implements IssueHelpService {
         eventService.postEvent(IssueEventType.DEVICE_COMMUNICATION_FAILURE.topic(), new CreateIssueEvent());
     }
 
-    public Optional<Issue> createTestIssue(String statusStr, String reasonStr, String deviceStr, long dueDate){
-        IssueStatus status = new IssueStatus();
-        status.setName(statusStr);
-        status = issueMainService.searchFirst(status).get();
+    @Override
+    public Optional<Issue> createTestIssue(long statusId, long reasonId, String deviceStr, long dueDate){
+        IssueStatus status = issueService.findStatus(statusId).orNull();
+        IssueReason reason = issueService.findReason(reasonId).orNull();
 
-        IssueReason reason = new IssueReason();
-        reason.setName(reasonStr);
-        reason = issueMainService.searchFirst(reason).get();
-
-        Issue issue = new Issue();
+        Issue issue = issueService.createIssue();
         issue.setStatus(status);
         issue.setReason(reason);
         issue.setDueDate(new UtcInstant(dueDate));
@@ -85,8 +77,8 @@ public class IssueHelpServiceImpl implements IssueHelpService {
             }
         }
 
-        Optional<Issue> result = issueMainService.save(issue);
-        issueService.processAutoAssign(issue);
-        return result;
+        issue.save();
+        issue.autoAssign();
+        return Optional.of(issue);
     }
 }

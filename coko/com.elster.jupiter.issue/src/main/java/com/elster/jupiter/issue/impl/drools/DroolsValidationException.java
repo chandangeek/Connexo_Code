@@ -1,11 +1,11 @@
 package com.elster.jupiter.issue.impl.drools;
 
-import com.elster.jupiter.util.exception.BaseException;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-public class DroolsValidationException extends BaseException {
+public class DroolsValidationException extends LocalizedException {
 
     protected DroolsValidationException(MessageSeed messageSeed, Object... args) {
-        super(messageSeed, args);
+        super(null, messageSeed, args);
     }
 }

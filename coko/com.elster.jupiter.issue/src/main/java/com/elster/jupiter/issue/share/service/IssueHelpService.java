@@ -6,5 +6,5 @@ import com.google.common.base.Optional;
 public interface IssueHelpService {
     void setEventTopics();
     void getEvent();
-    Optional<Issue> createTestIssue(String statusStr, String reasonStr, String deviceStr, long dueDate);
+    Optional<Issue> createTestIssue(long statusId, long reasonId, String deviceStr, long dueDate);
 }

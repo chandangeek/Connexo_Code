@@ -1,16 +1,30 @@
 package com.elster.jupiter.issue.share.entity;
 
-import com.elster.jupiter.issue.impl.database.NonSearchable;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.UserService;
 
+import javax.inject.Inject;
 import java.nio.charset.Charset;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Rule extends Entity {
-    @NonSearchable
     private int priority;
     private String description;
     private String title;
     private boolean enabled = true;
     private String ruleData;
+
+    private IssueService issueService;
+    private UserService userService;
+
+    @Inject
+    public Rule(DataModel dataModel, IssueService issueService, UserService userService){
+        super(dataModel);
+        this.issueService = issueService;
+        this.userService = userService;
+    }
 
     public int getPriority() {
         return priority;
@@ -54,5 +68,38 @@ public class Rule extends Entity {
 
     public void setRuleData(String ruleData) {
         this.ruleData = ruleData;
+    }
+
+    public IssueAssignee getAssignee(){
+        if (ruleData != null) {
+            Pattern pattern = Pattern.compile("IssueAssigneeType\\.(\\w+)\\s*\\)");
+            Matcher matcher = pattern.matcher(ruleData);
+            if (matcher.find()) {
+                String assigneeTypeStr = matcher.group(1);
+
+                pattern = Pattern.compile("\\.setAssigneeId\\s*\\(\\s*(\\d+)\\s*\\);");
+                matcher = pattern.matcher(ruleData);
+                if (matcher.find()) {
+                    String assigneeIdStr = matcher.group(1);
+                    long assigneeId = assigneeIdStr != null ? Long.parseLong(assigneeIdStr) : 0;
+                    return buildIssueAssignee(IssueAssigneeType.valueOf(assigneeTypeStr), assigneeId);
+                }
+            }
+        }
+        return null;
+    }
+
+    private IssueAssignee buildIssueAssignee(IssueAssigneeType type, long id) {
+        if (type != null) {
+            switch (type) {
+                case USER:
+                    return IssueAssignee.fromUser(userService.getUser(id).orNull());
+                case ROLE:
+                    return IssueAssignee.fromRole(issueService.findAssigneeRole(id).orNull());
+                case TEAM:
+                    return IssueAssignee.fromTeam(issueService.findAssigneeTeam(id).orNull());
+            }
+        }
+        return null;
     }
 }
