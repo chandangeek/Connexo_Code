@@ -11,4 +11,6 @@ public interface TaskService {
     public ComTask findComTask(long id);
 
     public List<ComTask> findAllComTasks();
+
+    public ProtocolTask findProtocolTask(long id);
 }

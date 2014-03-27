@@ -5,7 +5,9 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.BasicCheckTask;
+import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.PersistenceTest;
@@ -33,10 +35,10 @@ public class ComTaskImplTest extends PersistenceTest {
         comTask.setMaxNrOfTries(1);
         comTask.createStatusInformationTask();
         comTask.save();
-        return comTask;
+        return getTaskService().findComTask(comTask.getId());
     }
 
-    private ComTask createComTaskWithBasicCheck() {
+    private ComTask createComTaskWithBasicCheckAndStatusInformation() {
         ComTask comTask = getTaskService().createComTask();
         comTask.setName(COM_TASK_NAME);
         comTask.setStoreData(STORE_DATA_TRUE);
@@ -163,7 +165,7 @@ public class ComTaskImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void updateProtocolTaskTest() {
-        ComTask comTask = createComTaskWithBasicCheck();
+        ComTask comTask = createComTaskWithBasicCheckAndStatusInformation();
         BasicCheckTask basicCheckTask = getTaskByType(comTask.getProtocolTasks(), BasicCheckTask.class);
         assertThat(basicCheckTask.verifySerialNumber()).isFalse();
         basicCheckTask.setVerifySerialNumber(true);
@@ -174,417 +176,77 @@ public class ComTaskImplTest extends PersistenceTest {
         assertThat(getTaskByType(comTask.getProtocolTasks(), BasicCheckTask.class).verifySerialNumber()).isTrue();
     }
 
-//
-//
-//    @Test
-//
-//    public void updateWithDeleteAndNewProtocolTaskTypeTest() throws BusinessException, SQLException {
-//
-//        ComTask comTask = createComTaskWithBasicAndClockTask();
-//
-//        ComTaskShadow shadow = comTask.getShadow();
-//
-//        BasicCheckTaskShadow basicCheckTaskShadow = BasicCheckTaskImplTest.createBasicCheckTaskShadow();
-//
-//        BasicCheckTaskShadow shadowToRemove = getTheBasicCheckTaskShadowFromTheList(shadow.getProtocolTaskShadows());
-//
-//        shadow.removeProtocolTask(shadowToRemove);
-//
-//        shadow.addProtocolTask(basicCheckTaskShadow);
-//
-//
-//
-//        //business method
-//
-//        comTask.update(shadow);
-//
-//        assertNotNull(comTask.getProtocolTasks());
-//
-//        assertEquals("We should still have 2 protocolTask, a ClockTask and a BasicCheckTask", 2, comTask.getProtocolTasks().size());
-//
-//    }
-//
-//
-//
-//    @Test(expected = DuplicateException.class)
-//
-//    public void createWithDuplicateNameTest() throws BusinessException, SQLException {
-//
-//        createComTaskWithBasicAndClockTask();
-//
-//        createSimpleComTask(createSimpleComTaskShadow());
-//
-//
-//
-//        // we expect to fail with a duplicate exception
-//
-//    }
-//
-//
-//
-//    @Test
-//
-//    public void loadTest() throws BusinessException, SQLException {
-//
-//        ComTask comTask = createComTaskWithBasicAndClockTask();
-//
-//        ComTask loadedComTask = ManagerFactory.getCurrent().getComTaskFactory().find(comTask.getId());
-//
-//
-//
-//        // asserts
-//
-//        assertEquals(comTask.getName(), loadedComTask.getName());
-//
-//        assertEquals(comTask.storeData(), loadedComTask.storeData());
-//
-//        assertArrayEquals(comTask.getProtocolTasks().toArray(), loadedComTask.getProtocolTasks().toArray());
-//
-//    }
-//
-//
-//
-//    @Test
-//
-//    public void deleteTest() throws BusinessException, SQLException {
-//
-//        ComTask comTask = createComTaskWithBasicAndClockTask();
-//
-//        List<ProtocolTask> protocolTasks = comTask.getProtocolTasks();
-//
-//        comTask.delete();
-//
-//
-//
-//        for (ProtocolTask protocolTask : protocolTasks) {
-//
-//            assertNull(ManagerFactory.getCurrent().getProtocolTaskFactory().find(protocolTask.getId()));
-//
-//        }
-//
-//    }
-//
-//
-//
-//    @Test(expected = BusinessException.class)
-//
-//    public void testDeleteWhenUsedByDeviceConfigurations () throws BusinessException, SQLException {
-//
-//        ComTask comTask = this.createComTaskWithBasicAndClockTask();
-//
-//        ServerComTaskEnablementFactory comTaskEnablementFactory = mock(ServerComTaskEnablementFactory.class);
-//
-//        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
-//
-//        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-//
-//        when(deviceConfiguration.getName()).thenReturn("testDeleteWhenUsedByDeviceConfigurations");
-//
-//        DeviceCommunicationConfiguration deviceCommunicationConfiguration = mock(DeviceCommunicationConfiguration.class);
-//
-//        when(deviceCommunicationConfiguration.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-//
-//        when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(deviceCommunicationConfiguration);
-//
-//        when(comTaskEnablement.getDeviceCommunicationConfiguration()).thenReturn(deviceCommunicationConfiguration);
-//
-//        when(comTaskEnablementFactory.findByComTask(comTask)).thenReturn(Arrays.asList(comTaskEnablement));
-//
-//        ServerManager manager = mock(ServerManager.class);
-//
-//        when(manager.getComTaskEnablementFactory()).thenReturn(comTaskEnablementFactory);
-//
-//        when(manager.getComTaskExecutionFactory()).thenReturn(mock(ServerComTaskExecutionFactory.class));
-//
-//        ManagerFactory.setCurrent(manager);
-//
-//
-//
-//        try {
-//
-//            // Business method
-//
-//            comTask.delete();
-//
-//        }
-//
-//        catch (BusinessException e) {
-//
-//            assertThat(e.getMessageId()).isEqualTo("comTaskXStillInUseByDeviceConfigurationY");
-//
-//            throw e;
-//
-//        }
-//
-//    }
-//
-//
-//
-//    @Test(expected = BusinessException.class)
-//
-//    public void testDeleteWhenUsedByComTaskExecution () throws BusinessException, SQLException {
-//
-//        ComTask comTask = this.createComTaskWithBasicAndClockTask();
-//
-//        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-//
-//        ServerComTaskExecutionFactory comTaskExecutionFactory = mock(ServerComTaskExecutionFactory.class);
-//
-//        when(comTaskExecutionFactory.findByComTask(comTask)).thenReturn(Arrays.asList(comTaskExecution));
-//
-//        ServerManager manager = mock(ServerManager.class);
-//
-//        when(manager.getComTaskExecutionFactory()).thenReturn(comTaskExecutionFactory);
-//
-//        ManagerFactory.setCurrent(manager);
-//
-//
-//
-//        try {
-//
-//            // Business method
-//
-//            comTask.delete();
-//
-//        }
-//
-//        catch (BusinessException e) {
-//
-//            assertThat(e.getMessageId()).isEqualTo("comTaskXStillInUseByAtLeastOneComTaskExecution");
-//
-//            throw e;
-//
-//        }
-//
-//    }
-//
-//
-//
-//    /**
-//
-//     * Test the full change of creating a ComTask from a shadow.
-//
-//     * This will create a LoadProfilesTask which has 1 LoadProfileType usage
-//
-//     *
-//
-//     * @throws BusinessException
-//
-//     * @throws SQLException
-//
-//     */
-//
-//    @Test
-//
-//    public void updateWithNewNameAndTaskUsageTest() throws BusinessException, SQLException {
-//
-//        final String newName = "NewComTaskNameAfterUpdate";
-//
-//        final boolean failIfLoadProfileConfigMisMatch = true;
-//
-//        final boolean meterEventsFromStatusFlags = true;
-//
-//        final String loadProfileTypeDescription = "Standard LoadProfileType description";
-//
-//        final ObisCode loadProfileTypeObisCode = ObisCode.fromString("1.0.99.1.0.255");
-//
-//        final int loadProfileTypeInterval = 900;
-//
-//        final String loadProfileTypeName = "LoadProfileTypeName";
-//
-//
-//
-//        ComTaskShadow shadow = new ComTaskShadow();
-//
-//        shadow.setName(COM_TASK_NAME);
-//
-//        shadow.addProtocolTask(BasicCheckTaskImplTest.createBasicCheckTaskShadow());
-//
-//        ComTask comTask = createSimpleComTask(shadow);
-//
-//        ComTaskShadow comTaskShadow = comTask.getShadow();
-//
-//
-//
-//        LoadProfileTypeShadow loadProfileTypeShadow = new LoadProfileTypeShadow();
-//
-//        loadProfileTypeShadow.setDescription(loadProfileTypeDescription);
-//
-//        loadProfileTypeShadow.setObisCode(loadProfileTypeObisCode);
-//
-//        loadProfileTypeShadow.setName(loadProfileTypeName);
-//
-//        loadProfileTypeShadow.setInterval(new TimeDuration(loadProfileTypeInterval));
-//
-//        LoadProfileType loadProfileType = MeteringWarehouse.getCurrent().getLoadProfileTypeFactory().create(loadProfileTypeShadow);
-//
-//
-//
-//        LoadProfilesTaskShadow loadProfilesTaskShadow = new LoadProfilesTaskShadow();
-//
-//        loadProfilesTaskShadow.setFailIfLoadProfileConfigurationMisMatch(failIfLoadProfileConfigMisMatch);
-//
-//        loadProfilesTaskShadow.setMeterEventsFromStatusFlags(meterEventsFromStatusFlags);
-//
-//        loadProfilesTaskShadow.addLoadProfileType(loadProfileType.getShadow()); // we refetch the shadow so we get the updated ID
-//
-//
-//
-//        comTaskShadow.addProtocolTask(loadProfilesTaskShadow);
-//
-//        comTaskShadow.setName(newName);
-//
-//
-//
-//        // business method
-//
-//        comTask.update(comTaskShadow);
-//
-//
-//
-//        // asserts
-//
-//        assertEquals("Name should be changed", newName, comTask.getName());
-//
-//        assertEquals("Should have 2 ProtocolTask", 2, comTask.getProtocolTasks().size());
-//
-//        assertThat(comTask.getProtocolTasks()).areExactly(1, new Condition<Object>() {
-//
-//            @Override
-//
-//            public boolean matches(Object value) {
-//
-//                return value instanceof LoadProfilesTask;
-//
-//            }
-//
-//        });
-//
-//        assertThat(comTask.getProtocolTasks()).areExactly(1, new Condition<Object>() {
-//
-//            @Override
-//
-//            public boolean matches(Object value) {
-//
-//                return value instanceof BasicCheckTask;
-//
-//            }
-//
-//        });
-//
-//        LoadProfilesTask loadProfilesTask = null;
-//
-//        for (ProtocolTask protocolTask : comTask.getProtocolTasks()) {
-//
-//            if(protocolTask instanceof LoadProfilesTask){
-//
-//                loadProfilesTask = (LoadProfilesTask) protocolTask;
-//
-//            }
-//
-//        }
-//
-//        assertNotNull("loadProfilesTask should not be null because we already validated that the list contains an instance of this type.",loadProfilesTask);
-//
-//        assertTrue("The task should fail if channelconfig mismatch", loadProfilesTask.failIfLoadProfileConfigurationMisMatch());
-//
-//        assertTrue("The task should create meterevents from statusflags", loadProfilesTask.createMeterEventsFromStatusFlags());
-//
-//        assertFalse("The task should not mark intervals as bad time", loadProfilesTask.doMarkIntervalsAsBadTime());
-//
-//        assertNotNull(loadProfilesTask.getLoadProfileTypes());
-//
-//        assertEquals("The task should have 1 loadProfileType", 1, loadProfilesTask.getLoadProfileTypes().size());
-//
-//        LoadProfileType lpt = loadProfilesTask.getLoadProfileTypes().get(0);
-//
-//        assertEquals("The name of the loadProfileType should be " + loadProfileTypeName, loadProfileTypeName, lpt.getName());
-//
-//        assertEquals(loadProfileTypeDescription, lpt.getDescription());
-//
-//        assertEquals("The interval should be 900s", loadProfileTypeInterval, lpt.getInterval().getSeconds());
-//
-//    }
-//
-//
-//
-//    @Test
-//
-//    public void createForProtocolTaskXTest() throws BusinessException, SQLException {
-//
-//        ComTask comTask = createSimpleComTask(createComTaskShadowWithoutViolations());
-//
-//
-//
-//        ComTask loadedComTask = ManagerFactory.getCurrent().getComTaskFactory().find(comTask.getId());
-//
-//        assertEquals("Should have 1 protocolTask", 1, loadedComTask.getProtocolTasks().size());
-//
-//
-//
-//        comTask.createClockTask(ClockTaskImplTest.createClockTaskShadow());
-//
-//        loadedComTask = ManagerFactory.getCurrent().getComTaskFactory().find(comTask.getId());
-//
-//        assertEquals("Should have 2 protocolTask", 2, loadedComTask.getProtocolTasks().size());
-//
-//
-//
-//        comTask.createLoadProfilesTask(LoadProfilesTaskImplTest.createSimpleLoadProfileTaskShadow());
-//
-//        loadedComTask = ManagerFactory.getCurrent().getComTaskFactory().find(comTask.getId());
-//
-//        assertEquals("Should have 3 protocolTask", 3, loadedComTask.getProtocolTasks().size());
-//
-//
-//
-//        comTask.createLogbooksTask(new LogBooksTaskShadow());
-//
-//        loadedComTask = ManagerFactory.getCurrent().getComTaskFactory().find(comTask.getId());
-//
-//        assertEquals("Should have 4 protocolTask", 4, loadedComTask.getProtocolTasks().size());
-//
-//
-//
-//        comTask.createMessagesTask(new MessagesTaskShadow());
-//
-//        loadedComTask = ManagerFactory.getCurrent().getComTaskFactory().find(comTask.getId());
-//
-//        assertEquals("Should have 5 protocolTask", 5, loadedComTask.getProtocolTasks().size());
-//
-//
-//
-//        comTask.createBasicCheckTask(BasicCheckTaskImplTest.createBasicCheckTaskShadow());
-//
-//        loadedComTask = ManagerFactory.getCurrent().getComTaskFactory().find(comTask.getId());
-//
-//        assertEquals("Should have 6 protocolTask", 6, loadedComTask.getProtocolTasks().size());
-//
-//
-//
-//        comTask.createRegistersTask(new RegistersTaskShadow());
-//
-//        loadedComTask = ManagerFactory.getCurrent().getComTaskFactory().find(comTask.getId());
-//
-//        assertEquals("Should have 7 protocolTask", 7, loadedComTask.getProtocolTasks().size());
-//
-//
-//
-//        comTask.createStatusInformationTask(new StatusInformationTaskShadow());
-//
-//        loadedComTask = ManagerFactory.getCurrent().getComTaskFactory().find(comTask.getId());
-//
-//        assertEquals("Should have 8 protocolTask", 8, loadedComTask.getProtocolTasks().size());
-//
-//
-//
-//        comTask.createTopologyTask(TopologyTaskImplTest.createSimpleTopologyTaskShadow());
-//
-//        loadedComTask = ManagerFactory.getCurrent().getComTaskFactory().find(comTask.getId());
-//
-//        assertEquals("Should have 9 protocolTask", 9, loadedComTask.getProtocolTasks().size());
-//
-//    }
+    @Test
+    @Transactional
+    public void updateWithDeleteAndNewProtocolTaskTypeTest() {
+        ComTask comTask = createComTaskWithBasicCheckAndStatusInformation();
+        ClockTask clockTask = comTask.createClockTask(ClockTaskType.SETCLOCK).maximumClockDifference(TimeDuration.days(1)).minimumClockDifference(TimeDuration.hours(1)).add();
+        comTask.save();
+        comTask.removeTask(clockTask);
+        comTask.save();
+        assertThat(comTask.getProtocolTasks()).hasSize(2);
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+Constants.DUPLICATE_COMTASK_NAME+"}", property = "name")
+    public void createWithDuplicateNameTest()  {
+        createSimpleComTask();
+        createSimpleComTask();
+        // we expect to fail with a duplicate exception
+    }
+
+    @Test
+    @Transactional
+    public void deleteTest()  {
+        ComTask comTask = createSimpleComTask();
+        comTask = getTaskService().findComTask(comTask.getId());
+        List<? extends ProtocolTask> protocolTasks = comTask.getProtocolTasks();
+        comTask.delete();
+        assertThat(getTaskService().findComTask(comTask.getId())).isNull();
+        for (ProtocolTask protocolTask : protocolTasks) {
+            assertThat(getTaskService().findProtocolTask(protocolTask.getId()));
+        }
+//        assertThat(event); TODO assert this
+    }
+
+
+    @Test
+    @Transactional
+    public void createAllProtocolTaskOnComTask() {
+        ComTask comTask = createSimpleComTask();
+
+        ComTask loadedComTask = getTaskService().findComTask(comTask.getId());
+        assertThat(loadedComTask.getProtocolTasks()).hasSize(1);
+
+        comTask.createClockTask(ClockTaskType.SETCLOCK).minimumClockDifference(TimeDuration.hours(1)).maximumClockDifference(TimeDuration.days(1)).add();
+        loadedComTask = getTaskService().findComTask(comTask.getId());
+        assertThat(loadedComTask.getProtocolTasks()).hasSize(2);
+
+        comTask.createLoadProfilesTask().add();
+        loadedComTask = getTaskService().findComTask(comTask.getId());
+        assertThat(loadedComTask.getProtocolTasks()).hasSize(3);
+
+        comTask.createLogbooksTask().add();
+        loadedComTask = getTaskService().findComTask(comTask.getId());
+        assertThat(loadedComTask.getProtocolTasks()).hasSize(4);
+
+        comTask.createMessagesTask().allCategories().add();
+        loadedComTask = getTaskService().findComTask(comTask.getId());
+        assertThat(loadedComTask.getProtocolTasks()).hasSize(5);
+
+        comTask.createBasicCheckTask().add();
+        loadedComTask = getTaskService().findComTask(comTask.getId());
+        assertThat(loadedComTask.getProtocolTasks()).hasSize(6);
+
+        comTask.createRegistersTask().add();
+        loadedComTask = getTaskService().findComTask(comTask.getId());
+        assertThat(loadedComTask.getProtocolTasks()).hasSize(7);
+
+        comTask.createTopologyTask(TopologyAction.UPDATE);
+        loadedComTask = getTaskService().findComTask(comTask.getId());
+        assertThat(loadedComTask.getProtocolTasks()).hasSize(8);
+    }
 //
 //
 //
@@ -676,7 +338,7 @@ public class ComTaskImplTest extends PersistenceTest {
 //
 //        // Business Method
 //
-//        ComTask reloadedComTask = ManagerFactory.getCurrent().getComTaskFactory().find(comTask.getId());
+//        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
 //
 //
 //
@@ -706,7 +368,7 @@ public class ComTaskImplTest extends PersistenceTest {
 //
 //        // Business Method
 //
-//        ComTask reloadedComTask = ManagerFactory.getCurrent().getComTaskFactory().find(comTask.getId());
+//        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
 //
 //
 //
@@ -736,7 +398,7 @@ public class ComTaskImplTest extends PersistenceTest {
 //
 ////        // Business Method
 //
-////        ComTask reloadedComTask = ManagerFactory.getCurrent().getComTaskFactory().find(comTask.getId());
+////        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
 //
 ////
 //
@@ -770,7 +432,7 @@ public class ComTaskImplTest extends PersistenceTest {
 //
 ////        // Business Method
 //
-////        ComTask reloadedComTask = ManagerFactory.getCurrent().getComTaskFactory().find(comTask.getId());
+////        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
 //
 ////
 //

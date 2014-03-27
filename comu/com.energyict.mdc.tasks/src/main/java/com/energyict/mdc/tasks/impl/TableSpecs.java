@@ -34,7 +34,7 @@ public enum TableSpecs {
             table.map(ComTaskImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").type("varchar2(256)").map(ComTaskImpl.Fields.NAME.fieldName()).add();
-            table.column("STOREDATA").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).add();
+            table.column("STOREDATA").number().conversion(NUMBER2BOOLEAN).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).add();
             table.column("MAXNROFTRIES").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.MAX_NR_OF_TRIES.fieldName()).add();
             table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map(ComTaskImpl.Fields.MOD_DATE.fieldName()).insert("sysdate").update("sysdate").add();
             table.primaryKey("PK_COMTASK").on(idColumn).add();
@@ -76,7 +76,7 @@ public enum TableSpecs {
             table.foreignKey("FK_MDCPROTOCOLTASK_COMTASK").on(comTaskId).
                     references(MDCCOMTASK.name()).
                     map(ProtocolTaskImpl.Fields.COM_TASK.fieldName()).
-                    reverseMap(ComTaskImpl.Fields.PROTOCOL_TASKS.fieldName()).add();
+                    reverseMap(ComTaskImpl.Fields.PROTOCOL_TASKS.fieldName()).composition().add();
             table.primaryKey("PK_MDCPROTOCOLTASK").on(idColumn).add();
         }
     },

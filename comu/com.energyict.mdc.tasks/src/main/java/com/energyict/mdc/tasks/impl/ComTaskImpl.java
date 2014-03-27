@@ -29,6 +29,7 @@ import com.google.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -45,7 +46,6 @@ import javax.validation.constraints.Size;
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.DUPLICATE_COMTASK_NAME +"}")
 public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
 
-    private static final int NAME_MAX_DB_LENGTH = 80;
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final EventService eventService;
@@ -215,6 +215,24 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
         topologyTask.setTopologyAction(topologyAction);
         addProtocolTask(topologyTask);
         return topologyTask;
+    }
+
+    @Override
+    public void removeTask(ProtocolTask protocolTaskToDelete) {
+        Iterator<ProtocolTaskImpl> iterator = this.protocolTasks.iterator();
+        while (iterator.hasNext()) {
+            ProtocolTaskImpl protocolTask = iterator.next();
+            if (protocolTask.getId()==protocolTaskToDelete.getId()) {
+                verifyDeleteProtocolTask();
+                iterator.remove();
+            }
+        }
+    }
+
+    private void verifyDeleteProtocolTask() {
+        if (this.protocolTasks.size()==1) {
+            throw new TranslatableApplicationException(thesaurus, MessageSeeds.PROTOCOL_TASK_REQUIRED);
+        }
     }
 
     @Override

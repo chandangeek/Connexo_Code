@@ -13,6 +13,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TaskService;
@@ -110,6 +111,11 @@ public class TaskServiceImpl implements TaskService, InstallService {
     @Override
     public ComTask findComTask(long id) {
         return dataModel.mapper(ComTask.class).getUnique("id", id).orNull();
+    }
+
+    @Override
+    public ProtocolTask findProtocolTask(long id) {
+        return dataModel.mapper(ProtocolTask.class).getUnique("id", id).orNull();
     }
 
     @Override

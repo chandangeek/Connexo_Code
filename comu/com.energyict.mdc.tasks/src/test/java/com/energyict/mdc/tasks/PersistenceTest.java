@@ -6,7 +6,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -78,7 +77,7 @@ public class PersistenceTest {
                 new DomainUtilModule(),
                 new MeteringModule(),
                 new DeviceConfigurationModule(),
-                new EventsModule(),
+//                new EventsModule(), // Mocked by Spy
                 new PluggableModule(),
                 new TransactionModule(true),
                 new TasksModule());

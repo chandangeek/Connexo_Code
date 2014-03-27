@@ -81,6 +81,8 @@ public interface ComTask {
      */
     public TopologyTask createTopologyTask(TopologyAction topologyAction);
 
+    public void removeTask(ProtocolTask protocolTask);
+
     /**
      * Keeps track of the maximum number of consecutive failures a comTask can have before marking it as failed.
      *
@@ -94,11 +96,11 @@ public interface ComTask {
 
     public void delete();
 
-    void setName(String name);
+    public void setName(String name);
 
-    int getMaxNrOfTries();
+    public int getMaxNrOfTries();
 
-    void setMaxNrOfTries(int maxNrOfTries);
+    public void setMaxNrOfTries(int maxNrOfTries);
 
-    void setStoreData(boolean storeData);
+    public void setStoreData(boolean storeData);
 }
