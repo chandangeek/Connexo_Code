@@ -10,6 +10,8 @@ Ext.define('Uni.model.AppItem', {
         'icon',
         'mainController',
         'scripts',
-        'translationComponents'
+        'translationComponents',
+        'styleSheets',
+        'dependencies'
     ]
 });
