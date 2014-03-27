@@ -1,5 +1,5 @@
 Ext.define('Isu.model.IssueSort', {
-    extend: 'Isu.component.sort.model.Sort',
+    extend: 'Uni.component.sort.model.Sort',
 
     fields: [
         {

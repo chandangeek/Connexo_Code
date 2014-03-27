@@ -141,7 +141,7 @@ Ext.define('Isu.controller.Issues', {
      * After "updateProxyFilter" event from the Issue store, method will redraw button tags on the filter panel
      *
      * todo: I18n
-     * @param filter Isu.component.filter.model.Filter
+     * @param filter Uni.component.filter.model.Filter
      */
     filterUpdate: function (filter) {
         var filterElm = this.getFilter().down('[name="filter"]'),
