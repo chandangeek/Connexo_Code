@@ -1,10 +1,11 @@
-Ext.define('Isu.view.administration.datacollection.issueautomaticcreationrules.Overview', {
+Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
         'Uni.view.navigation.SubMenu',
-        'Isu.view.administration.datacollection.issueautomaticcreationrules.List'
+        'Isu.view.administration.datacollection.issuecreationrules.List',
+        'Isu.view.administration.datacollection.issuecreationrules.Item'
     ],
-    alias: 'widget.issue-autocreation-rules-overview',
+    alias: 'widget.issue-creation-rules-overview',
     side: [
         {
             xtype: 'navigationSubMenu',
@@ -16,12 +17,16 @@ Ext.define('Isu.view.administration.datacollection.issueautomaticcreationrules.O
             cls: 'content-wrapper',
             items: [
                 {
-                    html: '<h1>Issue automatic creation rules</h1>',
+                    html: '<h1>Issue creation rules</h1>',
                     margin: '0 0 20 0'
                 },
                 {
-                    xtype: 'issues-autocreation-rules-list',
-                    margin: '0 0 20 0'
+                    xtype: 'issues-creation-rules-list',
+                    margin: '0 15 20 0'
+                },
+                {
+                    xtype: 'issue-creation-rules-item',
+                    margin: '0 15 0 0'
                 }
             ]
         }
@@ -38,9 +43,9 @@ Ext.define('Isu.view.administration.datacollection.issueautomaticcreationrules.O
             menu = this.getSideMenuCmp();
 
         menu.add({
-            text: 'Issue automatic creation rules',
+            text: 'Issue creation rules',
             pressed: true,
-            href: '#/administration/datacollection/issueautomaticcreationrules',
+            href: '#/issue-administration/datacollection/issuecreationrules',
             hrefTarget: '_self'
         });
     },

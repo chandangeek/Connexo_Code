@@ -8,7 +8,9 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
     requires: [
         'Isu.view.workspace.issues.component.AssigneeCombo',
         'Isu.util.FilterCheckboxgroup',
-        'Isu.component.filter.view.Filter'
+        'Uni.component.filter.view.Filter',
+        'Isu.store.IssueStatus',
+        'Isu.store.IssueReason'
     ],
 
     items: [
@@ -30,7 +32,9 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     fieldLabel: 'Assignee',
                     labelAlign: 'top',
                     forceSelection: true,
-                    anyMatch: true
+                    anyMatch: true,
+                    emptyText: 'select an assignee',
+                    tooltipText: 'Start typing for assignee'
                 },
                 {
                     xtype: 'combobox',
@@ -56,7 +60,8 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
 
                     triggerAction: 'query',
                     anchor: '100%',
-                    emptyText: 'start typing a reason'
+                    emptyText: 'select a reason',
+                    tooltipText: 'Start typing for reason'
                 }
             ]
         }

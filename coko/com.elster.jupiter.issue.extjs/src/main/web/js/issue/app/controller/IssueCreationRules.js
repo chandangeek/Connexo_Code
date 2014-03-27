@@ -1,4 +1,4 @@
-Ext.define('Isu.controller.IssueAutoCreationRules', {
+Ext.define('Isu.controller.IssueCreationRules', {
     extend: 'Ext.app.Controller',
 
     requires: [
@@ -6,54 +6,64 @@ Ext.define('Isu.controller.IssueAutoCreationRules', {
     ],
 
     stores: [
-        'Isu.store.AutoCreationRules'
+        'CreationRules'
     ],
     views: [
-        'administration.datacollection.issueautomaticcreationrules.Overview',
+        'administration.datacollection.issuecreationrules.Overview',
         'ext.button.GridAction',
-        'administration.datacollection.issueautomaticcreationrules.ActionMenu'
+        'administration.datacollection.issuecreationrules.ActionMenu'
     ],
 
     mixins: {
         isuGrid: 'Isu.util.IsuGrid'
     },
 
+    refs: [
+        {
+            ref: 'itemPanel',
+            selector: 'issue-creation-rules-overview issue-creation-rules-item'
+        }
+    ],
+
     init: function () {
         this.control({
-            'issue-autocreation-rules-overview breadcrumbTrail': {
+            'issue-creation-rules-overview breadcrumbTrail': {
                 afterrender: this.setBreadcrumb
             },
-            'issue-autocreation-rules-overview issues-autocreation-rules-list gridview': {
+            'issue-creation-rules-overview issues-creation-rules-list gridview': {
+                itemclick: this.loadGridItemDetail,
                 refresh: this.onGridRefresh
             },
-            'issue-autocreation-rules-overview issues-autocreation-rules-list actioncolumn': {
+            'issue-creation-rules-overview issues-creation-rules-list actioncolumn': {
                 click: this.showItemAction
             },
-            'auto-rule-action-menu': {
+            'creation-rule-action-menu': {
                 beforehide: this.hideItemAction
             }
         });
 
-        this.actionMenuXtype = 'auto-rule-action-menu';
+        this.actionMenuXtype = 'creation-rule-action-menu';
+        this.gridItemModel = this.getModel('CreationRules');
     },
 
     showOverview: function () {
-        var widget = Ext.widget('issue-autocreation-rules-overview');
+        var widget = Ext.widget('issue-creation-rules-overview');
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     setBreadcrumb: function (breadcrumbs) {
+        var me = this;
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
                 text: 'Administration',
-                href: '#/administration'
+                href: me.getController('Isu.controller.history.Administration').tokenizeShowOverview()
             }),
             breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
                 text: 'Data collection',
                 href: 'datacollection'
             }),
             breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Issue automatic creation rules',
-                href: 'issueautomaticcreationrules'
+                text: 'Issue creation rules',
+                href: 'issuecreationrules'
             });
         breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2);
 
@@ -63,5 +73,14 @@ Ext.define('Isu.controller.IssueAutoCreationRules', {
     onGridRefresh: function (grid) {
         this.setAssigneeTypeIconTooltip(grid);
         this.setDescriptionTooltip(grid);
+        this.selectFirstRule(grid);
+    },
+
+    selectFirstRule: function (grid) {
+        var index = 0,
+            item = grid.getNode(index),
+            record = grid.getRecord(item);
+
+        grid.fireEvent('itemclick', grid, record, item, index);
     }
 });

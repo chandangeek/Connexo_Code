@@ -87,15 +87,20 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     setButtonsDisabling: function (index) {
-        btns = Ext.ComponentQuery.query('bulk-browse bulk-navigation button');
+        var btns = Ext.ComponentQuery.query('bulk-browse bulk-navigation button');
         Ext.each(btns, function (btn) {
-            if (btn.number <= index) {
+            btn.removeCls('active-bulk-list-action');
+            if (btn.number < index && index != 4) {
                 btn.setDisabled(false);
             } else {
                 btn.setDisabled(true);
+                if (btn.number == index) {
+                    btn.addCls('active-bulk-list-action');
+                }
             }
         });
     },
+
 
     setFailedBulkRecordIssues: function (failedIssues) {
         var record = this.getBulkRecord(),
@@ -205,12 +210,13 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     onWizardFinishedEvent: function (wizard) {
         var self = this;
         this.setBulkActionListActiveItem(wizard);
-        this.setButtonsDisabling(-1);
+        this.setButtonsDisabling(4);
         var step5panel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step5'),
             record = this.getBulkRecord(),
             requestData = this.getRequestData(record),
             operation = record.get('operation'),
             requestUrl = '/api/isu/issue/' + operation,
+            warnIssues = [],
             failedIssues = [];
 
         var pb = Ext.create('Ext.ProgressBar', {width: '50%'});
@@ -230,40 +236,69 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             success: function (response) {
                 var obj = Ext.decode(response.responseText).data,
                     successCount = obj.success.length,
+                    warnCount = 0,
                     failedCount = 0,
                     successMessage,
+                    warnMessage,
                     failedMessage,
+                    warnList = '',
                     failList = '';
 
-                Ext.each(obj.failure, function (fails) {
-                    failList += '<h4>' + fails.reason + ':</h4><li>';
-                    Ext.each(fails.issues, function (issue) {
-                        failedCount += 1;
-                        failedIssues.push(issue.id);
-                        failList += '<ul style="padding-left: 1em;">' + issue.title + '</ul>';
-                    });
-                    failList += '</li>';
-                });
+                if (!Ext.isEmpty(obj.success)) {
+                    switch (operation) {
+                        case 'assign':
+                            if (successCount > 0) {
+                                successMessage = '<h3>Successfully assigned ' + successCount + (successCount > 1 ? ' issues' : ' issue')
+                                    + ' to ' + record.get('assignee').title + '</h3><br>';
+                            }
+                            break;
+                        case 'close':
+                            if (successCount > 0) {
+                                successMessage = '<h3>Successfully closed ' + successCount + (successCount > 1 ? ' issues' : ' issue') + '</h3><br>';
+                            }
+                    }
+                }
 
-                switch (operation) {
-                    case 'assign':
-                        if (successCount > 0) {
-                            successMessage = '<h3>Successfully assigned ' + successCount + (successCount > 1 ? ' issues' : ' issue')
-                                + ' to ' + record.get('assignee').title + '</h3><br>';
+                if (!Ext.isEmpty(obj.failure)) {
+                    Ext.each(obj.failure, function (fail) {
+                        switch (fail.reason) {
+                            case 'Issue doesn\'t exist':
+                                warnList += '<h4>' + fail.reason + ':</h4><ul style="list-style: none; padding-left: 1em;">';
+                                Ext.each(fail.issues, function (issue) {
+                                    warnCount += 1;
+                                    warnIssues.push(issue.id);
+                                    warnList += '<li>- <a href="javascript:void(0)">' + issue.title + '</a></li>';
+                                });
+                                warnList += '</ul>';
+                                break;
+                            default:
+                                failList += '<h4>' + fail.reason + ':</h4><ul style="list-style: none; padding-left: 1em;">';
+                                Ext.each(fail.issues, function (issue) {
+                                    failedCount += 1;
+                                    failedIssues.push(issue.id);
+                                    failList += '<li>- <a href="javascript:void(0)">' + issue.title + '</a></li>';
+                                });
+                                failList += '</ul>';
                         }
-                        if (failedCount > 0) {
-                            failedMessage = '<h3>Failed to assign ' + failedCount + (failedCount > 1 ? ' issues' : ' issue') + '</h3><br>'
-                                + failList;
-                        }
-                        break;
-                    case 'close':
-                        if (successCount > 0) {
-                            successMessage = '<h3>Successfully closed ' + successCount + ' issue(s)</h3><br>';
-                        }
-                        if (failedCount > 0) {
-                            failedMessage = '<h3>Failed to close ' + failedCount + ' issue(s)</h3><br>' + failList;
-                        }
-                        break;
+                    });
+
+                    switch (operation) {
+                        case 'assign':
+                            if (warnCount > 0) {
+                                warnMessage = '<h3>Unable to assign ' + warnCount + (warnCount > 1 ? ' issues' : ' issue') + '</h3><br>' + warnList;
+                            }
+                            if (failedCount > 0) {
+                                failedMessage = '<h3>Failed to assign ' + failedCount + (failedCount > 1 ? ' issues' : ' issue') + '</h3><br>' + failList;
+                            }
+                            break;
+                        case 'close':
+                            if (warnCount > 0) {
+                                warnMessage = '<h3>Unable to close ' + warnCount + (warnCount > 1 ? ' issues' : ' issue') + '</h3><br>' + warnList;
+                            }
+                            if (failedCount > 0) {
+                                failedMessage = '<h3>Failed to close ' + failedCount + (failedCount > 1 ? ' issues' : ' issue') + '</h3><br>' + failList;
+                            }
+                    }
                 }
 
                 step5panel.removeAll(true);
@@ -279,13 +314,28 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     if (failedCount == 0) {
                         successMsgParams.btns = [
                             {text: "OK", hnd: function () {
+                                step5panel.removeAll(true);
                                 Ext.History.back();
                             }}
                         ];
                     }
-                    successPanel = Ext.widget('message-panel', successMsgParams);
+                    var successPanel = Ext.widget('message-panel', successMsgParams);
                     successPanel.addClass('isu-bulk-message-panel');
                     step5panel.add(successPanel);
+                }
+
+                if (warnCount > 0) {
+                    var warnMessageParams = {
+                        type: 'attention',
+                        msgBody: [
+                            {html: warnMessage}
+                        ],
+                        btns: [],
+                        closeBtn: false
+                    };
+                    var warnPanel = Ext.widget('message-panel', warnMessageParams);
+                    warnPanel.addClass('isu-bulk-message-panel');
+                    step5panel.add(warnPanel);
                 }
 
                 if (failedCount > 0) {
@@ -304,7 +354,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                         ],
                         closeBtn: false
                     };
-                    failedPanel = Ext.widget('message-panel', failedMessageParams);
+                    var failedPanel = Ext.widget('message-panel', failedMessageParams);
                     failedPanel.addClass('isu-bulk-message-panel');
                     step5panel.add(failedPanel);
                 }
@@ -464,12 +514,12 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                         type: activeCombo.name,
                         title: activeCombo.rawValue
                     });
-                    message = '<h3>Assign ' + record.get('issues').length + ' issue(s) to ' + record.get('assignee').title + '?</h3><br>'
+                    message = '<h3>Assign ' + record.get('issues').length + (record.get('issues').length > 1 ? ' issues' : ' issue') + ' to ' + record.get('assignee').title + '?</h3><br>'
                         + 'The selected issue(s) will be assigned to ' + record.get('assignee').title;
                     break;
 
                 case 'close':
-                    message = '<h3>Close ' + record.get('issues').length + ' issue(s)?</h3><br>'
+                    message = '<h3>Close ' + record.get('issues').length + (record.get('issues').length > 1 ? ' issues' : ' issue') + '?</h3><br>'
                         + 'The selected issue(s) will be closed with status <b>' + record.get('status') + '</b>';
                     break;
             }

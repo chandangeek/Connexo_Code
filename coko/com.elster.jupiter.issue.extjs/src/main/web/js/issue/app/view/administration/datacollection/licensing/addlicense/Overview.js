@@ -60,9 +60,9 @@ Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview
                                     cls: 'isu-btn-link'
                                 }
                             ]
-                        }
+                        }                       
                     ]
-                }
+                }               
             ]
         }
     ],
@@ -85,7 +85,7 @@ Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview
         menu.add({
             text: 'Add license',
             pressed: true,
-            href: '#/administration/datacollection/licensing/addlicense',
+            href: '#/issue-administration/datacollection/licensing/addlicense',
             hrefTarget: '_self'
         });
     },

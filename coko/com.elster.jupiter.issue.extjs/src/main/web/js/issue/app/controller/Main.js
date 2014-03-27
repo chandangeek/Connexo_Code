@@ -4,7 +4,33 @@ Ext.define('Isu.controller.Main', {
     requires: [
         'Ext.window.Window',
         'Uni.controller.Navigation',
-        'Uni.controller.Configuration'
+        'Uni.controller.Configuration',
+        'Uni.controller.history.EventBus'
+    ],
+
+    controllers: [
+        'Isu.controller.history.Workspace',
+        'Isu.controller.Workspace',
+        'Isu.controller.DataCollection',
+        'Isu.controller.Issues',
+        'Isu.controller.AssignIssues',
+        'Isu.controller.CloseIssues',
+        'Isu.controller.BulkChangeIssues',
+        'Isu.controller.MessageWindow',
+        'Isu.controller.IssueAssignmentRules',
+        'Isu.controller.IssueCreationRules',
+        'Isu.controller.Licensing',
+        'Isu.controller.AddLicense',
+        'Isu.controller.history.Workspace',
+        'Isu.controller.IssueFilter',
+        'Isu.controller.IssueDetail',
+        'Isu.controller.history.Administration',
+        'Isu.controller.Administration',
+        'Isu.controller.AdministrationDataCollection'
+    ],
+
+    stores: [
+        'Isu.store.Issues'
     ],
 
     config: {
@@ -24,9 +50,30 @@ Ext.define('Isu.controller.Main', {
     ],
 
     init: function () {
-        this.initNavigation();
-        this.initDefaultHistoryToken();
         this.getApplication().on('changecontentevent', this.showContent, this);
+        this.initDefaultHistoryToken();
+        this.initNavigation();
+        this.initMenu();
+    },
+
+    initMenu: function () {
+        var me = this;
+
+        var menuItem = Ext.create('Uni.model.MenuItem', {
+            text: 'Workspace',
+            href: me.getController('Isu.controller.history.Workspace').tokenizeShowOverview(),
+            glyph: 'xe01e@icomoon'
+        });
+
+        Uni.store.MenuItems.add(menuItem);
+
+        var menuItem = Ext.create('Uni.model.MenuItem', {
+            text: 'Administration',
+            href: me.getController('Isu.controller.history.Administration').tokenizeShowOverview(),
+            glyph: 'xe011@icomoon'
+        });
+
+        Uni.store.MenuItems.add(menuItem);
     },
 
     initNavigation: function () {

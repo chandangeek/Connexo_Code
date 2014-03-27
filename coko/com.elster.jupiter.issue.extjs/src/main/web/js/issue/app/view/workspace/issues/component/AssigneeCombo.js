@@ -9,11 +9,10 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
     triggerAction: 'query',
     queryMode: 'remote',
     queryParam: 'like',
-    allQuery: '%',
+    allQuery: '',
     lastQuery: '',
-
     queryDelay: 100,
-    minChars: 1,
+    minChars: 0,
     disableKeyFilter: true,
     queryCaching: false,
 
@@ -21,7 +20,6 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
     typeAhead: true,
 
     anchor: '100%',
-    emptyText: 'start typing a user',
 
     forceSelection: true,
 
@@ -39,8 +37,14 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
         ],
         columns: [
             {
-                dataIndex: 'name', flex: 1
+                header: false,
+                xtype: 'templatecolumn',
+                tpl: "<tpl if='id &gt '>Child</tpl>",
+                flex: 1
             }
+           /* {
+                dataIndex: 'name', flex: 1
+            }*/
         ]
     }
 });

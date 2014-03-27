@@ -1,5 +1,6 @@
 Ext.define('Isu.controller.IssueFilter', {
     extend: 'Ext.app.Controller',
+
     requires: [
         'Isu.model.IssueFilter'
     ],
@@ -7,8 +8,9 @@ Ext.define('Isu.controller.IssueFilter', {
         'Isu.store.Assignee',
         'Isu.store.IssueStatus',
         'Isu.store.IssueReason',
-        'Issues'
+        'Isu.store.Issues'
     ],
+
     views: [
         'workspace.issues.SideFilter'
     ],
@@ -18,6 +20,10 @@ Ext.define('Isu.controller.IssueFilter', {
             ref: 'issueFilter',
             selector: 'issues-side-filter'
         }
+    ],
+
+    mixins: [
+        'Isu.util.IsuCombo'
     ],
 
     init: function () {
@@ -35,32 +41,70 @@ Ext.define('Isu.controller.IssueFilter', {
                 afterrender: this.loadFormModel
             },
             'issues-side-filter filter-form combobox[name=assignee]': {
-                change: this.clearCombo
+                focus: this.onFocusCombo,
+                blur: this.onBlurCombo,
+                beforequery: this.onBeforeQueryCombo
             },
             'issues-side-filter filter-form combobox[name=reason]': {
-                change: this.clearCombo
+                focus: this.onFocusCombo,
+                blur: this.onBlurCombo
             }
         });
+
         this.listen({
             store: {
-                '#Issues': {
+                '#Isu.store.Issues': {
                     updateProxyFilter: this.filterUpdate
                 }
             }
         });
+        this.getStore('Isu.store.Assignee').on('load', this.assigneeLoad);
     },
 
-    clearCombo: function (combo, newValue) {
-        if (newValue == '') {
-            combo.reset();
+    assigneeLoad: function (store, records, success) {
+        var combo = Ext.ComponentQuery.query('issues-side-filter filter-form combobox[name=assignee]')[0];
+        if (combo.getValue && records.length > 0) {
+            var types = {};
+            Ext.Array.each(records, function (item) {
+                types[item.get('type')] = true
+            })
+            if (!types.ROLE) {
+                store.add({
+                    name: 'No matches',
+                    type: 'ROLE',
+                    id: 'empty'
+                })
+            }
+            if (!types.USER) {
+                store.add({
+                    name: 'No matches',
+                    type: 'USER',
+                    id: 'empty'
+                })
+            }
+            if (!types.GROUP) {
+                store.add({
+                    name: 'No matches',
+                    type: 'GROUP',
+                    id: 'empty'
+                })
+            }
+            console.log(store)
+        }
+    },
+
+    onBeforeQueryCombo: function (queryPlan) {
+        var store = queryPlan.combo.store;
+        if (queryPlan.query) {
+            store.group('type');
+        } else {
+            store.clearGrouping();
         }
     },
 
     loadFormModel: function (form) {
-        var store = this.getStore('IssueStatus'),
+        var store = this.getStore('Isu.store.IssueStatus'),
             me = this;
-
-        store.filter('name', 'Open'); //todo: hardcoded value! remove after proper REST API is implemented.
 
         if (!store.count()) {
             store.on('load', function () {
@@ -74,36 +118,46 @@ Ext.define('Isu.controller.IssueFilter', {
     loadDefaults: function () {
         var form = this.getIssueFilter().down('filter-form'),
             defaultFilter = new Isu.model.IssueFilter(),
-            store = this.getStore('IssueStatus'),
+            store = this.getStore('Isu.store.IssueStatus'),
+            grstore = this.getStore('Isu.store.IssuesGroups'),
             me = this;
 
-        store.each(function (item) {
-            defaultFilter.status().add(item);
-        });
+        var item = store.findRecord('name', 'Open'); //todo: hardcoded value! remove after proper REST API is implemented.
+        defaultFilter.status().add(item);
 
         form.loadRecord(defaultFilter);
-        me.getStore('Issues').setProxyFilter(defaultFilter);
+        me.getStore('Isu.store.Issues').setProxyFilter(defaultFilter);
     },
 
     reset: function () {
         var filter = new Isu.model.IssueFilter();
 
         this.getIssueFilter().down('filter-form').loadRecord(filter);
-        this.getStore('Issues').setProxyFilter(filter);
+        this.getStore('Isu.store.Issues').setProxyFilter(filter);
     },
 
     /**
      * @param filter
      */
     filterUpdate: function (filter) {
-        var grstore = this.getStore('Isu.store.IssuesGroups');
-        reason = filter.get('reason');
+        var grstore = this.getStore('Isu.store.IssuesGroups'),
+            reason = filter.get('reason'),
+            status = filter.statusStore;
+
         if (reason) {
             grstore.proxy.extraParams.id = reason.get('id');
-            grstore.load();
+            grstore.loadPage(1);
         } else {
-            delete grstore.proxy.extraParams.id ;
-            grstore.load();
+            delete grstore.proxy.extraParams.id;
+            grstore.loadPage(1);
+        }
+        if (status) {
+            var stat = [];
+            status.each(function (item) {
+                stat.push(item.get('id'))
+            });
+            grstore.proxy.extraParams.status = stat;
+            grstore.loadPage(1);
         }
 
         this.getIssueFilter().down('filter-form').loadRecord(filter);
@@ -115,6 +169,6 @@ Ext.define('Isu.controller.IssueFilter', {
 
         form.updateRecord(filter);
 
-        this.getStore('Issues').setProxyFilter(filter);
+        this.getStore('Isu.store.Issues').setProxyFilter(filter);
     }
 });

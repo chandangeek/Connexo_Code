@@ -2,13 +2,13 @@ Ext.define('Isu.store.Issues', {
     extend: 'Ext.data.Store',
     requires: [
         'Ext.data.proxy.Rest',
-        'Isu.component.filter.store.Filterable',
-        'Isu.component.sort.store.Sortable'
+        'Uni.component.filter.store.Filterable',
+        'Uni.component.sort.store.Sortable'
     ],
 
     mixins: [
-        'Isu.component.filter.store.Filterable',
-        'Isu.component.sort.store.Sortable'
+        'Uni.component.filter.store.Filterable',
+        'Uni.component.sort.store.Sortable'
     ],
 
     model: 'Isu.model.Issues',

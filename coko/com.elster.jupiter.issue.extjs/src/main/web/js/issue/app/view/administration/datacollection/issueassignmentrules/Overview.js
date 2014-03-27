@@ -23,7 +23,7 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.Overview
                 },
                 {
                     xtype: 'issues-assignment-rules-list',
-                    margin: '0 0 20 0'
+                    margin: '0 15 20 0'
                 }
             ]
         }
@@ -42,7 +42,7 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.Overview
         menu.add({
             text: 'Issue assignment rules',
             pressed: true,
-            href: '#/administration/datacollection/issueassignmentrules',
+            href: '#/issue-administration/datacollection/issueassignmentrules',
             hrefTarget: '_self'
         });
     },

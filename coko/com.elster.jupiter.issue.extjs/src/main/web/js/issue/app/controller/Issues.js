@@ -7,9 +7,11 @@ Ext.define('Isu.controller.Issues', {
     ],
 
     stores: [
-        'Issues',
+        'Isu.store.Issues',
         'Isu.store.IssuesGroups',
-        'Isu.store.Assignee'
+        'Isu.store.Assignee',
+        'Isu.store.IssueStatus',
+        'Isu.store.IssueReason'
     ],
 
     views: [
@@ -38,7 +40,7 @@ Ext.define('Isu.controller.Issues', {
         },
         {
             ref: 'issueNoGroup',
-            selector: 'issue-no-group'
+            selector: 'issues-browse issue-no-group'
         },
         {
             ref: 'issuesOverview',
@@ -100,7 +102,8 @@ Ext.define('Isu.controller.Issues', {
 
         this.listen({
             store: {
-                '#Issues': {
+                '#Isu.store.Issues': {
+                    load: this.issueStoreLoad,
                     updateProxyFilter: this.filterUpdate,
                     updateProxySort: this.sortUpdate
                 }
@@ -108,18 +111,37 @@ Ext.define('Isu.controller.Issues', {
         });
 
         this.groupStore = this.getStore('Isu.store.IssuesGroups');
-        this.store = this.getStore('Issues');
-        this.groupParams = {};
+        this.store = this.getStore('Isu.store.Issues');
         this.sortParams = {};
         this.actionMenuXtype = 'issue-action-menu';
         this.gridItemModel = this.getModel('Isu.model.Issues');
+    },
+
+    issueStoreLoad: function (store, records) {
+        var issueNoGroup = this.getIssueNoGroup(),
+            issueList = this.getIssuesList();
+
+        if (records.length < 1) {
+
+            issueNoGroup.removeAll();
+            issueNoGroup.add({
+                html: '<h3>No issues found</h3><p>The filter is too narrow</p>',
+                bodyPadding: 10,
+                border: false
+            });
+            issueList.hide();
+            issueNoGroup && issueNoGroup.show();
+        } else {
+            issueList.show();
+            issueNoGroup && issueNoGroup.hide();
+        }
     },
 
     /**
      * After "updateProxyFilter" event from the Issue store, method will redraw button tags on the filter panel
      *
      * todo: I18n
-     * @param filter Isu.component.filter.model.Filter
+     * @param filter Uni.component.filter.model.Filter
      */
     filterUpdate: function (filter) {
         var filterElm = this.getFilter().down('[name="filter"]'),
@@ -290,7 +312,7 @@ Ext.define('Isu.controller.Issues', {
         }
     },
 
-    clearSort: function (btn) {
+    clearSort: function () {
         this.store.setProxySort(new Isu.model.IssueSort());
     },
 
@@ -314,6 +336,8 @@ Ext.define('Isu.controller.Issues', {
             issuesFor = Ext.ComponentQuery.query('panel[name=issuesforlabel]')[0],
             lineLabel = Ext.ComponentQuery.query('label[name=forissuesline]')[0],
             groupItemsShown = grid.down('panel[name=groupitemsshown]'),
+            issueNoGroup = this.getIssueNoGroup(),
+            issuesList = this.getIssuesList(),
             fullList = this.getIssuesList(),
             XtoYof = function (store, records) {
                 if (records.length > 0) {
@@ -343,22 +367,26 @@ Ext.define('Isu.controller.Issues', {
 
         if (newValue != '(none)') {
             this.groupStore.proxy.extraParams.field = newValue;
-        //    this.groupStore.load();
-            this.groupStore.load();
+            this.groupStore.loadPage(1);
             this.group = newValue;
+            issueNoGroup.removeAll();
+            issueNoGroup.add({
+                html: '<h3>No group selected</h3><p>Select a group of issues.</p>',
+                bodyPadding: 10,
+                border: false
+            });
+            issueNoGroup.show();
+            issuesList.hide();
             grid.show();
             this.groupStore.on('load', XtoYof);
         } else {
             this.groupStore.removeAll();
             grid.hide();
-            this.groupParams = {};
             this.store.load();
             groupItemsShown.hide();
             this.groupStore.un('load', XtoYof);
             this.getIssueNoGroup().hide();
             fullList.show();
-/*            this.store.getProxyFilter().set('reason', undefined);
-            this.store.updateProxyFilter();*/
             this.store.setGroup(undefined);
             this.store.load();
         }
@@ -377,19 +405,8 @@ Ext.define('Isu.controller.Issues', {
         this.getIssuesList().getSelectionModel().deselectAll();
         this.getIssuesList().show();
         this.getIssueNoGroup().hide();
-//        this.groupParams[this.group] = record.data.id;
-
-//        var model = new Isu.model.IssueReason({
-//            id: record.getId(),
-//            name: record.get('reason')
-//        });
-//        console.log(this.store.getProxyFilter());
-//        this.store.getProxyFilter().set('reason', model);
-//        this.store.updateProxyFilter();
         this.store.setGroup(record);
-        this.store.load();
-
-//        this.updateIssueList();
+        this.store.loadPage(1);
         this.showDefaultItems();
 
     },

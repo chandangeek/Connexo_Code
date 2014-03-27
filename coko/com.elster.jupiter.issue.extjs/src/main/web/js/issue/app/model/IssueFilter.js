@@ -1,5 +1,5 @@
 Ext.define('Isu.model.IssueFilter', {
-    extend: 'Isu.component.filter.model.Filter',
+    extend: 'Uni.component.filter.model.Filter',
 
     requires: [
         'Isu.model.IssueStatus',

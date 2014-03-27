@@ -3,37 +3,26 @@ Ext.define('Isu.Application', {
 
     extend: 'Ext.app.Application',
 
-    requires: [
-
-    ],
-
-    views: [
-        // Views are loaded in through their respective controller.
-    ],
-
     controllers: [
-        'Main',
-        'Workspace',
-        'DataCollection',
-        'Issues',
-        'AssignIssues',
-        'CloseIssues',
-        'BulkChangeIssues',
-        'MessageWindow',
-        'IssueAssignmentRules',
-        'IssueAutoCreationRules',
-        'Licensing',
-        'AddLicense',
-        'history.Workspace',
-        'IssueFilter',
-        'IssueDetail',
-        'history.Administration',
-        'Administration',
-        'AdministrationDataCollection'
-    ],
-
-    stores: [
-        'Isu.store.Issues'
+        'Isu.controller.Main',
+        'Isu.controller.history.Workspace',
+        'Isu.controller.Workspace',
+        'Isu.controller.DataCollection',
+        'Isu.controller.Issues',
+        'Isu.controller.AssignIssues',
+        'Isu.controller.CloseIssues',
+        'Isu.controller.BulkChangeIssues',
+        'Isu.controller.MessageWindow',
+        'Isu.controller.IssueAssignmentRules',
+        'Isu.controller.IssueCreationRules',
+        'Isu.controller.Licensing',
+        'Isu.controller.AddLicense',
+        'Isu.controller.history.Workspace',
+        'Isu.controller.IssueFilter',
+        'Isu.controller.IssueDetail',
+        'Isu.controller.history.Administration',
+        'Isu.controller.Administration',
+        'Isu.controller.AdministrationDataCollection'
     ],
 
     init: function () {

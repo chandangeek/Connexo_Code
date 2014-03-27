@@ -6,7 +6,7 @@ Ext.define('Isu.view.administration.datacollection.licensing.SideFilter', {
     width: 180,
 
     requires: [
-        'Isu.component.filter.view.Filter'
+        'Uni.component.filter.view.Filter'
     ],
 
     items: [

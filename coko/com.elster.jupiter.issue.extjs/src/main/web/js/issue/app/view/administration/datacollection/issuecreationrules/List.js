@@ -1,23 +1,36 @@
-Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
+Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
     extend: 'Ext.panel.Panel',
     requires: [
         'Ext.layout.container.Column',
         'Ext.grid.column.Template',
-        'Ext.grid.column.Action'
+        'Ext.grid.column.Action',
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom'
     ],
-    alias: 'widget.issues-assignment-rules-list',
+    alias: 'widget.issues-creation-rules-list',
     border: false,
+    height: 365,
     items: [
         {
             name: 'empty-text',
             border: false,
             hidden: true,
-            html: '<h3>No rules found</h3>' +
-                '<p>There are no rules have been created yet</p>'
+            html: '<h3>No rule found</h3>' +
+                '<p>No issue creation rules have been created yet.</p>' +
+                '<p>Possible steps:</p>',
+            bbar: {
+                padding: 0,
+                items: [
+                    {
+                        text: 'Create rule',
+                        action: 'create'
+                    }
+                ]
+            }
         },
         {
             xtype: 'grid',
-            store: 'Isu.store.AssignmentRules',
+            store: 'CreationRules',
             height: 285,
             columns: {
                 defaults: {
@@ -26,32 +39,64 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
                 },
                 items: [
                     {
-                        header: 'Description',
-                        dataIndex: 'description',
+                        header: 'Name',
+                        dataIndex: 'name',
                         tdCls: 'isu-grid-description',
                         flex: 1
                     },
                     {
-                        header: 'Assign to',
-                        xtype: 'templatecolumn',
-                        tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type} isu-assignee-type-icon"></span></tpl> {assignee.name}',
+                        header: 'Rule template',
+                        dataIndex: 'template',
+                        tdCls: 'isu-grid-description',
                         flex: 1
                     },
                     {
-                        header: 'Actions',
+                        header: 'Issue reason',
+                        dataIndex: 'reason',
+                        tdCls: 'isu-grid-description',
+                        flex: 1
+                    },
+                    {
+                        header: 'Assignee',
+                        xtype: 'templatecolumn',
+                        tpl: '<tpl if="assignee"><tpl if="assignee.type"><span class="isu-icon-{assignee.type} isu-assignee-type-icon"></span></tpl> {assignee.name}<tpl else>Automatic</tpl>',
+                        flex: 1
+                    },
+                    {
+                        header: 'Action',
                         xtype: 'actioncolumn',
                         iconCls: 'isu-action-icon',
                         align: 'left',
                         width: 70
                     }
                 ]
-            },
-            dockedItems: [
+            }
+        }
+    ],
+
+    dockedItems: [
+        {
+            xtype: 'toolbar',
+            dock: 'top',
+            layout: 'hbox',
+            items: [
                 {
-                    xtype: 'toolbar',
-                    dock: 'top'
+                    xtype: 'pagingtoolbartop',
+                    store: 'CreationRules',
+                    border: false,
+                    flex: 1
+                },
+                {
+                    xtype: 'button',
+                    text: 'Create rule',
+                    action: 'create'
                 }
             ]
+        },
+        {
+            xtype: 'pagingtoolbarbottom',
+            store: 'CreationRules',
+            dock: 'bottom'
         }
     ],
 
@@ -79,7 +124,6 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
         var storeTotal = store.getCount();
 
         if (storeTotal) {
-            this.setTotal(storeTotal);
             this.hideEmptyText();
         } else {
             this.showEmptyText();
@@ -104,20 +148,5 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
             grid.show();
             emtyText.hide();
         }
-    },
-
-    setTotal: function (total) {
-        var grid = this.down('grid'),
-            gridTop;
-
-        if (grid) {
-            gridTop = grid.getDockedItems('toolbar[dock="top"]')[0];
-            gridTop.removeAll();
-            gridTop.add({
-                xtype: 'component',
-                html: total + ' rule' + (total > 1 ? 's' : '')
-            });
-        }
     }
 });
-
