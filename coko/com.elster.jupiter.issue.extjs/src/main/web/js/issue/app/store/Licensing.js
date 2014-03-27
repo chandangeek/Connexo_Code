@@ -5,6 +5,7 @@ Ext.define('Isu.store.Licensing', {
     ],
     model: 'Isu.model.Licensing',
     pageSize: 10,
-    autoLoad: false
+    autoLoad: false,
+    sorters: { property: 'expires', direction : 'ASC' }
 });
 
