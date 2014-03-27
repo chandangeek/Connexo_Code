@@ -114,7 +114,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     private void validateBeforeAddToConfiguration() {
-        Save.CREATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
+        Save.CREATE.validate(this.dataModel, this);
         this.validate();
     }
 
