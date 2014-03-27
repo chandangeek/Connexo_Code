@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
@@ -29,12 +30,14 @@ import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
 import com.energyict.mdc.device.data.impl.tasks.TimedOutTasksSqlBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
@@ -60,7 +63,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.elster.jupiter.util.conditions.Where.*;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link DeviceDataService} interface.
@@ -197,8 +200,20 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
 
     @Override
-    public ConnectionTask findConnectionTaskForPartialOnDevice(PartialConnectionTask partialConnectionTask, Device device) {
-        return this.getDataModel().mapper(ConnectionTask.class).getUnique("deviceId", device.getId(), "obsoleteDate", null, "partialConnectionTaskId", partialConnectionTask.getId()).orNull();
+    public Optional<ConnectionInitiationTask> findConnectionInitiationTask(long id) {
+        return this.getDataModel().mapper(ConnectionInitiationTask.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<ConnectionTask> findConnectionTaskForPartialOnDevice(PartialConnectionTask partialConnectionTask, Device device) {
+        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("obsoleteDate").isNull()).and(where("partialConnectionTaskId").isEqualTo(partialConnectionTask.getId()));
+        List<ConnectionTask> connectionTasks = this.getDataModel().mapper(ConnectionTask.class).select(condition);
+        if (connectionTasks.isEmpty()) {
+            return Optional.absent();
+        }
+        else {
+            return Optional.of(connectionTasks.get(0));
+        }
     }
 
     @Override
@@ -234,6 +249,11 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
             }
         }
         return null;  //if no default is found, null is returned
+    }
+
+    @Override
+    public List<ConnectionTask> findByStatus(TaskStatus status) {
+        return this.getDataModel().mapper(ConnectionTask.class).select(ServerConnectionTaskStatus.forTaskStatus(status).condition(this.getDataModel()));
     }
 
     @Override

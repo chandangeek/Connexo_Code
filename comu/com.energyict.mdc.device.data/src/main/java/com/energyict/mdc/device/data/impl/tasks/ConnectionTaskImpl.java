@@ -41,6 +41,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Provider;
@@ -140,8 +141,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     private void validateConstraint(PCTT partialConnectionTask, Device device) {
-        ConnectionTask connectionTaskWithSamePartialConnectionTaskDeviceCombination = this.deviceDataService.findConnectionTaskForPartialOnDevice(partialConnectionTask, device);
-        if (connectionTaskWithSamePartialConnectionTaskDeviceCombination != null) {
+        Optional<ConnectionTask> result = this.deviceDataService.findConnectionTaskForPartialOnDevice(partialConnectionTask, device);
+        if (result.isPresent()) {
+            ConnectionTask connectionTaskWithSamePartialConnectionTaskDeviceCombination = result.get();
             if (this.getId() != connectionTaskWithSamePartialConnectionTaskDeviceCombination.getId()) {
                 throw new DuplicateConnectionTaskException(
                         this.getThesaurus(),

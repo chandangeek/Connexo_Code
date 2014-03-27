@@ -146,7 +146,7 @@ public class InMemoryIntegrationPersistence {
     private DataModel createNewDeviceDataService() {
         this.deviceDataService = new DeviceDataServiceImpl(
                 this.ormService, this.eventService, this.nlsService, this.clock,
-                this.environment, this.relationService, this.protocolPluggableService, this.deviceConfigurationService, this.meteringService);
+                this.environment, this.relationService, this.protocolPluggableService, this.engineModelService, this.deviceConfigurationService, this.meteringService);
         return this.deviceDataService.getDataModel();
     }
 

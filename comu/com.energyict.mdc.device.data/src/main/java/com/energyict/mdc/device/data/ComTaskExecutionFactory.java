@@ -34,6 +34,8 @@ public interface ComTaskExecutionFactory {
 
     public List<ComTaskExecution> findByConnectionTask(ConnectionTask connectionTask);
 
+    public List<ComTaskExecution> findAllByConnectionTask(ConnectionTask connectionTask);
+
     public EarliestNextExecutionTimeStampAndPriority getEarliestNextExecutionTimeStampAndPriority(ScheduledConnectionTask connectionTask);
 
     public List<ComTaskExecution> findRetryingComTaskExecutionsForConnectionTask(ScheduledConnectionTask connectionTask);

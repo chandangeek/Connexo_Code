@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
@@ -80,6 +81,8 @@ public interface DeviceDataService {
 
     public Optional<ScheduledConnectionTask> findScheduledConnectionTask (long id);
 
+    public Optional<ConnectionInitiationTask> findConnectionInitiationTask (long id);
+
     /**
      * Finds the {@link ConnectionTask} on the specified Device
      * that uses the specified {@link PartialConnectionTask}.
@@ -89,7 +92,7 @@ public interface DeviceDataService {
      * @param device The Device
      * @return The ConnectionTask or <code>null</code> if there is no such ConnectionTask yet
      */
-    public ConnectionTask findConnectionTaskForPartialOnDevice(PartialConnectionTask partialConnectionTask, Device device);
+    public Optional<ConnectionTask> findConnectionTaskForPartialOnDevice(PartialConnectionTask partialConnectionTask, Device device);
 
     /**
      * Finds the {@link ConnectionTask}s that are configured
@@ -137,6 +140,14 @@ public interface DeviceDataService {
      * @return The default ConnectionTask for the given Device or <code>null</code> if none was found
      */
     public ConnectionTask findDefaultConnectionTaskForDevice(Device device);
+
+    /**
+     * Finds all the {@link ConnectionTask}s with the specified {@link TaskStatus}.
+     *
+     * @param status The TaskStatus
+     * @return The ConnectionTasks with the specified TaskStatus
+     */
+    public List<ConnectionTask> findByStatus(TaskStatus status);
 
     /**
      * Sets the specified {@link ConnectionTask} as the default for the Device

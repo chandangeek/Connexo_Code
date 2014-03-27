@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.data.ComTaskExecutionFactory;
@@ -12,9 +14,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
 /**
  * Represents the counterpart of {@link TaskStatus} for {@link ScheduledConnectionTask}s
  * and adds behavior that is reserved for server components.
+ *
+ * Todo (JP-1125): override the condition method on every enum element that also
+ * overrides the completeFindBySqlBuilder method.
+ * We need to use the Query API to implement the exists clauses
+ * but ComTaskExecution needs to be managed by the ORM layer first.
  */
 public enum ServerConnectionTaskStatus {
 
@@ -240,6 +249,18 @@ public enum ServerConnectionTaskStatus {
     public void completeFindBySqlBuilder(SqlBuilder sqlBuilder) {
         sqlBuilder.appendWhereOrAnd();
         sqlBuilder.append("obsolete_date is null ");
+    }
+
+    /**
+     * Builds the Condition that is necessary to select
+     * all {@link com.energyict.mdc.device.data.tasks.ConnectionTask}s
+     * that are in this status.
+     *
+     * @return The Condition
+     * @param dataModel
+     */
+    public Condition condition(DataModel dataModel) {
+        return where("obsoleteDate").isNull();
     }
 
     protected long asSeconds(Date date) {

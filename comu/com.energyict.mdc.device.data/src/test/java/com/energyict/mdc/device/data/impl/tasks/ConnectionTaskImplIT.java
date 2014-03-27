@@ -7,8 +7,10 @@ import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Transaction;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
@@ -65,6 +67,9 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static final int PARTIAL_INBOUND_CONNECTION_TASK1_ID = PARTIAL_OUTBOUND_CONNECTION_TASK3_ID + 1;
     protected static final int PARTIAL_INBOUND_CONNECTION_TASK2_ID = PARTIAL_INBOUND_CONNECTION_TASK1_ID + 1;
     protected static final int PARTIAL_INBOUND_CONNECTION_TASK3_ID = PARTIAL_INBOUND_CONNECTION_TASK2_ID + 1;
+    protected static final int PARTIAL_CONNECTION_INITIATION_TASK1_ID = PARTIAL_INBOUND_CONNECTION_TASK3_ID + 1;
+    protected static final int PARTIAL_CONNECTION_INITIATION_TASK2_ID = PARTIAL_CONNECTION_INITIATION_TASK1_ID + 1;
+    protected static final int PARTIAL_CONNECTION_INITIATION_TASK3_ID = PARTIAL_CONNECTION_INITIATION_TASK2_ID + 1;
 
     protected static final long IP_COMPORT_POOL_ID = 1;
     protected static final long MODEM_COMPORT_POOL_ID = IP_COMPORT_POOL_ID + 1;
@@ -97,6 +102,11 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected PartialOutboundConnectionTask partialOutboundConnectionTask;
     @Mock
     protected PartialOutboundConnectionTask partialOutboundConnectionTask2;
+    @Mock
+    protected PartialConnectionInitiationTask partialConnectionInitiationTask;
+    @Mock
+    protected PartialConnectionInitiationTask partialConnectionInitiationTask2;
+
 
     protected static Code codeTable;
     private static IdBusinessObjectFactory<Code> codeTableFactory;
@@ -318,11 +328,23 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         when(this.partialOutboundConnectionTask2.getConfiguration()).thenReturn(this.deviceCommunicationConfiguration);
         when(this.partialOutboundConnectionTask2.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
 
+        when(this.partialConnectionInitiationTask.getId()).thenReturn(PARTIAL_CONNECTION_INITIATION_TASK1_ID);
+        when(this.partialConnectionInitiationTask.getName()).thenReturn("Initiation (1)");
+        when(this.partialConnectionInitiationTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
+        when(this.partialConnectionInitiationTask.getTypedProperties()).thenReturn(TypedProperties.empty());
+
+        when(this.partialConnectionInitiationTask2.getId()).thenReturn(PARTIAL_CONNECTION_INITIATION_TASK2_ID);
+        when(this.partialConnectionInitiationTask2.getName()).thenReturn("Initiation (2)");
+        when(this.partialConnectionInitiationTask2.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
+        when(this.partialConnectionInitiationTask2.getTypedProperties()).thenReturn(TypedProperties.empty());
+
         PartialConnectionTaskFactory partialConnectionTaskFactory = mock(PartialConnectionTaskFactory.class);
         when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_INBOUND_CONNECTION_TASK1_ID)).thenReturn(this.partialInboundConnectionTask);
         when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_INBOUND_CONNECTION_TASK2_ID)).thenReturn(this.partialInboundConnectionTask2);
         when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_OUTBOUND_CONNECTION_TASK1_ID)).thenReturn(this.partialOutboundConnectionTask);
         when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_OUTBOUND_CONNECTION_TASK2_ID)).thenReturn(this.partialOutboundConnectionTask2);
+        when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_CONNECTION_INITIATION_TASK1_ID)).thenReturn(this.partialConnectionInitiationTask);
+        when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_CONNECTION_INITIATION_TASK2_ID)).thenReturn(this.partialConnectionInitiationTask2);
         List<PartialConnectionTaskFactory> partialConnectionTaskFactories = Arrays.asList(partialConnectionTaskFactory);
         when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(PartialConnectionTaskFactory.class)).thenReturn(partialConnectionTaskFactories);
     }
