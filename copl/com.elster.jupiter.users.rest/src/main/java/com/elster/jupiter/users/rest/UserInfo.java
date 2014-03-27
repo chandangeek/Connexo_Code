@@ -44,7 +44,11 @@ public class UserInfo {
         }
     }
 
-    public void update(User user) {
-        user.setDescription(description);
+    public boolean update(User user) {
+        if(description != null && !description.equals(user.getDescription())){
+            user.setDescription(description);
+            return true;
+        }
+        return false;
     }
 }

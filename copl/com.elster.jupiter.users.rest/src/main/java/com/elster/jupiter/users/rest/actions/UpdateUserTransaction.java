@@ -32,17 +32,24 @@ public class UpdateUserTransaction implements Transaction<User> {
     }
 
     private User doUpdate(User user) {
-        info.update(user);
-        user.save();
-        updateMemberships(user);
+        boolean updated = updateMemberships(user);
+        updated |= info.update(user);
+        if(updated){
+            user.save();
+        }
         return user;
     }
 
-    private void updateMemberships(User user) {
+    private boolean updateMemberships(User user) {
         Set<Group> current = new LinkedHashSet<>(user.getGroups());
         Set<Group> target = targetMemberships();
+        if (target.equals(current)) {
+            return false;
+        }
+
         removeMemberships(user, current, target);
         addMemberships(user, current, target);
+        return true;
     }
 
     private void addMemberships(User user, Set<Group> current, Set<Group> target) {

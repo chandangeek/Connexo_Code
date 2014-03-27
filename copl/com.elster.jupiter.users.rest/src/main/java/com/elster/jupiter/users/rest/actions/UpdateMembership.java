@@ -23,6 +23,7 @@ public class UpdateMembership {
 
     Group doUpdate(Group group) {
         boolean updated = updateMemberships(group);
+        updated |= info.update(group);
         if (updated) {
             group.save();
         }

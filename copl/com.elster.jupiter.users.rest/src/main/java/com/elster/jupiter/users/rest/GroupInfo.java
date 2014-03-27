@@ -36,5 +36,12 @@ public class GroupInfo {
         }
     }
 
+    public boolean update(Group group) {
+        if(description != null && !description.equals(group.getDescription())){
+            group.setDescription(description);
+            return true;
+        }
+        return false;
+    }
     
 }
