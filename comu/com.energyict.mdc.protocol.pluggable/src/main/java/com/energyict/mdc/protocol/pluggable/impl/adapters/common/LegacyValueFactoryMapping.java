@@ -10,7 +10,7 @@ import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.LargeStringFactory;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PasswordFactory;
-import com.energyict.mdc.dynamic.ReferenceFactory;
+import com.energyict.mdc.dynamic.LegacyReferenceFactory;
 import com.energyict.mdc.dynamic.StringFactory;
 import com.energyict.mdc.dynamic.ThreeStateFactory;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
@@ -73,7 +73,7 @@ public class LegacyValueFactoryMapping {
         temp.add(new ValueFactoryPair<>(BooleanFactory.class, com.energyict.mdw.dynamicattributes.BooleanFactory.class));
         temp.add(new ValueFactoryPair<>(ThreeStateFactory.class, com.energyict.mdw.dynamicattributes.ThreeStateFactory.class));
         temp.add(new ValueFactoryPair<>(PasswordFactory.class, com.energyict.mdw.dynamicattributes.PasswordFactory.class));
-        temp.add(new ValueFactoryPair<>(ReferenceFactory.class, com.energyict.mdw.dynamicattributes.ReferenceFactory.class));
+        temp.add(new ValueFactoryPair<>(LegacyReferenceFactory.class, com.energyict.mdw.dynamicattributes.ReferenceFactory.class));
         temp.add(new ValueFactoryPair<>(ObisCodeValueFactory.class, com.energyict.mdw.dynamicattributes.ObisCodeValueFactory.class));
         mappings = temp;
     }

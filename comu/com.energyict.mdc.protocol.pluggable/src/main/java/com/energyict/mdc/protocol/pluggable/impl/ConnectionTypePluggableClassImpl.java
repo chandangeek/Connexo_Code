@@ -6,11 +6,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessObjectFactory;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.JupiterReferenceFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.ReferenceFactory;
+import com.energyict.mdc.dynamic.LegacyReferenceFactory;
 import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.dynamic.relation.ConstraintShadow;
 import com.energyict.mdc.dynamic.relation.Relation;
@@ -294,7 +296,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
         shadow.setRequired(true);
         shadow.setIsDefault(true);
         shadow.setObjectFactoryId(FactoryIds.CONNECTION_METHOD.id());
-        shadow.setValueFactoryClass(ReferenceFactory.class);
+        shadow.setValueFactoryClass(JupiterReferenceFactory.class);
         return shadow;
     }
 
@@ -308,7 +310,14 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
         shadow.setValueFactoryClass(valueFactoryClass);
         if (valueFactory.isReference()) {
             BusinessObjectFactory businessObjectFactory = Environment.DEFAULT.get().findFactory(valueFactory.getValueType().getName());
+            if (businessObjectFactory == null) {
+                // Most likely a reference to a type of object that has already been moved to the new ORM framework
+                CanFindByLongPrimaryKey finder = Environment.DEFAULT.get().finderFor(valueFactory.getValueType());
+                shadow.setObjectFactoryId(finder.registrationKey().id());
+            }
+            else {
             shadow.setObjectFactoryId(businessObjectFactory.getId());
+        }
         }
         return shadow;
     }
