@@ -89,9 +89,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
     onStoreLoad: function () {
         var widget = this.getRegisterTypeEditForm();
-        widget.down('#editMrIdField').setDisabled(false);
-        widget.down('#editMrIdField').setReadOnly(false);
-        if (this.getReadingTypesStore().getCount() !== 0) {
+        if (this.getReadingTypesStore().getCount() === 1) {
             widget.down('#editMrIdField').setValue(this.getReadingTypesStore().first().get('mrid'));
         }
     },
@@ -408,11 +406,14 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var mrId = widget.down('#editMrIdField').getValue();
 
         if (obisCode !== '' && measurementUnit !== null && mrId === '') {
+            this.getReadingTypesStore().clearFilter();
             this.getReadingTypesStore().filter([
                 {property: 'obisCode', value: obisCode},
                 {property: 'unit', value: measurementUnit}
             ]);
         }
+        widget.down('#editMrIdField').setDisabled(false);
+        widget.down('#editMrIdField').setReadOnly(false);
 
     }
 
