@@ -51,7 +51,7 @@ Ext.define('Usr.controller.GroupPrivileges', {
                         widget.down('form').loadRecord(group);
                         widget.down('#els_usm_groupEditHeader').update('<h1>' + title + ' "' + group.get('name') + '"' + '</h1>');
                         widget.down('[name=name]').disable();
-                        widget.down('[name=description]').disable();
+                        //widget.down('[name=description]').disable();
                         me.displayBreadcrumb(title + ' "' + group.get("name") + '"');
 
                         me.getPrivilegesStore().load(function () {
@@ -76,6 +76,7 @@ Ext.define('Usr.controller.GroupPrivileges', {
     showCreateOverview: function () {
         var widget = Ext.widget('groupEdit');
 
+        widget.setLoading(true);
         title = Uni.I18n.translate('group.create', 'USM', 'Create role');
         widget.down('#els_usm_groupEditHeader').update('<h1>' + title + '</h1>');
         this.displayBreadcrumb(title);
@@ -87,6 +88,8 @@ Ext.define('Usr.controller.GroupPrivileges', {
         this.getPrivilegesStore().load(function () {
             me.resetPrivilegesForRecord(record);
         });
+
+        widget.setLoading(false);
 
         widget.down('#cancelLink').autoEl.href = this.getApplication().getHistoryGroupController().tokenizePreviousTokens();
 
@@ -102,9 +105,6 @@ Ext.define('Usr.controller.GroupPrivileges', {
             text: Uni.I18n.translate('group.title', 'USM', 'Roles'),
             href: 'roles'
         });
-
-        var editForm = Ext.getCmp('els_usm_groupEditForm'),
-            record=editForm.getRecord();
 
         var breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
             text: current

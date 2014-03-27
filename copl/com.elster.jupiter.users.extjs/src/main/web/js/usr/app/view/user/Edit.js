@@ -71,8 +71,6 @@ Ext.define('Usr.view.user.Edit', {
                                 xtype: 'textfield',
                                 name: 'authenticationName',
                                 fieldLabel: Uni.I18n.translate('user.name', 'USM', 'Name'),
-                                readOnly: true,
-                                disabled: true,
                                 labelWidth: 100,
                                 labelPad: 0,
                                 maxWidth: 500
@@ -81,7 +79,6 @@ Ext.define('Usr.view.user.Edit', {
                                 xtype: 'textfield',
                                 name: 'description',
                                 fieldLabel: Uni.I18n.translate('user.description', 'USM', 'Description'),
-                                disabled: true,
                                 labelWidth: 100,
                                 labelPad: 0,
                                 maxWidth: 500
@@ -90,8 +87,6 @@ Ext.define('Usr.view.user.Edit', {
                                 xtype: 'textfield',
                                 name: 'domain',
                                 fieldLabel: Uni.I18n.translate('user.domain', 'USM', 'Domain'),
-                                readOnly: true,
-                                disabled: true,
                                 labelWidth: 100,
                                 labelPad: 0,
                                 maxWidth: 500

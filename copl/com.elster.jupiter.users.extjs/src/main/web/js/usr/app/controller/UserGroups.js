@@ -54,7 +54,7 @@ Ext.define('Usr.controller.UserGroups', {
                         widget.down('form').loadRecord(user);
                         widget.down('#els_usm_userEditHeader').update('<h1>' + title + ' "' + user.get('authenticationName') + '"' + '</h1>');
                         widget.down('[name=authenticationName]').disable();
-                        widget.down('[name=description]').disable();
+                        //widget.down('[name=description]').disable();
                         widget.down('[name=domain]').disable();
                         me.displayBreadcrumb(user.get("authenticationName"));
 
