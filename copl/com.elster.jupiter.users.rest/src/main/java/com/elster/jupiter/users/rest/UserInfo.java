@@ -1,7 +1,9 @@
 package com.elster.jupiter.users.rest;
 
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.transaction.TransactionService;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.text.DateFormat;
@@ -25,7 +27,7 @@ public class UserInfo {
     public UserInfo() {
     }
 
-    public UserInfo(User user) {
+    public UserInfo(User user, TransactionService transactionService) {
         id = user.getId();
         authenticationName = user.getName();
         description = user.getDescription();
@@ -34,8 +36,11 @@ public class UserInfo {
         language=user.getLanguage();
         createdOn=DateFormat.getDateTimeInstance().format(user.getCreationDate());
         modifiedOn=DateFormat.getDateTimeInstance().format(user.getModifiedDate());
-        for (Group group : user.getGroups()) {
-            groups.add(new GroupInfo(group));
+        try (TransactionContext context = transactionService.getContext()) {
+            for (Group group : user.getGroups()) {
+                groups.add(new GroupInfo(group));
+            }
+            context.commit();
         }
     }
 

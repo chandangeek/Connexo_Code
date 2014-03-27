@@ -49,7 +49,7 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     public UserInfos createUser(UserInfo info) {
         UserInfos result = new UserInfos();
-        result.add(transactionService.execute(new CreateUserTransaction(info, userService)));
+        result.add(transactionService.execute(new CreateUserTransaction(info, userService)), transactionService);
         return result;
     }
 
@@ -68,7 +68,7 @@ public class UserResource {
     public UserInfos getUser(@PathParam("id") long id) {
         Optional<User> party = userService.getUser(id);
         if (party.isPresent()) {
-            return new UserInfos(party.get());
+            return new UserInfos(party.get(), transactionService);
         }
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
@@ -78,7 +78,7 @@ public class UserResource {
     public UserInfos getUsers(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<User> list = getUserRestQuery().select(queryParameters);
-        UserInfos infos = new UserInfos(queryParameters.clipToLimit(list));
+        UserInfos infos = new UserInfos(queryParameters.clipToLimit(list), transactionService);
         infos.total = queryParameters.determineTotal(list.size());
         return infos;
     }
