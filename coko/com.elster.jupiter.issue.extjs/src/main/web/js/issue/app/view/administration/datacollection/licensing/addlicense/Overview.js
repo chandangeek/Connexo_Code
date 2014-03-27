@@ -56,7 +56,7 @@ Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview
                                     name: 'cancel',
                                     margin: 10,
                                     hrefTarget: '',
-                                    href: '#/administration/datacollection/licensing',
+                                    href: '#/issue-administration/datacollection/licensing',
                                     cls: 'isu-btn-link'
                                 }
                             ]
