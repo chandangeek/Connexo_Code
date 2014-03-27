@@ -150,7 +150,8 @@ public enum MessageSeeds implements MessageSeed {
     NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS(13021, Constants.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS_KEY, "Next Execution Spec is required for OutboundConnectionTasks that minimize connections.", SEVERE),
     NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY(13022, Constants.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY, "Next Execution Spec is invalid for Communication Window.", SEVERE),
     NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY(13023, Constants.NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY_KEY, "Next Execution Spec's offset is greater than its frequency.", SEVERE),
-    UNDER_MINIMUM_RESCHEDULE_DELAY(13024, Constants.UNDER_MINIMUM_RESCHEDULE_DELAY_KEY, "Reschedule delay is below minimum.", Level.SEVERE);
+    UNDER_MINIMUM_RESCHEDULE_DELAY(13024, Constants.UNDER_MINIMUM_RESCHEDULE_DELAY_KEY, "Reschedule delay is below minimum.", Level.SEVERE),
+    VETO_CONNECTIONTYPE_PLUGGABLECLASS_DELETION(13025, "connectionTypePluggableClass.XstillInUseByY", "ConnectionType Pluggable Class {0} is still in use by {1}", SEVERE);
 
     private final int number;
     private final String key;
