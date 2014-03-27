@@ -9,7 +9,9 @@ package com.energyict.protocolimpl.iec1107.abba230;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.abba230.eventlogs.EndOfBillingEventLog;
 
 import java.io.IOException;
@@ -116,30 +118,69 @@ public class ObisCodeMapper {
             } else {
                 return new RegisterInfo("Current System Status (32 bit word)");
             }
-        } else if (obisCode.toString().startsWith("0.0.96.53.") ) { 
+        } else if (obisCode.toString().startsWith("0.0.96.53.")) {
             if (read) {
-                if ((obisCode.getE()>=0) && (obisCode.getE()<=9)) {
-                	if (obisCode.getF() == 255) {
-						registerValue = new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(rFactory.getSystemStatus().getSystemStatus(obisCode.getE())),Unit.get(255)));
-					} else {
-                		if ((obisCode.getF()>=0) && (obisCode.getF()<=7)) {
-                			
-                			int val = rFactory.getSystemStatus().getSystemStatus(obisCode.getE());
-                			val = (val & (1<<obisCode.getF()))==0?0:1;
-                			registerValue = new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(val),Unit.get(255)));
-                		}
-                	}
+                if ((obisCode.getE() >= 0) && (obisCode.getE() <= 15)) {
+                    if (obisCode.getF() == 255) {
+                        Integer systemStatus = rFactory.getSystemStatus().getSystemStatus(obisCode.getE());
+                        if (systemStatus != null) {
+                            registerValue = new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(systemStatus), Unit.get(255)));
+                        } else {
+                            registerValue = new RegisterValue(obisCode, "System status not available");
+                        }
+                    } else {
+                        if ((obisCode.getF() >= 0) && (obisCode.getF() <= 7)) {
+                            Integer systemStatus = rFactory.getSystemStatus().getSystemStatus(obisCode.getE());
+                            if (systemStatus != null) {
+                                systemStatus = (systemStatus & (1 << obisCode.getF()));
+                                registerValue = new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(systemStatus), Unit.get(255)));
+                            } else {
+                                registerValue = new RegisterValue(obisCode, "System status not available");
+                            }
+                        }
+                    }
                 }
                 return registerValue;
             } else {
-            	if (obisCode.getF() == 255) {
-					return new RegisterInfo("Current SystemStatus"+obisCode.getE()+" (1 byte)");
-				} else {
-            		if ((obisCode.getF()>=0) && (obisCode.getF()<=7)) {
-            			return new RegisterInfo("Current SystemStatus"+obisCode.getE()+" bit "+obisCode.getF());
-            			
-            		}
-            	}
+                if (obisCode.getF() == 255) {
+                    return new RegisterInfo("Current SystemStatus" + obisCode.getE() + " (1 byte)");
+                } else {
+                    if ((obisCode.getF() >= 0) && (obisCode.getF() <= 7)) {
+                        return new RegisterInfo("Current SystemStatus" + obisCode.getE() + " bit " + obisCode.getF());
+                    }
+                }
+            }
+        } else if (obisCode.toString().startsWith("0.0.96.54.")) {
+            if (read) {
+                if ((obisCode.getE() >= 0) && (obisCode.getE() <= 3)) {
+                    if (obisCode.getF() == 255) {
+                        Integer systemError = rFactory.getSystemStatus().getSystemError(obisCode.getE());
+                        if (systemError != null) {
+                            registerValue = new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(systemError), Unit.get(255)));
+                        } else {
+                            registerValue = new RegisterValue(obisCode, "System error not available");
+                        }
+                    } else {
+                        if ((obisCode.getF() >= 0) && (obisCode.getF() <= 7)) {
+                            Integer systemError = rFactory.getSystemStatus().getSystemError(obisCode.getE());
+                            if (systemError != null) {
+                                systemError = (systemError & (1 << obisCode.getF()));
+                                registerValue = new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(systemError), Unit.get(255)));
+                            } else {
+                                registerValue = new RegisterValue(obisCode, "System error not available");
+                            }
+                        }
+                    }
+                }
+                return registerValue;
+            } else {
+                if (obisCode.getF() == 255) {
+                    return new RegisterInfo("Current SystemError" + obisCode.getE() + " (1 byte)");
+                } else {
+                    if ((obisCode.getF() >= 0) && (obisCode.getF() <= 7)) {
+                        return new RegisterInfo("Current SystemError" + obisCode.getE() + " bit " + obisCode.getF());
+                    }
+                }
             }
         } else if ((obisCode.toString().indexOf("1.1.0.4.2.255") != -1) || (obisCode.toString().indexOf("1.0.0.4.2.255") != -1)) { 
             if (read) {

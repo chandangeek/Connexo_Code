@@ -533,6 +533,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         return "Elster AS230 IEC1107";
     }
 
+    /** Protocol version **/
     public String getProtocolVersion() {
         return "$Date$";
     }

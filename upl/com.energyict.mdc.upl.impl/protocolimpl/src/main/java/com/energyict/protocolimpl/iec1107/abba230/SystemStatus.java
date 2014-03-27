@@ -1,31 +1,68 @@
 package com.energyict.protocolimpl.iec1107.abba230;
-import java.io.IOException;
 
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /** @author  Koen */
 
 public class SystemStatus {
-    
-	int[] systemStatus = new int[10];
+
+    List<Integer> systemStatuses = new ArrayList<Integer>();
+    List<Integer> systemErrors = new ArrayList<Integer>();
+    int clockFailureActionMode = -1;
     long value;
-    
-    /** Creates a new instance of SystemStatus */
+
+    /**
+     * Creates a new instance of SystemStatus
+     */
     public SystemStatus(byte[] data) throws IOException {
-       value = ProtocolUtils.getIntLE(data,0,4);
-       for(int i=0;i<10;i++)
-           systemStatus[i] = ProtocolUtils.getInt(data,i,1);
+        try {
+            value = ProtocolUtils.getIntLE(data, 0, 4);
+            for (int i = 0; i < 16; i++) {
+                systemStatuses.add(ProtocolUtils.getInt(data, i, 1));
+            }
+            for (int i = 0; i < 4; i++) {
+                systemErrors.add(ProtocolUtils.getInt(data, 16 + i, 1));
+            }
+            clockFailureActionMode = ProtocolUtils.getInt(data, 20, 1);
+        } catch (IOException e) {
+            // IOException caused by an ArrayIndexOutOfBoundsException
+            // Absorb exception - done to be compliant with older types of devices who have less status bytes
+        }
     }
     
     public long getValue() {
         return value;
     }
 
-	public int[] getSystemStatus() {
-		return systemStatus;
-	}
-	public int getSystemStatus(int index) {
-		return systemStatus[index];
-	}
-    
+    /**
+     * Returns the SystemStatus at the given index.<br></br>
+     * <b>Warning:</b> When the status at the given index is not available, then NULL is returned
+     */
+    public Integer getSystemStatus(int index) {
+        try {
+            return systemStatuses.get(index);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the SystemError at the given index.<br></br>
+     * <b>Warning:</b> When the error at the given index is not available, then NULL is returned
+     */
+    public Integer getSystemError(int index) {
+        try {
+            return systemErrors.get(index);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+    }
+
+    public int getClockFailureActionMode() {
+        return clockFailureActionMode;
+    }
 }
