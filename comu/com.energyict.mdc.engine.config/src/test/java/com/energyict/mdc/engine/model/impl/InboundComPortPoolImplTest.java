@@ -34,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class InboundComPortPoolImplTest extends PersistenceTest {
 
     protected static final String DESCRIPTION = "Description";
-    protected static final long DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID = 1;
 
     @Test
     @Transactional
@@ -47,7 +46,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         assertThat(comPortPool.getObsoleteDate()).isNull();
         assertThat(comPortPool.isInbound()).as("Was expecting an InboundComPortPool to be inbound").isTrue();
         assertThat(comPortPool.getComPorts()).isEmpty();
-        assertThat(comPortPool.getDiscoveryProtocolPluggableClassId()).isEqualTo(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID);
+        assertThat(comPortPool.getDiscoveryProtocolPluggableClass().getId()).isEqualTo(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID);
     }
 
     @Test
@@ -57,7 +56,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
         inboundComPortPool.setDescription(DESCRIPTION);
         inboundComPortPool.setComPortType(ComPortType.TCP);
-        inboundComPortPool.setDiscoveryProtocolPluggableClassId(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID);
+        inboundComPortPool.setDiscoveryProtocolPluggableClass(deviceProtocolPluggableClass);
         inboundComPortPool.save();
         // Expecting BusinessException because the name is not set
     }
@@ -75,7 +74,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         assertThat(comPortPool.getName()).isEqualTo(loaded.getName());
         assertThat(comPortPool.isActive()).isEqualTo(loaded.isActive());
         assertThat(comPortPool.getDescription()).isEqualTo(loaded.getDescription());
-        assertEquals(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID, comPortPool.getDiscoveryProtocolPluggableClassId());
+        assertEquals(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID, comPortPool.getDiscoveryProtocolPluggableClass().getId());
     }
 
     @Test
@@ -96,7 +95,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         assertThat(comPortPool.getDescription()).isEqualTo(comPortPool.getDescription());
         assertThat(comPortPool.getComPorts()).isEmpty();
         assertThat(comPortPool.isInbound()).as("InboundComPortPools are expected to be inbound").isTrue();
-        assertEquals(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID, comPortPool.getDiscoveryProtocolPluggableClassId());
+        assertEquals(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID, comPortPool.getDiscoveryProtocolPluggableClass().getId());
     }
 
     @Test
@@ -107,14 +106,14 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         inboundComPortPool.setName("Test for duplication");
         inboundComPortPool.setDescription(DESCRIPTION);
         inboundComPortPool.setComPortType(ComPortType.TCP);
-        inboundComPortPool.setDiscoveryProtocolPluggableClassId(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID);
+        inboundComPortPool.setDiscoveryProtocolPluggableClass(deviceProtocolPluggableClass);
         inboundComPortPool.save();
         // Business method
         inboundComPortPool = getEngineModelService().newInboundComPortPool();
         inboundComPortPool.setName("Test for duplication");
         inboundComPortPool.setDescription(DESCRIPTION);
         inboundComPortPool.setComPortType(ComPortType.TCP);
-        inboundComPortPool.setDiscoveryProtocolPluggableClassId(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID);
+        inboundComPortPool.setDiscoveryProtocolPluggableClass(deviceProtocolPluggableClass);
         inboundComPortPool.save();
         // Expecting a DuplicateException
     }
@@ -129,7 +128,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         notADuplicate.setName(comPortPool.getName());
         notADuplicate.setDescription(DESCRIPTION);
         notADuplicate.setComPortType(ComPortType.TCP);
-        notADuplicate.setDiscoveryProtocolPluggableClassId(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID);
+        notADuplicate.setDiscoveryProtocolPluggableClass(deviceProtocolPluggableClass);
         notADuplicate.save();
 
         // No BusinessException expected, because a new ComPortPool can have the same name as a deleted one.
@@ -139,7 +138,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         assertThat(notADuplicate.getObsoleteDate()).isNull();
         assertThat(notADuplicate.isInbound()).as("Was expecting an InboundComPortPool to be inbound").isTrue();
         assertThat(notADuplicate.getComPorts()).isEmpty();
-        assertEquals(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID, comPortPool.getDiscoveryProtocolPluggableClassId());
+        assertEquals(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID, comPortPool.getDiscoveryProtocolPluggableClass().getId());
     }
 
     @Test
@@ -314,7 +313,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         inboundComPortPool.setName("Unique comPortPool "+comPortPoolIndex++);
         inboundComPortPool.setDescription(DESCRIPTION);
         inboundComPortPool.setComPortType(null);
-        inboundComPortPool.setDiscoveryProtocolPluggableClassId(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID);
+        inboundComPortPool.setDiscoveryProtocolPluggableClass(deviceProtocolPluggableClass);
         inboundComPortPool.save();
         // Expecting InvalidValueException because the ComPortType is not set
     }
@@ -371,7 +370,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
 
         // Business method
-        comPortPool.setDiscoveryProtocolPluggableClassId(0);
+        comPortPool.setDiscoveryProtocolPluggableClass(null);
 
         comPortPool.save();
         // was expecting a InvalidValueException because the discovery protocol is null
@@ -397,7 +396,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         inboundComPortPool.setName("Unique comPortPool "+comPortPoolIndex++);
         inboundComPortPool.setDescription(DESCRIPTION);
         inboundComPortPool.setComPortType(ComPortType.TCP);
-        inboundComPortPool.setDiscoveryProtocolPluggableClassId(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID);
+        inboundComPortPool.setDiscoveryProtocolPluggableClass(deviceProtocolPluggableClass);
         inboundComPortPool.save();
         return inboundComPortPool;
     }

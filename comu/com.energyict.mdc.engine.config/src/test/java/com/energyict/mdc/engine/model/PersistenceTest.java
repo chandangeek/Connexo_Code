@@ -18,22 +18,26 @@ import com.energyict.mdc.ExpectedErrorRule;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
-import com.energyict.mdc.pluggable.PluggableService;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import java.sql.SQLException;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.osgi.framework.BundleContext;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PersistenceTest {
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+
+    protected static final long DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID = 1;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -41,6 +45,8 @@ public class PersistenceTest {
     public TestRule expectedErrorRule = new ExpectedErrorRule();
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+
+    protected DeviceProtocolPluggableClass deviceProtocolPluggableClass;
 
     @BeforeClass
     public static void staticSetUp() throws SQLException {
@@ -56,13 +62,12 @@ public class PersistenceTest {
                 new MdcCommonModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
-                new PluggableModule(),
                 new TransactionModule(true),
                 new EngineModelModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
         	injector.getInstance(EnvironmentImpl.class); // fake call to make sure component is initialized
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
-            injector.getInstance(PluggableService.class); // fake call to make sure component is initialized
+            injector.getInstance(ProtocolPluggableService.class); // fake call to make sure component is initialized
             ctx.commit();
         }
     }
@@ -72,12 +77,23 @@ public class PersistenceTest {
     	inMemoryBootstrapModule.deactivate();
     }
 
+    @Before
+    public void setUp() {
+        deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(deviceProtocolPluggableClass.getId()).thenReturn(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID);
+        when(getProtocolPluggableService().findDeviceProtocolPluggableClass(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID)).thenReturn(deviceProtocolPluggableClass);
+    }
+
     public static TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
 
     public final EngineModelService getEngineModelService() {
         return injector.getInstance(EngineModelService.class);
+    }
+
+    public final ProtocolPluggableService getProtocolPluggableService() {
+        return injector.getInstance(ProtocolPluggableService.class);
     }
 
 }

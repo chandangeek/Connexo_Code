@@ -9,7 +9,6 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
@@ -362,17 +361,6 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
         outboundComPortPool.setTaskExecutionTimeout(EXECUTION_TIMEOUT);
         outboundComPortPool.save();
         return outboundComPortPool;
-    }
-
-    private int inboundComPortPoolIndex =1;
-    private InboundComPortPool newInboundComPortPoolWithoutViolations() {
-        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
-        inboundComPortPool.setName("Unique comPortPool "+ inboundComPortPoolIndex++);
-        inboundComPortPool.setDescription(DESCRIPTION);
-        inboundComPortPool.setComPortType(ComPortType.TCP);
-        inboundComPortPool.setDiscoveryProtocolPluggableClassId(1);
-        inboundComPortPool.save();
-        return inboundComPortPool;
     }
 
     int onlineNameNumber=1;

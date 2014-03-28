@@ -33,18 +33,10 @@ import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -53,6 +45,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import javax.inject.Inject;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import static com.energyict.mdc.engine.model.impl.ComPortImpl.OUTBOUND_DISCRIMINATOR;
 import static com.energyict.mdc.engine.model.impl.ComServerImpl.OFFLINE_COMSERVER_DISCRIMINATOR;
@@ -65,17 +64,17 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     private volatile DataModel dataModel;
     private Thesaurus thesaurus;
     private NlsService nlsService;
-    private PluggableService pluggableService;
+    private ProtocolPluggableService protocolPluggableService;
 
     public EngineModelServiceImpl() {
         super();
     }
 
     @Inject
-    public EngineModelServiceImpl(OrmService ormService, NlsService nlsService, PluggableService pluggableService) {
+    public EngineModelServiceImpl(OrmService ormService, NlsService nlsService, ProtocolPluggableService protocolPluggableService) {
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
-        this.setPluggableService(pluggableService);
+        this.setProtocolPluggableService(protocolPluggableService);
         activate();
         createTranslations();
         if (!dataModel.isInstalled()) {
@@ -115,8 +114,8 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Reference
-    public void setPluggableService(PluggableService pluggableService) {
-        this.pluggableService = pluggableService;
+    public void setProtocolPluggableService(ProtocolPluggableService pluggableService) {
+        this.protocolPluggableService = pluggableService;
     }
 
     Module getModule() {
@@ -133,7 +132,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
                 bind(OutboundComPort.class).to(OutboundComPortImpl.class);
                 bind(ComPortPoolMember.class).to(ComPortPoolMemberImpl.class);
                 bind(Thesaurus.class).toInstance(thesaurus);
-                bind(PluggableService.class).toInstance(pluggableService);
+                bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             }
         };
     }

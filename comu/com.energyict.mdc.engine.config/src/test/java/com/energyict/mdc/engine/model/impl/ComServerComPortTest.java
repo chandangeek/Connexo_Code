@@ -57,7 +57,6 @@ public class ComServerComPortTest extends PersistenceTest {
     private static final ComServer.LogLevel COMMUNICATION_LOG_LEVEL = ComServer.LogLevel.TRACE;
     private static final TimeDuration CHANGES_INTER_POLL_DELAY = new TimeDuration(5, TimeDuration.HOURS);
     private static final TimeDuration SCHEDULING_INTER_POLL_DELAY = new TimeDuration(2, TimeDuration.MINUTES);
-    private static final int PLUGGABLE_CLASS_ID = 1;
 
     private InboundComPortPool tcpBasedInboundComPortPool;
     private InboundComPortPool udpBasedInboundComPortPool;
@@ -65,6 +64,7 @@ public class ComServerComPortTest extends PersistenceTest {
 
     @Before
     public void setUp () {
+        super.setUp();
         tcpBasedInboundComPortPool = newInboundComPortPool(ComPortType.TCP);
         udpBasedInboundComPortPool = newInboundComPortPool(ComPortType.UDP);
         serialBasedInboundComPortPool = newInboundComPortPool(ComPortType.SERIAL);
@@ -342,7 +342,7 @@ public class ComServerComPortTest extends PersistenceTest {
         inboundComPortPool.setName("Unique comPortPool "+comPortPoolIndex++);
         inboundComPortPool.setDescription("description");
         inboundComPortPool.setComPortType(comPortType);
-        inboundComPortPool.setDiscoveryProtocolPluggableClassId(PLUGGABLE_CLASS_ID);
+        inboundComPortPool.setDiscoveryProtocolPluggableClass(deviceProtocolPluggableClass);
         inboundComPortPool.save();
         return inboundComPortPool;
     }

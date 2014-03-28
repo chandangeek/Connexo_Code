@@ -11,6 +11,7 @@ import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import java.sql.SQLException;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,6 +38,12 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     private static final String STORE_PASSWORD = "couldnotkeepthisasecretanylonger";
     private static final String KEY_STORE_PASSWORD = STORE_PASSWORD;
     private static final String TRUST_STORE_PASSWORD = STORE_PASSWORD;
+
+    @Override
+    @Before
+    public void setUp() {
+        super.setUp();
+    }
 
     @Test
     @Transactional
@@ -680,7 +687,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
         inboundComPortPool.setComPortType(ComPortType.SERVLET);
         inboundComPortPool.setName("comPortPool"+comPortPoolIndex++);
-        inboundComPortPool.setDiscoveryProtocolPluggableClassId(1);
+        inboundComPortPool.setDiscoveryProtocolPluggableClass(deviceProtocolPluggableClass);
         inboundComPortPool.save();
         return inboundComPortPool;
     }

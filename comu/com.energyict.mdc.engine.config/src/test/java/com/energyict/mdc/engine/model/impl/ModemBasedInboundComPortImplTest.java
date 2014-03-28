@@ -511,7 +511,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
         inboundComPortPool.setComPortType(ComPortType.SERIAL);
         inboundComPortPool.setName("comPortPool "+comPortPoolId++);
-        inboundComPortPool.setDiscoveryProtocolPluggableClassId(1);
+        inboundComPortPool.setDiscoveryProtocolPluggableClass(deviceProtocolPluggableClass);
         inboundComPortPool.save();
         return inboundComPortPool;
     }

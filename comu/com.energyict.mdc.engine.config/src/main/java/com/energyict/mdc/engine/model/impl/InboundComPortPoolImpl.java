@@ -8,8 +8,8 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.pluggable.PluggableClassType;
-import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -27,12 +27,12 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
     public static final String FIELD_DISCOVEYPROTOCOL = "discoveryProtocolPluggableClassId";
 
     private final EngineModelService engineModelService;
-    private final PluggableService pluggableService;
+    private final ProtocolPluggableService pluggableService;
     @Min(value =1, groups = {Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
     private long discoveryProtocolPluggableClassId;
 
     @Inject
-    protected InboundComPortPoolImpl(DataModel dataModel, EngineModelService engineModelService, Thesaurus thesaurus, PluggableService pluggableService) {
+    protected InboundComPortPoolImpl(DataModel dataModel, EngineModelService engineModelService, Thesaurus thesaurus, ProtocolPluggableService pluggableService) {
         super(dataModel, thesaurus);
         this.engineModelService = engineModelService;
         this.pluggableService = pluggableService;
@@ -49,13 +49,17 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
     }
 
     @Override
-    public long getDiscoveryProtocolPluggableClassId() {
-        return this.discoveryProtocolPluggableClassId;
+    public DeviceProtocolPluggableClass getDiscoveryProtocolPluggableClass() {
+        return pluggableService.findDeviceProtocolPluggableClass(discoveryProtocolPluggableClassId);
     }
 
     @Override
-    public void setDiscoveryProtocolPluggableClassId(long discoveryProtocolPluggableClassId) {
-        this.discoveryProtocolPluggableClassId = discoveryProtocolPluggableClassId;
+    public void setDiscoveryProtocolPluggableClass(DeviceProtocolPluggableClass discoveryProtocolPluggableClass) {
+        if (discoveryProtocolPluggableClass!=null) {
+            this.discoveryProtocolPluggableClassId = discoveryProtocolPluggableClass.getId();
+        } else {
+            this.discoveryProtocolPluggableClassId = 0;
+        }
     }
 
     protected void validate() {
@@ -67,7 +71,7 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
         if (discoveryProtocolPluggableClassId == 0) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.MUST_HAVE_DISCOVERY_PROTOCOL);
         } else {
-            PluggableClass pluggableClass = pluggableService.findByTypeAndId(PluggableClassType.DiscoveryProtocol, discoveryProtocolPluggableClassId);
+            PluggableClass pluggableClass = pluggableService.findDeviceProtocolPluggableClass(discoveryProtocolPluggableClassId);
             if (pluggableClass == null) {
                 throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_SUCH_PLUGGABLE_CLASS);
             }

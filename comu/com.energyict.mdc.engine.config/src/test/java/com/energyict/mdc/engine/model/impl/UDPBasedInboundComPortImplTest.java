@@ -255,7 +255,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
         inboundComPortPool.setComPortType(ComPortType.UDP);
         inboundComPortPool.setName("comPortPool "+comPortPoolIndex++);
-        inboundComPortPool.setDiscoveryProtocolPluggableClassId(1);
+        inboundComPortPool.setDiscoveryProtocolPluggableClass(deviceProtocolPluggableClass);
         inboundComPortPool.save();
         return inboundComPortPool;
     }
