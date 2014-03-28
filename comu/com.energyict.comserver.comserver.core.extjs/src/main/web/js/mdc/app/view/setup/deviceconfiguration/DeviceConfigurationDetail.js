@@ -22,11 +22,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
 
             items: [
                 {
-                    xtype: 'breadcrumbTrail',
-                    region: 'north',
-                    padding: 6
-                },
-                {
                     xtype: 'form',
                     border: false,
                     itemId: 'deviceConfigurationDetailForm',
