@@ -31,21 +31,37 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
         features: [
             {
                 ftype: 'grouping',
-                groupHeaderTpl: '<span class="isu-icon-{name}"></span> {name}',
+                groupHeaderTpl: '{name}',
                 collapsible: false
             }
-        ]
-       /* columns: [
+        ],
+        columns: [
             {
                 header: false,
                 xtype: 'templatecolumn',
-                tpl: "<tpl if='id &gt '>Child</tpl>",
+                tpl: '<tpl if="type"><span class="isu-icon-{type} isu-assignee-type-icon"></span></tpl> {name}',
                 flex: 1
             }
-           *//* {
-                dataIndex: 'name', flex: 1
-            }*//*
-        ]*/
+        ]
+    },
+    listeners: {
+        focus: {
+            fn: function(combo){
+                if (!combo.getValue()) {
+                    combo.doQuery(combo.getValue());
+                }
+            }
+        },
+        beforequery: {
+            fn: function(queryPlan) {
+                var store = queryPlan.combo.store;
+                if (queryPlan.query) {
+                    store.group('type');
+                } else {
+                    store.clearGrouping();
+                }
+            }
+        }
     }
 });
 

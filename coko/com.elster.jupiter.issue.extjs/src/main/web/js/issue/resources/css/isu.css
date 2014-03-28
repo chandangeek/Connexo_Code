@@ -167,6 +167,11 @@ span[class^=isu-assignee-] {
     content: '\e810';
 }
 
+.isu-icon-UnexistingType {
+    display: inline-block;
+    width: 18px;
+}
+
 .isu-button-close {
     padding: 0 20px 0 0;
     position: relative;

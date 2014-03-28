@@ -23,7 +23,7 @@ Ext.define('Isu.controller.IssueFilter', {
     ],
 
     mixins: [
-        'Isu.util.IsuCombo'
+        'Isu.util.IsuComboTooltip'
     ],
 
     init: function () {
@@ -40,14 +40,11 @@ Ext.define('Isu.controller.IssueFilter', {
             'issues-side-filter filter-form': {
                 afterrender: this.loadFormModel
             },
-            'issues-side-filter filter-form combobox[name=assignee]': {
-                focus: this.onFocusCombo,
-                blur: this.onBlurCombo,
-                beforequery: this.onBeforeQueryCombo
-            },
+
             'issues-side-filter filter-form combobox[name=reason]': {
-                focus: this.onFocusCombo,
-                blur: this.onBlurCombo
+                focus: this.onFocusComboTooltip,
+                blur: this.onBlurComboTooltip,
+                change: this.clearComboTooltip
             }
         });
 
@@ -89,18 +86,9 @@ Ext.define('Isu.controller.IssueFilter', {
                     id: 'empty'
                 })
             }
-            console.log(store)
         }
     },
 
-    onBeforeQueryCombo: function (queryPlan) {
-        var store = queryPlan.combo.store;
-        if (queryPlan.query) {
-            store.group('type');
-        } else {
-            store.clearGrouping();
-        }
-    },
 
     loadFormModel: function (form) {
         var store = this.getStore('Isu.store.IssueStatus'),
