@@ -37,10 +37,6 @@ Ext.define('Isu.controller.IssueFilter', {
             'issues-filter button[action="clearfilter"]': {
                 click: this.reset
             },
-            'issues-side-filter filter-form': {
-                afterrender: this.loadFormModel
-            },
-
             'issues-side-filter filter-form combobox[name=reason]': {
                 focus: this.onFocusComboTooltip,
                 blur: this.onBlurComboTooltip,
@@ -89,34 +85,6 @@ Ext.define('Isu.controller.IssueFilter', {
         }
     },
 
-
-    loadFormModel: function (form) {
-        var store = this.getStore('Isu.store.IssueStatus'),
-            me = this;
-
-        if (!store.count()) {
-            store.on('load', function () {
-                me.loadDefaults();
-            });
-        } else {
-            me.loadDefaults();
-        }
-    },
-
-    loadDefaults: function () {
-        var form = this.getIssueFilter().down('filter-form'),
-            defaultFilter = new Isu.model.IssueFilter(),
-            store = this.getStore('Isu.store.IssueStatus'),
-            grstore = this.getStore('Isu.store.IssuesGroups'),
-            me = this;
-
-        var item = store.findRecord('name', 'Open'); //todo: hardcoded value! remove after proper REST API is implemented.
-        defaultFilter.status().add(item);
-
-        form.loadRecord(defaultFilter);
-        me.getStore('Isu.store.Issues').setProxyFilter(defaultFilter);
-    },
-
     reset: function () {
         var filter = new Isu.model.IssueFilter();
 
@@ -128,6 +96,9 @@ Ext.define('Isu.controller.IssueFilter', {
      * @param filter
      */
     filterUpdate: function (filter) {
+        var form = this.getIssueFilter().down('filter-form');
+        form.loadRecord(filter);
+
         var grstore = this.getStore('Isu.store.IssuesGroups'),
             reason = filter.get('reason'),
             status = filter.statusStore;
@@ -148,7 +119,6 @@ Ext.define('Isu.controller.IssueFilter', {
 
         }
         grstore.loadPage(1);
-        this.getIssueFilter().down('filter-form').loadRecord(filter);
     },
 
     filter: function () {
