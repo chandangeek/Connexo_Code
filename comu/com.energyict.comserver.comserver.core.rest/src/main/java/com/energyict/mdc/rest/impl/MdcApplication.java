@@ -92,15 +92,16 @@ public class MdcApplication extends Application {
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
     }
+
     @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
     }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
         protected void configure() {
-            LOGGER.fine("Binding services using HK2");
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(licensedProtocolService).to(LicensedProtocolService.class);
             bind(propertySpecService).to(PropertySpecService.class);

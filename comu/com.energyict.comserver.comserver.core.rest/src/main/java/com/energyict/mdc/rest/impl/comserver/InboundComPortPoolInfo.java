@@ -3,7 +3,7 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import java.util.ArrayList;
 
 public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> {
@@ -13,7 +13,7 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> 
 
     public InboundComPortPoolInfo(InboundComPortPool comPortPool) {
         super(comPortPool);
-        this.discoveryProtocolPluggableClassId = comPortPool.getDiscoveryProtocolPluggableClassId();
+        this.discoveryProtocolPluggableClassId = comPortPool.getDiscoveryProtocolPluggableClass()==null?0L:comPortPool.getDiscoveryProtocolPluggableClass().getId();
         if (comPortPool.getComPorts()!=null) {
             this.inboundComPorts = new ArrayList<>(comPortPool.getComPorts().size());
             for (InboundComPort inboundComPort : comPortPool.getComPorts()) {
@@ -23,9 +23,9 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> 
     }
 
     @Override
-    protected InboundComPortPool writeTo(InboundComPortPool source,EngineModelService engineModelService) {
-        super.writeTo(source,engineModelService);
-        source.setDiscoveryProtocolPluggableClassId(this.discoveryProtocolPluggableClassId);
+    protected InboundComPortPool writeTo(InboundComPortPool source, ProtocolPluggableService protocolPluggableService) {
+        super.writeTo(source, protocolPluggableService);
+        source.setDiscoveryProtocolPluggableClass(protocolPluggableService.findDeviceProtocolPluggableClass(this.discoveryProtocolPluggableClassId));
         return source;
     }
 

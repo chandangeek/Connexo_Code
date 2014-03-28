@@ -3,15 +3,15 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
+import java.util.Date;
+import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.Date;
-import java.util.List;
 
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "direction")
@@ -55,7 +55,7 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
         this.type = comPortPool.getComPortType();
     }
 
-    protected S writeTo(S source,EngineModelService engineModelService) {
+    protected S writeTo(S source, ProtocolPluggableService protocolPluggableService) {
         source.setName(this.name);
         source.setDescription(this.description);
         source.setComPortType(this.type);

@@ -2,7 +2,8 @@ package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
-
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -16,16 +17,17 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 @Path("/comportpools")
 public class ComPortPoolResource {
 
     private final EngineModelService engineModelService;
+    private final ProtocolPluggableService protocolPluggableService;
 
     @Inject
-    public ComPortPoolResource(EngineModelService engineModelService) {
+    public ComPortPoolResource(EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
         this.engineModelService = engineModelService;
+        this.protocolPluggableService = protocolPluggableService;
     }
 
     @GET
@@ -70,7 +72,7 @@ public class ComPortPoolResource {
             if (comPortPool == null) {
                 throw new WebApplicationException("No ComPortPool with id " + id, Response.Status.INTERNAL_SERVER_ERROR);
             }
-            comPortPoolInfo.writeTo(comPortPool,engineModelService);
+            comPortPoolInfo.writeTo(comPortPool, protocolPluggableService);
             comPortPoolInfo.handlePools(comPortPool, engineModelService);
             comPortPool.save();
             return ComPortPoolInfoFactory.asInfo(comPortPool);
@@ -103,7 +105,7 @@ public class ComPortPoolResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ComPortPoolInfo createComPortPool(ComPortPoolInfo<ComPortPool> comPortPoolInfo) {
         try {
-            ComPortPool comPortPool = comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService), engineModelService);
+            ComPortPool comPortPool = comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService), protocolPluggableService);
             comPortPool.save();
             comPortPoolInfo.handlePools(comPortPool, engineModelService);
             return ComPortPoolInfoFactory.asInfo(comPortPool);

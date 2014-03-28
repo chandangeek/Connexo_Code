@@ -7,6 +7,8 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortPoolInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
@@ -44,10 +46,12 @@ import static org.mockito.Mockito.when;
  */
 public class ComPortPoolResourceTest extends JerseyTest {
     private static EngineModelService engineModelService;
+    private static ProtocolPluggableService protocolPluggableService;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         engineModelService = mock(EngineModelService.class);
+        protocolPluggableService = mock(ProtocolPluggableService.class);
     }
 
     @Override
@@ -67,6 +71,7 @@ public class ComPortPoolResourceTest extends JerseyTest {
             @Override
             protected void configure() {
                 bind(engineModelService).to(EngineModelService.class);
+                bind(protocolPluggableService).to(ProtocolPluggableService.class);
             }
         });
         return resourceConfig;
@@ -94,12 +99,14 @@ public class ComPortPoolResourceTest extends JerseyTest {
     @Test
     public void testGetExistingInboundComServerJSStyle() {
         InboundComPortPool mock = mock(InboundComPortPool.class);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(deviceProtocolPluggableClass.getId()).thenReturn(6L);
         List<ComPortPool> comPortPools = new ArrayList<>();
         comPortPools.add(mock);
         when(engineModelService.findAllComPortPools()).thenReturn(comPortPools);
         when(mock.getName()).thenReturn("Test");
         when(mock.isActive()).thenReturn(false);
-        when(mock.getDiscoveryProtocolPluggableClassId()).thenReturn(6L);
+        when(mock.getDiscoveryProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         when(mock.getId()).thenReturn(1L);
         when(mock.getComPortType()).thenReturn(ComPortType.TCP);
 

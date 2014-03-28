@@ -4,6 +4,7 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,8 +34,8 @@ public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool
     }
 
     @Override
-    protected OutboundComPortPool writeTo(OutboundComPortPool source, EngineModelService engineModelService) {
-        super.writeTo(source, engineModelService);
+    protected OutboundComPortPool writeTo(OutboundComPortPool source, ProtocolPluggableService protocolPluggableService) {
+        super.writeTo(source, protocolPluggableService);
         if (this.taskExecutionTimeout!=null) {
             source.setTaskExecutionTimeout(this.taskExecutionTimeout.asTimeDuration());
         }
