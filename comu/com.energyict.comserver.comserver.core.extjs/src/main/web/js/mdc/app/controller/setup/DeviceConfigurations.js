@@ -164,6 +164,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
     activateDeviceConfiguration: function(deviceConfigurationToActivateDeactivate){
         var me=this;
+        if(deviceConfigurationToActivateDeactivate.hasOwnProperty('action')){
+            deviceConfigurationToActivateDeactivate = this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0];
+        }
         if(deviceConfigurationToActivateDeactivate.get('active')===true){
             deviceConfigurationToActivateDeactivate.set('active',false);
         } else {
