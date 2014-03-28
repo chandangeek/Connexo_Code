@@ -11,7 +11,8 @@ Ext.define('Isu.controller.IssueCreationRules', {
     views: [
         'administration.datacollection.issuecreationrules.Overview',
         'ext.button.GridAction',
-        'administration.datacollection.issuecreationrules.ActionMenu'
+        'administration.datacollection.issuecreationrules.ActionMenu',
+        'administration.datacollection.issuecreationrules.DeleteMessageBox'
     ],
 
     mixins: {
@@ -38,7 +39,8 @@ Ext.define('Isu.controller.IssueCreationRules', {
                 click: this.showItemAction
             },
             'creation-rule-action-menu': {
-                beforehide: this.hideItemAction
+                beforehide: this.hideItemAction,
+                click: this.chooseAction
             }
         });
 
@@ -82,5 +84,23 @@ Ext.define('Isu.controller.IssueCreationRules', {
             record = grid.getRecord(item);
 
         grid.fireEvent('itemclick', grid, record, item, index);
+    },
+
+    chooseAction: function(menu, item) {
+        var action = item.action;
+
+        switch (action) {
+            case 'delete':
+                this.deleteRule(menu);
+                break;
+            case 'edit':
+                window.location.href = '#/issue-administration/datacollection/issuecreationrules/' + menu.issueId + '/edit';
+                break;
+        }
+    },
+
+    deleteRule: function(menu) {
+        var dialog = Ext.widget('delete-message-box');
+        dialog.show(menu);
     }
 });

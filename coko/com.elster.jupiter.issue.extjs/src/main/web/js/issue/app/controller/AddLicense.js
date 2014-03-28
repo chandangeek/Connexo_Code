@@ -6,13 +6,23 @@ Ext.define('Isu.controller.AddLicense', {
     ],
 
     views: [
-        'administration.datacollection.licensing.addlicense.Overview'
+        'administration.datacollection.licensing.addlicense.Overview',
+        'administration.datacollection.licensing.Overview',
+        'administration.datacollection.licensing.Details'
     ],
 
     refs: [
         {
             ref: 'addPanel',
             selector: 'add-license-overview'
+        },
+        {
+            ref: 'listPanel',
+            selector: 'licensing-list'
+        },
+        {
+            ref: 'detailsPanel',
+            selector: 'licensing-details'
         }
     ],
 
@@ -57,15 +67,21 @@ Ext.define('Isu.controller.AddLicense', {
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
-    onChange: function () {
-        var addView = Ext.ComponentQuery.query('add-license-overview')[0],
+    onChange: function (fileField, value) {
+        var addView = this.getAddPanel(),
             addButton = addView.down('button[name=add]');
-        addButton.enable();
+        if (value !== "") {
+            addButton.enable();
+        } else {
+            addButton.disable();
+        }
     },
 
-    onSubmit: function() {
+    onSubmit: function () {
         var self = this,
-            form = self.getAddPanel().down('form').getForm();
+            form = self.getAddPanel().down('form').getForm(),
+            listPanel = self.getListPanel(),
+            detailsPanel = self.getDetailsPanel();
         if (form.isValid()) {
             form.submit({
                 url: '/api/sam/license/upload',
@@ -77,7 +93,7 @@ Ext.define('Isu.controller.AddLicense', {
                         style: 'msgHeaderStyle'
                     };
                     if (Ext.isEmpty(result.failure)) {
-                        window.location.href = '#/administration/datacollection/licensing';
+                        window.location.href = '#/issue-administration/datacollection/licensing';
                         header.text = 'License successfully uploaded';
                         self.getApplication().fireEvent('isushowmsg', {
                             type: 'notify',
@@ -103,7 +119,7 @@ Ext.define('Isu.controller.AddLicense', {
                                     text: 'Cancel',
                                     cls: 'isu-btn-link',
                                     hrefTarget: '',
-                                    href: '#/administration/datacollection/licensing'
+                                    href: '#/issue-administration/datacollection/licensing'
                                 }
                             ]
                         });

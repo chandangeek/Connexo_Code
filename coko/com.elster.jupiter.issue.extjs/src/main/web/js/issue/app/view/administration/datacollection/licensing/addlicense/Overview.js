@@ -28,6 +28,7 @@ Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview
                     items: [
                         {
                             xtype: 'filefield',
+                            name: 'uploadField',
                             fieldLabel: 'License file',
                             emptyText: 'Choose license file *.lic',
                             text: 'Browse...',
