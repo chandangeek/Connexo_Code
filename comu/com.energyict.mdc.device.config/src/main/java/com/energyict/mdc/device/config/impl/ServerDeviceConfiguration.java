@@ -41,4 +41,9 @@ public interface ServerDeviceConfiguration extends DeviceConfiguration {
      */
     public void validateUpdateRegisterMapping(RegisterMapping registerMapping);
 
+    /**
+     * Prepares the device config for removal: i.e. clean all references to child records
+     */
+    public void prepareDelete();
+
 }

@@ -473,9 +473,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void removeConfiguration(DeviceConfiguration deviceConfigurationToDelete) {
         Iterator<DeviceConfiguration> iterator = this.deviceConfigurations.iterator();
         while (iterator.hasNext()) {
-            DeviceConfiguration configuration = iterator.next();
+            ServerDeviceConfiguration configuration = (ServerDeviceConfiguration) iterator.next();
             if (configuration.getId()==deviceConfigurationToDelete.getId()) {
-                ((ServerDeviceConfiguration)configuration).notifyDelete();
+                configuration.notifyDelete();
+                configuration.prepareDelete();
                 iterator.remove();
             }
         }
