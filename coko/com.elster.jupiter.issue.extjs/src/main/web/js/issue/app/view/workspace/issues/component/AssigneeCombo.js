@@ -52,6 +52,13 @@ Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
                 }
             }
         },
+        change: {
+          fn: function(combo, newValue){
+              if (!newValue){
+                  combo.reset();
+              }
+          }
+        },
         beforequery: {
             fn: function(queryPlan) {
                 var store = queryPlan.combo.store;
