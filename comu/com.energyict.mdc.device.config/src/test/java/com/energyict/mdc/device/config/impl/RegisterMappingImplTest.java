@@ -134,6 +134,20 @@ public class RegisterMappingImplTest extends PersistenceTest {
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REGISTER_MAPPING_DUPLICATE_READING_TYPE + "}")
+    public void testCreateWithDuplicateReadingType() {
+        this.setupProductSpecsInExistingTransaction();
+
+        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("hello world", obisCode1,  unit1, readingType1, 1);
+        registerMapping.save();
+        RegisterMapping registerMapping2 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("hello again", obisCode1,  unit1, readingType1, 2);
+        registerMapping2.save();
+
+        // Asserts: see ExpectedConstraintViolation rule
+    }
+
+    @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY + "}")
     public void testCreateWithoutObisCode() {
         String registerMappingName = "testCreateWithoutObisCode";
