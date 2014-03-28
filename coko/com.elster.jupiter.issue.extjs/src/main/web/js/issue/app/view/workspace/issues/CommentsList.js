@@ -15,6 +15,8 @@ Ext.define('Isu.view.workspace.issues.CommentsList', {
         me.bindStore(me.store || 'ext-empty-store', true);
 
         this.callParent(arguments);
+
+        me.store.on('add', me.onLoad, me);
     },
 
     beforeRender: function () {
@@ -29,7 +31,7 @@ Ext.define('Isu.view.workspace.issues.CommentsList', {
 
         me.removeAll();
 
-        if (!me.store.getTotalCount()) {
+        if (!me.store.getCount()) {
             me.add({
                 html: '<h3>There are no comments yet on this issue</h3>',
                 border: false

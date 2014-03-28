@@ -15,6 +15,7 @@ Ext.define('Isu.Application', {
         'Isu.controller.MessageWindow',
         'Isu.controller.IssueAssignmentRules',
         'Isu.controller.IssueCreationRules',
+        'Isu.controller.IssueCreationRulesEdit',
         'Isu.controller.Licensing',
         'Isu.controller.AddLicense',
         'Isu.controller.history.Workspace',

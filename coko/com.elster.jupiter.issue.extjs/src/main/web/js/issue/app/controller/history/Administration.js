@@ -27,6 +27,9 @@ Ext.define('Isu.controller.history.Administration', {
         crossroads.addRoute('issue-administration/datacollection/issuecreationrules',function(){
             me.getController('Isu.controller.IssueCreationRules').showOverview();
         });
+        crossroads.addRoute('issue-administration/datacollection/issuecreationrules/{id}/edit',function(id){
+            me.getController('Isu.controller.IssueCreationRulesEdit').showOverview(id);
+        });
 
         this.callParent(arguments);
     },
