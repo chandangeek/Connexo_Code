@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
@@ -14,14 +13,12 @@ import com.energyict.mdc.device.data.PartialConnectionTaskFactory;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.device.data.exceptions.MessageSeedsTest;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import org.junit.*;
-import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +36,7 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-11 (16:37)
  */
-public class ConnectionInitiationTaskImplTest extends ConnectionTaskImplIT {
+public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
 
     @Before
     public void useNoParamsForAllOutboundConnectionTasks() {
@@ -402,8 +399,8 @@ public class ConnectionInitiationTaskImplTest extends ConnectionTaskImplIT {
     @Test(expected = ConnectionTaskIsAlreadyObsoleteException.class)
     @Transactional
     public void testMakeObsoleteTwice() {
-        when(this.partialOutboundConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
-        when(this.partialOutboundConnectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
+        when(this.partialScheduledConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
+        when(this.partialScheduledConnectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
         ConnectionInitiationTaskImpl connectionInitiationTask = (ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
         connectionInitiationTask.save();
 
@@ -416,8 +413,8 @@ public class ConnectionInitiationTaskImplTest extends ConnectionTaskImplIT {
     }
 
     private ConnectionInitiationTask createWithAllPropertiesAndNoViolations(String name) {
-        when(this.partialOutboundConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
-        when(this.partialOutboundConnectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
+        when(this.partialScheduledConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
+        when(this.partialScheduledConnectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
         when(this.partialConnectionInitiationTask.getName()).thenReturn(name);
         ConnectionInitiationTask connectionInitiationTask = inMemoryPersistence.getDeviceDataService()
                 .newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
@@ -427,8 +424,8 @@ public class ConnectionInitiationTaskImplTest extends ConnectionTaskImplIT {
     }
 
     private ConnectionInitiationTask createWithoutPropertiesAndNoViolations() {
-        when(this.partialOutboundConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
-        when(this.partialOutboundConnectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
+        when(this.partialScheduledConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
+        when(this.partialScheduledConnectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
         ConnectionInitiationTask connectionInitiationTask = inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
         connectionInitiationTask.save();
         return connectionInitiationTask;

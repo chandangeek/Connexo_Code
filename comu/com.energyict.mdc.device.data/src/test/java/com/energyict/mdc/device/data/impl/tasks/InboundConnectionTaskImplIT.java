@@ -134,8 +134,8 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_INBOUND_CONNECTION_TASK1_ID)).thenReturn(this.partialInboundConnectionTask);
         when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_INBOUND_CONNECTION_TASK2_ID)).thenReturn(this.partialInboundConnectionTask2);
         when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_INBOUND_CONNECTION_TASK3_ID)).thenReturn(partialInboundConnectionTask);
-        when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_OUTBOUND_CONNECTION_TASK1_ID)).thenReturn(this.partialOutboundConnectionTask);
-        when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_OUTBOUND_CONNECTION_TASK2_ID)).thenReturn(this.partialOutboundConnectionTask2);
+        when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_SCHEDULED_CONNECTION_TASK1_ID)).thenReturn(this.partialScheduledConnectionTask);
+        when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_SCHEDULED_CONNECTION_TASK2_ID)).thenReturn(this.partialScheduledConnectionTask2);
         List<PartialConnectionTaskFactory> partialConnectionTaskFactories = Arrays.asList(partialConnectionTaskFactory);
         when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(PartialConnectionTaskFactory.class)).thenReturn(partialConnectionTaskFactories);
 
