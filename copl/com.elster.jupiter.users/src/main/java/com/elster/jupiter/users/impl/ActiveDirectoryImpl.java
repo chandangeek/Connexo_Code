@@ -42,7 +42,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             return ((UserImpl) user).doGetGroups();
         }
 
-        Hashtable<String, Object> env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, getUrl());
         env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
