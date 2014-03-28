@@ -66,7 +66,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
                 }
             }
         } catch (NamingException e) {
-            throw new RuntimeException(e);
+            return ((UserImpl) user).doGetGroups();
         }
         return groupList;
     }

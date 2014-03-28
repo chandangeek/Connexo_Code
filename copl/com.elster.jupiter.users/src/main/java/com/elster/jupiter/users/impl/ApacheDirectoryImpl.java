@@ -58,7 +58,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                 groupList.add(group);
             }
         } catch (NamingException e) {
-            throw new RuntimeException(e);
+            return ((UserImpl) user).doGetGroups();
         }
         return groupList;
     }
