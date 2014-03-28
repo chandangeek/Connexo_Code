@@ -382,13 +382,12 @@ Ext.define('Isu.controller.Issues', {
         } else {
             this.groupStore.removeAll();
             grid.hide();
-            this.store.load();
             groupItemsShown.hide();
             this.groupStore.un('load', XtoYof);
             this.getIssueNoGroup().hide();
             fullList.show();
             this.store.setGroup(undefined);
-            this.store.load();
+            this.store.loadPage(1);
         }
     },
 
