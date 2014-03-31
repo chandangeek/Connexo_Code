@@ -1,6 +1,5 @@
 package com.elster.jupiter.users.rest;
 
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -17,24 +16,24 @@ public class UserInfos {
     public UserInfos() {
     }
 
-    public UserInfos(User user, TransactionService transactionService) {
-        add(user, transactionService);
+    public UserInfos(User user) {
+        add(user);
     }
 
-    public UserInfos(Iterable<? extends User> users, TransactionService transactionService) {
-        addAll(users, transactionService);
+    public UserInfos(Iterable<? extends User> users) {
+        addAll(users);
     }
 
-    public UserInfo add(User user, TransactionService transactionService) {
-        UserInfo result = new UserInfo(user, transactionService);
+    public UserInfo add(User user) {
+        UserInfo result = new UserInfo(user);
         users.add(result);
         total++;
         return result;
     }
 
-    void addAll(Iterable<? extends User> users, TransactionService transactionService) {
+    void addAll(Iterable<? extends User> users) {
         for (User each : users) {
-            add(each, transactionService);
+            add(each);
         }
     }
 

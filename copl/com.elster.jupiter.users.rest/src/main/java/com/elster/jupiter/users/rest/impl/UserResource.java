@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -48,9 +49,13 @@ public class UserResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public UserInfos createUser(UserInfo info) {
-        UserInfos result = new UserInfos();
-        result.add(transactionService.execute(new CreateUserTransaction(info, userService)), transactionService);
-        return result;
+        User user = transactionService.execute(new CreateUserTransaction(info, userService));
+        try (TransactionContext context = transactionService.getContext()) {
+            UserInfos result = new UserInfos();
+            result.add(user);
+            context.commit();
+            return result;
+        }
     }
 
     @DELETE
@@ -66,21 +71,33 @@ public class UserResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     public UserInfos getUser(@PathParam("id") long id) {
-        Optional<User> party = userService.getUser(id);
-        if (party.isPresent()) {
-            return new UserInfos(party.get(), transactionService);
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<User> party = userService.getUser(id);
+            if (!party.isPresent()) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
+            try {
+                return new UserInfos(party.get());
+            } finally {
+                context.commit();
+            }
         }
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public UserInfos getUsers(@Context UriInfo uriInfo) {
-        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<User> list = getUserRestQuery().select(queryParameters);
-        UserInfos infos = new UserInfos(queryParameters.clipToLimit(list), transactionService);
-        infos.total = queryParameters.determineTotal(list.size());
-        return infos;
+        try (TransactionContext context = transactionService.getContext()) {
+            QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+            List<User> list = getUserRestQuery().select(queryParameters);
+            UserInfos infos = new UserInfos(queryParameters.clipToLimit(list));
+            infos.total = queryParameters.determineTotal(list.size());
+            try {
+                return infos;
+            } finally {
+                context.commit();
+            }
+        }
     }
 
     @PUT
