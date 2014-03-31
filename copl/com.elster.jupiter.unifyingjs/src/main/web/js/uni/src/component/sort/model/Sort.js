@@ -49,7 +49,7 @@ Ext.define('Uni.component.sort.model.Sort', {
         DESC: 'desc'
     },
 
-    default: 'ASC',
+    defaultOrder: 'ASC',
 
     /**
      * returned object key property
@@ -72,7 +72,7 @@ Ext.define('Uni.component.sort.model.Sort', {
      * @param order sorting order
      */
     addSortParam: function(key, order) {
-        order = order || this.statics()[this.default];
+        order = order || this.statics()[this.defaultOrder];
 
         var field = this.fields.getByKey(key);
         if (field) {
