@@ -22,6 +22,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
     },
 
     initComponent: function () {
+        var me = this;
         this.content = [
             {
                 xtype: 'container',
@@ -36,12 +37,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         xtype: 'breadcrumbTrail',
                         region: 'north',
                         padding: 6
-                    },
-
-                    {
-                        xtype: 'component',
-                        html: Uni.I18n.translate('registerConfig.deviceConfiguration', 'MDC', 'Device configuration'),
-                        margins: '10 10 0 20'
                     },
                     {
                         xtype: 'component',
@@ -74,15 +69,18 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         queryMode: 'local',
                                         displayField: 'name',
                                         valueField: 'id',
+                                        emptyText: Uni.I18n.translate('registerConfig.selectRegisterType', 'MDC', 'Select register type'),
                                         required: true,
                                         forceSelection: true,
-                                        editable: false,
+                                        typeAhead: true,
                                         width: 650
                                     },
                                     {
                                         xtype: 'fieldcontainer',
                                         columnWidth: 0.5,
                                         fieldLabel: Uni.I18n.translate('registerConfig.readingType', 'MDC', 'Reading type'),
+                                        disabled: true,
+                                        itemId: 'readingTypeContainer',
                                         // labelAlign: 'right',
                                         // labelWidth: 150,
                                         layout: {
@@ -94,24 +92,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                                 xtype: 'displayfield',
                                                 name: 'mrid',
                                                 itemId: 'create_mrid'
-                                            },
-                                            {
-                                                xtype: 'component',
-                                                html: '&nbsp;&nbsp;'
-                                            },
-                                            {
-                                                xtype: 'button',
-                                                icon: '../mdc/resources/images/information.png',
-                                                tooltip: 'Reading type info',
-                                                cls: 'uni-btn-transparent',
-                                                /* handler: function (item, test) {
-                                                 var record = me.down('#registerMappingPreviewForm').form.getRecord();
-                                                 this.fireEvent('showReadingTypeInfo', record);
-                                                 },*/
-                                                itemId: 'readingTypeBtn',
-                                                action: 'showReadingTypeInfo'
                                             }
-
                                         ]
                                     },
                                     {
@@ -135,7 +116,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         maxLength: 80,
                                         enforceMaxLength: true,
                                         width: 450,
-                                        hidden:true
+                                        hidden: true
                                     },
                                     {
                                         xtype: 'numberfield',
@@ -163,7 +144,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         xtype: 'numberfield',
                                         name: 'overflowValue',
                                         msgTarget: 'under',
-                                        required: true,
                                         fieldLabel: Uni.I18n.translate('registerConfig.overflowValue', 'MDC', 'Overflow value'),
                                         itemId: 'editOverflowValueField',
                                         width: 450,
@@ -180,9 +160,9 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         },
                                         items: [
                                             {
-                                                html: Uni.I18n.translate('registerConfig.overflowValueInfo', 'MDC', 'Maximum overflow value is 100 000 000 with 1 number of digit'),
-                                                xtype: 'component'
-
+                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo', 8 , 'MDC', 'The maximum overflow value is 1000000000 with 8 number of digits', ['1000000000', '8']) + '</i></span>',
+                                                xtype: 'component',
+                                                itemId: 'overflowValueInfo'
                                             }
                                         ]
                                     },
@@ -190,7 +170,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         xtype: 'numberfield',
                                         name: 'multiplier',
                                         msgTarget: 'under',
-                                        required: true,
                                         fieldLabel: Uni.I18n.translate('registerConfig.multiplier', 'MDC', 'Multiplier'),
                                         itemId: 'editMultiplierField',
                                         width: 450,
@@ -206,7 +185,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         },
                                         items: [
                                             {
-                                                html: Uni.I18n.translate('registerConfig.multiplierInfo', 'MDC', 'Multiplies the collected value.  The multiplied value will be stored in the register'),
+                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.multiplierInfo', 'MDC', 'Multiplies the collected value.  The multiplied value will be stored in the register.') + '</i></span>',
                                                 xtype: 'component'
 
                                             }

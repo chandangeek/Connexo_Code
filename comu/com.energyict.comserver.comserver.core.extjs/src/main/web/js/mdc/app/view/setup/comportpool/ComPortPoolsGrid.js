@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
                 items: [{
                     icon: '../mdc/resources/images/gear-16x16.png',
                     tooltip: 'View',
-                    handler: function(grid, rowIndex, colIndex,item,e) {
+                    handler: function(grid, rowIndex, colIndex,item,e, record, row) {
                         var menu = Ext.widget('menu', {
                             items: [{
                                 xtype: 'menuitem',
@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
                                     click: {
                                         element: 'el',
                                         fn: function(){
-                                            this.fireEvent('edit',grid,grid.getSelectionModel().getSelection());
+                                            this.fireEvent('edit',record);
                                         },
                                         scope: this
                                     }
@@ -68,7 +68,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
                                         element: 'el',
                                         fn: function(){
                                             console.log('deleteItem');
-                                            this.fireEvent('deleteItem',grid,grid.getSelectionModel().getSelection());
+                                            this.fireEvent('deleteItem',record);
                                         },
                                         scope: this
                                     }

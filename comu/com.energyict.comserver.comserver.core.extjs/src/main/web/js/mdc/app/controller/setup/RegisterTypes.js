@@ -40,6 +40,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     ],
 
     init: function () {
+        this.getReadingTypesStore().on('load', this.onStoreLoad, this);
+
         this.control({
             '#registertypegrid': {
                 selectionchange: this.previewRegisterType
@@ -82,8 +84,14 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             '#registerTypeEditForm textfield[cls=obisCode]': {
                 blur: this.getReadingType
             }
-
         });
+    },
+
+    onStoreLoad: function () {
+        var widget = this.getRegisterTypeEditForm();
+        if (this.getReadingTypesStore().getCount() === 1) {
+            widget.down('#editMrIdField').setValue(this.getReadingTypesStore().first().get('mrid'));
+        }
     },
 
     showEditView: function (id) {
@@ -121,12 +129,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         location.href = '#setup/registertypes/create';
     },
 
-    editRegisterTypeHistory: function () {
-        location.href = '#setup/registertypes/' + this.getRegisterTypeGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
+    editRegisterTypeHistory: function (item) {
+        location.href = '#setup/registertypes/' + item.get('id') + '/edit';
     },
 
-    deleteRegisterType: function () {
-        var registerTypeToDelete = this.getRegisterTypeGrid().getSelectionModel().getSelection()[0];
+    deleteRegisterType: function (registerTypeToDelete) {
         var me = this;
         Ext.MessageBox.show({
             msg: Uni.I18n.translate('registerType.deleteRegisterType', 'MDC', 'The register type will no longer be available.'),
@@ -353,15 +360,10 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             text: Uni.I18n.translate('registertype.registerTypes', 'MDC', 'Register types'),
             href: 'registertypes'
         });
-        /* var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-         text: registerTypeName,
-         href: registerTypeId
-         });*/
         var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('registertype.edit', 'MDC', 'Edit register type'),
             href: 'edit'
         });
-        //breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3).setChild(breadcrumb4);
         breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb4);
         this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
     },
@@ -404,23 +406,14 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var mrId = widget.down('#editMrIdField').getValue();
 
         if (obisCode !== '' && measurementUnit !== null && mrId === '') {
-
-            var readingTypeStore = Ext.data.StoreManager.lookup('ReadingTypes');
-            readingTypeStore.filter([
+            this.getReadingTypesStore().clearFilter();
+            this.getReadingTypesStore().filter([
                 {property: 'obisCode', value: obisCode},
                 {property: 'unit', value: measurementUnit}
             ]);
-            readingTypeStore.load({
-                scope: this,
-                callback: function () {
-                    widget.down('#editMrIdField').setDisabled(false);
-                    widget.down('#editMrIdField').setReadOnly(false);
-                    if (readingTypeStore.getCount() !== 0) {
-                        widget.down('#editMrIdField').setValue(readingTypeStore.first().get('mrid'));
-                    }
-                }
-            });
         }
+        widget.down('#editMrIdField').setDisabled(false);
+        widget.down('#editMrIdField').setReadOnly(false);
 
     }
 

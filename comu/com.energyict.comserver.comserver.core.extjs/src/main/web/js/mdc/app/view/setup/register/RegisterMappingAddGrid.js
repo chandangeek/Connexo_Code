@@ -11,19 +11,20 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.AvailableRegisterTypes'
-        //       'Ext.grid.plugin.BufferedRenderer'
     ],
     nbrOfSelectedItems: 0,
     listeners: {
         selectionchange: function (view, selections, options) {
             this.nbrOfSelectedItems = selections.length;
-            this.down('#pagingt').displayMsg = this.nbrOfSelectedItems + ' ' + Uni.I18n.translate('registerMappingsAdd.pagingtoolbartop.displayMsg', 'MDC', 'register types selected');
+            this.down('#pagingt').displayMsg = this.nbrOfSelectedItems + ' ' + Uni.I18n.translatePlural('registerMappingsAdd.pagingtoolbartop.displayMsg', this.nbrOfSelectedItems, 'MDC', 'register types selected');
             this.down('#pagingt').onLoad();
         }
     },
     store: 'AvailableRegisterTypes',
-    //   plugins: 'bufferedrenderer',
     padding: '10 10 10 10',
+    selModel: {
+            checkOnly: true
+        },
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -32,6 +33,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 dataIndex: 'name',
                 flex: 3,
                 sortable: false,
+                fixed: true,
                 hideable: false
             },
             {
@@ -47,14 +49,15 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                     {
                         icon: '../mdc/resources/images/information.png',
                         tooltip: Uni.I18n.translate('readingType.tooltip','MDC','Reading type info'),
-                        handler: function (grid, rowIndex, colIndex, item, e) {
-                            var record = grid.getStore().getAt(rowIndex);
+                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
+                            //var record = grid.getStore().getAt(rowIndex);
                             this.fireEvent('showReadingTypeInfo', record);
                         }
                     }
                 ],
                 tdCls: 'view',
                 sortable: false,
+                fixed: true,
                 hideable: false
             },
             {
@@ -62,6 +65,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 dataIndex: 'obisCode',
                 flex: 1,
                 sortable: false,
+                fixed: true,
                 hideable: false
             },
             {
@@ -73,6 +77,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 },
                 flex: 1,
                 sortable: false,
+                fixed: true,
                 hideable: false
             }
         ];
@@ -82,19 +87,15 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 store: this.store,
                 dock: 'top',
                 itemId: 'pagingt',
-                displayMsg: this.nbrOfSelectedItems + ' ' + Uni.I18n.translate('registerMappingsAdd.pagingtoolbartop.displayMsg', 'MDC', ' register types selected'),
+                displayMsg: this.nbrOfSelectedItems + ' ' + Uni.I18n.translatePlural('registerMappingsAdd.pagingtoolbartop.displayMsg', this.nbrOfSelectedItems, 'MDC', ' register types selected'),
                 items: [
                     {
                         xtype: 'component',
                         flex: 1
                     },
                     {
-                        text: 'Manage register types',
-                        itemId: 'manageRegisterMappingBtn',
-                        xtype: 'button',
-                        href: '#/setup/registertypes',
-                        hrefTarget: '_blank'
-                        //action: 'manageRegisters'
+                        xtype: 'component',
+                        html:'<a href = "#/setup/registertypes" target = "_blank">' + Uni.I18n.translate('registerMappings.manageRegisterTypes', 'MDC', 'Manage register types') + '</a>'
                     }
                 ]
             }

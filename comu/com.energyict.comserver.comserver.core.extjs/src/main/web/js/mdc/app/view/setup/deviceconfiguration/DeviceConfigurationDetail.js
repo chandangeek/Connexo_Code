@@ -5,8 +5,11 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
     autoScroll: true,
     requires: [
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid',
-        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview'
+        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview',
+        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu'
     ],
+    deviceTypeId: null,
+    deviceConfigurationId: null,
 
     content: [
         {
@@ -18,11 +21,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
             },
 
             items: [
-                {
-                    xtype: 'breadcrumbTrail',
-                    region: 'north',
-                    padding: 6
-                },
                 {
                     xtype: 'form',
                     border: false,
@@ -49,10 +47,23 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                             menu: {
                                 items: [
                                     {
+                                        text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+                                        itemId: 'activateDeactivateDeviceConfiguration',
+                                        action: 'activateDeactivateDeviceConfiguration'
+
+                                    },
+                                    {
+                                        xtype: 'menuseparator'
+                                    },
+
+                                    {
                                         text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                         itemId: 'editDeviceConfiguration',
                                         action: 'editDeviceConfiguration'
 
+                                    },
+                                    {
+                                        xtype: 'menuseparator'
                                     },
                                     {
                                         text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
@@ -60,12 +71,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                         action: 'deleteDeviceConfiguration'
 
                                     },
-                                    {
-                                        text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
-                                        itemId: 'activateDeactivateDeviceConfiguration',
-                                        action: 'activateDeactivateDeviceConfiguration'
 
-                                    }
                                 ]
                             }
                         }
@@ -136,7 +142,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                         },
                                         {
                                             xtype: 'displayfield',
-                                            name: 'isGateway',
+                                            name: 'canBeGateway',
                                             fieldLabel: Uni.I18n.translate('deviceconfiguration.isGateway', 'MDC', 'Can act as gateway'),
                                             itemId: 'deviceConfigurationIsGateway',
                                             renderer: function (item) {
@@ -229,6 +235,13 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
 
 
     initComponent: function () {
+        this.side = [{
+            xtype: 'deviceConfigurationMenu',
+            itemId: 'stepsMenu',
+            deviceTypeId: this.deviceTypeId,
+            deviceConfigurationId: this.deviceConfigurationId,
+            toggle: 0
+        }];
         this.callParent(arguments);
     }
 })

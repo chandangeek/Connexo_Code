@@ -5,13 +5,11 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
     autoScroll: true,
     requires: [
         'Mdc.view.setup.devicetype.DeviceTypesGrid',
-        'Mdc.view.setup.devicetype.DeviceTypePreview'
+        'Mdc.view.setup.devicetype.DeviceTypePreview',
+        'Mdc.view.setup.devicetype.DeviceTypeMenu'
     ],
     cls: 'content-container',
-
-    side: [
-
-    ],
+    deviceTypeId: null,
 
     content: [
         {
@@ -114,9 +112,9 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                         },
                                         {
                                             xtype: 'displayfield',
-                                            name: 'canBeDirectlyAddressable',
+                                            name: 'canBeDirectlyAddressed',
                                             fieldLabel: Uni.I18n.translate('devicetype.canBeDirectlyAddressable', 'MDC', 'Device can be directly addressable'),
-                                            renderer: function (item) {
+                                            renderer: function (item) {;
                                                 return item ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
                                             },
                                             readOnly: true
@@ -214,6 +212,12 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
 
 
     initComponent: function () {
+        this.side = [{
+            xtype: 'deviceTypeMenu',
+            itemId: 'stepsMenu',
+            deviceTypeId: this.deviceTypeId,
+            toggle: 0
+        }];
         this.callParent(arguments);
     }
 })

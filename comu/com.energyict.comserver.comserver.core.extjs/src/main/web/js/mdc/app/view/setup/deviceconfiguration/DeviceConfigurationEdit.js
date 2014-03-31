@@ -33,11 +33,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
 
                 items: [
                     {
-                        xtype: 'breadcrumbTrail',
-                        region: 'north',
-                        padding: 6
-                    },
-                    {
                         xtype: 'component',
                         html: '',
                         itemId: 'deviceConfigurationEditCreateTitle',
@@ -93,15 +88,53 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 xtype: 'checkbox',
                                                 inputValue: true,
                                                 uncheckedValue: 'false',
-                                                name: 'isGateway',
-                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.isGateway', 'MDC', 'Can act as gateway')
+                                                name: 'canBeGateway',
+                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.isGateway', 'MDC', 'Can act as gateway'),
+                                                itemId: 'gatewayCheckbox',
+                                                msgTarget: 'under'
+                                            },
+                                            {
+                                                xtype: 'fieldcontainer',
+                                                columnWidth: 0.5,
+                                                fieldLabel: ' ',
+                                                layout: {
+                                                    type: 'vbox'
+                                                },
+                                                hidden: true,
+                                                itemId: 'gatewayMessage',
+                                                items: [
+                                                    {
+                                                        xtype: 'component',
+                                                        cls: 'x-form-display-field',
+                                                        html: '<i>'+Uni.I18n.translate('deviceconfiguration.gatewayMessage', 'MDC', 'The device cannot act as a gateway')+'</i>'
+                                                    }
+                                                ]
                                             },
                                             {
                                                 xtype: 'checkbox',
                                                 inputValue: true,
                                                 uncheckedValue: 'false',
                                                 name: 'isDirectlyAddressable',
-                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.isDirectlyAddressable', 'MDC', 'Directly addressable')
+                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.isDirectlyAddressable', 'MDC', 'Directly addressable'),
+                                                itemId: 'addressableCheckbox',
+                                                msgTarget: 'under'
+                                            },
+                                            {
+                                                xtype: 'fieldcontainer',
+                                                columnWidth: 0.5,
+                                                fieldLabel: ' ',
+                                                layout: {
+                                                    type: 'vbox'
+                                                },
+                                                hidden: true,
+                                                itemId: 'addressableMessage',
+                                                items: [
+                                                    {
+                                                        xtype: 'component',
+                                                        cls: 'x-form-display-field',
+                                                        html: '<i>'+Uni.I18n.translate('deviceconfiguration.directlyAddressableMessage', 'MDC', 'The device cannot be directly addressed')+'</i>'
+                                                    }
+                                                ]
                                             },
                                             {
                                                 xtype: 'fieldcontainer',

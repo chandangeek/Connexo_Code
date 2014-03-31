@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
         var me = this;
         this.columns = [
             {
-                header : Uni.I18n.translate('deviceconfiguration.name', 'MDC', 'Name'),
+                header: Uni.I18n.translate('deviceconfiguration.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 sortable: false,
                 hideable: false,
@@ -29,76 +29,87 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                 flex: 0.4
             },
             {
-                header : Uni.I18n.translate('deviceconfiguration.active', 'MDC', 'Active'),
+                header: Uni.I18n.translate('deviceconfiguration.active', 'MDC', 'Active'),
                 dataIndex: 'active',
                 sortable: false,
                 hideable: false,
-                renderer: function(value,b,record){
-                    return value===true?Uni.I18n.translate('general.active', 'MDC', 'Active'):Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
+                renderer: function (value, b, record) {
+                    return value === true ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                 },
                 fixed: true,
                 flex: 0.4
             },
 
             {
-                xtype:'actioncolumn',
-                tdCls:'view',
-                header : Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                xtype: 'actioncolumn',
+                tdCls: 'view',
+                iconCls: 'uni-centered-icon',
+                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
                 fixed: true,
                 flex: 0.1,
-                items: [{
-                    icon: '../mdc/resources/images/gear-16x16.png',
-                    handler: function(grid, rowIndex, colIndex,item,e) {
-                        grid.getSelectionModel().select(rowIndex);
-                        var menu = Ext.widget('menu', {
-                            items: [{
-                                xtype: 'menuitem',
-                                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                listeners: {
-                                    click: {
-                                        element: 'el',
-                                        fn: function(){
-                                            this.fireEvent('editItem',grid,grid.getSelectionModel().getSelection());
-                                        },
-                                        scope: this
-                                    }
+                items: [
+                    {
+                        icon: '../mdc/resources/images/gear-16x16.png',
+                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
+                            grid.getSelectionModel().select(rowIndex);
+                            var menu = Ext.widget('menu', {
+                                items: [
+                                    {
+                                        xtype: 'menuitem',
+                                        text: record.get('active') === true ? Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate') : Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+                                        listeners: {
+                                            click: {
+                                                element: 'el',
+                                                fn: function () {
+                                                    this.fireEvent('activateItem', record);
+                                                },
+                                                scope: this
+                                            }
 
-                                }
-                            }, {
-                                xtype: 'menuitem',
-                                text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
-                                listeners: {
-                                    click: {
-                                        element: 'el',
-                                        fn: function(){
-                                            this.fireEvent('deleteItem',grid,grid.getSelectionModel().getSelection());
-                                        },
-                                        scope: this
-                                    }
-
-                                }
-                            },
-                                {
-                                    xtype: 'menuitem',
-                                    text: grid.getSelectionModel().getSelection()[0].get('active')===true?Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate'):Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
-                                    listeners: {
-                                        click: {
-                                            element: 'el',
-                                            fn: function(){
-                                                this.fireEvent('activateItem',grid,grid.getSelectionModel().getSelection());
-                                            },
-                                            scope: this
                                         }
+                                    },
+                                    {
+                                        xtype: 'menuseparator'
+                                    },
+                                    {
+                                        xtype: 'menuitem',
+                                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                        listeners: {
+                                            click: {
+                                                element: 'el',
+                                                fn: function () {
+                                                    this.fireEvent('editItem', record);
+                                                },
+                                                scope: this
+                                            }
 
+                                        }
+                                    },
+                                    {
+                                        xtype: 'menuseparator'
+                                    },
+                                    {
+                                        xtype: 'menuitem',
+                                        text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                                        listeners: {
+                                            click: {
+                                                element: 'el',
+                                                fn: function () {
+                                                    this.fireEvent('deleteItem', record);
+                                                },
+                                                scope: this
+                                            }
+
+                                        }
                                     }
-                                }
-                            ]
-                        });
-                        menu.showAt(e.getXY());
+                                ]
+                            });
+                            menu.showAt(e.getXY());
+                        }
                     }
-                }]
+                ]
             }
         ];
 
@@ -124,10 +135,12 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
                 //todo: check if this works
-                params: [{deviceType: this.deviceTypeId}],
+                params: [
+                    {deviceType: this.deviceTypeId}
+                ],
                 dock: 'bottom'
             }
-];
+        ];
 
         this.callParent();
     }

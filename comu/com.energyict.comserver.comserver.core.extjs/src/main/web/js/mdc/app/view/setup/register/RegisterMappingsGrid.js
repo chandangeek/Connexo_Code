@@ -22,6 +22,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 dataIndex: 'name',
                 flex: 3,
                 sortable: false,
+                fixed: true,
                 hideable: false
             },
             {
@@ -36,8 +37,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                     {
                         icon: '../mdc/resources/images/information.png',
                         tooltip: Uni.I18n.translate('readingType.tooltip','MDC','Reading type info'),
-                        handler: function (grid, rowIndex, colIndex, item, e) {
-                            var record = grid.getStore().getAt(rowIndex);
+                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
+                            //var record = grid.getStore().getAt(rowIndex);
                             this.fireEvent('showReadingTypeInfo', record);
                         }
                     }
@@ -45,6 +46,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 flex: 2,
                 tdCls: 'view',
                 sortable: false,
+                fixed: true,
                 hideable: false
             },
             {
@@ -52,18 +54,21 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 dataIndex: 'obisCode',
                 sortable: false,
                 hideable: false,
+                fixed: true,
                 flex: 1
             },
             {
                 xtype: 'actioncolumn',
                 tdCls: 'view',
+                iconCls: 'uni-centered-icon',
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
+                fixed: true,
                 items: [
                     {
                         icon: '../mdc/resources/images/gear-16x16.png',
-                        handler: function (grid, rowIndex, colIndex, item, e) {
+                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             var menu = Ext.widget('menu', {
                                 items: [
                                     {
@@ -73,8 +78,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                                             click: {
                                                 element: 'el',
                                                 fn: function () {
-                                                    console.log('Remove');
-                                                    this.fireEvent('removeItem', grid, grid.getSelectionModel().getSelection(), me.deviceTypeId);
+                                                    this.fireEvent('removeItem', record, me.deviceTypeId);
                                                 },
                                                 scope: this
                                             }

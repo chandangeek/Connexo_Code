@@ -34,7 +34,12 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'deviceConfigurationDetailForm', selector: '#deviceConfigurationDetailForm'},
         {ref: 'deviceConfigurationEditForm', selector: '#deviceConfigurationEditForm'},
         {ref: 'activateDeviceconfigurationMenuItem', selector: '#activateDeviceconfigurationMenuItem'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
+        {ref: 'gatewayCheckbox', selector: '#gatewayCheckbox'},
+        {ref: 'addressableCheckbox', selector: '#addressableCheckbox'},
+        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
+        {ref: 'gatewayMessage', selector: '#gatewayMessage'},
+        {ref: 'addressableMessage', selector: '#addressableMessage'}
+
     ],
 
     init: function () {
@@ -74,6 +79,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             '#createEditButton[action=editDeviceConfiguration]': {
                 click: this.editDeviceConfiguration
             }
+
         });
     },
 
@@ -101,11 +107,11 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             var deviceConfigurationId = deviceConfigurations[0].get('id');
             this.getActivateDeviceconfigurationMenuItem().setText(deviceConfigurations[0].get('active')===true?Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate'):Uni.I18n.translate('general.activate', 'MDC', 'Activate'));
             this.getDeviceConfigurationRegisterLink().getEl().set({href: '#/setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/registerconfigurations'});
-            this.getDeviceConfigurationRegisterLink().getEl().setHTML(deviceConfigurations[0].get('registerCount') + ' ' + Uni.I18n.translate('devicetype.registers', 'MDC', 'register types'));
+            this.getDeviceConfigurationRegisterLink().getEl().setHTML(deviceConfigurations[0].get('registerCount') + ' ' + Uni.I18n.translatePlural('deviceconfig.registerconfigs', deviceConfigurations[0].get('registerCount'), 'MDC', 'register configurations'));
             this.getDeviceConfigurationLogBookLink().getEl().set({href: '#/setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/logbooks'});
-            this.getDeviceConfigurationLogBookLink().getEl().setHTML(deviceConfigurations[0].get('logBookCount') + ' ' + Uni.I18n.translate('devicetype.logbooks', 'MDC', 'logbook types'));
+            this.getDeviceConfigurationLogBookLink().getEl().setHTML(deviceConfigurations[0].get('logBookCount') + ' ' + Uni.I18n.translatePlural('deviceconfiguration.logbooks', deviceConfigurations[0].get('logBookCount'), 'MDC', 'logbooks'));
             this.getDeviceConfigurationLoadProfilesLink().getEl().set({href: '#/setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/loadprofiles'});
-            this.getDeviceConfigurationLoadProfilesLink().getEl().setHTML(deviceConfigurations[0].get('loadProfileCount') + ' ' + Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'load profile types'));
+            this.getDeviceConfigurationLoadProfilesLink().getEl().setHTML(deviceConfigurations[0].get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('deviceconfiguration.loadprofiles', deviceConfigurations[0].get('loadProfileCount'), 'MDC', 'load profiles'));
             this.getDeviceConfigurationPreviewForm().loadRecord(deviceConfigurations[0]);
             this.getDeviceConfigurationPreview().getLayout().setActiveItem(1);
             this.getDeviceConfigurationDetailsLink().update('<a href="#/setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '">' + Uni.I18n.translate('general.viewDetails', 'MDC', 'View details') + '</a>');
@@ -117,7 +123,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
     showDeviceConfigurationDetailsView: function (devicetype,deviceconfiguration) {
         var me = this;
-        var widget = Ext.widget('deviceConfigurationDetail');
+        var widget = Ext.widget('deviceConfigurationDetail',{deviceTypeId: devicetype,deviceConfigurationId: deviceconfiguration});
         var deviceConfigModel = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
         this.deviceTypeId=devicetype
         deviceConfigModel.getProxy().setExtraParam('deviceType', devicetype);
@@ -130,11 +136,11 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                         me.getDeviceConfigurationDetailDeviceTypeLink().getEl().set({href:'#/setup/devicetypes/' + me.deviceTypeId});
                         me.getDeviceConfigurationDetailDeviceTypeLink().getEl().setHTML(deviceType.get('name'));
                         me.getDeviceConfigurationDetailRegisterLink().getEl().set({href: '#/setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId +'/registerconfigurations'});
-                        me.getDeviceConfigurationDetailRegisterLink().getEl().setHTML(deviceConfiguration.get('registerCount') + ' ' + Uni.I18n.translate('devicetype.registers', 'MDC', 'register types'));
+                        me.getDeviceConfigurationDetailRegisterLink().getEl().setHTML(deviceConfiguration.get('registerCount') + ' ' + Uni.I18n.translatePlural('deviceconfig.registerconfigs', deviceConfiguration.get('registerCount'), 'MDC', 'register configurations'));
                         me.getDeviceConfigurationDetailLogBookLink().getEl().set({href: '#/setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/logbooks'});
-                        me.getDeviceConfigurationDetailLogBookLink().getEl().setHTML(deviceConfiguration.get('logBookCount') + ' ' + Uni.I18n.translate('devicetype.logbooks', 'MDC', 'logbook types'));
+                        me.getDeviceConfigurationDetailLogBookLink().getEl().setHTML(deviceConfiguration.get('logBookCount') + ' ' + Uni.I18n.translatePlural('deviceconfiguration.logbooks', deviceConfiguration.get('logBookCount'), 'MDC', 'logbook types'));
                         me.getDeviceConfigurationDetailLoadProfilesLink().getEl().set({href: '#/setup/devicetypes/' + me.deviceTypeId +  '/deviceconfigurations/' + deviceConfigurationId + '/loadprofiles'});
-                        me.getDeviceConfigurationDetailLoadProfilesLink().getEl().setHTML(deviceConfiguration.get('loadProfileCount') + ' ' + Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'load profile types'));
+                        me.getDeviceConfigurationDetailLoadProfilesLink().getEl().setHTML(deviceConfiguration.get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('deviceconfiguration.loadprofiles', deviceConfiguration.get('loadProfileCount'), 'MDC', 'load profile types'));
                         me.getDeviceConfigurationPreviewTitle().update('<h1>' + deviceConfiguration.get('name') + ' - ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
                         widget.down('form').loadRecord(deviceConfiguration);
                     }
@@ -148,18 +154,19 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/create';
     },
 
-    editDeviceConfigurationHistory: function(){
-        location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0].get('id') +'/edit';
-    },
-
-    editDeviceConfigurationFromDetailsHistory: function(){
-        var record = this.getDeviceConfigurationDetailForm().getRecord();
+    editDeviceConfigurationHistory: function(record){
         location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ record.get('id') +'/edit';
     },
 
-    activateDeviceConfiguration: function(){
+    editDeviceConfigurationFromDetailsHistory: function(){
+        this.editDeviceConfigurationHistory(this.getDeviceConfigurationDetailForm().getRecord());
+    },
+
+    activateDeviceConfiguration: function(deviceConfigurationToActivateDeactivate){
         var me=this;
-       var deviceConfigurationToActivateDeactivate = this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0];
+        if(deviceConfigurationToActivateDeactivate.hasOwnProperty('action')){
+            deviceConfigurationToActivateDeactivate = this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0];
+        }
         if(deviceConfigurationToActivateDeactivate.get('active')===true){
             deviceConfigurationToActivateDeactivate.set('active',false);
         } else {
@@ -189,9 +196,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         });
     },
 
-    deleteDeviceConfiguration: function(){
+    deleteDeviceConfiguration: function(deviceConfigurationToDelete){
         var me = this;
-        var deviceConfigurationToDelete = this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0];
         deviceConfigurationToDelete.getProxy().setExtraParam('deviceType',this.deviceTypeId);
         deviceConfigurationToDelete.destroy({
             callback: function () {
@@ -223,9 +229,21 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             success: function(deviceType){
                 me.getApplication().getController('Mdc.controller.Main').showContent(widget);
                 widget.down('#deviceConfigurationEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device configuration'+'</H2>');
+                me.setCheckBoxes(deviceType);
                 me.createBreadCrumb(deviceTypeId,deviceType.get('name'));
             }
         });
+    },
+
+    setCheckBoxes: function(deviceType){
+        if(!deviceType.get('canBeGateway')){
+            this.getGatewayCheckbox().setDisabled(!deviceType.get('canBeGateway'));
+            this.getGatewayMessage().show();
+        }
+        if(!deviceType.get('canBeDirectlyAddressed')){
+            this.getAddressableCheckbox().setDisabled(!deviceType.get('canBeDirectlyAddressed'));
+            this.getAddressableMessageMessage().show();
+        }
     },
 
     showDeviceConfigurationEditView: function(deviceTypeId,deviceConfigurationId){
@@ -247,6 +265,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                         me.editBreadCrumb(deviceTypeId, deviceType.get('name'), deviceConfigurationId, deviceConfiguration.get('name'));
                         widget.down('form').loadRecord(deviceConfiguration);
                         widget.down('#deviceConfigurationEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceConfiguration.get('name')+'"</H2>');
+                        me.setCheckBoxes(deviceType);
                         widget.setLoading(false);
                     }
                 });
@@ -315,7 +334,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
     createBreadCrumb: function (id,name) {
         var breadcrumbChild4 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
+            text: Uni.I18n.translate('deviceconfiguration.createDeviceConfiguration', 'MDC', 'Create device configuration'),
             href: 'create'
         });
         var breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem',{
@@ -369,7 +388,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
     detailBreadCrumb: function (deviceTypeId,deviceTypeName,deviceConfigurationId,deviceConfigurationName) {
         var breadcrumbChild5 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '"' + deviceConfigurationName + '"',
+            text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
             href: 'overview'
         });
         var breadcrumbChild4 = Ext.create('Uni.model.BreadcrumbItem',{

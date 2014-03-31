@@ -23,14 +23,14 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
             tbar: [
                 {
                     xtype: 'component',
-                    html: '<H4>'+Uni.I18n.translate('devicetype.noDeviceTypeSelected', 'MDC', 'No device type selected')+'</H4>'
+                    html: '<H4>' + Uni.I18n.translate('devicetype.noDeviceTypeSelected', 'MDC', 'No device type selected') + '</H4>'
                 }
             ],
             items: [
                 {
                     xtype: 'component',
                     height: '100px',
-                    html: '<H5>'+Uni.I18n.translate('devicetype.selectDeviceType', 'MDC', 'Select a device type to see its details')+'</H5>'
+                    html: '<H5>' + Uni.I18n.translate('devicetype.selectDeviceType', 'MDC', 'Select a device type to see its details') + '</H5>'
                 }
             ]
 
@@ -91,7 +91,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 type: 'vbox',
                                 align: 'stretch'
                             },
-                            defaults:{
+                            defaults: {
                                 labelWidth: 250
                             },
                             items: [
@@ -112,16 +112,16 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                     name: 'canBeGateway',
                                     fieldLabel: Uni.I18n.translate('devicetype.canBeGateway', 'MDC', 'Device can be a gateway'),
                                     renderer: function (item) {
-                                        return item? Uni.I18n.translate('general.yes', 'MDC', 'Yes'): Uni.I18n.translate('general.no', 'MDC', 'No');
+                                        return item ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
                                     },
                                     readOnly: true
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'canBeDirectlyAddressable',
+                                    name: 'canBeDirectlyAddressed',
                                     fieldLabel: Uni.I18n.translate('devicetype.canBeDirectlyAddressable', 'MDC', 'Device can be directly addressable'),
                                     renderer: function (item) {
-                                        return item? Uni.I18n.translate('general.yes', 'MDC', 'Yes'): Uni.I18n.translate('general.no', 'MDC', 'No');
+                                        return item ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
                                     },
                                     readOnly: true
                                 }
@@ -134,7 +134,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 type: 'vbox',
                                 align: 'stretch'
                             },
-                            defaults:{
+                            defaults: {
                                 labelWidth: 250
                             },
                             items: [
@@ -188,7 +188,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 {
                                     xtype: 'fieldcontainer',
                                     columnWidth: 0.5,
-                                    fieldLabel:  Uni.I18n.translate('devicetype.deviceConfigurationCount', 'MDC', 'Device configuration count'),
+                                    fieldLabel: Uni.I18n.translate('devicetype.deviceConfigurationCount', 'MDC', 'Device configuration count'),
                                     layout: {
                                         type: 'vbox'
                                     },
