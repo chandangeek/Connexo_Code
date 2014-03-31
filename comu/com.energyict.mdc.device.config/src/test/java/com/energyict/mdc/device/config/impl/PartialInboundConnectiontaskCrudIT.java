@@ -24,16 +24,21 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.ApplicationContext;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.Translator;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -41,18 +46,39 @@ import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.LicenseServer;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
@@ -72,6 +98,8 @@ import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
 import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -118,9 +146,11 @@ public class PartialInboundConnectiontaskCrudIT {
     private EngineModelService engineModelService;
     private InMemoryBootstrapModule bootstrapModule;
     private InboundDeviceProtocolService inboundDeviceProtocolService;
-    private InboundDeviceProtocolPluggableClass discoveryPluggable;
+    private DeviceProtocolPluggableClass discoveryPluggable;
     @Mock
     private IdBusinessObjectFactory businessObjectFactory;
+    @Mock
+    private License license;
 
     private class MockModule extends AbstractModule {
         @Override
@@ -186,6 +216,8 @@ public class PartialInboundConnectiontaskCrudIT {
 
     @Before
     public void setUp() {
+        LicenseServer.licenseHolder.set(license);
+        when(license.hasAllProtocols()).thenReturn(true);
         when(principal.getName()).thenReturn("test");
         Translator translator = mock(Translator.class);
         when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
@@ -204,19 +236,19 @@ public class PartialInboundConnectiontaskCrudIT {
             connectionTypePluggableClass.save();
             connectionTypePluggableClass2 = protocolPluggableService.newConnectionTypePluggableClass("NoParamsConnectionType2", NoParamsConnectionType.class.getName());
             connectionTypePluggableClass2.save();
-            discoveryPluggable = protocolPluggableService.newInboundDeviceProtocolPluggableClass("MyDiscoveryName", DlmsSerialNumberDiscover.class.getName());
+            discoveryPluggable = protocolPluggableService.newDeviceProtocolPluggableClass("MyDiscoveryName", MyDeviceProtocolPluggableClass.class.getName());
             discoveryPluggable.save();
             inboundComPortPool = engineModelService.newInboundComPortPool();
             inboundComPortPool.setActive(true);
             inboundComPortPool.setComPortType(ComPortType.TCP);
             inboundComPortPool.setName("inboundComPortPool");
-            inboundComPortPool.setDiscoveryProtocolPluggableClassId(discoveryPluggable.getId());
+            inboundComPortPool.setDiscoveryProtocolPluggableClass(discoveryPluggable);
             inboundComPortPool.save();
             inboundComPortPool2 = engineModelService.newInboundComPortPool();
             inboundComPortPool2.setActive(true);
             inboundComPortPool2.setComPortType(ComPortType.TCP);
             inboundComPortPool2.setName("inboundComPortPool2");
-            inboundComPortPool2.setDiscoveryProtocolPluggableClassId(discoveryPluggable.getId());
+            inboundComPortPool2.setDiscoveryProtocolPluggableClass(discoveryPluggable);
             inboundComPortPool2.save();
             context.commit();
         }
@@ -227,6 +259,7 @@ public class PartialInboundConnectiontaskCrudIT {
     @After
     public void tearDown() {
         bootstrapModule.deactivate();
+        LicenseServer.licenseHolder.set(null);
     }
 
     @Test
@@ -429,7 +462,255 @@ public class PartialInboundConnectiontaskCrudIT {
     }
 
 
-    public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
+    public static class MyDeviceProtocolPluggableClass implements DeviceProtocolPluggableClass, DeviceProtocol {
+
+        @Override
+        public void setPropertySpecService(PropertySpecService propertySpecService) {
+        }
+
+        @Override
+        public List<PropertySpec> getSecurityProperties() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public String getSecurityRelationTypeName() {
+            return null;
+        }
+
+        @Override
+        public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public PropertySpec getSecurityPropertySpec(String name) {
+            return null;
+        }
+
+        @Override
+        public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+
+        }
+
+        @Override
+        public void terminate() {
+
+        }
+
+        @Override
+        public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public String getProtocolDescription() {
+            return null;
+        }
+
+        @Override
+        public DeviceFunction getDeviceFunction() {
+            return null;
+        }
+
+        @Override
+        public ManufacturerInformation getManufacturerInformation() {
+            return null;
+        }
+
+        @Override
+        public List<ConnectionType> getSupportedConnectionTypes() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void logOn() {
+
+        }
+
+        @Override
+        public void daisyChainedLogOn() {
+        }
+
+        @Override
+        public void logOff() {
+
+        }
+
+        @Override
+        public void daisyChainedLogOff() {
+        }
+
+        @Override
+        public String getSerialNumber() {
+            return null;
+        }
+
+        @Override
+        public void setTime(Date timeToSet) {
+
+        }
+
+        @Override
+        public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
+            return null;
+        }
+
+        @Override
+        public Date getTime() {
+            return null;
+        }
+
+        @Override
+        public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+
+        }
+
+        @Override
+        public DeviceProtocolCache getDeviceCache() {
+            return null;
+        }
+
+        @Override
+        public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
+            return null;
+        }
+
+        @Override
+        public List<DeviceMessageSpec> getSupportedMessages() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
+            return null;
+        }
+
+        @Override
+        public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
+            return null;
+        }
+
+        @Override
+        public String format(PropertySpec propertySpec, Object messageAttribute) {
+            return null;
+        }
+
+        @Override
+        public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
+        }
+
+        @Override
+        public String getVersion() {
+            return null;
+        }
+
+        @Override
+        public void copyProperties(TypedProperties properties) {
+        }
+
+        @Override
+        public DeviceProtocol getDeviceProtocol() {
+            return this;
+        }
+
+        @Override
+        public TypedProperties getProperties() {
+            return TypedProperties.empty();
+        }
+
+        @Override
+        public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+
+        }
+
+        @Override
+        public CollectedTopology getDeviceTopology() {
+            return null;
+        }
+
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public PropertySpec getPropertySpec(String name) {
+            return null;
+        }
+
+        @Override
+        public long getId() {
+            return 0;
+        }
+
+        @Override
+        public String getName() {
+            return null;
+        }
+
+        @Override
+        public void setName(String name) throws BusinessException {
+
+        }
+
+        @Override
+        public PluggableClassType getPluggableClassType() {
+            return null;
+        }
+
+        @Override
+        public String getJavaClassName() {
+            return null;
+        }
+
+        @Override
+        public Date getModificationDate() {
+            return null;
+        }
+
+        @Override
+        public TypedProperties getProperties(List<PropertySpec> propertySpecs) {
+            return null;
+        }
+
+        @Override
+        public void setProperty(PropertySpec propertySpec, Object value) {
+
+        }
+
+        @Override
+        public void removeProperty(PropertySpec propertySpec) {
+
+        }
+
+        @Override
+        public void save() {
+        }
+
+        @Override
+        public void delete() {
+        }
     }
 
 }
