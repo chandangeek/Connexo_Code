@@ -11,7 +11,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ListFinderTest {
+public class ListPagerTest {
 
     @Test
     public void testListFindPaged() throws Exception {
@@ -44,6 +44,16 @@ public class ListFinderTest {
         when(queryParameters.getLimit()).thenReturn(10);
         List<Integer> found = ListPager.of(ints, new NullComparator()).from(queryParameters).find();
         assertThat(found).containsExactly(1,2,3,4,5,6,7);
+    }
+
+    @Test
+    public void testGetIncompleteSecondPage() throws Exception {
+        List<Integer> ints = Arrays.asList(1,2,3,4,5,6,7,8,9,10,11,12);
+        QueryParameters queryParameters = mock(QueryParameters.class);
+        when(queryParameters.getStart()).thenReturn(10);
+        when(queryParameters.getLimit()).thenReturn(10);
+        List<Integer> found = ListPager.of(ints, new NullComparator()).from(queryParameters).find();
+        assertThat(found).containsExactly(11,12);
     }
 
     @Test
