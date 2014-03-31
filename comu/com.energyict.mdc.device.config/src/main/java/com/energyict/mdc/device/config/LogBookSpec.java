@@ -1,14 +1,14 @@
 package com.energyict.mdc.device.config;
 
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.impl.LogBookSpecImpl;
 
 /**
  * Copyrights EnergyICT
  * Date: 12/11/12
  * Time: 13:19
  */
-public interface LogBookSpec extends HasId{
+public interface LogBookSpec extends HasId {
 
     /**
      * Returns the object's unique id
