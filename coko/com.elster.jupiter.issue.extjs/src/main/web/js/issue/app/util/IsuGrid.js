@@ -148,5 +148,13 @@ Ext.define('Isu.util.IsuGrid', {
                 preloader.destroy();
             }
         });
+    },
+
+    selectFirstGridRow: function (grid) {
+        var index = 0,
+            item = grid.getNode(index),
+            record = grid.getRecord(item);
+
+        grid.fireEvent('itemclick', grid, record, item, index);
     }
 });

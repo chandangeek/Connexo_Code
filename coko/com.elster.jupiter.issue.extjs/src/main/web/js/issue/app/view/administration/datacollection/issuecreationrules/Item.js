@@ -55,18 +55,28 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
                     tpl: new Ext.XTemplate(
                         '<table class="isu-item-data-table">',
                         '<tr>',
-                        '<td><b>Rule template:</b></td>',
-                        '<td><tpl if="template">{template}</tpl></td>',
-                        '<td><b>Due in:</b></td>',
+                        '<td><b>Issue type</b></td>',
+                        '<td><b><tpl if="type">{type}</tpl></b></td>',
                         '<td><tpl if="duein">{duein.number} {duein.type}</tpl></td>',
                         '</tr>',
                         '<tr>',
-                        '<td><b>Issue reason:</b></td>',
-                        '<td><tpl if="reason">{reason}</tpl></td>',
-                        '<td><b>Assignee:</b></td>',
-                        '<td><tpl if="assignee"><tpl if="assignee.type"><span class="isu-icon-{assignee.type} isu-assignee-type-icon"></span></tpl> {assignee.name}<tpl else>Automatic</tpl></td>',
+                        '<td><b>Rule template:</b></td>',
+                        '<td><tpl if="template">{template.name}</tpl></td>',
+                        '<td><b>Created:</b></td>',
+                        '<td>{[values.creationdate ? this.formatRuleDate(values.creationdate) : ""]}</td>',
                         '</tr>',
-                        '</table>'
+                        '<tr>',
+                        '<td><b>Issue reason:</b></td>',
+                        '<td><tpl if="reason">{reason.name}</tpl></td>',
+                        '<td><b>Last modified:</b></td>',
+                        '<td>{[values.modificationdate ? this.formatRuleDate(values.modificationdate) : ""]}</td>',
+                        '</tr>',
+                        '</table>',
+                        {
+                            formatRuleDate: function (date) {
+                                return Ext.Date.format(date, 'M d, Y H:i');
+                            }
+                        }
                     )
                 }
             ]

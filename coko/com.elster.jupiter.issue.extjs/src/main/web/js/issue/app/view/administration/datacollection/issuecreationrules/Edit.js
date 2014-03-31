@@ -31,6 +31,20 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                         },
                         {
                             xtype: 'combobox',
+                            name: 'type',
+                            fieldLabel: 'Issue type *',
+                            store: Ext.create('Ext.data.Store', {
+                                fields: ['id', 'name'],
+                                data: [
+                                    {"id": "1", "name": "Data collection"}
+                                ]
+                            }),
+                            queryMode: 'local',
+                            displayField: 'name',
+                            valueField: 'id'
+                        },
+                        {
+                            xtype: 'combobox',
                             name: 'template',
                             fieldLabel: 'Rule template *',
                             store: Ext.create('Ext.data.Store', {
@@ -52,12 +66,26 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             margin: '0 0 0 155'
                         },
                         {
-                            xtype: 'issues-assignee-combo',
-                            name: 'assignee',
-                            fieldLabel: 'Assignee *',
-                            forceSelection: true,
-                            anyMatch: true,
-                            emptyText: 'select an assignee'
+                            xtype: 'container',
+                            layout: {
+                                type: 'hbox',
+                                align: 'middle'
+                            },
+                            items: [
+                                {
+                                    xtype: 'textfield',
+                                    name: 'parameters.threshold',
+                                    fieldLabel: 'Threshold *',
+                                    fieldStyle: 'text-align: right',
+                                    labelWidth: 150,
+                                    labelAlign: 'right',
+                                    width: 200
+                                },
+                                {
+                                    xtype: 'component',
+                                    html: '%'
+                                }
+                            ]
                         },
                         {
                             xtype: 'container',
@@ -101,33 +129,6 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             xtype: 'textareafield',
                             name: 'comment',
                             fieldLabel: 'Comment'
-                        },
-                        {
-                            xtype: 'component',
-                            html: '<h3>Configuration parameters</h3>',
-                            margin: '40 0 20 0'
-                        },
-                        {
-                            xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'middle'
-                            },
-                            items: [
-                                {
-                                    xtype: 'textfield',
-                                    name: 'parameters.threshold',
-                                    fieldLabel: 'Threshold *',
-                                    fieldStyle: 'text-align: right',
-                                    labelWidth: 150,
-                                    labelAlign: 'right',
-                                    width: 200
-                                },
-                                {
-                                    xtype: 'component',
-                                    html: '%'
-                                }
-                            ]
                         }
                     ]
                 },

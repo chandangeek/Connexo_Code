@@ -203,6 +203,7 @@ Ext.define('Isu.controller.Issues', {
     onIssuesListGridViewRefreshEvent: function (gridView) {
         this.setAssigneeTypeIconTooltip(gridView);
         this.bulkChangeButtonDisable(gridView);
+        this.selectFirstGridRow(gridView);
     },
 
     sortUpdate: function (sortModel) {

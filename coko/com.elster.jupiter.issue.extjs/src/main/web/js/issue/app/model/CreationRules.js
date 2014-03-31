@@ -11,11 +11,11 @@ Ext.define('Isu.model.CreationRules', {
         },
         {
             name: 'template',
-            type: 'text'
+            type: 'auto'
         },
         {
             name: 'reason',
-            type: 'text'
+            type: 'auto'
         },
         {
             name: 'status',
@@ -30,6 +30,28 @@ Ext.define('Isu.model.CreationRules', {
             type: 'auto'
         },
         {
+            name: 'parameters',
+            type: 'auto'
+        },
+        {
+            name: 'actions',
+            type: 'auto'
+        },
+        {
+            name: 'comment',
+            type: 'text'
+        },
+        {
+            name: 'creationdate',
+            dateFormat: 'time',
+            type: 'date'
+        },
+        {
+            name: 'modificationdate',
+            dateFormat: 'time',
+            type: 'date'
+        },
+        {
             name: 'version',
             type: 'int'
         }
@@ -37,7 +59,7 @@ Ext.define('Isu.model.CreationRules', {
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/rules/creation',
+        url: '/api/isu/creation/rules',
         reader: {
             type: 'json',
             root: 'data'

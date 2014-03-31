@@ -75,15 +75,7 @@ Ext.define('Isu.controller.IssueCreationRules', {
     onGridRefresh: function (grid) {
         this.setAssigneeTypeIconTooltip(grid);
         this.setDescriptionTooltip(grid);
-        this.selectFirstRule(grid);
-    },
-
-    selectFirstRule: function (grid) {
-        var index = 0,
-            item = grid.getNode(index),
-            record = grid.getRecord(item);
-
-        grid.fireEvent('itemclick', grid, record, item, index);
+        this.selectFirstGridRow(grid);
     },
 
     chooseAction: function(menu, item) {
