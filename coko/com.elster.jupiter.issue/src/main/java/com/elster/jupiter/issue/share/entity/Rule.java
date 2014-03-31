@@ -6,10 +6,13 @@ import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
 import java.nio.charset.Charset;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Rule extends Entity {
+    private static final Logger LOG = Logger.getLogger(Rule.class.getName());
+
     private int priority;
     private String description;
     private String title;
@@ -71,22 +74,36 @@ public class Rule extends Entity {
     }
 
     public IssueAssignee getAssignee(){
+        return buildIssueAssignee(getAssigneeType(), getAssigneeId());
+    }
+
+    private IssueAssigneeType getAssigneeType(){
         if (ruleData != null) {
             Pattern pattern = Pattern.compile("IssueAssigneeType\\.(\\w+)\\s*\\)");
             Matcher matcher = pattern.matcher(ruleData);
             if (matcher.find()) {
-                String assigneeTypeStr = matcher.group(1);
-
-                pattern = Pattern.compile("\\.setAssigneeId\\s*\\(\\s*(\\d+)\\s*\\);");
-                matcher = pattern.matcher(ruleData);
-                if (matcher.find()) {
-                    String assigneeIdStr = matcher.group(1);
-                    long assigneeId = assigneeIdStr != null ? Long.parseLong(assigneeIdStr) : 0;
-                    return buildIssueAssignee(IssueAssigneeType.valueOf(assigneeTypeStr), assigneeId);
-                }
+                return IssueAssigneeType.valueOf(matcher.group(1));
             }
         }
         return null;
+    }
+
+    private long getAssigneeId(){
+        long assigneeId = 0;
+        if (ruleData != null) {
+            Pattern pattern = Pattern.compile("\\.setAssigneeId\\s*\\(\\s*(\\d+)\\s*\\);");
+            Matcher matcher = pattern.matcher(ruleData);
+            if (matcher.find()) {
+                try {
+                    String assigneeIdStr = matcher.group(1);
+                    assigneeId = assigneeIdStr != null ? Long.parseLong(assigneeIdStr) : 0;
+                } catch (NumberFormatException ex){
+                    assigneeId = 0;
+                    LOG.severe("Failed to parse assignee id in rule " + getId() + ", possible error in rule.");
+                }
+            }
+        }
+        return assigneeId;
     }
 
     private IssueAssignee buildIssueAssignee(IssueAssigneeType type, long id) {

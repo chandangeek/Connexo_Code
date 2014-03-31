@@ -15,9 +15,8 @@ import javax.inject.Inject;
 @Component(name = "com.elster.jupiter.issue.mapping", service = IssueMappingService.class)
 public class IssueMappingServiceImpl implements IssueMappingService {
     private volatile DataModel dataModel;
-    private volatile OrmService ormService;
-    private volatile UserService userService;
-    private volatile MeteringService meteringService;
+    private volatile UserService userService; //Required for initialization datamodels in correct sequence
+    private volatile MeteringService meteringService; //Required for initialization datamodels in correct sequence
 
     public IssueMappingServiceImpl(){}
 
@@ -34,7 +33,6 @@ public class IssueMappingServiceImpl implements IssueMappingService {
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        this.ormService = ormService;
         dataModel = ormService.newDataModel(IssueService.COMPONENT_NAME, "Issue Management");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);

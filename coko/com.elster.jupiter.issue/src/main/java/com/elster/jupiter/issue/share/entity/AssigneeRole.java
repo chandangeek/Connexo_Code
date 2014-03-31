@@ -6,8 +6,8 @@ import javax.inject.Inject;
 
 public class AssigneeRole extends Entity implements AssigneeBaseInformation {
 
-    protected String name;
-    protected String description;
+    private String name;
+    private String description;
 
     @Inject
     public AssigneeRole(DataModel dataModel) {

@@ -25,7 +25,6 @@ public class InstallServiceImpl implements InstallService {
     private volatile UserService userService;
     private volatile IssueService issueService;
     private volatile IssueAssignmentService issueAssignmentService;
-    private volatile IssueMappingService issueMappingService;
 
     // TODO delete when events will be defined by MDC
     private volatile IssueHelpService issueHelpService;

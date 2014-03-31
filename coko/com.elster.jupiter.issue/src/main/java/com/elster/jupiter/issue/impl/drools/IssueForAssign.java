@@ -27,19 +27,20 @@ public class IssueForAssign {
     private Issue issue;
 
     public IssueForAssign(Issue issue) {
-        if (issue != null) {
-            this.issue = issue;
-            setId(issue.getId());
-            setVersion(issue.getVersion());
-            setReason(issue.getReason().getName());
-            Optional<UsagePoint> usagePointRef = issue.getUsagePoint();
-            if (usagePointRef.isPresent()){
-                UsagePoint usagePoint = usagePointRef.get();
-                setOutageRegion(usagePoint.getOutageRegion());
-                Optional<Party> customerRef = usagePoint.getCustomer(new Date());
-                if (customerRef.isPresent()){
-                    setCustomer(customerRef.get().getName());
-                }
+        if (issue == null) {
+            throw new IllegalArgumentException("Issue for wrapping can't be null!");
+        }
+        this.issue = issue;
+        setId(issue.getId());
+        setVersion(issue.getVersion());
+        setReason(issue.getReason().getName());
+        Optional<UsagePoint> usagePointRef = issue.getUsagePoint();
+        if (usagePointRef.isPresent()){
+            UsagePoint usagePoint = usagePointRef.get();
+            setOutageRegion(usagePoint.getOutageRegion());
+            Optional<Party> customerRef = usagePoint.getCustomer(new Date());
+            if (customerRef.isPresent()){
+                setCustomer(customerRef.get().getName());
             }
         }
     }

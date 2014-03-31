@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.impl.database;
 
 public class DatabaseConst {
+    private DatabaseConst(){} //Hide Utility Class Constructor
 
 // Bundle tables in database
     public static final String ISSUE_JOURNAL_TABLE_NAME = "ISU_ISSUEJRNL";

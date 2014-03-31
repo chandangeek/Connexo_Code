@@ -22,6 +22,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -30,27 +31,22 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.issue", service = IssueService.class)
 public class IssueServiceImpl implements IssueService {
-    private static Logger LOG = Logger.getLogger(IssueServiceImpl.class.getName());
+    private static final Logger LOG = Logger.getLogger(IssueServiceImpl.class.getName());
 
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
     private volatile MeteringService meteringService;
-    private volatile UserService userService;
-
-    private volatile IssueAssignmentService issueAssignmentService;
 
     public IssueServiceImpl() {
     }
 
     @Inject
     public IssueServiceImpl(MeteringService meteringService,
-                            UserService userService,
                             QueryService queryService,
                             IssueMappingService issueMappingService) {
         setQueryService(queryService);
         setMeteringService(meteringService);
-        setUserService(userService);
-        setIssueInternalService(issueMappingService);
+        setIssueMappingService(issueMappingService);
     }
 
     @Reference
@@ -64,18 +60,8 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Reference
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    @Reference
-    public void setIssueInternalService(IssueMappingService issueMappingService) {
+    public void setIssueMappingService(IssueMappingService issueMappingService) {
         dataModel = IssueMappingServiceImpl.class.cast(issueMappingService).getDataModel();
-    }
-
-    @Reference
-    public void setIssueAssignmentService(IssueAssignmentService issueAssignmentService) {
-        this.issueAssignmentService = issueAssignmentService;
     }
 
     @Override
@@ -197,7 +183,7 @@ public class IssueServiceImpl implements IssueService {
         issue.setReason(reason);
         issue.setStatus(status);
         //TODO specify due date setting rules
-        issue.setDueDate(new UtcInstant(1393316133000L));
+        issue.setDueDate(new UtcInstant(new Date()));
 
         String amrId = String.class.cast(map.get(EventConst.DEVICE_IDENTIFIER));
         Optional<AmrSystem> amrSystemRef = meteringService.findAmrSystem(DatabaseConst.MDC_AMR_SYSTEM_ID);

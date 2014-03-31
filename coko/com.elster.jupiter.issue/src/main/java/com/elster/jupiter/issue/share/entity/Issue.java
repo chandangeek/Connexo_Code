@@ -18,9 +18,9 @@ import java.util.Collections;
 
 import static com.elster.jupiter.util.Checks.is;
 public class Issue extends BaseIssue {
-    protected volatile UserService userService;
-    protected volatile IssueService issueService;
-    protected volatile IssueAssignmentService issueAssignmentService;
+    private volatile UserService userService;
+    private volatile IssueService issueService;
+    private volatile IssueAssignmentService issueAssignmentService;
 
     @Inject
     public Issue(DataModel dataModel, UserService userService, IssueService issueService, IssueAssignmentService issueAssignmentService){
@@ -31,7 +31,7 @@ public class Issue extends BaseIssue {
     }
 
     Issue copy(Issue issue){
-        this.id = issue.id;
+        this.setId(issue.getId());
         if (issue.getDueDate() != null) {
             this.setDueDate(new UtcInstant(issue.getDueDate().getTime()));
         }
@@ -48,7 +48,7 @@ public class Issue extends BaseIssue {
             throw  new IllegalArgumentException("Incorrect status for closing issue");
         }
         setStatus(status);
-        HistoricalIssue historicalIssue = new HistoricalIssue(dataModel, userService, issueService, issueAssignmentService);
+        HistoricalIssue historicalIssue = new HistoricalIssue(getDataModel(), userService, issueService, issueAssignmentService);
         historicalIssue.copy(this);
         historicalIssue.save();
         this.delete();
@@ -56,7 +56,7 @@ public class Issue extends BaseIssue {
 
     public Optional<IssueComment> addComment(String body, User author){
         if (!is(body).emptyOrOnlyWhiteSpace() && author != null){
-            IssueComment comment = dataModel.getInstance(IssueComment.class);
+            IssueComment comment = getDataModel().getInstance(IssueComment.class);
             comment.init(getId(), body, author);
             comment.save();
             return Optional.of(comment);

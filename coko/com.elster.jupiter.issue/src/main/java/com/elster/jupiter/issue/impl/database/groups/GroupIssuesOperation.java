@@ -25,7 +25,7 @@ public abstract class GroupIssuesOperation{
     protected static final String GROUP_TITLE = "col";
     protected static final String GROUP_COUNT = "num";
 
-    protected final DataModel dataModel;
+    private final DataModel dataModel;
     private GroupQueryBuilder builder;
 
     public static GroupIssuesOperation init(GroupQueryBuilder builder, DataModel dataModel) {
@@ -61,9 +61,10 @@ public abstract class GroupIssuesOperation{
         SqlBuilder sql = buildSQL();
         try (Connection conn = dataModel.getConnection(false)) {
             PreparedStatement groupingStatement = buildStatement(conn, sql);
-            ResultSet rs = groupingStatement.executeQuery();
-            while (rs.next()) {
-                groups.add(new GroupByReasonEntity(rs.getLong(GROUP_ID), rs.getString(GROUP_TITLE), rs.getLong(GROUP_COUNT)));
+            try (ResultSet rs = groupingStatement.executeQuery()) {
+                while (rs.next()) {
+                    groups.add(new GroupByReasonEntity(rs.getLong(GROUP_ID), rs.getString(GROUP_TITLE), rs.getLong(GROUP_COUNT)));
+                }
             }
         } catch (SQLException sqlEx){
             LOG.log(Level.SEVERE, "Unable to retrieve grouped list from database", sqlEx);
@@ -97,5 +98,9 @@ public abstract class GroupIssuesOperation{
             return TableSpecs.ISU_ISSUEHISTORY.name();
         }
         return TableSpecs.ISU_ISSUE.name();
+    }
+
+    protected DataModel getDataModel() {
+        return dataModel;
     }
 }

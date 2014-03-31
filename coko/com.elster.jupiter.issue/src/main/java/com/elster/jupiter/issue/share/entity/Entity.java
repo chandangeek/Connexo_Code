@@ -4,18 +4,22 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
 
 public abstract class Entity {
-    protected long id;
+    private long id;
 
     // Audit fields
-    protected long version;
-    protected UtcInstant createTime;
-    protected UtcInstant modTime;
-    protected String userName;
+    private long version;
+    private UtcInstant createTime;
+    private UtcInstant modTime;
+    private String userName;
 
-    protected DataModel dataModel;
+    private DataModel dataModel;
 
     protected Entity(DataModel dataModel){
         this.dataModel = dataModel;
+    }
+
+    protected DataModel getDataModel() {
+        return dataModel;
     }
 
     public long getId() {

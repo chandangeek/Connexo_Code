@@ -5,7 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import javax.inject.Inject;
 
 public class AssigneeTeam extends Entity implements AssigneeBaseInformation{
-    protected String name;
+    private String name;
 
     @Inject
     public AssigneeTeam(DataModel dataModel) {

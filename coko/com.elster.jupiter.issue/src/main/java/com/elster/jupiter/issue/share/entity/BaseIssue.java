@@ -10,12 +10,12 @@ import com.elster.jupiter.util.time.UtcInstant;
 import javax.inject.Inject;
 
 public class BaseIssue extends Entity{
-    protected UtcInstant dueDate;
-    protected Reference<IssueReason> reason = ValueReference.absent();
-    protected Reference<IssueStatus> status = ValueReference.absent();
+    private UtcInstant dueDate;
+    private Reference<IssueReason> reason = ValueReference.absent();
+    private Reference<IssueStatus> status = ValueReference.absent();
 
-    protected IssueAssignee assignee;
-    protected String issueType = "C";
+    private IssueAssignee assignee;
+    private String issueType = "C";
 
     //work around
     private IssueAssigneeType type;
@@ -23,7 +23,7 @@ public class BaseIssue extends Entity{
     private Reference<AssigneeTeam> team = ValueReference.absent();
     private Reference<AssigneeRole> role = ValueReference.absent();
 
-    protected Reference<EndDevice> device = ValueReference.absent();
+    private Reference<EndDevice> device = ValueReference.absent();
 
     @Inject
     public BaseIssue(DataModel dataModel) {
@@ -32,12 +32,12 @@ public class BaseIssue extends Entity{
 
     public String getTitle() {
         String title = getReason().getName();
-        EndDevice device = getDevice();
-        if (device != null){
+        EndDevice endDevice = getDevice();
+        if (endDevice != null){
             StringBuilder titleWithDevice = new StringBuilder(title);
             titleWithDevice.append(" to ");
-            titleWithDevice.append(device.getName()).append(" ");
-            titleWithDevice.append(device.getSerialNumber());
+            titleWithDevice.append(endDevice.getName()).append(" ");
+            titleWithDevice.append(endDevice.getSerialNumber());
             title = titleWithDevice.toString();
         }
         return title;
