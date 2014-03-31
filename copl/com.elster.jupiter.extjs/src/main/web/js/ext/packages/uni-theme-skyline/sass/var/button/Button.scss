@@ -1,0 +1,30 @@
+/**
+ * @class Ext.button.Button
+ */
+
+// Secondary
+
+$button-default-background-color: #828282 !default;
+$button-default-background-color-over: #a0a0a0 !default;
+
+$button-small-border-radius: 5px !default;
+$button-medium-border-radius: $button-small-border-radius !default;
+$button-large-border-radius: $button-small-border-radius !default;
+
+$button-small-border-width: 0 !default;
+$button-medium-border-width: $button-small-border-width !default;
+$button-large-border-width: $button-small-border-width !default;
+
+$button-default-background-gradient: 'matte' !default;
+$button-default-background-gradient-disabled: $button-default-background-gradient !default;
+$button-default-background-gradient-over: $button-default-background-gradient !default;
+$button-default-background-gradient-pressed: $button-default-background-gradient !default;
+
+$button-small-font-family: 'Lato', helvetica, arial, verdana, sans-serif !default;
+$button-medium-font-family: $button-small-font-family !default;
+$button-large-font-family: $button-small-font-family !default;
+
+// Delete
+
+$button-delete-background-color: #eb5642 !default;
+$button-delete-background-color-over: #ed6654 !default;

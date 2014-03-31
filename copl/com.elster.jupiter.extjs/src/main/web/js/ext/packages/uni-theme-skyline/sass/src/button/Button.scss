@@ -1,0 +1,20 @@
+@include extjs-button-small-ui(
+    $ui: 'delete',
+
+    $background-color: $button-delete-background-color,
+    $background-color-over: $button-delete-background-color-over
+);
+
+@include extjs-button-medium-ui(
+    $ui: 'delete',
+
+    $background-color: $button-delete-background-color,
+    $background-color-over: $button-delete-background-color-over
+);
+
+@include extjs-button-large-ui(
+    $ui: 'delete',
+
+    $background-color: $button-delete-background-color,
+    $background-color-over: $button-delete-background-color-over
+);
