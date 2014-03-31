@@ -8,6 +8,7 @@ import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
@@ -127,8 +128,14 @@ public class PartiesResource {
     @Path("/{id}/delegates")
     @Produces(MediaType.APPLICATION_JSON)
     public PartyRepresentationInfos getDelegates(@PathParam("id") long id) {
-        Party party = partyWithId(id);
-        return new PartyRepresentationInfos(party.getCurrentDelegates());
+        try (TransactionContext context = transactionService.getContext()) {
+            try {
+                Party party = partyWithId(id);
+                return new PartyRepresentationInfos(party.getCurrentDelegates());
+            } finally {
+                context.commit();
+            }
+        }
     }
 
     @POST
@@ -157,7 +164,13 @@ public class PartiesResource {
         info.partyId = id;
         info.userInfo.authenticationName = authenticationName;
         PartyRepresentation partyRepresentation = transactionService.execute(new UpdatePartyRepresentationTransaction(userService, partyService, info));
-        return new PartyRepresentationInfos(partyRepresentation);
+        try (TransactionContext context = transactionService.getContext()) {
+            try {
+                return new PartyRepresentationInfos(partyRepresentation);
+            } finally {
+                context.commit();
+            }
+        }
     }
 
 
