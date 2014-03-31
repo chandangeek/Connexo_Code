@@ -503,6 +503,71 @@ public class DeviceTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
+    public void testUpdateDeviceTypeWithConfigWithSameProtocolDoesNotDetectChange() {
+        // JP-1845
+        String deviceTypeName = "testCreateDeviceTypeWithRegisterMapping";
+        DeviceType deviceType;
+        this.setupRegisterMappingTypesInExistingTransaction();
+
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+        deviceType.setDescription("For testing purposes only");
+        deviceType.addRegisterMapping(this.registerMapping);
+        deviceType.save();
+
+        deviceType.newConfiguration("first").description("at least one").add();
+
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        // Business method
+        deviceType.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass);
+        deviceType.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS_KEY + "}")
+    public void testUpdateDeviceTypeWithConfigWithOtherProtocolDoesDetectChange() {
+        // JP-1845
+        String deviceTypeName = "testCreateDeviceTypeWithRegisterMapping";
+        DeviceType deviceType;
+        this.setupRegisterMappingTypesInExistingTransaction();
+
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+        deviceType.setDescription("For testing purposes only");
+        deviceType.addRegisterMapping(this.registerMapping);
+        deviceType.save();
+
+        deviceType.newConfiguration("first").description("at least one").add();
+
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        // Business method
+        deviceType.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass2);
+        deviceType.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DEVICE_PROTOCOL_IS_REQUIRED_KEY + "}", strict=false)
+    public void testUpdateDeviceTypeWithConfigSetNullProtocol() {
+        // JP-1845
+        String deviceTypeName = "testCreateDeviceTypeWithRegisterMapping";
+        DeviceType deviceType;
+        this.setupRegisterMappingTypesInExistingTransaction();
+
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+        deviceType.setDescription("For testing purposes only");
+        deviceType.addRegisterMapping(this.registerMapping);
+        deviceType.save();
+
+        deviceType.newConfiguration("first").description("at least one").add();
+
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        // Business method
+        deviceType.setDeviceProtocolPluggableClass((DeviceProtocolPluggableClass) null);
+        deviceType.save();
+    }
+
+    @Test
+    @Transactional
     public void testCreateDeviceTypeWithMultipleRegisterMappings() {
         String deviceTypeName = "testCreateDeviceTypeWithMultipleRegisterMappings";
         DeviceType deviceType;
