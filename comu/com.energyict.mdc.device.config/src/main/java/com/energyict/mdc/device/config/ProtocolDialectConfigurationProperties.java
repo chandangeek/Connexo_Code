@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.HasDynamicProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;

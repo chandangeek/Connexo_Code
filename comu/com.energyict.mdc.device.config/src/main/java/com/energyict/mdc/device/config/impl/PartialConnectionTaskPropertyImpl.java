@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.ValueFactory;
 
@@ -21,7 +22,7 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
 
     private final DataModel dataModel;
 
-    private Reference<PartialConnectionTask> partialConnectionTask = ValueReference.absent();
+    private Reference<ServerPartialConnectionTask> partialConnectionTask = ValueReference.absent();
 
     private String name;
     private String value;
@@ -32,7 +33,7 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
         this.dataModel = dataModel;
     }
 
-    static PartialConnectionTaskPropertyImpl from(DataModel dataModel, PartialConnectionTask partialConnectionTask, String name, Object value) {
+    static PartialConnectionTaskPropertyImpl from(DataModel dataModel, ServerPartialConnectionTask partialConnectionTask, String name, Object value) {
         PartialConnectionTaskPropertyImpl partialConnectionTaskProperty = new PartialConnectionTaskPropertyImpl(dataModel);
         partialConnectionTaskProperty.partialConnectionTask.set(partialConnectionTask);
         partialConnectionTaskProperty.name = name;
@@ -76,7 +77,7 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
     }
 
     @Override
-    public PartialConnectionTask getPartialConnectionTask() {
+    public ServerPartialConnectionTask getPartialConnectionTask() {
         return partialConnectionTask.get();
     }
 
@@ -88,6 +89,6 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
 
     @Override
     public void save() {
-        dataModel.mapper(PartialConnectionTaskProperty.class).update(this);
+        dataModel.mapper(PartialConnectionTaskPropertyImpl.class).update(this);
     }
 }

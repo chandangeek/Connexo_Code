@@ -42,11 +42,12 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import java.util.List;
-import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -386,18 +387,18 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public Optional<PartialConnectionTask> getPartialConnectionTask(long id) {
-        return dataModel.mapper(PartialConnectionTask.class).getOptional(id);
+    public Optional<ServerPartialConnectionTask> getPartialConnectionTask(long id) {
+        return dataModel.mapper(ServerPartialConnectionTask.class).getOptional(id);
     }
 
     @Override
-    public List<PartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass) {
-        return dataModel.query(PartialConnectionTask.class).select(where("pluggableClass").isEqualTo(connectionTypePluggableClass));
+    public List<ServerPartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass) {
+        return dataModel.query(ServerPartialConnectionTask.class).select(where("pluggableClass").isEqualTo(connectionTypePluggableClass));
     }
 
     @Override
-    public List<PartialConnectionTask> findByComPortPool(ComPortPool comPortPool) {
-        return dataModel.query(PartialConnectionTask.class).select(where("comPortPool").isEqualTo(comPortPool));
+    public List<ServerPartialConnectionTask> findByComPortPool(ComPortPool comPortPool) {
+        return dataModel.query(ServerPartialConnectionTask.class).select(where("comPortPool").isEqualTo(comPortPool));
     }
 
     @Override

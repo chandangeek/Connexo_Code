@@ -342,8 +342,8 @@ public enum TableSpecs {
     MDCPARTIALCONNECTIONTASK {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<PartialConnectionTask> table = dataModel.addTable(name(), PartialConnectionTask.class);
-            table.map(PartialConnectionTask.IMPLEMENTERS);
+            Table<ServerPartialConnectionTask> table = dataModel.addTable(name(), ServerPartialConnectionTask.class);
+            table.map(PartialConnectionTaskImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
             table.column("NAME").varChar(255).notNull().map("name").add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
@@ -371,7 +371,7 @@ public enum TableSpecs {
     MDCPARTIALCONNECTIONTASKPROPS {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<PartialConnectionTaskProperty> table = dataModel.addTable(name(), PartialConnectionTaskProperty.class);
+            Table<PartialConnectionTaskPropertyImpl> table = dataModel.addTable(name(), PartialConnectionTaskPropertyImpl.class);
             table.map(PartialConnectionTaskPropertyImpl.class);
             Column partialconnectiontask = table.column("PARTIALCONNECTIONTASK").number().notNull().add();
             Column name = table.column("NAME").varChar(255).notNull().map("name").add();

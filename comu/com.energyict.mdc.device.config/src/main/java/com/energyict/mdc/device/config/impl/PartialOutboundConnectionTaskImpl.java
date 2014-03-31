@@ -9,7 +9,9 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.interval.PartialTime;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
@@ -24,7 +26,7 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * Provides an implementation for an {@link PartialOutboundConnectionTask}
+ * Provides an implementation for an {@link com.energyict.mdc.device.config.PartialOutboundConnectionTask}
  *
  * @author sva
  * @since 22/01/13 - 17:27
@@ -46,11 +48,11 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
         super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService);
     }
 
-    static PartialOutboundConnectionTask from(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
+    static ServerPartialOutboundConnectionTask from(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
         return dataModel.getInstance(PartialOutboundConnectionTaskImpl.class).init(configuration);
     }
 
-    private PartialOutboundConnectionTask init(DeviceCommunicationConfiguration configuration) {
+    private ServerPartialOutboundConnectionTask init(DeviceCommunicationConfiguration configuration) {
         setConfiguration(configuration);
         return this;
     }
@@ -104,7 +106,7 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
 
     @Override
     protected void doDelete() {
-        dataModel.mapper(PartialOutboundConnectionTask.class).remove(this);
+        dataModel.mapper(ServerPartialOutboundConnectionTask.class).remove(this);
     }
 
     public static PartialOutboundConnectionTaskImpl from(DataModel dataModel, ConnectionStrategy connectionStrategy) {
@@ -138,7 +140,12 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
         this.initiator.set(partialConnectionInitiationTask);
     }
 
-    public static class NextExecutionSpecValidator implements ConstraintValidator<NextExecutionSpecsRequiredForMinimizeConnections, PartialOutboundConnectionTask> {
+    @Override
+    public void setInitiationTask(PartialConnectionInitiationTaskImpl partialConnectionInitiationTask) {
+        this.initiator.set(partialConnectionInitiationTask);
+    }
+
+    public static class NextExecutionSpecValidator implements ConstraintValidator<NextExecutionSpecsRequiredForMinimizeConnections, ServerPartialOutboundConnectionTask> {
 
         @Inject
         public NextExecutionSpecValidator() {
@@ -149,12 +156,12 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
         }
 
         @Override
-        public boolean isValid(PartialOutboundConnectionTask value, ConstraintValidatorContext context) {
+        public boolean isValid(ServerPartialOutboundConnectionTask value, ConstraintValidatorContext context) {
             return !ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(value.getConnectionStrategy()) || value.getNextExecutionSpecs() != null;
         }
     }
 
-    public static class NextExecutionSpecVsComWindowValidator implements ConstraintValidator<NextExecutionSpecsValidForComWindow, PartialOutboundConnectionTask> {
+    public static class NextExecutionSpecVsComWindowValidator implements ConstraintValidator<NextExecutionSpecsValidForComWindow, ServerPartialOutboundConnectionTask> {
 
         @Inject
         public NextExecutionSpecVsComWindowValidator() {
@@ -165,7 +172,7 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
         }
 
         @Override
-        public boolean isValid(PartialOutboundConnectionTask value, ConstraintValidatorContext context) {
+        public boolean isValid(ServerPartialOutboundConnectionTask value, ConstraintValidatorContext context) {
             if (value.getNextExecutionSpecs() == null || value.getCommunicationWindow() == null) {
                 return true;
             }

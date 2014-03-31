@@ -35,6 +35,7 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -265,7 +266,7 @@ public class PartialInboundConnectiontaskCrudIT {
     @Test
     public void testCreate() {
 
-        PartialInboundConnectionTask inboundConnectionTask;
+        PartialInboundConnectionTaskImpl inboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -287,14 +288,14 @@ public class PartialInboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
+        Optional<ServerPartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
         assertThat(found).isPresent();
 
-        PartialConnectionTask partialConnectionTask = found.get();
+        ServerPartialConnectionTask partialConnectionTask = found.get();
 
-        assertThat(partialConnectionTask).isInstanceOf(PartialInboundConnectionTask.class);
+        assertThat(partialConnectionTask).isInstanceOf(PartialInboundConnectionTaskImpl.class);
 
-        PartialInboundConnectionTask partialInboundConnectionTask = (PartialInboundConnectionTask) partialConnectionTask;
+        PartialInboundConnectionTaskImpl partialInboundConnectionTask = (PartialInboundConnectionTaskImpl) partialConnectionTask;
 
         assertThat(partialInboundConnectionTask.getComPortPool().getId()).isEqualTo(inboundComPortPool.getId());
         assertThat(partialInboundConnectionTask.isDefault()).isTrue();
@@ -307,7 +308,7 @@ public class PartialInboundConnectiontaskCrudIT {
     @Test
     public void testUpdate() {
 
-        PartialInboundConnectionTask inboundConnectionTask;
+        PartialInboundConnectionTaskImpl inboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -341,14 +342,14 @@ public class PartialInboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
+        Optional<ServerPartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
         assertThat(found).isPresent();
 
-        PartialConnectionTask partialConnectionTask = found.get();
+        ServerPartialConnectionTask partialConnectionTask = found.get();
 
-        assertThat(partialConnectionTask).isInstanceOf(PartialInboundConnectionTask.class);
+        assertThat(partialConnectionTask).isInstanceOf(PartialInboundConnectionTaskImpl.class);
 
-        PartialInboundConnectionTask partialInboundConnectionTask = (PartialInboundConnectionTask) partialConnectionTask;
+        PartialInboundConnectionTaskImpl partialInboundConnectionTask = (PartialInboundConnectionTaskImpl) partialConnectionTask;
 
         assertThat(partialInboundConnectionTask.getComPortPool().getId()).isEqualTo(inboundComPortPool2.getId());
         assertThat(partialInboundConnectionTask.isDefault()).isFalse();
@@ -360,7 +361,7 @@ public class PartialInboundConnectiontaskCrudIT {
 
     @Test
     public void testDelete() {
-        PartialInboundConnectionTask inboundConnectionTask;
+        PartialInboundConnectionTaskImpl inboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -391,7 +392,7 @@ public class PartialInboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
+        Optional<ServerPartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
         assertThat(found).isAbsent();
 
     }
@@ -400,7 +401,7 @@ public class PartialInboundConnectiontaskCrudIT {
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC_KEY + '}')
     public void testCreateWithUnspeccedProperty() {
 
-        PartialInboundConnectionTask inboundConnectionTask;
+        PartialInboundConnectionTaskImpl inboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -429,7 +430,7 @@ public class PartialInboundConnectiontaskCrudIT {
 //    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.PARTIAL_CONNECTION_TASK_DUPLICATE_KEY + '}')
     public void testCreateWithDuplicateName() {
 
-        PartialInboundConnectionTask inboundConnectionTask;
+        PartialInboundConnectionTaskImpl inboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);

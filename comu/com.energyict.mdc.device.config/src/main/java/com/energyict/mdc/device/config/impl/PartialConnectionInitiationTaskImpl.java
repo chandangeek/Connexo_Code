@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -23,11 +24,11 @@ public class PartialConnectionInitiationTaskImpl extends PartialScheduledConnect
         super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService);
     }
 
-    static PartialConnectionInitiationTask from(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
+    static PartialConnectionInitiationTaskImpl from(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
         return dataModel.getInstance(PartialConnectionInitiationTaskImpl.class).init(configuration);
     }
 
-    private PartialConnectionInitiationTask init(DeviceCommunicationConfiguration configuration) {
+    private PartialConnectionInitiationTaskImpl init(DeviceCommunicationConfiguration configuration) {
         setConfiguration(configuration);
         return this;
     }
@@ -54,7 +55,7 @@ public class PartialConnectionInitiationTaskImpl extends PartialScheduledConnect
 
     @Override
     protected void doDelete() {
-        dataModel.mapper(PartialConnectionInitiationTask.class).remove(this);
+        dataModel.mapper(PartialConnectionInitiationTaskImpl.class).remove(this);
     }
 
 }

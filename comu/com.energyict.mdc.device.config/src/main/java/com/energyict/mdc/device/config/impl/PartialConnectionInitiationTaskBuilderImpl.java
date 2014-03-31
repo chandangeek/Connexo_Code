@@ -9,14 +9,14 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
  * Date: 14/03/14
  * Time: 10:32
  */
-public class PartialConnectionInitiationTaskBuilderImpl extends AbstractScheduledPartialConnectionTaskBuilder<PartialConnectionInitiationTaskBuilder, PartialConnectionInitiationTask> implements PartialConnectionInitiationTaskBuilder {
+public class PartialConnectionInitiationTaskBuilderImpl extends AbstractScheduledPartialConnectionTaskBuilder<PartialConnectionInitiationTaskBuilder, PartialConnectionInitiationTaskImpl> implements PartialConnectionInitiationTaskBuilder {
 
     PartialConnectionInitiationTaskBuilderImpl(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
         super(PartialConnectionInitiationTaskBuilder.class, dataModel, configuration);
     }
 
     @Override
-    PartialConnectionInitiationTask newInstance() {
+    PartialConnectionInitiationTaskImpl newInstance() {
         return PartialConnectionInitiationTaskImpl.from(dataModel, configuration);
     }
 

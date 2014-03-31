@@ -34,4 +34,10 @@ public interface PartialScheduledConnectionTask extends PartialConnectionTask {
      */
     public TimeDuration getRescheduleDelay();
 
+
+    void setNextExecutionSpecs(NextExecutionSpecs nextExecutionSpec);
+
+    void setComportPool(OutboundComPortPool comPortPool);
+
+    void setRescheduleRetryDelay(TimeDuration rescheduleRetryDelay);
 }

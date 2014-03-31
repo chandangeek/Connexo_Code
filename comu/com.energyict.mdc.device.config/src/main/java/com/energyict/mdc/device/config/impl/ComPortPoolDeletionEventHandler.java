@@ -24,7 +24,7 @@ public class ComPortPoolDeletionEventHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         ComPortPool source = (ComPortPool) localEvent.getSource();
-        List<PartialConnectionTask> found = deviceConfigurationService.findByComPortPool(source);
+        List<ServerPartialConnectionTask> found = deviceConfigurationService.findByComPortPool(source);
         if (!found.isEmpty()) {
             throw new VetoDeleteComPortPoolException(getThesaurus(), source, found);
         }

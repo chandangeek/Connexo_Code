@@ -1,16 +1,15 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.device.config.impl.ConnectionStrategy;
-import com.energyict.mdc.device.config.impl.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.impl.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.impl.PartialConnectionInitiationTaskImpl;
+import com.energyict.mdc.device.config.impl.ServerPartialOutboundConnectionTask;
 
 /**
  * Copyrights EnergyICT
  * Date: 13/03/14
  * Time: 11:42
  */
-public interface PartialOutboundConnectionTaskBuilder extends PartialScheduledConnectionTaskBuilder<PartialOutboundConnectionTaskBuilder, PartialOutboundConnectionTask> {
+public interface PartialOutboundConnectionTaskBuilder extends PartialScheduledConnectionTaskBuilder<PartialOutboundConnectionTaskBuilder, ServerPartialOutboundConnectionTask> {
 
     PartialOutboundConnectionTaskBuilder comWindow(ComWindow communicationWindow);
 
@@ -20,5 +19,5 @@ public interface PartialOutboundConnectionTaskBuilder extends PartialScheduledCo
 
     PartialOutboundConnectionTaskBuilder asDefault(boolean asDefault);
 
-    PartialOutboundConnectionTaskBuilder initiatonTask(PartialConnectionInitiationTask connectionInitiationTask);
+    PartialOutboundConnectionTaskBuilder initiatonTask(PartialConnectionInitiationTaskImpl connectionInitiationTask);
 }

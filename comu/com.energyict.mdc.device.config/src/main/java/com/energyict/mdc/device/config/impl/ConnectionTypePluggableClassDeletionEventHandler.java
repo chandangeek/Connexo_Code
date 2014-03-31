@@ -24,7 +24,7 @@ public class ConnectionTypePluggableClassDeletionEventHandler implements TopicHa
     @Override
     public void handle(LocalEvent localEvent) {
         ConnectionTypePluggableClass source = (ConnectionTypePluggableClass) localEvent.getSource();
-        List<PartialConnectionTask> found = deviceConfigurationService.findByConnectionTypePluggableClass(source);
+        List<ServerPartialConnectionTask> found = deviceConfigurationService.findByConnectionTypePluggableClass(source);
         if (!found.isEmpty()) {
             throw new VetoDeleteConnectionTypePluggableClassException(getThesaurus(), source, found);
         }

@@ -1,14 +1,12 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.common.BusinessObject;
-
 /**
- * Partial version of a ConnectionTaskProperty.
+ * Partial version of a ConnectionTaskProperty
  *
  * @author sva
  * @since 21/01/13 - 16:15
  */
-public interface PartialConnectionTaskProperty extends BusinessObject {
+public interface PartialConnectionTaskProperty {
 
     /**
      * Gets the name of the property for which a value is held.
@@ -31,4 +29,7 @@ public interface PartialConnectionTaskProperty extends BusinessObject {
      */
     public PartialConnectionTask getPartialConnectionTask();
 
+    void setValue(Object value);
+
+    void save();
 }

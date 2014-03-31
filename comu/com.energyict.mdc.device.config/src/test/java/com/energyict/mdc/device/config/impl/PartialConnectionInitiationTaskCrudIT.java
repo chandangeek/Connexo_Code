@@ -32,6 +32,7 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
@@ -223,7 +224,7 @@ public class PartialConnectionInitiationTaskCrudIT {
     @Test
     public void testCreate() {
 
-        PartialConnectionInitiationTask connectionInitiationTask;
+        PartialConnectionInitiationTaskImpl connectionInitiationTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -245,14 +246,14 @@ public class PartialConnectionInitiationTaskCrudIT {
             context.commit();
         }
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(connectionInitiationTask.getId());
+        Optional<ServerPartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(connectionInitiationTask.getId());
         assertThat(found).isPresent();
 
-        PartialConnectionTask partialConnectionTask = found.get();
+        ServerPartialConnectionTask partialConnectionTask = found.get();
 
-        assertThat(partialConnectionTask).isInstanceOf(PartialConnectionInitiationTask.class);
+        assertThat(partialConnectionTask).isInstanceOf(PartialConnectionInitiationTaskImpl.class);
 
-        PartialConnectionInitiationTask partialConnectionInitiationTask = (PartialConnectionInitiationTask) partialConnectionTask;
+        PartialConnectionInitiationTaskImpl partialConnectionInitiationTask = (PartialConnectionInitiationTaskImpl) partialConnectionTask;
 
         assertThat(partialConnectionInitiationTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
         assertThat(partialConnectionInitiationTask.isDefault()).isFalse();
@@ -266,7 +267,7 @@ public class PartialConnectionInitiationTaskCrudIT {
     @Test
     public void testUpdate() {
 
-        PartialConnectionInitiationTask connectionInitiationTask;
+        PartialConnectionInitiationTaskImpl connectionInitiationTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -301,14 +302,14 @@ public class PartialConnectionInitiationTaskCrudIT {
             context.commit();
         }
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(connectionInitiationTask.getId());
+        Optional<ServerPartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(connectionInitiationTask.getId());
         assertThat(found).isPresent();
 
-        PartialConnectionTask partialConnectionTask = found.get();
+        ServerPartialConnectionTask partialConnectionTask = found.get();
 
-        assertThat(partialConnectionTask).isInstanceOf(PartialConnectionInitiationTask.class);
+        assertThat(partialConnectionTask).isInstanceOf(PartialConnectionInitiationTaskImpl.class);
 
-        PartialConnectionInitiationTask partialConnectionInitiationTask = (PartialConnectionInitiationTask) partialConnectionTask;
+        PartialConnectionInitiationTaskImpl partialConnectionInitiationTask = (PartialConnectionInitiationTaskImpl) partialConnectionTask;
 
         assertThat(partialConnectionInitiationTask.getComPortPool().getId()).isEqualTo(outboundComPortPool1.getId());
         assertThat(partialConnectionInitiationTask.isDefault()).isFalse();
@@ -319,7 +320,7 @@ public class PartialConnectionInitiationTaskCrudIT {
 
     @Test
     public void testDelete() {
-        PartialConnectionInitiationTask connectionInitiationTask;
+        PartialConnectionInitiationTaskImpl connectionInitiationTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -351,7 +352,7 @@ public class PartialConnectionInitiationTaskCrudIT {
             context.commit();
         }
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(connectionInitiationTask.getId());
+        Optional<ServerPartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(connectionInitiationTask.getId());
         assertThat(found).isAbsent();
 
     }

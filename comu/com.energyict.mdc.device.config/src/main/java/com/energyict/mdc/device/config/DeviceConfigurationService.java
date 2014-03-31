@@ -6,7 +6,7 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.device.config.impl.PartialConnectionTask;
+import com.energyict.mdc.device.config.impl.ServerPartialConnectionTask;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -285,11 +285,11 @@ public interface DeviceConfigurationService {
 
     public DeviceCommunicationConfiguration newDeviceCommunicationConfiguration(DeviceConfiguration deviceConfiguration);
 
-    public Optional<PartialConnectionTask> getPartialConnectionTask(long id);
+    public Optional<ServerPartialConnectionTask> getPartialConnectionTask(long id);
 
-    public List<PartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass);
+    public List<ServerPartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass);
 
     public Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(long id);
 
-    List<PartialConnectionTask> findByComPortPool(ComPortPool comPortPool);
+    List<ServerPartialConnectionTask> findByComPortPool(ComPortPool comPortPool);
 }

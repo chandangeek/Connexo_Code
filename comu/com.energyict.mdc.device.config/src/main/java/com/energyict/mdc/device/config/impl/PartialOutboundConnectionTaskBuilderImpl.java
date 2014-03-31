@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
 
@@ -10,12 +11,12 @@ import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
  * Date: 13/03/14
  * Time: 15:31
  */
-public class PartialOutboundConnectionTaskBuilderImpl extends AbstractScheduledPartialConnectionTaskBuilder<PartialOutboundConnectionTaskBuilder, PartialOutboundConnectionTask> implements PartialOutboundConnectionTaskBuilder {
+public class PartialOutboundConnectionTaskBuilderImpl extends AbstractScheduledPartialConnectionTaskBuilder<PartialOutboundConnectionTaskBuilder, ServerPartialOutboundConnectionTask> implements PartialOutboundConnectionTaskBuilder {
 
     private ComWindow comWindow;
     private ConnectionStrategy connectionStrategy;
     private boolean allowSimultaneousConnections;
-    private PartialConnectionInitiationTask partialConnectionInitiationTask;
+    private PartialConnectionInitiationTaskImpl partialConnectionInitiationTask;
 
 
     PartialOutboundConnectionTaskBuilderImpl(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
@@ -41,7 +42,7 @@ public class PartialOutboundConnectionTaskBuilderImpl extends AbstractScheduledP
     }
 
     @Override
-    public PartialOutboundConnectionTaskBuilder initiatonTask(PartialConnectionInitiationTask connectionInitiationTask) {
+    public PartialOutboundConnectionTaskBuilder initiatonTask(PartialConnectionInitiationTaskImpl connectionInitiationTask) {
         this.partialConnectionInitiationTask = connectionInitiationTask;
         return myself;
     }
@@ -53,12 +54,12 @@ public class PartialOutboundConnectionTaskBuilderImpl extends AbstractScheduledP
     }
 
     @Override
-    PartialOutboundConnectionTask newInstance() {
+    ServerPartialOutboundConnectionTask newInstance() {
         return PartialOutboundConnectionTaskImpl.from(dataModel, configuration);
     }
 
     @Override
-    void populate(PartialOutboundConnectionTask instance) {
+    void populate(ServerPartialOutboundConnectionTask instance) {
         super.populate(instance);
         instance.setDefault(asDefault);
         instance.setComWindow(comWindow);

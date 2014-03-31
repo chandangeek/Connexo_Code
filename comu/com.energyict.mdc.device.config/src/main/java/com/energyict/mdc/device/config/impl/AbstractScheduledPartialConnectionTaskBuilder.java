@@ -14,7 +14,7 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
  * Date: 13/03/14
  * Time: 15:12
  */
-public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends PartialScheduledConnectionTask> extends AbstractPartialConnectionTaskBuilder<S, OutboundComPortPool, U> implements PartialScheduledConnectionTaskBuilder<S, U> {
+public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends com.energyict.mdc.device.config.PartialScheduledConnectionTask> extends AbstractPartialConnectionTaskBuilder<S, OutboundComPortPool, U> implements PartialScheduledConnectionTaskBuilder<S, U> {
 
     private NextExecutionSpecs nextExecutionSpecs;
     private TimeDuration retryDelay;

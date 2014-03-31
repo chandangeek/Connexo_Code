@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.device.config.impl.PartialConnectionInitiationTaskImpl;
 import com.energyict.mdc.protocol.api.ConnectionType;
 
 /**
@@ -43,4 +44,15 @@ public interface PartialOutboundConnectionTask extends PartialScheduledConnectio
      */
     public boolean isSimultaneousConnectionsAllowed();
 
+    void setComWindow(ComWindow comWindow);
+
+    void setConnectionStrategy(ConnectionStrategy connectionStrategy);
+
+    void setAllowSimultaneousConnections(boolean allowSimultaneousConnections);
+
+    void setInitiationTask(PartialConnectionInitiationTask partialConnectionInitiationTask);
+
+    void setDefault(boolean asDefault);
+
+    void setInitiationTask(PartialConnectionInitiationTaskImpl partialConnectionInitiationTask);
 }

@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.device.config.PartialConnectionTask;
+
 /**
  * Adds behavior to {@link PartialConnectionTask} that is private
  * to the server side implementation.

@@ -10,14 +10,14 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
  * Date: 14/03/14
  * Time: 10:09
  */
-public class PartialInboundConnectionTaskBuilderImpl extends AbstractPartialConnectionTaskBuilder<PartialInboundConnectionTaskBuilder, InboundComPortPool, PartialInboundConnectionTask> implements PartialInboundConnectionTaskBuilder {
+public class PartialInboundConnectionTaskBuilderImpl extends AbstractPartialConnectionTaskBuilder<PartialInboundConnectionTaskBuilder, InboundComPortPool, PartialInboundConnectionTaskImpl> implements PartialInboundConnectionTaskBuilder {
 
     PartialInboundConnectionTaskBuilderImpl(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
         super(PartialInboundConnectionTaskBuilder.class, dataModel, configuration);
     }
 
     @Override
-    void populate(PartialInboundConnectionTask instance) {
+    void populate(PartialInboundConnectionTaskImpl instance) {
         instance.setComportPool(comPortPool);
         instance.setDefault(asDefault);
     }
@@ -29,7 +29,7 @@ public class PartialInboundConnectionTaskBuilderImpl extends AbstractPartialConn
     }
 
     @Override
-    PartialInboundConnectionTask newInstance() {
+    PartialInboundConnectionTaskImpl newInstance() {
         return PartialInboundConnectionTaskImpl.from(dataModel, configuration);
     }
 }

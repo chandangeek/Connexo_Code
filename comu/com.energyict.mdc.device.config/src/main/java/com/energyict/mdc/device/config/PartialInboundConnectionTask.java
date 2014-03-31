@@ -19,4 +19,8 @@ public interface PartialInboundConnectionTask extends PartialConnectionTask {
     @Override
     public InboundComPortPool getComPortPool();
 
+    void setComportPool(InboundComPortPool comPortPool);
+
+    void setDefault(boolean asDefault);
+
 }

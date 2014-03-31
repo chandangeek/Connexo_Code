@@ -14,7 +14,7 @@ import java.util.Map;
  * Date: 13/03/14
  * Time: 15:03
  */
-public abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortPool, U extends PartialConnectionTask> implements PartialConnectionTaskBuilder<S, T, U> {
+public abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortPool, U extends com.energyict.mdc.device.config.PartialConnectionTask> implements PartialConnectionTaskBuilder<S, T, U> {
 
     final S myself;
     final DataModel dataModel;

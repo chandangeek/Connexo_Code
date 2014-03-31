@@ -6,14 +6,17 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.ShadowList;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -57,71 +60,6 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     static DeviceCommunicationConfigurationImpl from(DataModel dataModel, DeviceConfiguration deviceConfiguration) {
         return dataModel.getInstance(DeviceCommunicationConfigurationImpl.class).init(deviceConfiguration);
     }
-
-//    public DeviceCommunicationConfigurationImpl(DeviceConfiguration deviceConfiguration, int id) {
-//        super(id);
-//        this.deviceConfiguration = deviceConfiguration;
-//        this.deviceConfigurationId = (int) deviceConfiguration.getId();
-//    }
-//
-//    public DeviceCommunicationConfigurationImpl(DeviceConfiguration deviceConfiguration, ResultSet resultSet) throws SQLException {
-//        this.deviceConfiguration = deviceConfiguration;
-//        this.doLoad(resultSet);
-//    }
-
-//    @Override
-//    protected void doLoad(ResultSet resultSet) throws SQLException {
-//        super.doLoad(resultSet);
-//        this.doLoad(ResultSetIterator.newForPersistentIdObject(resultSet));
-//    }
-//
-//    private void doLoad(ResultSetIterator resultSet) throws SQLException {
-//        this.deviceConfigurationId = resultSet.nextInt();
-//        this.supportsAllMessageCategories = resultSet.nextInt() != 0;
-//        this.userActions = this.userActionsFromDatabaseValue(resultSet.nextLong());
-//    }
-//
-//    private EnumSet<DeviceMessageUserAction> userActionsFromDatabaseValue(long userActions) {
-//        return new DeviceMessageUserActionSetValueFactory().fromDatabaseValue(userActions);
-//    }
-//
-//    @Override
-//    protected int bindBody(PreparedStatement preparedStatement, int firstParameterNumber) throws SQLException {
-//        int parameterNumber = firstParameterNumber;
-//        preparedStatement.setInt(parameterNumber++, this.deviceConfigurationId);
-//        preparedStatement.setInt(parameterNumber++, this.toBoolean(this.supportsAllMessageCategories));
-//        preparedStatement.setLong(parameterNumber++, this.userActionsToDatabaseValue());
-//        return parameterNumber;
-//    }
-
-//    private long userActionsToDatabaseValue() {
-//        return new DeviceMessageUserActionSetValueFactory().toDatabaseValue(this.userActions);
-//    }
-
-//    public void init(final DeviceCommunicationConfigurationShadow shadow) throws SQLException, BusinessException {
-//        this.execute(new Transaction<Void>() {
-//            public Void doExecute() throws BusinessException, SQLException {
-//                doInit(shadow);
-//                return null;
-//            }
-//        });
-//    }
-
-//    private void copy(DeviceCommunicationConfigurationShadow shadow, boolean b) {
-//        this.supportsAllMessageCategories = shadow.isSupportAllMessageCategories();
-//        if (shadow.isSupportAllMessageCategories()) {
-//            this.userActions = EnumSet.copyOf(shadow.getAllCategoriesUserActions());
-//        }
-//        int i = Boolean.valueOf(b).compareTo(false);
-//    }
-
-//    private void copyNew(DeviceCommunicationConfigurationShadow shadow) {
-//        this.copy(shadow);
-//    }
-
-//    private void copyUpdate(DeviceCommunicationConfigurationShadow shadow) {
-//        this.copy(shadow);
-//    }
 
 //    private void validateNew(DeviceCommunicationConfigurationShadow shadow) throws BusinessException {
 //        this.validate(shadow);
@@ -214,324 +152,6 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 //        }
 //    }
 
-//    protected void doInit(DeviceCommunicationConfigurationShadow shadow) throws SQLException, BusinessException {
-//        this.copyNew(shadow);
-//        this.validateNew(shadow);
-//        this.postNew();
-//        this.createMessageEnablements(shadow.getDeviceMessageEnablementShadows());
-//        this.doSecurityPropertySetCrud(shadow.getSecurityPropertySetShadows());
-//        this.doPartialConnectionTaskCrud(shadow.getPartialConnectionTaskShadows());
-//        this.doConfigurationPropertiesCrud(shadow.getConfigurationPropertiesShadows());
-//        this.prepareComTaskEnablementShadows(shadow.getComTaskEnablementShadows());
-//        this.comTaskEnablements = this.getComTaskEnablementFactory().doCrud(this, shadow.getComTaskEnablementShadows());
-//        this.created();
-//    }
-
-//    private void doDeviceMessageEnablementCrud(ShadowList<DeviceMessageEnablementShadow> enablementShadows) throws SQLException {
-//        this.deleteAllMessageEnablements();
-//        this.createMessageEnablements(enablementShadows);
-//        this.deviceMessageEnablements = null;    // Invalidate the cache if any
-//    }
-
-//    private void deleteAllMessageEnablements() throws SQLException {
-//        SqlBuilder sqlBuilder = new SqlBuilder("delete from mdcdevicemessagesforconfig where comconfig = ?");
-//        sqlBuilder.bindInt(this.getId());
-//        try (PreparedStatement preparedStatement = sqlBuilder.getStatement(Environment.DEFAULT.get().getConnection())) {
-//            preparedStatement.executeUpdate();
-//            // Don't care about the number of rows that were effectively deleted.
-//        }
-//    }
-
-//    private void createMessageEnablements(ShadowList<DeviceMessageEnablementShadow> deviceMessageEnablementShadows) throws SQLException {
-//        Collection<MessageEnablementSpec> enablementSpecs = new ArrayList<>();
-//        this.collectEnablementSpecs(deviceMessageEnablementShadows.getNewShadows(), enablementSpecs);
-//        this.collectEnablementSpecs(deviceMessageEnablementShadows.getRemainingShadows(), enablementSpecs);
-//        this.createMessageEnablements(enablementSpecs);
-//    }
-//
-//    private void collectEnablementSpecs(Collection<DeviceMessageEnablementShadow> enablementShadows, Collection<MessageEnablementSpec> specs) {
-//        for (DeviceMessageEnablementShadow shadow : enablementShadows) {
-//            specs.add(this.newMessageEnablementSpec(shadow));
-//        }
-//    }
-
-//    private void createMessageEnablements(Collection<MessageEnablementSpec> enablementSpecs) throws SQLException {
-//        try (BatchStatement statement = new BatchStatement("insert into mdcdevicemessagesforconfig (discriminator, msgpk, useractions, comconfig) values (?, ?, ?, ?)", enablementSpecs.size())) {
-//            for (MessageEnablementSpec enablementSpec : enablementSpecs) {
-//                enablementSpec.addToBatch(statement);
-//                statement.setInt(CONFIG_INDEX, this.getId());
-//                statement.addBatch();
-//            }
-//            statement.executeBatch();
-//        }
-//    }
-//
-//    private void doSecurityPropertySetCrud(ShadowList<SecurityPropertySetShadow> shadows) throws BusinessException, SQLException {
-//        this.securityPropertySets = null;
-//        List<SecurityPropertySet> currentPropertySets = new ArrayList<>();
-//        this.updateExistingPropertySets(shadows.getUpdatedShadows(), currentPropertySets);
-//        this.deleteObsoletePropertySets(shadows.getDeletedShadows());
-//        this.createNewPropertySets(shadows.getNewShadows(), currentPropertySets);
-//        this.copyUnmodifiedSecurityPropertySets(shadows.getRemainingShadows(), currentPropertySets);
-//        this.securityPropertySets = currentPropertySets;
-//    }
-
-//    private void updateExistingPropertySets(List<SecurityPropertySetShadow> updatedShadows, List<SecurityPropertySet> updatedSecurityPropertySets)
-//        throws BusinessException, SQLException {
-//        for (SecurityPropertySetShadow shadow : updatedShadows) {
-//            this.updateSecurityPropertySetFromShadow(shadow, updatedSecurityPropertySets);
-//        }
-//    }
-
-//    /**
-//     * Updates the existing {@link SecurityPropertySet} that matches
-//     * the id of the specified {@link SecurityPropertySetShadow}
-//     * and throws a BusinessException if there is no matching SecurityPropertySet.
-//     * The updated SecurityPropertySet is added to the list of updated SecurityPropertySets.
-//     *
-//     * @param shadow                      The SecurityPropertySetShadow
-//     * @param updatedSecurityPropertySets The list of already updated SecurityPropertySets
-//     * @throws BusinessException Thrown if the update of the SecurityPropertySet violates a business constraint or
-//     *                           when there is no SecurityPropertySet with a matching id.
-//     * @throws SQLException      Thrown if the update of the SecurityPropertySet violates a database constraint
-//     */
-//    private void updateSecurityPropertySetFromShadow(SecurityPropertySetShadow shadow, List<SecurityPropertySet> updatedSecurityPropertySets)
-//        throws BusinessException, SQLException {
-//        for (SecurityPropertySet securityPropertySet : this.getSecurityPropertySets()) {
-//            if (securityPropertySet.getId() == shadow.getId()) {
-//                ServerSecurityPropertySet updateableSecurityPropertySet = (ServerSecurityPropertySet) securityPropertySet;
-//                updateableSecurityPropertySet.update(shadow);
-//                updatedSecurityPropertySets.add(securityPropertySet);
-//                return; // There is only one such SecurityPropertySet so we are done now
-//            }
-//        }
-//        throw this.securityPropertySetDoesNotExist(shadow.getId());
-//    }
-
-//    private void deleteObsoletePropertySets(List<SecurityPropertySetShadow> obsoleteShadows) throws BusinessException, SQLException {
-//        for (SecurityPropertySetShadow shadow : obsoleteShadows) {
-//            this.deleteSecurityPropertySet(shadow.getId());
-//        }
-//    }
-
-//    /**
-//     * Deletes the existing SecurityPropertySet that matches
-//     * the id of the specified SecurityPropertySetShadow
-//     * and throws a BusinessException if there is no matching SecurityPropertySet.
-//     * The updated SecurityPropertySet is added to the list of updated SecurityPropertySets.
-//     *
-//     * @param id The id of the obsolete SecurityPropertySet
-//     * @throws BusinessException Thrown if the delete of the SecurityPropertySet violates a business constraint or
-//     *                           when there is no SecurityPropertySet with a matching id.
-//     * @throws SQLException      Thrown if the delete of the SecurityPropertySet violates a database constraint
-//     */
-//    private void deleteSecurityPropertySet(int id) throws BusinessException, SQLException {
-//        this.getSecurityPropertySet(id).delete();
-//    }
-//
-//    private void createNewPropertySets(List<SecurityPropertySetShadow> newShadows, List<SecurityPropertySet> currentPropertySets)
-//        throws BusinessException, SQLException {
-//        SecurityPropertySetFactory factory = this.getSecurityPropertySetFactory();
-//        for (SecurityPropertySetShadow shadow : newShadows) {
-//            currentPropertySets.add(factory.create(shadow, this));
-//        }
-//    }
-//
-//    private void copyUnmodifiedSecurityPropertySets(List<SecurityPropertySetShadow> remainingShadows, List<SecurityPropertySet> currentPropertySets)
-//        throws BusinessException {
-//        for (SecurityPropertySetShadow remainingSecurityPropertySetShadow : remainingShadows) {
-//            if (!remainingSecurityPropertySetShadow.isDirty()) {
-//                currentPropertySets.add(this.getSecurityPropertySet(remainingSecurityPropertySetShadow.getId()));
-//            }
-//        }
-//    }
-//
-//    private SecurityPropertySet getSecurityPropertySet(int id) throws BusinessException {
-//        for (SecurityPropertySet securityPropertySet : this.getSecurityPropertySets()) {
-//            if (securityPropertySet.getId() == id) {
-//                return securityPropertySet; // There is only one such SecurityPropertySet so we are done now
-//            }
-//        }
-//        throw this.securityPropertySetDoesNotExist(id);
-//    }
-//
-//    private BusinessException securityPropertySetDoesNotExist(int id) {
-//        return new BusinessException(
-//                "noSecurityPropertySetWithIdXInDeviceConfigurationY",
-//                "There is no security property set with id {0} in device configuration {1}",
-//                id,
-//                this.getDeviceConfiguration().getName());
-//    }
-
-//    private BusinessException securityPropertySetDoesNotExist(String name) {
-//        return new BusinessException(
-//                "noSecurityPropertySetWithNameXInDeviceConfigurationY",
-//                "There is no security property set with name {0} in device configuration {1}",
-//                name,
-//                this.getDeviceConfiguration().getName());
-//    }
-//
-//    private BusinessException protocolDialectConfigurationPropertyDoesNotExist(String name) {
-//        return new BusinessException(
-//            "noProtocolDialectConfigurationPropertyWithNameXInDeviceConfigurationY",
-//            "There is no protocol dialect configuration property with name '{0}' in device configuration '{1}'",
-//            name, this.getDeviceConfiguration().getName());
-//    }
-
-
-//    private BusinessException configurationPropertiesDoesNotExist(int id) {
-//        return new BusinessException(
-//                "noDialectConfigurationPropertiesWithIdXInDeviceConfigurationY",
-//                "There is no protocol dialect configuration properties with id {0} in device configuration {1}",
-//                id,
-//                this.getDeviceConfiguration().getName());
-//    }
-
-//    private void doConfigurationPropertiesCrud(ShadowList<ProtocolDialectConfigurationPropertiesShadow> shadows) throws BusinessException, SQLException {
-//        this.configurationPropertiesList = null;
-//        List<ProtocolDialectConfigurationProperties> currentConfigurationPropertiesList = new ArrayList<>();
-//        this.updateExistingConfigurationProperties(shadows.getUpdatedShadows(), currentConfigurationPropertiesList);
-//        this.deleteObsoleteConfigurationProperties(shadows.getDeletedShadows());
-//        this.createNewConfigurationProperties(shadows.getNewShadows(), currentConfigurationPropertiesList);
-//        this.copyUnmodifiedConfigurationProperties(shadows.getRemainingShadows(), currentConfigurationPropertiesList);
-//        this.configurationPropertiesList = currentConfigurationPropertiesList;
-//    }
-
-//    private void updateExistingConfigurationProperties(List<ProtocolDialectConfigurationPropertiesShadow> updatedShadows, List<ProtocolDialectConfigurationProperties> updatedConfigurationProperties)
-//        throws BusinessException, SQLException {
-//        for (ProtocolDialectConfigurationPropertiesShadow shadow : updatedShadows) {
-//            this.updateConfigurationPropertiesFromShadow(shadow, updatedConfigurationProperties);
-//        }
-//    }
-
-//    /**
-//     * Updates the existing {@link ProtocolDialectConfigurationProperties} that matches
-//     * the id of the specified {@link ProtocolDialectConfigurationPropertiesShadow}
-//     * and throws a BusinessException if there is no matching ProtocolDialectConfigurationProperties.
-//     * The updated ProtocolDialectConfigurationProperties is added to the list of updated ProtocolDialectConfigurationProperties.
-//     *
-//     * @param shadow                         The ProtocolDialectConfigurationPropertiesShadow
-//     * @param updatedConfigurationProperties The list of already updated ProtocolDialectConfigurationProperties
-//     * @throws BusinessException Thrown if the update of the ProtocolDialectConfigurationProperties violates a business constraint or
-//     *                           when there is no ProtocolDialectConfigurationProperties with a matching id.
-//     * @throws SQLException      Thrown if the update of the ProtocolDialectConfigurationProperties violates a database constraint
-//     */
-//    private void updateConfigurationPropertiesFromShadow(ProtocolDialectConfigurationPropertiesShadow shadow,
-//                                                         List<ProtocolDialectConfigurationProperties> updatedConfigurationProperties)
-//        throws BusinessException, SQLException {
-//        for (ProtocolDialectConfigurationProperties configurationProperties : this.getProtocolDialectConfigurationPropertiesList()) {
-//            if (configurationProperties.getId() == shadow.getId()) {
-//                configurationProperties.update(shadow);
-//                updatedConfigurationProperties.add(configurationProperties);
-//                return; // There is only one such element so we are done now
-//            }
-//        }
-//        throw this.configurationPropertiesDoesNotExist(shadow.getId());
-//    }
-
-//    private void deleteObsoleteConfigurationProperties(List<ProtocolDialectConfigurationPropertiesShadow> obsoleteShadows) throws BusinessException, SQLException {
-//        for (ProtocolDialectConfigurationPropertiesShadow shadow : obsoleteShadows) {
-//            this.deleteConfigurationProperties(shadow.getId());
-//        }
-//    }
-
-//    private void createNewConfigurationProperties(List<ProtocolDialectConfigurationPropertiesShadow> newShadows, List<ProtocolDialectConfigurationProperties> currentConfigurationProperties)
-//        throws
-//            BusinessException,
-//            SQLException {
-//        ProtocolDialectConfigurationPropertiesFactory factory = this.getProtocolDialectConfigurationPropertiesFactory();
-//        for (ProtocolDialectConfigurationPropertiesShadow shadow : newShadows) {
-//            currentConfigurationProperties.add(factory.create(shadow, this));
-//        }
-//    }
-
-//    private void copyUnmodifiedConfigurationProperties(List<ProtocolDialectConfigurationPropertiesShadow> remainingShadows, List<ProtocolDialectConfigurationProperties> currentConfigurationProperties)
-//        throws BusinessException {
-//        for (ProtocolDialectConfigurationPropertiesShadow remainingConfigurationPropertiesShadow : remainingShadows) {
-//            if (!remainingConfigurationPropertiesShadow.isDirty()) {
-//                currentConfigurationProperties.add(this.getConfigurationProperties(remainingConfigurationPropertiesShadow.getId()));
-//            }
-//        }
-//    }
-
-//    /**
-//     * Prepares the ComTaskEnablementShadows such that
-//     * the ids of the newly created SecurityPropertySets
-//     * and/or newly created {@link PartialConnectionTask}s
-//     * and/or newly created {@link ProtocolDialectConfigurationProperties}s
-//     * are copied into the ComTaskEnablementShadow
-//     * that are using the shadow from which the newly created
-//     * objects were constructed.
-//     *
-//     * @param shadows The List of ComTaskEnablementShadow
-//     */
-//    private void prepareComTaskEnablementShadows(ShadowList<ComTaskEnablementShadow> shadows) throws BusinessException {
-//        for (ComTaskEnablementShadow shadow : shadows.getNewShadows()) {
-//            this.prepareComTaskEnablementShadow(shadow);
-//        }
-//        for (ComTaskEnablementShadow shadow : shadows.getUpdatedShadows()) {
-//            this.prepareComTaskEnablementShadow(shadow);
-//        }
-//    }
-//
-//    private void prepareComTaskEnablementShadow(ComTaskEnablementShadow shadow) throws BusinessException {
-//        this.copySecurityPropertySetId(shadow);
-//        this.copyProtocolDialectConfigurationPropertiesId(shadow);
-//        if (shadow.getPartialConnectionTaskShadow() != null) {
-//            this.copyPartialConnectionTaskId(shadow);
-//        }
-//    }
-//
-//    private void copySecurityPropertySetId(ComTaskEnablementShadow shadow) throws BusinessException {
-//        if (shadow.getSecurityPropertySetShadow() != null) {
-//            SecurityPropertySet securityPropertySet = this.findSecurityPropertySetByName(shadow.getSecurityPropertySetShadow().getName());
-//            shadow.setSecurityPropertySetId(securityPropertySet.getId());
-//        }
-//    }
-//
-//    private SecurityPropertySet findSecurityPropertySetByName(String name) throws BusinessException {
-//        for (SecurityPropertySet securityPropertySet : this.getSecurityPropertySets()) {
-//            if (name.equals(securityPropertySet.getName())) {
-//                return securityPropertySet;
-//            }
-//        }
-//        throw this.securityPropertySetDoesNotExist(name);
-//    }
-//
-//    private void copyProtocolDialectConfigurationPropertiesId(ComTaskEnablementShadow shadow) throws BusinessException {
-//        if (shadow.getProtocolDialectConfigurationPropertiesShadow() != null) {
-//            ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties =
-//                this.findProtocolDialectConfigurationPropertyByName(shadow.getProtocolDialectConfigurationPropertiesShadow().getName());
-//            shadow.setProtocolDialectConfigurationPropertiesId(protocolDialectConfigurationProperties.getId());
-//        }
-//    }
-
-//    private void copyPartialConnectionTaskId(ComTaskEnablementShadow shadow) throws BusinessException {
-//        if (shadow.getPartialConnectionTaskShadow() != null) {
-//            PartialConnectionTask partialConnectionTask = this.findPartialConnectionTaskByName(shadow.getPartialConnectionTaskShadow().getName());
-//            shadow.setPartialConnectionTaskId(partialConnectionTask.getId());
-//        }
-//    }
-
-//    private BusinessException partialConnectionTaskDoesNotExist(String name) {
-//        return new BusinessException(
-//                "noPartialConnectionTaskWithNameXInDeviceConfigurationY",
-//                "There is no partial connection task with name {0} in device configuration {1}",
-//                name,
-//                this.getDeviceConfiguration().getName());
-//    }
-
-//    private void doPartialConnectionTaskCrud(ShadowList<PartialConnectionTaskShadow> shadows) throws BusinessException, SQLException {
-//        this.validateOnlyOneDefault(shadows);
-//        this.validateUniqueName(shadows);
-//        List<PartialConnectionTask> currentPartialConnectionTasks = new ArrayList<>();
-//        this.updateExistingPartialConnectionTasks(shadows.getUpdatedShadows(), currentPartialConnectionTasks);
-//        this.deleteObsoletePartialConnectionTasks(shadows.getDeletedShadows());
-//        this.createNewPartialConnectionTasks(shadows.getNewShadows(), currentPartialConnectionTasks);
-//        this.copyUnmodifiedPartialConnectionTasks(shadows.getRemainingShadows(), currentPartialConnectionTasks);
-//        this.partialConnectionTasks = currentPartialConnectionTasks;
-//    }
-//
 //    private void validateOnlyOneDefault(ShadowList<PartialConnectionTaskShadow> shadows) throws BusinessException {
 //        int defaultCount = 0;
 //        List<PartialConnectionTaskShadow> remaining = this.getRemainingShadows(shadows);
@@ -558,65 +178,6 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 //        }
 //    }
 
-    /**
-     * Gets the shadows that remain active in the specified ShadowList.
-     *
-     * @param shadows The ShadowList
-     * @return The shadows that remain active
-     * @see ShadowList#getNewShadows()
-     * @see ShadowList#getRemainingShadows()
-     */
-//    private List<PartialConnectionTaskShadow> getRemainingShadows(ShadowList<PartialConnectionTaskShadow> shadows) {
-//        List<PartialConnectionTaskShadow> remaining = new ArrayList<>(shadows.getNewShadows());
-//        remaining.addAll(shadows.getRemainingShadows());
-//        return remaining;
-//    }
-//
-//    private void updateExistingPartialConnectionTasks(List<PartialConnectionTaskShadow> updatedShadows, List<PartialConnectionTask> updatedPartialConnectionTasks)
-//        throws
-//            BusinessException,
-//            SQLException {
-//        for (PartialConnectionTaskShadow shadow : updatedShadows) {
-//            this.updatePartialConnectionTaskFromShadow(shadow, updatedPartialConnectionTasks);
-//        }
-//    }
-
-    /**
-     * Updates the existing {@link PartialConnectionTask} that matches
-     * the id of the specified {@link PartialConnectionTaskShadow}
-     * and throws a BusinessException if there is no matching PartialConnectionTask.
-     * The updated PartialConnectionTask is added to the list of updated PartialConnectionTasks.
-     *
-     * @param shadow                        The PartialConnectionTaskShadow
-     * @param updatedPartialConnectionTasks The list of already updated PartialConnectionTasks
-     * @throws BusinessException Thrown if the update of the PartialConnectionTask violates a business constraint or
-     *                           when there is no PartialConnectionTask with a matching id.
-     * @throws SQLException      Thrown if the update of the PartialConnectionTask violates a database constraint
-     */
-//    private void updatePartialConnectionTaskFromShadow(PartialConnectionTaskShadow shadow, List<PartialConnectionTask> updatedPartialConnectionTasks)
-//        throws
-//            BusinessException,
-//            SQLException {
-//        PartialConnectionTask updateTarget = this.getPartialConnectionTask(shadow.getId());
-//        // Remember that getPartialConnectionTask throws an exception when the task does not exist.
-//        if (shadow instanceof PartialInboundConnectionTaskShadow) {
-//            PartialInboundConnectionTask inboundConnectionTask = (PartialInboundConnectionTask) updateTarget;
-//            PartialInboundConnectionTaskShadow updateShadow = (PartialInboundConnectionTaskShadow) shadow;
-//            inboundConnectionTask.update(updateShadow);
-//        } else if (shadow instanceof PartialOutboundConnectionTaskShadow) {
-//            PartialOutboundConnectionTask outboundConnectionTask = (PartialOutboundConnectionTask) updateTarget;
-//            PartialOutboundConnectionTaskShadow updateShadow = (PartialOutboundConnectionTaskShadow) shadow;
-//            outboundConnectionTask.update(updateShadow);
-//        } else if (shadow instanceof PartialConnectionInitiationTaskShadow) {
-//            PartialConnectionInitiationTask connectionInitiationTask = (PartialConnectionInitiationTask) updateTarget;
-//            PartialConnectionInitiationTaskShadow updateShadow = (PartialConnectionInitiationTaskShadow) shadow;
-//            connectionInitiationTask.update(updateShadow);
-//        } else {
-//            throw CodingException.unknownPartialConnectionTaskShadowClass(shadow.getClass());
-//        }
-//        updatedPartialConnectionTasks.add(updateTarget);
-//    }
-
 //    private void validateObsoletePartialConnectionTasksNoLongerUsed (List<PartialConnectionTaskShadow> obsoleteShadows, ShadowList<ComTaskEnablementShadow> comTaskEnablementShadows)
 //        throws BusinessException {
 //        for (PartialConnectionTaskShadow shadow : obsoleteShadows) {
@@ -638,17 +199,8 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 //        }
 //    }
 
-//    private void deleteObsoletePartialConnectionTasks(List<PartialConnectionTaskShadow> obsoleteShadows)
-//        throws
-//            BusinessException,
-//            SQLException {
-//        for (PartialConnectionTaskShadow shadow : obsoleteShadows) {
-//            this.deletePartialConnectionTask(shadow.getId());
-//        }
-//    }
-
     /**
-     * Deletes the existing {@link PartialConnectionTask} that matches
+     * Deletes the existing {@link com.energyict.mdc.device.config.PartialConnectionTask} that matches
      * the id of the specified PartialConnectionTaskShadow
      * and throws a BusinessException if there is no matching PartialConnectionTask.
      * The updated PartialConnectionTask is added to the list of updated PartialConnectionTasks.
@@ -945,7 +497,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 //    }
 
     @Override
-    public List<PartialOutboundConnectionTask> getPartialOutboundConnectionTasks() {
+    public List<ServerPartialOutboundConnectionTask> getPartialOutboundConnectionTasks() {
         return this.filter(this.findAllPartialConnectionTasks(), new PartialOutboundConnectionTaskFilterPredicate());
     }
 
@@ -1036,7 +588,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
         @Override
         public boolean retain(PartialConnectionTask task) {
-            return task instanceof PartialInboundConnectionTask;
+            return task instanceof PartialInboundConnectionTaskImpl;
         }
     }
 
@@ -1044,7 +596,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
         @Override
         public boolean retain(PartialConnectionTask task) {
-            return task instanceof PartialConnectionInitiationTask;
+            return task instanceof PartialConnectionInitiationTaskImpl;
         }
     }
 

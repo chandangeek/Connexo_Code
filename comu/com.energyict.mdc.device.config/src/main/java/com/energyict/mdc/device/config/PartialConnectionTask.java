@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.common.NamedBusinessObject;
+import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -23,7 +24,7 @@ import java.util.List;
  * @author sva
  * @since 21/01/13 - 15:04
  */
-public interface PartialConnectionTask extends NamedBusinessObject {
+public interface PartialConnectionTask extends HasName, HasId {
 
     /**
      * Gets the ComPortPool that is used
@@ -89,4 +90,15 @@ public interface PartialConnectionTask extends NamedBusinessObject {
      */
     public ConnectionTypePluggableClass getPluggableClass ();
 
+    void save();
+
+    void delete();
+
+    void setConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass);
+
+    void setProperty(String key, Object value);
+
+    void removeProperty(String key);
+
+    void setName(String name);
 }

@@ -9,12 +9,15 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -26,15 +29,18 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Provides an implementation for the {@link PartialConnectionTask} interface.
+ * Provides an implementation for the {@link com.energyict.mdc.device.config.PartialConnectionTask} interface.
  *
  * @author sva
  * @since 21/01/13 - 16:44
  */
 @PartialConnectionTaskCannotHaveDuplicateName(groups = {Save.Create.class, Save.Update.class})
-public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialConnectionTask> implements ServerPartialConnectionTask {
+public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<ServerPartialConnectionTask> implements ServerPartialConnectionTask {
+
+    public static final Map<String, Class<? extends ServerPartialConnectionTask>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends ServerPartialConnectionTask>>of("0", PartialConnectionInitiationTaskImpl.class, "1", PartialInboundConnectionTaskImpl.class, "2", PartialOutboundConnectionTaskImpl.class);
 
     private final EngineModelService engineModelService;
     private final ProtocolPluggableService protocolPluggableService;
@@ -46,12 +52,12 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     private Reference<ComPortPool> comPortPool = ValueReference.absent();
     private boolean isDefault;
     @Valid
-    private List<PartialConnectionTaskProperty> properties = new ArrayList<>();
+    private List<PartialConnectionTaskPropertyImpl> properties = new ArrayList<>();
     private Date modDate;
 
     @Inject
     PartialConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
-        super(PartialConnectionTask.class, dataModel, eventService, thesaurus);
+        super(ServerPartialConnectionTask.class, dataModel, eventService, thesaurus);
         this.engineModelService = engineModelService;
         this.protocolPluggableService = protocolPluggableService;
     }
@@ -78,7 +84,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     }
 
     @Override
-    public PartialConnectionTaskProperty getProperty (String name) {
+    public PartialConnectionTaskProperty getProperty(String name) {
         for (PartialConnectionTaskProperty property : this.getProperties()) {
             if (name.equals(property.getName())) {
                 return property;
@@ -89,11 +95,11 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
 
     @Override
     public List<PartialConnectionTaskProperty> getProperties () {
-        return Collections.unmodifiableList(properties);
+        return Collections.<PartialConnectionTaskProperty>unmodifiableList(properties);
     }
 
     public void setProperty(String key, Object value) {
-        for (PartialConnectionTaskProperty property : properties) {
+        for (PartialConnectionTaskPropertyImpl property : properties) {
             if (property.getName().equals(key)) {
                 property.setValue(value);
                 if (this.getId() != 0) {
@@ -110,7 +116,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
 
     @Override
     public void removeProperty(String key) {
-        for (Iterator<PartialConnectionTaskProperty> iterator = properties.iterator(); iterator.hasNext(); ) {
+        for (Iterator<PartialConnectionTaskPropertyImpl> iterator = properties.iterator(); iterator.hasNext(); ) {
             if (iterator.next().getName().equals(key)) {
                 iterator.remove();
                 return;
@@ -204,27 +210,27 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
 
     }
 
-    public static class HasSpecValidator implements ConstraintValidator<PartialConnectionTaskPropertyMustHaveSpec, PartialConnectionTaskProperty> {
+    public static class HasSpecValidator implements ConstraintValidator<PartialConnectionTaskPropertyMustHaveSpec, PartialConnectionTaskPropertyImpl> {
 
         @Override
         public void initialize(PartialConnectionTaskPropertyMustHaveSpec constraintAnnotation) {
         }
 
         @Override
-        public boolean isValid(PartialConnectionTaskProperty value, ConstraintValidatorContext context) {
+        public boolean isValid(PartialConnectionTaskPropertyImpl value, ConstraintValidatorContext context) {
             ConnectionTypePluggableClass connectionTypePluggableClass = value.getPartialConnectionTask().getPluggableClass();
             return connectionTypePluggableClass.getPropertySpec(value.getName()) != null;
         }
     }
 
-    public static class ValueValidator implements ConstraintValidator<PartialConnectionTaskPropertyValueHasCorrectType, PartialConnectionTaskProperty> {
+    public static class ValueValidator implements ConstraintValidator<PartialConnectionTaskPropertyValueHasCorrectType, PartialConnectionTaskPropertyImpl> {
 
         @Override
         public void initialize(PartialConnectionTaskPropertyValueHasCorrectType constraintAnnotation) {
         }
 
         @Override
-        public boolean isValid(PartialConnectionTaskProperty value, ConstraintValidatorContext context) {
+        public boolean isValid(PartialConnectionTaskPropertyImpl value, ConstraintValidatorContext context) {
             ConnectionTypePluggableClass connectionTypePluggableClass = value.getPartialConnectionTask().getPluggableClass();
             PropertySpec propertySpec = connectionTypePluggableClass.getPropertySpec(value.getName());
             if (propertySpec != null) {

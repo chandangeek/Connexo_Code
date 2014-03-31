@@ -16,14 +16,14 @@ import java.util.List;
  */
 public class VetoDeleteComPortPoolException extends LocalizedException {
 
-    public VetoDeleteComPortPoolException(Thesaurus thesaurus, ComPortPool comPortPool, List<PartialConnectionTask> clients) {
+    public VetoDeleteComPortPoolException(Thesaurus thesaurus, ComPortPool comPortPool, List<ServerPartialConnectionTask> clients) {
         super(thesaurus, MessageSeeds.VETO_COMPORTPOOL_DELETION, comPortPool, asString(clients));
     }
 
-    private static String asString(List<PartialConnectionTask> clients) {
+    private static String asString(List<ServerPartialConnectionTask> clients) {
         StringBuilder builder = new StringBuilder();
         Holder<String> separator = HolderBuilder.first("").andThen(", ");
-        for (PartialConnectionTask task : clients) {
+        for (ServerPartialConnectionTask task : clients) {
             builder.append(separator.get()).append(task.getName());
         }
         return builder.toString();

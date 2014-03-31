@@ -16,14 +16,14 @@ import java.util.List;
  */
 public class VetoDeleteConnectionTypePluggableClassException extends LocalizedException {
 
-    public VetoDeleteConnectionTypePluggableClassException(Thesaurus thesaurus, ConnectionTypePluggableClass connectionTypePluggableClass, List<PartialConnectionTask> clients) {
+    public VetoDeleteConnectionTypePluggableClassException(Thesaurus thesaurus, ConnectionTypePluggableClass connectionTypePluggableClass, List<ServerPartialConnectionTask> clients) {
         super(thesaurus, MessageSeeds.VETO_CONNECTIONTYPE_PLUGGABLECLASS_DELETION, connectionTypePluggableClass.getJavaClassName(), asString(clients));
     }
 
-    private static String asString(List<PartialConnectionTask> clients) {
+    private static String asString(List<ServerPartialConnectionTask> clients) {
         StringBuilder builder = new StringBuilder();
         Holder<String> separator = HolderBuilder.first("").andThen(", ");
-        for (PartialConnectionTask task : clients) {
+        for (ServerPartialConnectionTask task : clients) {
             builder.append(separator.get()).append(task.getName());
         }
         return builder.toString();

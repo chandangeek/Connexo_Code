@@ -2,7 +2,7 @@ package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.IdBusinessObject;
-import com.energyict.mdc.device.config.impl.PartialConnectionTask;
+import com.energyict.mdc.device.config.impl.ServerPartialConnectionTask;
 import com.energyict.mdc.protocol.api.device.Device;
 
 import java.sql.SQLException;
@@ -96,7 +96,7 @@ public interface ComTaskEnablement extends IdBusinessObject {
      *
      * @return The PartialConnectionTask
      */
-    public PartialConnectionTask getPartialConnectionTask ();
+    public ServerPartialConnectionTask getPartialConnectionTask();
 
 
     /**
