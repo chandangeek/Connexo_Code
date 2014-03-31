@@ -278,6 +278,13 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.validateAllRegisterSpecsHaveUniqueObisCodes();
     }
 
+    @Override
+    public void prepareDelete() {
+        this.registerSpecs.clear();
+        this.channelSpecs.clear();
+        this.logBookSpecs.clear();
+    }
+
     private void validateAllChannelSpecsHaveUniqueObisCodes() {
         Map<Long, Set<String>> loadProfileTypeObisCodes = new HashMap<>();
         for (ChannelSpec each : this.getChannelSpecs()) {
@@ -673,7 +680,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     protected void doDelete() {
-        this.getDataMapper().remove(this);
+        throw new UnsupportedOperationException("DeviceConfig is to be deleted by removing it from the device type");
     }
 
     @Override

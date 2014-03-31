@@ -4,8 +4,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import java.util.logging.Level;
 
-import static java.util.logging.Level.SEVERE;
-
 /**
  * Defines all the {@link MessageSeed}s of the device config module.
  *
@@ -36,6 +34,7 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_MAPPING_STILL_USED_BY_DEVICE_TYPE(3011, "registerMapping.usedBy.deviceType", "The register mapping {0} cannot be deleted because it is still in use by the following device type(s): {1}", Level.SEVERE),
     UNIT_IS_REQUIRED(3013, Constants.UNIT_IS_REQUIRED_KEY, "The unit of a register mapping is required", Level.SEVERE),
     TOME_OF_USE_TOO_SMALL(3014, Constants.TIMEOFUSE_TOO_SMALL, "The time of use must be a positive number", Level.SEVERE),
+    REGISTER_MAPPING_READING_TYPE_ALREADY_USED(3015, Constants.REGISTER_MAPPING_DUPLICATE_READING_TYPE, "Reading type is already used by a register type", Level.SEVERE),
     LOAD_PROFILE_TYPE_NAME_IS_REQUIRED(4001, "loadProfileType.name.required", "The name of a load profile type is required", Level.SEVERE),
     LOAD_PROFILE_TYPE_ALREADY_EXISTS(4002, "loadProfileType.duplicateNameX", "A load profile type with name '{0}' already exists", Level.SEVERE),
     LOAD_PROFILE_TYPE_INTERVAL_IN_WEEKS_IS_NOT_SUPPORTED(4003, "loadProfileType.interval.notsupported.weeks", "The interval of a load profile type cannot be expressed in number of weeks", Level.SEVERE),
@@ -242,6 +241,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY = "DTC.partialOutboundConnectionTask.executionSpecInvalidForComWindow";
         public static final String NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY_KEY = "DTC.nextExecutionSpecs.offsetGreaterThanFrequency";
         public static final String UNDER_MINIMUM_RESCHEDULE_DELAY_KEY = "DTC.partialScheduledConnectionTask.underMinimumRescheduleDelay";
+        public static final String REGISTER_MAPPING_DUPLICATE_READING_TYPE = "DTC.registerMapping.duplicateReadingType";
     }
 
 }

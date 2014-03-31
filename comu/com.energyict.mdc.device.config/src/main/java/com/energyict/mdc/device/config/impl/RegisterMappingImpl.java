@@ -37,7 +37,21 @@ import javax.validation.constraints.NotNull;
 
 import static com.elster.jupiter.util.Checks.is;
 
+@UniqueReadingType(groups = { Save.Create.class, Save.Update.class })
 public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> implements RegisterMapping {
+
+    enum Fields {
+        READING_TYPE("readingType");
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
 
     private final DeviceConfigurationService deviceConfigurationService;
 
@@ -205,7 +219,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
 
     @Override
     public ReadingType getReadingType() {
-        return this.readingType.get();
+        return this.readingType.orNull();
     }
 
     public String getDescription() {
