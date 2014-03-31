@@ -131,7 +131,14 @@ public class TableImpl<T> implements Table<T> {
 
 	Column add(ColumnImpl column) {
 		activeBuilder = false;
-		columns.add(column);
+        if (column.getFieldName() != null) {
+            for (ColumnImpl existing : columns) {
+                if (is(existing.getFieldName()).equalTo(column.getFieldName())) {
+                    throw new IllegalTableMappingException("Table " + getName() + ", column " + column.getName() + " : column " + existing.getName() + " already maps to field " + existing.getFieldName());
+                }
+            }
+        }
+        columns.add(column);
 		return column;
 	}
 
