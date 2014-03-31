@@ -1,7 +1,12 @@
 package com.elster.jupiter.users.rest.impl;
 
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
 import com.elster.jupiter.users.rest.GroupInfos;
@@ -11,30 +16,25 @@ import com.elster.jupiter.users.rest.actions.UpdateGroupTransaction;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.List;
 
 @Path("/groups")
 public class GroupResource {
 
     private final TransactionService transactionService;
     private final UserService userService;
+    private final RestQueryService restQueryService;
 
     @Inject
-    public GroupResource(TransactionService transactionService, UserService userService) {
+    public GroupResource(TransactionService transactionService, UserService userService, RestQueryService restQueryService) {
         this.transactionService = transactionService;
         this.userService = userService;
+        this.restQueryService = restQueryService;
     }
 
     @POST
@@ -66,10 +66,20 @@ public class GroupResource {
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 
-    @GET
+    /*@GET
     @Produces(MediaType.APPLICATION_JSON)
     public GroupInfos getGroups(@Context UriInfo uriInfo) {
     	return new GroupInfos(userService.getGroups());
+    }*/
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public GroupInfos getGroups(@Context UriInfo uriInfo) {
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        List<Group> list = getGroupRestQuery().select(queryParameters);
+        GroupInfos infos = new GroupInfos(queryParameters.clipToLimit(list));
+        infos.total = queryParameters.determineTotal(list.size());
+        return infos;
     }
 
     @PUT
@@ -82,6 +92,9 @@ public class GroupResource {
         return getGroup(info.id);
     }
 
-
+    private RestQuery<Group> getGroupRestQuery() {
+        Query<Group> query = userService.getGroupQuery();
+        return restQueryService.wrap(query);
+    }
 
 }
