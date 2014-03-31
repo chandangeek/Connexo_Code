@@ -203,12 +203,14 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         // Test for null because javax.validation only kicks @ save time
-        if (deviceProtocolPluggableClass != null) {
-            this.deviceProtocolPluggableClassChanged =
-                    (   (this.deviceProtocolPluggableClass == null)
-                     || (this.deviceProtocolPluggableClass.getId() != deviceProtocolPluggableClass.getId()));
+        if (deviceProtocolPluggableClass != null ) {
+            this.deviceProtocolPluggableClassChanged = (this.deviceProtocolPluggableClassId != deviceProtocolPluggableClass.getId());
             this.deviceProtocolPluggableClassId = deviceProtocolPluggableClass.getId();
             this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
+        } else {
+            this.deviceProtocolPluggableClassChanged = (this.deviceProtocolPluggableClassId != 0);
+            this.deviceProtocolPluggableClassId = 0;
+            this.deviceProtocolPluggableClass = null;
         }
     }
 
