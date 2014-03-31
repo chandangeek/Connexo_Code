@@ -21,12 +21,7 @@ Ext.define('Isu.view.workspace.issues.Browse', {
                             xtype: 'component',
                             html: '<h1>Issues</h1>',
                             flex: 1
-                        },
-//                        {
-//                            xtype: 'component',
-//                            html: '<a href="#/workspace/datacollection/assignmentrules">View assignment rules</a>',
-//                            width: 150
-//                        }
+                        }
                     ]
                 },
                 {
@@ -36,7 +31,8 @@ Ext.define('Isu.view.workspace.issues.Browse', {
                     xtype: 'issue-no-group'
                 },
                 {
-                    xtype: 'issues-list'
+                    xtype: 'issues-list',
+                    margin: '0 0 20 0'
                 },
                 {
                     xtype: 'issues-item'

@@ -12,7 +12,6 @@ Ext.define('Isu.view.workspace.issues.List', {
     store: 'Isu.store.Issues',
     enableColumnHide: false,
     height: 395,
- //   emptyText: '<h3>No issue found</h3><p>No data collection issues have been created yet.</p>',
     columns: {
         defaults: {
             sortable: false,

@@ -244,7 +244,13 @@ Ext.define('Isu.controller.Issues', {
     },
 
     showOverview: function () {
-        var widget = Ext.widget('issues-overview');
+        var issuesStore = this.getStore('Isu.store.Issues'),
+            widget;
+
+        delete issuesStore.proxyFilter;
+        delete issuesStore.proxySort;
+
+        widget = Ext.widget('issues-overview');
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
@@ -413,14 +419,8 @@ Ext.define('Isu.controller.Issues', {
 
     showDefaultItems: function () {
         var issueItemView = this.getItemPanel();
-        if (issueItemView) {
-            issueItemView.removeAll();
-            issueItemView.add({
-                html: '<h3>No issue selected</h3><p>Select an issue to view its detail.</p>',
-                bodyPadding: 10,
-                border: false
-            });
-        }
+
+        issueItemView && issueItemView.fireEvent('clear');
     }
     // ====================================  END IssueListFilter controls  ====================================
 });

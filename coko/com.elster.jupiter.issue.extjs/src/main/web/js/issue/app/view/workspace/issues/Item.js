@@ -6,13 +6,6 @@ Ext.define('Isu.view.workspace.issues.Item', {
     ],
     alias: 'widget.issues-item',
     height: 310,
- /*   items: [
-        {
-            html: '<h3>No issue selected</h3><p>Select an issue to view its detail.</p>',
-            bodyPadding: 10,
-            border: false
-        }
-    ], */
 
     initComponent: function () {
         var self = this;
@@ -20,6 +13,7 @@ Ext.define('Isu.view.workspace.issues.Item', {
         self.callParent();
         self.addEvents('change');
         self.on('change', self.onChange, self);
+        self.on('clear', self.onClear, self);
     },
 
     onChange: function (panel, record) {
@@ -109,5 +103,14 @@ Ext.define('Isu.view.workspace.issues.Item', {
                 }
             ]
         };
+    },
+
+    onClear: function (text) {
+        this.removeAll();
+        this.add({
+            html: text ? text : '<h3>No issue selected</h3><p>Select an issue to view its detail.</p>',
+            bodyPadding: 10,
+            border: false
+        });
     }
 });

@@ -64,14 +64,13 @@ Ext.define('Isu.controller.IssueFilter', {
                 types[item.get('type')] = true
             });
 
-            console.log(picker);
             if (!types.ROLE) {
                 var str = template.apply(picker,{
                     name: 'No matches',
                     type: 'ROLE',
                     id: '-5'
                 });
-            console.log(str)
+
             }
             if (!types.USER) {
 
@@ -95,19 +94,19 @@ Ext.define('Isu.controller.IssueFilter', {
     filterUpdate: function (filter) {
         var form = this.getIssueFilter().down('filter-form'),
             chkbx = form.down('filter-checkboxgroup'),
-            loadRecord = function(){
+            loadRecord = function () {
                 form.loadRecord(filter);
-            };
-        if (!chkbx.store.getCount()){
-            chkbx.store.on('load', loadRecord)
-        } else {
-            chkbx.store.un('load', loadRecord);
-        }
-        form.loadRecord(filter);
-
-        var grstore = this.getStore('Isu.store.IssuesGroups'),
+                chkbx.store.un('load', loadRecord);
+            },
+            grstore = this.getStore('Isu.store.IssuesGroups'),
             reason = filter.get('reason'),
             status = filter.statusStore;
+
+        if (!chkbx.store.getCount()){
+            chkbx.store.on('load', loadRecord);
+        } else {
+            chkbx.on('afterRender', loadRecord);
+        }
 
         if (reason) {
             grstore.proxy.extraParams.id = reason.get('id');
