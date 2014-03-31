@@ -34,6 +34,19 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
 
+    @Inject
+    public PluggableServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock) {
+        this();
+        this.setOrmService(ormService);
+        this.setEventService(eventService);
+        this.setNlsService(nlsService);
+        this.setClock(clock);
+        this.activate();
+        if (!this.dataModel.isInstalled()) {
+            this.install(true);
+        }
+    }
+
     @Override
     public PluggableClass newPluggableClass(PluggableClassType type, String name, String javaClassName) {
         return PluggableClassImpl.from(this.dataModel, type, name, javaClassName);
@@ -72,19 +85,6 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
 
     public PluggableServiceImpl() {
         super();
-    }
-
-    @Inject
-    public PluggableServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock) {
-        this();
-        this.setOrmService(ormService);
-        this.setEventService(eventService);
-        this.setNlsService(nlsService);
-        this.setClock(clock);
-        this.activate();
-        if (!this.dataModel.isInstalled()) {
-            this.install(true);
-        }
     }
 
     @Reference
@@ -142,7 +142,7 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
     }
 
     private void install(boolean executeDdl) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(executeDdl, false, true);
+        new Installer(this.dataModel, this.eventService, this.thesaurus).install(executeDdl, true, true);
     }
 
 }
