@@ -18,4 +18,12 @@ public class ObjectChecker<T> {
     protected T getToCheck() {
         return toCheck;
     }
+
+    /**
+     * @deprecated to avoid confusion with equalTo()
+     */
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }
