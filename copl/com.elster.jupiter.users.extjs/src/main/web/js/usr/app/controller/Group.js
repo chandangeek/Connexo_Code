@@ -83,7 +83,7 @@ Ext.define('Usr.controller.Group', {
         var privileges = '';
         var currentPrivileges = record.privileges().data.items;
         for (var i = 0; i < currentPrivileges.length; i++) {
-            privileges += currentPrivileges[i].data.name + '\n';
+            privileges += currentPrivileges[i].data.name + '<br/>';
         }
         Ext.getCmp('els_usm_groupDetailsPrivileges').setValue(privileges);
         form.show();

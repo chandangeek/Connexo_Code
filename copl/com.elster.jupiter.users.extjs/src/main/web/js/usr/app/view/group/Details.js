@@ -73,21 +73,18 @@ Ext.define('Usr.view.group.Details', {
                                 },
                                 items: [
                                     {
-                                        xtype: 'textfield',
+                                        xtype: 'displayfield',
                                         name: 'name',
-                                        readOnly: true,
                                         fieldLabel: Uni.I18n.translate('group.name', 'USM', 'Role name')
                                     },
                                     {
-                                        xtype: 'textfield',
+                                        xtype: 'displayfield',
                                         name: 'description',
-                                        readOnly: true,
                                         fieldLabel: Uni.I18n.translate('group.description', 'USM', 'Description')
                                     },
                                     {
-                                        xtype: 'textareafield',
+                                        xtype: 'displayfield',
                                         name: 'privileges',
-                                        readOnly: true,
                                         id: 'els_usm_groupDetailsPrivileges',
                                         fieldLabel: Uni.I18n.translate('group.privileges', 'USM', 'Privileges')
                                     }
@@ -105,15 +102,13 @@ Ext.define('Usr.view.group.Details', {
                                 },
                                 items: [
                                     {
-                                        xtype: 'textfield',
+                                        xtype: 'displayfield',
                                         name: 'createdOn',
-                                        readOnly: true,
                                         fieldLabel: Uni.I18n.translate('group.created', 'USM', 'Created on')
                                     },
                                     {
-                                        xtype: 'textfield',
+                                        xtype: 'displayfield',
                                         name: 'modifiedOn',
-                                        readOnly: true,
                                         fieldLabel: Uni.I18n.translate('group.modified', 'USM', 'Modified on')
                                     }
                                 ]

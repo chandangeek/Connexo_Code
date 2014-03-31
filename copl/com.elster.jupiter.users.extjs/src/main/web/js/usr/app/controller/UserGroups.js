@@ -5,12 +5,14 @@ Ext.define('Usr.controller.UserGroups', {
     ],
     stores: [
         'Groups',
-        'Users'
+        'Users',
+        'UserDirectories'
     ],
 
     models: [
         'Group',
-        'User'
+        'User',
+        'UserDirectory'
     ],
 
     views: [
@@ -44,7 +46,11 @@ Ext.define('Usr.controller.UserGroups', {
         var userStore = Ext.StoreManager.get('Users');
         var widget = Ext.widget('userEdit');
 
+        widget.down('#cancelLink').autoEl.href = this.getApplication().getHistoryUserController().tokenizePreviousTokens();
+
+        widget.hide();
         widget.setLoading(true);
+
         var me = this;
         Ext.ModelManager.getModel('Usr.model.User').load(userId, {
             success: function (user) {
@@ -54,23 +60,30 @@ Ext.define('Usr.controller.UserGroups', {
                         widget.down('form').loadRecord(user);
                         widget.down('#els_usm_userEditHeader').update('<h1>' + title + ' "' + user.get('authenticationName') + '"' + '</h1>');
                         widget.down('[name=authenticationName]').disable();
-                        //widget.down('[name=description]').disable();
                         widget.down('[name=domain]').disable();
-                        me.displayBreadcrumb(user.get("authenticationName"));
 
                         me.getGroupsStore().load(function () {
                             me.resetGroupsForRecord(user);
-                        });
 
-                        widget.setLoading(false);
+                            Ext.ModelManager.getModel('Usr.model.UserDirectory').load(user.get('domain'), {
+                                callback: function (domain) {
+                                    if(!domain.get('manageGroupsInternal')){
+                                        widget.down('[itemId=selectRoles]').disable();
+                                        widget.down('[itemId=selectRolesLabel]').disable();
+                                    }
+
+                                    me.getApplication().getMainController().showContent(widget);
+                                    me.displayBreadcrumb(user.get("authenticationName"));
+
+                                    widget.setLoading(false);
+                                    widget.show();
+                                }
+                            });
+                        });
                     }
                 })
             }
         });
-
-        widget.down('#cancelLink').autoEl.href = this.getApplication().getHistoryUserController().tokenizePreviousTokens();
-
-        this.getApplication().getMainController().showContent(widget);
     },
 
     displayBreadcrumb: function (userName) {

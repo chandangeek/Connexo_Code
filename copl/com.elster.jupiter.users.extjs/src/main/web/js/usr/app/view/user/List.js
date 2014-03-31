@@ -19,6 +19,7 @@ Ext.define('Usr.view.user.List', {
                 dataIndex: 'authenticationName',
                 sortable: false,
                 hideable: false,
+                fixed: true,
                 flex: 3
             },
             {
@@ -26,6 +27,7 @@ Ext.define('Usr.view.user.List', {
                 dataIndex: 'description',
                 sortable: false,
                 hideable: false,
+                fixed: true,
                 flex: 5
             },
             {
@@ -33,16 +35,17 @@ Ext.define('Usr.view.user.List', {
                 dataIndex: 'domain',
                 sortable: false,
                 hideable: false,
+                fixed: true,
                 flex: 2
             },
             {
                 xtype:'actioncolumn',
                 tdCls:'view',
-                //header : Uni.I18n.translate('general.actions', 'USM', 'Actions'),
+                header : Uni.I18n.translate('general.actions', 'USM', 'Actions'),
                 sortable: false,
                 hideable: false,
                 fixed: true,
-                flex: 0.1,
+                flex: 0.5,
                 items: [{
                     icon: '../usr/resources/images/gear-16x16.png',
                     handler: function(grid, rowIndex, colIndex,item,e) {
@@ -84,6 +87,7 @@ Ext.define('Usr.view.user.List', {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
                 dock: 'bottom',
+                Limit: '10',
                 itemsPerPageMsg: Uni.I18n.translate('user.list.bottom', 'USM', 'Users per page')
             }
         ];

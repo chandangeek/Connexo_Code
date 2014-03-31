@@ -102,6 +102,7 @@ Ext.define('Usr.view.user.Edit', {
                                     {
                                         xtype: 'displayfield',
                                         width: 100,
+                                        itemId: 'selectRolesLabel',
                                         fieldLabel: Uni.I18n.translate('user.roles', 'USM', 'Roles')
                                     },
                                     {

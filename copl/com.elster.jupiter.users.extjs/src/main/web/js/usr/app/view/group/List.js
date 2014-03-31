@@ -19,6 +19,7 @@ Ext.define('Usr.view.group.List', {
                 dataIndex: 'name',
                 sortable: false,
                 hideable: false,
+                fixed: true,
                 flex: 3
             },
             {
@@ -26,6 +27,7 @@ Ext.define('Usr.view.group.List', {
                 dataIndex: 'description',
                 sortable: false,
                 hideable: false,
+                fixed: true,
                 flex: 7
             },
             {
@@ -35,7 +37,7 @@ Ext.define('Usr.view.group.List', {
                 sortable: false,
                 hideable: false,
                 fixed: true,
-                flex: 0.1,
+                flex: 0.5,
                 items: [{
                     icon: '../usr/resources/images/gear-16x16.png',
                     handler: function(grid, rowIndex, colIndex,item,e) {
@@ -88,6 +90,7 @@ Ext.define('Usr.view.group.List', {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
                 dock: 'bottom',
+                Limit: '10',
                 itemsPerPageMsg: Uni.I18n.translate('group.list.bottom', 'USM', 'Roles per page')
             }
         ];

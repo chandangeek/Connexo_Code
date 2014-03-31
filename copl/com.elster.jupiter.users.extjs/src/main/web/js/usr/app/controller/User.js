@@ -78,7 +78,7 @@ Ext.define('Usr.controller.User', {
         var roles = '';
         var currentGroups = record.groups().data.items;
         for (var i = 0; i < currentGroups.length; i++) {
-            roles += currentGroups[i].data.name + '\n';
+            roles += currentGroups[i].data.name + '<br/>';
         }
 
         var detailsRoles = Ext.getCmp('els_usm_userDetailsRoles');

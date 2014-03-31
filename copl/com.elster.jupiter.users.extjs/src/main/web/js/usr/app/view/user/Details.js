@@ -73,45 +73,39 @@ Ext.define('Usr.view.user.Details', {
                                 },
                                 items: [
                                     {
-                                        xtype: 'textfield',
+                                        xtype: 'displayfield',
                                         name: 'authenticationName',
-                                        readOnly: true,
                                         fieldLabel: Uni.I18n.translate('user.name', 'USM', 'Name')
                                     },
                                     {
-                                        xtype: 'textfield',
+                                        xtype: 'displayfield',
                                         name: 'description',
-                                        readOnly: true,
                                         fieldLabel: Uni.I18n.translate('user.description', 'USM', 'Description')
                                     },
                                     {
-                                        xtype: 'textfield',
+                                        xtype: 'displayfield',
                                         name: 'domain',
-                                        readOnly: true,
                                         fieldLabel: Uni.I18n.translate('user.domain', 'USM', 'Domain')
                                     },
                                     {
-                                        xtype: 'textareafield',
+                                        xtype: 'displayfield',
                                         name: 'roles',
-                                        readOnly: true,
                                         id: 'els_usm_userDetailsRoles',
                                         fieldLabel: Uni.I18n.translate('user.roles', 'USM', 'Roles')
                                     },
                                     {
                                         xtype: 'component',
-                                        margin: '0 0 5 150',
+                                        margin: '10 0 10 150',
                                         html: '<h3>' + Uni.I18n.translate('user.preferences', 'USM', 'User preferences') + '</h3>'
                                     },
                                     {
-                                        xtype: 'textfield',
+                                        xtype: 'displayfield',
                                         name: 'language',
-                                        readOnly: true,
                                         fieldLabel: Uni.I18n.translate('user.language', 'USM', 'Language')
                                     },
                                     {
-                                        xtype: 'textfield',
+                                        xtype: 'displayfield',
                                         name: 'currency',
-                                        readOnly: true,
                                         fieldLabel: Uni.I18n.translate('user.currency', 'USM', 'Currency')
                                     }
                                 ]
@@ -128,15 +122,13 @@ Ext.define('Usr.view.user.Details', {
                                 },
                                 items: [
                                     {
-                                        xtype: 'textfield',
+                                        xtype: 'displayfield',
                                         name: 'createdOn',
-                                        readOnly: true,
                                         fieldLabel: Uni.I18n.translate('user.created', 'USM', 'Created on')
                                     },
                                     {
-                                        xtype: 'textfield',
+                                        xtype: 'displayfield',
                                         name: 'modifiedOn',
-                                        readOnly: true,
                                         fieldLabel: Uni.I18n.translate('user.modified', 'USM', 'Modified on')
                                     }
                                 ]

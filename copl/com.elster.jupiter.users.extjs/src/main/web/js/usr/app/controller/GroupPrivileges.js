@@ -41,7 +41,11 @@ Ext.define('Usr.controller.GroupPrivileges', {
         var groupStore = Ext.StoreManager.get('Groups');
         var widget = Ext.widget('groupEdit');
 
+        widget.down('#cancelLink').autoEl.href = this.getApplication().getHistoryGroupController().tokenizePreviousTokens();
+
+        widget.hide();
         widget.setLoading(true);
+
         var me = this;
         Ext.ModelManager.getModel('Usr.model.Group').load(groupId, {
             success: function (group) {
@@ -51,22 +55,20 @@ Ext.define('Usr.controller.GroupPrivileges', {
                         widget.down('form').loadRecord(group);
                         widget.down('#els_usm_groupEditHeader').update('<h1>' + title + ' "' + group.get('name') + '"' + '</h1>');
                         widget.down('[name=name]').disable();
-                        //widget.down('[name=description]').disable();
-                        me.displayBreadcrumb(title + ' "' + group.get("name") + '"');
 
                         me.getPrivilegesStore().load(function () {
                             me.resetPrivilegesForRecord(group);
-                        });
 
-                        widget.setLoading(false);
+                            me.getApplication().fireEvent('changecontentevent', widget);
+                            me.displayBreadcrumb(title + ' "' + group.get("name") + '"');
+
+                            widget.setLoading(false);
+                            widget.show();
+                        });
                     }
                 })
             }
         });
-
-        widget.down('#cancelLink').autoEl.href = this.getApplication().getHistoryGroupController().tokenizePreviousTokens();
-
-        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     showCreateOverviewWithHistory: function(groupId) {
@@ -74,26 +76,26 @@ Ext.define('Usr.controller.GroupPrivileges', {
     },
 
     showCreateOverview: function () {
+        var record = Ext.create(Usr.model.Group);
         var widget = Ext.widget('groupEdit');
+
+        widget.down('#cancelLink').autoEl.href = this.getApplication().getHistoryGroupController().tokenizePreviousTokens();
 
         widget.setLoading(true);
         title = Uni.I18n.translate('group.create', 'USM', 'Create role');
         widget.down('#els_usm_groupEditHeader').update('<h1>' + title + '</h1>');
-        this.displayBreadcrumb(title);
 
-        var record = Ext.create(Usr.model.Group);
         widget.down('form').loadRecord(record);
 
         var me = this;
         this.getPrivilegesStore().load(function () {
             me.resetPrivilegesForRecord(record);
+
+            widget.setLoading(false);
+
+            me.getApplication().fireEvent('changecontentevent', widget);
+            me.displayBreadcrumb(title);
         });
-
-        widget.setLoading(false);
-
-        widget.down('#cancelLink').autoEl.href = this.getApplication().getHistoryGroupController().tokenizePreviousTokens();
-
-        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     displayBreadcrumb: function (current) {
