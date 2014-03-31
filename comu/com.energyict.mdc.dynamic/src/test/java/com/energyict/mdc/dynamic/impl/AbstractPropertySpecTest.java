@@ -1,8 +1,9 @@
 package com.energyict.mdc.dynamic.impl;
 
 import com.energyict.mdc.common.Environment;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -37,7 +38,7 @@ public abstract class AbstractPropertySpecTest {
         Environment.DEFAULT.set(null);
     }
 
-    protected TestBusinessObject newPeristentTestBusinessObject () {
+    protected TestBusinessObject newPersistentTestBusinessObject() {
         TestBusinessObject testBusinessObject = mock(TestBusinessObject.class);
         when(testBusinessObject.getId()).thenReturn(TEST_BUSINESS_OBJECT_ID);
         return testBusinessObject;
