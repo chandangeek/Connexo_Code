@@ -79,11 +79,12 @@ public class AdapterDeviceProtocolDialectTest {
     private PropertySpecService propertySpecService;
     private ProtocolPluggableService protocolPluggableService;
     private DataModel dataModel;
+    private InMemoryBootstrapModule bootstrapModule;
 
     @Before
     public void before () {
         when(this.principal.getName()).thenReturn("AdapterDeviceProtocolDialectTest.mdc.protocol.pluggable");
-        InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+        bootstrapModule = new InMemoryBootstrapModule();
         Injector injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
@@ -121,7 +122,7 @@ public class AdapterDeviceProtocolDialectTest {
 
     @After
     public void cleanUpDataBase() throws SQLException {
-        new InMemoryPersistence().cleanUpDataBase();
+        bootstrapModule.deactivate();
     }
 
     @Test
