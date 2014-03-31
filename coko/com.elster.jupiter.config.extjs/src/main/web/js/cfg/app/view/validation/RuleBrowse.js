@@ -59,4 +59,3 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
         );
     }
 });
-
