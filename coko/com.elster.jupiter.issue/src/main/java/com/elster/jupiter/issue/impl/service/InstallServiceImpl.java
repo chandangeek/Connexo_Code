@@ -54,7 +54,7 @@ public class InstallServiceImpl implements InstallService {
     }
 
     @Activate
-    public void activate(){
+    public final void activate(){
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -77,31 +77,31 @@ public class InstallServiceImpl implements InstallService {
     }
 
     @Reference
-    public void setMessageService(MessageService messageService) {
+    public final void setMessageService(MessageService messageService) {
         this.messageService = messageService;
     }
     @Reference
-    public void setMeteringService(MeteringService meteringService) {
+    public final void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
     @Reference
-    public void setUserService(UserService userService) {
+    public final void setUserService(UserService userService) {
         this.userService = userService;
     }
     @Reference
-    public void setIssueService(IssueService issueService) {
+    public final void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
     @Reference
-    public void setIssueAssignmentService(IssueAssignmentService issueAssignmentService) {
+    public final void setIssueAssignmentService(IssueAssignmentService issueAssignmentService) {
         this.issueAssignmentService = issueAssignmentService;
     }
     @Reference
-    public void setIssueHelpService(IssueHelpService issueHelpService) {
+    public final void setIssueHelpService(IssueHelpService issueHelpService) {
         this.issueHelpService = issueHelpService;
     }
     @Reference
-    public void setIssueMappingService(IssueMappingService issueMappingService) {
+    public final void setIssueMappingService(IssueMappingService issueMappingService) {
         dataModel = IssueMappingServiceImpl.class.cast(issueMappingService).getDataModel();
     }
 }

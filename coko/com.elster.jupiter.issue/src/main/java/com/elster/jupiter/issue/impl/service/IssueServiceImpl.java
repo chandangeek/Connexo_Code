@@ -7,7 +7,6 @@ import com.elster.jupiter.issue.impl.database.groups.GroupIssuesOperation;
 import com.elster.jupiter.issue.impl.event.EventConst;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.GroupQueryBuilder;
-import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
@@ -15,7 +14,6 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
@@ -50,17 +48,17 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Reference
-    public void setQueryService(QueryService queryService) {
+    public final void setQueryService(QueryService queryService) {
         this.queryService = queryService;
     }
 
     @Reference
-    public void setMeteringService(MeteringService meteringService) {
+    public final void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
     @Reference
-    public void setIssueMappingService(IssueMappingService issueMappingService) {
+    public final void setIssueMappingService(IssueMappingService issueMappingService) {
         dataModel = IssueMappingServiceImpl.class.cast(issueMappingService).getDataModel();
     }
 

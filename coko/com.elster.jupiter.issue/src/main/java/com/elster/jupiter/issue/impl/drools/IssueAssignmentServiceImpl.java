@@ -59,40 +59,49 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
     }
 
     @Inject
-    public IssueAssignmentServiceImpl(KnowledgeBuilderFactoryService knowledgeBuilderFactoryService, KnowledgeBaseFactoryService knowledgeBaseFactoryService, KieResources resourceFactoryService) {
+    public IssueAssignmentServiceImpl(
+            KnowledgeBuilderFactoryService knowledgeBuilderFactoryService,
+            KnowledgeBaseFactoryService knowledgeBaseFactoryService,
+            KieResources resourceFactoryService,
+            QueryService queryService,
+            ThreadPrincipalService threadPrincipalService,
+            TransactionService transactionService,
+            IssueMappingService issueMappingService) {
         setKnowledgeBaseFactoryService(knowledgeBaseFactoryService);
         setKnowledgeBuilderFactoryService(knowledgeBuilderFactoryService);
         setResourceFactoryService(resourceFactoryService);
+        setQueryService(queryService);
+        setThreadPrincipalService(threadPrincipalService);
+        setTransactionService(transactionService);
+        setIssueMappingService(issueMappingService);
     }
 
     @Reference
-    public void setKnowledgeBuilderFactoryService(KnowledgeBuilderFactoryService knowledgeBuilderFactoryService) {
+    public final void setKnowledgeBuilderFactoryService(KnowledgeBuilderFactoryService knowledgeBuilderFactoryService) {
         this.knowledgeBuilderFactoryService = knowledgeBuilderFactoryService;
     }
-
     @Reference
-    public void setKnowledgeBaseFactoryService(KnowledgeBaseFactoryService knowledgeBaseFactoryService) {
+    public final void setKnowledgeBaseFactoryService(KnowledgeBaseFactoryService knowledgeBaseFactoryService) {
         this.knowledgeBaseFactoryService = knowledgeBaseFactoryService;
     }
-
     @Reference
-    public void setResourceFactoryService(KieResources resourceFactoryService) {
+    public final void setResourceFactoryService(KieResources resourceFactoryService) {
         this.resourceFactoryService = resourceFactoryService;
     }
     @Reference
-    public void setQueryService(QueryService queryService) {
+    public final void setQueryService(QueryService queryService) {
         this.queryService = queryService;
     }
     @Reference
-    public void setIssueInternalService(IssueMappingService issueMappingService) {
+    public final void setIssueMappingService(IssueMappingService issueMappingService) {
         dataModel = IssueMappingServiceImpl.class.cast(issueMappingService).getDataModel();
     }
     @Reference
-    public void setTransactionService(TransactionService transactionService) {
+    public final void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
     @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+    public final void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
     }
 

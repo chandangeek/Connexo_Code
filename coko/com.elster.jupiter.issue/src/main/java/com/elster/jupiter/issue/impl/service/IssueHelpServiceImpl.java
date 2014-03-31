@@ -31,15 +31,15 @@ public class IssueHelpServiceImpl implements IssueHelpService {
     }
 
     @Reference
-    public void setEventService(EventService eventService) {
+    public final void setEventService(EventService eventService) {
         this.eventService = eventService;
     }
     @Reference
-    public void setMeteringService(MeteringService meteringService) {
+    public final void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
     @Reference
-    public void setIssueService(IssueService issueService) {
+    public final void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
 

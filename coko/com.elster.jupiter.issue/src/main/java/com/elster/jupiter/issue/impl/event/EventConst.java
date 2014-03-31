@@ -1,6 +1,6 @@
 package com.elster.jupiter.issue.impl.event;
 
-public class EventConst {
+public final class EventConst {
     private EventConst(){} //Hide Utility Class Constructor
 
     public static final String AQ_SUBSCRIBER_NAME = "ISSUECREATOR";

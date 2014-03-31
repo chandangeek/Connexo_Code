@@ -1,6 +1,6 @@
 package com.elster.jupiter.issue.impl.database;
 
-public class DatabaseConst {
+public final class DatabaseConst {
     private DatabaseConst(){} //Hide Utility Class Constructor
 
 // Bundle tables in database

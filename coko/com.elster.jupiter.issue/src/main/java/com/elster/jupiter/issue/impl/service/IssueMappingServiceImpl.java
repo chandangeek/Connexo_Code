@@ -32,7 +32,7 @@ public class IssueMappingServiceImpl implements IssueMappingService {
     }
 
     @Reference
-    public void setOrmService(OrmService ormService) {
+    public final void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(IssueService.COMPONENT_NAME, "Issue Management");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
@@ -40,12 +40,12 @@ public class IssueMappingServiceImpl implements IssueMappingService {
     }
 
     @Reference
-    public void setUserService(UserService userService) {
+    public final void setUserService(UserService userService) {
         this.userService = userService;
     }
 
     @Reference
-    public void setMeteringService(MeteringService meteringService) {
+    public final void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 }
