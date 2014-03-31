@@ -12,6 +12,7 @@ import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.PersistenceTest;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.tasks.StatusInformationTask;
 import java.util.List;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ public class ComTaskImplTest extends PersistenceTest {
     private static final boolean STORE_DATA_TRUE = true;
     private static final String COM_TASK_NAME = "UniqueComTaskName";
 
-    private ComTask createSimpleComTask() {
+    private ComTask createSimpleComTaskWithStatusInformation() {
         ComTask comTask = getTaskService().createComTask();
         comTask.setName(COM_TASK_NAME);
         comTask.setStoreData(STORE_DATA_TRUE);
@@ -93,7 +94,7 @@ public class ComTaskImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void createWithoutViolations() {
-        ComTask comTask = createSimpleComTask();
+        ComTask comTask = createSimpleComTaskWithStatusInformation();
         // asserts
         assertThat(comTask).isNotNull();
         assertThat(comTask.storeData()).isTrue();
@@ -157,7 +158,7 @@ public class ComTaskImplTest extends PersistenceTest {
     @Transactional
     @Expected(value = TranslatableApplicationException.class, message = "ComTask contains multiple ProtocolTasks of the same type")
     public void updateWithSameProtocolTaskTypeTest()  {
-        ComTask comTask = createSimpleComTask();
+        ComTask comTask = createSimpleComTaskWithStatusInformation();
         comTask.createBasicCheckTask().verifyClockDifference(true).add();
         comTask.createBasicCheckTask().verifyClockDifference(true).add();
     }
@@ -191,15 +192,15 @@ public class ComTaskImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.DUPLICATE_COMTASK_NAME+"}", property = "name")
     public void createWithDuplicateNameTest()  {
-        createSimpleComTask();
-        createSimpleComTask();
+        createSimpleComTaskWithStatusInformation();
+        createSimpleComTaskWithStatusInformation();
         // we expect to fail with a duplicate exception
     }
 
     @Test
     @Transactional
     public void deleteTest()  {
-        ComTask comTask = createSimpleComTask();
+        ComTask comTask = createSimpleComTaskWithStatusInformation();
         comTask = getTaskService().findComTask(comTask.getId());
         List<? extends ProtocolTask> protocolTasks = comTask.getProtocolTasks();
         comTask.delete();
@@ -214,7 +215,7 @@ public class ComTaskImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void createAllProtocolTaskOnComTask() {
-        ComTask comTask = createSimpleComTask();
+        ComTask comTask = createSimpleComTaskWithStatusInformation();
 
         ComTask loadedComTask = getTaskService().findComTask(comTask.getId());
         assertThat(loadedComTask.getProtocolTasks()).hasSize(1);
@@ -247,304 +248,25 @@ public class ComTaskImplTest extends PersistenceTest {
         loadedComTask = getTaskService().findComTask(comTask.getId());
         assertThat(loadedComTask.getProtocolTasks()).hasSize(8);
     }
-//
-//
-//
-//    @Test (expected = BusinessException.class)
-//
-//    public void createWithNoProtocolTasksTest() throws BusinessException, SQLException {
-//
-//        try {
-//
-//            createSimpleComTask(createSimpleComTaskShadow());
-//
-//        } catch (BusinessException e) {
-//
-//            if(!e.getMessageId().equals("noProtocolTaskForComTaskX")){
-//
-//                fail();
-//
-//            }
-//
-//            throw e;
-//
-//        }
-//
-//    }
-//
-//
-//
-//    @Test(expected = BusinessException.class)
-//
-//    public void updateWithNoProtocolTasks() throws BusinessException, SQLException {
-//
-//        ComTask comTask = createSimpleComTask(createComTaskShadowWithoutViolations());
-//
-//        ComTaskShadow shadow = comTask.getShadow();
-//
-//        ShadowList<ProtocolTaskShadow> protocolTaskShadows = shadow.getProtocolTaskShadows();
-//
-//        List<ProtocolTaskShadow> shadowsToRemove = new ArrayList<>(protocolTaskShadows.size());
-//
-//        for (ProtocolTaskShadow protocolTaskShadow : protocolTaskShadows) {
-//
-//            shadowsToRemove.add(protocolTaskShadow);
-//
-//        }
-//
-//        for (ProtocolTaskShadow shadowToRemove : shadowsToRemove) {
-//
-//            protocolTaskShadows.remove(shadowToRemove);
-//
-//        }
-//
-//
-//
-//        try {
-//
-//            comTask.update(shadow);
-//
-//        } catch (BusinessException e) {
-//
-//            if(!e.getMessageId().equals("noProtocolTaskForComTaskX")){
-//
-//                fail();
-//
-//            }
-//
-//            throw e;
-//
-//        }
-//
-//    }
-//
-//
-//
-//    @Test
-//
-//    public void testStoreDataTrue() throws BusinessException, SQLException {
-//
-//        ComTaskShadow shadow = new ComTaskShadow();
-//
-//        shadow.setStoreData(STORE_DATA_TRUE);
-//
-//        shadow.setName(COM_TASK_NAME);
-//
-//        shadow.addProtocolTask(BasicCheckTaskImplTest.createBasicCheckTaskShadow());
-//
-//        ComTask comTask = createSimpleComTask(shadow);
-//
-//
-//
-//        // Business Method
-//
-//        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
-//
-//
-//
-//        // asserts
-//
-//        assertThat(reloadedComTask.storeData()).isTrue();
-//
-//    }
-//
-//
-//
-//    @Test
-//
-//    public void testStoreDataFalse() throws BusinessException, SQLException {
-//
-//        ComTaskShadow shadow = new ComTaskShadow();
-//
-//        shadow.setStoreData(false);
-//
-//        shadow.setName(COM_TASK_NAME);
-//
-//        shadow.addProtocolTask(BasicCheckTaskImplTest.createBasicCheckTaskShadow());
-//
-//        ComTask comTask = createSimpleComTask(shadow);
-//
-//
-//
-//        // Business Method
-//
-//        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
-//
-//
-//
-//        // asserts
-//
-//        assertThat(reloadedComTask.storeData()).isFalse();
-//
-//    }
-//
-//
-//
-////    @Test
-//
-////    public void testEmptyRescheduleRetryDelay() throws BusinessException, SQLException {
-//
-////        ComTaskShadow shadow = new ComTaskShadow();
-//
-////        shadow.setStoreData(false);
-//
-////        shadow.setName(COM_TASK_NAME);
-//
-////        shadow.addProtocolTask(BasicCheckTaskImplTest.createBasicCheckTaskShadow());
-//
-////        ComTask comTask = createSimpleComTask(shadow);
-//
-////
-//
-////        // Business Method
-//
-////        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
-//
-////
-//
-////        // asserts
-//
-////        assertThat(reloadedComTask.getRescheduleDelay()).isEqualTo(null);
-//
-////    }
-//
-////
-//
-////    @Test
-//
-////    public void testWithValidRescheduleRetryDelay() throws BusinessException, SQLException {
-//
-////        final TimeDuration rescheduleRetryDelay = new TimeDuration(900);
-//
-////        ComTaskShadow shadow = new ComTaskShadow();
-//
-////        shadow.setStoreData(false);
-//
-////        shadow.setName(COM_TASK_NAME);
-//
-////        shadow.setRescheduleRetryDelay(rescheduleRetryDelay);
-//
-////        shadow.addProtocolTask(BasicCheckTaskImplTest.createBasicCheckTaskShadow());
-//
-////        ComTask comTask = createSimpleComTask(shadow);
-//
-////
-//
-////        // Business Method
-//
-////        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
-//
-////
-//
-////        // asserts
-//
-////        assertThat(reloadedComTask.getRescheduleDelay()).isEqualTo(rescheduleRetryDelay);
-//
-////    }
-//
-////
-//
-////    @Test
-//
-////    public void testRescheduleRetryDelayWithValueBelowMinimum() throws BusinessException, SQLException {
-//
-////        final TimeDuration rescheduleRetryDelay = new TimeDuration(5);
-//
-////        ComTaskShadow shadow = new ComTaskShadow();
-//
-////        shadow.setStoreData(false);
-//
-////        shadow.setName(COM_TASK_NAME);
-//
-////        shadow.setRescheduleRetryDelay(rescheduleRetryDelay);
-//
-////        shadow.addProtocolTask(BasicCheckTaskImplTest.createBasicCheckTaskShadow());
-//
-////        try {
-//
-////            createSimpleComTask(shadow);
-//
-////        } catch (BusinessException e) {
-//
-////            if(!e.getMessageId().equals("invalidValueXForYBelowZ")){
-//
-////                fail("Expected an exception indicating that the given value is below the minimum, but was " + e.getMessage());
-//
-////            }
-//
-////        }
-//
-////    }
-//
-////
-//
-////    @Test
-//
-////    public void testForNegativeRescheduleRetryDelay() throws SQLException, BusinessException {
-//
-////        final TimeDuration rescheduleRetryDelay = new TimeDuration(-100);
-//
-////        ComTaskShadow shadow = new ComTaskShadow();
-//
-////        shadow.setStoreData(false);
-//
-////        shadow.setName(COM_TASK_NAME);
-//
-////        shadow.setRescheduleRetryDelay(rescheduleRetryDelay);
-//
-////        shadow.addProtocolTask(BasicCheckTaskImplTest.createBasicCheckTaskShadow());
-//
-////        try {
-//
-////            createSimpleComTask(shadow);
-//
-////        } catch (InvalidValueException e) {
-//
-////            if(!e.getMessageId().equals("invalidNegativeValueForY")){
-//
-////                fail("Expected an exception indicating that the given value can not be negative, but was " + e.getMessage());
-//
-////            }
-//
-////        }
-//
-////    }
-//
-//
-//
-//    private BasicCheckTaskShadow getTheBasicCheckTaskShadowFromTheList(final List<ProtocolTaskShadow> shadowList) {
-//
-//        for (ProtocolTaskShadow shadow : shadowList) {
-//
-//            if (shadow instanceof BasicCheckTaskShadow) {
-//
-//                return (BasicCheckTaskShadow) shadow;
-//
-//            }
-//
-//        }
-//
-//        throw new IllegalArgumentException("We should have found a BasicCheckTaskShadow!");
-//
-//    }
-//
-//
-//
-//    private BasicCheckTask getTheBasicCheckTaskFromList(final List<ProtocolTask> protocolTasks) {
-//
-//        for (ProtocolTask protocolTask : protocolTasks) {
-//
-//            if (protocolTask instanceof BasicCheckTask) {
-//
-//                return (BasicCheckTask) protocolTask;
-//
-//            }
-//
-//        }
-//
-//        throw new IllegalArgumentException("We should have found a BasicCheckTask!");
-//
-//    }
-//
-//
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+Constants.COMTASK_WITHOUT_PROTOCOLTASK+"}", property = "protocolTasks")
+    public void createWithNoProtocolTasksTest() {
+        ComTask comTask = getTaskService().createComTask();
+        comTask.setName(COM_TASK_NAME);
+        comTask.setStoreData(STORE_DATA_TRUE);
+        comTask.setMaxNrOfTries(1);
+        comTask.save();
+    }
+
+    @Test
+    @Transactional
+    @Expected(value = TranslatableApplicationException.class,message = "At least one protocol task is required for a communication task.")
+    public void testRemoveLastProtocolTask() throws Exception {
+        ComTask simpleComTask = createSimpleComTaskWithStatusInformation();
+        StatusInformationTask statusInformationTask = getTaskByType(simpleComTask.getProtocolTasks(), StatusInformationTask.class);
+        simpleComTask.removeTask(statusInformationTask);// can't remove the last task
+    }
+
 }

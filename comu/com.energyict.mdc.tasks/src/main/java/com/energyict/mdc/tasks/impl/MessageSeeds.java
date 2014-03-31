@@ -21,7 +21,7 @@ public enum MessageSeeds implements MessageSeed {
     TIMEDURATION_IS_NULL(8, Constants.TIMEDURATION_IS_ZERO, "Field must denote non-0 duration", Level.SEVERE),
     SIZE_TOO_LONG(9, Constants.SIZE_TOO_LONG, "Field exceeds max size of {max} characters", Level.SEVERE),
     DUPLICATE_COMTASK_NAME(10, Constants.DUPLICATE_COMTASK_NAME, "A ComTask by this name already exists", Level.SEVERE),
-    PROTOCOL_TASK_REQUIRED(11, Constants.DUPLICATE_COMTASK_NAME, "At least one protocol task is required for a communication task.", Level.SEVERE),
+    PROTOCOL_TASK_REQUIRED(11, Constants.COMTASK_WITHOUT_PROTOCOLTASK, "At least one protocol task is required for a communication task.", Level.SEVERE),
     FIELD_SIZE_INCORRECT(12, Constants.FIELD_LENGTH_NOT_IN_RANGE, "Size should be between {min} en {max} characters", Level.SEVERE),
     DUPLICATE_PROTOCOL_TASK_TYPE_IN_COMTASK(13, Constants.DUPLICATE_PROTOCOL_TASK_TYPE_IN_COM_TASK, "ComTask contains multiple ProtocolTasks of the same type", Level.SEVERE),
     VALUE_NOT_IN_RANGE(999, Constants.VALUE_NOT_IN_RANGE, "{value} not in range {min} to {max}", Level.SEVERE);
