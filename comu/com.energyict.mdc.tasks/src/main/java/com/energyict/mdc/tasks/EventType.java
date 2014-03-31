@@ -10,7 +10,9 @@ import com.elster.jupiter.orm.TransactionRequired;
  */
 public enum EventType {
 
-    COMTASK_DELETED("comtask/DELETED");
+    COMTASK_DELETED("comtask/DELETED"),
+    COMTASK_CREATED("comtask/CREATED"),
+    COMTASK_UPDATED("comtask/UPDATED");
 
     private static final String NAMESPACE = "com/energyict/mdc/tasks/";
     private final String topic;
@@ -24,7 +26,7 @@ public enum EventType {
     }
 
     @TransactionRequired
-    void install(EventService eventService) {
+    public void install(EventService eventService) {
         EventTypeBuilder builder = eventService.buildEventTypeWithTopic(topic())
                 .name(name())
                 .component(TaskService.COMPONENT_NAME)

@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.EventType;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -21,6 +22,7 @@ import com.energyict.mdc.tasks.TopologyTask;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import java.util.List;
+import java.util.logging.Logger;
 import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -28,6 +30,8 @@ import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, InstallService.class}, property = "name=" + TaskService.COMPONENT_NAME)
 public class TaskServiceImpl implements TaskService, InstallService {
+
+    private final Logger logger = Logger.getLogger(TaskServiceImpl.class.getName());
 
     private volatile EventService eventService;
     private volatile NlsService nlsService;
@@ -44,6 +48,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
         this.setNlsService(nlsService);
         this.setEventService(eventService);
         activate();
+        createEventTypes();
         if (!dataModel.isInstalled()) {
             dataModel.install(true, false);
         }
@@ -74,6 +79,18 @@ public class TaskServiceImpl implements TaskService, InstallService {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(TaskService.COMPONENT_NAME, Layer.DOMAIN);
     }
+
+    private void createEventTypes() {
+        try {
+            for (EventType eventType : EventType.values()) {
+                eventType.install(this.eventService);
+            }
+        } catch (Exception e) {
+            logger.severe(e.getMessage());
+        }
+    }
+
+
 
     Module getModule() {
         return new AbstractModule() {
