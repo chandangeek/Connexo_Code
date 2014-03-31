@@ -206,7 +206,13 @@ Ext.define('Isu.controller.Issues', {
     },
 
     sortUpdate: function (sortModel) {
-        var filterElm = this.getFilter().down('[name="sortitemspanel"]');
+        var filterElm = this.getFilter().down('[name="sortitemspanel"]'),
+            isuList = this.getIssuesList();
+
+        if (isuList) {
+            isuList.getSelectionModel().deselectAll()
+        }
+        this.showDefaultItems();
 
         filterElm.removeAll();
 
@@ -228,6 +234,7 @@ Ext.define('Isu.controller.Issues', {
         });
 
         this.getFilter().down('[name="clearsortbtn"]').setDisabled(!filterElm.items.length);
+
     },
 
     removeFilter: function (elm) {
@@ -305,6 +312,7 @@ Ext.define('Isu.controller.Issues', {
 
     clearSort: function () {
         this.store.setProxySort(new Isu.model.IssueSort());
+
     },
 
     setGroupFields: function (view) {

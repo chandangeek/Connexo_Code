@@ -33,7 +33,6 @@ Ext.define('Isu.model.IssueFilter', {
         var fields = this.callParent();
         fields.push('assigneeId');
         fields.push('assigneeType');
-
         return fields;
     },
 

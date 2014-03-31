@@ -51,36 +51,33 @@ Ext.define('Isu.controller.IssueFilter', {
                 }
             }
         });
-     //   this.getStore('Isu.store.Assignee').on('load', this.assigneeLoad);
+        this.getStore('Isu.store.Assignee').on('load', this.assigneeLoad);
     },
 
-    assigneeLoad: function (store, records, success) {
+    assigneeLoad: function (store, records) {
         var combo = Ext.ComponentQuery.query('issues-side-filter filter-form combobox[name=assignee]')[0];
         if (combo.getValue && records.length > 0) {
-            var types = {};
+            var types = {},
+                template = combo.renderTpl,
+                picker = combo.picker.child('gridview').getEl();
             Ext.Array.each(records, function (item) {
                 types[item.get('type')] = true
-            })
+            });
+
+            console.log(picker);
             if (!types.ROLE) {
-                store.add({
+                var str = template.apply(picker,{
                     name: 'No matches',
                     type: 'ROLE',
-                    id: 'empty'
-                })
+                    id: '-5'
+                });
+            console.log(str)
             }
             if (!types.USER) {
-                store.add({
-                    name: 'No matches',
-                    type: 'USER',
-                    id: 'empty'
-                })
+
             }
             if (!types.GROUP) {
-                store.add({
-                    name: 'No matches',
-                    type: 'GROUP',
-                    id: 'empty'
-                })
+
             }
         }
     },
@@ -96,7 +93,16 @@ Ext.define('Isu.controller.IssueFilter', {
      * @param filter
      */
     filterUpdate: function (filter) {
-        var form = this.getIssueFilter().down('filter-form');
+        var form = this.getIssueFilter().down('filter-form'),
+            chkbx = form.down('filter-checkboxgroup'),
+            loadRecord = function(){
+                form.loadRecord(filter);
+            };
+        if (!chkbx.store.getCount()){
+            chkbx.store.on('load', loadRecord)
+        } else {
+            chkbx.store.un('load', loadRecord);
+        }
         form.loadRecord(filter);
 
         var grstore = this.getStore('Isu.store.IssuesGroups'),
@@ -122,6 +128,7 @@ Ext.define('Isu.controller.IssueFilter', {
     },
 
     filter: function () {
+
         var form = this.getIssueFilter().down('filter-form'),
             filter = form.getRecord();
 
