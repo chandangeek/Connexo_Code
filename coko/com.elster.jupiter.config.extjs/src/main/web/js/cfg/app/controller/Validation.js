@@ -117,7 +117,7 @@ Ext.define('Cfg.controller.Validation', {
     createNewRule: function(button) {
         var me = this;
         var form = button.up('panel');
-        if (form.isValid()) {
+        //if (form.isValid()) {
             var ruleSetId = this.getRuleSetIdFromHref();
             var record = Ext.create(Cfg.model.ValidationRule);
             var values = form.getValues();
@@ -156,9 +156,15 @@ Ext.define('Cfg.controller.Validation', {
                                 location.href = '#administration/validation/rules/' + ruleSetId;
                             }
                         });
+                },
+                failure: function(record,operation){
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        form.getForm().markInvalid(json.errors);
+                    }
                 }
-            });
-        }
+                });
+        //}
     },
 
     updateProperties: function(field, oldValue, newValue) {
@@ -217,7 +223,8 @@ Ext.define('Cfg.controller.Validation', {
 
             {
                 xtype: 'container',
-                itemId: 'readingTypeTextField' + me.readingTypeIndex,
+                itemId: 'readingType' + me.readingTypeIndex,
+                name: 'readingType' + me.readingTypeIndex,
                 layout: {
                     type: 'hbox'
                 },
@@ -226,13 +233,13 @@ Ext.define('Cfg.controller.Validation', {
                         xtype: 'textfield',
                         fieldLabel: '&nbsp',
                         labelAlign: 'right',
-                        validator:function(text){
+                        /*validator:function(text){
                             if(Ext.util.Format.trim(text).length==0)
                                 return Uni.I18n.translate('validation.requiredField', 'CFG', 'This field is required');
                             else
                                 return true;
                         },
-                        required: true,
+                        required: true,    */
                         msgTarget: 'under',
                         labelWidth:	250,
                         maxLength: 80,
@@ -248,7 +255,7 @@ Ext.define('Cfg.controller.Validation', {
                         width: 30,
                         itemId: 'readingTypeRemoveButton'  + me.readingTypeIndex,
                         handler: function() {
-                            me.getReadingValuesTextFieldsContainer().remove(Ext.ComponentQuery.query('#readingTypeTextField'  + indexToRemove)[0]);
+                            me.getReadingValuesTextFieldsContainer().remove(Ext.ComponentQuery.query('#readingType'  + indexToRemove)[0]);
                         }
                     }
                 ]
@@ -321,6 +328,12 @@ Ext.define('Cfg.controller.Validation', {
                                     location.href = '#administration/validation/rules/' + record.getId();
                                 }
                             });
+                    },
+                    failure: function(record,operation){
+                        var json = Ext.decode(operation.response.responseText);
+                        if (json && json.errors) {
+                            form.getForm().markInvalid(json.errors);
+                        }
                     }
             })
         }

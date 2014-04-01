@@ -40,13 +40,13 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                         {
                             xtype: 'textfield',
                             name: 'name',
-                            validator:function(text){
+                            /*validator:function(text){
                                 if(Ext.util.Format.trim(text).length==0)
                                     return Uni.I18n.translate('validation.requiredField', 'CFG', 'This field is required');
                                 else
                                     return true;
                             },
-                            required: true,
+                            required: true,   */
                             msgTarget: 'under',
                             fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                             labelAlign: 'right',

@@ -3,6 +3,21 @@ Ext.define('Cfg.store.ValidationRuleSets', {
     autoLoad: false,
     model: 'Cfg.model.ValidationRuleSet',
 
+    listeners: {
+        "beforeLoad": function() {
+            var extraParams = this.proxy.extraParams;
+
+            // replace filter extra params with new ones
+            if (this.proxyFilter) {
+                extraParams = _.omit(extraParams, this.proxyFilter.getFields());
+                Ext.merge(extraParams, this.getFilterParams());
+            }
+
+            this.proxy.extraParams = extraParams;
+        }
+    },
+
+
 
     proxy: {
         type: 'rest',

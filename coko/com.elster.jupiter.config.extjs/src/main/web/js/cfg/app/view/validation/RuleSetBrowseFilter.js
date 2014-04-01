@@ -1,9 +1,10 @@
 Ext.define('Cfg.view.validation.RuleSetBrowseFilter', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.component.filter.view.Filter',
     border: false,
     alias: 'widget.rulesetbrowsefilter',
     itemId: 'rulesetbrowsefilter',
-    region: 'center',
+    title: 'Filter',
+    region: 'west',
     layout: {
         type: 'vbox',
         align: 'stretch'
@@ -20,6 +21,11 @@ Ext.define('Cfg.view.validation.RuleSetBrowseFilter', {
             },
 
             items: [
+                {
+                    xtype: 'label',
+                    text: Uni.I18n.translate('general.name', 'CFG', 'Name'),
+                    margin: '0 0 5 2'
+                },
                 {
                     xtype: 'textfield'
                 }

@@ -46,13 +46,6 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     xtype: 'textfield',
                                     fieldLabel:  Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                                     labelAlign: 'right',
-                                    validator:function(text){
-                                        if(Ext.util.Format.trim(text).length==0)
-                                            return Uni.I18n.translate('validation.requiredField', 'CFG', 'This field is required');
-                                        else
-                                            return true;
-                                    },
-                                    required: true,
                                     msgTarget: 'under',
                                     maxLength: 80,
                                     enforceMaxLength: true,
@@ -63,13 +56,6 @@ Ext.define('Cfg.view.validation.AddRule', {
                                 {
                                     xtype: 'combobox',
                                     itemId: 'validatorCombo',
-                                    validator:function(text){
-                                        if(Ext.util.Format.trim(text).length==0)
-                                            return Uni.I18n.translate('validation.requiredField', 'CFG', 'This field is required');
-                                        else
-                                            return true;
-                                    },
-                                    required: true,
                                     msgTarget: 'under',
                                     editable: 'false',
                                     name: 'implementation',
@@ -104,15 +90,16 @@ Ext.define('Cfg.view.validation.AddRule', {
                                                     xtype: 'textfield',
                                                     fieldLabel: Uni.I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
                                                     labelAlign: 'right',
-                                                    itemId: 'readingTypeTextField1',
-                                                    vtype: 'readingtype',
+                                                    itemId: 'readingType1',
+                                                    name: 'readingType1',
+                                                    /*vtype: 'readingtype',
                                                     validator:function(text){
                                                         if(Ext.util.Format.trim(text).length==0)
                                                             return Uni.I18n.translate('validation.requiredField', 'CFG', 'This field is required');
                                                         else
                                                             return true;
                                                     },
-                                                    required: true,
+                                                    required: true,  */
                                                     msgTarget: 'under',
                                                     labelWidth:	250,
                                                     maxLength: 80,
