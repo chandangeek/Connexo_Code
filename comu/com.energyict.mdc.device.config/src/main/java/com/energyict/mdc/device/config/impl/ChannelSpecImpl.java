@@ -79,7 +79,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon) {
-        setDeviceConfiguration(deviceConfiguration);
+        this.deviceConfiguration.set(deviceConfiguration);
         setRegisterMapping(registerMapping);
         setPhenomenon(phenomenon);
         return this;
@@ -292,21 +292,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     protected String getInvalidCharacters() {
         return "./";
-    }
-
-    @Override
-    public void setDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
-        if (this.deviceConfiguration.isPresent()) {
-            validateDeviceConfigurationForUpdate(deviceConfiguration);
-        }
-        this.deviceConfiguration.set(deviceConfiguration);
-    }
-
-    private void validateDeviceConfigurationForUpdate(DeviceConfiguration deviceConfiguration) {
-        DeviceConfiguration myDeviceConfiguration = this.getDeviceConfiguration();
-        if (myDeviceConfiguration != null && myDeviceConfiguration.getId() != deviceConfiguration.getId()) {
-            throw CannotChangeDeviceConfigurationReferenceException.forChannelSpec(this.thesaurus, this);
-        }
     }
 
     @Override

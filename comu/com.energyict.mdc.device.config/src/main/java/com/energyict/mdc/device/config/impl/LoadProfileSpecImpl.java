@@ -15,7 +15,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceConfigurationReferenceException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLoadProfileTypeOfLoadProfileSpecException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteLoadProfileSpecLinkedChannelSpecsException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
@@ -47,7 +46,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     private LoadProfileSpecImpl initialize(DeviceConfiguration deviceConfiguration, LoadProfileType loadProfileType) {
         this.deviceConfiguration.set(deviceConfiguration);
-        setLoadProfileType(loadProfileType);
+        this.loadProfileType.set(loadProfileType);
         return this;
     }
 
@@ -129,18 +128,6 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     }
 
     @Override
-    public void setLoadProfileType(LoadProfileType loadProfileType) {
-        validateLoadProfileTypeForUpdate(loadProfileType);
-        this.loadProfileType.set(loadProfileType);
-    }
-
-    private void validateLoadProfileTypeForUpdate(LoadProfileType loadProfileType) {
-        if (this.loadProfileType.isPresent() && this.getLoadProfileType().getId() != loadProfileType.getId()) {
-            throw new CannotChangeLoadProfileTypeOfLoadProfileSpecException(this.thesaurus);
-        }
-    }
-
-    @Override
     public void setOverruledObisCode(ObisCode overruledObisCode) {
         if (overruledObisCode != null) {
             this.overruledObisCodeString = overruledObisCode.toString();
@@ -148,19 +135,6 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
             this.overruledObisCodeString = "";
         }
         this.overruledObisCode = overruledObisCode;
-    }
-
-    @Override
-    public void setDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
-        validateDeviceConfigurationForUpdate(deviceConfiguration);
-        this.deviceConfiguration.set(deviceConfiguration);
-    }
-
-    private void validateDeviceConfigurationForUpdate(DeviceConfiguration deviceConfiguration) {
-        DeviceConfiguration myDeviceConfiguration = this.getDeviceConfiguration();
-        if (myDeviceConfiguration != null && myDeviceConfiguration.getId() != deviceConfiguration.getId()) {
-            throw CannotChangeDeviceConfigurationReferenceException.forLoadProfileSpec(this.thesaurus, this);
-        }
     }
 
     abstract static class LoadProfileSpecBuilder implements LoadProfileSpec.LoadProfileSpecBuilder {

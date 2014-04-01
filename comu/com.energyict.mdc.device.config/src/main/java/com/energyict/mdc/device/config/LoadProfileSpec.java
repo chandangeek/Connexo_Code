@@ -25,11 +25,7 @@ public interface LoadProfileSpec extends HasId {
 
     public TimeDuration getInterval();
 
-    public void setLoadProfileType(LoadProfileType loadProfileType);
-
     public void setOverruledObisCode(ObisCode overruledObisCode);
-
-    public void setDeviceConfiguration(DeviceConfiguration deviceConfiguration);
 
     void validateDelete();
 

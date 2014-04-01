@@ -2,7 +2,8 @@ package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+
 import java.util.List;
 import java.util.Set;
 
@@ -37,21 +38,6 @@ public interface DeviceConfiguration extends HasId {
     String getDescription();
 
     void setDescription(String description);
-
-    /**
-     * Returns the prototype device for this device config
-     *
-     * @return the prototype device or null
-     */
-    Device getPrototypeDevice();
-
-    /**
-     * Returns the ID of the prototype device
-     *
-     * @return the ID of the prototype device or 0
-     */
-    int getPrototypeId();
-
     /**
      * Returns the <code>DeviceType</code> this device config belongs to
      *

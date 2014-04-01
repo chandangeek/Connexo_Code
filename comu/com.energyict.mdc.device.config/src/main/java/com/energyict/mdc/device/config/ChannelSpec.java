@@ -58,8 +58,6 @@ public interface ChannelSpec extends HasId {
 
     DeviceConfiguration getDeviceConfiguration();
 
-    void setDeviceConfiguration(DeviceConfiguration deviceConfiguration);
-
     void setRegisterMapping(RegisterMapping registerMapping);
 
     void setOverruledObisCode(ObisCode overruledObisCode);

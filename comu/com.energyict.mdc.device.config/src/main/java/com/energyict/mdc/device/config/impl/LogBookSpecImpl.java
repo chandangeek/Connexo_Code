@@ -120,15 +120,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
         return getLogBookType().getName() + "/" + getObisCode().toString();
     }
 
-    @Override
-    public void setDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
-        validateDeviceConfigurationForUpdate(deviceConfiguration);
-        this.deviceConfiguration.set(deviceConfiguration);
-    }
-
-
-    @Override
-    public void setLogBookType(LogBookType logBookType) {
+    private void setLogBookType(LogBookType logBookType) {
         validateLogbookTypeForUpdate(logBookType);
         this.logBookType.set(logBookType);
     }
@@ -147,13 +139,6 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
             this.overruledObisCodeString = "";
         }
         this.overruledObisCode = overruledObisCode;
-    }
-
-    private void validateDeviceConfigurationForUpdate(DeviceConfiguration deviceConfiguration) {
-        DeviceConfiguration myDeviceConfiguration = this.getDeviceConfiguration();
-        if(myDeviceConfiguration != null && myDeviceConfiguration.getId() != deviceConfiguration.getId()){
-            throw CannotChangeDeviceConfigurationReferenceException.forLogbookSpec(this.thesaurus, this);
-        }
     }
 
     abstract static class LogBookSpecBuilder implements LogBookSpec.LogBookSpecBuilder {
