@@ -1,5 +1,6 @@
 package com.elster.jupiter.rest.util;
 
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
@@ -84,7 +85,8 @@ public class ConstraintViolationInfo {
     }
 
     public ConstraintViolationInfo from(JsonMappingException exception) {
-        errors.add(new FieldError(exception.getPath().get(exception.getPath().size()-1).getFieldName(), "{"+MessageSeeds.INVALID_VALUE.getKey()+"}"));
+        errors.add(new FieldError(exception.getPath().get(exception.getPath().size()-1).getFieldName(),
+                nlsService.getThesaurus(MessageSeeds.COMPONENT_NAME, Layer.REST).getString(MessageSeeds.INVALID_VALUE.getKey(),"Invalid value")));
 
         return this;
     }
