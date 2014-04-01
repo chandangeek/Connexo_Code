@@ -56,9 +56,9 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             NamingEnumeration<SearchResult> answer = context.search(getBaseUser(), "(&(objectClass=person)(userPrincipalName="+user.getName()+"@"+getRealDomain(getBaseUser())+"))", controls);
             while (answer.hasMoreElements()) {
                 Attributes attrs = answer.nextElement().getAttributes();
-                NamingEnumeration e = attrs.getAll();
+                NamingEnumeration<? extends Attribute> e = attrs.getAll();
                 while (e.hasMoreElements()) {
-                    Attribute attr = (Attribute) e.nextElement();
+                    Attribute attr = e.nextElement();
                     for (int i = 0; i < attr.size(); ++i){
                         Group group = userService.findOrCreateGroup(getRealGroupName(attr.get(i).toString()));
                         groupList.add(group);
@@ -73,7 +73,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
 
     @Override
     public Optional<User> authenticate(String name, String password) {
-        Hashtable<String, Object> env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, getUrl());
         env.put(Context.SECURITY_PRINCIPAL,  name + "@" + getRealDomain(getBaseUser()));
