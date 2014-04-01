@@ -44,6 +44,7 @@ import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.device.data.impl.offline.DeviceOffline;
 import com.energyict.mdc.device.data.impl.offline.OfflineDeviceImpl;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -80,6 +81,7 @@ public class DeviceImpl implements Device {
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
+    private final List<ConnectionTask<?,?>> connectionTasks = new ArrayList<>();
     private long id;
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
@@ -635,7 +637,7 @@ public class DeviceImpl implements Device {
     @Override
     public ScheduledConnectionTask createScheduledConnectionTask(PartialScheduledConnectionTask partialConnectionTask) {
         ScheduledConnectionTask scheduledConnectionTask = this.deviceDataService.newAsapConnectionTask(this, partialConnectionTask, partialConnectionTask.getComPortPool());
-        scheduledConnectionTask.setc
+//        scheduledConnectionTask.setc
         return scheduledConnectionTask;
     }
 }
