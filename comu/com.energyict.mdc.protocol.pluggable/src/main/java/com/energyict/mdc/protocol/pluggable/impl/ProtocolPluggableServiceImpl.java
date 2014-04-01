@@ -36,6 +36,7 @@ import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesExcep
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -200,9 +201,15 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public DeviceProtocolPluggableClass findDeviceProtocolPluggableClassByName(String name) {
-        PluggableClass pluggableClass = this.pluggableService.findByTypeAndName(PluggableClassType.DeviceProtocol, name);
-        return DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass);
+    public Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClassByName(String name) {
+        Optional<PluggableClass> pluggableClass = this.pluggableService.findByTypeAndName(PluggableClassType.DeviceProtocol, name);
+        if(pluggableClass.isPresent()){
+            DeviceProtocolPluggableClass deviceProtocolPluggableClass = DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass.get());
+            return Optional.of(deviceProtocolPluggableClass);
+        }
+        else  {
+            return Optional.absent();
+        }
     }
 
     @Override
