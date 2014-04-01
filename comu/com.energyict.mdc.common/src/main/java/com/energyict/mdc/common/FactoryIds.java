@@ -20,7 +20,8 @@ public enum FactoryIds {
     USERFILE(Constants.USERFILE_FACTORY_ID),
     DEVICE_PROTOCOL_DIALECT(Constants.DEVICE_PROTOCOL_DIALECT),
     CONNECTION_METHOD(Constants.CONNECTION_METHOD_FACTORYID),
-    SECURITY_SET(Constants.SECURITY_SET_FACTORYID);
+    SECURITY_SET(Constants.SECURITY_SET_FACTORYID),
+    LOGBOOK(Constants.LOGBOOK_FACTORYID);
 
     int id;
 
@@ -56,5 +57,6 @@ public enum FactoryIds {
         public static final int DEVICE_PROTOCOL_DIALECT = 5010;
         public static final int CONNECTION_METHOD_FACTORYID = 5011;
         public static final int SECURITY_SET_FACTORYID = 5012;
+        public static final int LOGBOOK_FACTORYID = 206;
     }
 }
