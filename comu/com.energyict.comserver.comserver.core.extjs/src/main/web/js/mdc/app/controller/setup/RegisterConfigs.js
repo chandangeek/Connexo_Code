@@ -204,7 +204,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         var me = this;
 
         var breadcrumbCreate = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerconfig.create', 'MDC', 'Create register configurations'),
+            text: Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration'),
             href: 'create'
         });
 
