@@ -114,11 +114,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                         href: '#setup/devicetypes/' + this.deviceTypeId + '/registertypes/add',
                         hrefTarget: '_self',
                         action: 'addRegisterMapping'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk action'),
-                        itemId: 'registerMappingsBulkAction',
-                        xtype: 'button'
                     }
                 ]
             },

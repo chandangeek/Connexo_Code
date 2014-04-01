@@ -129,11 +129,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                         itemId: 'createRegisterType',
                         xtype: 'button',
                         action: 'createRegisterType'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk action'),
-                        itemId: 'registerMappingsBulkAction',
-                        xtype: 'button'
                     }
                 ]
             },
