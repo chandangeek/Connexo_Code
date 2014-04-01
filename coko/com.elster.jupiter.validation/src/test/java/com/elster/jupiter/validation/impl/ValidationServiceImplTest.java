@@ -77,6 +77,10 @@ public class ValidationServiceImplTest {
     private Thesaurus thesaurus;
     @Mock
     private NlsMessageFormat nlsMessageFormat;
+    @Mock
+    private javax.validation.ValidatorFactory validatorFactory;
+    @Mock
+    private javax.validation.Validator javaxValidator;
 
     @Before
     public void setUp() {
@@ -113,6 +117,8 @@ public class ValidationServiceImplTest {
             }
         });
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(dataModel.getValidatorFactory().getValidator()).thenReturn(javaxValidator);
     }
 
     @After

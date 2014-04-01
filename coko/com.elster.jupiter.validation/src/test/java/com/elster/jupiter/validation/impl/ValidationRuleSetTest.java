@@ -20,6 +20,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import javax.validation.ValidatorFactory;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,6 +54,10 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     private DataMapper<ReadingTypeInValidationRule> readingTypeInValidationFactory;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private javax.validation.Validator validator;
 
     @Before
     public void setUp() {
@@ -66,6 +71,8 @@ public class ValidationRuleSetTest extends EqualsContractTest {
                 return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService);
             }
         });
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
 
         validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService).init(NAME, null);
     }
@@ -119,7 +126,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     public void testPersist() {
         validationRuleSet.save();
 
-        verify(setFactory).persist(validationRuleSet);
+        verify(dataModel).persist(validationRuleSet);
     }
 
     @Test
@@ -128,7 +135,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
         validationRuleSet.save();
 
-        verify(setFactory).update(validationRuleSet);
+        verify(dataModel).update(validationRuleSet);
 
     }
 
@@ -138,8 +145,8 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
         validationRuleSet.save();
 
-        verify(setFactory).persist(validationRuleSet);
-        verify(ruleFactory).persist(rule1);
+        verify(dataModel).persist(validationRuleSet);
+        verify(dataModel).persist(rule1);
     }
 
     @Test
@@ -167,7 +174,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
         validationRuleSet.save();
 
-        verify(setFactory).update(validationRuleSet);
+        verify(dataModel).update(validationRuleSet);
         assertThat(validationRuleSet.getRules()).hasSize(2).contains(rule2, rule3);
 
     }

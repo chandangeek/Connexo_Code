@@ -115,7 +115,7 @@ public class ValidationRuleSetImplIT {
             protected void doPerform() {
                 readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
                 ValidationRuleSet validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
-                ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, "consecutiveZeroes", "consecutiveZeroes");
+                ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.ConsecutiveZerosValidator", "consecutiveZeroes");
                 zeroesRule.addReadingType(readingType);
                 zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, Unit.UNITLESS.amount(BigDecimal.valueOf(20)));
                 zeroesRule.activate();
@@ -140,7 +140,7 @@ public class ValidationRuleSetImplIT {
         try(TransactionContext context = transactionService.getContext()) {
             readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
             validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
-            ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, "consecutiveZeroes", "consecutiveZeroes");
+            ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.ConsecutiveZerosValidator", "consecutiveZeroes");
             zeroesRule.addReadingType(readingType);
             zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, Unit.UNITLESS.amount(BigDecimal.valueOf(20)));
             zeroesRule.activate();
@@ -171,7 +171,7 @@ public class ValidationRuleSetImplIT {
         try(TransactionContext context = transactionService.getContext()) {
             readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
             validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
-            ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, "consecutiveZeroes", "consecutiveZeroes");
+            ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.ConsecutiveZerosValidator", "consecutiveZeroes");
             zeroesRule.addReadingType(readingType);
             zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, Unit.UNITLESS.amount(BigDecimal.valueOf(20)));
             zeroesRule.activate();
