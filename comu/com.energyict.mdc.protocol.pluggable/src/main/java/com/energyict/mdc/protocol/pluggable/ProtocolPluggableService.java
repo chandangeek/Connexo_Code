@@ -6,6 +6,7 @@ import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.google.common.base.Optional;
 
 import java.util.List;
 
@@ -69,7 +70,7 @@ public interface ProtocolPluggableService {
 
     public DeviceProtocolPluggableClass findDeviceProtocolPluggableClass(long id);
 
-    public DeviceProtocolPluggableClass findDeviceProtocolPluggableClassByName(String name);
+    public Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClassByName(String name);
 
     public List<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClassesByClassName(String className);
 
