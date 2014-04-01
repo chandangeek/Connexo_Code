@@ -6,13 +6,21 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.RegisterMapping;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("/registertypes")
 public class RegisterTypeResource {
@@ -57,10 +65,10 @@ public class RegisterTypeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterMappingInfo createRegisterMapping(RegisterMappingInfo registerMappingInfo) {
-        ReadingType readingType = findReadingTypeOrThrowException(registerMappingInfo);
+        ReadingType readingType = findReadingType(registerMappingInfo);
 
         RegisterMapping registerMapping = deviceConfigurationService.newRegisterMapping(registerMappingInfo.name, registerMappingInfo.obisCode, registerMappingInfo.unit, readingType, registerMappingInfo.timeOfUse);
-        registerMappingInfo.writeTo(registerMapping, findReadingTypeOrThrowException(registerMappingInfo));
+        registerMappingInfo.writeTo(registerMapping, findReadingType(registerMappingInfo));
         registerMapping.save();
         return new RegisterMappingInfo(registerMapping);
     }
@@ -71,12 +79,12 @@ public class RegisterTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterMappingInfo updateRegisterMapping(@PathParam("id") long id, RegisterMappingInfo registerMappingInfo) {
         RegisterMapping registerMapping = findRegisterTypeOrThrowException(id);
-        registerMappingInfo.writeTo(registerMapping, findReadingTypeOrThrowException(registerMappingInfo));
+        registerMappingInfo.writeTo(registerMapping, findReadingType(registerMappingInfo));
         registerMapping.save();
         return new RegisterMappingInfo(registerMapping);
     }
 
-    private ReadingType findReadingTypeOrThrowException(RegisterMappingInfo registerMappingInfo) {
+    private ReadingType findReadingType(RegisterMappingInfo registerMappingInfo) {
         return meteringService.getReadingType(registerMappingInfo.readingTypeInfo.mrid).orNull();
     }
 
