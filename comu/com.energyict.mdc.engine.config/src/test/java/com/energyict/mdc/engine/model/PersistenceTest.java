@@ -18,7 +18,7 @@ import com.energyict.mdc.ExpectedErrorRule;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -46,7 +46,7 @@ public class PersistenceTest {
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
-    protected DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    protected InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass;
 
     @BeforeClass
     public static void staticSetUp() throws SQLException {
@@ -79,9 +79,9 @@ public class PersistenceTest {
 
     @Before
     public void setUp() {
-        deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
-        when(deviceProtocolPluggableClass.getId()).thenReturn(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID);
-        when(getProtocolPluggableService().findDeviceProtocolPluggableClass(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID)).thenReturn(deviceProtocolPluggableClass);
+        inboundDeviceProtocolPluggableClass = mock(InboundDeviceProtocolPluggableClass.class);
+        when(inboundDeviceProtocolPluggableClass.getId()).thenReturn(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID);
+        when(getProtocolPluggableService().findInboundDeviceProtocolPluggableClass(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID)).thenReturn(inboundDeviceProtocolPluggableClass);
     }
 
     public static TransactionService getTransactionService() {

@@ -218,7 +218,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
         inboundComPortPool.setName("ComPortPool "+comPortPoolIndex++);
         inboundComPortPool.setComPortType(ComPortType.TCP);
-        inboundComPortPool.setDiscoveryProtocolPluggableClass(deviceProtocolPluggableClass);
+        inboundComPortPool.setDiscoveryProtocolPluggableClass(inboundDeviceProtocolPluggableClass);
         inboundComPortPool.save();
         return inboundComPortPool;
     }

@@ -8,7 +8,7 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,14 +49,14 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
     }
 
     @Override
-    public DeviceProtocolPluggableClass getDiscoveryProtocolPluggableClass() {
-        return pluggableService.findDeviceProtocolPluggableClass(discoveryProtocolPluggableClassId);
+    public InboundDeviceProtocolPluggableClass getDiscoveryProtocolPluggableClass() {
+        return pluggableService.findInboundDeviceProtocolPluggableClass(discoveryProtocolPluggableClassId);
     }
 
     @Override
-    public void setDiscoveryProtocolPluggableClass(DeviceProtocolPluggableClass discoveryProtocolPluggableClass) {
-        if (discoveryProtocolPluggableClass!=null) {
-            this.discoveryProtocolPluggableClassId = discoveryProtocolPluggableClass.getId();
+    public void setDiscoveryProtocolPluggableClass(InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass) {
+        if (inboundDeviceProtocolPluggableClass !=null) {
+            this.discoveryProtocolPluggableClassId = inboundDeviceProtocolPluggableClass.getId();
         } else {
             this.discoveryProtocolPluggableClassId = 0;
         }

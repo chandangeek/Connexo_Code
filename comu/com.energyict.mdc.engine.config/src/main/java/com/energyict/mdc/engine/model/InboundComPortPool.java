@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.model;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import java.util.List;
 
 /**
@@ -29,7 +29,7 @@ public interface InboundComPortPool extends ComPortPool {
      *
      * @return The discovery pluggable class
      */
-    public DeviceProtocolPluggableClass getDiscoveryProtocolPluggableClass();
+    public InboundDeviceProtocolPluggableClass getDiscoveryProtocolPluggableClass();
 
-    void setDiscoveryProtocolPluggableClass(DeviceProtocolPluggableClass discoveryProtocolPluggableClass);
+    void setDiscoveryProtocolPluggableClass(InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass);
 }

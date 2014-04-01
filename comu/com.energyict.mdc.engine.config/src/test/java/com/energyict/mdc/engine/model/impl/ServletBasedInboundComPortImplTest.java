@@ -687,7 +687,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
         inboundComPortPool.setComPortType(ComPortType.SERVLET);
         inboundComPortPool.setName("comPortPool"+comPortPoolIndex++);
-        inboundComPortPool.setDiscoveryProtocolPluggableClass(deviceProtocolPluggableClass);
+        inboundComPortPool.setDiscoveryProtocolPluggableClass(inboundDeviceProtocolPluggableClass);
         inboundComPortPool.save();
         return inboundComPortPool;
     }
