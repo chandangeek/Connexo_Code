@@ -5,6 +5,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 
 public abstract class LocalizedException extends BaseException {
 
+    public static final String VIOLATING_PROPERTY_NAME = "violatingPropertyName";
     private final Thesaurus thesaurus;
     private final Object[] messageArgs;
 
@@ -43,5 +44,17 @@ public abstract class LocalizedException extends BaseException {
     @Override
     public String getLocalizedMessage() {
         return getFormat().format(messageArgs);
+    }
+
+    public void setViolatingProperty(String name){
+        this.set(VIOLATING_PROPERTY_NAME,name);
+    }
+
+    public String getViolatingProperty(){
+        return (String)this.get(VIOLATING_PROPERTY_NAME);
+    }
+
+    public boolean hasViolatingProperty(){
+        return this.getContextProperties().containsKey(VIOLATING_PROPERTY_NAME);
     }
 }
