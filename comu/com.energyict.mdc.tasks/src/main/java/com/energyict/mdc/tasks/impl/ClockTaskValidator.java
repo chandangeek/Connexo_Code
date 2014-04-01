@@ -25,7 +25,7 @@ public class ClockTaskValidator implements ConstraintValidator<ValidClockTask, C
     public boolean isValid(ClockTask value, ConstraintValidatorContext context) {
         boolean valid = true;
         switch (value.getClockTaskType()) {
-            case SETCLOCK: {
+            case SETCLOCK:
                 // both should be filled in
                 if (value.getMinimumClockDifference()==null) {
                     fail(context, Constants.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
@@ -36,7 +36,7 @@ public class ClockTaskValidator implements ConstraintValidator<ValidClockTask, C
                     valid=false;
                 } else {
                     if (value.getMaximumClockDifference().getCount()<=0) {
-                        fail(context, Constants.TIMEDURATION_IS_ZERO, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
+                        fail(context, Constants.TIMEDURATION_MUST_BE_POSITIVE, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
                         valid=false;
                     }
                 }
@@ -54,25 +54,25 @@ public class ClockTaskValidator implements ConstraintValidator<ValidClockTask, C
                             break;
                     }
                 }
-            }
-            break;
-            case SYNCHRONIZECLOCK: {
+                break;
+            case SYNCHRONIZECLOCK:
+                // max. clock shift should be filled in
                 if (value.getMaximumClockShift()==null) {
                     fail(context, Constants.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MAXIMUM_CLOCK_SHIFT.fieldName());
                     valid=false;
                 } else {
+                     // max. clock shift should be greater then zero
                     if (value.getMaximumClockShift().getCount()<=0) {
-                        fail(context, Constants.TIMEDURATION_IS_ZERO, ClockTaskImpl.Fields.MAXIMUM_CLOCK_SHIFT.fieldName());
+                        fail(context, Constants.TIMEDURATION_MUST_BE_POSITIVE, ClockTaskImpl.Fields.MAXIMUM_CLOCK_SHIFT.fieldName());
                         valid=false;
                     }
                 }
+                // there should be a minimum defined before synchronizing the clock (this may be zero)
                 if (value.getMinimumClockDifference()==null) {
-                    if (value.getMinimumClockDifference()==null) {
-                        fail(context, Constants.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
-                        valid=false;
-                    }
+                    fail(context, Constants.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
+                    valid=false;
                 }
-            }
+                break;
         }
 
         return valid;

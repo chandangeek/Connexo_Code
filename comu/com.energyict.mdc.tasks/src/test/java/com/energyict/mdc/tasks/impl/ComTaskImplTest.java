@@ -50,16 +50,6 @@ public class ComTaskImplTest extends PersistenceTest {
         return getTaskService().findComTask(comTask.getId()); // to make sure all elements in the composition are properly loaded
     }
 
-    private <T extends ProtocolTask> T getTaskByType(List<? extends ProtocolTask> protocolTasks, Class<T> clazz) {
-        for (ProtocolTask protocolTask : protocolTasks) {
-            if (clazz.isAssignableFrom(protocolTask.getClass())) {
-                return (T) protocolTask;
-            }
-        }
-        return null;
-    }
-
-
 //    private ComTaskShadow createComTaskShadowWithoutViolations () {
 //        ComTaskShadow shadow = createSimpleComTask();
 //        shadow.addProtocolTask(BasicCheckTaskImplTest.createBasicCheckTaskShadow());

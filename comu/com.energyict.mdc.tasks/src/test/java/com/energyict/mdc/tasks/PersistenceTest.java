@@ -34,6 +34,7 @@ import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import java.sql.SQLException;
+import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -102,5 +103,15 @@ public class PersistenceTest {
     public final TaskService getTaskService() {
         return injector.getInstance(TaskService.class);
     }
+
+    protected <T extends ProtocolTask> T getTaskByType(List<? extends ProtocolTask> protocolTasks, Class<T> clazz) {
+        for (ProtocolTask protocolTask : protocolTasks) {
+            if (clazz.isAssignableFrom(protocolTask.getClass())) {
+                return (T) protocolTask;
+            }
+        }
+        return null;
+    }
+
 
 }

@@ -18,7 +18,7 @@ public enum MessageSeeds implements MessageSeed {
     CAN_NOT_BE_EMPTY(5, Constants.CAN_NOT_BE_EMPTY, "This field can not be empty", Level.SEVERE),
     MIN_ABOVE_MAX(6, Constants.MIN_MUST_BE_BELOW_MAX, "Invalid range: minimum value exceeds maximum value", Level.SEVERE),
     MIN_EQUALS_MAX(7, Constants.MIN_EQUALS_MAX, "Invalid range: minimum value equals maximum value ", Level.SEVERE),
-    TIMEDURATION_IS_NULL(8, Constants.TIMEDURATION_IS_ZERO, "Field must denote non-0 duration", Level.SEVERE),
+    TIMEDURATION_IS_NULL(8, Constants.TIMEDURATION_MUST_BE_POSITIVE, "Field must denote non-0 duration", Level.SEVERE),
     SIZE_TOO_LONG(9, Constants.SIZE_TOO_LONG, "Field exceeds max size of {max} characters", Level.SEVERE),
     DUPLICATE_COMTASK_NAME(10, Constants.DUPLICATE_COMTASK_NAME, "A ComTask by this name already exists", Level.SEVERE),
     PROTOCOL_TASK_REQUIRED(11, Constants.COMTASK_WITHOUT_PROTOCOLTASK, "At least one protocol task is required for a communication task.", Level.SEVERE),
@@ -71,7 +71,7 @@ final class Constants {
     public static final String VALUE_NOT_IN_RANGE = TaskService.COMPONENT_NAME+".ValueNotInRange";
     public static final String MIN_MUST_BE_BELOW_MAX = TaskService.COMPONENT_NAME+".MinMustBeBelowMax";
     public static final String MIN_EQUALS_MAX = TaskService.COMPONENT_NAME+".MinEqualsMax";
-    public static final String TIMEDURATION_IS_ZERO = TaskService.COMPONENT_NAME+".TimeDurationMustBePositive";
+    public static final String TIMEDURATION_MUST_BE_POSITIVE = TaskService.COMPONENT_NAME+".TimeDurationMustBePositive";
     public static final String SIZE_TOO_LONG = TaskService.COMPONENT_NAME+".MaxSizeExceeded";
     public static final String DUPLICATE_COMTASK_NAME = TaskService.COMPONENT_NAME + ".comTask.name.duplicated";
     public static final String COMTASK_WITHOUT_PROTOCOLTASK = TaskService.COMPONENT_NAME + ".comTask.requiresProtocolTask";
