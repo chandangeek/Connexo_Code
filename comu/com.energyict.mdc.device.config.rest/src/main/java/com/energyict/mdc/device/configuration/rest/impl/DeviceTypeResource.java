@@ -8,11 +8,7 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -28,6 +24,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
@@ -65,7 +66,7 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
-        DeviceType deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name, deviceTypeInfo.deviceProtocolInfo.name);
+        DeviceType deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name, deviceTypeInfo.communicationProtocolName);
         deviceType.save();
         return DeviceTypeInfo.from(deviceType);
     }
@@ -77,7 +78,7 @@ public class DeviceTypeResource {
     public DeviceTypeInfo updateDeviceType(@PathParam("id") long id, DeviceTypeInfo deviceTypeInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         deviceType.setName(deviceTypeInfo.name);
-        deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.deviceProtocolInfo.name);
+        deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.communicationProtocolName);
         if (deviceTypeInfo.registerMappings != null) {
             updateRegisterMappingAssociations(deviceType, deviceTypeInfo.registerMappings);
         }

@@ -1,16 +1,21 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceTypeFields;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonUnwrapped;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @XmlRootElement
 public class DeviceTypeInfo {
+    public static final String COMMUNICATION_PROTOCOL_NAME = "communicationProtocolName";
+
     @JsonProperty("id")
     public long id;
     @JsonProperty("name")
@@ -27,8 +32,8 @@ public class DeviceTypeInfo {
     public boolean canBeDirectlyAddressed;
     @JsonProperty("canBeGateway")
     public boolean canBeGateway;
-    @JsonUnwrapped // As requested by ExtJS people
-    public DeviceProtocolInfo deviceProtocolInfo;
+    @JsonProperty(COMMUNICATION_PROTOCOL_NAME)
+    public String communicationProtocolName;
     @JsonProperty("registerTypes")
     public List<RegisterMappingInfo> registerMappings;
 
@@ -56,7 +61,7 @@ public class DeviceTypeInfo {
         deviceTypeInfo.canBeGateway= deviceType.canActAsGateway();
         deviceTypeInfo.canBeDirectlyAddressed = deviceType.isDirectlyAddressable();
         if (deviceProtocolPluggableClass!=null) {
-            deviceTypeInfo.deviceProtocolInfo=new DeviceProtocolInfo(deviceProtocolPluggableClass);
+            deviceTypeInfo.communicationProtocolName=deviceProtocolPluggableClass.getName();
         }
         return deviceTypeInfo;
     }
@@ -69,4 +74,9 @@ public class DeviceTypeInfo {
         return deviceTypeInfos;
     }
 
+    public static Map<String, String> fieldMappings() {
+        Map<String, String> fieldMappings = new HashMap<>();
+        fieldMappings.put(DeviceTypeFields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName(), COMMUNICATION_PROTOCOL_NAME);
+        return fieldMappings;
+    }
 }
