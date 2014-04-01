@@ -173,15 +173,15 @@ public class UserServiceImpl implements UserService, InstallService {
 
     @Override
     public Optional<User> findUser(String authenticationName) {
-        Condition condition = Operator.EQUAL.compare("authenticationName", authenticationName);
+        Condition condition = Operator.EQUALIGNORECASE.compare("authenticationName", authenticationName);
         List<User> users = dataModel.query(User.class, UserInGroup.class).select(condition);
         return users.isEmpty() ? Optional.<User>absent() : Optional.of(users.get(0));
     }
 
     @Override
     public User findOrCreateUser(String name, String domain, String directoryType) {
-        Condition userCondition = Operator.EQUAL.compare("authenticationName", name);
-        Condition domainCondition = Operator.EQUAL.compare("userDirectory.domain", domain);
+        Condition userCondition = Operator.EQUALIGNORECASE.compare("authenticationName", name);
+        Condition domainCondition = Operator.EQUALIGNORECASE.compare("userDirectory.domain", domain);
         List<User> users = dataModel.query(User.class, UserDirectory.class).select(userCondition.and(domainCondition));
         if (users.isEmpty()){
             if (ApacheDirectoryImpl.TYPE_IDENTIFIER.equals(directoryType)) {
@@ -197,7 +197,7 @@ public class UserServiceImpl implements UserService, InstallService {
 
     @Override
     public Group findOrCreateGroup(String name) {
-        Condition groupCondition = Operator.EQUAL.compare("name", name);
+        Condition groupCondition = Operator.EQUALIGNORECASE.compare("name", name);
         List<Group> groups = dataModel.query(Group.class).select(groupCondition);
         if (groups.isEmpty()){
             return createGroup(name, "");
