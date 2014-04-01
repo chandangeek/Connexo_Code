@@ -10,3 +10,10 @@
 //Ext.theme.addManifest();
 
 //Ext.theme.addShortcuts();
+
+Ext.theme.addManifest(
+    {
+        xtype: 'button',
+        ui: 'link'
+    }
+);
