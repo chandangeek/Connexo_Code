@@ -13,6 +13,7 @@ import com.elster.jupiter.users.rest.GroupInfos;
 import com.elster.jupiter.users.rest.actions.CreateGroupTransaction;
 import com.elster.jupiter.users.rest.actions.DeleteGroupTransaction;
 import com.elster.jupiter.users.rest.actions.UpdateGroupTransaction;
+import com.elster.jupiter.util.conditions.Order;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
@@ -76,7 +77,7 @@ public class GroupResource {
     @Produces(MediaType.APPLICATION_JSON)
     public GroupInfos getGroups(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<Group> list = getGroupRestQuery().select(queryParameters);
+        List<Group> list = getGroupRestQuery().select(queryParameters, Order.ascending("name"));
         GroupInfos infos = new GroupInfos(queryParameters.clipToLimit(list));
         infos.total = queryParameters.determineTotal(list.size());
         return infos;

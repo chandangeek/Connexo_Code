@@ -13,6 +13,7 @@ import com.elster.jupiter.users.rest.UserInfos;
 import com.elster.jupiter.users.rest.actions.CreateUserTransaction;
 import com.elster.jupiter.users.rest.actions.DeleteUserTransaction;
 import com.elster.jupiter.users.rest.actions.UpdateUserTransaction;
+import com.elster.jupiter.util.conditions.Order;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
@@ -89,7 +90,7 @@ public class UserResource {
     public UserInfos getUsers(@Context UriInfo uriInfo) {
         try (TransactionContext context = transactionService.getContext()) {
             QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-            List<User> list = getUserRestQuery().select(queryParameters);
+            List<User> list = getUserRestQuery().select(queryParameters, Order.ascending("authenticationName"));
             UserInfos infos = new UserInfos(queryParameters.clipToLimit(list));
             infos.total = queryParameters.determineTotal(list.size());
             try {
