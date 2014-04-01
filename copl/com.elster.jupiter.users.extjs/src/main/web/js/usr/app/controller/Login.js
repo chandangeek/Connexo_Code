@@ -26,8 +26,17 @@ Ext.define('Usr.controller.Login', {
     },
 
     signinuser : function(button, username, password)    {
+        Ext.Ajax.suspendEvent('requestexception');
+        this.hideLoginError();
+
         var unencodedToken = username + ":" + password;
         var encodedToken = "Basic " + Usr.controller.Base64.encode(unencodedToken);
+
+        //var widget =  Ext.getCmp('usm_elster_login').down('#contentPanel');
+        //widget.setLoading(true);
+        var myMask = new Ext.LoadMask(Ext.getBody(), {msg:"Verifying credentials..."});
+        myMask.show();
+
         var request = Ext.Ajax.request({
             url: '/apps/usr/index.html',
             method: 'GET',
@@ -36,15 +45,21 @@ Ext.define('Usr.controller.Login', {
             },
             scope: this,
             success: function(response, opt){
+                //widget.setLoading(false);
+                myMask.hide();
                 this.loginOK(button);
             },
             failure: function(response, opt){
+                //widget.setLoading(false);
+                myMask.hide();
                 this.loginNOK();
             }
         });
     },
 
     loginOK : function(button){
+        Ext.Ajax.resumeEvent('requestexception');
+
         var loader = Ext.create('Uni.Loader');
         loader.initI18n(['USM']);
 
@@ -69,7 +84,34 @@ Ext.define('Usr.controller.Login', {
     },
 
     loginNOK : function(){
-        console.log(this);
+        this.showLoginError();
+    },
+
+    hideLoginError: function () {
+        var widget =  Ext.getCmp('usm_elster_login').down('#contentPanel'),
+            errorLabel = widget.down('#errorLabel');
+
+        widget.setHeight(250);
+        widget.down('#errorIcon').setHeight(0);
+
+        errorLabel.setHeight(0);
+
+        widget.down('#errorContainer').hide();
+        widget.doLayout();
+    },
+
+    showLoginError: function () {
+        var widget =  Ext.getCmp('usm_elster_login').down('#contentPanel'),
+            errorLabel = widget.down('#errorLabel');
+
+        widget.setHeight(300);
+        widget.down('#errorIcon').setHeight(50);
+
+        errorLabel.setHeight(50);
+        errorLabel.setValue('Failed to log in. Please contact your administrator if the problem persists.');
+
+        widget.down('#errorContainer').show();
+        widget.doLayout();
     }
 
 });
