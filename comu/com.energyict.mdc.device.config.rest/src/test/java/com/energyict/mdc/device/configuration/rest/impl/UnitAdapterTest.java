@@ -31,9 +31,8 @@ public class UnitAdapterTest {
 
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testUnmarshalIllegalUnit() throws Exception {
-        assertThat(unitAdapter.unmarshal("XYZ")).isNull();
-
+        unitAdapter.unmarshal("XYZ");
     }
 }

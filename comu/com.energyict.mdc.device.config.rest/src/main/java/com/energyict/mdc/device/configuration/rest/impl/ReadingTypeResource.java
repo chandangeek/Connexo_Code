@@ -3,7 +3,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
@@ -42,19 +41,15 @@ public class ReadingTypeResource {
     public PagedInfoList getReadingType(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
         List<ReadingTypeInfo> readingTypeInfos = new ArrayList<>();
         if (!queryFilter.getFilterProperties().isEmpty()) {
-            String obisCodeString = queryFilter.getFilterProperties().get("obisCode");
-            String unit = queryFilter.getFilterProperties().get("unit");
-            if (!Checks.is(unit).emptyOrOnlyWhiteSpace() && !Checks.is(obisCodeString).emptyOrOnlyWhiteSpace()) {
-                ObisCode obisCode = queryFilter.getProperty("obisCode", new ObisCodeAdapter(), thesaurus);
-                String mrid = readingTypeUtilService.getReadingTypeFrom(obisCode, Unit.get(unit));
-                Optional<ReadingType> readingType = meteringService.getReadingType(mrid);
-                if (!readingType.isPresent()) {
-                    throw new WebApplicationException("No such reading type", Response.status(Response.Status.NOT_FOUND).entity("No reading type for ObisCode "+obisCode+" and unit "+unit).build());
-                }
-                readingTypeInfos.add(new ReadingTypeInfo(readingType.get()));
-            } else {
-                throw new WebApplicationException("Unknown filter applied", Response.status(Response.Status.BAD_REQUEST).entity("Unknown filter applied").build());
+            String unitString = queryFilter.getFilterProperties().get("unit");
+            ObisCode obisCode = queryFilter.getProperty("obisCode", new ObisCodeAdapter(), thesaurus);
+            Unit unit = queryFilter.getProperty("unit", new UnitAdapter(), thesaurus);
+            String mrid = readingTypeUtilService.getReadingTypeFrom(obisCode, unit);
+            Optional<ReadingType> readingType = meteringService.getReadingType(mrid);
+            if (!readingType.isPresent()) {
+                throw new WebApplicationException("No such reading type", Response.status(Response.Status.NOT_FOUND).entity("No reading type for ObisCode "+obisCode+" and unit "+unitString).build());
             }
+            readingTypeInfos.add(new ReadingTypeInfo(readingType.get()));
         } else {
             List<ReadingType> readingTypes = ListPager.of(meteringService.getAvailableReadingTypes(), new ReadingTypeComparator()).from(queryParameters).find();
             for (ReadingType readingType : readingTypes) {

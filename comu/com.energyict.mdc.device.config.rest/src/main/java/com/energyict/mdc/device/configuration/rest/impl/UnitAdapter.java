@@ -11,7 +11,11 @@ public class UnitAdapter extends XmlAdapter<String, Unit> {
         if (Checks.is(unitString).emptyOrOnlyWhiteSpace()) {
             return Unit.getUndefined();
         }
-        return Unit.get(unitString);
+        Unit unit = Unit.get(unitString);
+        if (unit==null) {
+            throw new IllegalArgumentException("Invalid unit: "+unitString);
+        }
+        return unit;
     }
 
     @Override
