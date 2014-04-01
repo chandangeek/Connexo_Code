@@ -80,7 +80,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                 emptyText: Uni.I18n.translate('devicetype.selectProtocol', 'MDC', 'Select a communication protocol...'),
                                                 required: true,
                                                 forceSelection: true,
-                                                typeAhead: true
+                                                typeAhead: true,
+                                                msgTarget: 'under'
                                             },
                                             {
                                                 xtype: 'textfield',
