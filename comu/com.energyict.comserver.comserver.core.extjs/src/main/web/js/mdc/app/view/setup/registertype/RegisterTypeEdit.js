@@ -85,8 +85,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         required: true,
                                         fieldLabel: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
                                         itemId: 'editRegisterTypeNameField',
-                                        maxLength: 80,
-                                        enforceMaxLength: true,
                                         width: 650
                                     },
                                     {
@@ -97,8 +95,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         fieldLabel: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
                                         emptyText: Uni.I18n.translate('registerType.selectObisCode', 'MDC', 'x.x.x.x.x.x'),
                                         itemId: 'editObisCodeField',
-                                        maxLength: 80,
-                                        enforceMaxLength: true,
                                         cls: 'obisCode',
                                         width: 650
                                     },

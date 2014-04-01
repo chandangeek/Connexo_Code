@@ -102,8 +102,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         required: true,
                                         fieldLabel: Uni.I18n.translate('registerConfig.obisCode', 'MDC', 'OBIS code'),
                                         itemId: 'editOverruledObisCodeField',
-                                        maxLength: 80,
-                                        enforceMaxLength: true,
                                         width: 450
                                     },
                                     {
@@ -113,8 +111,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         required: true,
                                         fieldLabel: Uni.I18n.translate('registerConfig.obisCode', 'MDC', 'OBIS code'),
                                         itemId: 'editObisCodeField',
-                                        maxLength: 80,
-                                        enforceMaxLength: true,
                                         width: 450,
                                         hidden: true
                                     },

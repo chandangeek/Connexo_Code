@@ -73,9 +73,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 msgTarget: 'under',
                                                 required: true,
                                                 fieldLabel: Uni.I18n.translate('deviceconfiguration.name', 'MDC', 'Name'),
-                                                itemId: 'editDeviceConfigurationNameField',
-                                                maxLength: 80,
-                                                enforceMaxLength: true
+                                                itemId: 'editDeviceConfigurationNameField'
                                             },
                                             {
                                                 xtype: 'textareafield',
