@@ -134,7 +134,7 @@ public enum MessageSeeds implements MessageSeed {
     TEMPORAL_EXPRESSION_UNKNOWN_UNIT(13002, Constants.TEMPORAL_EXPRESSION_UNKNOWN_UNIT_KEY, "The unit {0} is unknown or unsupported for temporal expressions", Level.SEVERE),
     TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE(13003, Constants.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY, "The frequency value of a temporal expression must be a strictly positive number", Level.SEVERE),
     TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE(13004, Constants.TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY, "The offset value of a temporal expression must be a positive number", Level.SEVERE),
-    PROTOCOL_INVALID_NAME(13005,"A protocol with name {0} does not exist","deviceType.no.such.protocol",Level.SEVERE);
+    PROTOCOL_INVALID_NAME(13005,"deviceType.no.such.protocol", "A protocol with name {0} does not exist",Level.SEVERE);
 
     private final int number;
     private final String key;
