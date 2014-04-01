@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceProtocolTopologyAdapterTest {
 
-    private static final int DEVICE_ID = 93;
+    private static final long DEVICE_ID = 93;
 
     @Mock
     private static UserEnvironment userEnvironment = mock(UserEnvironment.class);
