@@ -11,6 +11,7 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.PluggableService;
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -53,11 +54,10 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
     }
 
     @Override
-    public PluggableClass findByTypeAndName(PluggableClassType type, String name) {
+    public Optional<PluggableClass> findByTypeAndName(PluggableClassType type, String name) {
         return this.dataModel.mapper(PluggableClass.class).
                 getUnique("pluggableType", PersistentPluggableClassType.forActualType(type),
-                          "name", name).
-                orNull();
+                          "name", name);
     }
 
     @Override
