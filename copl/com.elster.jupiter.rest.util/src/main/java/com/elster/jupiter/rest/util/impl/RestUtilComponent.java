@@ -2,6 +2,7 @@ package com.elster.jupiter.rest.util.impl;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
@@ -10,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
-import javax.inject.Inject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -20,14 +20,9 @@ public class RestUtilComponent implements InstallService{
 
     private Thesaurus thesaurus;
 
-    @Inject
-    public RestUtilComponent(Thesaurus thesaurus) {
-        setThesaurus(thesaurus);
-    }
-
     @Reference
-    public void setThesaurus(Thesaurus thesaurus) {
-        this.thesaurus = thesaurus;
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(MessageSeeds.COMPONENT_NAME, Layer.REST);
     }
 
     @Override
