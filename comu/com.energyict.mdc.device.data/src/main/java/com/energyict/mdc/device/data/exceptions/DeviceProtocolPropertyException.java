@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.exception;
+package com.energyict.mdc.device.data.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -29,7 +29,7 @@ public class DeviceProtocolPropertyException extends LocalizedException {
      * @return the newly created DeviceProtocolException
      */
     public static DeviceProtocolPropertyException infoTypeDoesNotExist(Thesaurus thesaurus, String propertyValue) {
-        return new DeviceProtocolPropertyException(thesaurus, MessageSeeds.DEVICE_PROPERTY_INFO_TYPE_DOENST_EXIST, propertyValue);
+        return new DeviceProtocolPropertyException(thesaurus, InitialMessageSeeds.DEVICE_PROPERTY_INFO_TYPE_DOENST_EXIST, propertyValue);
     }
 
     /**
@@ -43,6 +43,6 @@ public class DeviceProtocolPropertyException extends LocalizedException {
      * @return the newly created DeviceProtocolException
      */
     public static DeviceProtocolPropertyException propertyDoesNotExistForDeviceProtocol(Thesaurus thesaurus, String name, DeviceProtocol deviceProtocol, Device device) {
-        return new DeviceProtocolPropertyException(thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL, name, deviceProtocol.getClass().getSimpleName(), device.getName());
+        return new DeviceProtocolPropertyException(thesaurus, InitialMessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL, name, deviceProtocol.getClass().getSimpleName(), device.getName());
     }
 }

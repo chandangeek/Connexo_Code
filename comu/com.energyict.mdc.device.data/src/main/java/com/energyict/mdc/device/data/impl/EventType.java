@@ -7,14 +7,19 @@ import com.elster.jupiter.orm.TransactionRequired;
 import com.energyict.mdc.device.data.DeviceDataService;
 
 /**
- * Models the different event types that are produced by this "device and it's data bundle".
- * <p/>
- * Copyrights EnergyICT
- * Date: 26/02/14
- * Time: 11:44
+ * Models the different event types that are produced by this "device data bundle".
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2014-03-07 (14:28)
  */
 public enum EventType {
 
+    CONNECTIONTASK_CREATED("connectiontask/CREATED"),
+    CONNECTIONTASK_UPDATED("connectiontask/UPDATED"),
+    CONNECTIONTASK_DELETED("connectiontask/DELETED"),
+    CONNECTIONMETHOD_CREATED("connectionmethod/CREATED"),
+    CONNECTIONMETHOD_UPDATED("connectionmethod/UPDATED"),
+    CONNECTIONMETHOD_DELETED("connectionmethod/DELETED"),
     DEVICE_CREATED("device/CREATED"),
     DEVICE_DELETED("device/DELETED"),
     DEVICE_UPDATED("device/UPDATED"),

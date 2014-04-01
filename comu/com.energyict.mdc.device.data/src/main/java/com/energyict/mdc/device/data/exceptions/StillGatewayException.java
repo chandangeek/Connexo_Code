@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.exception;
+package com.energyict.mdc.device.data.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -29,7 +29,7 @@ public class StillGatewayException extends LocalizedException {
      * @return the newly created exception
      */
     public static StillGatewayException forPhysicalGateway(Thesaurus thesaurus, Device gateway, Device... slaves) {
-        return new StillGatewayException(thesaurus, MessageSeeds.DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY, gateway.getName(), getSlaveNames(slaves));
+        return new StillGatewayException(thesaurus, InitialMessageSeeds.DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY, gateway.getName(), getSlaveNames(slaves));
     }
 
     /**
@@ -42,7 +42,7 @@ public class StillGatewayException extends LocalizedException {
      * @return the newly created exception
      */
     public static StillGatewayException forCommunicationGateway(Thesaurus thesaurus, Device gateway, Device... slaves) {
-        return new StillGatewayException(thesaurus, MessageSeeds.DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY, gateway.getName(), getSlaveNames(slaves));
+        return new StillGatewayException(thesaurus, InitialMessageSeeds.DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY, gateway.getName(), getSlaveNames(slaves));
     }
 
     private static String getSlaveNames(Device[] slaves) {

@@ -4,7 +4,7 @@ import com.elster.jupiter.orm.DataModel;
 
 /**
  * Defines the behavior of a component that will
- * initialize the ORM datamodel of the device configuraltion module.
+ * initialize the ORM datamodel of the device data module.
  * All initialization calls are made from a transaction aware environment.
  *
  * @author Rudi Vankeirsbilck (rudi)
