@@ -342,7 +342,7 @@ public class ComServerComPortTest extends PersistenceTest {
         inboundComPortPool.setName("Unique comPortPool "+comPortPoolIndex++);
         inboundComPortPool.setDescription("description");
         inboundComPortPool.setComPortType(comPortType);
-        inboundComPortPool.setDiscoveryProtocolPluggableClass(deviceProtocolPluggableClass);
+        inboundComPortPool.setDiscoveryProtocolPluggableClass(discoveryProtocolPluggableClass);
         inboundComPortPool.save();
         return inboundComPortPool;
     }

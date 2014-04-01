@@ -9,6 +9,7 @@ import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +55,7 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
     }
 
     @Override
-    public void setDiscoveryProtocolPluggableClass(DeviceProtocolPluggableClass discoveryProtocolPluggableClass) {
+    public void setDiscoveryProtocolPluggableClass(InboundDeviceProtocolPluggableClass discoveryProtocolPluggableClass) {
         if (discoveryProtocolPluggableClass!=null) {
             this.discoveryProtocolPluggableClassId = discoveryProtocolPluggableClass.getId();
         } else {
