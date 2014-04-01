@@ -30,4 +30,6 @@ public interface ValidationService {
     Query<ValidationRuleSet> getRuleSetQuery();
 
     Optional<ValidationRuleSet> getValidationRuleSet(String name);
+
+    Validator getValidator(String implementation);
 }

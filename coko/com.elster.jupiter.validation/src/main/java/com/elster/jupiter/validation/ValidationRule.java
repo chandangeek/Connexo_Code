@@ -42,6 +42,8 @@ public interface ValidationRule {
 
     ReadingTypeInValidationRule addReadingType(ReadingType readingType);
 
+    ReadingTypeInValidationRule addReadingType(String mRID);
+
     void deleteReadingType(ReadingType readingType);
 
     boolean isRequired(String propertyKey);

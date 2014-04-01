@@ -99,7 +99,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus);
+                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService);
             }
         });
         when(dataModel.getInstance(ValidationRulePropertiesImpl.class)).thenAnswer(new Answer<Object>() {
@@ -129,7 +129,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
             when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
                 @Override
                 public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus);
+                    return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService);
                 }
             });
             validationRule = ValidationRuleImpl.from(dataModel, ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION, "rulename");
@@ -149,7 +149,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus);
+                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService);
             }
         });
         return setId(ValidationRuleImpl.from(dataModel, ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION + 1, "rulename"), ID);
@@ -161,7 +161,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus);
+                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService);
             }
         });
         return ImmutableList.of(setId(ValidationRuleImpl.from(dataModel, ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION, "rulename"), OTHER_ID));

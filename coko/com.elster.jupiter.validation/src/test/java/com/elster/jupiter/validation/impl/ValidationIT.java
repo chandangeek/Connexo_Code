@@ -170,7 +170,7 @@ public class ValidationIT {
         when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus);
+                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService);
             }
         });
         when(dataModel.getInstance(ReadingTypeInValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
