@@ -86,9 +86,9 @@ public class ValidationTest {
         for (ConstraintViolation<?> violation : validator.validate(new Bean())) {
     		String message = nlsService.interpolate(violation);
     		if (violation.getConstraintDescriptor().getAnnotation().annotationType().equals(NotNull.class)) {
-    			assertThat(message).isEqualTo("vide ({javax.validation.constraints.NotNull.message})");
+    			assertThat(message).isEqualTo("vide (ne peut pas \u00eatre nul)");
     		} else {
-    			assertThat(message).isEqualTo("svp ne laissez pas vide ({javax.validation.constraints.NotNull.message}), valeur minimal: {min}");
+    			assertThat(message).isEqualTo("svp ne laissez pas vide (ne peut pas \u00eatre nul), valeur minimal: 10");
     		}
     	}
     }
