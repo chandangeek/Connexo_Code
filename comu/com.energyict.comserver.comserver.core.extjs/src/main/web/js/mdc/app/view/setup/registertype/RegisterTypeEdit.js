@@ -80,6 +80,17 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                 items: [
                                     {
                                         xtype: 'textfield',
+                                        name: 'name',
+                                        msgTarget: 'under',
+                                        required: true,
+                                        fieldLabel: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
+                                        itemId: 'editRegisterTypeNameField',
+                                        maxLength: 80,
+                                        enforceMaxLength: true,
+                                        width: 650
+                                    },
+                                    {
+                                        xtype: 'textfield',
                                         name: 'obisCode',
                                         msgTarget: 'under',
                                         required: true,
@@ -119,7 +130,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         emptyText: Uni.I18n.translate('registerType.selectMeasurementUnit', 'MDC', 'Select unit of measure'),
                                         required: true,
                                         forceSelection: true,
-                                        editable: false,
+
                                         cls: 'obisCode',
                                         typeAhead: true,
                                         msgTarget: 'under',
@@ -138,7 +149,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         emptyText: Uni.I18n.translate('registerType.selectTimeOfUse', 'MDC', 'Select time of use'),
                                         required: true,
                                         forceSelection: true,
-                                        editable: false,
+
                                         width: 650,
                                         typeAhead: true,
                                         msgTarget: 'under'
@@ -172,17 +183,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                             }
                                         ]
                                     },
-                                    {
-                                        xtype: 'textfield',
-                                        name: 'name',
-                                        msgTarget: 'under',
-                                        required: true,
-                                        fieldLabel: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
-                                        itemId: 'editRegisterTypeNameField',
-                                        maxLength: 80,
-                                        enforceMaxLength: true,
-                                        width: 650
-                                    },
+
                                     {
                                         xtype: 'fieldcontainer',
                                         fieldLabel: '&nbsp',
