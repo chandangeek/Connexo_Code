@@ -1,8 +1,12 @@
 package com.energyict.mdc.common.rest;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.impl.MessageSeeds;
 import java.util.HashMap;
 import java.util.Map;
 import javax.ws.rs.QueryParam;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,5 +36,16 @@ public class JsonQueryFilter {
 
     public Map<String, String> getFilterProperties() {
         return filterProperties;
+    }
+
+    public <T> T getProperty(String name, XmlAdapter<String, T> adapter, Thesaurus thesaurus) {
+        String stringProperty = getFilterProperties().get(name);
+        try {
+            return adapter.unmarshal(stringProperty);
+        } catch (Exception e) {
+            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.INVALID_VALUE, name);
+//            throw new JsonDeserializeException(e, stringProperty,
+//                    ((Class<?>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]));
+        }
     }
 }
