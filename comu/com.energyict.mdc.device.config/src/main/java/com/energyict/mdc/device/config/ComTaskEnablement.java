@@ -3,12 +3,11 @@ package com.energyict.mdc.device.config;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.device.config.impl.ServerPartialConnectionTask;
-import com.energyict.mdc.protocol.api.device.Device;
 
 import java.sql.SQLException;
 
 /**
- * Enables the execution of a {@link ComTask} against {@link Device}s
+ * Enables the execution of a {@link ComTask} against Devices
  * of a {@link DeviceConfiguration} and specifies the security
  * requirements for that execution.
  * In addition, specifies preferred scheduling (e.g. every day or every week)
@@ -45,7 +44,7 @@ public interface ComTaskEnablement extends IdBusinessObject {
 
     /**
      * Gets the preferred execution priority for the execution
-     * of the related {@link ComTask} on a {@link Device}
+     * of the related {@link ComTask} on a Device
      * of the related {@link DeviceConfiguration}.
      * Remember that this is a positive number
      * and smaller numbers indicate higher priority.
@@ -67,7 +66,7 @@ public interface ComTaskEnablement extends IdBusinessObject {
     /**
      * Suspends this ComTaskEnablement , i.e. temporarily
      * disables the execution of the related {@link ComTask}
-     * on all {@link Device}s of the
+     * on all Devices of the
      * related {@link DeviceConfiguration}.
      */
     public void suspend () throws BusinessException, SQLException;
@@ -79,7 +78,7 @@ public interface ComTaskEnablement extends IdBusinessObject {
 
     /**
      * Tests if the execution of the related {@link ComTask}
-     * on a {@link Device} of the related
+     * on a Device of the related
      * {@link DeviceConfiguration} should use the default
      * ConnectionTask configured on that Device.
      *
@@ -91,7 +90,7 @@ public interface ComTaskEnablement extends IdBusinessObject {
     /**
      * Gets the {@link PartialConnectionTask} that specifies
      * the preferred way to setup a connection for the execution
-     * of the related {@link ComTask} for all {@link Device}s
+     * of the related {@link ComTask} for all Devices
      * of the related {@link DeviceConfiguration}.
      *
      * @return The PartialConnectionTask

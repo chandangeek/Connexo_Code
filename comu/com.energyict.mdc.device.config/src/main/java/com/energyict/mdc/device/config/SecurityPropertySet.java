@@ -4,7 +4,6 @@ import com.energyict.mdc.common.NamedBusinessObject;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
@@ -13,7 +12,7 @@ import java.util.Set;
 
 /**
  * Models named set of security properties whose values
- * are managed against a {@link Device}.
+ * are managed against a Device.
  * The exact set of {@link com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec}s
  * that are used is determined by the {@link AuthenticationDeviceAccessLevel}
  * and/or {@link EncryptionDeviceAccessLevel} select in the SecurityPropertySet.
@@ -69,7 +68,7 @@ public interface SecurityPropertySet extends NamedBusinessObject, RelationPartic
 
     /**
      * Tests if this SecurityPropertySet is still used
-     * at the {@link Device} level.
+     * at the Device level.
      * This will be the case when there is at least one
      * Device that specifies {@link SecurityProperty values}
      * for this SecurityPropertySet.
