@@ -41,7 +41,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             return ((UserImpl) user).doGetGroups();
         }
 
-        Hashtable<String, Object> env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, getUrl());
         env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
@@ -65,7 +65,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
 
     @Override
     public Optional<User> authenticate(String name, String password) {
-        Hashtable<String, Object> env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, getUrl());
         env.put(Context.SECURITY_PRINCIPAL,"uid=" + name + "," + getBaseUser());
