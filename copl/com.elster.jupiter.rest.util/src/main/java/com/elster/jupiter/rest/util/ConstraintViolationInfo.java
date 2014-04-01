@@ -1,16 +1,16 @@
 package com.elster.jupiter.rest.util;
 
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Whenever a REST call results in a ConstraintViolationException(or other), this mapper will convert the exception in a Result understood by our
@@ -56,22 +56,27 @@ public class ConstraintViolationInfo {
         return this;
     }
 
+    public ConstraintViolationInfo from(LocalizedFieldValidationException exception) {
+        return this.from(exception, new HashMap<String, String>());
+    }
+
+    public ConstraintViolationInfo from(LocalizedFieldValidationException exception, Map<String, String> fieldMappings) {
+        if (fieldMappings.containsKey(exception.getViolatingProperty())) {
+            errors.add(new FieldError(fieldMappings.get(exception.getViolatingProperty()), exception.getLocalizedMessage()));
+        } else {
+            errors.add(new FieldError(exception.getViolatingProperty(), exception.getLocalizedMessage()));
+        }
+
+        return this;
+    }
+
     public ConstraintViolationInfo from(LocalizedException exception) {
         return this.from(exception, new HashMap<String, String>());
     }
 
     public ConstraintViolationInfo from(LocalizedException exception, Map<String, String> fieldMappings) {
-        if (exception.hasViolatingProperty()) {
-            if (fieldMappings.containsKey(exception.getViolatingProperty())) {
-                errors.add(new FieldError(fieldMappings.get(exception.getViolatingProperty()), exception.getLocalizedMessage()));
-            } else {
-                errors.add(new FieldError(exception.getViolatingProperty(), exception.getLocalizedMessage()));
-            }
-
-        } else {
-            message=exception.getLocalizedMessage();
-            error=exception.getMessageSeed().getKey();
-        }
+        message=exception.getLocalizedMessage();
+        error=exception.getMessageSeed().getKey();
 
         return this;
     }
