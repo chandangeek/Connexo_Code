@@ -8,7 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.exception.MessageSeeds;
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 
 import java.util.ArrayList;
 import java.util.List;

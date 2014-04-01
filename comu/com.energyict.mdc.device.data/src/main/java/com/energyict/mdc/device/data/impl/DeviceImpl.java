@@ -25,6 +25,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
@@ -36,12 +38,13 @@ import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.exception.DeviceProtocolPropertyException;
-import com.energyict.mdc.device.data.exception.MessageSeeds;
-import com.energyict.mdc.device.data.exception.StillGatewayException;
+import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.device.data.impl.offline.DeviceOffline;
 import com.energyict.mdc.device.data.impl.offline.OfflineDeviceImpl;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
@@ -629,4 +632,10 @@ public class DeviceImpl implements Device {
         this.externalName = externalName;
     }
 
+    @Override
+    public ScheduledConnectionTask createScheduledConnectionTask(PartialScheduledConnectionTask partialConnectionTask) {
+        ScheduledConnectionTask scheduledConnectionTask = this.deviceDataService.newAsapConnectionTask(this, partialConnectionTask, partialConnectionTask.getComPortPool());
+        scheduledConnectionTask.setc
+        return scheduledConnectionTask;
+    }
 }

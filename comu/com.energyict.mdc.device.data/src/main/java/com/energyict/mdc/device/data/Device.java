@@ -3,8 +3,14 @@ package com.energyict.mdc.device.data;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -172,4 +178,5 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     BaseChannel getChannel(String name);
 
+    ScheduledConnectionTask createScheduledConnectionTask(PartialScheduledConnectionTask partialConnectionTask);
 }

@@ -16,15 +16,24 @@ import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ComTaskExecutionFactory;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.finders.DeviceFinder;
+import com.energyict.mdc.device.data.finders.LoadProfileFinder;
+import com.energyict.mdc.device.data.finders.LogBookFinder;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -44,7 +53,8 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
@@ -59,9 +69,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -245,8 +257,8 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
             return connectionTasks.get(0);
         }
         else {
-            if (device.getGateway() != null) {
-                return this.findDefaultConnectionTaskForDevice(device.getGateway());
+            if (device.getPhysicalGateway() != null) {
+                return this.findDefaultConnectionTaskForDevice(device.getPhysicalGateway());
             }
         }
         return null;  //if no default is found, null is returned
@@ -311,7 +323,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
         for (ComTaskExecutionFactory factory : factories) {
             scheduledComTasks.addAll(factory.findComTaskExecutionsForDefaultOutboundConnectionTask(device));
         }
-        Iterator downstreamDevices = device.getDownstreamDevices().iterator();
+        Iterator downstreamDevices = device.getPhysicalConnectedDevices().iterator();
         while (downstreamDevices.hasNext()) {
             Device slave = (Device) downstreamDevices.next();
             this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(slave, scheduledComTasks);
