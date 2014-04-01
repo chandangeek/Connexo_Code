@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.journal.ComSession;
@@ -45,7 +46,7 @@ import java.util.List;
  * @since 2012-04-11 (09:59)
  */
 public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialConnectionTask>
-       extends ConnectionTaskPropertyProvider, ConnectionTaskExecutionAspects {
+       extends ConnectionTaskPropertyProvider, ConnectionTaskExecutionAspects, HasId {
 
     public enum Type {
         /**
