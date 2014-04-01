@@ -51,34 +51,6 @@ Ext.define('Isu.controller.IssueFilter', {
                 }
             }
         });
-        this.getStore('Isu.store.Assignee').on('load', this.assigneeLoad);
-    },
-
-    assigneeLoad: function (store, records) {
-        var combo = Ext.ComponentQuery.query('issues-side-filter filter-form combobox[name=assignee]')[0];
-        if (combo.getValue && records.length > 0) {
-            var types = {},
-                template = combo.renderTpl,
-                picker = combo.picker.child('gridview').getEl();
-            Ext.Array.each(records, function (item) {
-                types[item.get('type')] = true
-            });
-
-            if (!types.ROLE) {
-                var str = template.apply(picker,{
-                    name: 'No matches',
-                    type: 'ROLE',
-                    id: '-5'
-                });
-
-            }
-            if (!types.USER) {
-
-            }
-            if (!types.GROUP) {
-
-            }
-        }
     },
 
     reset: function () {
@@ -92,6 +64,9 @@ Ext.define('Isu.controller.IssueFilter', {
      * @param filter
      */
     filterUpdate: function (filter) {
+        if (!this.getIssueFilter()) {
+            return;
+        }
         var form = this.getIssueFilter().down('filter-form'),
             chkbx = form.down('filter-checkboxgroup'),
             loadRecord = function () {

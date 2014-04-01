@@ -141,6 +141,9 @@ Ext.define('Isu.controller.Issues', {
      * @param filter Uni.component.filter.model.Filter
      */
     filterUpdate: function (filter) {
+        if (!this.getFilter()) {
+            return;
+        }
         var filterElm = this.getFilter().down('[name="filter"]'),
             emptyText = this.getFilter().down('[name="empty-text"]'),
             clearFilterBtn = this.getFilter().down('button[action="clearfilter"]'),
@@ -207,6 +210,9 @@ Ext.define('Isu.controller.Issues', {
     },
 
     sortUpdate: function (sortModel) {
+        if (!this.getFilter()) {
+            return;
+        }
         var filterElm = this.getFilter().down('[name="sortitemspanel"]'),
             isuList = this.getIssuesList();
 
