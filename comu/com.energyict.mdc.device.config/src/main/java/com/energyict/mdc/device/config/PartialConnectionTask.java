@@ -4,7 +4,6 @@ import com.energyict.mdc.common.NamedBusinessObject;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import java.util.List;
@@ -35,7 +34,7 @@ public interface PartialConnectionTask extends NamedBusinessObject {
 
     /**
      * Tests if this PartialConnectionTask is marked as the default
-     * that should be used when a connection to a {@link Device}
+     * that should be used when a connection to a Device
      * needs to be established.
      *
      * @return A flag that indicates if this is the default
