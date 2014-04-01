@@ -216,7 +216,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
         else {
             factory = OptionalPropertySpecFactory.newInstance();
         }
-        return factory.timeZonePropertySpec(DEVICE_TIMEZONE_PROPERTY_NAME);
+        return factory.stringPropertySpec(DEVICE_TIMEZONE_PROPERTY_NAME);
     }
 
     private PropertySpec nodeAddressPropertySpec(boolean required) {

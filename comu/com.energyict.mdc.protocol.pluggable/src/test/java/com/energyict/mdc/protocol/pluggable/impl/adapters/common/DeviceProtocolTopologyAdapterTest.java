@@ -6,7 +6,7 @@ import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -52,7 +52,7 @@ public class DeviceProtocolTopologyAdapterTest {
     @Mock
     private CollectedTopology collectedTopology;
     @Mock
-    private Device device;
+    private BaseDevice device;
     @Mock
     private DeviceIdentifier deviceIdentifier;
 
