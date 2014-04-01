@@ -151,6 +151,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                 widget.down('#registerConfigEditCreateTitle').update('<H2>' + Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration') + '</H2>');
                                 widget.down('#editNumberOfDigitsField').setValue(8);
                                 widget.down('#editNumberOfFractionDigitsField').setValue(0);
+                                widget.down('#editMultiplierField').setValue(1);
+                                widget.down('#editOverflowValueField').setValue(100000000);
                                 me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName);
                             }
                         });
