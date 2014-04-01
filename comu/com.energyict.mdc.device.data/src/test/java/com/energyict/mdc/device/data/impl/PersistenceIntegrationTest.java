@@ -92,20 +92,25 @@ public abstract class PersistenceIntegrationTest {
         });
     }
 
-    protected void freezeClock (int year, int month, int day) {
-        freezeClock(year, month, day, 0, 0, 0, 0);
+    protected Date freezeClock (int year, int month, int day) {
+        return freezeClock(year, month, day, 0, 0, 0, 0);
     }
 
-    protected void freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond) {
-        freezeClock(year, month, day, hour, minute, second, millisecond, TimeZone.getTimeZone("UTC"));
+    protected Date freezeClock (int year, int month, int day, TimeZone timeZone) {
+        return freezeClock(year, month, day, 0, 0, 0, 0, timeZone);
     }
 
-    protected void freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond, TimeZone timeZone) {
+    protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond) {
+        return freezeClock(year, month, day, hour, minute, second, millisecond, TimeZone.getTimeZone("UTC"));
+    }
+
+    protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond, TimeZone timeZone) {
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.set(year, month, day, hour, minute, second);
         calendar.set(Calendar.MILLISECOND, millisecond);
         when(clock.getTimeZone()).thenReturn(timeZone);
         when(clock.now()).thenReturn(calendar.getTime());
+        return calendar.getTime();
     }
 
 }

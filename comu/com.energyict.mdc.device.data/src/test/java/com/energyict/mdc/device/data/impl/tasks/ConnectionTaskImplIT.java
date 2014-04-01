@@ -114,9 +114,14 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static Code codeTable;
     private static IdBusinessObjectFactory<Code> codeTableFactory;
     private OnlineComServer onlineComServer;
+    private OnlineComServer otherOnlineComServer;
 
     public OnlineComServer getOnlineComServer() {
         return onlineComServer;
+    }
+
+    public OnlineComServer getOtherOnlineComServer() {
+        return otherOnlineComServer;
     }
 
     @BeforeClass
@@ -289,6 +294,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     @Before
     public void setupComServers () {
         this.onlineComServer = createComServer("First");
+        this.otherOnlineComServer = createComServer("Second");
     }
 
     protected OnlineComServer createComServer(String name) {
@@ -367,7 +373,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected ScheduledConnectionTask createOutboundWithIpPropertiesWithoutViolations(String name) {
-        return createOutboundWithIpPropertiesWithoutViolations(name, ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        return this.createOutboundWithIpPropertiesWithoutViolations(name, ConnectionStrategy.AS_SOON_AS_POSSIBLE);
     }
 
     protected ScheduledConnectionTask createOutboundWithIpPropertiesWithoutViolations(String name, ConnectionStrategy connectionStrategy) {
@@ -378,7 +384,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
             TemporalExpression nextExecutionSpecs = new TemporalExpression(EVERY_HOUR);
             connectionTask = inMemoryPersistence.getDeviceDataService().newMinimizeConnectionTask(
                     this.device,
-                   this.partialScheduledConnectionTask,
+                    this.partialScheduledConnectionTask,
                     outboundTcpipComPortPool,
                     nextExecutionSpecs);
         }

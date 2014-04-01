@@ -750,7 +750,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     }
 
     private InboundConnectionTask createSimpleInboundConnectionTask(final PartialInboundConnectionTask partialConnectionTask, final InboundComPortPool inboundComPortPool) {
-        InboundConnectionTask inboundConnectionTask = getDeviceDataService().newInboundConnectionTask(device, partialConnectionTask, inboundComPortPool);
+        InboundConnectionTask inboundConnectionTask = getDeviceDataService().newInboundConnectionTask(this.device, partialConnectionTask, inboundComPortPool);
         inboundConnectionTask.save();
         return inboundConnectionTask;
     }

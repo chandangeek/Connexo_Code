@@ -49,7 +49,7 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      */
     public ComWindow getCommunicationWindow();
 
-    public void setComWindow(ComWindow comWindow);
+    public void setCommunicationWindow(ComWindow comWindow);
 
     /**
      * Gets the {@link ConnectionStrategy} that calculates
