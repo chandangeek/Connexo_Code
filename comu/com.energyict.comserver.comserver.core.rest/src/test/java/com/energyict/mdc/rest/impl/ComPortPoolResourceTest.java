@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortPoolInfo;
@@ -99,7 +99,7 @@ public class ComPortPoolResourceTest extends JerseyTest {
     @Test
     public void testGetExistingInboundComServerJSStyle() {
         InboundComPortPool mock = mock(InboundComPortPool.class);
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        InboundDeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(InboundDeviceProtocolPluggableClass.class);
         when(deviceProtocolPluggableClass.getId()).thenReturn(6L);
         List<ComPortPool> comPortPools = new ArrayList<>();
         comPortPools.add(mock);
