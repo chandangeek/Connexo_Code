@@ -25,7 +25,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
@@ -635,7 +634,6 @@ public class DeviceImpl implements Device {
     @Override
     public ScheduledConnectionTask createScheduledConnectionTask(PartialScheduledConnectionTask partialConnectionTask) {
         ScheduledConnectionTask scheduledConnectionTask = this.deviceDataService.newAsapConnectionTask(this, partialConnectionTask, partialConnectionTask.getComPortPool());
-        scheduledConnectionTask.setc
         return scheduledConnectionTask;
     }
 }
