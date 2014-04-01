@@ -1,5 +1,7 @@
 package com.energyict.mdc.dynamic;
 
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
@@ -179,6 +181,11 @@ public class OptionalPropertySpecFactory extends PropertySpecFactoryImpl {
     @Override
     public <D extends IdBusinessObject> PropertySpec<D> referencePropertySpec(String name, IdBusinessObjectFactory<D> factory) {
         return PropertySpecBuilderImpl.forReference(factory).name(name).finish();
+    }
+
+    @Override
+    public <D extends HasId> PropertySpec<D> idReferencePropertySpec(String name, CanFindByLongPrimaryKey<D> finder) {
+        return PropertySpecBuilderImpl.forIdReference(finder).name(name).finish();
     }
 
     @Override

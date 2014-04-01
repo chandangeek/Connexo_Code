@@ -1,5 +1,7 @@
 package com.energyict.mdc.dynamic;
 
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
@@ -244,6 +246,18 @@ public interface PropertySpecFactory {
      * @return The newly created PropertySpec
      */
     public <D extends IdBusinessObject> PropertySpec<D> referencePropertySpec(String name, IdBusinessObjectFactory<D> factory);
+
+    /**
+     * Creates a new {@link PropertySpec} for a reference to a {@link com.energyict.mdc.common.HasId}
+     * that is managed by the specified {@link com.energyict.mdc.common.CanFindByLongPrimaryKey} <br/>
+     * <b>Note:</b> this should be used for objects that are modeled by the new ORM framework
+     *
+     * @param name   The name of the PropertySpec
+     * @param finder The object that <i>can</i> find the HasId object
+     * @param <D>    The type of HasId object
+     * @return the newly created PropertySpec
+     */
+    public <D extends HasId> PropertySpec<D> idReferencePropertySpec(String name, CanFindByLongPrimaryKey<D> finder);
 
     /**
      * Creates a {@link PropertySpec} for a {@link Ean13} value.
