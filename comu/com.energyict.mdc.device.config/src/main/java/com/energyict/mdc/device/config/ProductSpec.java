@@ -11,6 +11,7 @@ import com.energyict.mdc.common.Unit;
  *
  * @author Karel
  */
+@Deprecated // There is not really a replacement class, try Phenomenon or ReadingType on RegisterMapping
 public interface ProductSpec {
 
     /**

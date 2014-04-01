@@ -21,8 +21,8 @@ public class TemporalExpression {
     private static final int MAXIMUM_NUMBER_OF_DAYS_IN_ALL_MONTHS = 28;
     private static final int NUMBER_OF_SECONDS_IN_MAXIMUM_DAYS_IN_ALL_MONTHS = DateTimeConstants.SECONDS_PER_DAY * MAXIMUM_NUMBER_OF_DAYS_IN_ALL_MONTHS;
 
-    private TimeDuration offset;
-    private TimeDuration every;
+    private TimeDuration offset = new TimeDuration();
+    private TimeDuration every = new TimeDuration();
 
     /**
      * Creates a new instance of TemporalExpression.

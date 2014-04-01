@@ -1,57 +1,35 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.config.ProductSpec;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import java.util.List;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-/**
- * Validates the {@link UniqueReadingType} constraint against a {@link ProductSpecImpl}.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2014-03-04 (16:44)
- */
-public class UniqueReadingTypeValidator implements ConstraintValidator<UniqueReadingType, ProductSpecImpl> {
+public class UniqueReadingTypeValidator implements ConstraintValidator<UniqueReadingType, RegisterMapping> {
 
-    private DataModel dataModel;
+    private final DeviceConfigurationService deviceConfigurationService;
 
     @Inject
-    public UniqueReadingTypeValidator(DataModel dataModel) {
-        super();
-        this.dataModel = dataModel;
+    public UniqueReadingTypeValidator(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Override
     public void initialize(UniqueReadingType constraintAnnotation) {
-        // No need to keep track of the annotation for now
     }
 
     @Override
-    public boolean isValid(ProductSpecImpl productSpec, ConstraintValidatorContext context) {
-        ReadingType readingType = productSpec.getReadingType();
-        if (readingType != null && !this.findOthersByReadingType(readingType).isEmpty()) {
+    public boolean isValid(RegisterMapping value, ConstraintValidatorContext context) {
+        RegisterMapping registerMapping = deviceConfigurationService.findRegisterMappingByReadingType(value.getReadingType());
+        if (registerMapping!=null && registerMapping.getId()!=value.getId()) {
             context.disableDefaultConstraintViolation();
-            context
-                .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.READING_TYPE_ALREADY_EXISTS_KEY + "}")
-                .addPropertyNode("readingType").addConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.REGISTER_MAPPING_DUPLICATE_READING_TYPE+"}").
+                    addPropertyNode(RegisterMappingImpl.Fields.READING_TYPE.fieldName()).
+                    addConstraintViolation();
             return false;
         }
-        else {
-            return true;
-        }
+        return true;
     }
-
-    private List<ProductSpec> findOthersByReadingType(ReadingType readingType) {
-        return this.getDataMapper().find("readingType", readingType);
-    }
-
-    private DataMapper<ProductSpec> getDataMapper() {
-        return this.dataModel.mapper(ProductSpec.class);
-    }
-
 }

@@ -22,19 +22,22 @@ import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceTypeFields;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TemporalExpression;
+import com.energyict.mdc.device.config.exceptions.NoSuchProtocolException;
+import com.energyict.mdc.device.config.exceptions.UnitHasNoMatchingPhenomenonException;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -88,14 +91,17 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Finder<DeviceType> findAllDeviceTypes() {
-        return DefaultFinder.of(DeviceType.class, this.getDataModel());
+        return DefaultFinder.of(DeviceType.class, this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override
     public DeviceType newDeviceType(String name, String deviceProtocolPluggableClassName) {
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass =
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass =
                 protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceProtocolPluggableClassName);
-        return newDeviceType(name, deviceProtocolPluggableClass);
+        if(!deviceProtocolPluggableClass.isPresent()){
+            throw new NoSuchProtocolException(this.thesaurus,deviceProtocolPluggableClassName, DeviceTypeFields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName());
+        }
+        return newDeviceType(name, deviceProtocolPluggableClass.get());
     }
 
     @Override
@@ -114,28 +120,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public ProductSpec findProductSpec(long id) {
-        return this.getDataModel().mapper(ProductSpec.class).getUnique("id", id).orNull();
-    }
-
-    @Override
-    public ProductSpec findProductSpecByReadingType(ReadingType readingType) {
-        return this.getDataModel().mapper(ProductSpec.class).getUnique("readingType", readingType).orNull();
-    }
-
-    @Override
-    public List<ProductSpec> findAllProductSpecs() {
-        return this.getDataModel().mapper(ProductSpec.class).find();
-    }
-
-    @Override
-    public ProductSpec newProductSpec(ReadingType readingType) {
-        return ProductSpecImpl.from(this.getDataModel(), readingType);
-    }
-
-    @Override
     public Finder<RegisterMapping> findAllRegisterMappings() {
-        return DefaultFinder.of(RegisterMapping.class, this.getDataModel());
+        return DefaultFinder.of(RegisterMapping.class, this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override
@@ -149,13 +135,20 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public RegisterMapping findRegisterMappingByObisCodeAndProductSpec(ObisCode obisCode, ProductSpec productSpec) {
-        return this.getDataModel().mapper((RegisterMapping.class)).getUnique("obisCodeString", obisCode.toString(), "productSpec", productSpec).orNull();
+    public RegisterMapping findRegisterMappingByReadingType(ReadingType readingType) {
+        return this.getDataModel().mapper((RegisterMapping.class)).getUnique("readingType", readingType).orNull();
     }
 
     @Override
-    public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, ProductSpec productSpec) {
-        return RegisterMappingImpl.from(this.getDataModel(), name, obisCode, productSpec);
+    public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse) {
+        Phenomenon phenomenon = null;
+        if (unit!=null) {
+            phenomenon = findPhenomenonByUnit(unit.dbString());
+            if (phenomenon==null) {
+                throw new UnitHasNoMatchingPhenomenonException(this.thesaurus, unit);
+            }
+        }
+        return this.getDataModel().getInstance(RegisterMappingImpl.class).initialize(name, obisCode, phenomenon, readingType, timeOfUse);
     }
 
     @Override
@@ -209,9 +202,19 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public List<RegisterSpec> findRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
-        Condition condition = where("deviceType").isEqualTo(deviceType).and(where("registerMapping").isEqualTo(registerMapping));
-        return this.getDataModel().query(RegisterSpec.class, RegisterMapping.class, DeviceTypeRegisterMappingUsage.class).select(condition);
+    public List<RegisterSpec> findActiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
+        Condition condition = where("deviceConfig.deviceType").isEqualTo(deviceType).
+                and(where("registerMapping").isEqualTo(registerMapping)).
+                and(where("deviceConfig.active").isEqualTo(Boolean.TRUE));
+        return this.getDataModel().query(RegisterSpec.class, DeviceConfiguration.class).select(condition);
+    }
+
+    @Override
+    public List<RegisterSpec> findInactiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
+        Condition condition = where("deviceConfig.deviceType").isEqualTo(deviceType).
+                and(where("registerMapping").isEqualTo(registerMapping)).
+                and(where("deviceConfig.active").isEqualTo(Boolean.FALSE));
+        return this.getDataModel().query(RegisterSpec.class, DeviceConfiguration.class).select(condition);
     }
 
     @Override
@@ -273,6 +276,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Phenomenon findPhenomenonByNameAndUnit(String name, String unit) {
         return this.getDataModel().mapper(Phenomenon.class).getUnique("name", name, "unitString", unit).orNull();
+    }
+
+    private Phenomenon findPhenomenonByUnit(String unit) {
+        return this.getDataModel().mapper(Phenomenon.class).getUnique("unitString", unit).orNull();
     }
 
     @Override
@@ -342,8 +349,14 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public boolean isRegisterMappingUsedByDeviceType(RegisterMapping registerMapping) {
+        return !this.getDataModel().
+                query(DeviceTypeRegisterMappingUsage.class).select(where("registerMapping").isEqualTo(registerMapping)).isEmpty();
+    }
+
+    @Override
     public Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType) {
-        return DefaultFinder.of(DeviceConfiguration.class, Where.where("deviceType").isEqualTo(deviceType), this.getDataModel());
+        return DefaultFinder.of(DeviceConfiguration.class, Where.where("deviceType").isEqualTo(deviceType), this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override

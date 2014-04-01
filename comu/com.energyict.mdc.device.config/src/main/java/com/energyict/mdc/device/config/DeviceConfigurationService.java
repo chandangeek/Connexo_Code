@@ -11,8 +11,8 @@ import java.util.List;
 
 /**
  * Provides services that relate to {@link DeviceType}s, {@link DeviceConfiguration}s
- * and the related master data such as {@link LogBookType}, {@link LoadProfileType},
- * {@link RegisterMapping} and {@link ProductSpec}.
+ * and the related master data such as {@link LogBookType}, {@link LoadProfileType} and
+ * {@link RegisterMapping}
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:34)
@@ -42,37 +42,6 @@ public interface DeviceConfigurationService {
      * @return the DeviceType or <code>null</code> if there is no such DeviceType
      */
     public DeviceType findDeviceTypeByName(String name);
-
-    /**
-     * Finds the {@link ProductSpec} that is uniquely identified by the specified number.
-     *
-     * @param id The unique identifier
-     * @return The ProductSpec or <code>null</code> if there is no such ProductSpec
-     */
-    public ProductSpec findProductSpec(long id);
-
-    /**
-     * Finds the {@link ProductSpec} that is uniquely identified by the specified {@link ReadingType}.
-     *
-     * @param readingType The ReadingType
-     * @return The ProductSpec or <code>null</code> if there is no such ProductSpec
-     */
-    public ProductSpec findProductSpecByReadingType(ReadingType readingType);
-
-    public List<ProductSpec> findAllProductSpecs();
-
-    /**
-     * Creates a new {@link ProductSpec} for the specified {@link ReadingType}.
-     * Note the ReadingType uniquely identifies a ProductSpec,
-     * i.e. there can only be 1 ProductSpec for every ReadingType.
-     * Note that the ProductSpec is only saved in the database
-     * after a call to the "save" method.
-     *
-     * @param readingType The ReadingType
-     * @return The new ProductSpec
-     * @see ProductSpec#save()
-     */
-    public ProductSpec newProductSpec(ReadingType readingType);
 
     /**
      * Finds the {@link RegisterGroup} that is uniquely identified by the specified number.
@@ -113,29 +82,22 @@ public interface DeviceConfigurationService {
      */
     public RegisterMapping findRegisterMappingByName(String name);
 
-    /**
-     * Finds the {@link RegisterMapping} that is uniquely identified by the name.
-     *
-     * @param obisCode    The ObisCode
-     * @param productSpec The ProductSpec
-     * @return The RegisterMapping or <code>null</code> if there is no such RegisterMapping
-     */
-    public RegisterMapping findRegisterMappingByObisCodeAndProductSpec(ObisCode obisCode, ProductSpec productSpec);
+    public RegisterMapping findRegisterMappingByReadingType(ReadingType readingType);
 
     /**
      * Creates a new {@link RegisterMapping} with the specified required properties.
      * Note that {@link ObisCode} uniquely identifies the RegisterMapping,
      * i.e. there can only be 1 RegisterMapping for every ObisCode.
-     * Note that the ProductSpec is only saved in the database
-     * after a call to the "save" method.
      *
      * @param name        The RegisterMapping name
      * @param obisCode    The ObisCode
-     * @param productSpec The ProductSpec
+     * @param unit        The unit
+     * @param readingType The reading type
+     * @param timeOfUse   Customer specif timeOfUse id
      * @return The new RegisterMapping
      * @see RegisterMapping#save()
      */
-    public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, ProductSpec productSpec);
+    public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse);
 
     /**
      * Finds all the {@link LoadProfileType LoadProfileTypes} in the systesm
@@ -195,13 +157,24 @@ public interface DeviceConfigurationService {
     public RegisterSpec findRegisterSpec(long id);
 
     /**
-     * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given {@link DeviceType} and modeled by the given {@link RegisterMapping RegisterMappings}
+     * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given {@link DeviceType} and modelled by the given {@link RegisterMapping RegisterMappings}
+     * where the register spec if owned by an active device configuration
      *
      * @param deviceType      the DeviceType
      * @param registerMapping the list of RegisterMappings
      * @return all the {@link RegisterSpec RegisterSpecs} which are defined for the given parameters
      */
-    public List<RegisterSpec> findRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping);
+    public List<RegisterSpec> findActiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping);
+
+    /**
+     * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given {@link DeviceType} and modelled by the given {@link RegisterMapping RegisterMappings}
+     * where the register spec if owned by an inactive device configuration
+     *
+     * @param deviceType      the DeviceType
+     * @param registerMapping the list of RegisterMappings
+     * @return all the {@link RegisterSpec RegisterSpecs} which are defined for the given parameters
+     */
+    public List<RegisterSpec> findInactiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping);
 
     /**
      * Finds a list of {@link RegisterSpec RegisterSpecs} which are modeled by the given RegisterMapping
@@ -284,6 +257,8 @@ public interface DeviceConfigurationService {
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLogBookType(LogBookType logBookType);
 
     public List<DeviceConfiguration> findDeviceConfigurationsUsingRegisterMapping(RegisterMapping registerMapping);
+
+    public boolean isRegisterMappingUsedByDeviceType(RegisterMapping registerMapping);
 
     public List<DeviceType> findDeviceTypesWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 

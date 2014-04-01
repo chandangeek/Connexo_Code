@@ -82,10 +82,6 @@ public interface ChannelSpec extends HasId {
 
     void setInterval(TimeDuration interval);
 
-    void setProductSpec(ProductSpec productSpec);
-
-    ProductSpec getProductSpec();
-
     void validateDelete();
 
     void save();

@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
@@ -19,21 +20,24 @@ import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
+import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.device.config.exceptions.NoSuchProtocolException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingAlreadyInDeviceTypeException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
+import com.google.common.base.Optional;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import org.junit.Before;
@@ -46,10 +50,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
+import static com.elster.jupiter.cbo.FlowDirection.REVERSE;
 import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -80,8 +86,11 @@ public class DeviceTypeImplTest extends PersistenceTest {
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass2;
     @Mock
     private DeviceProtocol deviceProtocol;
+    @Mock
+    private DeviceProtocol deviceProtocol2;
 
-    private ReadingType readingType;
+    private ReadingType readingType1;
+    private ReadingType readingType2;
     private Phenomenon phenomenon;
     private LogBookType logBookType;
     private LogBookType logBookType2;
@@ -89,7 +98,6 @@ public class DeviceTypeImplTest extends PersistenceTest {
     private LoadProfileType loadProfileType2;
     private RegisterMapping registerMapping;
     private RegisterMapping registerMapping2;
-    private ProductSpec productSpec;
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -100,6 +108,7 @@ public class DeviceTypeImplTest extends PersistenceTest {
         when(this.deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         when(this.deviceProtocolPluggableClass2.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID_2);
+        when(this.deviceProtocolPluggableClass2.getDeviceProtocol()).thenReturn(this.deviceProtocol2);
 
         when(deviceCommunicationConfiguration.getDeviceConfiguration()).thenReturn(deviceConfig);
 
@@ -123,7 +132,6 @@ public class DeviceTypeImplTest extends PersistenceTest {
         assertThat(deviceType.getLogBookTypes()).isEmpty();
         assertThat(deviceType.getLoadProfileTypes()).isEmpty();
         assertThat(deviceType.getRegisterMappings()).isEmpty();
-        assertThat(deviceType.getCommunicationFunctions()).isEmpty();
         assertThat(deviceType.getDeviceProtocolPluggableClass()).isEqualTo(this.deviceProtocolPluggableClass);
         assertThat(deviceType.getDescription()).isNotEmpty();
         assertThat(deviceType.getDeviceUsageType()).isEqualTo(DeviceUsageType.NONE);
@@ -142,6 +150,34 @@ public class DeviceTypeImplTest extends PersistenceTest {
 
         // Asserts
         assertThat(deviceType2).isNotNull();
+    }
+
+    @Test
+    @Transactional
+    public void testCanActAsGateway() throws Exception {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        String deviceTypeName = "canActAsGateway";
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+        deviceType.setDescription("For testing purposes only");
+        deviceType.save();
+
+        assertThat(deviceType.canActAsGateway()).isTrue();
+        assertThat(deviceType.isDirectlyAddressable()).isFalse();
+
+    }
+
+    @Test
+    @Transactional
+    public void testIsDirectlyAddressable() throws Exception {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SESSION));
+        String deviceTypeName = "directaddress";
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+        deviceType.setDescription("For testing purposes only");
+        deviceType.save();
+
+        assertThat(deviceType.isDirectlyAddressable()).isTrue();
+        assertThat(deviceType.canActAsGateway()).isFalse();
+
     }
 
     @Test(expected = DuplicateNameException.class)
@@ -205,8 +241,9 @@ public class DeviceTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DEVICE_PROTOCOL_IS_REQUIRED_KEY + "}")
+    @Expected(value = NoSuchProtocolException.class, message = "A protocol with name testDeviceTypeCreationWithNonExistingProtocol does not exist")
     public void testDeviceTypeCreationWithNonExistingProtocol() {
+        when(inMemoryPersistence.getProtocolPluggableService().findDeviceProtocolPluggableClassByName(anyString())).thenReturn(Optional.<DeviceProtocolPluggableClass>absent());
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("testDeviceTypeCreationWithNonExistingProtocol", "testDeviceTypeCreationWithNonExistingProtocol");
 
         // Business method
@@ -471,6 +508,71 @@ public class DeviceTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
+    public void testUpdateDeviceTypeWithConfigWithSameProtocolDoesNotDetectChange() {
+        // JP-1845
+        String deviceTypeName = "testCreateDeviceTypeWithRegisterMapping";
+        DeviceType deviceType;
+        this.setupRegisterMappingTypesInExistingTransaction();
+
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+        deviceType.setDescription("For testing purposes only");
+        deviceType.addRegisterMapping(this.registerMapping);
+        deviceType.save();
+
+        deviceType.newConfiguration("first").description("at least one").add();
+
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        // Business method
+        deviceType.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass);
+        deviceType.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS_KEY + "}")
+    public void testUpdateDeviceTypeWithConfigWithOtherProtocolDoesDetectChange() {
+        // JP-1845
+        String deviceTypeName = "testCreateDeviceTypeWithRegisterMapping";
+        DeviceType deviceType;
+        this.setupRegisterMappingTypesInExistingTransaction();
+
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+        deviceType.setDescription("For testing purposes only");
+        deviceType.addRegisterMapping(this.registerMapping);
+        deviceType.save();
+
+        deviceType.newConfiguration("first").description("at least one").add();
+
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        // Business method
+        deviceType.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass2);
+        deviceType.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DEVICE_PROTOCOL_IS_REQUIRED_KEY + "}", strict=false)
+    public void testUpdateDeviceTypeWithConfigSetNullProtocol() {
+        // JP-1845
+        String deviceTypeName = "testCreateDeviceTypeWithRegisterMapping";
+        DeviceType deviceType;
+        this.setupRegisterMappingTypesInExistingTransaction();
+
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+        deviceType.setDescription("For testing purposes only");
+        deviceType.addRegisterMapping(this.registerMapping);
+        deviceType.save();
+
+        deviceType.newConfiguration("first").description("at least one").add();
+
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        // Business method
+        deviceType.setDeviceProtocolPluggableClass((DeviceProtocolPluggableClass) null);
+        deviceType.save();
+    }
+
+    @Test
+    @Transactional
     public void testCreateDeviceTypeWithMultipleRegisterMappings() {
         String deviceTypeName = "testCreateDeviceTypeWithMultipleRegisterMappings";
         DeviceType deviceType;
@@ -581,7 +683,6 @@ public class DeviceTypeImplTest extends PersistenceTest {
         DeviceConfigurationServiceImpl deviceConfigurationService = inMemoryPersistence.getDeviceConfigurationService();
         String deviceTypeName = "testRemoveRegisterMappingThatIsStillInUseByChannelSpec";
         DeviceType deviceType;
-        this.setupPhenomenaInExistingTransaction();
         this.setupLoadProfileTypesInExistingTransaction(deviceTypeName);
         this.setupRegisterMappingTypesInExistingTransaction();
 
@@ -751,9 +852,46 @@ public class DeviceTypeImplTest extends PersistenceTest {
         assertThat(usages).as("Was not expecting to find any register mapping usages for device type {0} after deletion", deviceType).isEmpty();
     }
 
-    private void setupPhenomenaInExistingTransaction() {
-        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(DeviceTypeImplTest.class.getSimpleName(), Unit.get("kWh"));
-        this.phenomenon.save();
+    @Test
+    @Transactional
+    public void testAddDeviceConfiguration() throws Exception {
+        deviceType.newConfiguration("first").description("this is it!").add();
+
+        DeviceType refreshed = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        assertThat(refreshed.getConfigurations()).hasSize(1);
+        assertThat(refreshed.getConfigurations().get(0).getName()).isEqualTo("first");
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{DTC.X.name.required}", property = "name")
+    public void testCanNotAddDeviceConfigurationWithoutName() throws Exception {
+        deviceType.newConfiguration(null).description("this is it!").add();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{DTC.X.name.required}", property = "name")
+    public void testCanNotAddDeviceConfigurationWithEmptyName() throws Exception {
+        deviceType.newConfiguration("").description("this is it!").add();
+    }
+
+    @Test
+    @Transactional
+    public void testRemoveDeviceConfigFromDeviceType() throws Exception {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
+
+        deviceType.removeConfiguration(deviceConfiguration);
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId())).isNull();
+    }
+
+    @Test(expected = DeviceConfigurationIsActiveException.class)
+    @Transactional
+    public void testCanNotRemoveDeviceConfigIfInUse() throws Exception {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
+        deviceConfiguration.activate();
+
+        deviceType.removeConfiguration(deviceConfiguration);
     }
 
     private void setupLogBookTypesInExistingTransaction(String logBookTypeBaseName) {
@@ -773,16 +911,17 @@ public class DeviceTypeImplTest extends PersistenceTest {
     private void setupRegisterMappingTypesInExistingTransaction() {
         this.setupProductSpecsInExistingTransaction();
         String registerMappingTypeBaseName = DeviceTypeImplTest.class.getSimpleName();
-        this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingTypeBaseName + "-1", ObisCode.fromString("1.0.99.1.0.255"), this.productSpec);
+        Unit unit = Unit.get("kWh");
+        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("baseUnit", unit);
+        this.phenomenon.save();
+        this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingTypeBaseName + "-1", ObisCode.fromString("1.0.99.1.0.255"), unit, readingType1, readingType1.getTou());
         this.registerMapping.save();
-        this.registerMapping2 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingTypeBaseName + "-2", ObisCode.fromString("1.0.99.2.0.255"), this.productSpec);
+        this.registerMapping2 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingTypeBaseName + "-2", ObisCode.fromString("1.0.99.2.0.255"), unit, readingType2, readingType2.getTou());
         this.registerMapping2.save();
     }
 
     private void setupProductSpecsInExistingTransaction() {
         this.setupReadingTypeInExistingTransaction();
-        this.productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(this.readingType);
-        this.productSpec.save();
     }
 
     private void setupReadingTypeInExistingTransaction() {
@@ -793,7 +932,15 @@ public class DeviceTypeImplTest extends PersistenceTest {
                 .period(TimeAttribute.MINUTE15)
                 .accumulate(Accumulation.DELTADELTA)
                 .code();
-        this.readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
+        this.readingType1 = inMemoryPersistence.getMeteringService().getReadingType(code).get();
+        String code2 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED)
+                .flow(REVERSE)
+                .measure(ENERGY)
+                .in(KILO, WATTHOUR)
+                .period(TimeAttribute.MINUTE15)
+                .accumulate(Accumulation.DELTADELTA)
+                .code();
+        this.readingType2 = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
     }
 
 }

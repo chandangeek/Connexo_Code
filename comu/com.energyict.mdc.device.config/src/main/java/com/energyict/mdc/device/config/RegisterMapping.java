@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-
 import java.util.Date;
 
 /**
@@ -48,23 +47,17 @@ public interface RegisterMapping {
     public void setCumulative(boolean cumulative);
 
     /**
-     * Returns the product spec for this mapping
-     *
-     * @return the product spec
-     * @deprecated use getReadingType() instead
-     */
-    public ProductSpec getProductSpec();
-
-    public void setProductSpec(ProductSpec productSpec);
-
-    /**
      * Returns the mapping's unit
      *
      * @return the mapping's unit
      */
     public Unit getUnit();
 
+    public void setUnit(Unit unit);
+
     public ReadingType getReadingType ();
+
+    public void setReadingType(ReadingType readingType);
 
     /**
      * Returns the <code>RegisterGroup</code> the receiver belongs to
@@ -101,4 +94,13 @@ public interface RegisterMapping {
 
     public void delete ();
 
+    public int getTimeOfUse();
+
+    public void setTimeOfUse(int timeOfUse);
+
+    /**
+     * Indicates that this register mapping has been linked to a device type or not
+     * @return boolean
+     */
+    public boolean isLinkedByDeviceType();
 }

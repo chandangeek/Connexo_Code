@@ -4,7 +4,6 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -71,10 +70,6 @@ public interface RegisterSpec extends HasId {
     public Date getModificationDate();
 
     /**
-     * @return the linked ChannelSpec in case of a Prime register
-     */
-    public ChannelSpec getLinkedChannelSpec();
-
     /**
      * Returns the number of digits for this spec
      *
@@ -110,11 +105,7 @@ public interface RegisterSpec extends HasId {
      */
     public BigDecimal getOverflowValue();
 
-    void setDeviceConfig(DeviceConfiguration deviceConfig);
-
     void setRegisterMapping(RegisterMapping registerMapping);
-
-    void setLinkedChannelSpec(ChannelSpec linkedChannelSpec);
 
     void setNumberOfDigits(int numberOfDigits);
 
@@ -143,10 +134,6 @@ public interface RegisterSpec extends HasId {
      */
     void setMultiplierMode(MultiplierMode multiplierMode);
 
-    ChannelSpecLinkType getChannelSpecLinkType();
-
-    void setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType);
-
     void validateDelete();
 
     void validateUpdate();
@@ -159,8 +146,6 @@ public interface RegisterSpec extends HasId {
     interface RegisterSpecBuilder {
 
         RegisterSpecBuilder setRegisterMapping(RegisterMapping registerMapping);
-
-        RegisterSpecBuilder setLinkedChannelSpec(ChannelSpec linkedChannelSpec);
 
         RegisterSpecBuilder setNumberOfDigits(int numberOfDigits);
 
@@ -189,8 +174,6 @@ public interface RegisterSpec extends HasId {
          */
         RegisterSpecBuilder setMultiplierMode(MultiplierMode multiplierMode);
 
-        RegisterSpecBuilder setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType);
-
         /**
          * Does final validation and <i>creates</i> the {@link RegisterSpec}
          *
@@ -205,8 +188,6 @@ public interface RegisterSpec extends HasId {
     interface RegisterSpecUpdater {
 
         RegisterSpecUpdater setRegisterMapping(RegisterMapping registerMapping);
-
-        RegisterSpecUpdater setLinkedChannelSpec(ChannelSpec linkedChannelSpec);
 
         RegisterSpecUpdater setNumberOfDigits(int numberOfDigits);
 
@@ -234,8 +215,6 @@ public interface RegisterSpec extends HasId {
          * @param multiplierMode the given MultiplierMode
          */
         RegisterSpecUpdater setMultiplierMode(MultiplierMode multiplierMode);
-
-        RegisterSpecUpdater setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType);
 
         /**
          * Updates the RegisterSpec, preferably via his DeviceConfiguration

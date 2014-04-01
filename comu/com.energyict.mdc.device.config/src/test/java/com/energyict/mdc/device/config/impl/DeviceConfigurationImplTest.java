@@ -12,13 +12,13 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
@@ -26,6 +26,9 @@ import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeExcept
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,6 +41,7 @@ import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.api.Fail.fail;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link DeviceConfigurationImpl} component
@@ -50,6 +54,7 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+    private Phenomenon phenomenon;
 
     @Test
     @Transactional
@@ -105,6 +110,15 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     public void createWithoutNameTest() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration("");
+        deviceConfigurationBuilder.add();
+        this.deviceType.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}",property = "name")
+    public void createWithWhiteSpaceNameTest() {
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration(" ");
         deviceConfigurationBuilder.add();
         this.deviceType.save();
     }
@@ -227,7 +241,6 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
     @Transactional
     public void cannotAddChannelSpecToActiveDeviceConfigTest() {
         RegisterMapping registerMapping = createDefaultRegisterMapping();
-        Phenomenon phenomenon = createDefaultPhenomenon();
         LoadProfileType loadProfileType = createDefaultLoadProfileType();
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder1 = this.deviceType.newConfiguration("DevConfName");
 
@@ -246,18 +259,13 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
         }
     }
 
-    private Phenomenon createDefaultPhenomenon() {
-        Phenomenon phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("DefPhenom", Unit.get("kWh"));
-        phenomenon.save();
-        return phenomenon;
-    }
-
     private RegisterMapping createDefaultRegisterMapping() {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        Unit unit = Unit.get("kWh");
+        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("baseUnit", unit);
+        this.phenomenon.save();
         ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        ProductSpec productSpec = inMemoryPersistence.getDeviceConfigurationService().newProductSpec(readingType);
-        productSpec.save();
-        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RMName", ObisCode.fromString("1.0.1.8.0.255"), productSpec);
+        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RMName", ObisCode.fromString("1.0.1.8.0.255"), unit, readingType, readingType.getTou());
         registerMapping.save();
         this.deviceType.addRegisterMapping(registerMapping);
         return registerMapping;
@@ -272,7 +280,7 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder1.add();
         deviceConfiguration.activate();
 
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = deviceConfiguration.createRegisterSpec(registerMapping);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(10);
         try {
             registerSpecBuilder.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {
@@ -282,5 +290,51 @@ public class DeviceConfigurationImplTest extends PersistenceTest {
                 throw e;
             }
         }
+    }
+
+    @Test
+    @Transactional
+    public void testSetDeviceConfigDirectlyAddressable() throws Exception {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SESSION));
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("direct address").add();
+        deviceConfiguration.addCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);
+        deviceConfiguration.save();
+
+        DeviceConfiguration refreshedDeviceConfiguration = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId());
+        assertThat(refreshedDeviceConfiguration.canBeDirectlyAddressable()).isTrue();
+        assertThat(refreshedDeviceConfiguration.canActAsGateway()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testSetDeviceConfigGateway() throws Exception {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("gateway").add();
+        deviceConfiguration.addCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
+        deviceConfiguration.save();
+
+        DeviceConfiguration refreshedDeviceConfiguration = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId());
+        assertThat(refreshedDeviceConfiguration.canBeDirectlyAddressable()).isFalse();
+        assertThat(refreshedDeviceConfiguration.canActAsGateway()).isTrue();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED+"}", property = "isDirectlyAddressable")
+    public void testSetDeviceConfigDirectlyAddressableWhenProtocolDoesNotAllowIt() throws Exception {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Collections.<DeviceProtocolCapabilities>emptyList());
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("direct address").add();
+        deviceConfiguration.addCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);
+        deviceConfiguration.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.DEVICE_CONFIG_GATEWAY_NOT_ALLOWED+"}", property = "canActAsGateway")
+    public void testSetDeviceConfigGatewayWhenProtocolDoesNotAllowIt() throws Exception {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Collections.<DeviceProtocolCapabilities>emptyList());
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("gateway").add();
+        deviceConfiguration.addCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
+        deviceConfiguration.save();
     }
 }
