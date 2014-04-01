@@ -178,6 +178,12 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     }
 
     @Override
+    public Validator getValidator(String implementation) {
+        ValidatorCreator validatorCreator = new DefaultValidatorCreator();
+        return validatorCreator.getTemplateValidator(implementation);
+    }
+
+    @Override
      public List<Validator> getAvailableValidators() {
         ValidatorCreator validatorCreator = new DefaultValidatorCreator();
         List<Validator> result = new ArrayList<Validator>();

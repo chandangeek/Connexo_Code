@@ -1,14 +1,24 @@
-package com.elster.jupiter.validation;
+package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.ValidationService;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
-    NO_SUCH_VALIDATOR(1001, "validator.doesnotexist", "Validator {0} does not exist.", Level.SEVERE);
+
+    CAN_NOT_BE_EMPTY(2, Constants.NAME_REQUIRED_KEY, "This field is required", Level.SEVERE),
+    INVALID_CHARS(5, Constants.INVALID_CHARS, "This field contains invalid chars, should obey {regex}", Level.SEVERE),
+
+    DUPLICATE_VALIDATION_RULE_SET(101, Constants.DUPLICATE_VALIDATION_RULE_SET, "Validation rule set with name {value} already exists", Level.SEVERE),
+    DUPLICATE_VALIDATION_RULE(102, Constants.DUPLICATE_VALIDATION_RULE, "Validation rule with name {value} already exists", Level.SEVERE),
+
+    NO_SUCH_VALIDATOR(1001, Constants.NO_SUCH_VALIDATOR, "Validator {0} does not exist.", Level.SEVERE),
+    NO_SUCH_READINGTYPE(1002, Constants.NO_SUCH_READINGTYPE, "Reading type {0} does not exist.", Level.SEVERE);
+
 
     private final int number;
     private final String key;
@@ -56,5 +66,16 @@ public enum MessageSeeds implements MessageSeed {
         NlsMessageFormat format = thesaurus.getFormat(this);
         logger.log(getLevel(), format.format(args), t);
     }
+
+}
+
+final class Constants {
+
+    public static final String DUPLICATE_VALIDATION_RULE_SET = "VAL.DuplicateValidationRuleSet";
+    public static final String NAME_REQUIRED_KEY = "VAL.CanNotBeEmpty";
+    public static final String INVALID_CHARS = "VAL.InvalidChars";
+    public static final String NO_SUCH_VALIDATOR = "VAL.NoSuchValidator";
+    public static final String DUPLICATE_VALIDATION_RULE = "VAL.DuplicateValidationRule";
+    public static final String NO_SUCH_READINGTYPE = "VAL.NoSuchReadingType";
 
 }

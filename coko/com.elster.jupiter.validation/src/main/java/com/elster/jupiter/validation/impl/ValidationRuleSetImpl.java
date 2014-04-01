@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -13,14 +14,24 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+@XmlRootElement
+@UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{"+ Constants.DUPLICATE_VALIDATION_RULE_SET+"}")
 public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     private long id;
     private String mRID;
+
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
+    @Pattern(regexp="[a-zA-Z0-9\\.\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.INVALID_CHARS+"}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.NAME_REQUIRED_KEY+"}")
     private String name;
     private String aliasName;
     private String description;
@@ -148,7 +159,8 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     private void doUpdate() {
-        validationRuleSetFactory().update(this);
+        //validationRuleSetFactory().update(this);
+        Save.UPDATE.save(dataModel, this);
 
         DiffList<IValidationRule> entryDiff = ArrayDiffList.fromOriginal(loadRules());
         entryDiff.clear();
@@ -160,20 +172,24 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         }
 
         for (IValidationRule rule : entryDiff.getRemaining()) {
-            rule.save();
+            Save.UPDATE.save(dataModel, rule);
+            //rule.save();
         }
 
         for (IValidationRule rule : entryDiff.getAdditions()) {
-            rule.save();
+            //rule.save();
+            Save.CREATE.save(dataModel, rule);
         }
         eventService.postEvent(EventType.VALIDATIONRULESET_UPDATED.topic(), this);
     }
 
     private void doPersist() {
-        validationRuleSetFactory().persist(this);
+        //validationRuleSetFactory().persist(this);
+        Save.CREATE.save(dataModel, this);
         for (IValidationRule rule : doGetRules()) {
             ((ValidationRuleImpl) rule).setRuleSetId(getId());
-            ((ValidationRuleImpl) rule).save();
+            Save.CREATE.save(dataModel, (ValidationRuleImpl) rule);
+            //((ValidationRuleImpl) rule).save();
         }
         eventService.postEvent(EventType.VALIDATIONRULESET_CREATED.topic(), this);
     }

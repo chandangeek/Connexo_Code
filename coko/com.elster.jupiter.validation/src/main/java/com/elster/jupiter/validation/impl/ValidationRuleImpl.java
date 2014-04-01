@@ -1,30 +1,23 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ReadingQuality;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
-import com.elster.jupiter.validation.ReadingTypeInValidationRule;
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationResult;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleProperties;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.Validator;
-import com.elster.jupiter.validation.ValidatorNotFoundException;
+import com.elster.jupiter.validation.*;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -34,11 +27,20 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+@XmlRootElement
+@UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{"+ Constants.DUPLICATE_VALIDATION_RULE+"}")
+//@ValidValidationRule(groups = { Save.Create.class, Save.Update.class })
 final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     private long id;
+
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.NAME_REQUIRED_KEY+"}")
+    @Pattern(regexp="[a-zA-Z0-9\\.\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.INVALID_CHARS+"}")
     private String name;
     private boolean active;
     private ValidationAction action;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.NAME_REQUIRED_KEY+"}")
+    @ExistingValidator(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.NO_SUCH_VALIDATOR+"}")
     private String implementation; //validator classname
 
     // associations
@@ -54,12 +56,14 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     private final DataModel dataModel;
     private final ValidatorCreator validatorCreator;
     private final Thesaurus thesaurus;
+    private final MeteringService meteringService;
 
     @Inject
-    ValidationRuleImpl(DataModel dataModel, ValidatorCreator validatorCreator, Thesaurus thesaurus) {
+    ValidationRuleImpl(DataModel dataModel, ValidatorCreator validatorCreator, Thesaurus thesaurus, MeteringService meteringService) {
         this.dataModel = dataModel;
         this.validatorCreator = validatorCreator;
         this.thesaurus = thesaurus;
+        this.meteringService = meteringService;
     }
 
     ValidationRuleImpl init(ValidationRuleSet ruleSet, ValidationAction action, String implementation, int position, String name) {
@@ -94,6 +98,15 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
         ReadingTypeInValidationRuleImpl readingTypeInValidationRule = ReadingTypeInValidationRuleImpl.from(dataModel, this, readingType);
         readingTypesInRule.add(readingTypeInValidationRule);
         return readingTypeInValidationRule;
+    }
+
+    @Override
+    public ReadingTypeInValidationRule addReadingType(String mRID) {
+        Optional optional = meteringService.getReadingType(mRID);
+        if (!optional.isPresent())  {
+            throw new InvalidReadingTypeException(this.thesaurus, mRID);
+        }
+        return addReadingType((ReadingType) optional.get());
     }
 
     @Override
