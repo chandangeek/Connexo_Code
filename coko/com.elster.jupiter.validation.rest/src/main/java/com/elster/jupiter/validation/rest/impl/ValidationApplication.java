@@ -1,7 +1,9 @@
 package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.BinderProvider;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
@@ -24,8 +26,12 @@ public class ValidationApplication extends Application implements ServiceLocator
 	private volatile RestQueryService restQueryService;
     private volatile MeteringService meteringService;
 
+    private NlsService nlsService;
+
 	public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(ValidationResource.class);
+        return ImmutableSet.<Class<?>>of(
+                ValidationResource.class,
+                ConstraintViolationExceptionMapper.class);
 	}
 
 	@Override
@@ -67,6 +73,11 @@ public class ValidationApplication extends Application implements ServiceLocator
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
+   }
 	
 	@Activate
 	public void activate() {
@@ -84,6 +95,8 @@ public class ValidationApplication extends Application implements ServiceLocator
             @Override
             protected void configure() {
                 bind(restQueryService).to(RestQueryService.class);
+                bind(nlsService).to(NlsService.class);
+                bind(validationService).to(ValidationService.class);
             }
         };
     }

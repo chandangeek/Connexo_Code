@@ -137,11 +137,7 @@ public class ValidationResource {
                             ValidationRuleSet set = optional.get();
                             rule = set.addRule(ValidationAction.FAIL, info.implementation, info.name);
                             for (ReadingTypeInfo readingTypeInfo: info.readingTypes) {
-                                ReadingType rt = Bus.getMeteringService().getReadingType(readingTypeInfo.mRID).get();
-                                if (rt == null) {
-                                    throw new WebApplicationException(Response.Status.NOT_FOUND);
-                                }
-                                rule.addReadingType(rt);
+                                rule.addReadingType(readingTypeInfo.mRID);
                             }
                             for (ValidationRulePropertyInfo propertyInfo: info.properties) {
                                 rule.addProperty(propertyInfo.name, Unit.WATT_HOUR.amount(propertyInfo.value));
