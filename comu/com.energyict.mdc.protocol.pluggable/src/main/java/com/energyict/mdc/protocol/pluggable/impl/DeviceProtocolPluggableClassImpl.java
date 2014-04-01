@@ -3,7 +3,6 @@ package com.energyict.mdc.protocol.pluggable.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -19,7 +18,6 @@ import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
-import com.energyict.mdc.protocol.pluggable.DeviceProtocolPluggableClassDependent;
 import com.energyict.mdc.protocol.pluggable.LicenseServer;
 import com.energyict.mdc.protocol.pluggable.ProtocolNotAllowedByLicenseException;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -207,16 +205,6 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         DeviceProtocol deviceProtocol = this.newInstance();
         deviceProtocol.addDeviceProtocolDialectProperties(this.getProperties(deviceProtocol.getPropertySpecs()));
         return deviceProtocol;
-    }
-
-    @Override
-    public void notifyDeleted() {
-        // Todo: throw event that will allow the DeviceType factory to check if this protocol is still used or not
-        //       until then, this method is using old school dependency mechanism of Environment
-        List<DeviceProtocolPluggableClassDependent> dependents = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceProtocolPluggableClassDependent.class);
-        for (DeviceProtocolPluggableClassDependent dependent : dependents) {
-            dependent.notifyDelete(this);
-        }
     }
 
     @Override

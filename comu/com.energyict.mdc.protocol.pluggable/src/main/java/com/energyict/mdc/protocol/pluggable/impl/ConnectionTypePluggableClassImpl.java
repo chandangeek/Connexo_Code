@@ -316,8 +316,8 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
                 shadow.setObjectFactoryId(finder.registrationKey().id());
             }
             else {
-            shadow.setObjectFactoryId(businessObjectFactory.getId());
-        }
+                shadow.setObjectFactoryId(businessObjectFactory.getId());
+            }
         }
         return shadow;
     }
@@ -332,22 +332,6 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
 
     private void activate (RelationType relationType) {
         relationType.activate();
-    }
-
-    @Override
-    protected void notifyDeleted() {
-//        if (ManagerFactory.getCurrent().getConnectionTaskFactory().existsWithConnectionType(this)) {
-//            throw new BusinessException(
-//                    "connectionTypeXIsStillUsedByConnectionTasks",
-//                    "The connection type pluggable class {0} is still in use by the at least one ConnectionTask",
-//                    this.getName());
-//        } else if (ManagerFactory.getCurrent().getPartialConnectionTaskFactory().existsWithConnectionType(this)) {
-//            throw new BusinessException(
-//                    "connectionTypeXIsStillUsedByPartialConnectionTasks",
-//                    "The connection type pluggable class {0} is still in use by the at least one PartialConnectionTask",
-//                    this.getName());
-//        }
-        throw new UnsupportedOperationException("ConnectionTypePluggableClassImpl#notifyDelete");
     }
 
     @Override
