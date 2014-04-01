@@ -37,7 +37,6 @@ import com.energyict.mdc.device.config.exceptions.UnitHasNoMatchingPhenomenonExc
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -96,12 +95,12 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public DeviceType newDeviceType(String name, String deviceProtocolPluggableClassName) {
-        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass =
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass =
                 protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceProtocolPluggableClassName);
-        if(!deviceProtocolPluggableClass.isPresent()){
+        if (deviceProtocolPluggableClass == null) {
             throw new NoSuchProtocolException(this.thesaurus,deviceProtocolPluggableClassName, DeviceTypeFields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName());
         }
-        return newDeviceType(name, deviceProtocolPluggableClass.get());
+        return newDeviceType(name, deviceProtocolPluggableClass);
     }
 
     @Override
@@ -330,7 +329,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 query(ChannelSpec.class, LoadProfileSpec.class).
                 select(
                         where("registerMapping").isEqualTo(registerMapping).
-                    and(where("loadProfileSpec.loadProfileType").isEqualTo(loadProfileType)));
+                                and(where("loadProfileSpec.loadProfileType").isEqualTo(loadProfileType))
+                );
     }
 
     @Override
