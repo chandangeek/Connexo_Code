@@ -8,7 +8,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 public class LocalizedFieldValidationException extends LocalizedException {
     public static final String VIOLATING_PROPERTY_NAME = "violatingPropertyName";
 
-    protected LocalizedFieldValidationException(Thesaurus thesaurus, MessageSeed messageSeed, String javaFieldName) {
+    public LocalizedFieldValidationException(Thesaurus thesaurus, MessageSeed messageSeed, String javaFieldName) {
         super(thesaurus, messageSeed);
         this.set(VIOLATING_PROPERTY_NAME, javaFieldName);
     }
