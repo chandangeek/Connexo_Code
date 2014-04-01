@@ -2,7 +2,6 @@ package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import java.util.List;
 import java.util.Set;
