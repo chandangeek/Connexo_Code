@@ -101,7 +101,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         },
                                         items: [
                                             {
-                                                html: '<span style="color: grey"><i>' +Uni.I18n.translate('registerType.obisCodeInfo','MDC','Provide this value for the 6 attributes of the Obis code.  Devide each value with a "."')  + '</i></span>',
+                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerType.obisCodeInfo', 'MDC', 'Provide the values for the 6 attributes of the Obis code, separated by a "."') + '</i></span>',
                                                 xtype: 'component'
 
                                             }
@@ -121,6 +121,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         forceSelection: true,
                                         editable: false,
                                         cls: 'obisCode',
+                                        typeAhead: true,
+                                        msgTarget: 'under',
                                         width: 650
 
                                     },
@@ -137,7 +139,9 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         required: true,
                                         forceSelection: true,
                                         editable: false,
-                                        width: 650
+                                        width: 650,
+                                        typeAhead: true,
+                                        msgTarget: 'under'
                                     },
                                     {
                                         xtype: 'textfield',
@@ -162,7 +166,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         },
                                         items: [
                                             {
-                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerType.readingTypeInfo','MDC','Provide this value for the 18 attributes of the reading type.  Devide each value with a "."') + '</i></span>',
+                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerType.readingTypeInfo', 'MDC', 'Provide the values for the 18 attributes of the reading type, separated by a "."') + '</i></span>',
                                                 xtype: 'component'
 
                                             }
