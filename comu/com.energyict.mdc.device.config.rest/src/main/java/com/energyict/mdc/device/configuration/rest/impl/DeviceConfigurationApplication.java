@@ -3,6 +3,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
@@ -43,7 +44,8 @@ public class DeviceConfigurationApplication extends Application {
                 RegisterConfigurationResource.class,
                 ReadingTypeResource.class,
                 ConstraintViolationExceptionMapper.class,
-                DeviceConfigurationLocalizedFieldValidationExceptionMapper.class
+                DeviceConfigurationLocalizedFieldValidationExceptionMapper.class,
+                JsonMappingExceptionMapper.class
         );
     }
 
