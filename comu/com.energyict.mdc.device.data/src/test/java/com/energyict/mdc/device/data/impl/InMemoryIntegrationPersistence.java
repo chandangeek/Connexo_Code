@@ -23,6 +23,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessEventManager;
 import com.energyict.mdc.common.Environment;
@@ -90,6 +91,15 @@ public class InMemoryIntegrationPersistence {
     private MdcReadingTypeUtilService readingTypeUtilService;
     private DeviceDataServiceImpl deviceDataService;
 
+    public InMemoryIntegrationPersistence() {
+        this(new DefaultClock());
+    }
+
+    public InMemoryIntegrationPersistence(Clock clock) {
+        super();
+        this.clock = clock;
+    }
+
     public void initializeDatabase(String testName, boolean showSqlLogging, boolean createMasterData) throws SQLException {
         this.initializeMocks(testName);
         InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
@@ -130,7 +140,6 @@ public class InMemoryIntegrationPersistence {
             this.transactionService = injector.getInstance(TransactionService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
-            this.clock = injector.getInstance(Clock.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
@@ -269,6 +278,7 @@ public class InMemoryIntegrationPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(Clock.class).toInstance(clock);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(DataModel.class).toProvider(new Provider<DataModel>() {

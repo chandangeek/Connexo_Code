@@ -58,7 +58,8 @@ import static org.mockito.Mockito.when;
 public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     protected static final int DEVICE_ID = 100;
-    protected static final int CODE_TABLE_ID = DEVICE_ID + 1;
+    protected static final int DEVICE_2_ID = DEVICE_ID + 1;
+    protected static final int CODE_TABLE_ID = DEVICE_2_ID + 1;
     protected static final TimeDuration EVERY_HOUR = new TimeDuration(1, TimeDuration.HOURS);
 
     protected static final int PARTIAL_SCHEDULED_CONNECTION_TASK1_ID = CODE_TABLE_ID + 1;
@@ -94,6 +95,8 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
     protected Device device;
+    @Mock
+    protected Device otherDevice;
     @Mock
     protected PartialInboundConnectionTask partialInboundConnectionTask;
     @Mock
@@ -313,8 +316,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     public void initializeMocks () {
         super.initializeMocks();
         when(this.device.getId()).thenReturn(DEVICE_ID);
+        when(this.otherDevice.getId()).thenReturn(DEVICE_2_ID);
         DeviceFactory deviceFactory = mock(DeviceFactory.class);
         when(deviceFactory.findDevice(DEVICE_ID)).thenReturn(this.device);
+        when(deviceFactory.findDevice(DEVICE_2_ID)).thenReturn(this.otherDevice);
         List<DeviceFactory> deviceFactories = Arrays.asList(deviceFactory);
         when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class)).thenReturn(deviceFactories);
 
