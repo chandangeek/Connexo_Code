@@ -86,7 +86,7 @@ public class ConstraintViolationInfo {
 
     public ConstraintViolationInfo from(JsonMappingException exception) {
         errors.add(new FieldError(exception.getPath().get(exception.getPath().size()-1).getFieldName(),
-                nlsService.getThesaurus(MessageSeeds.COMPONENT_NAME, Layer.REST).getString(MessageSeeds.INVALID_VALUE.getKey(),"Invalid value")));
+                nlsService.getThesaurus(MessageSeeds.COMPONENT_NAME, Layer.REST).getString(MessageSeeds.INVALID_VALUE.getKey(), "Invalid value")));
 
         return this;
     }
