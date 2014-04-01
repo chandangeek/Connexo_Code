@@ -30,7 +30,7 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
@@ -57,8 +57,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
-    protected static final int DEVICE_ID = 100;
-    protected static final int CODE_TABLE_ID = DEVICE_ID + 1;
+    protected static final long DEVICE_ID = 100;
+    protected static final int CODE_TABLE_ID = (int) (DEVICE_ID + 1);
     protected static final TimeDuration EVERY_HOUR = new TimeDuration(1, TimeDuration.HOURS);
 
     protected static final int PARTIAL_SCHEDULED_CONNECTION_TASK1_ID = CODE_TABLE_ID + 1;

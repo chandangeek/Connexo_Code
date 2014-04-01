@@ -8,6 +8,9 @@ package com.energyict.mdc.device.data.impl;
  */
 public enum UpdateEventType {
 
+    DEVICE(EventType.DEVICE_UPDATED),
+    LOADPROFILE(EventType.LOADPROFILE_UPDATED),
+    LOGBOOK(EventType.LOGBOOK_UPDATED),
     CONNECTIONTASK(EventType.CONNECTIONTASK_UPDATED),
     CONNECTIONMETHOD(EventType.CONNECTIONMETHOD_UPDATED);
 

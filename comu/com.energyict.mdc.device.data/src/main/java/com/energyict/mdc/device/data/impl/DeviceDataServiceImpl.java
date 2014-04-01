@@ -16,15 +16,24 @@ import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ComTaskExecutionFactory;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.finders.DeviceFinder;
+import com.energyict.mdc.device.data.finders.LoadProfileFinder;
+import com.energyict.mdc.device.data.finders.LogBookFinder;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -44,7 +53,8 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
@@ -59,9 +69,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -84,7 +96,8 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile EngineModelService engineModelService;
     private volatile MeteringService meteringService;
-
+    private volatile Environment environment;
+    
     @Inject
     public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService) {
         this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false);
@@ -244,8 +257,8 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
             return connectionTasks.get(0);
         }
         else {
-            if (device.getGateway() != null) {
-                return this.findDefaultConnectionTaskForDevice(device.getGateway());
+            if (device.getPhysicalGateway() != null) {
+                return this.findDefaultConnectionTaskForDevice(device.getPhysicalGateway());
             }
         }
         return null;  //if no default is found, null is returned
@@ -310,7 +323,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
         for (ComTaskExecutionFactory factory : factories) {
             scheduledComTasks.addAll(factory.findComTaskExecutionsForDefaultOutboundConnectionTask(device));
         }
-        Iterator downstreamDevices = device.getDownstreamDevices().iterator();
+        Iterator downstreamDevices = device.getPhysicalConnectedDevices().iterator();
         while (downstreamDevices.hasNext()) {
             Device slave = (Device) downstreamDevices.next();
             this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(slave, scheduledComTasks);
@@ -428,8 +441,15 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
+        registerFinders();
     }
 
+    private void registerFinders() {
+        environment.registerFinder(new DeviceFinder(this.dataModel));
+        environment.registerFinder(new LoadProfileFinder(this.dataModel));
+        environment.registerFinder(new LogBookFinder(this.dataModel));
+    }
+    
     @Override
     public void install() {
         this.install(false, true);
@@ -455,6 +475,107 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
             return dataModel.mapper(this.valueDomain()).getUnique("id", id);
         }
 
+    }
+
+    @Override
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String name) {
+        return dataModel.getInstance(DeviceImpl.class).initialize(deviceConfiguration, name);
+    }
+
+    @Override
+    public Device findDeviceById(long id) {
+        return dataModel.mapper(Device.class).getUnique("id", id).orNull();
+    }
+
+    @Override
+    public Device findDeviceByExternalName(String externalName) {
+        return dataModel.mapper(Device.class).getUnique("externalName", externalName).orNull();
+    }
+
+    @Override
+    public Device getPrototypeDeviceFor(DeviceConfiguration deviceConfiguration) {
+        return null;
+    }
+
+    @Override
+    public boolean deviceHasLogBookForLogBookSpec(Device device, LogBookSpec logBookSpec) {
+        //TODO properly implement when the persistence of LogBook has finished
+        return false;
+    }
+
+    @Override
+    public List<BaseDevice<Channel, LoadProfile, Register>> findPhysicalConnectedDevicesFor(Device device) {
+        Condition condition = Where.where("gateway").isEqualTo(device).and(Where.where("interval").isEffective());
+        List<PhysicalGatewayReference> physicalGatewayReferences = this.dataModel.mapper(PhysicalGatewayReference.class).select(condition);
+        if(!physicalGatewayReferences.isEmpty()){
+            List<BaseDevice<Channel, LoadProfile, Register>> baseDevices = new ArrayList<>();
+            for (PhysicalGatewayReference physicalGatewayReference : physicalGatewayReferences) {
+                baseDevices.add(physicalGatewayReference.getOrigin());
+            }
+            return baseDevices;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<BaseDevice<Channel, LoadProfile, Register>> findCommunicationReferencingDevicesFor(Device device) {
+        Condition condition = Where.where("gateway").isEqualTo(device).and(Where.where("interval").isEffective());
+        List<CommunicationGatewayReference> communicationGatewayReferences = this.dataModel.mapper(CommunicationGatewayReference.class).select(condition);
+        if(!communicationGatewayReferences.isEmpty()){
+            List<BaseDevice<Channel, LoadProfile, Register>> baseDevices = new ArrayList<>();
+            for (CommunicationGatewayReference communicationGatewayReference : communicationGatewayReferences) {
+                baseDevices.add(communicationGatewayReference.getOrigin());
+            }
+            return baseDevices;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public LoadProfile findLoadProfileById(long id) {
+        return dataModel.mapper(LoadProfile.class).getUnique("id", id).orNull();
+    }
+
+    @Override
+    public List<Device> findDevicesBySerialNumber(String serialNumber) {
+        return this.dataModel.mapper(Device.class).find("serialNumber", serialNumber);
+    }
+
+    @Override
+    public List<Device> findAllDevices() {
+        return this.dataModel.mapper(Device.class).find();
+    }
+
+    @Override
+    public List<Device> findDevicesByTimeZone(TimeZone timeZone) {
+        return this.dataModel.mapper(Device.class).find("timeZoneId", timeZone.getID());
+    }
+
+    @Override
+    public InfoType newInfoType(String name) {
+        return this.dataModel.getInstance(InfoTypeImpl.class).initialize(name);
+    }
+
+    @Override
+    public InfoType findInfoType(String name) {
+        return this.dataModel.mapper(InfoType.class).getUnique("name", name).orNull();
+    }
+
+    @Override
+    public InfoType findInfoTypeById(long infoTypeId) {
+        return this.dataModel.mapper(InfoType.class).getUnique("id", infoTypeId).orNull();
+    }
+
+    @Override
+    public LogBook findLogBookById(long id) {
+        return this.dataModel.mapper(LogBook.class).getUnique("id", id).orNull();
+    }
+
+    @Override
+    public List<LogBook> findLogBooksByDevice(Device device) {
+        return this.dataModel.mapper(LogBook.class).find("device", device);
     }
 
 }

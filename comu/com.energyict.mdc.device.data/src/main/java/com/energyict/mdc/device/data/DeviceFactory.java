@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.common.ApplicationComponent;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.device.data.Device;
 
 /**
  * Defines the behavior of an {@link ApplicationComponent}

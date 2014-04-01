@@ -9,7 +9,10 @@ package com.energyict.mdc.device.data.impl;
 public enum DeleteEventType {
 
     CONNECTIONTASK(EventType.CONNECTIONTASK_DELETED),
-    CONNECTIONMETHOD(EventType.CONNECTIONMETHOD_DELETED);
+    CONNECTIONMETHOD(EventType.CONNECTIONMETHOD_DELETED),
+    DEVICE(EventType.DEVICE_DELETED),
+    LOADPROFILE(EventType.LOADPROFILE_DELETED),
+    LOGBOOK(EventType.LOGBOOK_DELETED),;
 
     private EventType eventType;
 

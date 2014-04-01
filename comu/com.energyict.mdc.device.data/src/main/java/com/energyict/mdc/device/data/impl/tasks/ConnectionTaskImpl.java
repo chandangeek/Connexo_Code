@@ -39,7 +39,7 @@ import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;

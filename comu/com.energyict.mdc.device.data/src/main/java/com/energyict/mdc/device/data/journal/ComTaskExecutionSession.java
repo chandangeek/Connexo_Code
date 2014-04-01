@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.journal;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.device.data.Device;
 
 import java.util.Date;
 import java.util.EnumSet;

@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.journal;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 
 import java.util.EnumSet;
@@ -9,7 +8,7 @@ import java.util.Set;
 
 /**
  * Models the different outcomes of the execution of tiny commands
- * that are sent to a {@link Device}
+ * that are sent to a Device
  * in a communication session.
  * Some outcomes are more serious then others and should
  * be given priority when processing.

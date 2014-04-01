@@ -6,7 +6,7 @@ import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.journal.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 
 import java.sql.SQLException;

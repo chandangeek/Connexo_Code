@@ -1,12 +1,14 @@
 package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.config.TemporalExpression;
+import com.energyict.mdc.device.data.impl.InfoType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -16,12 +18,11 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.google.common.base.Optional;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Provides services that relate to {@link Device}s.
@@ -211,5 +212,37 @@ public interface DeviceDataService {
      * @param outboundCapableComServer The ComServer
      */
     public void releaseTimedOutConnectionTasks(ComServer outboundCapableComServer);
+
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String name);
+
+    public Device getPrototypeDeviceFor(DeviceConfiguration deviceConfiguration);
+
+    public Device findDeviceById(long id);
+
+    public Device findDeviceByExternalName(String externalName);
+
+    public boolean deviceHasLogBookForLogBookSpec(Device device, LogBookSpec logBookSpec);
+
+    public List<BaseDevice<Channel, LoadProfile, Register>> findPhysicalConnectedDevicesFor(Device device);
+
+    public List<BaseDevice<Channel, LoadProfile, Register>> findCommunicationReferencingDevicesFor(Device device);
+
+    public LoadProfile findLoadProfileById(long id);
+
+    public List<Device> findDevicesBySerialNumber(String serialNumber);
+
+    public List<Device> findAllDevices();
+
+    public List<Device> findDevicesByTimeZone(TimeZone timeZone);
+
+    public InfoType newInfoType(String name);
+
+    public InfoType findInfoType(String name);
+
+    public InfoType findInfoTypeById(long infoTypeId);
+
+    public LogBook findLogBookById(long id);
+
+    public List<LogBook> findLogBooksByDevice(Device device);
 
 }

@@ -19,7 +19,17 @@ public enum EventType {
     CONNECTIONTASK_DELETED("connectiontask/DELETED"),
     CONNECTIONMETHOD_CREATED("connectionmethod/CREATED"),
     CONNECTIONMETHOD_UPDATED("connectionmethod/UPDATED"),
-    CONNECTIONMETHOD_DELETED("connectionmethod/DELETED");
+    CONNECTIONMETHOD_DELETED("connectionmethod/DELETED"),
+    DEVICE_CREATED("device/CREATED"),
+    DEVICE_DELETED("device/DELETED"),
+    DEVICE_UPDATED("device/UPDATED"),
+    LOADPROFILE_CREATED("loadprofile/CREATED"),
+    LOADPROFILE_DELETED("loadprofile/DELETED"),
+    LOADPROFILE_UPDATED("loadprofile/UPDATED"),
+    LOGBOOK_CREATED("logbook/CREATED"),
+    LOGBOOK_DELETED("logbook/DELETED"),
+    LOGBOOK_UPDATED("logbook/UPDATED"),
+    ;
 
     private static final String NAMESPACE = "com/energyict/mdc/device/data/";
     private final String topic;
