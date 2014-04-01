@@ -22,6 +22,7 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceTypeFields;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
@@ -32,6 +33,7 @@ import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TemporalExpression;
+import com.energyict.mdc.device.config.exceptions.NoSuchProtocolException;
 import com.energyict.mdc.device.config.exceptions.UnitHasNoMatchingPhenomenonException;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -100,9 +102,12 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public DeviceType newDeviceType(String name, String deviceProtocolPluggableClassName) {
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass =
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass =
                 protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceProtocolPluggableClassName);
-        return newDeviceType(name, deviceProtocolPluggableClass);
+        if(!deviceProtocolPluggableClass.isPresent()){
+            throw new NoSuchProtocolException(this.thesaurus,deviceProtocolPluggableClassName, DeviceTypeFields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName());
+        }
+        return newDeviceType(name, deviceProtocolPluggableClass.get());
     }
 
     @Override
