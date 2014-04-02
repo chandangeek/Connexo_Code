@@ -12,28 +12,13 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.RegisterGroup;
-import com.energyict.mdc.device.config.RegisterMapping;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
-import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenRegisterMappingIsInUseException;
-import com.energyict.mdc.device.config.exceptions.CannotUpdatePhenomenonWhenRegisterMappingIsInUseException;
-import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
-import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.exceptions.*;
+
 import javax.inject.Inject;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.util.*;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -41,7 +26,8 @@ import static com.elster.jupiter.util.Checks.is;
 public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> implements RegisterMapping {
 
     enum Fields {
-        READING_TYPE("readingType");
+        READING_TYPE("readingType"),
+        OBIS_CODE("obisCode");
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -55,9 +41,9 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
 
     private final DeviceConfigurationService deviceConfigurationService;
 
-    private ObisCode obisCode;
+    private ObisCode obisCodeCached;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY + "}")
-    private String obisCodeString;
+    private String obisCode;
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.UNIT_IS_REQUIRED_KEY + "}")
     private Reference<Phenomenon> phenomenon = ValueReference.absent();
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.READING_TYPE_IS_REQUIRED_KEY + "}")
@@ -95,10 +81,10 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     }
 
     private void validateUniqueObisCodeAndPhenomenonAndTimeOfUse() {
-        if (this.phenomenon.isPresent() && this.obisCode != null) {
+        if (this.phenomenon.isPresent() && this.obisCodeCached != null) {
             RegisterMapping otherRegisterMapping = this.findOtherByObisCodeAndPhenomenonAndTimeOfUse();
             if (otherRegisterMapping != null) {
-                throw DuplicateObisCodeException.forRegisterMapping(this.getThesaurus(), obisCode, phenomenon.get()
+                throw DuplicateObisCodeException.forRegisterMapping(this.getThesaurus(), obisCodeCached, phenomenon.get()
                         , timeOfUse, otherRegisterMapping);
             }
         }
@@ -143,36 +129,36 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     }
 
     public ObisCode getObisCode() {
-        if (this.obisCode == null && !is(this.obisCodeString).empty()) {
-            this.obisCode = ObisCode.fromString(this.obisCodeString);
+        if (this.obisCodeCached == null && !is(this.obisCode).empty()) {
+            this.obisCodeCached = ObisCode.fromString(this.obisCode);
         }
-        return this.obisCode;
+        return this.obisCodeCached;
     }
 
     @Override
     public void setObisCode(ObisCode obisCode) {
         if (obisCode == null) {
             // javax.validation will throw ConstraintValidationException in the end
-            this.obisCodeString = null;
             this.obisCode = null;
+            this.obisCodeCached = null;
         }
         else if (this.obisCodeChanged(obisCode)) {
             if (this.isInUse()) {
                 throw new CannotUpdateObisCodeWhenRegisterMappingIsInUseException(this.getThesaurus(), this);
             }
-            this.obisCodeString = obisCode.toString();
-            this.obisCode = obisCode;
+            this.obisCode = obisCode.toString();
+            this.obisCodeCached = obisCode;
         }
     }
 
     private boolean obisCodeChanged(ObisCode obisCode) {
-        return !is(this.obisCode).equalTo(obisCode);
+        return !is(this.obisCodeCached).equalTo(obisCode);
     }
 
     private RegisterMapping findOtherByObisCodeAndPhenomenonAndTimeOfUse() {
         RegisterMapping registerMapping = this.getDataMapper().getUnique(
-                new String[] { "obisCodeString",    "phenomenon",         "timeOfUse" },
-                new Object[] {  obisCode.toString(), this.getPhenomenon(), this.getTimeOfUse()} ).orNull();
+                new String[]{Fields.OBIS_CODE.fieldName(), "phenomenon", "timeOfUse"},
+                new Object[]{obisCodeCached.toString(), this.getPhenomenon(), this.getTimeOfUse()}).orNull();
         if (registerMapping != null && this.getId() > 0 && registerMapping.getId() == this.getId()) {
             // The RegisterMapping that was found is the one we are updating so ignore it
             return null;

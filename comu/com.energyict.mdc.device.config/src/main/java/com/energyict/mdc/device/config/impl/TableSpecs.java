@@ -1,24 +1,9 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
-import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.*;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.DeviceTypeFields;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.NextExecutionSpecs;
-import com.energyict.mdc.device.config.RegisterGroup;
-import com.energyict.mdc.device.config.RegisterMapping;
-import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.*;
 
 /**
  * Models the database tables that hold the data of the
@@ -69,7 +54,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(80).notNull().map("name").add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
-            table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
+            table.column("OBISCODE").varChar(80).notNull().map(LogBookTypeImpl.Fields.OBIS_CODE.fieldName()).add();
             table.unique("UK_EISLOGBOOKTYPE").on(name).add();
             table.primaryKey("PK_EISLOGBOOKTYPE").on(id).add();
         }
@@ -83,7 +68,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(80).notNull().map("name").add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
-            table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
+            table.column("OBISCODE").varChar(80).notNull().map(LoadProfileTypeImpl.Fields.OBIS_CODE.fieldName()).add();
             table.column("INTERVALCOUNT").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.count").add();
             table.column("INTERVALUNIT").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
@@ -112,7 +97,7 @@ public enum TableSpecs {
             table.map(RegisterMappingImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(128).notNull().map("name").add();
-            Column obisCode = table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
+            Column obisCode = table.column("OBISCODE").varChar(80).notNull().map(RegisterMappingImpl.Fields.OBIS_CODE.fieldName()).add();
             Column phenomenon = table.column("PHENOMENONID").number().conversion(ColumnConversion.NUMBER2INT).notNull().add();
             Column readingType = table.column("READINGTYPE").varChar(100).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
