@@ -79,17 +79,14 @@ public enum DomainMapper {
 		set(target,fieldPath,value,null);
 	}
 	
+	private Object traverse(Object target,String fieldName, Injector injector, boolean create) {
+		return create ? getOrCreate(target,fieldName,injector) : basicGet(target,fieldName);
+	}
+	
 	public void set(Object target , String  fieldPath, Object value, Injector injector) {		
 		String[] fieldNames = fieldPath.split("\\.");
-		if (fieldNames.length > 1) {
-			if (value != null) {
-				target = getOrCreate(target,fieldNames[0],injector);
-			} else {
-				target = basicGet(target,fieldNames[0]);
-			}
-		}
-		for (int i = 1 ; i < fieldNames.length - 1 ; i++) {
-			target = target == null ? null : basicGet(target,fieldNames[i]);
+		for (int i = 0 ; (target != null) && (i < fieldNames.length - 1) ; i++) {
+			target = traverse(target, fieldNames[i], injector, value != null);
 		}
 		if (target != null) {
 			basicSet(target,fieldNames[fieldNames.length-1],value);
@@ -162,7 +159,7 @@ public enum DomainMapper {
 				// e.g. Reference<DomainModel<Template>>
 				return (Class<?>) ((ParameterizedType) subType).getRawType();
 			} else if (subType instanceof TypeVariable) {
-				// e.g. Reference<Template>
+				// e.g. Reference<Template extends DomainModel>
                 return (Class<?>) ((TypeVariable) subType).getBounds()[0];
 			}
         }
