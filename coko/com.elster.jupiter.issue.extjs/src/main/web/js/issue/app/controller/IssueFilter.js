@@ -79,9 +79,12 @@ Ext.define('Isu.controller.IssueFilter', {
 
         if (!chkbx.store.getCount()){
             chkbx.store.on('load', loadRecord);
-        } else {
+        } else if (!chkbx.child()) {
             chkbx.on('afterRender', loadRecord);
+        } else {
+            loadRecord();
         }
+
 
         if (reason) {
             grstore.proxy.extraParams.id = reason.get('id');
