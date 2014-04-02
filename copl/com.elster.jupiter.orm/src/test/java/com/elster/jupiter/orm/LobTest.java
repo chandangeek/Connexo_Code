@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import java.security.Principal;
 import java.sql.SQLException;
+import java.util.Date;
 
 import org.junit.After;
 import org.junit.Before;
@@ -80,6 +81,8 @@ public class LobTest {
     	Column idColumn = table.addAutoIdColumn();
     	table.column("CHARLOB").type("CLOB").map("charLob").conversion(ColumnConversion.CLOB2STRING).add();
     	table.column("BYTELOB").type("BLOB").map("byteLob").conversion(ColumnConversion.BLOB2BYTE).add();
+    	table.column("REALDATE").number().map("realDate").conversion(ColumnConversion.NUMBERINUTCSECONDS2DATE).add();
+    	table.column("NULLDATE").number().map("nullDate").conversion(ColumnConversion.NUMBERINUTCSECONDS2DATE).add();
     	table.primaryKey("TST_PK_LOBS").on(idColumn).add();
     	dataModel.register();
     	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
@@ -89,10 +92,15 @@ public class LobTest {
     			tuple.charLob += "x";
     		}
     		tuple.byteLob = tuple.charLob.getBytes();
+    		// round to second
+    		Date now = new Date(System.currentTimeMillis()/1000L * 1000L);
+    		tuple.realDate = now;
     		dataModel.persist(tuple);
     		LobTestTuple alias = dataModel.mapper(LobTestTuple.class).getExisting(1);
     		assertThat(alias.charLob).isEqualTo(tuple.charLob);
     		assertThat(alias.byteLob).isEqualTo(tuple.byteLob);
+    		assertThat(alias.realDate).isEqualTo(now);
+    		assertThat(alias.nullDate).isNull();
     		ctx.commit();
     	}
     }
@@ -102,6 +110,8 @@ public class LobTest {
 		private long id;
     	private String charLob = "";
     	private byte[] byteLob;
+    	private Date realDate;
+    	private Date nullDate;
     	
     }
 }

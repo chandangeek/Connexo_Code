@@ -387,6 +387,23 @@ public enum ColumnConversionImpl {
         public Object convertFromDb(ResultSet rs, int index) throws SQLException {
             return rs.getBytes(index);
         }    	
+    },
+    NUMBERINUTCSECONDS2DATE {
+    	@Override
+        public Object convert(String in) {
+    		return new java.util.Date(Long.parseLong(in));
+        }
+
+        @Override
+        public Object convertToDb(Object value) {
+        	return value == null ? null : ((java.util.Date) value).getTime() / 1000L;
+        }
+
+        @Override
+        public Object convertFromDb(ResultSet rs, int index) throws SQLException {
+        	long value = rs.getLong(index);				 
+			return rs.wasNull() ? null : new Date(value*1000L);
+		} 	
     };
 
 
