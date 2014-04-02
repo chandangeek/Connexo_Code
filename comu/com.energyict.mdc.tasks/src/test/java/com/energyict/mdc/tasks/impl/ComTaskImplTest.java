@@ -259,4 +259,17 @@ public class ComTaskImplTest extends PersistenceTest {
         simpleComTask.removeTask(statusInformationTask);// can't remove the last task
     }
 
+    @Test
+    @Transactional
+    public void testNameIsTrimmed() throws Exception {
+        ComTask comTask = getTaskService().createComTask();
+        comTask.setName(" "+COM_TASK_NAME+" ");
+        comTask.setStoreData(STORE_DATA_TRUE);
+        comTask.setMaxNrOfTries(1);
+        comTask.createStatusInformationTask();
+        comTask.save();
+
+        ComTask loadedComTask = getTaskService().findComTask(comTask.getId());
+        assertThat(loadedComTask.getName()).isEqualTo(COM_TASK_NAME);
+    }
 }

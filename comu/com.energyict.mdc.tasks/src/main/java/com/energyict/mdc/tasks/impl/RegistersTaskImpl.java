@@ -1,12 +1,13 @@
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.RegistersTask;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import javax.inject.Inject;
 
@@ -54,27 +55,46 @@ class RegistersTaskImpl extends ProtocolTaskImpl implements RegistersTask {
         return registerGroups;
     }
 
-    @Override
-    public void setRegisterGroups(Collection<RegisterGroup> registerGroups) {
-        // TODO implement
-    }
-
     /**
      * Update the RegisterGroupUsage map
-     * based on the given RegistersTaskShadow. The shadow will contain the <i>new</i> List of RegisterGroups
+     * The registerGroups will contain the <i>new</i> List of RegisterGroups
      * which must be mapped to this RegistersTask.<br>
      * We need to check:<ul>
      * <li>if some references already exist, keep them</li>
      * <li>if some references have to be deleted</li>
      * <li>if some references have to be added</li>
      * </ul>
-     *
-     * @param registerGroups the RegisterGroups
      */
-    protected void updateRegisterGroups (final List<RegisterGroup> registerGroups) throws SQLException {
-        // TODO Implement
+    @Override
+    public void setRegisterGroups(Collection<RegisterGroup> registerGroups) {
+        List<RegisterGroup> wantedRegisterGroups = new ArrayList<>(registerGroups);
+        Iterator<RegisterGroupUsage> iterator = this.registerGroupUsages.iterator();
+        while(iterator.hasNext()) {
+            RegisterGroupUsage registerGroupUsage = iterator.next();
+            RegisterGroup stillWantedRegisterGroup=getById(wantedRegisterGroups, registerGroupUsage.getRegistersGroup().getId());
+            if (stillWantedRegisterGroup==null) {
+                iterator.remove();
+            } else {
+                wantedRegisterGroups.remove(stillWantedRegisterGroup);
+            }
+        }
+
+        for (RegisterGroup wantedRegisterGroup : wantedRegisterGroups) {
+            RegisterGroupUsageImpl registerGroupUsage = new RegisterGroupUsageImpl();
+            registerGroupUsage.setRegistersGroup(wantedRegisterGroup);
+            registerGroupUsage.setRegistersTask(this);
+            this.registerGroupUsages.add(registerGroupUsage);
+        }
     }
 
+    private <T extends HasId> T getById(List<T> list, long id) {
+        for (T t : list) {
+            if (t.getId()==id) {
+                return t;
+            }
+        }
+        return null;
+    }
 
     void deleteDependents() {
         this.registerGroupUsages.clear();

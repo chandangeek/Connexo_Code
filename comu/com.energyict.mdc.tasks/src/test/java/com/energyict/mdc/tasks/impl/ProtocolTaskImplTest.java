@@ -3,6 +3,7 @@ package com.energyict.mdc.tasks.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategoryPrimaryKey;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -15,6 +16,7 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.PersistenceTest;
+import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
 import java.util.Arrays;
@@ -554,7 +556,112 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         when(deviceMessageCategory.getId()).thenReturn(id);
         when(deviceMessageCategory.getName()).thenReturn(name);
         DeviceMessageCategoryPrimaryKey name1PK = new DeviceMessageCategoryPrimaryKey(deviceMessageCategory, name);
+        when(deviceMessageCategory.getPrimaryKey()).thenReturn(name1PK);
         when(getDeviceMessageService().findDeviceMessageCategory(name1PK.getValue())).thenReturn(deviceMessageCategory);
         return deviceMessageCategory;
+    }
+
+    @Test
+    @Transactional
+    public void testCreateRegistersTaskWithoutRegisters() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        comTask.createRegistersTask().add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        RegistersTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), RegistersTask.class);
+        assertThat(taskByType).isNotNull();
+        assertThat(taskByType.getRegisterGroups()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testCreateRegistersTaskWithRegisterGroup() throws Exception {
+        ComTask comTask = createSimpleComTask();
+
+        RegisterGroup registerGroup = getDeviceConfigurationService().newRegisterGroup("group1");
+        registerGroup.save();
+        comTask.createRegistersTask().registerGroups(Arrays.asList(registerGroup)).add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        RegistersTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), RegistersTask.class);
+        assertThat(taskByType).isNotNull();
+        assertThat(taskByType.getRegisterGroups()).hasSize(1);
+    }
+
+    @Test
+    @Transactional
+    public void testCreateRegistersTaskAdd1RegisterGroup() throws Exception {
+        ComTask comTask = createSimpleComTask();
+
+        RegisterGroup registerGroup = getDeviceConfigurationService().newRegisterGroup("group1");
+        registerGroup.save();
+        comTask.createRegistersTask().registerGroups(Arrays.asList(registerGroup)).add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        RegistersTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), RegistersTask.class);
+        RegisterGroup registerGroup2 = getDeviceConfigurationService().newRegisterGroup("group2");
+        registerGroup2.save();
+        taskByType.setRegisterGroups(Arrays.asList(registerGroup, registerGroup2));
+        taskByType.save();
+
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), RegistersTask.class);
+        assertThat(taskByType).isNotNull();
+        assertThat(taskByType.getRegisterGroups()).hasSize(2);
+
+    }
+
+    @Test
+    @Transactional
+    public void testCreateRegistersTaskRemove1RegisterGroup() throws Exception {
+        ComTask comTask = createSimpleComTask();
+
+        RegisterGroup registerGroup = getDeviceConfigurationService().newRegisterGroup("group1");
+        registerGroup.save();
+        RegisterGroup registerGroup2 = getDeviceConfigurationService().newRegisterGroup("group2");
+        registerGroup2.save();
+        comTask.createRegistersTask().registerGroups(Arrays.asList(registerGroup, registerGroup2)).add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        RegistersTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), RegistersTask.class);
+        taskByType.setRegisterGroups(Arrays.asList(registerGroup2));
+        taskByType.save();
+
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), RegistersTask.class);
+        assertThat(taskByType).isNotNull();
+        assertThat(taskByType.getRegisterGroups()).hasSize(1);
+        assertThat(taskByType.getRegisterGroups().get(0).getName()).isEqualTo("group2");
+    }
+
+    @Test
+    @Transactional
+    public void testCreateRegistersTaskAdd1Remove1RegisterGroup() throws Exception {
+        ComTask comTask = createSimpleComTask();
+
+        RegisterGroup registerGroup = getDeviceConfigurationService().newRegisterGroup("group1");
+        registerGroup.save();
+        RegisterGroup registerGroup2 = getDeviceConfigurationService().newRegisterGroup("group2");
+        registerGroup2.save();
+        comTask.createRegistersTask().registerGroups(Arrays.asList(registerGroup, registerGroup2)).add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        RegistersTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), RegistersTask.class);
+        RegisterGroup registerGroup3 = getDeviceConfigurationService().newRegisterGroup("group3");
+        registerGroup3.save();
+        taskByType.setRegisterGroups(Arrays.asList(registerGroup2, registerGroup3));
+        taskByType.save();
+
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), RegistersTask.class);
+        assertThat(taskByType).isNotNull();
+        assertThat(taskByType.getRegisterGroups()).hasSize(2);
+        assertThat(taskByType.getRegisterGroups().get(0).getName()).isNotEqualTo("group1");
+        assertThat(taskByType.getRegisterGroups().get(1).getName()).isNotEqualTo("group1");
     }
 }

@@ -113,6 +113,10 @@ public class PersistenceTest {
         return injector.getInstance(TaskService.class);
     }
 
+    public final DeviceConfigurationService getDeviceConfigurationService() {
+        return injector.getInstance(DeviceConfigurationService.class);
+    }
+
     public final DeviceMessageService getDeviceMessageService() {
         return deviceMessageService;
     }
