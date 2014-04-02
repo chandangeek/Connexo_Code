@@ -1,6 +1,7 @@
 package com.energyict.mdc.common.services;
 
 import com.energyict.mdc.common.rest.QueryParameters;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -41,8 +42,11 @@ public class ListPager<T> {
             if (start>=elements.size()) {
                 return Collections.emptyList();
             }
-            int limit = Math.min(elements.size()-this.start, this.start+this.pageSize+1);// +1 for the 'there is another page'-indicator
-            return elements.subList(this.start, limit);
+            int toIndex = this.start + this.pageSize + 1;
+            if (toIndex > elements.size()) {
+                toIndex = elements.size();
+            }
+            return elements.subList(this.start, toIndex);
         } else {
             return elements;
         }

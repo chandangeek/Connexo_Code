@@ -1,9 +1,10 @@
 package com.energyict.mdc.common.rest;
 
-import java.util.Arrays;
-import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -14,29 +15,29 @@ public class PagedInfoListTest {
     @Test
     public void testObjectMapperSerializesTypeInformation() throws Exception {
         BogusInfo deviceTypeInfo1 = new BogusInfo();
-        deviceTypeInfo1.name="new 1";
-        deviceTypeInfo1.canBeDirectlyAddressed =true;
-        deviceTypeInfo1.canBeGateway=false;
-        deviceTypeInfo1.deviceConfigurationCount=4;
-        deviceTypeInfo1.loadProfileCount=5;
-        deviceTypeInfo1.logBookCount=6;
-        deviceTypeInfo1.registerCount=7;
+        deviceTypeInfo1.name = "new 1";
+        deviceTypeInfo1.canBeDirectlyAddressed = true;
+        deviceTypeInfo1.canBeGateway = false;
+        deviceTypeInfo1.deviceConfigurationCount = 4;
+        deviceTypeInfo1.loadProfileCount = 5;
+        deviceTypeInfo1.logBookCount = 6;
+        deviceTypeInfo1.registerCount = 7;
         BogusInfo deviceTypeInfo2 = new BogusInfo();
-        deviceTypeInfo2.name="new 2";
-        deviceTypeInfo2.canBeDirectlyAddressed =true;
-        deviceTypeInfo2.canBeGateway=false;
-        deviceTypeInfo2.deviceConfigurationCount=4;
-        deviceTypeInfo2.loadProfileCount=5;
-        deviceTypeInfo2.logBookCount=6;
-        deviceTypeInfo2.registerCount=7;
+        deviceTypeInfo2.name = "new 2";
+        deviceTypeInfo2.canBeDirectlyAddressed = true;
+        deviceTypeInfo2.canBeGateway = false;
+        deviceTypeInfo2.deviceConfigurationCount = 4;
+        deviceTypeInfo2.loadProfileCount = 5;
+        deviceTypeInfo2.logBookCount = 6;
+        deviceTypeInfo2.registerCount = 7;
         BogusInfo deviceTypeInfo3 = new BogusInfo();
-        deviceTypeInfo3.name="new 3";
-        deviceTypeInfo3.canBeDirectlyAddressed =true;
-        deviceTypeInfo3.canBeGateway=false;
-        deviceTypeInfo3.deviceConfigurationCount=4;
-        deviceTypeInfo3.loadProfileCount=5;
-        deviceTypeInfo3.logBookCount=6;
-        deviceTypeInfo3.registerCount=7;
+        deviceTypeInfo3.name = "new 3";
+        deviceTypeInfo3.canBeDirectlyAddressed = true;
+        deviceTypeInfo3.canBeGateway = false;
+        deviceTypeInfo3.deviceConfigurationCount = 4;
+        deviceTypeInfo3.loadProfileCount = 5;
+        deviceTypeInfo3.logBookCount = 6;
+        deviceTypeInfo3.registerCount = 7;
         ObjectMapper objectMapper = new ObjectMapper();
         QueryParameters queryParameters = mock(QueryParameters.class);
         when(queryParameters.getLimit()).thenReturn(2);
@@ -51,7 +52,7 @@ public class PagedInfoListTest {
         QueryParameters queryParameters = mock(QueryParameters.class);
         when(queryParameters.getLimit()).thenReturn(5);
         when(queryParameters.getStart()).thenReturn(80);
-        List<Object> infos = Arrays.asList(new Object(),new Object(),new Object(),new Object(),new Object(),new Object()); // 6 objects
+        List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object(), new Object()); // 6 objects
 
         PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters);
         assertThat(list.getTotal()).isEqualTo(86);
@@ -63,10 +64,25 @@ public class PagedInfoListTest {
         QueryParameters queryParameters = mock(QueryParameters.class);
         when(queryParameters.getLimit()).thenReturn(5);
         when(queryParameters.getStart()).thenReturn(80);
-        List<Object> infos = Arrays.asList(new Object(),new Object(),new Object(),new Object(),new Object()); // 5 objects
+        List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object()); // 5 objects
 
         PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters);
         assertThat(list.getTotal()).isEqualTo(85);
         assertThat(list.getInfos()).hasSize(5);
+    }
+
+    @Test
+    public void testNextPage() throws Exception {
+        QueryParameters queryParameters = mock(QueryParameters.class);
+        when(queryParameters.getLimit()).thenReturn(10);
+        when(queryParameters.getStart()).thenReturn(10);
+
+        List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object()
+                , new Object(), new Object(), new Object(), new Object(), new Object(), new Object()); // 11 objects
+
+        PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters);
+        assertThat(list.getTotal()).isEqualTo(21);
+        assertThat(list.getInfos()).hasSize(10);
+
     }
 }
