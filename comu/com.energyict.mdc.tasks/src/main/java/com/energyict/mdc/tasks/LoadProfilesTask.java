@@ -74,6 +74,7 @@ public interface LoadProfilesTask extends ProtocolTask {
         public LoadProfilesTaskBuilder failIfConfigurationMisMatch(boolean failIfConfigurationMisMatch);
         public LoadProfilesTaskBuilder markIntervalsAsBadTime(boolean markIntervalsAsBadTime);
         public LoadProfilesTaskBuilder minClockDiffBeforeBadTime(TimeDuration minClockDiffBeforeBadTime);
+        public LoadProfilesTaskBuilder createMeterEventsFromFlags(boolean createMeterEventsFromFlags);
         public LoadProfilesTask add();
     }
 }

@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.PersistenceTest;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
@@ -186,7 +187,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         taskByType.save();
         
         ComTask rereloadedComTask = getTaskService().findComTask(comTask.getId());
-        ClockTask reloadedTaskByType = getTaskByType(reloadedComTask.getProtocolTasks(), ClockTask.class);
+        ClockTask reloadedTaskByType = getTaskByType(rereloadedComTask.getProtocolTasks(), ClockTask.class);
         assertThat(rereloadedComTask.getProtocolTasks()).hasSize(1);
         assertThat(reloadedTaskByType).isNotNull();
         assertThat(reloadedTaskByType.getComTask().getId()).isEqualTo(comTask.getId());
@@ -261,5 +262,55 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
         assertThat(taskByType.getTopologyAction()).isEqualTo(TopologyAction.UPDATE);
+    }
+
+    @Test
+    @Transactional
+    public void testCreateLoadProfilesTask() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        comTask.createLoadProfilesTask().
+                minClockDiffBeforeBadTime(TimeDuration.days(1)).
+                markIntervalsAsBadTime(true).
+                failIfConfigurationMisMatch(true).
+                createMeterEventsFromFlags(true).add();
+
+        comTask.save();
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        LoadProfilesTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), LoadProfilesTask.class);
+        assertThat(taskByType).isNotNull();
+        assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
+        assertThat(taskByType.createMeterEventsFromStatusFlags()).isTrue();
+        assertThat(taskByType.failIfLoadProfileConfigurationMisMatch()).isTrue();
+        assertThat(taskByType.isMarkIntervalsAsBadTime()).isTrue();
+        assertThat(taskByType.getMinClockDiffBeforeBadTime()).isEqualTo(TimeDuration.days(1));
+    }
+    @Test
+    @Transactional
+    public void testUpdateLoadProfilesTask() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        comTask.createLoadProfilesTask().
+                minClockDiffBeforeBadTime(TimeDuration.days(1)).
+                markIntervalsAsBadTime(true).
+                failIfConfigurationMisMatch(true).
+                createMeterEventsFromFlags(true).add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        LoadProfilesTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), LoadProfilesTask.class);
+        taskByType.setCreateMeterEventsFromStatusFlags(false);
+        taskByType.setFailIfConfigurationMisMatch(false);
+        taskByType.setMarkIntervalsAsBadTime(false);
+        taskByType.setMinClockDiffBeforeBadTime(TimeDuration.hours(1));
+        taskByType.save();
+
+        ComTask rereloadedComTask = getTaskService().findComTask(comTask.getId());
+        LoadProfilesTask reloadedTaskByType = getTaskByType(rereloadedComTask.getProtocolTasks(), LoadProfilesTask.class);
+        
+        assertThat(reloadedTaskByType).isNotNull();
+        assertThat(reloadedTaskByType.getComTask().getId()).isEqualTo(comTask.getId());
+        assertThat(reloadedTaskByType.createMeterEventsFromStatusFlags()).isFalse();
+        assertThat(reloadedTaskByType.failIfLoadProfileConfigurationMisMatch()).isFalse();
+        assertThat(reloadedTaskByType.isMarkIntervalsAsBadTime()).isFalse();
+        assertThat(reloadedTaskByType.getMinClockDiffBeforeBadTime()).isEqualTo(TimeDuration.hours(1));
     }
 }

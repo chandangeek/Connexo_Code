@@ -405,6 +405,12 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
         }
 
         @Override
+        public LoadProfilesTask.LoadProfilesTaskBuilder createMeterEventsFromFlags(boolean createMeterEventsFromFlags) {
+            loadProfilesTask.setCreateMeterEventsFromStatusFlags(createMeterEventsFromFlags);
+            return this;
+        }
+
+        @Override
         public LoadProfilesTask add() {
             ComTaskImpl.this.addProtocolTask(loadProfilesTask);
             return loadProfilesTask;
