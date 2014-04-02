@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategoryPrima
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
+import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
@@ -663,5 +664,63 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         assertThat(taskByType.getRegisterGroups()).hasSize(2);
         assertThat(taskByType.getRegisterGroups().get(0).getName()).isNotEqualTo("group1");
         assertThat(taskByType.getRegisterGroups().get(1).getName()).isNotEqualTo("group1");
+    }
+
+    @Test
+    @Transactional
+    public void testCreateBasicTask() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        comTask.createBasicCheckTask().verifyClockDifference(true).verifySerialNumber(true).maximumClockDifference(TimeDuration.days(1)).add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
+        BasicCheckTask actual = getTaskByType(reloadedComTask.getProtocolTasks(), BasicCheckTask.class);
+        assertThat(actual).isNotNull();
+        assertThat(actual.getMaximumClockDifference()).isEqualTo(TimeDuration.days(1));
+        assertThat(actual.verifyClockDifference()).isTrue();
+        assertThat(actual.verifySerialNumber()).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateBasicTask() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        comTask.createBasicCheckTask().verifyClockDifference(true).verifySerialNumber(true).maximumClockDifference(TimeDuration.days(1)).add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        BasicCheckTask actual = getTaskByType(reloadedComTask.getProtocolTasks(), BasicCheckTask.class);
+        actual.setVerifyClockDifference(false);
+        actual.setVerifySerialNumber(false);
+        actual.setMaximumClockDifference(TimeDuration.hours(1));
+        actual.save();
+
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        actual = getTaskByType(reReloadedComTask.getProtocolTasks(), BasicCheckTask.class);
+        assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
+        assertThat(actual).isNotNull();
+        assertThat(actual.getMaximumClockDifference()).isEqualTo(TimeDuration.hours(1));
+        assertThat(actual.verifyClockDifference()).isFalse();
+        assertThat(actual.verifySerialNumber()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testDeleteBasicTask() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        comTask.createBasicCheckTask().verifyClockDifference(true).verifySerialNumber(true).maximumClockDifference(TimeDuration.days(1)).add();
+        comTask.createStatusInformationTask();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        BasicCheckTask actual = getTaskByType(reloadedComTask.getProtocolTasks(), BasicCheckTask.class);
+        reloadedComTask.removeTask(actual);
+        reloadedComTask.save();
+
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        actual = getTaskByType(reReloadedComTask.getProtocolTasks(), BasicCheckTask.class);
+        assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
+        assertThat(actual).isNull();
     }
 }
