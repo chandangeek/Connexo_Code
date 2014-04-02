@@ -53,6 +53,11 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
                                         var form = radiogroup.up('issues-assign-form');
                                         form.assignToOnChange(radiogroup, newValue, oldValue);
                                     }
+                                },
+                                afterrender: {
+                                    fn: function(rgroup){
+                                        rgroup.reset();
+                                    }
                                 }
                             },
                             items: [
