@@ -65,6 +65,9 @@ Ext.define('Isu.controller.Issues', {
                 beforehide: this.hideItemAction,
                 click: this.chooseIssuesAction
             },
+            'issues-overview issues-item': {
+                afterChange: this.setFilterIconsActions
+            },
             // ====================================  IssueListFilter controls  ====================================
 
             'button[name=addsortbtn]': {
@@ -427,6 +430,65 @@ Ext.define('Isu.controller.Issues', {
         var issueItemView = this.getItemPanel();
 
         issueItemView && issueItemView.fireEvent('clear');
+    },
+
+    setFilterIconsActions: function (itemPanel) {
+        var self = this,
+            icons = Ext.get(itemPanel.getEl()).select('.isu-apply-filter');
+
+        icons.on('click', self.addFilterIconAction, self);
+        itemPanel.on('change', function () {
+            icons.un('click', self.addFilterIconAction, self);
+        });
+        itemPanel.on('clear', function () {
+            icons.un('click', self.addFilterIconAction, self);
+        });
+    },
+
+    addFilterIconAction: function (event, icon) {
+        var filterType = icon.getAttribute('data-filterType'),
+            filterValue = icon.getAttribute('data-filterValue'),
+            visualValue = Ext.get(icon).prev().getHTML();
+
+        if (!filterType || !filterValue) {
+            return;
+        }
+
+        switch (filterType) {
+            case 'status':
+                this.setChecboxFilter(filterType, filterValue);
+                break;
+            case 'assignee':
+                this.setComboFilter(filterType, filterValue, visualValue);
+                break;
+            case 'reason':
+                this.setComboFilter(filterType, parseInt(filterValue), visualValue);
+                break;
+        }
+    },
+
+    setChecboxFilter: function (filterType, filterValue) {
+        var filterController = this.getController('Isu.controller.IssueFilter'),
+            filterForm = filterController.getIssueFilter().down('filter-form'),
+            checkbox = filterForm.down('[name='+ filterType +'] checkboxfield[inputValue=' + filterValue + ']');
+
+        checkbox.setValue(true);
+        filterController.filter();
+    },
+
+    setComboFilter: function (filterType, filterValue, visualValue) {
+        var filterController = this.getController('Isu.controller.IssueFilter'),
+            filterForm = filterController.getIssueFilter().down('filter-form'),
+            combo = filterForm.down('[name=' + filterType + ']'),
+            comboStore = combo.getStore(),
+            storeProxy = comboStore.getProxy();
+
+        storeProxy.setExtraParam(combo.queryParam, visualValue);
+
+        comboStore.load(function () {
+            combo.setValue(filterValue);
+            filterController.filter();
+        });
     }
     // ====================================  END IssueListFilter controls  ====================================
 });

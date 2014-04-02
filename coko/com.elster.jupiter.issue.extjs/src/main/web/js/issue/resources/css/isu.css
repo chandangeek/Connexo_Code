@@ -332,6 +332,10 @@ span[class^=isu-assignee-] {
     color: gray;
 }
 
+.isu-apply-filter {
+    cursor: pointer;
+}
+
 /* Message Window */
 
 /* Window */

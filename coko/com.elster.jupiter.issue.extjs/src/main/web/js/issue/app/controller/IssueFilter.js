@@ -102,7 +102,9 @@ Ext.define('Isu.controller.IssueFilter', {
     },
 
     filter: function () {
-
+        if (!this.getIssueFilter()) {
+            return;
+        }
         var form = this.getIssueFilter().down('filter-form'),
             filter = form.getRecord();
 
