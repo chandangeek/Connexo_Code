@@ -52,7 +52,7 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
     public List<PropertySpec> getOptionalProperties() {
         List<PropertySpec> allOptionalProperties = new ArrayList<>();
         allOptionalProperties.addAll(super.getOptionalProperties());    // need to create a new list because the super returns a fixed list
-        allOptionalProperties.addAll(new TypedPaknetModemProperties().getOptionalProperties());
+        allOptionalProperties.addAll(new TypedPEMPModemProperties().getOptionalProperties());
         return allOptionalProperties;
     }
 
@@ -60,20 +60,20 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
     public List<PropertySpec> getRequiredProperties() {
         List<PropertySpec> requiredProperties = new ArrayList<>();
         requiredProperties.addAll(super.getRequiredProperties());  // need to create a new list because the super returns a fixed list
-        requiredProperties.addAll(new TypedPaknetModemProperties().getRequiredProperties());
+        requiredProperties.addAll(new TypedPEMPModemProperties().getRequiredProperties());
         return requiredProperties;
     }
 
     @Override
     public boolean isRequiredProperty(String name) {
-        return super.isRequiredProperty(name) || new TypedPaknetModemProperties().isRequiredProperty(name);
+        return super.isRequiredProperty(name) || new TypedPEMPModemProperties().isRequiredProperty(name);
     }
 
     @Override
     public PropertySpec getPropertySpec(String name) {
         PropertySpec propertySpec = super.getPropertySpec(name);
         if (propertySpec == null) {
-            return new TypedPaknetModemProperties().getPropertySpec(name);
+            return new TypedPEMPModemProperties().getPropertySpec(name);
         }
         return propertySpec;
     }
