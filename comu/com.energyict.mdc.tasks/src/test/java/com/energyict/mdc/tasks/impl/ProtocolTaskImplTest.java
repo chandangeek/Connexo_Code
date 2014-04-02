@@ -8,6 +8,7 @@ import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.PersistenceTest;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
@@ -284,6 +285,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         assertThat(taskByType.isMarkIntervalsAsBadTime()).isTrue();
         assertThat(taskByType.getMinClockDiffBeforeBadTime()).isEqualTo(TimeDuration.days(1));
     }
+
     @Test
     @Transactional
     public void testUpdateLoadProfilesTask() throws Exception {
@@ -312,5 +314,36 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         assertThat(reloadedTaskByType.failIfLoadProfileConfigurationMisMatch()).isFalse();
         assertThat(reloadedTaskByType.isMarkIntervalsAsBadTime()).isFalse();
         assertThat(reloadedTaskByType.getMinClockDiffBeforeBadTime()).isEqualTo(TimeDuration.hours(1));
+    }
+
+    @Test
+    @Transactional
+    public void testCreateLogBooksTask() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        comTask.createLogbooksTask().add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        LogBooksTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), LogBooksTask.class);
+        assertThat(taskByType).isNotNull();
+        assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
+    }
+
+    @Test
+    @Transactional
+    public void testDeleteLogBooksTask() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        comTask.createLogbooksTask().add();
+        comTask.createStatusInformationTask();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        LogBooksTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), LogBooksTask.class);
+        reloadedComTask.removeTask(taskByType);
+        reloadedComTask.save();
+
+        ComTask rereloadedComTask = getTaskService().findComTask(comTask.getId());
+        LogBooksTask reloadedTaskByType = getTaskByType(rereloadedComTask.getProtocolTasks(), LogBooksTask.class);
+        assertThat(reloadedTaskByType).isNull();
     }
 }
