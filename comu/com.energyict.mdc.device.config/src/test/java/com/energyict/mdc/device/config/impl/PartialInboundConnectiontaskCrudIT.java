@@ -77,9 +77,11 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.LicenseServer;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
@@ -147,7 +149,7 @@ public class PartialInboundConnectiontaskCrudIT {
     private EngineModelService engineModelService;
     private InMemoryBootstrapModule bootstrapModule;
     private InboundDeviceProtocolService inboundDeviceProtocolService;
-    private DeviceProtocolPluggableClass discoveryPluggable;
+    private InboundDeviceProtocolPluggableClass discoveryPluggable;
     @Mock
     private IdBusinessObjectFactory businessObjectFactory;
     @Mock
@@ -237,7 +239,7 @@ public class PartialInboundConnectiontaskCrudIT {
             connectionTypePluggableClass.save();
             connectionTypePluggableClass2 = protocolPluggableService.newConnectionTypePluggableClass("NoParamsConnectionType2", NoParamsConnectionType.class.getName());
             connectionTypePluggableClass2.save();
-            discoveryPluggable = protocolPluggableService.newDeviceProtocolPluggableClass("MyDiscoveryName", MyDeviceProtocolPluggableClass.class.getName());
+            discoveryPluggable = protocolPluggableService.newInboundDeviceProtocolPluggableClass("MyDiscoveryName", DlmsSerialNumberDiscover.class.getName());
             discoveryPluggable.save();
             inboundComPortPool = engineModelService.newInboundComPortPool();
             inboundComPortPool.setActive(true);
@@ -463,255 +465,7 @@ public class PartialInboundConnectiontaskCrudIT {
     }
 
 
-    public static class MyDeviceProtocolPluggableClass implements DeviceProtocolPluggableClass, DeviceProtocol {
-
-        @Override
-        public void setPropertySpecService(PropertySpecService propertySpecService) {
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public String getSecurityRelationTypeName() {
-            return null;
-        }
-
-        @Override
-        public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public PropertySpec getSecurityPropertySpec(String name) {
-            return null;
-        }
-
-        @Override
-        public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-
-        }
-
-        @Override
-        public void terminate() {
-
-        }
-
-        @Override
-        public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public String getProtocolDescription() {
-            return null;
-        }
-
-        @Override
-        public DeviceFunction getDeviceFunction() {
-            return null;
-        }
-
-        @Override
-        public ManufacturerInformation getManufacturerInformation() {
-            return null;
-        }
-
-        @Override
-        public List<ConnectionType> getSupportedConnectionTypes() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public void logOn() {
-
-        }
-
-        @Override
-        public void daisyChainedLogOn() {
-        }
-
-        @Override
-        public void logOff() {
-
-        }
-
-        @Override
-        public void daisyChainedLogOff() {
-        }
-
-        @Override
-        public String getSerialNumber() {
-            return null;
-        }
-
-        @Override
-        public void setTime(Date timeToSet) {
-
-        }
-
-        @Override
-        public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-            return null;
-        }
-
-        @Override
-        public Date getTime() {
-            return null;
-        }
-
-        @Override
-        public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-
-        }
-
-        @Override
-        public DeviceProtocolCache getDeviceCache() {
-            return null;
-        }
-
-        @Override
-        public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-            return null;
-        }
-
-        @Override
-        public List<DeviceMessageSpec> getSupportedMessages() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-            return null;
-        }
-
-        @Override
-        public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-            return null;
-        }
-
-        @Override
-        public String format(PropertySpec propertySpec, Object messageAttribute) {
-            return null;
-        }
-
-        @Override
-        public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        }
-
-        @Override
-        public String getVersion() {
-            return null;
-        }
-
-        @Override
-        public void copyProperties(TypedProperties properties) {
-        }
-
-        @Override
-        public DeviceProtocol getDeviceProtocol() {
-            return this;
-        }
-
-        @Override
-        public TypedProperties getProperties() {
-            return TypedProperties.empty();
-        }
-
-        @Override
-        public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-
-        }
-
-        @Override
-        public CollectedTopology getDeviceTopology() {
-            return null;
-        }
-
-        @Override
-        public List<PropertySpec> getPropertySpecs() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public PropertySpec getPropertySpec(String name) {
-            return null;
-        }
-
-        @Override
-        public long getId() {
-            return 0;
-        }
-
-        @Override
-        public String getName() {
-            return null;
-        }
-
-        @Override
-        public void setName(String name) throws BusinessException {
-
-        }
-
-        @Override
-        public PluggableClassType getPluggableClassType() {
-            return null;
-        }
-
-        @Override
-        public String getJavaClassName() {
-            return null;
-        }
-
-        @Override
-        public Date getModificationDate() {
-            return null;
-        }
-
-        @Override
-        public TypedProperties getProperties(List<PropertySpec> propertySpecs) {
-            return null;
-        }
-
-        @Override
-        public void setProperty(PropertySpec propertySpec, Object value) {
-
-        }
-
-        @Override
-        public void removeProperty(PropertySpec propertySpec) {
-
-        }
-
-        @Override
-        public void save() {
-        }
-
-        @Override
-        public void delete() {
-        }
+    public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
     }
 
 }
