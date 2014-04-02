@@ -5,7 +5,7 @@ package com.energyict.mdc.device.config;
  *
  * @author Geert
  */
-public interface RegisterGroup {
+public interface RegisterGroup extends com.energyict.mdc.common.HasId {
 
     /**
      * Returns number that uniquely identifies this LoadProfileType.
