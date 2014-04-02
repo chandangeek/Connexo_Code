@@ -1,5 +1,6 @@
 package com.energyict.mdc.tasks.impl;
 
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.tasks.ProtocolTask;
@@ -15,7 +16,7 @@ import com.energyict.mdc.tasks.ProtocolTask;
  * Date: 26/02/13
  * Time: 14:50
  */
-public interface MessagesTaskTypeUsage {
+public interface MessagesTaskTypeUsage extends HasId {
 
     public long getId();
 

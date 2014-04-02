@@ -49,7 +49,7 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
 
     @Override
     public List<DeviceMessageCategory> getDeviceMessageCategories() {
-        List<DeviceMessageCategory> deviceMessageCategories = new ArrayList<>(this.deviceMessageUsages.size());
+        List<DeviceMessageCategory> deviceMessageCategories = new ArrayList<>();
         for (MessagesTaskTypeUsage deviceMessageCategoriesUsage : deviceMessageUsages) {
             if (deviceMessageCategoriesUsage.hasDeviceMessageCategory()) {
                 deviceMessageCategories.add(deviceMessageCategoriesUsage.getDeviceMessageCategory());
@@ -60,17 +60,70 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
 
     @Override
     public void setDeviceMessageCategories(List<DeviceMessageCategory> deviceMessageCategories) {
+        List<DeviceMessageCategory> wantedDeviceMessageCategories = new ArrayList<>(deviceMessageCategories);
+        for (MessagesTaskTypeUsage deviceMessageCategoriesUsage : new ArrayList<>(this.deviceMessageUsages)) {
+            if (deviceMessageCategoriesUsage.hasDeviceMessageCategory()) {
+                DeviceMessageCategory stillWantedDeviceMessageCategory = getById(wantedDeviceMessageCategories, deviceMessageCategoriesUsage.getDeviceMessageCategory().getId());
+                if (stillWantedDeviceMessageCategory==null) {
+                    this.deviceMessageUsages.remove(deviceMessageCategoriesUsage);
+                } else {
+                    wantedDeviceMessageCategories.remove(stillWantedDeviceMessageCategory);
+                }
+            }
+        }
 
+        for (DeviceMessageCategory wantedDeviceMessageCategory : wantedDeviceMessageCategories) {
+            MessagesTaskTypeUsageImpl messagesTaskTypeUsage = new MessagesTaskTypeUsageImpl();
+            messagesTaskTypeUsage.setDeviceMessageCategory(wantedDeviceMessageCategory);
+            messagesTaskTypeUsage.setProtocolTask(this);
+            deviceMessageUsages.add(messagesTaskTypeUsage);
+        }
+    }
+
+    private DeviceMessageCategory getById(List<DeviceMessageCategory> deviceMessageCategories, int id) {
+        for (DeviceMessageCategory messageCategory : deviceMessageCategories) {
+            if (messageCategory.getId()==id) {
+                return messageCategory;
+            }
+        }
+        return null;
     }
 
     @Override
     public void setDeviceMessageSpecs(List<DeviceMessageSpec> deviceMessageSpecs) {
+        List<DeviceMessageSpec> wantedDeviceMessageSpecs = new ArrayList<>(deviceMessageSpecs);
+        for (MessagesTaskTypeUsage deviceMessageCategoriesUsage : new ArrayList<>(this.deviceMessageUsages)) {
+            if (deviceMessageCategoriesUsage.hasDeviceMessageSpec()) {
+                DeviceMessageSpec stillWantedDeviceMessageSpec = getByName(wantedDeviceMessageSpecs, deviceMessageCategoriesUsage.getDeviceMessageSpec().getName());
+                if (stillWantedDeviceMessageSpec==null) {
+                    this.deviceMessageUsages.remove(deviceMessageCategoriesUsage);
+                } else {
+                    wantedDeviceMessageSpecs.remove(stillWantedDeviceMessageSpec);
+                }
+            }
+        }
 
+        for (DeviceMessageSpec wantedDeviceMessageSpec : wantedDeviceMessageSpecs) {
+            MessagesTaskTypeUsageImpl messagesTaskTypeUsage = new MessagesTaskTypeUsageImpl();
+            messagesTaskTypeUsage.setDeviceMessageSpec(wantedDeviceMessageSpec);
+            messagesTaskTypeUsage.setProtocolTask(this);
+            deviceMessageUsages.add(messagesTaskTypeUsage);
+        }
+    }
+
+    private DeviceMessageSpec getByName(List<DeviceMessageSpec> wantedDeviceMessageSpecs, String name) {
+        for (DeviceMessageSpec wantedDeviceMessageSpec : wantedDeviceMessageSpecs) {
+            if (wantedDeviceMessageSpec.getName().equals(name)) {
+                return wantedDeviceMessageSpec;
+            }
+        }
+
+        return null;
     }
 
     @Override
     public List<DeviceMessageSpec> getDeviceMessageSpecs() {
-        List<DeviceMessageSpec> deviceMessageSpecs = new ArrayList<>(this.deviceMessageUsages.size());
+        List<DeviceMessageSpec> deviceMessageSpecs = new ArrayList<>();
         for (MessagesTaskTypeUsage deviceMessageSpecUsage : deviceMessageUsages) {
             if (deviceMessageSpecUsage.hasDeviceMessageSpec()) {
                 deviceMessageSpecs.add(deviceMessageSpecUsage.getDeviceMessageSpec());

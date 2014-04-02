@@ -3,18 +3,25 @@ package com.energyict.mdc.tasks.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.PersistenceTest;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import java.util.Arrays;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link ComTaskImpl} component.
@@ -345,5 +352,109 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         ComTask rereloadedComTask = getTaskService().findComTask(comTask.getId());
         LogBooksTask reloadedTaskByType = getTaskByType(rereloadedComTask.getProtocolTasks(), LogBooksTask.class);
         assertThat(reloadedTaskByType).isNull();
+    }
+
+    @Test
+    @Transactional
+    public void testCreateMessagesTaskAllCategories() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        comTask.createMessagesTask().allCategories().add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        MessagesTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+        assertThat(taskByType).isNotNull();
+        assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
+        assertThat(taskByType.isAllCategories()).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testCreateMessagesTaskDeviceMessageSpecs() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        DeviceMessageSpec deviceMessageSpec = mockDeviceMessageSpec(1, "name1");
+        comTask.createMessagesTask().deviceMessageSpecs(Arrays.asList(deviceMessageSpec)).add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        MessagesTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+        assertThat(taskByType).isNotNull();
+        assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
+        assertThat(taskByType.isAllCategories()).isFalse();
+        assertThat(taskByType.getDeviceMessageSpecs()).hasSize(1);
+        assertThat(taskByType.getDeviceMessageSpecs().get(0).getName()).isEqualTo("name1");
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateAdd1MessageSpec() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        DeviceMessageSpec deviceMessageSpec = mockDeviceMessageSpec(1, "name1");
+        comTask.createMessagesTask().deviceMessageSpecs(Arrays.asList(deviceMessageSpec)).add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        MessagesTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+        DeviceMessageSpec deviceMessageSpec2 = mockDeviceMessageSpec(2, "name2");
+        taskByType.setDeviceMessageSpecs(Arrays.asList(deviceMessageSpec, deviceMessageSpec2));
+        taskByType.save();
+
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), MessagesTask.class);
+        assertThat(taskByType.getDeviceMessageSpecs()).hasSize(2);
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateRemove1MessageSpec() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        DeviceMessageSpec deviceMessageSpec = mockDeviceMessageSpec(1, "name1");
+        DeviceMessageSpec deviceMessageSpec2 = mockDeviceMessageSpec(2, "name2");
+        comTask.createMessagesTask().deviceMessageSpecs(Arrays.asList(deviceMessageSpec, deviceMessageSpec2)).add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        MessagesTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+        taskByType.setDeviceMessageSpecs(Arrays.asList(deviceMessageSpec2)); // we dropped spec1
+        taskByType.save();
+
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), MessagesTask.class);
+        assertThat(taskByType.getDeviceMessageSpecs()).hasSize(1);
+        assertThat(taskByType.getDeviceMessageSpecs().get(0).getName()).isEqualTo("name2");
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateRemove1Add1MessageSpec() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        DeviceMessageSpec deviceMessageSpec = mockDeviceMessageSpec(1, "name1");
+        DeviceMessageSpec deviceMessageSpec2 = mockDeviceMessageSpec(2, "name2");
+        comTask.createMessagesTask().deviceMessageSpecs(Arrays.asList(deviceMessageSpec, deviceMessageSpec2)).add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        DeviceMessageSpec deviceMessageSpec3 = mockDeviceMessageSpec(3, "name3");
+        MessagesTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+        taskByType.setDeviceMessageSpecs(Arrays.asList(deviceMessageSpec2, deviceMessageSpec3)); // we dropped spec1 and added spec3
+        taskByType.save();
+
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), MessagesTask.class);
+        assertThat(taskByType.getDeviceMessageSpecs()).hasSize(2);
+        assertThat(taskByType.getDeviceMessageSpecs().get(0).getName()).isNotEqualTo("name1");
+        assertThat(taskByType.getDeviceMessageSpecs().get(1).getName()).isNotEqualTo("name1");
+    }
+
+    private DeviceMessageSpec mockDeviceMessageSpec(int id, String name) {
+        DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
+        when(deviceMessageCategory.getId()).thenReturn(id);
+        DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
+        when(deviceMessageSpec.getName()).thenReturn(name);
+        when(deviceMessageSpec.getCategory()).thenReturn(deviceMessageCategory);
+        DeviceMessageSpecPrimaryKey name1PK = new DeviceMessageSpecPrimaryKey(deviceMessageSpec, name);
+        when(deviceMessageSpec.getPrimaryKey()).thenReturn(name1PK);
+        when(getDeviceMessageService().findDeviceMessageSpec(name1PK.getValue())).thenReturn(deviceMessageSpec);
+        return deviceMessageSpec;
     }
 }

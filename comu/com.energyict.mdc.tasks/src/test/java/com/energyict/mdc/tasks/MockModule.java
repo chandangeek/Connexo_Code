@@ -9,6 +9,7 @@ import org.osgi.service.event.EventAdmin;
 import static org.mockito.Mockito.mock;
 
 public class MockModule extends AbstractModule {
+
     private BundleContext bundleContext;
     private EventAdmin eventAdmin;
 

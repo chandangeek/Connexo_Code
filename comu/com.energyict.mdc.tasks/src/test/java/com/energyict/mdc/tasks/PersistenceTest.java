@@ -20,8 +20,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.energyict.mdc.common.ApplicationContext;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -34,6 +35,7 @@ import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -42,10 +44,12 @@ import org.junit.rules.TestRule;
 import org.osgi.framework.BundleContext;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PersistenceTest {
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private static DeviceMessageService deviceMessageService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -57,6 +61,7 @@ public class PersistenceTest {
     @BeforeClass
     public static void staticSetUp() throws SQLException {
         BundleContext bundleContext = mock(BundleContext.class);
+
         injector = Guice.createInjector(
                 new MockModule(bundleContext),
                 inMemoryBootstrapModule,
@@ -65,7 +70,7 @@ public class PersistenceTest {
                 new NlsModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
-                new MdcCommonModule(),
+//                new MdcCommonModule(),
                 new InMemoryMessagingModule(),
                 new ProtocolsModule(),
                 new IssuesModule(),
@@ -89,6 +94,10 @@ public class PersistenceTest {
             injector.getInstance(DeviceConfigurationService.class); // fake call to make sure component is initialized
             ctx.commit();
         }
+        deviceMessageService = mock(DeviceMessageService.class);
+        ApplicationContext applicationContext = mock(ApplicationContext.class);
+        when(applicationContext.getModulesImplementing(DeviceMessageService.class)).thenReturn(Arrays.asList(deviceMessageService));
+        Environment.DEFAULT.get().setApplicationContext(applicationContext);
     }
 
     @AfterClass
@@ -102,6 +111,10 @@ public class PersistenceTest {
 
     public final TaskService getTaskService() {
         return injector.getInstance(TaskService.class);
+    }
+
+    public final DeviceMessageService getDeviceMessageService() {
+        return deviceMessageService;
     }
 
     protected <T extends ProtocolTask> T getTaskByType(List<? extends ProtocolTask> protocolTasks, Class<T> clazz) {

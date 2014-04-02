@@ -87,8 +87,8 @@ public enum TableSpecs {
             table.map(MessagesTaskTypeUsageImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column messageTaskId = table.column("MESSAGETASK").number().conversion(NUMBER2INT).add(); // DO NOT MAP
-            table.column("MESSAGECATEGORY").number().conversion(NUMBER2INT).map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_CATEGORY.fieldName()).add();
-            table.column("MESSAGESPEC").number().conversion(NUMBER2INT).map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_SPEC.fieldName()).add();
+            table.column("MESSAGECATEGORY").type("varchar2(256)").map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_CATEGORY.fieldName()).add();
+            table.column("MESSAGESPEC").type("varchar2(256)").map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_SPEC.fieldName()).add();
             table.foreignKey("FK_COM_TASK").
                     on(messageTaskId).references(MDCPROTOCOLTASK.name()).
                     map(MessagesTaskTypeUsageImpl.Fields.PROTOCOL_TASK.fieldName()).
