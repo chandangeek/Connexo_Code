@@ -25,7 +25,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
@@ -632,7 +632,7 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public ScheduledConnectionTask createScheduledConnectionTask(PartialScheduledConnectionTask partialConnectionTask) {
+    public ScheduledConnectionTask createScheduledConnectionTask(PartialOutboundConnectionTask partialConnectionTask) {
         ScheduledConnectionTask scheduledConnectionTask = this.deviceDataService.newAsapConnectionTask(this, partialConnectionTask, partialConnectionTask.getComPortPool());
         return scheduledConnectionTask;
     }

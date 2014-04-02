@@ -14,7 +14,7 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.ComTaskExecutionFactory;
@@ -53,7 +53,7 @@ import java.util.Set;
  * @since 2012-04-16 (11:07)
  */
 @ValidNextExecutionSpecsWithMinimizeConnectionsStrategy(groups = {Save.Create.class, Save.Update.class})
-public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<PartialScheduledConnectionTask> implements ScheduledConnectionTask {
+public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<PartialOutboundConnectionTask> implements ScheduledConnectionTask {
 
     private ComWindow comWindow;
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
@@ -75,12 +75,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    public void initializeWithAsapStrategy(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool) {
+    public void initializeWithAsapStrategy(Device device, PartialOutboundConnectionTask partialConnectionTask, OutboundComPortPool comPortPool) {
         super.initialize(device, partialConnectionTask, comPortPool);
         this.setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
     }
 
-    public void initializeWithMinimizeStrategy(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, NextExecutionSpecs nextExecutionSpecs) {
+    public void initializeWithMinimizeStrategy(Device device, PartialOutboundConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, NextExecutionSpecs nextExecutionSpecs) {
         super.initialize(device, partialConnectionTask, comPortPool);
         this.setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         this.setNextExecutionSpecs(nextExecutionSpecs);
@@ -587,8 +587,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    protected Class<PartialScheduledConnectionTask> getPartialConnectionTaskType () {
-        return PartialScheduledConnectionTask.class;
+    protected Class<PartialOutboundConnectionTask> getPartialConnectionTaskType () {
+        return PartialOutboundConnectionTask.class;
     }
 
     @Override
