@@ -28,6 +28,7 @@ import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -110,14 +111,14 @@ public class InMemoryPersistence {
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
-            this.dataModel = this.createNewDeviceDataService();
+            this.dataModel = this.createNewDeviceDataService(injector);
             ctx.commit();
         }
     }
 
-    private DataModel createNewDeviceDataService() {
-        this.deviceService = new DeviceDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.deviceConfigurationService, meteringService);
-        return this.deviceService.getDataModel();
+    private DataModel createNewDeviceDataService(Injector injector) {
+        deviceService = injector.getInstance(DeviceDataServiceImpl.class);
+        return deviceService.getDataModel();
     }
 
     public void run(DataModelInitializer... dataModelInitializers) {

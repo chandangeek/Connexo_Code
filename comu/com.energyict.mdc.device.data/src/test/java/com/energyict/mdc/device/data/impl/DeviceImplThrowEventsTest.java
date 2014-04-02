@@ -41,6 +41,8 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -102,6 +104,7 @@ public class DeviceImplThrowEventsTest {
     @Mock
     DeviceProtocol deviceProtocol;
     private static Injector injector;
+    private static Environment environment;
 
     @BeforeClass
     public static void initialize() {
@@ -201,6 +204,9 @@ public class DeviceImplThrowEventsTest {
         private ProtocolPluggableService protocolPluggableService;
         private MdcReadingTypeUtilService readingTypeUtilService;
         private DeviceDataServiceImpl deviceService;
+        private Clock clock;
+        private RelationService relationService;
+        private EngineModelService engineModelService;
 
         public void initializeDatabase(String testName, boolean showSqlLogging) {
             this.initializeMocks(testName);
@@ -225,7 +231,7 @@ public class DeviceImplThrowEventsTest {
                     new MdcCommonModule(),
                     new DeviceDataModule());
             this.transactionService = injector.getInstance(TransactionService.class);
-            Environment environment = injector.getInstance(Environment.class);
+            environment = injector.getInstance(Environment.class);
             environment.put(EventInMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
             environment.setApplicationContext(this.applicationContext);
             try (TransactionContext ctx = this.transactionService.getContext()) {
@@ -237,12 +243,15 @@ public class DeviceImplThrowEventsTest {
                 this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
                 this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
                 this.dataModel = this.createNewDeviceDataService();
+                this.clock = injector.getInstance(Clock.class);
+                this.relationService = injector.getInstance(RelationService.class);
+                this.engineModelService = injector.getInstance(EngineModelService.class);
                 ctx.commit();
             }
         }
 
         private DataModel createNewDeviceDataService() {
-            this.deviceService = new DeviceDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.deviceConfigurationService, meteringService);
+            this.deviceService = new DeviceDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.clock, environment, relationService, protocolPluggableService, engineModelService, this.deviceConfigurationService, meteringService);
             return this.deviceService.getDataModel();
         }
 
