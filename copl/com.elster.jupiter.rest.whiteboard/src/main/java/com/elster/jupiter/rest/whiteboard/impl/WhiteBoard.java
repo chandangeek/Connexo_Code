@@ -5,8 +5,10 @@ import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -25,6 +27,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Application;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -130,18 +133,14 @@ public class WhiteBoard {
         if (configuration.debug()) {        	       
         	secureConfig.register(LoggingFilter.class);
         }
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(application.getClass().getClassLoader());
+        try (ContextClassLoaderResource ctx = ContextClassLoaderResource.of(application.getClass())) {
             ServletContainer container = new ServletContainer(secureConfig);
         	HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container,threadPrincipalService),this);
         	httpService.registerServlet(alias.get(), wrapper, null, httpContext);
         } catch (ServletException | NamespaceException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
-        } finally {
-            Thread.currentThread().setContextClassLoader(loader);
-        }
+        } 
     }
 
 
