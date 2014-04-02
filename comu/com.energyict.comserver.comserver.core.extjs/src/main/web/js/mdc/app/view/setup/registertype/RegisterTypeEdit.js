@@ -152,7 +152,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                     },
                                     {
                                         xtype: 'textfield',
-                                        name: 'mrid',
+                                        name: 'readingType',
                                         msgTarget: 'under',
                                         required: false,
                                         fieldLabel: Uni.I18n.translate('registerType.mrid', 'MDC', 'Reading type'),

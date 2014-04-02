@@ -267,7 +267,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var mrId = widget.down('#editMrIdField').getValue();
         var me= this;
 
-        delete values.mrid;
+        //delete values.mrid;
         var readingType = Ext.create(Mdc.model.ReadingType);
 
         readingType.data.mrid = mrId;
@@ -299,7 +299,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var widget = this.getRegisterTypeEditForm();
         var mrId = widget.down('#editMrIdField').getValue();
 
-        delete values.mrid;
         var readingType = Ext.create(Mdc.model.ReadingType);
 
         readingType.data.mrid = mrId;
