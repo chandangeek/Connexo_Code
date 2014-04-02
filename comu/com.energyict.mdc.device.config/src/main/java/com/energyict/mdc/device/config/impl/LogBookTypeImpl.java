@@ -13,10 +13,11 @@ import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseE
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLogBookTypeIsInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -27,9 +28,23 @@ import static com.elster.jupiter.util.Checks.is;
  */
 public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implements LogBookType {
 
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED_KEY + "}")
-    private String obisCodeString;
-    private ObisCode obisCode;
+    enum Fields {
+        OBIS_CODE("obisCode");
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
+
+
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED_KEY + "}")
+    private String obisCode;
+    private ObisCode obisCodeCached;
     private String description;
 
     private DeviceConfigurationService deviceConfigurationService;
@@ -46,7 +61,7 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
         return this;
     }
 
-    static LogBookTypeImpl from (DataModel dataModel, String name, ObisCode obisCode) {
+    static LogBookTypeImpl from(DataModel dataModel, String name, ObisCode obisCode) {
         return dataModel.getInstance(LogBookTypeImpl.class).initialize(name, obisCode);
     }
 
@@ -101,27 +116,26 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
 
     @Override
     public ObisCode getObisCode() {
-        if (this.obisCode == null) {
-            this.obisCode = ObisCode.fromString(this.obisCodeString);
+        if (this.obisCodeCached == null) {
+            this.obisCodeCached = ObisCode.fromString(this.obisCode);
         }
-        return this.obisCode;
+        return this.obisCodeCached;
     }
 
     @Override
     public void setObisCode(ObisCode obisCode) {
         if (obisCode == null) {
             // javax.validation will throw ConstraintValidationException in the end
-            this.obisCodeString = null;
             this.obisCode = null;
-        }
-        else {
-            if (!is(this.obisCodeString).equalTo(obisCode.toString())) {
+            this.obisCodeCached = null;
+        } else {
+            if (!is(this.obisCode).equalTo(obisCode.toString())) {
                 if (!canChangeObisCode()) {
                     throw new CannotUpdateObisCodeWhenLogBookTypeIsInUseException(this.getThesaurus(), this);
                 }
             }
-            this.obisCodeString = obisCode.toString();
-            this.obisCode = obisCode;
+            this.obisCode = obisCode.toString();
+            this.obisCodeCached = obisCode;
         }
     }
 
