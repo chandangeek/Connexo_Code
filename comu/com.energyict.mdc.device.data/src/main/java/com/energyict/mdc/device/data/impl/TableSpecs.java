@@ -18,6 +18,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2UTCINSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2DATE;
 
 /**
  * Models the database tables that hold the data of the
@@ -58,8 +59,8 @@ public enum TableSpecs {
             table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map("obsoleteDate").add();
             table.column("ISDEFAULT").number().conversion(NUMBER2BOOLEAN).map("isDefault").add();
             table.column("PAUSED").number().conversion(NUMBER2BOOLEAN).map("paused").add();
-            table.column("LASTCOMMUNICATIONSTART").number().conversion(NUMBER2UTCINSTANT).map("lastCommunicationStart").add();
-            table.column("LASTSUCCESSFULCOMMUNICATIONEND").conversion(NUMBER2UTCINSTANT).number().map("lastSuccessfulCommunicationEnd").add();
+            table.column("LASTCOMMUNICATIONSTART").number().conversion(NUMBERINUTCSECONDS2DATE).map("lastCommunicationStart").add();
+            table.column("LASTSUCCESSFULCOMMUNICATIONEND").conversion(NUMBERINUTCSECONDS2DATE).number().map("lastSuccessfulCommunicationEnd").add();
             Column comServer = table.column("COMSERVER").number().add();
             Column comPortPool = table.column("COMPORTPOOL").number().add();
             // Todo: change to FK and reference once PartialConnectionTask (JP-809) is properly moved to the mdc.device.config bundle
@@ -71,8 +72,8 @@ public enum TableSpecs {
             table.column("COMWINDOWSTART").number().conversion(NUMBER2INT).map("comWindow.start.millis").add();
             table.column("COMWINDOWEND").number().conversion(NUMBER2INT).map("comWindow.end.millis").add();
             Column nextExecutionSpecs = table.column("NEXTEXECUTIONSPECS").number().add();
-            table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBER2UTCINSTANT).map("nextExecutionTimestamp").add();
-            table.column("PLANNEDNEXTEXECUTIONTIMESTAMP").number().conversion(NUMBER2UTCINSTANT).map("plannedNextExecutionTimestamp").add();
+            table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map("nextExecutionTimestamp").add();
+            table.column("PLANNEDNEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map("plannedNextExecutionTimestamp").add();
             table.column("CONNECTIONSTRATEGY").number().conversion(NUMBER2ENUM).map("connectionStrategy").add();
             table.column("PRIORITY").number().conversion(NUMBER2INT).map("priority").add();
             table.column("SIMULTANEOUSCONNECTIONS").number().conversion(NUMBER2BOOLEAN).map("allowSimultaneousConnections").add();

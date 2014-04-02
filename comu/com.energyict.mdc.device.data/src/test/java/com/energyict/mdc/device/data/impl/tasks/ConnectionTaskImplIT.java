@@ -282,7 +282,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         ipComPortPool.setActive(true);
         ipComPortPool.setComPortType(ComPortType.TCP);
         ipComPortPool.setName(name);
-        ipComPortPool.setDiscoveryProtocolPluggableClassId(discoveryProtocolPluggableClass.getId());
+        ipComPortPool.setDiscoveryProtocolPluggableClass(discoveryProtocolPluggableClass);
         ipComPortPool.save();
         return ipComPortPool;
     }

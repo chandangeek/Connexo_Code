@@ -88,12 +88,15 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     protected void postNew() {
+        if (this.nextExecutionSpecs.isPresent()) {
+            this.getNextExecutionSpecs().save();
+        }
         super.postNew();
         if (this.isDefault()) {
             this.notifyScheduledComTasks();
         }
         if (this.getNextExecutionSpecs() != null) {
-            this.doUpdateNextExecutionTimestamp();
+            this.doUpdateNextExecutionTimestamp(PostingMode.NOW);
         }
         else {
             // ConnectionStrategy must be ASAP
@@ -124,16 +127,18 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     protected void post() {
+        this.updateStrategy.prepare();
         super.post();
-        this.updateStrategy.completeUpdate();
+        this.updateStrategy.complete();
     }
 
     @Override
     protected void doDelete() {
-        if (this.getNextExecutionSpecs() != null) {
-            this.getNextExecutionSpecs().delete();
-        }
+        NextExecutionSpecs nextExecutionSpecs = this.getNextExecutionSpecs();
         super.doDelete();
+        if (nextExecutionSpecs != null) {
+            nextExecutionSpecs.delete();
+        }
     }
 
     @Override
@@ -179,15 +184,14 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         this.connectionStrategy = connectionStrategy;
     }
 
-    private void handleStrategyChange (ConnectionStrategy oldStrategy) {
+    private void prepareStrategyChange(ConnectionStrategy oldStrategy) {
         if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(oldStrategy)) {
             // Old strategy is to minimize connections and therefore the new strategy must be as soon as possible
-            this.getNextExecutionSpecs().delete();
             this.updateNextExecutionTimeStampBasedOnComTask();
         }
         else {
             // Old strategy is asap and therefore the new strategy is to minimize connections
-            this.updateNextExecutionTimestamp();
+            this.updateNextExecutionTimestamp(PostingMode.LATER);
             this.rescheduleComTaskExecutions();
         }
     }
@@ -198,12 +202,11 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private void updateNextExecutionTimeStampBasedOnComTask() {
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = this.getEarliestNextExecutionTimeStampAndPriority();
         if (earliestNextExecutionTimeStampAndPriority != null) {
-            Date result;
             if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
-                result = this.doAsSoonAsPossibleSchedule(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp);
+                this.doAsSoonAsPossibleSchedule(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp, PostingMode.NOW);
             }
             else {
-                result = this.doMinimizeConnectionsSchedule(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp, PostingMode.NOW);
+                this.doMinimizeConnectionsSchedule(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp, PostingMode.NOW);
             }
         }
     }
@@ -270,19 +273,23 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     public Date updateNextExecutionTimestamp() {
+        return this.updateNextExecutionTimestamp(PostingMode.NOW);
+    }
+
+    private Date updateNextExecutionTimestamp(PostingMode postingMode) {
         if (!this.isPaused() && this.getNextExecutionSpecs() != null) {
-            return this.doUpdateNextExecutionTimestamp();
+            return this.doUpdateNextExecutionTimestamp(postingMode);
         }
         else {
             return null;
         }
     }
 
-    private Date doUpdateNextExecutionTimestamp () {
+    private Date doUpdateNextExecutionTimestamp(PostingMode postingMode) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(this.now());
         this.plannedNextExecutionTimestamp = this.applyComWindowIfAny(this.getNextExecutionSpecs().getNextTimestamp(calendar));
-        return this.schedule(this.plannedNextExecutionTimestamp);
+        return this.schedule(this.plannedNextExecutionTimestamp, postingMode);
     }
 
     @Override
@@ -421,11 +428,15 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     public Date schedule(Date when) {
+        return this.schedule(when, PostingMode.NOW);
+    }
+
+    private Date schedule(Date when, PostingMode postingMode) {
         if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
-            return this.doAsSoonAsPossibleSchedule(when);
+            return this.doAsSoonAsPossibleSchedule(when, postingMode);
         }
         else {
-            return this.doMinimizeConnectionsSchedule(when, PostingMode.NOW);
+            return this.doMinimizeConnectionsSchedule(when, postingMode);
         }
     }
 
@@ -436,7 +447,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
         this.resetCurrentRetryCount();
         if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
-            return this.doAsSoonAsPossibleSchedule(when);
+            return this.doAsSoonAsPossibleSchedule(when, PostingMode.NOW);
         }
         else {
             return this.doMinimizeConnectionsSchedule(when, PostingMode.NOW);
@@ -500,9 +511,9 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         return ServerConnectionTaskStatus.getApplicableStatusFor(this, this.now());
     }
 
-    private Date doAsSoonAsPossibleSchedule (Date when) {
+    private Date doAsSoonAsPossibleSchedule (Date when, PostingMode postingMode) {
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = this.getEarliestNextExecutionTimeStampAndPriority();
-        return this.doAsSoonAsPossibleSchedule(when, earliestNextExecutionTimeStampAndPriority, PostingMode.NOW);
+        return this.doAsSoonAsPossibleSchedule(when, earliestNextExecutionTimeStampAndPriority, postingMode);
     }
 
     private Date doAsSoonAsPossibleSchedule(Date when, EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority, PostingMode postingMode) {
@@ -640,7 +651,9 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private interface UpdateStrategy {
 
-        void completeUpdate();
+        void prepare();
+
+        void complete();
 
         UpdateStrategy connectionStrategyChanged(ConnectionStrategy connectionStrategy);
 
@@ -665,7 +678,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
      */
     private class Noop extends DefaultStrategy {
         @Override
-        public void completeUpdate() {
+        public void prepare() {
+            // No implementation required
+        }
+
+        @Override
+        public void complete() {
             // No implementation required
         }
 
@@ -697,9 +715,14 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
 
         @Override
-        public void completeUpdate() {
+        public void prepare() {
             this.nextExecutionSpecs.save();
             ScheduledConnectionTaskImpl.this.setNextExecutionSpecs(this.nextExecutionSpecs);
+        }
+
+        @Override
+        public void complete() {
+            // Nothing to complete for now
         }
 
         @Override
@@ -745,9 +768,14 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
 
         @Override
-        public void completeUpdate() {
+        public void prepare() {
             this.getNextExecutionSpecs().save();
-            doUpdateNextExecutionTimestamp();
+            doUpdateNextExecutionTimestamp(PostingMode.LATER);
+        }
+
+        @Override
+        public void complete() {
+            // Nothing to complete for now
         }
 
         @Override
@@ -773,6 +801,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private class StrategyChanged extends DefaultStrategy {
         private final ConnectionStrategy oldConnectionStrategy;
+        private NextExecutionSpecs obsolete;
 
         protected StrategyChanged(ConnectionStrategy oldConnectionStrategy) {
             super();
@@ -780,8 +809,21 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
 
         @Override
-        public void completeUpdate() {
-            handleStrategyChange(this.oldConnectionStrategy);
+        public void prepare() {
+            prepareStrategyChange(this.oldConnectionStrategy);
+            if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(this.oldConnectionStrategy)) {
+                // Old strategy is to minimize connections and therefore the new strategy must be as soon as possible
+                this.obsolete = getNextExecutionSpecs();
+                setNextExecutionSpecs(null);
+            }
+        }
+
+        @Override
+        public void complete() {
+            if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(this.oldConnectionStrategy)) {
+                // Old strategy is to minimize connections and therefore the new strategy must be as soon as possible
+                this.obsolete.delete();
+            }
         }
 
         @Override
@@ -807,6 +849,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private class CreateScheduleWithStrategyChange extends CreateSchedule implements UpdateStrategy {
         private final ConnectionStrategy oldConnectionStrategy;
+        private NextExecutionSpecs obsolete;
 
         protected CreateScheduleWithStrategyChange(TemporalExpression temporalExpression, ConnectionStrategy oldConnectionStrategy) {
             super(temporalExpression);
@@ -814,9 +857,23 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
 
         @Override
-        public void completeUpdate() {
-            super.completeUpdate();
-            handleStrategyChange(this.oldConnectionStrategy);
+        public void prepare() {
+            super.prepare();
+            prepareStrategyChange(this.oldConnectionStrategy);
+            if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(this.oldConnectionStrategy)) {
+                // Old strategy is to minimize connections and therefore the new strategy must be as soon as possible
+                this.obsolete = getNextExecutionSpecs();
+                setNextExecutionSpecs(null);
+            }
+        }
+
+        @Override
+        public void complete() {
+            super.complete();
+            if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(this.oldConnectionStrategy)) {
+                // Old strategy is to minimize connections and therefore the new strategy must be as soon as possible
+                this.obsolete.delete();
+            }
         }
     }
 

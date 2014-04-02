@@ -238,7 +238,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     @Override
     public ConnectionTask findDefaultConnectionTaskForDevice(Device device) {
-        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("isdefault").isNotEqual(0)).and(where("obsoleteDate").isNotNull());
+        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("isDefault").isEqualTo(true)).and(where("obsoleteDate").isNotNull());
         List<ConnectionTask> connectionTasks = this.getDataModel().mapper(ConnectionTask.class).select(condition);
         if (connectionTasks != null && connectionTasks.size() == 1) {
             return connectionTasks.get(0);

@@ -97,6 +97,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Date lastSuccessfulCommunicationEnd;
     private Reference<ConnectionMethod> connectionMethod = ValueReference.absent();
     // Redundant copy of the ConnectionMethod's com port pool for query purposes to avoid extra join
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY + "}")
     private Reference<CPPT> comPortPool = ValueReference.absent();
     private Reference<ComServer> comServer = ValueReference.absent();
     private Date modificationDate;

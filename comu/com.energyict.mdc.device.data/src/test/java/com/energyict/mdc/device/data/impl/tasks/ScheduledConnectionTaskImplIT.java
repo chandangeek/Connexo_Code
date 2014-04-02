@@ -6,7 +6,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.DuplicateException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.SqlBuilder;
@@ -25,6 +24,7 @@ import com.energyict.mdc.device.data.PartialConnectionTaskFactory;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCannotBecomeObsoleteException;
+import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
@@ -99,6 +99,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testCreateWithNoPropertiesWithoutViolations() {
         String name = "testCreateWithNoPropertiesWithoutViolations";
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+        connectionTask.save();
 
         // Asserts
         assertThat(connectionTask).isNotNull();
@@ -123,7 +124,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         List<ComTaskExecution> comTasksThatRelyOnTheDefault = new ArrayList<>(1);
         comTasksThatRelyOnTheDefault.add(comTask);
         when(comTaskExecutionFactory.findComTaskExecutionsForDefaultOutboundConnectionTask(this.device)).thenReturn(comTasksThatRelyOnTheDefault);
-        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateDefaultWithAlreadyExistingComTasksThatUseTheDefault", false);
+        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateDefaultWithAlreadyExistingComTasksThatUseTheDefault");
+        connectionTask.save();
 
         // Business method
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
@@ -141,7 +143,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         List<ComTaskExecution> comTasksThatRelyOnTheDefault = new ArrayList<>(1);
         comTasksThatRelyOnTheDefault.add(comTask);
         when(comTaskExecutionFactory.findComTaskExecutionsForDefaultOutboundConnectionTask(this.device)).thenReturn(comTasksThatRelyOnTheDefault);
-        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateDefaultWithASAPCopiesTheEarliestNextExecutionTimestamp", false);
+        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateDefaultWithASAPCopiesTheEarliestNextExecutionTimestamp");
+        connectionTask.save();
         Date earliestNextExecutionTimestamp = new DateMidnight(2013, 2, 14).toDate();
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(earliestNextExecutionTimestamp, TaskPriorityConstants.DEFAULT_PRIORITY);
         //when(this.manager.defaultConnectionTaskChanged(this.device, connectionTask)).thenReturn(earliestNextExecutionTimestampAndPriority);
@@ -157,7 +160,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreatePaused() {
-        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreatePaused", false);
+        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreatePaused");
         connectionTask.save();
 
         //Business method
@@ -188,7 +191,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         List<PartialConnectionTaskFactory> partialConnectionTaskFactories = Arrays.asList(partialConnectionTaskFactory);
         when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(PartialConnectionTaskFactory.class)).thenReturn(partialConnectionTaskFactories);
 
-        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateOfDifferentConfig", partialScheduledConnectionTask, false);
+        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateOfDifferentConfig", partialScheduledConnectionTask);
 
         // Business method
         connectionTask.save();
@@ -200,6 +203,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testPause() {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testPause");
+        connectionTask.save();
 
         // Business method
         connectionTask.pause();
@@ -208,7 +212,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.isPaused()).isTrue();
     }
 
-    @Test(expected = DuplicateException.class)
+    @Test(expected = DuplicateConnectionTaskException.class)
     @Transactional
     public void testCreateSecondTaskAgainstTheSameDeviceBasedOnTheSamePartialConnectionTask() {
         ScheduledConnectionTask firstTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateSecondTaskAgainstTheSameDeviceBasedOnTheSamePartialConnectionTask");
@@ -226,9 +230,10 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testCreateSecondTaskAgainstTheSameDevice() {
         ScheduledConnectionTaskImpl firstTask = (ScheduledConnectionTaskImpl) this.createAsapWithNoPropertiesWithoutViolations("testCreateSecondTaskAgainstTheSameDevice-1");
+        firstTask.save();
 
         when(this.partialScheduledConnectionTask2.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
-        ScheduledConnectionTaskImpl secondTask = (ScheduledConnectionTaskImpl) this.createAsapWithNoPropertiesWithoutViolations("testCreateSecondTaskAgainstTheSameDevice", this.partialScheduledConnectionTask2, false);
+        ScheduledConnectionTaskImpl secondTask = (ScheduledConnectionTaskImpl) this.createAsapWithNoPropertiesWithoutViolations("testCreateSecondTaskAgainstTheSameDevice", this.partialScheduledConnectionTask2);
         this.addIpConnectionProperties(secondTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE, codeTable);
 
         // Business method
@@ -248,6 +253,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testCreateAgainstAnotherDeviceBasedOnTheSamePartialConnectionTask() {
         ScheduledConnectionTask firstTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateAgainstAnotherDeviceBasedOnSamePartialConnectionTask-1");
+        firstTask.save();
         ScheduledConnectionTask secondTask = inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.otherDevice, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
         this.addIpConnectionProperties(secondTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE, codeTable);
 
@@ -260,10 +266,11 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(secondTask.getName()).isEqualTo(firstTask.getName());
     }
 
-    @Test(expected = BusinessException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.OUTBOUND_CONNECTION_TASK_MINIMIZE_STRATEGY_NOT_COMPATIBLE_WITH_SIMULTANEOUS_CONNECTIONS_KEY + "}")
     public void testCreateMinimizeConnectionsWithSimultaneous() {
-        ScheduledConnectionTask connectionTask = this.createMinimizeWithNoPropertiesWithoutViolations("testCreateMinimizeConnectionsWithSimultaneous", false, new TemporalExpression(EVERY_DAY));
+        ScheduledConnectionTask connectionTask = this.createMinimizeWithNoPropertiesWithoutViolations("testCreateMinimizeConnectionsWithSimultaneous", new TemporalExpression(EVERY_DAY));
         connectionTask.setSimultaneousConnectionsAllowed(true);
 
         // Business method
@@ -336,7 +343,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         when(this.partialScheduledConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
         List<PropertySpec> allIpPropertySpecs = this.getOutboundIpPropertySpecs();
-        when(this.partialScheduledConnectionTask.getTypedProperties()).thenReturn(TypedProperties.inheritingFrom(ipConnectionTypePluggableClass.getProperties(allIpPropertySpecs)));
+        TypedProperties partialProperties = TypedProperties.inheritingFrom(ipConnectionTypePluggableClass.getProperties(allIpPropertySpecs));
+        when(this.partialScheduledConnectionTask.getTypedProperties()).thenReturn(partialProperties);
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
         this.addIpConnectionProperties(connectionTask, outboundTcpipComPortPool, IP_ADDRESS_PROPERTY_VALUE, null, null);
 
@@ -369,7 +377,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         when(this.partialScheduledConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
         List<PropertySpec> allIpPropertySpecs = this.getOutboundIpPropertySpecs();
-        when(this.partialScheduledConnectionTask.getTypedProperties()).thenReturn(TypedProperties.inheritingFrom(ipConnectionTypePluggableClass.getProperties(allIpPropertySpecs)));
+        TypedProperties partialProperties = TypedProperties.inheritingFrom(ipConnectionTypePluggableClass.getProperties(allIpPropertySpecs));
+        when(this.partialScheduledConnectionTask.getTypedProperties()).thenReturn(partialProperties);
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
         // Do not set any properties on the ScheduledConnectionTask
 
@@ -553,7 +562,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         ipConnectionTypePluggableClass.save();
 
         when(this.partialScheduledConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
-        when(this.partialScheduledConnectionTask.getTypedProperties()).thenReturn(TypedProperties.inheritingFrom(ipConnectionTypePluggableClass.getProperties(this.getOutboundIpPropertySpecs())));
+        TypedProperties partialProperties = TypedProperties.inheritingFrom(ipConnectionTypePluggableClass.getProperties(this.getOutboundIpPropertySpecs()));
+        when(this.partialScheduledConnectionTask.getTypedProperties()).thenReturn(partialProperties);
         ScheduledConnectionTask connectionTask = inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
         this.addIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE, codeTable);
         connectionTask.save();
@@ -629,7 +639,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         connectionTask.save();
 
         // Business method
-        ScheduledConnectionTask reloaded = (ScheduledConnectionTask) inMemoryPersistence.getDeviceDataService().findScheduledConnectionTask(connectionTask.getId());
+        ScheduledConnectionTask reloaded = inMemoryPersistence.getDeviceDataService().findScheduledConnectionTask(connectionTask.getId()).get();
 
         // Asserts
         List<ConnectionTaskProperty> allPropertiesOnMayFirst2011 = reloaded.getProperties(mayFirst2011);
@@ -644,7 +654,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY + "}")
     public void testCreateWithMissingRequiredProperty() {
         when(this.partialScheduledConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
-        when(this.partialScheduledConnectionTask.getTypedProperties()).thenReturn(TypedProperties.inheritingFrom(ipConnectionTypePluggableClass.getProperties(this.getOutboundIpPropertySpecs())));
+        TypedProperties partialProperties = TypedProperties.inheritingFrom(ipConnectionTypePluggableClass.getProperties(this.getOutboundIpPropertySpecs()));
+        when(this.partialScheduledConnectionTask.getTypedProperties()).thenReturn(partialProperties);
         ScheduledConnectionTask connectionTask = inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
         this.addIpConnectionProperties(connectionTask, null, PORT_PROPERTY_VALUE, codeTable);
 
@@ -659,8 +670,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_TASK_PROPERTY_NOT_IN_SPEC_KEY + "}")
     public void testCreateWithNonExistingProperty() {
         when(this.partialScheduledConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
+        when(this.partialScheduledConnectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
         ScheduledConnectionTask connectionTask = inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
-        this.addIpConnectionProperties(connectionTask, null, PORT_PROPERTY_VALUE, codeTable);
+        this.addIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE, codeTable);
         // Add values for non existing property
         connectionTask.setProperty("doesNotExist", "I don't care");
 
@@ -682,9 +694,10 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getProperties().isEmpty()).as("Was not expecting any properties on the Outbound Connection Task").isTrue();
     }
 
-    @Test(expected = BusinessException.class)
+    @Test
     @Transactional
-    public void createWithoutOffsetAndCommunicationWindow() {
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW_KEY + "}")
+    public void createWithoutOffsetNotWithinCommunicationWindow() {
         ScheduledConnectionTask connectionTask =
                 this.createMinimizeWithNoPropertiesWithoutViolations(
                         "createWithoutOffsetAndCommunicationWindow",
@@ -765,6 +778,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
         when(comTaskExecutionFactory.findComTaskExecutionsByTopology(this.device)).thenReturn(comTaskExecutions);
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateWithExistingComPorts");
+        connectionTask.save();
 
         // Asserts
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
@@ -778,7 +792,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         Date febFirst = freezeClock(2013, Calendar.FEBRUARY, 1);
         Date nextExecutionTimeStamp = febFirst;
 
-        ScheduledConnectionTask defaultConnectionTask = this.createAsapWithNoPropertiesWithoutViolations("createWithComTaskUsingDefaultTestNextExecutionTimeStamp", true);
+        ScheduledConnectionTask defaultConnectionTask = this.createAsapWithNoPropertiesWithoutViolations("createWithComTaskUsingDefaultTestNextExecutionTimeStamp");
+        defaultConnectionTask.save();
+        inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(defaultConnectionTask);
         ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
         when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
         when(comTaskExecutionFactory.getEarliestNextExecutionTimeStampAndPriority(Matchers.<ScheduledConnectionTask>any())).thenReturn(new EarliestNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100));
@@ -793,7 +809,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         Date febFirst = freezeClock(2013, Calendar.FEBRUARY, 13, 10, 53, 20, 0);
 
         Date nextConnectionTaskCalculated = freezeClock(2013, Calendar.FEBRUARY, 13, 11, 0, 0, 0);   // 1 hour later according to the executionSpec
-        ScheduledConnectionTask notDefaultConnectionTask = this.createAsapWithNoPropertiesWithoutViolations("updateToDefaultTestNextExecutionTimeStamp", false);
+        ScheduledConnectionTask notDefaultConnectionTask = this.createAsapWithNoPropertiesWithoutViolations("updateToDefaultTestNextExecutionTimeStamp");
+        notDefaultConnectionTask.save();
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
         ScheduledConnectionTask reloaded = deviceDataService.findScheduledConnectionTask(notDefaultConnectionTask.getId()).get();
 
@@ -832,6 +849,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_TASK_DEVICE_REQUIRED_KEY + "}")
+    // Todo ((JP-1122): enable when jira issue integrated into this branch
+    @Ignore
     public void testCreateWithoutDevice() {
         ScheduledConnectionTask connectionTask = inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(null, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
 
@@ -877,6 +896,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testLoad() {
         ScheduledConnectionTask created = this.createAsapWithNoPropertiesWithoutViolations("testLoad");
+        created.save();
 
         // Business method
         ScheduledConnectionTask loaded = inMemoryPersistence.getDeviceDataService().findScheduledConnectionTask(created.getId()).get();
@@ -926,7 +946,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         connectionTask.save();
 
         connectionTask.setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
-        connectionTask.setNextExecutionSpecsFrom(null);
 
         // Business method
         connectionTask.save();
@@ -962,6 +981,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         Date mayLast2012 = freezeClock(2012, Calendar.MAY, 31);
 
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testScheduleNow");
+        connectionTask.save();
 
         // Business method
         connectionTask.scheduleNow();
@@ -976,6 +996,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         Date mayLast2012 = freezeClock(2012, Calendar.MAY, 31);
 
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testScheduleOnDate");
+        connectionTask.save();
 
         // Business method
         connectionTask.schedule(mayLast2012);
@@ -1046,6 +1067,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
                 this.createMinimizeWithNoPropertiesWithoutViolations(
                         "testUpdateNextExecutionTimestampOnDSTFromWinterToSummer",
                         new TemporalExpression(EVERY_HOUR));
+        connectionTask.save();
 
         // Business method
         connectionTask.updateNextExecutionTimestamp();
@@ -1077,6 +1099,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
                 this.createMinimizeWithNoPropertiesWithoutViolations(
                         "testUpdateNextExecutionTimestampOnDSTFromSummerToWinter",
                         new TemporalExpression(EVERY_HOUR));
+        connectionTask.save();
 
         // Business method
         connectionTask.updateNextExecutionTimestamp();
@@ -1121,6 +1144,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void makeObsoleteWhenComServerIsExecutingTest() throws SQLException, BusinessException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("makeObsoleteWhenComServerIsExecutingTest");
+        connectionTask.save();
         this.attemptLock(connectionTask);
 
         // Business method
@@ -1131,6 +1155,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testMakeObsoleteWithNoProperties() {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testMakeObsoleteWithNoProperties");
+        connectionTask.save();
 
         // Business method
         connectionTask.makeObsolete();
@@ -1163,6 +1188,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testIsObsoleteAfterReload() {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testIsObsoleteAfterReload");
+        connectionTask.save();
         long id = connectionTask.getId();
 
         // Business method
@@ -1179,6 +1205,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testUpdateAfterMakeObsolete() {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testUpdateAfterMakeObsolete");
+        connectionTask.save();
         connectionTask.makeObsolete();
 
         // Business method
@@ -1192,6 +1219,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testMakeObsoleteTwice() {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testMakeObsoleteTwice");
+        connectionTask.save();
         connectionTask.makeObsolete();
 
         // Business method
@@ -1204,6 +1232,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void makeObsoleteWhenSomeOneElseMadeItObsoleteTest() throws SQLException {
         final ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("makeObsoleteWhenSomeOneElseMadeItObsoleteTest");
+        connectionTask.save();
         try (PreparedStatement statement = this.getUpdateObsoleteDateSqlBuilder(connectionTask.getId()).getStatement(Environment.DEFAULT.get().getConnection())) {
             int updateCount = statement.executeUpdate();
             if (updateCount != 1) {
@@ -1231,6 +1260,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testMakeObsoleteWithActiveComTasks() {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testMakeObsoleteWithActiveComTasks");
+        connectionTask.save();
         List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
         ComTaskExecution comTask = mock(ComTaskExecution.class);
         when(comTask.isObsolete()).thenReturn(false);
@@ -1251,6 +1281,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     // Todo (JP-1125): Enable when ComTaskExecution has been moved to this bundle
     public void testCannotDeleteDefaultTaskThatIsInUse() {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCannotDeleteDefaultTaskThatIsInUse");
+        connectionTask.save();
         List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
         comTaskExecutions.add(mock(ComTaskExecution.class));
         ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
@@ -1266,7 +1297,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testDeletedAndSetComTaskToNoConnectionTask() {
-        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testDeletedAndSetComTaskToNoConnectionTask", false);
+        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testDeletedAndSetComTaskToNoConnectionTask");
+        connectionTask.save();
         List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
         ComTaskExecution obsoleteComTask = mock(ComTaskExecution.class);
         comTaskExecutions.add(obsoleteComTask);
@@ -1287,6 +1319,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     // Todo: Enable when ComSession (and related classes) has been moved to this bundle
     public void testDeleteWithComSessions() throws SQLException, BusinessException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testDeleteWithComSessions");
+        connectionTask.save();
         List<ComSession> comSessions = new ArrayList<>();
         ComSession comSession = mock(ComSession.class);
         comSessions.add(comSession);
@@ -1302,6 +1335,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testFindConnectionTaskByDeviceAfterDelete() {
         ScheduledConnectionTask connectionTask = this.createMinimizeWithNoPropertiesWithoutViolations("testFindOutboundByDeviceAfterDelete", new TemporalExpression(EVERY_HOUR));
+        connectionTask.save();
         List<ConnectionTask> outboundByDeviceBeforeDelete = inMemoryPersistence.getDeviceDataService().findConnectionTasksByDevice(connectionTask.getDevice());
 
         // Business methods
@@ -1318,11 +1352,13 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void createMultipleOutboundsForSpecificDeviceWithoutViolations() {
         ScheduledConnectionTask task1 =
                 this.createAsapWithNoPropertiesWithoutViolations("createMultipleOutboundsForSpecificDeviceWithoutViolations-1");
+        task1.save();
         ScheduledConnectionTask task2 =
                 this.createAsapWithNoPropertiesWithoutViolations(
                         "createMultipleOutboundsForSpecificDeviceWithoutViolations-2",
-                        this.partialScheduledConnectionTask2,
-                        false);
+                        this.partialScheduledConnectionTask2
+                );
+        task2.save();
         List<ConnectionTask> outboundConnectionTasks = inMemoryPersistence.getDeviceDataService().findConnectionTasksByDevice(this.device);
 
         // asserts
@@ -1336,12 +1372,13 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void updateWithDefaultWhenNoDefaultYetExistsTest() {
         ScheduledConnectionTask task1 =
-                this.createAsapWithNoPropertiesWithoutViolations("createMultipleOutboundsForSpecificDeviceWithoutViolations-1");
+                this.createAsapWithNoPropertiesWithoutViolations("updateWithDefaultWhenNoDefaultYetExistsTest-1");
+        task1.save();
         ScheduledConnectionTask task2 =
                 this.createAsapWithNoPropertiesWithoutViolations(
-                        "createMultipleOutboundsForSpecificDeviceWithoutViolations-2",
-                        this.partialScheduledConnectionTask2,
-                        false);
+                        "updateWithDefaultWhenNoDefaultYetExistsTest-2",
+                        this.partialScheduledConnectionTask2);
+        task2.save();
 
         // Business method
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
@@ -1370,6 +1407,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testApplyComWindowWhenTaskDoesNotHaveAComWindow() throws SQLException, BusinessException {
         Date nextExecutionTimestamp = clock.now();
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithoutNextExecutionSpecs", null);
+        connectionTask.save();
 
         // Business method
         Date modifiedNextExecutionTimestamp = connectionTask.applyComWindowIfAny(nextExecutionTimestamp);
@@ -1384,6 +1422,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         this.toRestore = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithNextExecutionTimeStampThatImmediatelyFallsWithinComWindow", FROM_ONE_AM_TO_TWO_AM);
+        connectionTask.save();
         Date nextExecutionTimestamp = freezeClock(2013, Calendar.JANUARY, 9, 1, 30, 0, 0);   // UTC
 
         // Business method
@@ -1399,6 +1438,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         this.toRestore = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithNextExecutionTimeStampBeforeComWindow", FROM_ONE_AM_TO_TWO_AM);
+        connectionTask.save();
         Date nextExecutionTimestamp = freezeClock(2013, Calendar.JANUARY, 9, 0, 30, 0, 0);
         Date expectedModifiedNextExecutionTimestamp = freezeClock(2013, Calendar.JANUARY, 9, 1, 0, 0, 0);
 
@@ -1415,6 +1455,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         this.toRestore = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithNextExecutionTimeStampAfterComWindow", FROM_ONE_AM_TO_TWO_AM);
+        connectionTask.save();
         Date nextExecutionTimestamp = freezeClock(2013, Calendar.JANUARY, 9, 2, 30, 0, 0);
         Date expectedModifiedNextExecutionTimestamp = freezeClock(2013, Calendar.JANUARY, 10, 1, 0, 0, 0);
 
@@ -1430,6 +1471,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testAttemptLock() {
         String name = "testAttemptLock";
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+        connectionTask.save();
 
         // Business method
         ScheduledConnectionTask lockedConnectionTask = this.attemptLock(connectionTask);
@@ -1444,6 +1486,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
         String name = "testUnlock";
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+        connectionTask.save();
         ScheduledConnectionTask lockedConnectionTask = deviceDataService.attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
 
         // Business method
@@ -1458,6 +1501,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testAttemptLockWillFailWhenAlreadyLockedByTheSameComServer() {
         String name = "testAttemptLockWhenAlreadyLockedByTheSameComServer";
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+        connectionTask.save();
 
         // Business method
         ScheduledConnectionTask lockedConnectionTask = this.attemptLock(connectionTask);
@@ -1471,6 +1515,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testAttemptLockWhenAlreadyLockedByAnotherComServer() {
         String name = "testAttemptLockWhenAlreadyLockedByAnotherComServer";
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+        connectionTask.save();
         ScheduledConnectionTask lockedConnectionTask = this.attemptLock(connectionTask, this.getOnlineComServer());
 
         // Business method
@@ -1486,6 +1531,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void pauseIfNotPausedTest() throws SQLException, BusinessException {
         String name = "pauseIfNotPausedTest";
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+        connectionTask.save();
 
         assertThat(connectionTask.isPaused()).isFalse();
 
@@ -1501,6 +1547,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void pauseWhenAlreadyPausedTest() throws SQLException, BusinessException {
         String name = "pauseWhenAlreadyPausedTest";
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+        connectionTask.save();
 
         // business method
         connectionTask.pause();
@@ -1516,6 +1563,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void resumeWhenPausedTest() throws SQLException, BusinessException {
         String name = "resumeWhenPausedTest";
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+        connectionTask.save();
         connectionTask.pause();
 
         // business method
@@ -1531,6 +1579,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void resumeWhenAlreadyResumedTest() throws SQLException, BusinessException {
         String name = "resumeWhenAlreadyResumedTest";
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+        connectionTask.save();
 
         // business method
         connectionTask.resume();
@@ -1649,7 +1698,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testTriggerWithMinimizeStrategy() throws SQLException, BusinessException {
-        ScheduledConnectionTask connectionTask = this.createMinimizeWithNoPropertiesWithoutViolations("testTriggerWithMinimizeStrategy", true, new TemporalExpression(EVERY_HOUR));
+        ScheduledConnectionTask connectionTask = this.createMinimizeWithNoPropertiesWithoutViolations("testTriggerWithMinimizeStrategy", new TemporalExpression(EVERY_HOUR));
+        connectionTask.save();
         Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(triggerDate, TaskPriorityConstants.DEFAULT_PRIORITY);
         ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
@@ -1666,7 +1716,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testTriggerWithAsapStrategyAndOnlyPendingTasks() throws SQLException, BusinessException {
-        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testTriggerWithAsapStrategyAndOnlyPendingTasks", true);
+        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testTriggerWithAsapStrategyAndOnlyPendingTasks");
+        connectionTask.save();
+        inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
         Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(triggerDate, TaskPriorityConstants.DEFAULT_PRIORITY);
         ComTaskExecution ComTaskExecution1 = mock(ComTaskExecution.class);
@@ -1690,7 +1742,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testTriggerWithAsapStrategyAndOnlyOnHoldAndWaitingTasks() throws SQLException, BusinessException {
-        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testTriggerWithAsapStrategyAndOnlyOnHoldAndWaitingTasks", true);
+        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testTriggerWithAsapStrategyAndOnlyOnHoldAndWaitingTasks");
+        connectionTask.save();
+        inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
         Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(triggerDate, TaskPriorityConstants.DEFAULT_PRIORITY);
         ComTaskExecution ComTaskExecution1 = mock(ComTaskExecution.class);
@@ -1714,7 +1768,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testTriggerWithAsapStrategyAllComTaskStatusses() throws SQLException, BusinessException {
-        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testTriggerWithAsapStrategyAllComTaskStatusses", true);
+        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testTriggerWithAsapStrategyAllComTaskStatusses");
+        connectionTask.save();
+        inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
         Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(triggerDate, TaskPriorityConstants.DEFAULT_PRIORITY);
         ComTaskExecution neverCompleted = mock(ComTaskExecution.class);
@@ -1764,7 +1820,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         InboundConnectionTask inboundConnectionTask = this.createSimpleInboundConnectionTask();
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(inboundConnectionTask);
 
-        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testSwitchFromOutboundDefault", false);
+        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testSwitchFromOutboundDefault");
         connectionTask.save();
 
         // Business method
@@ -1780,7 +1836,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testSetAsDefaultWithoutOtherDefaults() throws SQLException, BusinessException {
-        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testSetAsDefaultWithoutOtherDefaults", false);
+        ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testSetAsDefaultWithoutOtherDefaults");
+        connectionTask.save();
 
         // Business method
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
@@ -1798,42 +1855,25 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     }
 
     private ScheduledConnectionTask createAsapWithNoPropertiesWithoutViolations(String name) {
-        return createAsapWithNoPropertiesWithoutViolations(name, true);
+        return createAsapWithNoPropertiesWithoutViolations(name, this.partialScheduledConnectionTask);
     }
 
-    private ScheduledConnectionTask createMinimizeWithNoPropertiesWithoutViolations(String name, TemporalExpression temporalExpression) {
-        return createMinimizeWithNoPropertiesWithoutViolations(name, false, temporalExpression);
-    }
-
-    private ScheduledConnectionTask createAsapWithNoPropertiesWithoutViolations(String name, boolean defaultState) {
-        return this.createAsapWithNoPropertiesWithoutViolations(name, this.partialScheduledConnectionTask, defaultState);
-    }
-
-    private ScheduledConnectionTask createAsapWithNoPropertiesWithoutViolations(String name, PartialScheduledConnectionTask partialConnectionTask,  boolean defaultState) {
+    private ScheduledConnectionTask createAsapWithNoPropertiesWithoutViolations(String name, PartialScheduledConnectionTask partialConnectionTask) {
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
         when(partialConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
         when(partialConnectionTask.getName()).thenReturn(name);
-        ScheduledConnectionTask connectionTask = deviceDataService.newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
-        if (defaultState) {
-            deviceDataService.setDefaultConnectionTask(connectionTask);
-        }
-        return connectionTask;
+        return deviceDataService.newAsapConnectionTask(this.device, partialConnectionTask, outboundTcpipComPortPool);
     }
 
-    private ScheduledConnectionTask createMinimizeWithNoPropertiesWithoutViolations(String name, boolean defaultState, TemporalExpression temporalExpression) {
+    private ScheduledConnectionTask createMinimizeWithNoPropertiesWithoutViolations(String name, TemporalExpression temporalExpression) {
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
         when(this.partialScheduledConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
         when(this.partialScheduledConnectionTask.getName()).thenReturn(name);
-        ScheduledConnectionTask connectionTask =
-                deviceDataService.newMinimizeConnectionTask(
-                        this.device,
-                        this.partialScheduledConnectionTask,
-                        outboundTcpipComPortPool,
-                        new TemporalExpression(EVERY_HOUR));
-        if (defaultState) {
-            deviceDataService.setDefaultConnectionTask(connectionTask);
-        }
-        return connectionTask;
+        return deviceDataService.newMinimizeConnectionTask(
+                this.device,
+                this.partialScheduledConnectionTask,
+                outboundTcpipComPortPool,
+                temporalExpression);
     }
 
     private ScheduledConnectionTask createWithCommunicationWindowWithoutViolations(String name) {

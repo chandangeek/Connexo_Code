@@ -38,9 +38,9 @@ public enum MessageSeeds implements MessageSeed {
     OUTBOUND_CONNECTION_TASK_STRATEGY_REQUIRED(2012, Constants.OUTBOUND_CONNECTION_TASK_STRATEGY_REQUIRED_KEY, "An outbound connection task requires a connection strategy", Level.SEVERE),
     OUTBOUND_CONNECTION_TASK_MINIMIZE_STRATEGY_NOT_COMPATIBLE_WITH_SIMULTANEOUS_CONNECTIONS(2013, Constants.OUTBOUND_CONNECTION_TASK_MINIMIZE_STRATEGY_NOT_COMPATIBLE_WITH_SIMULTANEOUS_CONNECTIONS_KEY, "", Level.SEVERE),
     OUTBOUND_CONNECTION_TASK_NEXT_EXECUTION_SPECS_REQUIRED(2014, Constants.OUTBOUND_CONNECTION_TASK_NEXT_EXECUTION_SPECS_REQUIRED_KEY, "An outbound connection task with strategy to minimize connections requires execution scheduling specifications", Level.SEVERE),
-    OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY_REQUIRED(2015, Constants.OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY_REQUIRED_KEY, "The offset of the next execution scheduling specifications should not extend its frequency", Level.SEVERE),
-    OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW_REQUIRED(2016, Constants.OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW_REQUIRED_KEY, "The offset of the next execution scheduling specifications is not within the communication window", Level.SEVERE),
-    OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW_REQUIRED(2017, Constants.OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW_REQUIRED_KEY, "The offset of the next execution scheduling specifications within a week or month, once calculated back to a daily offset is not within the communication window", Level.SEVERE),
+    OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY(2015, Constants.OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY_KEY, "The offset of the next execution scheduling specifications should not extend its frequency", Level.SEVERE),
+    OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW(2016, Constants.OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW_KEY, "The offset of the next execution scheduling specifications is not within the communication window", Level.SEVERE),
+    OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW(2017, Constants.OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW_KEY, "The offset of the next execution scheduling specifications within a week or month, once calculated back to a daily offset is not within the communication window", Level.SEVERE),
     ;
 
     private final int number;
@@ -101,9 +101,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String OUTBOUND_CONNECTION_TASK_STRATEGY_REQUIRED_KEY = "DDC.outboundConnectionTask.strategy.required";
         public static final String OUTBOUND_CONNECTION_TASK_MINIMIZE_STRATEGY_NOT_COMPATIBLE_WITH_SIMULTANEOUS_CONNECTIONS_KEY = "DDC.outboundConnectionTask.strategy.incompatibleWithSimultaneous";
         public static final String OUTBOUND_CONNECTION_TASK_NEXT_EXECUTION_SPECS_REQUIRED_KEY = "DDC.outboundConnectionTask.nextExecutionSpecs.required";
-        public static final String OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY_REQUIRED_KEY = "DDC.outboundConnectionTask.nextExecutionSpecs.offsetBiggerThenFrequency";
-        public static final String OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW_REQUIRED_KEY = "DDC.outboundConnectionTask.nextExecutionSpecs.offsetNotWithinWindow";
-        public static final String OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW_REQUIRED_KEY = "DDC.outboundConnectionTask.nextExecutionSpecs.longOffsetNotWithinWindow";
+        public static final String OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY_KEY = "DDC.outboundConnectionTask.nextExecutionSpecs.offsetBiggerThenFrequency";
+        public static final String OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW_KEY = "DDC.outboundConnectionTask.nextExecutionSpecs.offsetNotWithinWindow";
+        public static final String OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW_KEY = "DDC.outboundConnectionTask.nextExecutionSpecs.longOffsetNotWithinWindow";
     }
 
 }
