@@ -95,7 +95,7 @@ public interface ComTaskEnablement extends IdBusinessObject {
      *
      * @return The PartialConnectionTask
      */
-    public ServerPartialConnectionTask getPartialConnectionTask();
+    public PartialConnectionTask getPartialConnectionTask();
 
 
     /**
