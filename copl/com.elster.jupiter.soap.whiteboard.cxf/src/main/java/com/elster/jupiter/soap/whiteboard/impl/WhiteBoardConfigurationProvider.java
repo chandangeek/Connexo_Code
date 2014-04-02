@@ -3,16 +3,12 @@ package com.elster.jupiter.soap.whiteboard.impl;
 import java.util.Map;
 
 import org.apache.cxf.transport.http.HTTPConduitConfigurer;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.util.tracker.BundleTracker;
-import org.osgi.util.tracker.BundleTrackerCustomizer;
 
 import com.elster.jupiter.util.osgi.BundleWaiter;
 

@@ -1,26 +1,16 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
-import com.elster.jupiter.soap.whiteboard.SoapProviderSupport;
-import com.elster.jupiter.soap.whiteboard.SoapProviderSupportFactory;
-import org.osgi.service.component.annotations.Activate;
+import org.apache.cxf.jaxws.spi.ProviderImpl;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
+
+import com.elster.jupiter.soap.whiteboard.SoapProviderSupportFactory;
+import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 @Component(name="com.elster.jupiter.soap.whiteboard.cxfsupport", service={SoapProviderSupportFactory.class})
 public class CxfSupportFactory implements SoapProviderSupportFactory {
 
-    @Activate
-    public void activate() {
-
-    }
-
-    @Deactivate
-    public void deactivate() {
-
-    }
-
     @Override
-    public SoapProviderSupport create() {
-        return new CxfSupport();
+    public ContextClassLoaderResource create() {
+        return ContextClassLoaderResource.of(ProviderImpl.class);
     }
 }
