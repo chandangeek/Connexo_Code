@@ -278,48 +278,6 @@ $menu-width-collapsed: 55px;
     .x-panel-body-default {
         background-color: transparent;
     }
-
-    /*.menu-item {
-        //@include transparent-button;
-        text-align: left;
-
-        .x-btn-button {
-            //height: $item-height;
-
-            .x-btn-inner, .x-btn-glyph {
-                //line-height: $item-height - 3;
-                text-align: left;
-                margin-top: 3px;
-            }
-
-            .x-btn-inner {
-                margin-left: 10px;
-            }
-
-            .x-btn-glyph {
-                margin-left: 12px;
-            }
-
-            /*&:hover {
-                background-color: $sky-blue;
-            }  */
-        //}
-
-    //}   */
-
-    /*.x-pressed {
-        background-color: $sky-blue-25;
-
-        .x-btn-button {
-            .x-btn-inner, .x-btn-glyph {
-                color: $navigation-color;
-            }
-
-            &:hover {
-                background-color: $sky-blue-25;
-            }
-        }
-    }     */
 }
 
 // Sub menu
