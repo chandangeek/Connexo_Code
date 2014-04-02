@@ -1,0 +1,39 @@
+@import "TransparentButton";
+
+@mixin uni-button-menuitem() {
+  .#{$prefix}btn-menuitem-large {
+    text-align: left;
+    .#{$prefix}btn-button {
+      height: 50px;
+
+      .x-btn-inner, .x-btn-glyph {
+        line-height: 47px;
+        text-align: left;
+        margin-top: 3px;
+      }
+
+      .x-btn-inner {
+        margin-left: 10px;
+      }
+
+      .x-btn-glyph {
+        margin-left: 12px;
+      }
+    }
+  }
+}
+
+@if $include-button-default-large-ui {
+@include extjs-button-large-ui(
+  $ui: 'menuitem',
+
+  $background-color: $button-menuitem-background-color,
+  $background-color-over: $button-menuitem-background-color-over,
+  $background-color-pressed: $button-menuitem-background-color-pressed
+
+
+);
+  @include uni-button-menuitem();
+  @include transparent-button();
+}
+

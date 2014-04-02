@@ -13,10 +13,12 @@
 );
 
 @include extjs-button-large-ui(
-    $ui: 'delete',
+  $ui: 'delete',
 
     $background-color: $button-delete-background-color,
     $background-color-over: $button-delete-background-color-over
 );
 
 @import "LinkButton";
+
+@import "MenuItemButton";
