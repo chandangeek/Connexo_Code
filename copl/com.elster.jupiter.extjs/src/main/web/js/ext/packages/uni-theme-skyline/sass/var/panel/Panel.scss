@@ -1,0 +1,15 @@
+/** @class Ext.panel.Panel */
+
+$panel-base-color: $base-color;
+
+$panel-header-font-family: $font-family !default;
+$panel-header-padding: 8px 16px !default;
+$panel-header-background-color: $panel-base-color !default;
+
+$panel-frame-header-padding: $panel-header-padding !default;
+$panel-frame-header-border-radius: 0px !default;
+$panel-frame-header-border-color: $panel-header-background-color !default;
+$panel-frame-border-radius: 10px !default;
+$panel-frame-padding: 16px !default;
+$panel-frame-border-width: 1px !default;
+$panel-frame-border-color: $color-grey-7 !default;
