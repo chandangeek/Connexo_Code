@@ -2,7 +2,7 @@ package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.impl.MessageSeeds;
+import com.energyict.mdc.common.impl.MessageSeeds;
 import java.util.HashMap;
 import java.util.Map;
 import javax.ws.rs.QueryParam;
@@ -44,8 +44,6 @@ public class JsonQueryFilter {
             return adapter.unmarshal(stringProperty);
         } catch (Exception e) {
             throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.INVALID_VALUE, name);
-//            throw new JsonDeserializeException(e, stringProperty,
-//                    ((Class<?>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]));
         }
     }
 }

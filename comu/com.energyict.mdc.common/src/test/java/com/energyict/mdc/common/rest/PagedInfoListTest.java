@@ -1,10 +1,9 @@
 package com.energyict.mdc.common.rest;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.List;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

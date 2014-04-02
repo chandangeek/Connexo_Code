@@ -1,10 +1,9 @@
 package com.energyict.mdc.common;
 
-import org.joda.time.DateTimeConstants;
-
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.util.Calendar;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.joda.time.DateTimeConstants;
 
 /**
  * represents a relative period in time
