@@ -41,6 +41,11 @@ Ext.define('Isu.controller.IssueFilter', {
                 focus: this.onFocusComboTooltip,
                 blur: this.onBlurComboTooltip,
                 change: this.clearComboTooltip
+            },
+            'issues-side-filter filter-form combobox[name=department]': {
+                focus: this.onFocusComboTooltip,
+                blur: this.onBlurComboTooltip,
+                change: this.clearComboTooltip
             }
         });
 
