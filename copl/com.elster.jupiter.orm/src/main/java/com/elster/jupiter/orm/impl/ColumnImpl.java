@@ -1,10 +1,13 @@
 package com.elster.jupiter.orm.impl;
 
+import java.lang.reflect.Field;
 import java.security.Principal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
+
+import javax.validation.constraints.Size;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
@@ -311,6 +314,7 @@ public class ColumnImpl implements Column  {
 	
 	static class BuilderImpl implements Column.Builder {
 		private final ColumnImpl column;
+		private boolean setType = false;
 		
 		BuilderImpl(ColumnImpl column) {
 			this.column = column;
@@ -388,6 +392,12 @@ public class ColumnImpl implements Column  {
 		}
 
 		@Override
+		public Builder varChar() {
+			this.setType = true;
+			return this;
+		}
+		
+		@Override
 		public Builder varChar(int length) {
 			if (length < 1) {
 				throw new IllegalArgumentException("Illegal length: " + length);
@@ -396,11 +406,26 @@ public class ColumnImpl implements Column  {
 				// may need to adjust for non oracle or oracle 12
 				throw new IllegalArgumentException("" + length + " exceeds max varchar size");
 			}
-			return this.type("VARCHAR2(" + length + ")");
+			return this.type("VARCHAR2(" + length + " CHAR)");
+		}
+		
+		private void setType() {
+			Field field = column.getTable().getField(column.getFieldName());
+			if (field == null) {
+				throw new IllegalStateException("No field found for column with field name " + column.getFieldName());
+			}
+			Size size = field.getAnnotation(Size.class);
+			if (size == null) {
+				throw new IllegalStateException("No Size annotation for field " + column.getFieldName());
+			}
+			this.varChar(size.max());
 		}
 		
 		@Override
 		public Column add() {
+			if (setType) {
+				setType();
+			}
 			column.validate();
 			return column.getTable().add(column);
 		}

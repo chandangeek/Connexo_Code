@@ -45,5 +45,6 @@ public interface Column {
 		Column add();
 		Builder number();
 		Builder varChar(int length);
+		Builder varChar();
 	}
 }
