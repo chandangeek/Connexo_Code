@@ -3,11 +3,13 @@ package com.energyict.mdc.tasks.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.PersistenceTest;
 import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.tasks.TopologyTask;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -171,6 +173,45 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
+    public void testUpdateFORCECClockTask() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        comTask.createClockTask(ClockTaskType.FORCECLOCK).minimumClockDifference(minimumClockDifference).maximumClockDifference(maximumClockDifference).maximumClockShift(maximumClockShift).add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ClockTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), ClockTask.class);
+        taskByType.setMaximumClockDifference(TimeDuration.days(1));
+        taskByType.setMinimumClockDifference(TimeDuration.hours(1));
+        taskByType.setMaximumClockShift(TimeDuration.minutes(1));
+        taskByType.save();
+        
+        ComTask rereloadedComTask = getTaskService().findComTask(comTask.getId());
+        ClockTask reloadedTaskByType = getTaskByType(reloadedComTask.getProtocolTasks(), ClockTask.class);
+        assertThat(rereloadedComTask.getProtocolTasks()).hasSize(1);
+        assertThat(reloadedTaskByType).isNotNull();
+        assertThat(reloadedTaskByType.getComTask().getId()).isEqualTo(comTask.getId());
+        assertThat(reloadedTaskByType.getClockTaskType()).isEqualTo(ClockTaskType.FORCECLOCK);
+        assertThat(reloadedTaskByType.getMaximumClockDifference()).isEqualTo(TimeDuration.days(1));
+        assertThat(reloadedTaskByType.getMaximumClockShift()).isEqualTo(TimeDuration.minutes(1));
+        assertThat(reloadedTaskByType.getMinimumClockDifference()).isEqualTo(TimeDuration.hours(1));
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+Constants.MIN_MUST_BE_BELOW_MAX+"}", strict=false)
+    public void testUpdateFORCECClockTaskToInvalidState() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        comTask.createClockTask(ClockTaskType.FORCECLOCK).minimumClockDifference(maximumClockDifference).maximumClockDifference(minimumClockDifference).maximumClockShift(maximumClockShift).add();
+        comTask.save(); // MIN > MAX !
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ClockTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), ClockTask.class);
+        taskByType.setClockTaskType(ClockTaskType.SETCLOCK);
+        taskByType.save();
+    }
+
+    @Test
+    @Transactional
     public void testCreateFORCECClockTaskWithoutDurations() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.FORCECLOCK).add();
@@ -187,7 +228,38 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         assertThat(taskByType.getMinimumClockDifference().getCount()).isEqualTo(0);
     }
 
+    @Test
+    @Transactional
+    public void testCreateTopologyTask() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        comTask.createTopologyTask(TopologyAction.VERIFY);
+        comTask.save();
 
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        TopologyTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), TopologyTask.class);
+        assertThat(taskByType).isNotNull();
+        assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
+        assertThat(taskByType.getTopologyAction()).isEqualTo(TopologyAction.VERIFY);
+    }
 
+    @Test
+    @Transactional
+    public void testUpdateTopologyTask() throws Exception {
+        ComTask comTask = createSimpleComTask();
+        comTask.createTopologyTask(TopologyAction.VERIFY);
+        comTask.save();
 
+        // update
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        TopologyTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), TopologyTask.class);
+        taskByType.setTopologyAction(TopologyAction.UPDATE);
+        taskByType.save();
+
+        // verify
+        reloadedComTask = getTaskService().findComTask(comTask.getId());
+        taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), TopologyTask.class);
+        assertThat(taskByType).isNotNull();
+        assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
+        assertThat(taskByType.getTopologyAction()).isEqualTo(TopologyAction.UPDATE);
+    }
 }
