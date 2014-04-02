@@ -35,10 +35,6 @@ Ext.define('Uni.view.Viewport', {
             region: 'center',
             itemId: 'contentPanel',
             layout: 'fit'
-        },
-        {
-            xtype: 'navigationFooter',
-            region: 'south'
         }
     ]
 });
