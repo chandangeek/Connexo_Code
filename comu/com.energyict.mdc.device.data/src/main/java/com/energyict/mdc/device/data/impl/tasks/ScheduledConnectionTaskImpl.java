@@ -164,7 +164,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    public void setComWindow(ComWindow comWindow) {
+    public void setCommunicationWindow(ComWindow comWindow) {
         this.comWindow = comWindow;
     }
 

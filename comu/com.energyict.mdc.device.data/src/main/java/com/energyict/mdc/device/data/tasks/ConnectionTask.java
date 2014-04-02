@@ -11,7 +11,6 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -272,13 +271,13 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      * Pauses this connectionTask, i.e. temporarily disables its execution.
      * The reverse operation is {@link #resume()}
      */
-    public void pause () throws SQLException, BusinessException;
+    public void pause ();
 
     /**
      * Resumes the ability to execute this ConnectionTask.
      * This is the reverse operation of {@link #pause()}
      */
-    public void resume() throws SQLException, BusinessException;
+    public void resume();
 
     /**
      * Gets the {@link SuccessIndicator} of this ConnectionTask.

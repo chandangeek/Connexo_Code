@@ -562,13 +562,13 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    public void pause() throws SQLException, BusinessException {
+    public void pause() {
         this.paused = true;
         post();
     }
 
     @Override
-    public void resume() throws SQLException, BusinessException {
+    public void resume() {
         this.paused = false;
         post();
     }
