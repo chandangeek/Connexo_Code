@@ -85,7 +85,6 @@ Ext.define('Isu.controller.IssueFilter', {
             loadRecord();
         }
 
-
         if (reason) {
             grstore.proxy.extraParams.id = reason.get('id');
 
