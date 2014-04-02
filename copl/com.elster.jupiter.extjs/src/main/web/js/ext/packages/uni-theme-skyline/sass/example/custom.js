@@ -15,5 +15,9 @@ Ext.theme.addManifest(
     {
         xtype: 'button',
         ui: 'link'
+    },
+    {
+        xtype: 'button',
+        ui: 'delete'
     }
 );
