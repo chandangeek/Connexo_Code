@@ -83,7 +83,7 @@ Ext.define('Isu.view.workspace.issues.Item', {
                         '</tr>',
                         '<tr>',
                         '<td><b>Device:</b></td>',
-                        '<td colspan="3"><tpl if="device">{device.name} {device.serialNumber}</tpl></td>',
+                        '<td colspan="3"><tpl if="device"><span>{device.name} {device.serialNumber}</span> <span class="isu-icon-filter isu-apply-filter" data-filterType="meter" data-filterValue="{device.id}"></span></tpl></td>',
                         '</tr>',
                         '<tr>',
                         '<td><b>Service category:</b></td>',

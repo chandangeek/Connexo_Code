@@ -8,6 +8,8 @@ Ext.define('Isu.controller.IssueFilter', {
         'Isu.store.Assignee',
         'Isu.store.IssueStatus',
         'Isu.store.IssueReason',
+        'Isu.store.UserGroupList',
+        'Isu.store.IssueMeter',
         'Isu.store.Issues'
     ],
 
@@ -43,6 +45,11 @@ Ext.define('Isu.controller.IssueFilter', {
                 change: this.clearComboTooltip
             },
             'issues-side-filter filter-form combobox[name=department]': {
+                focus: this.onFocusComboTooltip,
+                blur: this.onBlurComboTooltip,
+                change: this.clearComboTooltip
+            },
+            'issues-side-filter filter-form combobox[name=meter]': {
                 focus: this.onFocusComboTooltip,
                 blur: this.onBlurComboTooltip,
                 change: this.clearComboTooltip

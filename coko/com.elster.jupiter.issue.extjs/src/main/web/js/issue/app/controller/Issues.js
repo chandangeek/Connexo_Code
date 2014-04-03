@@ -464,6 +464,9 @@ Ext.define('Isu.controller.Issues', {
             case 'reason':
                 this.setComboFilter(filterType, parseInt(filterValue), visualValue);
                 break;
+            case 'meter':
+                this.setComboFilter(filterType, parseInt(filterValue), visualValue);
+                break;
         }
     },
 
