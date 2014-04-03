@@ -10,14 +10,17 @@
         line-height: 47px;
         text-align: left;
         margin-top: 3px;
+        //background-color: $color-blue;
       }
 
       .x-btn-inner {
         margin-left: 10px;
+        //background-color: $color-blue;
       }
 
       .x-btn-glyph {
         margin-left: 12px;
+        //background-color: $color-blue;
       }
     }
   }
@@ -26,12 +29,15 @@
 @if $include-button-default-large-ui {
 @include extjs-button-large-ui(
   $ui: 'menuitem',
-
-  $background-color: $button-menuitem-background-color,
-  $background-color-over: $button-menuitem-background-color-over,
-  $background-color-pressed: $button-menuitem-background-color-pressed
-
-
+  $background-color: $color-blue,
+  $background-color-over: $color-white,
+  $background-color-focus: $color-white,
+  $background-color-pressed: $color-white,
+  $glyph-color: $color-white,
+  $color: $color-blue,
+  $color-over: $color-white,
+  $color-focus: $color-white,
+  $color-pressed: $color-white
 );
   @include uni-button-menuitem();
   @include transparent-button();
