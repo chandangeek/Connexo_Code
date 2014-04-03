@@ -62,7 +62,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                 items: [
                                     {
                                         xtype: 'combobox',
-                                        name: 'registerTypeId',
+                                        name: 'registerMapping',
                                         fieldLabel: Uni.I18n.translate('registerConfig.registerType', 'MDC', 'Register type'),
                                         itemId: 'registerTypeComboBox',
                                         store: this.registerTypesOfDeviceType,
@@ -73,7 +73,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         required: true,
                                         forceSelection: true,
                                         typeAhead: true,
-                                        width: 650
+                                        width: 650,
+                                        msgTarget: 'under'
                                     },
                                     {
                                         xtype: 'fieldcontainer',
@@ -102,7 +103,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         required: true,
                                         fieldLabel: Uni.I18n.translate('registerConfig.obisCode', 'MDC', 'OBIS code'),
                                         itemId: 'editOverruledObisCodeField',
-                                        width: 450
+                                        width: 450,
+                                        allowBlank: false
                                     },
                                     {
                                         xtype: 'textfield',
@@ -132,6 +134,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         required: true,
                                         fieldLabel: Uni.I18n.translate('registerConfig.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
                                         itemId: 'editNumberOfFractionDigitsField',
+                                        allowBlank: false,
                                         maxValue: 6,
                                         minValue: 0,
                                         width: 450

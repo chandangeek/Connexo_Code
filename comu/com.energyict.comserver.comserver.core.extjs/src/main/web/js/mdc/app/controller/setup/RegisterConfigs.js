@@ -294,7 +294,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     changeRegisterType: function (field, value, options) {
         var me = this;
         var view = this.getRegisterConfigEditForm();
-        if (field.name === 'registerTypeId') {
+        if (field.name === 'registerMapping') {
             var registerType = me.getRegisterTypesOfDevicetypeStore().findRecord('id', value);
             if (registerType != null) {
                 view.down('#create_mrid').setValue(registerType.getReadingType().get('mrid'));
@@ -403,7 +403,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                         me.editBreadCrumb(deviceTypeId, deviceConfigurationId, registerConfigurationId, deviceType.get('name'), deviceConfiguration.get('name'), registerConfiguration.get('name'));
                                         widget.down('form').loadRecord(registerConfiguration);
                                         widget.down('#registerConfigEditCreateTitle').update('<H2>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + registerConfiguration.get('name') + '"</H2>');
-                                        widget.down('#registerTypeComboBox').setValue(registerConfiguration.get('registerTypeId'));
+                                        widget.down('#registerTypeComboBox').setValue(registerConfiguration.get('registerMapping'));
                                         widget.setLoading(false);
                                     }
                                 });

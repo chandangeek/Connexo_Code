@@ -115,8 +115,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var widget = Ext.widget('registerTypeDetail');
         Ext.ModelManager.getModel('Mdc.model.RegisterType').load(registerType, {
             success: function (registerType) {
-                var registerTypeId = registerType.get('id');
-                me.detailBreadCrumb(registerType.get('name'), registerTypeId);
+                var registerMapping = registerType.get('id');
+                me.detailBreadCrumb(registerType.get('name'), registerMapping);
                 widget.down('form').loadRecord(registerType);
                 me.getDetailMrId().setValue(registerType.getReadingType().get('mrid'));
                 me.getRegisterTypePreviewTitle().update('<h4>' + registerType.get('name') + ' ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h4>');
@@ -175,7 +175,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         });
     },
 
-    showRegisterTypeEditView: function (registerTypeId) {
+    showRegisterTypeEditView: function (registerMapping) {
         var timeOfUseStore = Ext.create('Mdc.store.TimeOfUses');
         var unitOfMeasureStore = Ext.create('Mdc.store.UnitOfMeasures');
         var widget = Ext.widget('registerTypeEdit', {
@@ -186,9 +186,9 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         this.getApplication().getController('Mdc.controller.Main').showContent(widget);
         widget.setLoading(true);
         var me = this;
-        Ext.ModelManager.getModel('Mdc.model.RegisterType').load(registerTypeId, {
+        Ext.ModelManager.getModel('Mdc.model.RegisterType').load(registerMapping, {
             success: function (registerType) {
-                me.editBreadCrumb(registerType.get('name'), registerTypeId)
+                me.editBreadCrumb(registerType.get('name'), registerMapping)
                 timeOfUseStore.load({
                     callback: function (store) {
                         unitOfMeasureStore.load({
