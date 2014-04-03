@@ -117,7 +117,7 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
     private List<PT> filterByDate (Date date) {
         List<PT> result = new ArrayList<>(this.properties.size());    // At most all cached properties are active on the specified Date
         for (PT property : this.properties.values()) {
-            if (property.getActivePeriod().contains(date, Interval.EndpointBehavior.OPEN_CLOSED)) {
+            if (property.getActivePeriod().contains(date, Interval.EndpointBehavior.CLOSED_CLOSED)) {
                 result.add(property);
             }
         }

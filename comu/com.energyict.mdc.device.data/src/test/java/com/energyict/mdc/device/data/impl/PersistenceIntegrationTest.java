@@ -10,10 +10,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
+import org.junit.*;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -58,11 +55,12 @@ public abstract class PersistenceIntegrationTest {
     DeviceProtocol deviceProtocol;
 
     protected static Clock clock = mock(Clock.class);
-    protected static InMemoryIntegrationPersistence inMemoryPersistence = new InMemoryIntegrationPersistence(clock);
+    protected static InMemoryIntegrationPersistence inMemoryPersistence;
 
     @BeforeClass
     public static void initialize() throws SQLException {
-        inMemoryPersistence = new InMemoryIntegrationPersistence();
+        initializeClock();
+        inMemoryPersistence = new InMemoryIntegrationPersistence(clock);
         inMemoryPersistence.initializeDatabase("PersistenceIntegrationTest.mdc.device.data", false, false);
     }
 
@@ -83,6 +81,15 @@ public abstract class PersistenceIntegrationTest {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
         deviceType.save();
+        this.resetClock();
+    }
+
+    @After
+    public void resetClock () {
+        initializeClock();
+    }
+
+    private static void initializeClock() {
         when(clock.getTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
         when(clock.now()).thenAnswer(new Answer<Date>() {
             @Override

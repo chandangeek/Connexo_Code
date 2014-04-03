@@ -141,6 +141,12 @@ public class ScheduledConnectionTaskImpl
     }
 
     @Override
+    public void save() {
+        super.save();
+        this.updateStrategy = new Noop();
+    }
+
+    @Override
     protected void post() {
         this.updateStrategy.prepare();
         super.post();
