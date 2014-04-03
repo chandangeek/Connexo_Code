@@ -1,11 +1,13 @@
 package com.energyict.mdc.device.config;
 
+import com.energyict.mdc.common.HasId;
+
 /**
  * Represents a group of registers.
  *
  * @author Geert
  */
-public interface RegisterGroup {
+public interface RegisterGroup extends HasId{
 
     /**
      * Returns number that uniquely identifies this LoadProfileType.
