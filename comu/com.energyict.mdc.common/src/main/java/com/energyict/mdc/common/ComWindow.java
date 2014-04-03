@@ -4,6 +4,8 @@ import com.energyict.mdc.common.interval.PartialTime;
 
 import java.util.Calendar;
 
+import static com.elster.jupiter.util.Checks.*;
+
 /**
  * Models a window during which communication with a device is allowed.
  *
@@ -105,6 +107,18 @@ public class ComWindow {
     public boolean after (Calendar calendar) {
         PartialTime secondsFromMidnight = this.secondsFromMidnight(calendar);
         return secondsFromMidnight.before(this.getStart());
+    }
+
+    /**
+     * Tests if this ComWindow is empty.
+     * This is the case if the start is equal to the end
+     * or in other words, no time elapses between the
+     * start and the end of this ComWindow.
+     *
+     * @return A flag that indicates if this ComWindow is empty
+     */
+    public boolean isEmpty() {
+        return is(this.start).equalTo(this.end);
     }
 
     @Override
