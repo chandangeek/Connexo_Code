@@ -28,23 +28,23 @@ public class RegisterSpecValidator implements ConstraintValidator<ValidRegisterS
         if (freshRegisterSpec.getNumberOfDigits()>registerSpec.getNumberOfDigits()) {
             valid=false;
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{"+MessageSeeds.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED.getKey()+"}").addPropertyNode(RegisterSpecImpl.NUMBER_OF_DIGITS).addConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED+"}").addPropertyNode(RegisterSpecImpl.NUMBER_OF_DIGITS).addConstraintViolation();
         }
         if (freshRegisterSpec.getNumberOfFractionDigits()>registerSpec.getNumberOfFractionDigits()) {
             valid=false;
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{"+MessageSeeds.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED.getKey()+"}").addPropertyNode(RegisterSpecImpl.NUMBER_OF_FRACTION_DIGITS).addConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED+"}").addPropertyNode(RegisterSpecImpl.NUMBER_OF_FRACTION_DIGITS).addConstraintViolation();
         }
         if (freshRegisterSpec.getDeviceConfiguration().isActive()) {
             if (freshRegisterSpec.getRegisterMapping().getId()!=registerSpec.getRegisterMapping().getId()) {
                 valid=false;
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("{"+MessageSeeds.REGISTER_SPEC_REGISTER_MAPPING_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG.getKey()+"}").addPropertyNode(RegisterSpecImpl.REGISTER_MAPPING).addConstraintViolation();
+                context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG+"}").addPropertyNode(RegisterSpecImpl.REGISTER_MAPPING).addConstraintViolation();
             }
             if (!freshRegisterSpec.getMultiplier().equals(registerSpec.getMultiplier())) {
                 valid=false;
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("{"+MessageSeeds.REGISTER_SPEC_MULTIPLIER_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG.getKey()+"}").addPropertyNode(RegisterSpecImpl.MULTIPLIER).addConstraintViolation();
+                context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG+"}").addPropertyNode(RegisterSpecImpl.MULTIPLIER).addConstraintViolation();
             }
         }
         return valid;
