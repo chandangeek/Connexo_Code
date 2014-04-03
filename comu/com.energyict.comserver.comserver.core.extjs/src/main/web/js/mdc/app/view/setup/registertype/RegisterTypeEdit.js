@@ -85,7 +85,9 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         required: true,
                                         fieldLabel: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
                                         itemId: 'editRegisterTypeNameField',
-                                        width: 650
+                                        width: 650,
+                                        maxLength: 80,
+                                        enforceMaxLength: true
                                     },
                                     {
                                         xtype: 'textfield',
