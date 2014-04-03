@@ -18,7 +18,9 @@
     $color-over: $button-link-color-over,
     $color-focus: $button-link-color-focus,
     $color-pressed: $button-link-color-pressed,
-    $color-disabled: $button-link-color-disabled
+    $color-disabled: $button-link-color-disabled,
+    $include-ui-menu-arrows: false,
+    $include-ui-split-arrows: false
   );
 
   @include uni-button-link('small');
@@ -37,7 +39,9 @@
     $color-over: $button-link-color-over,
     $color-focus: $button-link-color-focus,
     $color-pressed: $button-link-color-pressed,
-    $color-disabled: $button-link-color-disabled
+    $color-disabled: $button-link-color-disabled,
+    $include-ui-menu-arrows: false,
+    $include-ui-split-arrows: false
   );
   @include uni-button-link('medium');
 }
@@ -54,7 +58,9 @@
     $color-over: $button-link-color-over,
     $color-focus: $button-link-color-focus,
     $color-pressed: $button-link-color-pressed,
-    $color-disabled: $button-link-color-disabled
+    $color-disabled: $button-link-color-disabled,
+    $include-ui-menu-arrows: false,
+    $include-ui-split-arrows: false
   );
   @include uni-button-link('large');
 }
@@ -72,7 +78,9 @@
       $color-over: $button-link-color-over,
       $color-focus: $button-link-color-focus,
       $color-pressed: $button-link-color-pressed,
-      $color-disabled: $button-link-color-disabled
+      $color-disabled: $button-link-color-disabled,
+      $include-ui-menu-arrows: false,
+      $include-ui-split-arrows: false
     );
     @include uni-button-link('toolbar-small');
   }
@@ -88,7 +96,9 @@
       $color-over: $button-link-color-over,
       $color-focus: $button-link-color-focus,
       $color-pressed: $button-link-color-pressed,
-      $color-disabled: $button-link-color-disabled
+      $color-disabled: $button-link-color-disabled,
+      $include-ui-menu-arrows: false,
+      $include-ui-split-arrows: false
     );
     @include uni-button-link('toolbar-medium');
   }
@@ -105,7 +115,9 @@
       $color-over: $button-link-color-over,
       $color-focus: $button-link-color-focus,
       $color-pressed: $button-link-color-pressed,
-      $color-disabled: $button-link-color-disabled
+      $color-disabled: $button-link-color-disabled,
+      $include-ui-menu-arrows: false,
+      $include-ui-split-arrows: false
     );
     @include uni-button-link('toolbar-large');
   }

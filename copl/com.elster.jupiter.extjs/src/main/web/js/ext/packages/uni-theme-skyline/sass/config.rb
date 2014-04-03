@@ -1,4 +1,4 @@
-require '..\..\ext-theme-base\sass\utils.rb'
+require '../../ext-theme-base/sass/utils.rb'
 
 # sass_path: the directory your Sass files are in. THIS file should also be in the Sass folder
 sass_path = File.dirname(__FILE__)

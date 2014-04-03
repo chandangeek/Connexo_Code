@@ -22,13 +22,13 @@ $button-opacity-disabled: 1 !default;
 
 
 // Deafult gradient
-$button-default-background-gradient: null !default;
+$button-default-background-gradient: 'none' !default;
 $button-default-background-gradient-disabled: $button-default-background-gradient !default;
 $button-default-background-gradient-over: $button-default-background-gradient !default;
 $button-default-background-gradient-pressed: $button-default-background-gradient !default;
 
 //Toolbar gradient
-$button-toolbar-background-gradient: null !default;
+$button-toolbar-background-gradient: 'none' !default;
 $button-toolbar-background-gradient-disabled: $button-default-background-gradient !default;
 $button-toolbar-background-gradient-over: $button-default-background-gradient !default;
 $button-toolbar-background-gradient-pressed: $button-default-background-gradient !default;
