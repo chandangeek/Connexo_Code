@@ -113,7 +113,7 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
                                     name: 'USER',
                                     store: 'Isu.store.UserList',
                                     allowBlank: false,
-                                    displayField: 'authenticationName',
+                                    displayField: 'authenticationName'
                                 },
                                 {
                                     name: 'ROLE',
