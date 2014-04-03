@@ -58,10 +58,10 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 click: this.createRegisterTypeHistory
             },
             '#registerTypePreview menuitem[action=editRegisterType]': {
-                click: this.editRegisterTypeHistory
+                click: this.editRegisterTypeHistoryFromPreview
             },
             '#registerTypePreview menuitem[action=deleteRegisterType]': {
-                click: this.deleteRegisterType
+                click: this.deleteRegisterTypeFromPreview
             },
             '#createEditButton[action=createRegisterType]': {
                 click: this.createRegisterType
@@ -133,6 +133,10 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         location.href = '#setup/registertypes/' + item.get('id') + '/edit';
     },
 
+    editRegisterTypeHistoryFromPreview: function () {
+        location.href = '#setup/registertypes/' + this.getRegisterTypeGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
+    },
+
     deleteRegisterType: function (registerTypeToDelete) {
         var me = this;
         Ext.MessageBox.show({
@@ -145,6 +149,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             fn: me.deleteRegisterTypeInDatabase,
             icon: Ext.MessageBox.WARNING
         });
+
+    },
+
+    deleteRegisterTypeFromPreview: function (registerTypeToDelete) {
+        this.deleteRegisterType(this.getRegisterTypeGrid().getSelectionModel().getSelection()[0]);
 
     },
 
@@ -265,7 +274,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             values = this.getRegisterTypeEditForm().getValues();
         var widget = this.getRegisterTypeEditForm();
         var mrId = widget.down('#editMrIdField').getValue();
-        var me= this;
+        var me = this;
 
         //delete values.mrid;
         var readingType = Ext.create(Mdc.model.ReadingType);
