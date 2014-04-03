@@ -1,0 +1,90 @@
+package com.elster.jupiter.issue.tests;
+
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.issue.datacollection.impl.IssueDataCollectionModule;
+import com.elster.jupiter.issue.datacollection.impl.install.InstallServiceImpl;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.UtilModule;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.kie.api.io.KieResources;
+import org.kie.internal.KnowledgeBaseFactoryService;
+import org.kie.internal.builder.KnowledgeBuilderFactoryService;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import static org.mockito.Mockito.mock;
+
+@Ignore("Base functionality for all tests")
+public class BaseTest {
+    private static Injector injector;
+    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+
+    private static class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+
+            bind(KieResources.class).toInstance(mock(KieResources.class));
+            bind(KnowledgeBaseFactoryService.class).toInstance(mock(KnowledgeBaseFactoryService.class));
+            bind(KnowledgeBuilderFactoryService.class).toInstance(mock(KnowledgeBuilderFactoryService.class));
+        }
+    }
+
+    @BeforeClass
+    public static void setEnvironment(){
+        injector = Guice.createInjector(
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new InMemoryMessagingModule(),
+                new IdsModule(),
+                new MeteringModule(),
+                new PartyModule(),
+                new EventsModule(),
+                new DomainUtilModule(),
+                new OrmModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new PubSubModule(),
+                new TransactionModule(),
+                new NlsModule(),
+                new UserModule(),
+                new IssueDataCollectionModule()
+        );
+
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            injector.getInstance(InstallServiceImpl.class);
+            ctx.commit();
+        }
+    }
+
+    @AfterClass
+    public static void deactivateEnvironment(){
+        inMemoryBootstrapModule.deactivate();
+    }
+
+    protected TransactionService getTransactionService() {
+        return injector.getInstance(TransactionService.class);
+    }
+    protected TransactionContext getContext(){
+        return getTransactionService().getContext();
+    }
+}

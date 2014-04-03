@@ -1,0 +1,50 @@
+package com.elster.jupiter.issue.datacollection.impl.install;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.issue.datacollection.impl.ModuleConstants;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.orm.callback.InstallService;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+
+@Component(name = "install", service = InstallService.class, property = "name=" + ModuleConstants.COMPONENT_NAME, immediate = true)
+public class InstallServiceImpl implements InstallService {
+    private volatile IssueService issueService;
+    private volatile MessageService messageService;
+    private volatile EventService eventService;
+
+    public InstallServiceImpl() {
+    }
+
+    @Inject
+    public InstallServiceImpl(IssueService issueService, MessageService messageService) {
+        setMessageService(messageService);
+        setIssueService(issueService);
+        setEventService(eventService);
+
+        install();
+    }
+
+    @Override
+    public void install() {
+        new Installer(issueService, messageService, eventService).install();
+    }
+
+    @Reference
+    public final void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
+    }
+
+    @Reference
+    public final void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public final void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+}
