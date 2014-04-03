@@ -13,6 +13,7 @@ Ext.define('Uni.view.navigation.Menu', {
 
     defaults: {
         xtype: 'button',
+        ui: 'menuitem',
         hrefTarget: '_self',
         toggleGroup: 'menu-items',
         action: 'menu-main',
