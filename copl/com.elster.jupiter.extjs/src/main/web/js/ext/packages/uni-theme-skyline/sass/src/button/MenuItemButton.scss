@@ -23,19 +23,6 @@
         //background-color: $color-blue;
       }
 
-      .x-pressed {
-        background-color: $color-white;
-
-        .x-btn-button {
-          .x-btn-inner, .x-btn-glyph {
-            color: $color-blue;
-          }
-
-          &:hover {
-            background-color: $color-white;
-          }
-        }
-      }
     }
   }
 }
