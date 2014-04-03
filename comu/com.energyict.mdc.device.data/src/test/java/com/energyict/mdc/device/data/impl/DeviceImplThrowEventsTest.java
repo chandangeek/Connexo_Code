@@ -7,6 +7,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.*;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.impl.EventServiceImpl;
+import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -29,9 +30,13 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.common.ApplicationContext;
+import com.energyict.mdc.common.BusinessEventManager;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
@@ -41,13 +46,20 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -125,7 +137,7 @@ public class DeviceImplThrowEventsTest {
     public void initializeMocks() {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(inMemoryPersistence.getProtocolPluggableService().findDeviceProtocolPluggableClass(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID)).thenReturn(deviceProtocolPluggableClass);
+//        when(inMemoryPersistence.getProtocolPluggableService().findDeviceProtocolPluggableClass(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID)).thenReturn(deviceProtocolPluggableClass);
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
@@ -204,20 +216,20 @@ public class DeviceImplThrowEventsTest {
         private ProtocolPluggableService protocolPluggableService;
         private MdcReadingTypeUtilService readingTypeUtilService;
         private DeviceDataServiceImpl deviceService;
-        private Clock clock;
+        private Clock clock = new DefaultClock();
         private RelationService relationService;
         private EngineModelService engineModelService;
+        private Environment environment;
 
         public void initializeDatabase(String testName, boolean showSqlLogging) {
             this.initializeMocks(testName);
             InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
-            injector = Guice.createInjector(
+            Injector injector = Guice.createInjector(
                     new MockModule(),
                     bootstrapModule,
                     new ThreadSecurityModule(this.principal),
                     new PubSubModule(),
                     new TransactionModule(showSqlLogging),
-                    new UtilModule(),
                     new NlsModule(),
                     new DomainUtilModule(),
                     new PartyModule(),
@@ -226,26 +238,34 @@ public class DeviceImplThrowEventsTest {
                     new MeteringModule(),
                     new InMemoryMessagingModule(),
                     new OrmModule(),
+                    new IssuesModule(),
+                    new ProtocolsModule(),
                     new MdcReadingTypeUtilServiceModule(),
+                    new MdcDynamicModule(),
+                    new PluggableModule(),
+                    new ProtocolPluggableModule(),
+                    new EngineModelModule(),
                     new DeviceConfigurationModule(),
                     new MdcCommonModule(),
                     new DeviceDataModule());
+            BusinessEventManager eventManager = mock(BusinessEventManager.class);
+            when(this.applicationContext.createEventManager()).thenReturn(eventManager);
             this.transactionService = injector.getInstance(TransactionService.class);
-            environment = injector.getInstance(Environment.class);
-            environment.put(EventInMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
-            environment.setApplicationContext(this.applicationContext);
+            this.environment = injector.getInstance(Environment.class);
+            this.environment.put(InMemoryIntegrationPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
+            this.environment.setApplicationContext(this.applicationContext);
             try (TransactionContext ctx = this.transactionService.getContext()) {
-                this.eventService = injector.getInstance(EventService.class);
                 this.ormService = injector.getInstance(OrmService.class);
+                this.transactionService = injector.getInstance(TransactionService.class);
+                this.eventService = injector.getInstance(EventService.class);
                 this.nlsService = injector.getInstance(NlsService.class);
-                PartyService partyService = injector.getInstance(PartyService.class);
                 this.meteringService = injector.getInstance(MeteringService.class);
                 this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
                 this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
-                this.dataModel = this.createNewDeviceDataService();
-                this.clock = injector.getInstance(Clock.class);
-                this.relationService = injector.getInstance(RelationService.class);
                 this.engineModelService = injector.getInstance(EngineModelService.class);
+                this.relationService = injector.getInstance(RelationService.class);
+                this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+                this.dataModel = this.createNewDeviceDataService();
                 ctx.commit();
             }
         }
@@ -330,9 +350,12 @@ public class DeviceImplThrowEventsTest {
 
             @Override
             protected void configure() {
+                bind(JsonService.class).toInstance(new JsonServiceImpl());
+                bind(BeanService.class).toInstance(new BeanServiceImpl());
+                bind(Clock.class).toInstance(clock);
                 bind(EventAdmin.class).toInstance(eventAdmin);
                 bind(BundleContext.class).toInstance(bundleContext);
-                bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
+//                bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(EventService.class).to(SpyEventService.class).in(Scopes.SINGLETON);
                 bind(DataModel.class).toProvider(new Provider<DataModel>() {
                     @Override

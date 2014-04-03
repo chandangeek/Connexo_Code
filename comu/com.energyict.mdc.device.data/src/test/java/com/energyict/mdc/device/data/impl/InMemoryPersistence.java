@@ -22,6 +22,12 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
@@ -29,9 +35,15 @@ import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -62,6 +74,8 @@ public class InMemoryPersistence {
 
     public static final String JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME = "jupiter.bootstrap.module";
 
+    private final Clock clock;
+
     private BundleContext bundleContext;
     private Principal principal;
     private EventAdmin eventAdmin;
@@ -77,6 +91,16 @@ public class InMemoryPersistence {
     private MdcReadingTypeUtilService readingTypeUtilService;
     private DeviceDataServiceImpl deviceService;
 
+
+    public InMemoryPersistence() {
+        this.clock = new DefaultClock();
+    }
+
+    public InMemoryPersistence(Clock clock) {
+        super();
+        this.clock = clock;
+    }
+
     public void initializeDatabase(String testName, boolean showSqlLogging, boolean createMasterData) {
         this.initializeMocks(testName);
         InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
@@ -87,7 +111,6 @@ public class InMemoryPersistence {
                 new EventsModule(),
                 new PubSubModule(),
                 new TransactionModule(showSqlLogging),
-                new UtilModule(),
                 new NlsModule(),
                 new DomainUtilModule(),
                 new PartyModule(),
@@ -96,7 +119,13 @@ public class InMemoryPersistence {
                 new MeteringModule(),
                 new InMemoryMessagingModule(),
                 new OrmModule(),
+                new IssuesModule(),
+                new ProtocolsModule(),
                 new MdcReadingTypeUtilServiceModule(),
+                new MdcDynamicModule(),
+                new PluggableModule(),
+//                new ProtocolPluggableModule(),
+                new EngineModelModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new DeviceDataModule());
@@ -105,6 +134,7 @@ public class InMemoryPersistence {
         environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
         environment.setApplicationContext(this.applicationContext);
         try (TransactionContext ctx = this.transactionService.getContext()) {
+            this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.ormService = injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
@@ -221,6 +251,10 @@ public class InMemoryPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(JsonService.class).toInstance(new JsonServiceImpl());
+            bind(BeanService.class).toInstance(new BeanServiceImpl());
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(Clock.class).toInstance(clock);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);

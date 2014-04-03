@@ -26,6 +26,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
@@ -62,7 +63,7 @@ import static org.mockito.Mockito.*;
  * Date: 05/03/14
  * Time: 13:49
  */
-public class DeviceImplTest extends PersistenceTest {
+public class DeviceImplTest extends PersistenceIntegrationTest {
 
     private static final String DEVICENAME = "deviceName";
     private static final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
@@ -109,7 +110,7 @@ public class DeviceImplTest extends PersistenceTest {
     }
 
     private Device createSimpleDeviceWithName(String name) {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name);
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, name);
         device.save();
         return device;
     }
@@ -171,7 +172,7 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     public void createWithoutNameTest() {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, null);
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, null);
         device.save();
     }
 
@@ -180,7 +181,7 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     public void createWithEmptyNameTest() {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "");
         device.save();
     }
 
@@ -189,7 +190,7 @@ public class DeviceImplTest extends PersistenceTest {
     public void createWithSerialNumberTest() {
         String serialNumber = "MyTestSerialNumber";
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME);
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME);
         device.setSerialNumber(serialNumber);
         device.save();
 
@@ -227,11 +228,11 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     public void successfulCreationOfTwoDevicesWithSameSerialNumberTest() {
         String serialNumber = "SerialNumber";
-        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME + "First");
+        Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME + "First");
         device1.setSerialNumber(serialNumber);
         device1.save();
 
-        Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME + "Second");
+        Device device2 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME + "Second");
         device2.setSerialNumber(serialNumber);
         device2.save();
 
@@ -244,7 +245,7 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     public void successfulCreateWithExternalNameTest() {
         String externalName = "MyPublicExternalName";
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME + "First");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME + "First");
         device.setExternalName(externalName);
         device.save();
 
@@ -257,7 +258,7 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     public void successfulUpdateWithExternalNameTest() {
         String externalName = "MyUpdatedPublicExternalName";
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME + "First");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME + "First");
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -273,10 +274,10 @@ public class DeviceImplTest extends PersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_EXTERNAL_KEY + "}")
     public void uniquenessOfExternalNameTest() {
         String externalName = "MyPublicExternalName";
-        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME + "First");
+        Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME + "First");
         device1.setExternalName(externalName);
         device1.save();
-        Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME + "Second");
+        Device device2 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME + "Second");
         device2.setExternalName(externalName);
         device2.save();
     }
@@ -286,10 +287,10 @@ public class DeviceImplTest extends PersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_EXTERNAL_KEY + "}")
     public void uniquenessOfExternalNameAfterUpdateTest() {
         String externalName = "MyPublicExternalName";
-        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME + "First");
+        Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME + "First");
         device1.setExternalName(externalName);
         device1.save();
-        Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME + "Second");
+        Device device2 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME + "Second");
         device2.save();
         Device reloadedDevice = getReloadedDevice(device2);
         reloadedDevice.setExternalName(externalName);
@@ -339,7 +340,7 @@ public class DeviceImplTest extends PersistenceTest {
     public void userDefinedTimeZoneTest() {
         createTestDefaultTimeZone();
         TimeZone userDefinedTimeZone = TimeZone.getTimeZone("Asia/Novokuznetsk");
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME);
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME);
         device.setTimeZone(userDefinedTimeZone);
         device.save();
 
@@ -364,7 +365,7 @@ public class DeviceImplTest extends PersistenceTest {
     public void updateUserDefinedTimeZoneWithNullTimeZoneResultsInDefaultTest() {
         createTestDefaultTimeZone();
         TimeZone userDefinedTimeZone = TimeZone.getTimeZone("Asia/Novokuznetsk");
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME);
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME);
         device.setTimeZone(userDefinedTimeZone);
         device.save();
 
@@ -401,8 +402,10 @@ public class DeviceImplTest extends PersistenceTest {
         deviceType.addRegisterMapping(registerMapping1);
         deviceType.addRegisterMapping(registerMapping2);
         DeviceType.DeviceConfigurationBuilder configurationWithRegisterMappings = deviceType.newConfiguration("ConfigurationWithRegisterMappings");
-        configurationWithRegisterMappings.newRegisterSpec(registerMapping1);
-        configurationWithRegisterMappings.newRegisterSpec(registerMapping2);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder1 = configurationWithRegisterMappings.newRegisterSpec(registerMapping1);
+        registerSpecBuilder1.setNumberOfDigits(9);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder2 = configurationWithRegisterMappings.newRegisterSpec(registerMapping2);
+        registerSpecBuilder2.setNumberOfDigits(9);
         DeviceConfiguration deviceConfiguration = configurationWithRegisterMappings.add();
         deviceType.save();
         return deviceConfiguration;
@@ -412,7 +415,7 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     public void getRegistersForConfigWithRegistersTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME);
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME);
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -424,7 +427,7 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     public void getRegisterReadingsShouldReturnEmptyListTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME);
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME);
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -440,7 +443,7 @@ public class DeviceImplTest extends PersistenceTest {
         MeterReadingImpl meterReading = new MeterReadingImpl();
         meterReading.addReading(reading);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME);
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME);
         device.save();
         device.store(meterReading);
 
@@ -457,7 +460,7 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     public void getRegisterWithDeviceObisCodeForConfigWithRegistersTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME);
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME);
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -479,7 +482,7 @@ public class DeviceImplTest extends PersistenceTest {
     public void createWithPhysicalGatewayTest() {
         Device masterDevice = createSimpleDeviceWithName("Physical_MASTER");
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Slave");
         device.setPhysicalGateway(masterDevice);
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
@@ -493,7 +496,7 @@ public class DeviceImplTest extends PersistenceTest {
     public void updateWithPhysicalGatewayTest() {
         Device masterDevice = createSimpleDeviceWithName("Physical_MASTER");
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Slave");
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
         reloadedDevice.setPhysicalGateway(masterDevice);
@@ -582,7 +585,7 @@ public class DeviceImplTest extends PersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
     public void updatePhysicalGatewayWithSameAsOriginDeviceTest() {
         Device physicalGateway = createSimpleDeviceWithName("PhysicalGateway");
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Slave");
         device.setPhysicalGateway(physicalGateway);
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
@@ -604,7 +607,7 @@ public class DeviceImplTest extends PersistenceTest {
     public void createWithCommunicationGatewayTest() {
         Device communicationMaster = createSimpleDevice();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Slave");
         device.setCommunicationGateway(communicationMaster);
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
@@ -706,7 +709,7 @@ public class DeviceImplTest extends PersistenceTest {
     public void updateCommunicationGatewayWithSameAsOriginDeviceTest() {
         Device communicationMaster = createSimpleDevice();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Slave");
         device.setCommunicationGateway(communicationMaster);
         device.save();
 
@@ -718,7 +721,7 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     public void createWithSamePhysicalAndCommunicationGatewayTest() {
         Device gatewayForBoth = createSimpleDeviceWithName("GatewayForBoth");
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin");
         device.setPhysicalGateway(gatewayForBoth);
         device.setCommunicationGateway(gatewayForBoth);
         device.save();
@@ -740,10 +743,10 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     public void findPhysicalConnectedDevicesTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        final Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1");
+        final Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin1");
         device1.setPhysicalGateway(physicalMaster);
         device1.save();
-        final Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin2");
+        final Device device2 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin2");
         device2.setPhysicalGateway(physicalMaster);
         device2.save();
 
@@ -766,10 +769,10 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     public void findDownstreamDevicesAfterRemovingGatewayReferenceTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        final Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1");
+        final Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin1");
         device1.setPhysicalGateway(physicalMaster);
         device1.save();
-        final Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin2");
+        final Device device2 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin2");
         device2.setPhysicalGateway(physicalMaster);
         device2.save();
 
@@ -787,10 +790,10 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     public void findDownstreamDevicesAfterRemovalOfOneTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        final Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1");
+        final Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin1");
         device1.setPhysicalGateway(physicalMaster);
         device1.save();
-        final Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin2");
+        final Device device2 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin2");
         device2.setPhysicalGateway(physicalMaster);
         device2.save();
 
@@ -808,10 +811,10 @@ public class DeviceImplTest extends PersistenceTest {
     public void findDownstreamDevicesAfterSettingToOtherPhysicalGatewayTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
         Device otherPhysicalMaster = createSimpleDeviceWithName("OtherPhysicalMaster");
-        final Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1");
+        final Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin1");
         device1.setPhysicalGateway(physicalMaster);
         device1.save();
-        final Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin2");
+        final Device device2 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin2");
         device2.setPhysicalGateway(physicalMaster);
         device2.save();
 
@@ -830,7 +833,7 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     public void cannotDeleteBecauseStillUsedAsPhysicalGatewayTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1");
+        Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin1");
         device1.setPhysicalGateway(physicalMaster);
         device1.save();
 
@@ -850,7 +853,7 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     public void deletePhysicalMasterAfterDeletingSlaveTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin");
         device.setPhysicalGateway(physicalMaster);
         device.save();
 
@@ -861,14 +864,14 @@ public class DeviceImplTest extends PersistenceTest {
         long masterId = reloadedMaster.getId();
         reloadedMaster.delete();
 
-        assertThat(inMemoryPersistence.getDeviceService().findDeviceById(masterId)).isNull();
+        assertThat(inMemoryPersistence.getDeviceDataService().findDeviceById(masterId)).isNull();
     }
 
     @Test(expected = StillGatewayException.class)
     @Transactional
     public void cannotDeleteBecauseStillUsedAsCommunicationGatewayTest() {
         Device communicationMaster = createSimpleDeviceWithName("CommunicationMaster");
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin1");
         device.setCommunicationGateway(communicationMaster);
         device.save();
 
@@ -888,7 +891,7 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     public void deleteCommunicationMasterAfterDeletingSlaveTest() {
         Device communicationMaster = createSimpleDeviceWithName("CommunicationMaster");
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin1");
         device.setCommunicationGateway(communicationMaster);
         device.save();
 
@@ -899,7 +902,7 @@ public class DeviceImplTest extends PersistenceTest {
         long masterId = reloadedCommunicationMaster.getId();
         reloadedCommunicationMaster.delete();
 
-        assertThat(inMemoryPersistence.getDeviceService().findDeviceById(masterId)).isNull();
+        assertThat(inMemoryPersistence.getDeviceDataService().findDeviceById(masterId)).isNull();
     }
 
     @Test
@@ -927,7 +930,7 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     public void createDeviceWithTwoChannelsTest() {
         DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels");
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
 
@@ -939,7 +942,7 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     public void getChannelWithExistingNameTest() {
         DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels");
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
 
@@ -952,7 +955,7 @@ public class DeviceImplTest extends PersistenceTest {
     @Transactional
     public void getChannelWithNonExistingNameTest() {
         DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels");
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
 

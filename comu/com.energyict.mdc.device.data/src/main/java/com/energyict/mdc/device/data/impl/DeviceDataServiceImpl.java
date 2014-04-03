@@ -419,7 +419,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     @Reference
     public void setEnvironment (Environment environment) {
-        environment.registerFinder(new ConnectionMethodFinder());
+        this.environment = environment;
     }
 
     private Module getModule() {
@@ -434,6 +434,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
                 bind(EventService.class).toInstance(eventService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
+                bind(MeteringService.class).toInstance(meteringService);
             }
         };
     }
@@ -448,6 +449,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
         environment.registerFinder(new DeviceFinder(this.dataModel));
         environment.registerFinder(new LoadProfileFinder(this.dataModel));
         environment.registerFinder(new LogBookFinder(this.dataModel));
+        environment.registerFinder(new ConnectionMethodFinder());
     }
     
     @Override
