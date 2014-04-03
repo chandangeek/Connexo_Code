@@ -170,6 +170,24 @@ Ext.define('Isu.controller.Issues', {
             buttons.push(button);
         }
 
+        if (filter.get('department')) {
+            var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
+                text: 'Department: ' + filter.get('department').get('name'),
+                target: 'department'
+            });
+
+            buttons.push(button);
+        }
+
+        if (filter.get('meter')) {
+            var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
+                text: 'Meter: ' + filter.get('meter').get('name'),
+                target: 'meter'
+            });
+
+            buttons.push(button);
+        }
+
         if (filter.status().count()) {
             filter.status().each(function (status) {
                 var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
