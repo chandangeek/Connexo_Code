@@ -72,7 +72,7 @@ public class InheritanceDataMapperType<T> extends DataMapperType<T> {
 	@Override
 	Field getField(String fieldName) {
 		for (Class<?> implementation : implementations.values()) {
-			Field result = getDomainMapper().getField(implementation, fieldName);
+			Field result = getDomainMapper().getPathField(implementation, fieldName);
 			if (result != null) {
 				return result;
 			}

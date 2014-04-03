@@ -263,6 +263,9 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 	}
 	
 	public boolean isTemporal() {
+		if (reverseFieldName == null) {
+			return false;
+		}
 		Field field = getReferencedTable().getField(reverseFieldName);
 		if (field == null) {
 			return false;

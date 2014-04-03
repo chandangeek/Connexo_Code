@@ -12,6 +12,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Objects;
 
 
 public enum DomainMapper {
@@ -126,6 +127,20 @@ public enum DomainMapper {
 	    } else {
 	    	return null;
 	    }
+	}
+	
+	Field getPathField(Class<?> clazz , String fieldPath) {
+		Objects.requireNonNull(fieldPath);
+		Field field = null;
+		for (String fieldName : fieldPath.split("\\.")) {
+			field = getField(clazz, fieldName);
+			if (field == null) {
+				return null;
+			} else {
+				clazz = field.getType();
+			}
+		}
+		return field;
 	}
 	
 	Class<?> getType(Class<?> implementation , String fieldPath) {

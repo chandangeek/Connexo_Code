@@ -51,7 +51,7 @@ public class SingleDataMapperType<T> extends DataMapperType<T> {
 	
 	@Override
 	Field getField(String fieldName) {
-		return DomainMapper.FIELDLENIENT.getField(implementation,fieldName);
+		return DomainMapper.FIELDLENIENT.getPathField(implementation,fieldName);
 	}
 
 	@Override
