@@ -63,7 +63,6 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
                             items: [
                                 {
                                     boxLabel: 'User',
-                                    checked: true,
                                     inputValue: 'USER'
                                 },
                                 {
@@ -113,20 +112,17 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
                                 {
                                     name: 'USER',
                                     store: 'Isu.store.UserList',
-                                    emptyText: 'Start typing for users',
                                     allowBlank: false,
-                                    displayField: 'authenticationName'
+                                    displayField: 'authenticationName',
                                 },
                                 {
                                     name: 'ROLE',
                                     store: 'Isu.store.UserRoleList',
-                                    emptyText: 'Start typing for user roles',
                                     displayField: 'name'
                                 },
                                 {
                                     name: 'GROUP',
                                     store: 'Isu.store.UserGroupList',
-                                    emptyText: 'Start typing for user groups',
                                     displayField: 'name'
                                 }
                             ]
@@ -163,6 +159,8 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
         },
         afterrender: function (form) {
             var values = Ext.state.Manager.get('formAssignValues');
+            Ext.ComponentQuery.query('issues-assign-form radiogroup')[0].down('[inputValue=USER]').setValue(true);
+
             if (values) {
                 Ext.Object.each(values, function (key, value) {
                     if (key == 'comment') {
@@ -189,8 +187,18 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
 
     assignToOnChange: function (radiogroup, newValue, oldValue) {
         var activeCombobox = radiogroup.next().down('[name=' + newValue.assignTo + ']'),
-            inactiveCombobox = radiogroup.next().down('[name=' + oldValue.assignTo + ']');
-        inactiveCombobox.allowBlank = true;
+            inactiveCombobox = radiogroup.next().down('[name=' + oldValue.assignTo + ']'),
+            currentBoxLabel = radiogroup.down('[checked=true]').boxLabel,
+            tooltips = Ext.ComponentQuery.query('tooltip[anchor=top]');
+
+        Ext.each(tooltips, function (tooltip) {
+           tooltip.destroy();
+        });
+
+        Ext.create('Ext.tip.ToolTip', { target:  activeCombobox.getEl(), html: 'Start typing for ' + currentBoxLabel.toLowerCase() + 's', anchor: 'top' });
+        if (!Ext.isEmpty(inactiveCombobox)) {
+            inactiveCombobox.allowBlank = true;
+        }
         activeCombobox.setDisabled(false);
         activeCombobox.allowBlank = false;
         activeCombobox.focus();
