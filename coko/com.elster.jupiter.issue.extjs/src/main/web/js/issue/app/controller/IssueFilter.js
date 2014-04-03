@@ -120,7 +120,16 @@ Ext.define('Isu.controller.IssueFilter', {
             return;
         }
         var form = this.getIssueFilter().down('filter-form'),
-            filter = form.getRecord();
+            filter = form.getRecord(),
+            groupCombobox = Ext.ComponentQuery.query('issues-filter panel combobox[name=groupnames]')[0];
+
+        if ( !Ext.isEmpty(groupCombobox.getValue())) {
+            var combobox = form.down('combobox[name=reason]'),
+                grid = Ext.ComponentQuery.query('issues-filter panel gridpanel[name=groupgrid]')[0],
+                gridview = Ext.ComponentQuery.query('issues-overview issues-list gridview')[0],
+                record = combobox.findRecordByValue(combobox.getValue());
+            grid.fireEvent('itemclick', gridview, record);
+        }
 
         form.updateRecord(filter);
 
