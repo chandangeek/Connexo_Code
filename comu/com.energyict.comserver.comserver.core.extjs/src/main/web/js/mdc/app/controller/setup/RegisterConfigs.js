@@ -65,13 +65,13 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 click: this.createRegisterConfiguration
             },
             '#registerConfigPreview menuitem[action=deleteRegisterConfig]': {
-                click: this.deleteRegisterConfiguration
+                click: this.deleteRegisterConfigurationFromPreview
             },
             '#registerConfigEditForm numberfield[name=numberOfDigits]': {
                 change: this.changeNumberOfDigits
             },
             '#registerConfigPreview menuitem[action=editRegisterConfig]': {
-                click: this.editRegisterConfigurationHistory
+                click: this.editRegisterConfigurationHistoryFromPreview
             },
             '#createEditButton[action=editRegisterConfiguration]': {
                 click: this.editRegisterConfiguration
@@ -82,6 +82,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     editRegisterConfigurationHistory: function (record) {
         location.href = '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/' + record.get('id') + '/edit';
     },
+
+    editRegisterConfigurationHistoryFromPreview: function () {
+            location.href = '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/' + this.getRegisterConfigGrid().getSelectionModel().getSelection()[0].get("id") + '/edit';
+        },
 
     createRegisterConfigurationHistory: function () {
         location.href = '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/create';
@@ -350,6 +354,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         });
     },
 
+    deleteRegisterConfigurationFromPreview: function () {
+        this.deleteRegisterConfiguration(this.getRegisterConfigGrid().getSelectionModel().getSelection()[0]);
+    },
+
 
     removeRegisterConfigFromDeviceType: function (btn, text, opt) {
         if (btn === 'yes') {
@@ -369,8 +377,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         var view = this.getRegisterConfigEditForm();
         view.down('#editOverflowValueField').setValue(null);
         var numberOfDigits = view.down('#editNumberOfDigitsField').getValue();
-        var maxOverFlowValue = Math.pow(10,numberOfDigits);
-        this.getOverflowValueInfo().update('<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo','MDC', 'The maximum overflow value is {0} with {1} number of digits.', [maxOverFlowValue, numberOfDigits]) + '</i></span>');
+        var maxOverFlowValue = Math.pow(10, numberOfDigits);
+        this.getOverflowValueInfo().update('<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo', 'MDC', 'The maximum overflow value is {0} with {1} number of digits.', [maxOverFlowValue, numberOfDigits]) + '</i></span>');
         view.down('#editOverflowValueField').setMaxValue(maxOverFlowValue);
     },
 
