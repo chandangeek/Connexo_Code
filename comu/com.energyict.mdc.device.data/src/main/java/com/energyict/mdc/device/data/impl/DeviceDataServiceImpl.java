@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
@@ -171,7 +170,10 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     @Override
     public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression temporalExpression) {
-        NextExecutionSpecs nextExecutionSpecs = this.deviceConfigurationService.newNextExecutionSpecs(temporalExpression);
+        NextExecutionSpecs nextExecutionSpecs = null;
+        if (temporalExpression != null) {
+            nextExecutionSpecs = this.deviceConfigurationService.newNextExecutionSpecs(temporalExpression);
+        }
         ScheduledConnectionTaskImpl connectionTask = this.dataModel.getInstance(ScheduledConnectionTaskImpl.class);
         connectionTask.initializeWithMinimizeStrategy(device, partialConnectionTask, comPortPool, nextExecutionSpecs);
         return connectionTask;
@@ -218,7 +220,8 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     @Override
     public List<ConnectionTask> findConnectionTasksByDevice(Device device) {
-        return this.getDataModel().mapper(ConnectionTask.class).find("deviceId", device.getId(), "obsoleteDate", null);
+        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("obsoleteDate").isNull());
+        return this.getDataModel().mapper(ConnectionTask.class).select(condition);
     }
 
     @Override
@@ -228,12 +231,14 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     @Override
     public List<InboundConnectionTask> findInboundConnectionTasksByDevice(Device device) {
-        return this.getDataModel().mapper(InboundConnectionTask.class).find("deviceId", device.getId(), "obsoleteDate", null);
+        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("obsoleteDate").isNull());
+        return this.getDataModel().mapper(InboundConnectionTask.class).select(condition);
     }
 
     @Override
     public List<ScheduledConnectionTask> findScheduledConnectionTasksByDevice(Device device) {
-        return this.getDataModel().mapper(ScheduledConnectionTask.class).find("deviceId", device.getId(), "obsoleteDate", null);
+        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("obsoleteDate").isNull());
+        return this.getDataModel().mapper(ScheduledConnectionTask.class).select(condition);
     }
 
     @Override

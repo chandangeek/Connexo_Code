@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
@@ -53,7 +54,9 @@ import java.util.Set;
  * @since 2012-04-16 (11:07)
  */
 @ValidNextExecutionSpecsWithMinimizeConnectionsStrategy(groups = {Save.Create.class, Save.Update.class})
-public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<PartialScheduledConnectionTask> implements ScheduledConnectionTask {
+public class ScheduledConnectionTaskImpl
+        extends OutboundConnectionTaskImpl<PartialScheduledConnectionTask>
+        implements ScheduledConnectionTask {
 
     private ComWindow comWindow;
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
@@ -84,6 +87,18 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         super.initialize(device, partialConnectionTask, comPortPool);
         this.setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         this.setNextExecutionSpecs(nextExecutionSpecs);
+    }
+
+    @Override
+    public void postLoad() {
+        super.postLoad();
+        this.setCommunicationWindowToNullWhenEmpty();
+    }
+
+    private void setCommunicationWindowToNullWhenEmpty() {
+        if (this.comWindow != null && this.comWindow.isEmpty()) {
+            this.comWindow = null;
+        }
     }
 
     @Override
