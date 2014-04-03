@@ -5,11 +5,12 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
+import org.codehaus.jackson.annotate.JsonProperty;
+
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 public class RegisterConfigInfo {
 
@@ -19,8 +20,8 @@ public class RegisterConfigInfo {
     public String name;
     @JsonProperty("readingType")
     public ReadingTypeInfo readingTypeInfo;
-    @JsonProperty("registerTypeId")
-    public Long registerTypeId;
+    @JsonProperty("registerMapping")
+    public Long registerMapping;
     @JsonProperty("obisCode")
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
@@ -59,7 +60,7 @@ public class RegisterConfigInfo {
         registerConfigInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         registerConfigInfo.multiplier = registerSpec.getMultiplier();
         registerConfigInfo.overflowValue = registerSpec.getOverflowValue();
-        registerConfigInfo.registerTypeId = registerSpec.getRegisterMapping().getId();
+        registerConfigInfo.registerMapping = registerSpec.getRegisterMapping().getId();
         registerConfigInfo.timeOfUse = registerSpec.getRegisterMapping().getTimeOfUse();
         return registerConfigInfo;
     }
