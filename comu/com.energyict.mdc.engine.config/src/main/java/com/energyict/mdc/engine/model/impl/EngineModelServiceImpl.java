@@ -84,6 +84,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public void install() {
+        createTranslations();
         if(!dataModel.isInstalled()){
             dataModel.install(true, true);
         }

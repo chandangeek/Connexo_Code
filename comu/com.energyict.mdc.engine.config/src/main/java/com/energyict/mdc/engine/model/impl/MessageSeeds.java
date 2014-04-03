@@ -4,12 +4,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.engine.model.EngineModelService;
 import java.util.logging.Level;
 
-/**
- * Insert your comments here.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2014-01-23 (11:00)
- */
 public enum MessageSeeds implements MessageSeed {
     SHOULD_BE_AT_LEAST(1, Constants.MDC_VALUE_TOO_SMALL, "Minimal acceptable value is {min}, was {value}", Level.SEVERE),
     CAN_NOT_BE_EMPTY(2, Constants.MDC_CAN_NOT_BE_EMPTY, "This field can not be empty", Level.SEVERE),
@@ -42,9 +36,17 @@ public enum MessageSeeds implements MessageSeed {
 
     MessageSeeds(int number, String key, String defaultFormat, Level level) {
         this.number = number;
-        this.key = key;
+        this.key = stripComponentNameIfPresent(key);
         this.defaultFormat = defaultFormat;
         this.level = level;
+    }
+
+    private String stripComponentNameIfPresent(String key) {
+        if (key.startsWith(EngineModelService.COMPONENT_NAME+".")) {
+            return key.substring(EngineModelService.COMPONENT_NAME.length()+1);
+        } else {
+            return key;
+        }
     }
 
     @Override
@@ -76,28 +78,28 @@ public enum MessageSeeds implements MessageSeed {
 
 final class Constants {
 
-    public static final String MDC_VALUE_TOO_SMALL = EngineModelService.COMPONENT_NAME+"ValueTooSmall";
-    public static final String MDC_CAN_NOT_BE_EMPTY = "MDC.CanNotBeEmpty";
-    public static final String MDC_VALUE_NOT_IN_RANGE = "MDC.ValueNotInRange";
-    public static final String MDC_INVALID_URL = "MDC.InvalidURL";
-    public static final String MDC_INVALID_CHARS = "MDC.InvalidChars";
-    public static final String MDC_CAN_NOT_BE_EMPTY_IF_HTTPS = "MDC.CanNotBeEmptyIfHttps";
+    public static final String MDC_VALUE_TOO_SMALL = EngineModelService.COMPONENT_NAME+".ValueTooSmall";
+    public static final String MDC_CAN_NOT_BE_EMPTY = EngineModelService.COMPONENT_NAME+".CanNotBeEmpty";
+    public static final String MDC_VALUE_NOT_IN_RANGE = EngineModelService.COMPONENT_NAME+".ValueNotInRange";
+    public static final String MDC_INVALID_URL = EngineModelService.COMPONENT_NAME+".InvalidURL";
+    public static final String MDC_INVALID_CHARS = EngineModelService.COMPONENT_NAME+".InvalidChars";
+    public static final String MDC_CAN_NOT_BE_EMPTY_IF_HTTPS = EngineModelService.COMPONENT_NAME+".CanNotBeEmptyIfHttps";
 
-    public static final String MDC_DUPLICATE_COM_SERVER = "MDC.DuplicateComServer";
-    public static final String MDC_COMSERVER_NO_UPDATE_ALLOWED = "MDC.comserver.noUpdateAllowed";
-    public static final String MDC_ONLINE_COM_SERVER_STILL_REFERENCED = "MDC.OnlineComServerXStillReferenced";
-    public static final String MDC_COMPORTPOOL_STILL_REFERENCED = "MDC.ComPortPoolStillReferenced";
+    public static final String MDC_DUPLICATE_COM_SERVER = EngineModelService.COMPONENT_NAME+".DuplicateComServer";
+    public static final String MDC_COMSERVER_NO_UPDATE_ALLOWED = EngineModelService.COMPONENT_NAME+".comserver.noUpdateAllowed";
+    public static final String MDC_ONLINE_COM_SERVER_STILL_REFERENCED = EngineModelService.COMPONENT_NAME+".OnlineComServerXStillReferenced";
+    public static final String MDC_COMPORTPOOL_STILL_REFERENCED = EngineModelService.COMPONENT_NAME+".ComPortPoolStillReferenced";
 
-    public static final String MDC_DUPLICATE_COM_PORT = "MDC.DuplicateComPort";
-    public static final String MDC_COMPORT_NO_UPDATE_ALLOWED = "MDC.comport.noUpdateAllowed";
-    public static final String MDC_COM_PORT_TYPE_OF_COM_PORT_DOES_NOT_MATCH_WITH_COM_PORT_POOL = "MDC.ComPortTypeOfComPortDoesNotMatchWithComPortPool";
-    public static final String MDC_DUPLICATE_COM_PORT_PER_COM_SERVER = "MDC.DuplicateComPortPerComServer";
-    public static final String MDC_DUPLICATE_COM_PORT_POOL = "MDC.DuplicateComPortPool";
-    public static final String MDC_COMPORTPOOL_NO_UPDATE_ALLOWED = "MDC.comportpool.noUpdateAllowed";
-    public static final String MDC_IS_ALREADY_OBSOLETE = "MDC.isAlreadyObsolete";
-    public static final String MDC_NOT_UNIQUE = "MDC.notUnique";
-    public static final String DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_IS_MANDATORY_FOR_COMPORTPOOL = "MDC.discoveryProtocol.isMandatory";
-    public static final String OUTBOUND_COM_PORT_STILL_MEMBER_OF_POOL = "MDC.outboundComPortXStillMemberOfPool";
-    public static final String MDC_COM_PORT_POOL_PLUGGABLE_CLASS_INVALID = "MDC.ComPortPool.pluggableClass.invalid";
-    public static final String DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_XSTILL_IN_USE_BY_DEVICE_TYPES_Y = "discoveryProtocolPluggableClass.XstillInUseByDeviceTypesY";
+    public static final String MDC_DUPLICATE_COM_PORT = EngineModelService.COMPONENT_NAME+".DuplicateComPort";
+    public static final String MDC_COMPORT_NO_UPDATE_ALLOWED = EngineModelService.COMPONENT_NAME+".comport.noUpdateAllowed";
+    public static final String MDC_COM_PORT_TYPE_OF_COM_PORT_DOES_NOT_MATCH_WITH_COM_PORT_POOL = EngineModelService.COMPONENT_NAME+".ComPortTypeOfComPortDoesNotMatchWithComPortPool";
+    public static final String MDC_DUPLICATE_COM_PORT_PER_COM_SERVER = EngineModelService.COMPONENT_NAME+".DuplicateComPortPerComServer";
+    public static final String MDC_DUPLICATE_COM_PORT_POOL = EngineModelService.COMPONENT_NAME+".DuplicateComPortPool";
+    public static final String MDC_COMPORTPOOL_NO_UPDATE_ALLOWED = EngineModelService.COMPONENT_NAME+".comportpool.noUpdateAllowed";
+    public static final String MDC_IS_ALREADY_OBSOLETE = EngineModelService.COMPONENT_NAME+".isAlreadyObsolete";
+    public static final String MDC_NOT_UNIQUE = EngineModelService.COMPONENT_NAME+".notUnique";
+    public static final String DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_IS_MANDATORY_FOR_COMPORTPOOL = EngineModelService.COMPONENT_NAME+".discoveryProtocol.isMandatory";
+    public static final String OUTBOUND_COM_PORT_STILL_MEMBER_OF_POOL = EngineModelService.COMPONENT_NAME+".outboundComPortXStillMemberOfPool";
+    public static final String MDC_COM_PORT_POOL_PLUGGABLE_CLASS_INVALID = EngineModelService.COMPONENT_NAME+".ComPortPool.pluggableClass.invalid";
+    public static final String DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_XSTILL_IN_USE_BY_DEVICE_TYPES_Y = EngineModelService.COMPONENT_NAME+".discoveryProtocolPluggableClass.XstillInUseByDeviceTypesY";
 }

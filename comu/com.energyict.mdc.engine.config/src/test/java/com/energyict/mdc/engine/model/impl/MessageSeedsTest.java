@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.energyict.mdc.engine.model.EngineModelService;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Test;
@@ -42,4 +43,15 @@ public class MessageSeedsTest {
         }
     }
 
+    @Test
+    public void testMessageSeedKeysDontContainComponentName() throws Exception {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+            assertThat(messageSeed.getKey()).doesNotContain(EngineModelService.COMPONENT_NAME+".");
+        }
+    }
+
+    @Test
+    public void testMessageSeedKeysTrimmed() throws Exception {
+        assertThat(MessageSeeds.CAN_NOT_BE_EMPTY.getKey()).isEqualTo("CanNotBeEmpty");
+    }
 }
