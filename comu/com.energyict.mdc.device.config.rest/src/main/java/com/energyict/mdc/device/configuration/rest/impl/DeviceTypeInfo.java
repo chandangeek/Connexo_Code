@@ -1,16 +1,13 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.DeviceTypeFields;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @XmlRootElement
 public class DeviceTypeInfo {
@@ -74,9 +71,4 @@ public class DeviceTypeInfo {
         return deviceTypeInfos;
     }
 
-    public static Map<String, String> fieldMappings() {
-        Map<String, String> fieldMappings = new HashMap<>();
-        fieldMappings.put(DeviceTypeFields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName(), COMMUNICATION_PROTOCOL_NAME);
-        return fieldMappings;
-    }
 }
