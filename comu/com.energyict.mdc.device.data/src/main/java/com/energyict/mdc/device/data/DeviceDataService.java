@@ -6,6 +6,7 @@ import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.impl.InfoType;
@@ -58,7 +59,7 @@ public interface DeviceDataService {
      * @param comPortPool The OutboundComPortPool
      * @return The new ScheduledConnectionTask
      */
-    public ScheduledConnectionTask newAsapConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool);
+    public ScheduledConnectionTask newAsapConnectionTask(Device device, PartialOutboundConnectionTask partialConnectionTask, OutboundComPortPool comPortPool);
 
     /**
      * Creates a new {@link ScheduledConnectionTask}, that uses the {@link ConnectionStrategy#MINIMIZE_CONNECTIONS} strategy,
@@ -72,7 +73,7 @@ public interface DeviceDataService {
      * @param nextExecutionSpecs The specification for the next execution of the new ScheduledConnectionTask
      * @return The new ScheduledConnectionTask
      */
-    public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression nextExecutionSpecs);
+    public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialOutboundConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression nextExecutionSpecs);
 
     public ConnectionInitiationTask newConnectionInitiationTask(Device device, PartialConnectionInitiationTask partialConnectionTask, OutboundComPortPool comPortPool);
 

@@ -4,9 +4,11 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import org.junit.AfterClass;
@@ -16,10 +18,16 @@ import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -50,10 +58,8 @@ public abstract class PersistenceIntegrationTest {
     @Mock
     DeviceProtocol deviceProtocol;
 
-    protected static InMemoryIntegrationPersistence inMemoryPersistence = new InMemoryIntegrationPersistence();
-
-    public PersistenceIntegrationTest() {
-    }
+    protected static Clock clock = mock(Clock.class);
+    protected static InMemoryIntegrationPersistence inMemoryPersistence = new InMemoryIntegrationPersistence(clock);
 
     @BeforeClass
     public static void initialize() throws SQLException {
@@ -74,10 +80,42 @@ public abstract class PersistenceIntegrationTest {
     public void initializeMocks() {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(inMemoryPersistence.getMockProtocolPluggableService().getMockedProtocolPluggableService().findDeviceProtocolPluggableClass(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID)).thenReturn(deviceProtocolPluggableClass);
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
         deviceType.save();
+        when(clock.getTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
+        when(clock.now()).thenAnswer(new Answer<Date>() {
+            @Override
+            public Date answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new Date();
+            }
+        });
     }
 
+    protected Date freezeClock (int year, int month, int day) {
+        return freezeClock(year, month, day, 0, 0, 0, 0);
+    }
+
+    protected Date freezeClock (int year, int month, int day, TimeZone timeZone) {
+        return freezeClock(year, month, day, 0, 0, 0, 0, timeZone);
+    }
+
+    protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond) {
+        return freezeClock(year, month, day, hour, minute, second, millisecond, TimeZone.getTimeZone("UTC"));
+    }
+
+    protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond, TimeZone timeZone) {
+        Calendar calendar = Calendar.getInstance(timeZone);
+        calendar.set(year, month, day, hour, minute, second);
+        calendar.set(Calendar.MILLISECOND, millisecond);
+        when(clock.getTimeZone()).thenReturn(timeZone);
+        when(clock.now()).thenReturn(calendar.getTime());
+        return calendar.getTime();
+    }
+
+    protected Device getReloadedDevice(Device device) {
+        return inMemoryPersistence.getDeviceDataService().findDeviceById(device.getId());
+    }
 }

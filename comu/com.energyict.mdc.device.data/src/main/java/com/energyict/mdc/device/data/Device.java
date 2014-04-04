@@ -7,6 +7,7 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -178,5 +179,5 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     BaseChannel getChannel(String name);
 
-    ScheduledConnectionTask createScheduledConnectionTask(PartialScheduledConnectionTask partialConnectionTask);
+    ScheduledConnectionTask createScheduledConnectionTask(PartialOutboundConnectionTask partialConnectionTask);
 }

@@ -2,7 +2,9 @@ package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.IdBusinessObject;
+import com.energyict.mdc.device.config.ComTask;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.journal.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.ComPort;
@@ -99,16 +101,12 @@ public interface ComTaskExecution extends IdBusinessObject, DataCollectionConfig
      *
      * @return The ComTask
      */
-    /* Todo: wait for jira issue JP-809
     public ComTask getComTask ();
-     */
 
     /**
-     * Gets the {@link ProtocolDialectProperties}.
+     * Gets the {@link ProtocolDialectConfigurationProperties}.
      */
-    /* Todo: wait for jira issue JP-809
     public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
-     */
 
     /**
      * Gets the {@link ComPort} that is currently

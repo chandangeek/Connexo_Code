@@ -126,7 +126,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         DeviceCommunicationConfiguration mockCommunicationConfig = mock(DeviceCommunicationConfiguration.class);
         when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         PartialInboundConnectionTask partialInboundConnectionTask = mock(PartialInboundConnectionTask.class);
-        when(partialInboundConnectionTask.getId()).thenReturn(PARTIAL_INBOUND_CONNECTION_TASK3_ID);
+        when(partialInboundConnectionTask.getId()).thenReturn((long) PARTIAL_INBOUND_CONNECTION_TASK3_ID);
         when(partialInboundConnectionTask.getName()).thenReturn("testCreateOfDifferentConfig");
         when(partialInboundConnectionTask.getConfiguration()).thenReturn(mockCommunicationConfig);
         when(partialInboundConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
@@ -750,7 +750,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     }
 
     private InboundConnectionTask createSimpleInboundConnectionTask(final PartialInboundConnectionTask partialConnectionTask, final InboundComPortPool inboundComPortPool) {
-        InboundConnectionTask inboundConnectionTask = getDeviceDataService().newInboundConnectionTask(device, partialConnectionTask, inboundComPortPool);
+        InboundConnectionTask inboundConnectionTask = getDeviceDataService().newInboundConnectionTask(this.device, partialConnectionTask, inboundComPortPool);
         inboundConnectionTask.save();
         return inboundConnectionTask;
     }

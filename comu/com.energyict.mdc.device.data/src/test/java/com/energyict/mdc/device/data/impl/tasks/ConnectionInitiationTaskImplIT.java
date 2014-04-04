@@ -40,7 +40,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
 
     @Before
     public void useNoParamsForAllOutboundConnectionTasks() {
-        when(this.partialConnectionInitiationTask.getId()).thenReturn(PARTIAL_CONNECTION_INITIATION_TASK1_ID);
+        when(this.partialConnectionInitiationTask.getId()).thenReturn((long) PARTIAL_CONNECTION_INITIATION_TASK1_ID);
         when(this.partialConnectionInitiationTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
         when(this.partialConnectionInitiationTask.getTypedProperties()).thenReturn(TypedProperties.empty());
     }
@@ -163,7 +163,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         DeviceCommunicationConfiguration mockCommunicationConfig = mock(DeviceCommunicationConfiguration.class);
         when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         PartialConnectionInitiationTask partialConnectionInitiationTask = mock(PartialConnectionInitiationTask.class);
-        when(partialConnectionInitiationTask.getId()).thenReturn(PARTIAL_CONNECTION_INITIATION_TASK2_ID);
+        when(partialConnectionInitiationTask.getId()).thenReturn((long) PARTIAL_CONNECTION_INITIATION_TASK2_ID);
         when(partialConnectionInitiationTask.getName()).thenReturn("testCreateOfDifferentConfig");
         when(partialConnectionInitiationTask.getConfiguration()).thenReturn(mockCommunicationConfig);
         when(partialConnectionInitiationTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);

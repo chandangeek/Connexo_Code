@@ -14,6 +14,7 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFactory;
 import com.energyict.mdc.device.data.PartialConnectionTaskFactory;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
@@ -30,7 +31,6 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
@@ -58,18 +58,19 @@ import static org.mockito.Mockito.when;
 public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     protected static final long DEVICE_ID = 100;
-    protected static final int CODE_TABLE_ID = (int) (DEVICE_ID + 1);
+    protected static final long DEVICE_2_ID = DEVICE_ID + 1;
+    protected static final int CODE_TABLE_ID = 102;
     protected static final TimeDuration EVERY_HOUR = new TimeDuration(1, TimeDuration.HOURS);
 
-    protected static final int PARTIAL_SCHEDULED_CONNECTION_TASK1_ID = CODE_TABLE_ID + 1;
-    protected static final int PARTIAL_SCHEDULED_CONNECTION_TASK2_ID = PARTIAL_SCHEDULED_CONNECTION_TASK1_ID + 1;
-    protected static final int PARTIAL_SCHEDULED_CONNECTION_TASK3_ID = PARTIAL_SCHEDULED_CONNECTION_TASK2_ID + 1;
-    protected static final int PARTIAL_INBOUND_CONNECTION_TASK1_ID = PARTIAL_SCHEDULED_CONNECTION_TASK3_ID + 1;
-    protected static final int PARTIAL_INBOUND_CONNECTION_TASK2_ID = PARTIAL_INBOUND_CONNECTION_TASK1_ID + 1;
-    protected static final int PARTIAL_INBOUND_CONNECTION_TASK3_ID = PARTIAL_INBOUND_CONNECTION_TASK2_ID + 1;
-    protected static final int PARTIAL_CONNECTION_INITIATION_TASK1_ID = PARTIAL_INBOUND_CONNECTION_TASK3_ID + 1;
-    protected static final int PARTIAL_CONNECTION_INITIATION_TASK2_ID = PARTIAL_CONNECTION_INITIATION_TASK1_ID + 1;
-    protected static final int PARTIAL_CONNECTION_INITIATION_TASK3_ID = PARTIAL_CONNECTION_INITIATION_TASK2_ID + 1;
+    protected static final long PARTIAL_SCHEDULED_CONNECTION_TASK1_ID = CODE_TABLE_ID + 1;
+    protected static final long PARTIAL_SCHEDULED_CONNECTION_TASK2_ID = PARTIAL_SCHEDULED_CONNECTION_TASK1_ID + 1;
+    protected static final long PARTIAL_SCHEDULED_CONNECTION_TASK3_ID = PARTIAL_SCHEDULED_CONNECTION_TASK2_ID + 1;
+    protected static final long PARTIAL_INBOUND_CONNECTION_TASK1_ID = PARTIAL_SCHEDULED_CONNECTION_TASK3_ID + 1;
+    protected static final long PARTIAL_INBOUND_CONNECTION_TASK2_ID = PARTIAL_INBOUND_CONNECTION_TASK1_ID + 1;
+    protected static final long PARTIAL_INBOUND_CONNECTION_TASK3_ID = PARTIAL_INBOUND_CONNECTION_TASK2_ID + 1;
+    protected static final long PARTIAL_CONNECTION_INITIATION_TASK1_ID = PARTIAL_INBOUND_CONNECTION_TASK3_ID + 1;
+    protected static final long PARTIAL_CONNECTION_INITIATION_TASK2_ID = PARTIAL_CONNECTION_INITIATION_TASK1_ID + 1;
+    protected static final long PARTIAL_CONNECTION_INITIATION_TASK3_ID = PARTIAL_CONNECTION_INITIATION_TASK2_ID + 1;
 
     protected static final long IP_COMPORT_POOL_ID = 1;
     protected static final long MODEM_COMPORT_POOL_ID = IP_COMPORT_POOL_ID + 1;
@@ -95,6 +96,8 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     @Mock
     protected Device device;
     @Mock
+    protected Device otherDevice;
+    @Mock
     protected PartialInboundConnectionTask partialInboundConnectionTask;
     @Mock
     protected PartialInboundConnectionTask partialInboundConnectionTask2;
@@ -111,9 +114,14 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static Code codeTable;
     private static IdBusinessObjectFactory<Code> codeTableFactory;
     private OnlineComServer onlineComServer;
+    private OnlineComServer otherOnlineComServer;
 
     public OnlineComServer getOnlineComServer() {
         return onlineComServer;
+    }
+
+    public OnlineComServer getOtherOnlineComServer() {
+        return otherOnlineComServer;
     }
 
     @BeforeClass
@@ -286,6 +294,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     @Before
     public void setupComServers () {
         this.onlineComServer = createComServer("First");
+        this.otherOnlineComServer = createComServer("Second");
     }
 
     protected OnlineComServer createComServer(String name) {
@@ -313,8 +322,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     public void initializeMocks () {
         super.initializeMocks();
         when(this.device.getId()).thenReturn(DEVICE_ID);
+        when(this.otherDevice.getId()).thenReturn(DEVICE_2_ID);
         DeviceFactory deviceFactory = mock(DeviceFactory.class);
         when(deviceFactory.findDevice(DEVICE_ID)).thenReturn(this.device);
+        when(deviceFactory.findDevice(DEVICE_2_ID)).thenReturn(this.otherDevice);
         List<DeviceFactory> deviceFactories = Arrays.asList(deviceFactory);
         when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class)).thenReturn(deviceFactories);
 
@@ -362,7 +373,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected ScheduledConnectionTask createOutboundWithIpPropertiesWithoutViolations(String name) {
-        return createOutboundWithIpPropertiesWithoutViolations(name, ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        return this.createOutboundWithIpPropertiesWithoutViolations(name, ConnectionStrategy.AS_SOON_AS_POSSIBLE);
     }
 
     protected ScheduledConnectionTask createOutboundWithIpPropertiesWithoutViolations(String name, ConnectionStrategy connectionStrategy) {
@@ -373,7 +384,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
             TemporalExpression nextExecutionSpecs = new TemporalExpression(EVERY_HOUR);
             connectionTask = inMemoryPersistence.getDeviceDataService().newMinimizeConnectionTask(
                     this.device,
-                   this.partialScheduledConnectionTask,
+                    this.partialScheduledConnectionTask,
                     outboundTcpipComPortPool,
                     nextExecutionSpecs);
         }
