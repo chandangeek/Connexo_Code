@@ -57,10 +57,10 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 click: this.createDeviceTypeHistory
             },
             '#deviceTypePreview menuitem[action=editDeviceType]': {
-                click: this.editDeviceTypeHistory
+                click: this.editDeviceTypeHistoryFromPreview
             },
             '#deviceTypePreview menuitem[action=deleteDeviceType]': {
-                click: this.deleteDeviceType
+                click: this.deleteDeviceTypeFromPreview
             },
             '#createEditButton[action=createDeviceType]': {
                 click: this.createDeviceType
@@ -139,6 +139,10 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         location.href = '#setup/devicetypes/' + record.get('id') + '/edit';
     },
 
+    editDeviceTypeHistoryFromPreview: function () {
+           location.href = '#setup/devicetypes/' + this.getDeviceTypeGrid().getSelectionModel().getSelection()[0].get("id") + '/edit';
+       },
+
     deleteDeviceType: function (deviceTypeToDelete) {
         var me = this;
         console.log('registercount');
@@ -171,6 +175,10 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         }
     },
 
+    deleteDeviceTypeFromPreview: function () {
+            this.deleteDeviceType(this.getDeviceTypeGrid().getSelectionModel().getSelection()[0]);
+        },
+
     deleteDeviceTypeFromDetails: function () {
         var deviceTypeToDelete = this.getDeviceTypeDetailForm().getRecord();
         this.deleteDeviceType(deviceTypeToDelete);
@@ -196,7 +204,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             ]).then(
             {
                 success: function (results) {
-                    debugger;
                     var deviceType = results[0][0];
                     me.editBreadCrumb(deviceType.get('name'), deviceTypeId)
                     widget.down('form').loadRecord(deviceType);
