@@ -41,6 +41,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -102,7 +103,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public DeviceType newDeviceType(String name, String deviceProtocolPluggableClassName) {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass =
-                protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceProtocolPluggableClassName);
+                protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceProtocolPluggableClassName).orNull();
         if (deviceProtocolPluggableClass == null) {
             throw new NoSuchProtocolException(this.thesaurus,deviceProtocolPluggableClassName, DeviceTypeFields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName());
         }

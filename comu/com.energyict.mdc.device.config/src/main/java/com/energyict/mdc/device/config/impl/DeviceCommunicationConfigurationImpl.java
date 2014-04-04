@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -450,15 +449,6 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     @Override
     public List<SecurityPropertySet> getSecurityPropertySets() {
         return new ArrayList<>();
-    }
-
-    @Override
-    public List<ComTaskEnablement> getEnabledComTasks() {
-        return Collections.emptyList();
-//        if (this.comTaskEnablements == null) {
-//            this.comTaskEnablements = ManagerFactory.getCurrent().getComTaskEnablementFactory().findByDeviceCommunicationConfiguration(this);
-//        }
-//        return this.comTaskEnablements;
     }
 
     @Override

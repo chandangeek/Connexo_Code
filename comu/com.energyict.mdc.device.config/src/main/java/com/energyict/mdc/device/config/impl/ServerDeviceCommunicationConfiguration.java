@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
@@ -18,11 +17,9 @@ import java.util.Set;
 public interface ServerDeviceCommunicationConfiguration  extends DeviceCommunicationConfiguration {
     public List<SecurityPropertySet> getSecurityPropertySets();
 
-    public List<ComTaskEnablement> getEnabledComTasks();
-
     /**
      * Tests if this configuration supports all current and future
-     * {@link com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory DeviceMessageCategories}.
+     * DeviceMessageCategory DeviceMessageCategories.
      * If that is the case, then new categories that are
      * introduced in future versions of the mdc platform
      * will also be supported by this configuration.
@@ -32,10 +29,10 @@ public interface ServerDeviceCommunicationConfiguration  extends DeviceCommunica
     public boolean supportsAllMessageCategories();
 
     /**
-     * Gets the Set of {@link DeviceMessageUserAction}
+     * Gets the Set of DeviceMessageUserAction
      * that a user of the system MUST have
-     * to be able to create any {@link com.energyict.mdc.protocol.api.device.messages.DeviceMessage}.
-     * Only applies when all {@link com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory DeviceMessageCategories} are supported.
+     * to be able to create any DeviceMessage.
+     * Only applies when all DeviceMessageCategory DeviceMessageCategories are supported.
      *
      * @return The Set of DeviceMessageUserAction
      * @see #supportsAllMessageCategories()
@@ -43,9 +40,9 @@ public interface ServerDeviceCommunicationConfiguration  extends DeviceCommunica
     public Set<DeviceMessageUserAction> getAllCategoriesUserActions();
 
     /**
-     * Gets the specifications of which {@link com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory device message categories}
-     * and {@link com.energyict.mdc.protocol.api.device.messages.DeviceMessage}s
-     * that are allowed to be used by {@link com.energyict.mdc.protocol.api.device.Device}s
+     * Gets the specifications of which DeviceMessageCategory device message categories
+     * and DeviceMessages
+     * that are allowed to be used by Devices
      * of this configuration.
      *
      * @return The List of DeviceMessageEnablement
@@ -63,7 +60,7 @@ public interface ServerDeviceCommunicationConfiguration  extends DeviceCommunica
     /**
      * Checks if the current user is allowed to perform the provided
      * DeviceMessageSpec. Even if this config is marked to allow all
-     * categories ({@link #supportsAllMessageCategories()}), we check
+     * categories (#supportsAllMessageCategories()), we check
      * if the message is supported by the DeviceProtocol and match if
      * the User is allowed to perform the message.
      *
@@ -73,7 +70,7 @@ public interface ServerDeviceCommunicationConfiguration  extends DeviceCommunica
     public boolean isAuthorized(final DeviceMessageSpec deviceMessageSpec);
 
     /**
-     * Checks the given {@link ComTaskExecution} is allowed to
+     * Checks the given ComTaskExecution is allowed to
      * be executed by the current user.
      *
      * @return true if the given ComTaskExecution is allowed to be executed by the given User
