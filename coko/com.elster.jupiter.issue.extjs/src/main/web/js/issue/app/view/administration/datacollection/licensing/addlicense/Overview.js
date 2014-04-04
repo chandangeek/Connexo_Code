@@ -24,7 +24,6 @@ Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview
                 {
                     xtype: 'form',
                     layout: 'hbox',
-                    buttonAlign: 'left',
                     items: [
                         {
                             xtype: 'filefield',
@@ -42,6 +41,7 @@ Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview
                             xtype: 'toolbar',
                             dock: 'bottom',
                             border: false,
+                            margin: '0 0 0 100',
                             defaults: {
                                 xtype: 'button'
                             },

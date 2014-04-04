@@ -19,7 +19,6 @@ Ext.define('Isu.view.administration.datacollection.licensing.Details', {
 
     getItems: function (record) {
         return {
-            frame: true,
             items: [
                 {
                     xtype: 'toolbar',
@@ -29,7 +28,7 @@ Ext.define('Isu.view.administration.datacollection.licensing.Details', {
                         {
                             xtype: 'container',
                             flex: 1,
-                            html: record.data.application + ' license details'
+                            html: record.data.application
                         },
                         {
                             xtype: 'item-action',
@@ -54,44 +53,59 @@ Ext.define('Isu.view.administration.datacollection.licensing.Details', {
                         '<tr>',
                         '<td><b>Type</b></td>',
                         '<td><tpl if="type">{type} </tpl></td>',
-                        '<td><b>Valid from</b></td>',
-                        '<td>{[values.validfrom ? this.func(values.validfrom) : ""]}</td>',
+                        '<td><b>Activation date</b></td>',
+                        '<td>{[values.validfrom ? this.formatActivationDate(values.validfrom) : ""]}</td>',
                         '</tr>',
                         '<tr>',
                         '<td><b>Description</b></td>',
                         '<td><tpl if="description">{description} </tpl></td>',
+                        '<td><b>Expiration date</b></td>',
+                        '<td>{[values.expires ? this.formatExpirationDate(values.expires) : ""]}</td>',
+                        '</tr>',
+                        '<tr>',
+                        '<td></td>',
+                        '<td></td>',
                         '<td><tpl if="graceperiod"><b>Grace period</b></tpl></td>',
                         '<td><tpl if="graceperiod">{graceperiod}<span> days</span></tpl></td>',
                         '</tr>',
                         '</table>',
                         {
-                            func: function (date) {
-                                return Ext.Date.format(date, 'M d Y');
+                            formatActivationDate: function (date) {
+                                return Ext.Date.format(date, 'd-m-Y');
+                            },
+                            formatExpirationDate: function (date) {
+                                return Ext.Date.format(new Date(parseInt(date)), 'd-m-Y');
                             }
                         }
                     )
                 },
                 {
-                    xtype: 'label',
-                    html: '<hr>'
-                },
-                {
-                    title: 'Licensed items',
-                    frame: true,
-                    margin: '20 20 20 20',
+                    title: '<span class="license-title"><b>License coverage</b></span>',
+                    ui: 'plain',
+                    margin: '20 20 20 40',
                     items: [
                         {
-                            bodyPadding: '10 10 0 0',
+                            bodyPadding: '20 10 0 0',
                             data: record.data,
                             tpl: new Ext.XTemplate(
                                 '<table class="isu-item-data-table">',
                                 '<tpl foreach="content">',
                                 '<tr>',
-                                '<td><b>{key}</b></td>',
-                                '<td>{value}</td>',
+                                '<td><b><tpl switch="key">',
+                                '<tpl case="licensed.device">Number of devices',
+                                '<tpl case="licensed.users">Number of users',
+                                '<tpl case="licensed.protocols">Number of protocols',
+                                '</tpl></b></td>',
+                                '<td>{[this.formatValue(values.value)]}</td>',
                                 '</tr>',
                                 '</tpl>',
-                                '</table>'
+                                '</table>',
+                                {
+                                    formatValue: function (value) {
+                                        var regexp = /,/g;
+                                        return value.replace(regexp, '<br>');
+                                    }
+                                }
                             )
                         }
                     ]

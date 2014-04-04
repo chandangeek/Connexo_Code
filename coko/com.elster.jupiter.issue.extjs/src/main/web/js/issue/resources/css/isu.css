@@ -507,3 +507,11 @@ span[class^=isu-assignee-] {
 .isu-issues-list-selected-no-highlighted .x-grid-cell {
     background-color: inherit !important;
 }
+
+.isu-delete-message .x-message-box-warning {
+    margin: 40px 0px 0px 0px !important;
+}
+
+.license-title {
+    margin: 0px 0px 0px 218px;
+}

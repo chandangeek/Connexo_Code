@@ -1,7 +1,6 @@
 Ext.define('Isu.view.administration.datacollection.issuecreationrules.DeleteMessageBox', {
     alias: 'widget.delete-message-box',
     show: function (menu) {
-        console.log(Ext.widget('issue-creation-rules-overview').getApplication());
         var dialog = Ext.create('Ext.window.MessageBox', {
             buttons: [
                 {
@@ -16,7 +15,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.DeleteMess
                                     style: 'msgHeaderStyle',
                                     text: 'Issue creation rule deleted'
                                 };
-                                this.getApplication().fireEvent('isushowmsg', {
+                                Isu.Current.fireEvent('isushowmsg', {
                                     type: 'notify',
                                     msgBody: [header],
                                     y: 10,
@@ -39,7 +38,8 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.DeleteMess
         dialog.show({
             title: 'Delete issue creation rule',
             msg: '<p><b>Delete rule " "?</b></p>' + '<p>This issue creation rule disappears from the list.<br>Issues will not be created automatically by this rule.</p>',
-            icon: Ext.MessageBox.WARNING
+            icon: Ext.MessageBox.WARNING,
+            cls: 'isu-delete-message'
         });
 
         dialog.setHeight(200);
