@@ -47,10 +47,7 @@
 
 }
 
-@if $include-container-ui {
   @include container(
     $ui: 'navigationmenu'
   );
-  @include container();
   @include uni-container-navigationmenu();
-}
