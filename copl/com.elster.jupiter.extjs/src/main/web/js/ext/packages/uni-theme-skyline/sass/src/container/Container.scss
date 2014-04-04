@@ -1,0 +1,10 @@
+@mixin container (
+  $ui,
+  $background-color: $container-default-background-color
+) {
+  .#{$prefix}container-#{$ui} {
+      background-color: $background-color;
+  }
+}
+
+@include container('default');
