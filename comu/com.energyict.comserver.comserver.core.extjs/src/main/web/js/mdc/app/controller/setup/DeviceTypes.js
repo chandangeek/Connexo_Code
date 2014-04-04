@@ -145,9 +145,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
     deleteDeviceType: function (deviceTypeToDelete) {
         var me = this;
-        console.log('registercount');
-        console.log(deviceTypeToDelete.get('registerCount'));
-        if (deviceTypeToDelete.get('registerCount') === 0) {
+        if (deviceTypeToDelete.get('deviceConfigurationCount') === 0) {
             Ext.MessageBox.show({
                 msg: Uni.I18n.translate('deviceType.deleteDeviceType', 'MDC', 'The device type will no longer be available.'),
                 title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + deviceTypeToDelete.get('name') + '?',
