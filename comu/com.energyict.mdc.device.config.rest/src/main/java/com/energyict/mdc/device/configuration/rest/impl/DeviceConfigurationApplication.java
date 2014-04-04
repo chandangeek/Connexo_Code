@@ -52,7 +52,8 @@ public class DeviceConfigurationApplication extends Application {
                 ReadingTypeResource.class,
                 ConstraintViolationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,
-                LocalizedExceptionMapper.class
+                LocalizedExceptionMapper.class,
+                ConnectionMethodResource.class
         );
     }
 

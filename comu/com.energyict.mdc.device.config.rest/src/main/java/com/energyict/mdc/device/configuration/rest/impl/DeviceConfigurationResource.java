@@ -27,12 +27,14 @@ public class DeviceConfigurationResource {
     private final ResourceHelper resourceHelper;
     private final DeviceConfigurationService deviceConfigurationService;
     private final Provider<RegisterConfigurationResource> registerConfigurationResourceProvider;
+    private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
 
     @Inject
-    public DeviceConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, Provider<RegisterConfigurationResource> registerConfigurationResourceProvider) {
+    public DeviceConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, Provider<RegisterConfigurationResource> registerConfigurationResourceProvider, Provider<ConnectionMethodResource> connectionMethodResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.registerConfigurationResourceProvider = registerConfigurationResourceProvider;
+        this.connectionMethodResourceProvider = connectionMethodResourceProvider;
     }
 
     @GET
@@ -107,6 +109,11 @@ public class DeviceConfigurationResource {
     @Path("/{deviceConfigurationId}/registerconfigurations")
     public RegisterConfigurationResource getRegisterConfigResource() {
         return registerConfigurationResourceProvider.get();
+    }
+
+    @Path("/{deviceConfigurationId}/connectionmethods")
+    public ConnectionMethodResource getConnectionMethodResource() {
+        return connectionMethodResourceProvider.get();
     }
 
 }
