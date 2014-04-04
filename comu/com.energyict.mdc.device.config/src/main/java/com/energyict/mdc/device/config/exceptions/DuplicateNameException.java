@@ -1,7 +1,8 @@
 package com.energyict.mdc.device.config.exceptions;
 
-import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.config.DeviceTypeFields;
 
 /**
  * Models the exceptional situation that occurs when an
@@ -11,7 +12,7 @@ import com.elster.jupiter.nls.Thesaurus;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-29 (16:10)
  */
-public class DuplicateNameException extends LocalizedException {
+public class DuplicateNameException extends LocalizedFieldValidationException {
 
     /**
      * Creates a new DuplicateNameException that models the exceptional situation
@@ -129,11 +130,16 @@ public class DuplicateNameException extends LocalizedException {
      * @return The DuplicateNameException
      */
     public static DuplicateNameException deviceTypeExists(Thesaurus thesaurus, String name) {
-        return new DuplicateNameException(thesaurus, MessageSeeds.DEVICE_TYPE_ALREADY_EXISTS, name);
+        return new DuplicateNameException(thesaurus, MessageSeeds.DEVICE_TYPE_ALREADY_EXISTS, DeviceTypeFields.NAME.fieldName(), name);
     }
 
     private DuplicateNameException(Thesaurus thesaurus, MessageSeeds messageSeeds, String name) {
-        super(thesaurus, messageSeeds, name);
+        super(thesaurus, messageSeeds, null, name);
+        this.set("name", name);
+    }
+
+    private DuplicateNameException(Thesaurus thesaurus, MessageSeeds messageSeeds, String javaFieldName, String name) {
+        super(thesaurus, messageSeeds, javaFieldName, name);
         this.set("name", name);
     }
 
