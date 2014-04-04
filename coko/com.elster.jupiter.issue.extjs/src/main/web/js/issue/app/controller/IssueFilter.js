@@ -64,6 +64,7 @@ Ext.define('Isu.controller.IssueFilter', {
                 }
             }
         });
+        this.groupStore = this.getStore('Isu.store.IssuesGroups');
     },
 
     reset: function () {
@@ -122,20 +123,23 @@ Ext.define('Isu.controller.IssueFilter', {
         }
         var form = this.getIssueFilter().down('filter-form'),
             filter = form.getRecord(),
-            groupCombobox = Ext.ComponentQuery.query('issues-side-filter filter-form combobox[name=reason]')[0];
-
-        if ( !Ext.isEmpty(groupCombobox.getValue())) {
-            var combobox = form.down('combobox[name=reason]'),
-                grid = Ext.ComponentQuery.query('issues-filter panel gridpanel[name=groupgrid]')[0],
-                gridview = Ext.ComponentQuery.query('issues-overview issues-list gridview')[0],
-                recordId = combobox.findRecordByValue(combobox.getValue()).data.id,
-                record = this.getStore('Isu.store.IssuesGroups').getById(recordId);
-            grid.fireEvent('itemclick', gridview, record);
-            grid.getSelectionModel().select([record]);
-        }
+            groupCombobox = Ext.ComponentQuery.query('issues-filter panel combobox[name=groupnames]')[0];
 
         form.updateRecord(filter);
 
+        var reason = filter.data.reason;
+
         this.getStore('Isu.store.Issues').setProxyFilter(filter);
+
+        if ( !Ext.isEmpty(groupCombobox.getValue()) && groupCombobox.getValue() != 0 && !Ext.isEmpty(reason) ) {
+            var combobox = form.down('combobox[name=reason]'),
+                grid = Ext.ComponentQuery.query('issues-filter panel gridpanel[name=groupgrid]')[0],
+                gridview = Ext.ComponentQuery.query('issues-overview issues-list gridview')[0];
+            reason.data.reason = reason.data.name;
+            console.log(reason);
+
+            grid.fireEvent('itemclick', gridview, reason);
+            grid.getSelectionModel().select([reason]);
+        }
     }
 });
