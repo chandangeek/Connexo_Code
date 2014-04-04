@@ -1,6 +1,6 @@
 @mixin transparent-button() {
   .#{$prefix}btn-menuitem-large {
-    background: none;
+    //background: none;
     border: none;
     border-radius: 0;
     -moz-border-radius: 0;
@@ -14,7 +14,7 @@
       }
 
       .x-btn-inner {
-        color: white;
+        //color: white;
       }
 
       .x-btn-glyph {

@@ -18,10 +18,24 @@
         //background-color: $color-blue;
       }
 
-      .x-btn-glyph {
-        margin-left: 12px;
-        //background-color: $color-blue;
+      .x-pressed {
+        background-color: $color-white;
+
+        .x-btn-button {
+          .x-btn-inner, .x-btn-glyph {
+            color: $color-blue;
+          }
+
+          &:hover {
+            background-color: $color-white;
+          }
+        }
       }
+
+      /*&:hover {
+        background-color: $color-white;
+      }   */
+
 
     }
   }
@@ -32,13 +46,13 @@
   $ui: 'menuitem',
   $background-color: $color-blue,
   $background-color-over: $color-white,
-  $background-color-focus: $color-white,
-  $background-color-pressed: $color-white,
+  $background-color-focus: $color-blue,
+  $background-color-pressed: $color-blue,
   $glyph-color: $color-white,
   $color: $color-blue,
   $color-over: $color-white,
-  $color-focus: $color-white,
-  $color-pressed: $color-white
+  $color-focus: $color-blue,
+  $color-pressed: $color-blue
 );
   @include uni-button-menuitem();
   @include transparent-button();
