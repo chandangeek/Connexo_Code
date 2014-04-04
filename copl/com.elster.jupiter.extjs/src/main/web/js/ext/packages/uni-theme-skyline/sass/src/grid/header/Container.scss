@@ -1,5 +1,6 @@
 .#{$prefix}grid-header-ct {
-  border: 0;
-  @include border-radius(10px 10px 0 0);
+  border-color: $grid-header-border-color;
+  border-width: $grid-header-border-width;
+  border-style: $grid-header-border-style;
+  @include border-radius($grid-header-border-radius $grid-header-border-radius 0 0);
 }
-
