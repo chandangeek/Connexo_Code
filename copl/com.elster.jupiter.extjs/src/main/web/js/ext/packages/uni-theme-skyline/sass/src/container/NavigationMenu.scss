@@ -6,6 +6,9 @@
   padding-top: 12px;
   $item-height: 50px;
 
+  $menu-width-expanded: 200px;
+  $menu-width-collapsed: 55px;
+
   position: absolute;
   top: 0;
   bottom: 0;
@@ -47,7 +50,5 @@
 
 }
 
-  @include container(
-    $ui: 'navigationmenu'
-  );
+  @include container('navigationmenu');
   @include uni-container-navigationmenu();
