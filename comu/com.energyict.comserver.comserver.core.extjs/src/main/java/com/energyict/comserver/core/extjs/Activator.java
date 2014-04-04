@@ -1,7 +1,7 @@
 package com.energyict.comserver.core.extjs;
 
-import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
+import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -24,8 +24,8 @@ public class Activator implements BundleActivator {
 //        scripts.add(new Script("jquery","/bla/bla/bla"));
 //        DefaultStartPage mdc = new DefaultStartPage("Mdc", "", "/index.html", "Mdc.controller.Main",scripts);
         DefaultStartPage mdc = new DefaultStartPage("Mdc", "", "/index.html", "Mdc.controller.Main",null,Arrays.asList("MDC"));
-        HttpResource resource = new HttpResource(alias, "/js/mdc" , new BundleResolver(bundleContext), mdc);
-//        HttpResource resource = new HttpResource(alias, "C:/jupiterrepo/comserver-all/com.energyict.comserver.comserver.core.extjs/src/main/web/js/mdc" , new FileResolver(), mdc);
+//        HttpResource resource = new HttpResource(alias, "/js/mdc" , new BundleResolver(bundleContext), mdc);
+        HttpResource resource = new HttpResource(alias, "C:/jupiterrepo/comserver-all/com.energyict.comserver.comserver.core.extjs/src/main/web/js/mdc" , new FileResolver(), mdc);
         registration = bundleContext.registerService(HttpResource.class, resource , null);
     }
 

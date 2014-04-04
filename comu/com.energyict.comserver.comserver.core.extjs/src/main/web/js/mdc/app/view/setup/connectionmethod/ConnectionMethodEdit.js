@@ -1,11 +1,9 @@
-Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
+Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.deviceTypeEdit',
-    itemId: 'deviceTypeEdit',
+    alias: 'widget.connectionMethodEdit',
+    itemId: 'connectionMethodEdit',
     autoScroll: true,
-    requires: [
-        'Mdc.store.DeviceCommunicationProtocols'
-    ],
+    cls: 'content-container',
     edit: false,
     isEdit: function(){
         return this.edit
@@ -13,12 +11,12 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
     setEdit: function(edit,returnLink){
         if(edit){
             this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
-            this.down('#createEditButton').action = 'editDeviceType';
+            this.down('#addEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#addEditButton').action = 'editConnectionMethod';
         } else {
             this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
-            this.down('#createEditButton').action = 'createDeviceType';
+            this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
+            this.down('#addEditButton').action = 'addConnectionMethod';
         }
         this.down('#cancelLink').autoEl.href=returnLink;
     },
@@ -35,14 +33,9 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
 
                 items: [
                     {
-                        xtype: 'breadcrumbTrail',
-                        region: 'north',
-                        padding: 6
-                    },
-                    {
                         xtype: 'component',
                         html: '',
-                        itemId: 'deviceTypeEditCreateTitle',
+                        itemId: 'connectionMethodEditAddTitle',
                         margins: '10 10 10 10'
                     },
                     {
@@ -58,7 +51,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                     {
                                         xtype: 'form',
                                         border: false,
-                                        itemId: 'deviceTypeEditForm',
+                                        itemId: 'connectionMethodEditForm',
                                         padding: '10 10 0 10',
                                         layout: {
                                             type: 'vbox',
@@ -69,33 +62,18 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                         },
                                         items: [
                                             {
-                                                xtype: 'combobox',
-                                                name: 'communicationProtocolName',
-                                                fieldLabel: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Communication protocol'),
-                                                itemId: 'communicationProtocolComboBox',
-                                                store: this.deviceCommunicationProtocols,
-                                                queryMode: 'local',
-                                                displayField: 'name',
-                                                valueField: 'name',
-                                                emptyText: Uni.I18n.translate('devicetype.selectProtocol', 'MDC', 'Select a communication protocol...'),
-                                                required: true,
-                                                forceSelection: true,
-                                                typeAhead: true,
-                                                msgTarget: 'under'
-                                            },
-                                            {
                                                 xtype: 'textfield',
                                                 name: 'name',
                                                 validator:function(text){
                                                     if(Ext.util.Format.trim(text).length==0)
-                                                        return Uni.I18n.translate('devicetype.emptyName', 'MDC', 'The name of a device type can not be empty.')
+                                                        return Uni.I18n.translate('deviceconfiguration.emptyName', 'MDC', 'The name of a device configuration can not be empty.')
                                                     else
                                                         return true;
                                                 },
                                                 msgTarget: 'under',
                                                 required: true,
-                                                fieldLabel: Uni.I18n.translate('devicetype.name', 'MDC', 'Name'),
-                                                itemId: 'editDeviceTypeNameField',
+                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.name', 'MDC', 'Name'),
+                                                itemId: 'editDeviceConfigurationNameField',
                                                 maxLength: 80,
                                                 enforceMaxLength: true
                                             },
@@ -109,10 +87,10 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                 },
                                                 items: [
                                                     {
-                                                        text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
+                                                        text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                                         xtype: 'button',
-                                                        action: 'createAction',
-                                                        itemId: 'createEditButton'
+                                                        action: 'addAction',
+                                                        itemId: 'addEditButton'
 //                                                        formBind: true
                                                     },
                                                     {
@@ -140,11 +118,11 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
         ];
         this.callParent(arguments);
         if(this.isEdit()){
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
-            this.down('#createEditButton').action = 'editDeviceType';
+            this.down('#addEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#addEditButton').action = 'editConnectionMethod';
         } else {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
-            this.down('#createEditButton').action = 'createDeviceType';
+            this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
+            this.down('#addEditButton').action = 'createConnectionMethod';
         }
         this.down('#cancelLink').autoEl.href=this.returnLink;
 
@@ -152,3 +130,5 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
 
 
 });
+
+

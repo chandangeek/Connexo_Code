@@ -113,6 +113,17 @@ Ext.define('Mdc.controller.history.Setup', {
             me.getApplication().getController('Mdc.controller.setup.RegisterConfigs').showRegisterConfigurationEditView(deviceTypeId,deviceConfigurationId,registerConfigurationId);
         });
 
+        //connection methods routes
+        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods',function(deviceTypeId,deviceConfigurationId){
+            me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showConnectionMethods(deviceTypeId,deviceConfigurationId);
+        });
+        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods/add',function(deviceTypeId,deviceConfigurationId){
+            me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showConnectionMethodCreateView(deviceTypeId,deviceConfigurationId);
+        });
+        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods/{connectionMethodId}/edit',function(deviceTypeId,deviceConfigurationId,connectionMethodId){
+            me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showConnectionMethodEditView(deviceTypeId,deviceConfigurationId,connectionMethodId);
+        });
+
         this.callParent(arguments);
     },
 

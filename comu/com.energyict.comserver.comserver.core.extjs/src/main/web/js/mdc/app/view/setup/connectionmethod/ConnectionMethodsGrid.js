@@ -1,41 +1,34 @@
-Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
+Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.deviceTypesGrid',
+    alias: 'widget.connectionMethodsGrid',
     overflowY: 'auto',
-    itemId: 'devicetypegrid',
+    itemId: 'connectionmethodsgrid',
+    deviceTypeId: null,
+    deviceConfigId: null,
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.DeviceTypes'
+        'Mdc.store.ConnectionMethodsOfDeviceConfiguration'
     ],
 //    controllers: [
 //        'Mdc.controller.setup.DeviceTypes'
 //    ],
-    store: 'DeviceTypes',
+    store: 'ConnectionMethodsOfDeviceConfiguration',
     padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
         this.columns = [
             {
-                header: Uni.I18n.translate('devicetype.name', 'MDC', 'Name'),
+                header: Uni.I18n.translate('connectionmethod.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 sortable: false,
                 hideable: false,
-                renderer: function (value, b, record) {
-                    return '<a href="#/setup/devicetypes/' + record.get('id') + '">' + value + '</a>';
-                },
+//                renderer: function(value,b,record){
+//                    return '<a href="#/setup/devicetypes/' + record.get('id') + '">' + value + '</a>';;
+//                },
                 fixed: true,
                 flex: 0.4
             },
-            {
-                header: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Communication protocol'),
-                dataIndex: 'communicationProtocolName',
-                sortable: false,
-                hideable: false,
-                fixed: true,
-                flex: 0.4
-            },
-
             {
                 xtype: 'actioncolumn',
                 tdCls: 'view',
@@ -49,6 +42,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                     {
                         icon: '../mdc/resources/images/gear-16x16.png',
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
+                            grid.getSelectionModel().select(rowIndex);
                             var menu = Ext.widget('menu', {
                                 items: [
                                     {
@@ -90,7 +84,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 ]
             }
         ];
-
         this.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
@@ -102,16 +95,20 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                         flex: 1
                     },
                     {
-                        text: Uni.I18n.translate('devicetype.createDeviceType', 'MDC', 'Create device type'),
-                        itemId: 'createDeviceType',
+                        text: Uni.I18n.translate('connectionmethod.addConnectionMethod', 'MDC', 'Add connection method'),
+                        itemId: 'createConnectionButton',
                         xtype: 'button',
-                        action: 'createDeviceType'
+                        action: 'createConnectionMethod'
                     }
                 ]
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
+                params: [
+                    {deviceType: this.deviceTypeId},
+                    {deviceConfig:this.deviceConfigId}
+                ],
                 dock: 'bottom'
             }
         ];
@@ -119,3 +116,5 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
         this.callParent();
     }
 });
+
+
