@@ -11,7 +11,7 @@ Ext.define('Uni.override.GridPanelOverride', {
         cellclick: function (gridView, htmlElement, columnIndex, dataRecord) {
             var type = gridView.getHeaderCt().getHeaderAtIndex(columnIndex).getXType();
             if (type === 'actioncolumn') {
-                return false;
+                return true;
             }
         }
     }
