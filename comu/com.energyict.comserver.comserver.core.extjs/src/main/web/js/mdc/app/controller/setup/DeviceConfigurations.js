@@ -56,10 +56,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 activateItem: this.activateDeviceConfiguration
             },
             '#deviceConfigurationPreview menuitem[action=editDeviceConfiguration]': {
-                click: this.editDeviceConfigurationHistory
+                click: this.editDeviceConfigurationHistoryFromPreview
             },
             '#deviceConfigurationPreview menuitem[action=deleteDeviceConfiguration]': {
-                click: this.deleteDeviceConfiguration
+                click: this.deleteDeviceConfigurationFromPreview
             },
             '#deviceConfigurationPreview menuitem[action=activateDeactivateDeviceConfiguration]': {
                 click: this.activateDeviceConfiguration
@@ -158,6 +158,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ record.get('id') +'/edit';
     },
 
+    editDeviceConfigurationHistoryFromPreview: function(record){
+           location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ this.getDeviceConfigurationsGrid().getSelectionModel()[0].get('id') +'/edit';
+       },
+
     editDeviceConfigurationFromDetailsHistory: function(){
         this.editDeviceConfigurationHistory(this.getDeviceConfigurationDetailForm().getRecord());
     },
@@ -205,6 +209,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             }
         });
     },
+
+    deleteDeviceConfigurationFromPreview: function(){
+           this.deleteDeviceConfiguration(this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0])
+        },
 
     deleteDeviceConfigurationFromDetails: function(){
         var me = this;

@@ -5,11 +5,11 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
     autoScroll: true,
     cls: 'content-container',
     edit: false,
-    isEdit: function(){
+    isEdit: function () {
         return this.edit
     },
-    setEdit: function(edit,returnLink){
-        if(edit){
+    setEdit: function (edit, returnLink) {
+        if (edit) {
             this.edit = edit;
             this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
             this.down('#createEditButton').action = 'editDeviceConfiguration';
@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
             this.down('#createEditButton').action = 'createDeviceConfiguration';
         }
-        this.down('#cancelLink').autoEl.href=returnLink;
+        this.down('#cancelLink').autoEl.href = returnLink;
     },
 
     initComponent: function () {
@@ -57,15 +57,15 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                             type: 'vbox',
                                             align: 'stretch'
                                         },
-                                        defaults:{
+                                        defaults: {
                                             labelWidth: 250
                                         },
                                         items: [
                                             {
                                                 xtype: 'textfield',
                                                 name: 'name',
-                                                validator:function(text){
-                                                    if(Ext.util.Format.trim(text).length==0)
+                                                validator: function (text) {
+                                                    if (Ext.util.Format.trim(text).length == 0)
                                                         return Uni.I18n.translate('deviceconfiguration.emptyName', 'MDC', 'The name of a device configuration can not be empty.')
                                                     else
                                                         return true;
@@ -106,7 +106,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                     {
                                                         xtype: 'component',
                                                         cls: 'x-form-display-field',
-                                                        html: '<i>'+Uni.I18n.translate('deviceconfiguration.gatewayMessage', 'MDC', 'The device cannot act as a gateway')+'</i>'
+                                                        html: '<i>' + Uni.I18n.translate('deviceconfiguration.gatewayMessage', 'MDC', 'The device cannot act as a gateway') + '</i>'
                                                     }
                                                 ]
                                             },
@@ -132,7 +132,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                     {
                                                         xtype: 'component',
                                                         cls: 'x-form-display-field',
-                                                        html: '<i>'+Uni.I18n.translate('deviceconfiguration.directlyAddressableMessage', 'MDC', 'The device cannot be directly addressed')+'</i>'
+                                                        html: '<i>' + Uni.I18n.translate('deviceconfiguration.directlyAddressableMessage', 'MDC', 'The device cannot be directly addressed') + '</i>'
                                                     }
                                                 ]
                                             },
@@ -176,14 +176,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
             }
         ];
         this.callParent(arguments);
-        if(this.isEdit()){
+        if (this.isEdit()) {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
             this.down('#createEditButton').action = 'editDeviceConfiguration';
         } else {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
             this.down('#createEditButton').action = 'createDeviceConfiguration';
         }
-        this.down('#cancelLink').autoEl.href=this.returnLink;
+        this.down('#cancelLink').autoEl.href = this.returnLink;
 
     }
 

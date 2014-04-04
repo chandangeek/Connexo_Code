@@ -57,10 +57,10 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 click: this.createDeviceTypeHistory
             },
             '#deviceTypePreview menuitem[action=editDeviceType]': {
-                click: this.editDeviceTypeHistory
+                click: this.editDeviceTypeHistoryFromPreview
             },
             '#deviceTypePreview menuitem[action=deleteDeviceType]': {
-                click: this.deleteDeviceType
+                click: this.deleteDeviceTypeFromPreview
             },
             '#createEditButton[action=createDeviceType]': {
                 click: this.createDeviceType
@@ -139,11 +139,13 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         location.href = '#setup/devicetypes/' + record.get('id') + '/edit';
     },
 
+    editDeviceTypeHistoryFromPreview: function () {
+           location.href = '#setup/devicetypes/' + this.getDeviceTypeGrid().getSelectionModel().getSelection()[0].get("id") + '/edit';
+       },
+
     deleteDeviceType: function (deviceTypeToDelete) {
         var me = this;
-        console.log('registercount');
-        console.log(deviceTypeToDelete.get('registerCount'));
-        if (deviceTypeToDelete.get('registerCount') === 0) {
+        if (deviceTypeToDelete.get('deviceConfigurationCount') === 0) {
             Ext.MessageBox.show({
                 msg: Uni.I18n.translate('deviceType.deleteDeviceType', 'MDC', 'The device type will no longer be available.'),
                 title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + deviceTypeToDelete.get('name') + '?',
@@ -170,6 +172,10 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
         }
     },
+
+    deleteDeviceTypeFromPreview: function () {
+            this.deleteDeviceType(this.getDeviceTypeGrid().getSelectionModel().getSelection()[0]);
+        },
 
     deleteDeviceTypeFromDetails: function () {
         var deviceTypeToDelete = this.getDeviceTypeDetailForm().getRecord();

@@ -65,13 +65,13 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 click: this.createRegisterConfiguration
             },
             '#registerConfigPreview menuitem[action=deleteRegisterConfig]': {
-                click: this.deleteRegisterConfiguration
+                click: this.deleteRegisterConfigurationFromPreview
             },
             '#registerConfigEditForm numberfield[name=numberOfDigits]': {
                 change: this.changeNumberOfDigits
             },
             '#registerConfigPreview menuitem[action=editRegisterConfig]': {
-                click: this.editRegisterConfigurationHistory
+                click: this.editRegisterConfigurationHistoryFromPreview
             },
             '#createEditButton[action=editRegisterConfiguration]': {
                 click: this.editRegisterConfiguration
@@ -82,6 +82,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     editRegisterConfigurationHistory: function (record) {
         location.href = '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/' + record.get('id') + '/edit';
     },
+
+    editRegisterConfigurationHistoryFromPreview: function () {
+            location.href = '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/' + this.getRegisterConfigGrid().getSelectionModel().getSelection()[0].get("id") + '/edit';
+        },
 
     createRegisterConfigurationHistory: function () {
         location.href = '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/create';
@@ -151,6 +155,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                 widget.down('#registerConfigEditCreateTitle').update('<H2>' + Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration') + '</H2>');
                                 widget.down('#editNumberOfDigitsField').setValue(8);
                                 widget.down('#editNumberOfFractionDigitsField').setValue(0);
+                                widget.down('#editMultiplierField').setValue(1);
+                                widget.down('#editOverflowValueField').setValue(100000000);
                                 me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName);
                             }
                         });
@@ -202,7 +208,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         var me = this;
 
         var breadcrumbCreate = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerconfig.create', 'MDC', 'Create register configurations'),
+            text: Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration'),
             href: 'create'
         });
 
@@ -292,7 +298,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     changeRegisterType: function (field, value, options) {
         var me = this;
         var view = this.getRegisterConfigEditForm();
-        if (field.name === 'registerTypeId') {
+        if (field.name === 'registerMapping') {
             var registerType = me.getRegisterTypesOfDevicetypeStore().findRecord('id', value);
             if (registerType != null) {
                 view.down('#create_mrid').setValue(registerType.getReadingType().get('mrid'));
@@ -348,6 +354,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         });
     },
 
+    deleteRegisterConfigurationFromPreview: function () {
+        this.deleteRegisterConfiguration(this.getRegisterConfigGrid().getSelectionModel().getSelection()[0]);
+    },
+
 
     removeRegisterConfigFromDeviceType: function (btn, text, opt) {
         if (btn === 'yes') {
@@ -367,8 +377,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         var view = this.getRegisterConfigEditForm();
         view.down('#editOverflowValueField').setValue(null);
         var numberOfDigits = view.down('#editNumberOfDigitsField').getValue();
-        var maxOverFlowValue = Math.pow(10,numberOfDigits);
-        this.getOverflowValueInfo().update('<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo','MDC', 'The maximum overflow value is {0} with {1} number of digits.', [maxOverFlowValue, numberOfDigits]) + '</i></span>');
+        var maxOverFlowValue = Math.pow(10, numberOfDigits);
+        this.getOverflowValueInfo().update('<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo', 'MDC', 'The maximum overflow value is {0} with {1} number of digits.', [maxOverFlowValue, numberOfDigits]) + '</i></span>');
         view.down('#editOverflowValueField').setMaxValue(maxOverFlowValue);
     },
 
@@ -401,7 +411,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                         me.editBreadCrumb(deviceTypeId, deviceConfigurationId, registerConfigurationId, deviceType.get('name'), deviceConfiguration.get('name'), registerConfiguration.get('name'));
                                         widget.down('form').loadRecord(registerConfiguration);
                                         widget.down('#registerConfigEditCreateTitle').update('<H2>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + registerConfiguration.get('name') + '"</H2>');
-                                        widget.down('#registerTypeComboBox').setValue(registerConfiguration.get('registerTypeId'));
+                                        widget.down('#registerTypeComboBox').setValue(registerConfiguration.get('registerMapping'));
                                         widget.setLoading(false);
                                     }
                                 });
