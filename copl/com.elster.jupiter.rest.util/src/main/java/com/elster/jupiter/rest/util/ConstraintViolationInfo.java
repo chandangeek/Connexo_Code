@@ -1,12 +1,11 @@
 package com.elster.jupiter.rest.util;
 
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.impl.MessageSeeds;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -43,6 +42,7 @@ public class ConstraintViolationInfo {
     @JsonProperty("errors")
     public List<FieldError> errors = new ArrayList<>();
 
+    @Inject
     public ConstraintViolationInfo(NlsService nlsService) {
         this.nlsService = nlsService;
     }
@@ -52,22 +52,15 @@ public class ConstraintViolationInfo {
         error=exception.getLocalizedMessage();
 
         for (ConstraintViolation<?> constraintViolation : exception.getConstraintViolations()) {
-            errors.add(new FieldError(constraintViolation.getPropertyPath().toString(), nlsService.interpolate(constraintViolation)));
+            if (constraintViolation.getPropertyPath()!=null) {
+                errors.add(new FieldError(constraintViolation.getPropertyPath().toString(), nlsService.interpolate(constraintViolation)));
+            }
         }
         return this;
     }
 
-    public ConstraintViolationInfo from(LocalizedFieldValidationException exception) {
-        errors.add(new FieldError(exception.getViolatingProperty(), exception.getLocalizedMessage()));
-
-        return this;
-    }
-
-    public ConstraintViolationInfo from(LocalizedException exception) {
-        message=exception.getLocalizedMessage();
-        error=exception.getMessageSeed().getKey();
-
-        return this;
+    public void addFieldError(String fieldIdentifier, String fieldLevelMessage) {
+        errors.add(new FieldError(fieldIdentifier, fieldLevelMessage));
     }
 
     public ConstraintViolationInfo from(JsonMappingException exception) {
