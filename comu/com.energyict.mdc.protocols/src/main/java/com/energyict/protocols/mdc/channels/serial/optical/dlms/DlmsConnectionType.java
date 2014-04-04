@@ -1,12 +1,14 @@
 package com.energyict.protocols.mdc.channels.serial.optical.dlms;
 
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.BigDecimalFactory;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecBuilder;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
+import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 
 import java.math.BigDecimal;
 
@@ -32,14 +34,20 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
     public static final String PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
     public static final String PROPERTY_NAME_CONNECTION = "Connection";
 
-    private final ConnectionType actualConnectionType;
+    private final ServerConnectionType actualConnectionType;
 
-    protected DlmsConnectionType(ConnectionType actualConnectionType) {
+    protected DlmsConnectionType(ServerConnectionType actualConnectionType) {
         this.actualConnectionType = actualConnectionType;
     }
 
     ConnectionType getActualConnectionType() {
         return actualConnectionType;
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        super.setPropertySpecService(propertySpecService);
+        this.actualConnectionType.setPropertySpecService(propertySpecService);
     }
 
     abstract PropertySpec getAddressingModePropertySpec();
