@@ -328,7 +328,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         createTestDefaultTimeZone();
         Device simpleDevice = createSimpleDevice();
 
-        InMemoryPersistence.update("update eisrtu set TIMEZONE = 'InCorrectTimeZoneId' where id = " + simpleDevice.getId());
+        InMemoryIntegrationPersistence.update("update eisrtu set TIMEZONE = 'InCorrectTimeZoneId' where id = " + simpleDevice.getId());
 
         Device reloadedDevice = getReloadedDevice(simpleDevice);
 

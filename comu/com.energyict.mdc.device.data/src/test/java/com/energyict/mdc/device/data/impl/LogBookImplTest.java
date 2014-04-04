@@ -21,7 +21,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
  * Date: 26/03/14
  * Time: 10:29
  */
-public class LogBookImplTest extends PersistenceTest{
+public class LogBookImplTest extends PersistenceIntegrationTest{
 
     private static final ObisCode logBookObiscode = ObisCode.fromString("0.0.99.98.0.255");
 
@@ -30,7 +30,7 @@ public class LogBookImplTest extends PersistenceTest{
     private LogBookType logBookType;
 
     private Device createSimpleDeviceWithLogBook() {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLogBooks, "DeviceName");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithLogBooks, "DeviceName");
         device.save();
         return device;
     }
@@ -54,7 +54,7 @@ public class LogBookImplTest extends PersistenceTest{
     @Test
     @Transactional
     public void createWithNoLogBooksTest() {
-        Device deviceWithoutLogBooks = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithoutLogBooks");
+        Device deviceWithoutLogBooks = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "DeviceWithoutLogBooks");
         deviceWithoutLogBooks.save();
 
         Device reloadedDevice = getReloadedDevice(deviceWithoutLogBooks);
@@ -144,6 +144,6 @@ public class LogBookImplTest extends PersistenceTest{
         Device reloadedDevice = getReloadedDevice(simpleDeviceWithLogBook);
         reloadedDevice.delete();
 
-        assertThat(inMemoryPersistence.getDeviceService().getDataModel().mapper(LogBook.class).find()).isEmpty();
+        assertThat(inMemoryPersistence.getDeviceDataService().getDataModel().mapper(LogBook.class).find()).isEmpty();
     }
 }
