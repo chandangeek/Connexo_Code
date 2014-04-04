@@ -23,6 +23,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'deviceConfigurationPreviewForm', selector: '#deviceConfigurationPreviewForm'},
         {ref: 'deviceConfigurationPreview', selector: '#deviceConfigurationPreview'},
         {ref: 'deviceConfigurationDetailsLink', selector: '#deviceConfigurationDetailsLink'},
+        {ref: 'deviceConfigurationDetailForm', selector: '#deviceConfigurationDetailForm'},
         {ref: 'deviceConfigurationPreviewTitle', selector: '#deviceConfigurationPreviewTitle'},
         {ref: 'deviceConfigurationRegisterLink', selector: '#deviceConfigurationRegistersLink'},
         {ref: 'deviceConfigurationLogBookLink', selector: '#deviceConfigurationLogBooksLink'},
@@ -195,7 +196,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         deviceConfigurationToActivateDeactivate.getProxy().setExtraParam('deviceType',this.deviceTypeId);
         deviceConfigurationToActivateDeactivate.save({
             callback: function(){
-                location.href = '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/'+deviceConfigurationToActivateDeactivate.get('id');
+                me.getDeviceConfigurationDetailForm().loadRecord(deviceConfigurationToActivateDeactivate);
             }
         });
     },

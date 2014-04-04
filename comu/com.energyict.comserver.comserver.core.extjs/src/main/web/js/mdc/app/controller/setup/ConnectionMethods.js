@@ -121,7 +121,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     showConnectionMethodEditView: function(deviceTypeId,deviceConfigId,connectionMethodId){
-        debugger;
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigurationId = deviceConfigId;
         var me = this;
