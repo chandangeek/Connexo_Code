@@ -1,6 +1,7 @@
 package com.elster.jupiter.systemadmin.rest.resource;
 
 import com.elster.jupiter.systemadmin.Properties;
+import com.elster.jupiter.systemadmin.rest.response.ActionInfo;
 import com.elster.jupiter.systemadmin.rest.response.LicenseInfo;
 import com.elster.jupiter.systemadmin.rest.response.LicenseListInfo;
 import com.elster.jupiter.systemadmin.rest.response.RootEntity;
@@ -15,10 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.*;
 import java.security.SignedObject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Path("/license")
 public class LicensingResource extends BaseResource {
@@ -31,7 +29,7 @@ public class LicensingResource extends BaseResource {
 
         List resultList  = new ArrayList<>();
         getLicensingService().genereteLicFile();
-        List<Properties> props = getLicensingService().getLicenseList();
+       // List<Properties> props = getLicensingService().getLicenseList();
         return new LicenseListInfo(getLicensingService().getLicenseList());
     }
 
@@ -53,7 +51,7 @@ public class LicensingResource extends BaseResource {
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response uploadLicense(@QueryParam("application") String application,
+    public Response uploadLicense(@FormDataParam("application") String application,
                                   @FormDataParam("uploadField") InputStream fileInputStream,
                                   @FormDataParam("uploadField") FormDataContentDisposition contentDispositionHeader) {
         SignedObject signedObject = null;
@@ -66,19 +64,17 @@ public class LicensingResource extends BaseResource {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         try {
-            //getLicensingService().addLicense(signedObject);
+            //Set<String> result = getLicensingService().addLicense(signedObject);
             if (application != null) {
                 getTransactionService().execute(new UpgradeLicenseTransaction(getLicensingService(), signedObject, application));
             } else {
                 getTransactionService().execute(new UploadLicenseTransaction(getLicensingService(), signedObject));
             }
-
-            response = Response.status(Response.Status.OK).build();
+            Set<String> result = getLicensingService().getApplicationKey(signedObject);
+            response = Response.status(Response.Status.OK).entity(new RootEntity<ActionInfo>(new ActionInfo().setSuccess(result))).build();
         } catch (Exception e) {
-            Map <String, String> messageResponse = new HashMap <String, String>();
             String message = contentDispositionHeader.getFileName() + " file upload has failed. " + e.getMessage();
-            messageResponse.put("message", message);
-            response = Response.status(UNPROCESSIBLE_ENTITY).entity(new RootEntity<Map>(messageResponse)).build();
+            response = Response.status(UNPROCESSIBLE_ENTITY).entity(new RootEntity<ActionInfo>(new ActionInfo().setFailure(message))).build();
         }
         return response;
     }

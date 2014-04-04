@@ -14,14 +14,14 @@ public class LicenseShortInfo {
     protected long expires;
 
     public LicenseShortInfo() {}
-    public LicenseShortInfo(Properties properties) {
-        Map<String, String> props = properties.getProperties();
-        this.applicationtag = props.get(LicenseProperties.TAG.getName());
-        this.application = props.get(LicenseProperties.NAME.getName());
-        this.type = props.get(LicenseProperties.TYPE.getName());
-        this.status = props.get(LicenseProperties.STATUS.getName());
-        this.description = props.get(LicenseProperties.DESCRIPTION.getName());
-        Date date = new Date(props.get(LicenseProperties.EXPIRES.getName()));
+    public LicenseShortInfo(Properties props) {
+        //Map<String, String> props = properties.getProperties();
+        this.applicationtag = props.getProperty(LicenseProperties.TAG.getName());
+        this.application = props.getProperty(LicenseProperties.NAME.getName());
+        this.type = props.getProperty(LicenseProperties.TYPE.getName());
+        this.status = props.getProperty(LicenseProperties.STATUS.getName());
+        this.description = props.getProperty(LicenseProperties.DESCRIPTION.getName());
+        Date date = new Date(props.getProperty(LicenseProperties.EXPIRES.getName()));
         this.expires = date.getTime();
     }
 
