@@ -53,13 +53,13 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
             ]}
     ],
 
-    side: [
+ /*   side: [
            {
                xtype: 'registerTypeFilter',
                name: 'filter'
            }
        ],
-
+*/
 
     initComponent: function () {
         this.callParent(arguments);
