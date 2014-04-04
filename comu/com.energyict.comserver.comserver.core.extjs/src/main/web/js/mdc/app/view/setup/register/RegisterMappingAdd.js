@@ -66,12 +66,12 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
             ]}
     ],
 
-    side: [
+   /* side: [
         {
             xtype: 'registerMappingAddFilter',
             name: 'filter'
         }
-    ],
+    ],*/
 
     initComponent: function () {
         this.callParent(arguments);
