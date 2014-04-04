@@ -57,7 +57,7 @@ public class NextExecutionSpecsWithMinimizeConnectionsStrategyValidator implemen
     private void validateOffsetNotBiggerThenFrequency(NextExecutionSpecs nextExecutionSpecs) {
         if (this.isNotNull(nextExecutionSpecs.getTemporalExpression().getOffset())) {
             if (nextExecutionSpecs.getTemporalExpression().getEvery().getSeconds() < nextExecutionSpecs.getTemporalExpression().getOffset().getSeconds()) {
-                this.addViolation(MessageSeeds.OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY_REQUIRED);
+                this.addViolation(MessageSeeds.OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY);
             }
         }
     }
@@ -83,10 +83,10 @@ public class NextExecutionSpecsWithMinimizeConnectionsStrategyValidator implemen
             }
             if (!comWindow.includes(offsetWithinDay) && this.frequencyIsAtLeastADay(nextExecutionSpecs)) {
                 if (this.isWithinDay(offset)) {
-                    this.addViolation(MessageSeeds.OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW_REQUIRED);
+                    this.addViolation(MessageSeeds.OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW);
                 }
                 else {
-                    this.addViolation(MessageSeeds.OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW_REQUIRED);
+                    this.addViolation(MessageSeeds.OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW);
                 }
             }
         }

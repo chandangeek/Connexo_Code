@@ -20,8 +20,6 @@ import com.energyict.mdc.device.data.PartialConnectionTaskFactory;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.ComServer;
@@ -232,6 +230,27 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     public static void createComPortPools () {
         registerDiscoveryProtocolPluggableClasses();
         createIpComPortPools();
+        createModemComPortPools();
+    }
+
+    @AfterClass
+    public static void deleteComPortPools () {
+        try {
+            Environment.DEFAULT.get().execute(new Transaction<Object>() {
+                @Override
+                public Object doExecute() {
+                    outboundTcpipComPortPool.delete();
+                    outboundTcpipComPortPool2.delete();
+                    inboundTcpipComPortPool.delete();
+                    inboundTcpipComPortPool2.delete();
+                    outboundModemComPortPool.delete();
+                    return null;
+                }
+            });
+        }
+        catch (BusinessException | SQLException e) {
+            // Not thrown by the transaction
+        }
     }
 
     public static void registerDiscoveryProtocolPluggableClasses() {
@@ -267,6 +286,21 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         }
     }
 
+    private static void createModemComPortPools() {
+        try {
+            Environment.DEFAULT.get().execute(new Transaction<Object>() {
+                @Override
+                public Object doExecute() {
+                    outboundModemComPortPool = createOutboundModemComPortPool("Modem out(1)");
+                    return null;
+                }
+            });
+        }
+        catch (BusinessException | SQLException e) {
+            // Not thrown by the transaction
+        }
+    }
+
     private static OutboundComPortPool createOutboundIpComPortPool(String name) {
         OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineModelService().newOutboundComPortPool();
         ipComPortPool.setActive(true);
@@ -275,6 +309,16 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         ipComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.MINUTES));
         ipComPortPool.save();
         return ipComPortPool;
+    }
+
+    private static OutboundComPortPool createOutboundModemComPortPool(String name) {
+        OutboundComPortPool modemComPortPool = inMemoryPersistence.getEngineModelService().newOutboundComPortPool();
+        modemComPortPool.setActive(true);
+        modemComPortPool.setComPortType(ComPortType.SERIAL);
+        modemComPortPool.setName(name);
+        modemComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.MINUTES));
+        modemComPortPool.save();
+        return modemComPortPool;
     }
 
     private static InboundComPortPool createInboundIpComPortPool(String name) {
@@ -391,7 +435,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         else {
             connectionTask = inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
         }
-        this.addIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE, codeTable);
+        this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE, codeTable);
         connectionTask.save();
         return connectionTask;
     }
@@ -403,25 +447,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
                 ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.CODE_TABLE_PROPERTY_NAME));
     }
 
-    protected void addIpConnectionProperties (InboundConnectionTask connectionTask, String ipAddress, BigDecimal port, Code codeTable) {
-        this.addIpConnectionProperties(connectionTask, inboundTcpipComPortPool, ipAddress, port, codeTable);
-    }
-
-    protected void addIpConnectionProperties (OutboundConnectionTask connectionTask, String ipAddress, BigDecimal port, Code codeTable) {
-        this.addIpConnectionProperties(connectionTask, outboundTcpipComPortPool, ipAddress, port, codeTable);
-    }
-
-    protected void addIpConnectionProperties (InboundConnectionTask connectionTask, InboundComPortPool comPortPool, String ipAddress, BigDecimal port, Code codeTable) {
-        connectionTask.setComPortPool(comPortPool);
-        this.setIpConnectionProperties(connectionTask, ipAddress, port, codeTable);
-    }
-
-    protected <T extends OutboundConnectionTask> void addIpConnectionProperties (T connectionTask, OutboundComPortPool comPortPool, String ipAddress, BigDecimal port, Code codeTable) {
-        connectionTask.setComPortPool(comPortPool);
-        this.setIpConnectionProperties(connectionTask, ipAddress, port, codeTable);
-    }
-
-    private void setIpConnectionProperties (ConnectionTask connectionTask, String ipAddress, BigDecimal port, Code codeTable) {
+    protected void setIpConnectionProperties (ConnectionTask connectionTask, String ipAddress, BigDecimal port, Code codeTable) {
         if (ipAddress != null) {
             connectionTask.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
         }

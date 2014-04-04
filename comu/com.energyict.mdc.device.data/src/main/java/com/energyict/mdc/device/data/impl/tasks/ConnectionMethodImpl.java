@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
@@ -56,7 +57,7 @@ public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<Connectio
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
     private ConnectionTypePluggableClass pluggableClass;
     private ConnectionTask connectionTask;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
     private Reference<ComPortPool> comPortPool = ValueReference.absent();
 
     private ProtocolPluggableService protocolPluggableService;
@@ -205,6 +206,11 @@ public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<Connectio
     @Override
     public ComPortPool getComPortPool() {
         return this.comPortPool.get();
+    }
+
+    @Override
+    public boolean hasComPortPool() {
+        return this.comPortPool.isPresent();
     }
 
     @Override

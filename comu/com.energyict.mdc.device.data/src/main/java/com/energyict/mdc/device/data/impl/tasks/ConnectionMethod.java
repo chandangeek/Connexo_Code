@@ -26,6 +26,13 @@ public interface ConnectionMethod extends PluggableClassUsage<ConnectionType, Co
      */
     public ComPortPool getComPortPool();
 
+    /**
+     * Tests if this ConnectionMethod has a {@link ComPortPool}.
+     *
+     * @return A flag that indicates if this ConnectionMethod has a ComPortPool
+     */
+    public boolean hasComPortPool();
+
     public void setComPortPool (ComPortPool comPortPool);
 
     /**
