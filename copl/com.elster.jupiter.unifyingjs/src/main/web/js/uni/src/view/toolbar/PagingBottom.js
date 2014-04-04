@@ -455,8 +455,6 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
     },
 
     initExtraParams: function () {
-
-        debugger;
         var me = this;
         if (Ext.isArray(me.params)) {
              me.params.forEach(function (entry) {
