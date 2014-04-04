@@ -6,9 +6,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.impl.MessageSeeds;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -60,24 +58,12 @@ public class ConstraintViolationInfo {
     }
 
     public ConstraintViolationInfo from(LocalizedFieldValidationException exception) {
-        return this.from(exception, new HashMap<String, String>());
-    }
-
-    public ConstraintViolationInfo from(LocalizedFieldValidationException exception, Map<String, String> fieldMappings) {
-        if (fieldMappings.containsKey(exception.getViolatingProperty())) {
-            errors.add(new FieldError(fieldMappings.get(exception.getViolatingProperty()), exception.getLocalizedMessage()));
-        } else {
-            errors.add(new FieldError(exception.getViolatingProperty(), exception.getLocalizedMessage()));
-        }
+        errors.add(new FieldError(exception.getViolatingProperty(), exception.getLocalizedMessage()));
 
         return this;
     }
 
     public ConstraintViolationInfo from(LocalizedException exception) {
-        return this.from(exception, new HashMap<String, String>());
-    }
-
-    public ConstraintViolationInfo from(LocalizedException exception, Map<String, String> fieldMappings) {
         message=exception.getLocalizedMessage();
         error=exception.getMessageSeed().getKey();
 
