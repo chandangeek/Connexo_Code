@@ -10,7 +10,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>systemadmin</artifactId>
-    <version>1.0.0-LICENSE-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.systemadmin</name>
 
