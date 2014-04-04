@@ -196,7 +196,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             ]).then(
             {
                 success: function (results) {
-                    debugger;
                     var deviceType = results[0][0];
                     me.editBreadCrumb(deviceType.get('name'), deviceTypeId)
                     widget.down('form').loadRecord(deviceType);
