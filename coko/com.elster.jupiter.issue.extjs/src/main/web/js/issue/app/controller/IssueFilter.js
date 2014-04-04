@@ -122,7 +122,7 @@ Ext.define('Isu.controller.IssueFilter', {
         }
         var form = this.getIssueFilter().down('filter-form'),
             filter = form.getRecord(),
-            groupCombobox = Ext.ComponentQuery.query('issues-filter panel combobox[name=groupnames]')[0];
+            groupCombobox = Ext.ComponentQuery.query('issues-side-filter filter-form combobox[name=reason]')[0];
 
         if ( !Ext.isEmpty(groupCombobox.getValue())) {
             var combobox = form.down('combobox[name=reason]'),
