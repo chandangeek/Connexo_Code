@@ -8,27 +8,15 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.RegisterMapping;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
-import com.energyict.mdc.device.config.exceptions.CannotUpdateIntervalWhenLoadProfileTypeIsInUseException;
-import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException;
-import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
-import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.RegisterMappingAlreadyInLoadProfileTypeException;
-import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
+import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.exceptions.*;
+
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -39,10 +27,23 @@ import static com.elster.jupiter.util.Checks.is;
  */
 public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> implements LoadProfileType {
 
+    enum Fields {
+           OBIS_CODE("obisCode");
+           private final String javaFieldName;
+
+           Fields(String javaFieldName) {
+               this.javaFieldName = javaFieldName;
+           }
+
+           String fieldName() {
+               return javaFieldName;
+           }
+       }
+
     private DeviceConfigurationService deviceConfigurationService;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED_KEY + "}")
-    private String obisCodeString;
-    private ObisCode obisCode;
+    private String obisCode;
+    private ObisCode obisCodeCached;
     private TimeDuration interval;
     private String description;
     private Date modificationDate;
@@ -113,25 +114,25 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     }
 
     public ObisCode getObisCode() {
-        if (this.obisCode == null) {
-            this.obisCode = ObisCode.fromString(this.obisCodeString);
+        if (this.obisCodeCached == null) {
+            this.obisCodeCached = ObisCode.fromString(this.obisCode);
         }
-        return this.obisCode;
+        return this.obisCodeCached;
     }
 
     @Override
     public void setObisCode(ObisCode obisCode) {
         if (obisCode == null) {
             // javax.validation will throw ConstraintValidationException in the end
-            this.obisCodeString = null;
             this.obisCode = null;
+            this.obisCodeCached = null;
         }
         else {
             if (this.isInUse()) {
                 throw new CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException(this.getThesaurus(), this);
             }
-            this.obisCodeString = obisCode.toString();
-            this.obisCode = obisCode;
+            this.obisCode = obisCode.toString();
+            this.obisCodeCached = obisCode;
         }
     }
 
