@@ -1,7 +1,11 @@
 package com.energyict.mdc.device.config;
 
-public enum DeviceTypeFields {
-    DEVICE_PROTOCOL_PLUGGABLE_CLASS("deviceProtocolPluggableClassId");
+import com.energyict.mdc.common.ImplField;
+
+public enum DeviceTypeFields implements ImplField {
+    DEVICE_PROTOCOL_PLUGGABLE_CLASS("deviceProtocolPluggableClassId"),
+    NAME("name");
+
     private String javaFieldName;
 
     DeviceTypeFields(String javaFieldName) {
