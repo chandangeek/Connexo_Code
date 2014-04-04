@@ -179,7 +179,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         deviceConfigurationToActivateDeactivate.getProxy().setExtraParam('deviceType',this.deviceTypeId);
         deviceConfigurationToActivateDeactivate.save({
             callback: function(){
-                location.href = '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations';
+                me.getDeviceConfigurationsGrid().refresh()
             }
         });
     },
