@@ -10,7 +10,8 @@ Ext.define('Isu.controller.IssueFilter', {
         'Isu.store.IssueReason',
         'Isu.store.UserGroupList',
         'Isu.store.IssueMeter',
-        'Isu.store.Issues'
+        'Isu.store.Issues',
+        'Isu.store.IssuesGroups'
     ],
 
     views: [
@@ -127,8 +128,10 @@ Ext.define('Isu.controller.IssueFilter', {
             var combobox = form.down('combobox[name=reason]'),
                 grid = Ext.ComponentQuery.query('issues-filter panel gridpanel[name=groupgrid]')[0],
                 gridview = Ext.ComponentQuery.query('issues-overview issues-list gridview')[0],
-                record = combobox.findRecordByValue(combobox.getValue());
+                recordId = combobox.findRecordByValue(combobox.getValue()).data.id,
+                record = this.getStore('Isu.store.IssuesGroups').getById(recordId);
             grid.fireEvent('itemclick', gridview, record);
+            grid.getSelectionModel().select([record]);
         }
 
         form.updateRecord(filter);
