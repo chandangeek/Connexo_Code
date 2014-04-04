@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                 flex: 0.4
             },
             {
-                header: Uni.I18n.translate('deviceconfiguration.active', 'MDC', 'Active'),
+                header: Uni.I18n.translate('deviceconfiguration.status', 'MDC', 'Status'),
                 dataIndex: 'active',
                 sortable: false,
                 hideable: false,
