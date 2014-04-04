@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.api.tasks;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.Environment;
 
 /**
  * Defines what should be done with the received Topology.
@@ -51,7 +50,4 @@ public enum TopologyAction {
         throw new ApplicationException("unknown topology action: " + action);
     }
 
-    public String getLocalizedName() {
-        return Environment.DEFAULT.get().getTranslation(toString());
-    }
 }
