@@ -7,7 +7,6 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.*;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.impl.EventServiceImpl;
-import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -19,7 +18,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -28,7 +26,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.json.JsonService;
@@ -53,7 +50,6 @@ import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -94,15 +90,15 @@ import static org.mockito.Mockito.times;
  * Time: 10:42
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DeviceImplThrowEventsTest {
+public class DeviceImplDoSomethingWithEventsTest {
 
     private static EventInMemoryPersistence inMemoryPersistence = new EventInMemoryPersistence();
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
 
-    private static final String DEVICE_TYPE_NAME = DeviceImplThrowEventsTest.class.getName() + "Type";
-    private static final String DEVICE_CONFIGURATION_NAME = DeviceImplThrowEventsTest.class.getName() + "Config";
+    private static final String DEVICE_TYPE_NAME = DeviceImplDoSomethingWithEventsTest.class.getName() + "Type";
+    private static final String DEVICE_CONFIGURATION_NAME = DeviceImplDoSomethingWithEventsTest.class.getName() + "Config";
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
     private static final String DEVICENAME = "deviceName";
 
@@ -137,7 +133,6 @@ public class DeviceImplThrowEventsTest {
     public void initializeMocks() {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-//        when(inMemoryPersistence.getProtocolPluggableService().findDeviceProtocolPluggableClass(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID)).thenReturn(deviceProtocolPluggableClass);
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
@@ -146,7 +141,7 @@ public class DeviceImplThrowEventsTest {
 
     @After
     public void initAfter() {
-        reset(((EventInMemoryPersistence.SpyEventService) injector.getInstance(EventService.class)).getSpyEventService());
+        reset(((EventInMemoryPersistence.SpyEventService) inMemoryPersistence.getEventService()).getSpyEventService());
     }
 
     private Device createSimpleDevice() {
@@ -166,7 +161,7 @@ public class DeviceImplThrowEventsTest {
     @Test
     @Transactional
     public void createEventTest() {
-        EventInMemoryPersistence.SpyEventService eventService = (EventInMemoryPersistence.SpyEventService) injector.getInstance(EventService.class);
+        EventInMemoryPersistence.SpyEventService eventService = (EventInMemoryPersistence.SpyEventService) inMemoryPersistence.getEventService();
         Device simpleDevice = createSimpleDevice();
 
         verify(eventService.getSpyEventService(), times(1)).postEvent(CreateEventType.DEVICE.topic(), simpleDevice);
@@ -176,7 +171,7 @@ public class DeviceImplThrowEventsTest {
     @Test
     @Transactional
     public void updateEventTest() {
-        EventInMemoryPersistence.SpyEventService eventService = (EventInMemoryPersistence.SpyEventService) injector.getInstance(EventService.class);
+        EventInMemoryPersistence.SpyEventService eventService = (EventInMemoryPersistence.SpyEventService) inMemoryPersistence.getEventService();
         Device simpleDevice = createSimpleDevice();
         Device reloadedDevice = getReloadedDevice(simpleDevice);
         reloadedDevice.setExternalName("MyTestExternalName");
@@ -189,7 +184,7 @@ public class DeviceImplThrowEventsTest {
     @Test
     @Transactional
     public void deleteEventTest() {
-        EventInMemoryPersistence.SpyEventService eventService = (EventInMemoryPersistence.SpyEventService) injector.getInstance(EventService.class);
+        EventInMemoryPersistence.SpyEventService eventService = (EventInMemoryPersistence.SpyEventService) inMemoryPersistence.getEventService();
         Device simpleDevice = createSimpleDevice();
         simpleDevice.delete();
 
