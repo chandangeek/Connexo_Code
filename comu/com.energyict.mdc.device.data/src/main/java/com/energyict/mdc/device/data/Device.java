@@ -202,6 +202,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     InboundConnectionTaskBuilder getInboundConnectionTaskBuilderFor(PartialInboundConnectionTask partialInboundConnectionTask);
 
+    List<ConnectionTask<?, ?>> getConnectionTasks();
+
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask
      */

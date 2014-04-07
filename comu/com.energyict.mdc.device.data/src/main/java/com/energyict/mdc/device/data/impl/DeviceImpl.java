@@ -665,6 +665,11 @@ public class DeviceImpl implements Device {
         return new InboundConnectionTaskBuilderForDevice(this, partialInboundConnectionTask);
     }
 
+    @Override
+    public List<ConnectionTask<?, ?>> getConnectionTasks() {
+        return connectionTasks;
+    }
+
     private class InboundConnectionTaskBuilderForDevice implements InboundConnectionTaskBuilder {
 
         private final InboundConnectionTaskImpl inboundConnectionTask;
