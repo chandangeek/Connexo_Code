@@ -206,13 +206,30 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         });
     },
 
+
+
+
     deleteDeviceConfiguration: function(deviceConfigurationToDelete){
         var me = this;
-        deviceConfigurationToDelete.getProxy().setExtraParam('deviceType',this.deviceTypeId);
-        deviceConfigurationToDelete.destroy({
-            callback: function () {
-                location.href = '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations';
-            }
+        Ext.MessageBox.show({
+            msg: Uni.I18n.translate('deviceconfiguration.deleteDeviceConfiguration', 'MDC', 'Are you sure you want to delete this device configuration?'),
+            title: Uni.I18n.translate('general.delete', 'MDC', 'delete') + ' ' + deviceConfigurationToDelete.get('name') + '?',
+            config: {
+                registerConfigurationToDelete: deviceConfigurationToDelete,
+                me: me
+            },
+            buttons: Ext.MessageBox.YESNO,
+            fn: function(btn){
+                if(btn === 'yes'){
+                    deviceConfigurationToDelete.getProxy().setExtraParam('deviceType',me.deviceTypeId);
+                    deviceConfigurationToDelete.destroy({
+                        callback: function () {
+                            location.href = '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations';
+                        }
+                    });
+                }
+            },
+            icon: Ext.MessageBox.WARNING
         });
     },
 
