@@ -6,7 +6,7 @@ Ext.define('Isu.controller.IssueCreationRules', {
     ],
 
     stores: [
-        'CreationRules'
+        'Isu.store.CreationRule'
     ],
     views: [
         'administration.datacollection.issuecreationrules.Overview',
@@ -41,11 +41,14 @@ Ext.define('Isu.controller.IssueCreationRules', {
             'creation-rule-action-menu': {
                 beforehide: this.hideItemAction,
                 click: this.chooseAction
+            },
+            'issue-creation-rules-overview button[action=create]': {
+                click: this.createRule
             }
         });
 
         this.actionMenuXtype = 'creation-rule-action-menu';
-        this.gridItemModel = this.getModel('CreationRules');
+        this.gridItemModel = this.getModel('Isu.model.CreationRule');
     },
 
     showOverview: function () {
@@ -89,6 +92,10 @@ Ext.define('Isu.controller.IssueCreationRules', {
                 window.location.href = '#/issue-administration/datacollection/issuecreationrules/' + menu.issueId + '/edit';
                 break;
         }
+    },
+
+    createRule: function () {
+        window.location.href = '#/issue-administration/datacollection/issuecreationrules/create';
     },
 
     deleteRule: function(menu) {

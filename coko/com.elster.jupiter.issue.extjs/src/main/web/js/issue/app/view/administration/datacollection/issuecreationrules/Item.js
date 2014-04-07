@@ -51,12 +51,13 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
                 },
                 {
                     bodyPadding: '20 10 0',
-                    data: record.data,
+                    data: record.raw,
                     tpl: new Ext.XTemplate(
                         '<table class="isu-item-data-table">',
                         '<tr>',
-                        '<td><b>Issue type</b></td>',
-                        '<td><b><tpl if="type">{type}</tpl></b></td>',
+                        '<td><b>Issue type:</b></td>',
+                        '<td><b><tpl if="type">{type.name}</tpl></b></td>',
+                        '<td><b>Due in:</b></td>',
                         '<td><tpl if="duein">{duein.number} {duein.type}</tpl></td>',
                         '</tr>',
                         '<tr>',
