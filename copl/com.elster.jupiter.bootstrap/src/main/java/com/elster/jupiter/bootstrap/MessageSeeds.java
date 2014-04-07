@@ -1,11 +1,10 @@
 package com.elster.jupiter.bootstrap;
 
 import com.elster.jupiter.util.exception.MessageSeed;
-
 import java.util.logging.Level;
 
 enum MessageSeeds implements MessageSeed {
-    PROPERTY_NOT_FOUND(1001, "Property with key ''{0}'' not found"),
+    PROPERTY_NOT_FOUND(1001, "Property with key \"{0}\" not found"),
     DATASOURCE_SETUP_FAILED(1002, "Data source setup failed.");
 
     private final int number;
