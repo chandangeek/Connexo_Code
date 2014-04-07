@@ -28,6 +28,7 @@ import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
@@ -393,18 +394,18 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public Optional<ServerPartialConnectionTask> getPartialConnectionTask(long id) {
-        return dataModel.mapper(ServerPartialConnectionTask.class).getOptional(id);
+    public Optional<PartialConnectionTask> getPartialConnectionTask(long id) {
+        return dataModel.mapper(PartialConnectionTask.class).getOptional(id);
     }
 
     @Override
-    public List<ServerPartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass) {
-        return dataModel.query(ServerPartialConnectionTask.class).select(where("pluggableClass").isEqualTo(connectionTypePluggableClass));
+    public List<PartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass) {
+        return dataModel.query(PartialConnectionTask.class).select(where("pluggableClass").isEqualTo(connectionTypePluggableClass));
     }
 
     @Override
-    public List<ServerPartialConnectionTask> findByComPortPool(ComPortPool comPortPool) {
-        return dataModel.query(ServerPartialConnectionTask.class).select(where("comPortPool").isEqualTo(comPortPool));
+    public List<PartialConnectionTask> findByComPortPool(ComPortPool comPortPool) {
+        return dataModel.query(PartialConnectionTask.class).select(where("comPortPool").isEqualTo(comPortPool));
     }
 
     @Override

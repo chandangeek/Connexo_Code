@@ -487,7 +487,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 //    }
 
     @Override
-    public List<ServerPartialOutboundConnectionTask> getPartialOutboundConnectionTasks() {
+    public List<PartialOutboundConnectionTaskImpl> getPartialOutboundConnectionTasks() {
         return this.filter(this.findAllPartialConnectionTasks(), new PartialOutboundConnectionTaskFilterPredicate());
     }
 

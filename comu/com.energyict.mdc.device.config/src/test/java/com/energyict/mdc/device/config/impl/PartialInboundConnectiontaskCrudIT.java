@@ -33,6 +33,7 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
@@ -262,10 +263,10 @@ public class PartialInboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        Optional<ServerPartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
         assertThat(found).isPresent();
 
-        ServerPartialConnectionTask partialConnectionTask = found.get();
+        PartialConnectionTask partialConnectionTask = found.get();
 
         assertThat(partialConnectionTask).isInstanceOf(PartialInboundConnectionTaskImpl.class);
 
@@ -316,10 +317,10 @@ public class PartialInboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        Optional<ServerPartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
         assertThat(found).isPresent();
 
-        ServerPartialConnectionTask partialConnectionTask = found.get();
+        PartialConnectionTask partialConnectionTask = found.get();
 
         assertThat(partialConnectionTask).isInstanceOf(PartialInboundConnectionTaskImpl.class);
 
@@ -366,7 +367,7 @@ public class PartialInboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        Optional<ServerPartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
         assertThat(found).isAbsent();
 
     }

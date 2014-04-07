@@ -35,6 +35,7 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -231,7 +232,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     @Test
     public void testCreate() {
 
-        ServerPartialOutboundConnectionTask outboundConnectionTask;
+        PartialOutboundConnectionTaskImpl outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -257,14 +258,14 @@ public class PartialOutboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        Optional<ServerPartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found).isPresent();
 
-        ServerPartialConnectionTask partialConnectionTask = found.get();
+        PartialConnectionTask partialConnectionTask = found.get();
 
-        assertThat(partialConnectionTask).isInstanceOf(ServerPartialOutboundConnectionTask.class);
+        assertThat(partialConnectionTask).isInstanceOf(PartialOutboundConnectionTaskImpl.class);
 
-        ServerPartialOutboundConnectionTask partialOutboundConnectionTask = (ServerPartialOutboundConnectionTask) partialConnectionTask;
+        PartialOutboundConnectionTaskImpl partialOutboundConnectionTask = (PartialOutboundConnectionTaskImpl) partialConnectionTask;
 
         assertThat(partialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
         assertThat(partialOutboundConnectionTask.isDefault()).isTrue();
@@ -283,7 +284,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     @Test
     public void testUpdate() {
 
-        ServerPartialOutboundConnectionTask outboundConnectionTask;
+        PartialOutboundConnectionTaskImpl outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -311,7 +312,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         ComWindow newComWindow = new ComWindow(7200, 10800);
         try (TransactionContext context = transactionService.getContext()) {
             DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceConfigurationService(communicationConfiguration.getId());
-            ServerPartialOutboundConnectionTask partialOutboundConnectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
+            PartialOutboundConnectionTaskImpl partialOutboundConnectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
             partialOutboundConnectionTask.setDefault(false);
             partialOutboundConnectionTask.setComportPool(outboundComPortPool1);
             partialOutboundConnectionTask.setConnectionTypePluggableClass(connectionTypePluggableClass2);
@@ -322,14 +323,14 @@ public class PartialOutboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        Optional<ServerPartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found).isPresent();
 
-        ServerPartialConnectionTask partialConnectionTask = found.get();
+        PartialConnectionTask partialConnectionTask = found.get();
 
-        assertThat(partialConnectionTask).isInstanceOf(ServerPartialOutboundConnectionTask.class);
+        assertThat(partialConnectionTask).isInstanceOf(PartialOutboundConnectionTaskImpl.class);
 
-        ServerPartialOutboundConnectionTask partialOutboundConnectionTask = (ServerPartialOutboundConnectionTask) partialConnectionTask;
+        PartialOutboundConnectionTaskImpl partialOutboundConnectionTask = (PartialOutboundConnectionTaskImpl) partialConnectionTask;
 
         assertThat(partialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool1.getId());
         assertThat(partialOutboundConnectionTask.isDefault()).isFalse();
@@ -342,7 +343,7 @@ public class PartialOutboundConnectiontaskCrudIT {
 
     @Test
     public void testDelete() {
-        ServerPartialOutboundConnectionTask outboundConnectionTask;
+        PartialOutboundConnectionTaskImpl outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -369,14 +370,14 @@ public class PartialOutboundConnectiontaskCrudIT {
 
         try (TransactionContext context = transactionService.getContext()) {
             DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceConfigurationService(communicationConfiguration.getId());
-            ServerPartialOutboundConnectionTask partialOutboundConnectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
+            PartialOutboundConnectionTaskImpl partialOutboundConnectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
             configuration.remove(partialOutboundConnectionTask);
             configuration.save();
 
             context.commit();
         }
 
-        Optional<ServerPartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found).isAbsent();
 
     }
@@ -409,7 +410,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        ServerPartialOutboundConnectionTask outboundConnectionTask;
+        PartialOutboundConnectionTaskImpl outboundConnectionTask;
         try (TransactionContext context = transactionService.getContext()) {
             communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
             communicationConfiguration.save();
@@ -429,14 +430,14 @@ public class PartialOutboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        Optional<ServerPartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
+        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found).isPresent();
 
-        ServerPartialConnectionTask partialConnectionTask = found.get();
+        PartialConnectionTask partialConnectionTask = found.get();
 
-        assertThat(partialConnectionTask).isInstanceOf(ServerPartialOutboundConnectionTask.class);
+        assertThat(partialConnectionTask).isInstanceOf(PartialOutboundConnectionTaskImpl.class);
 
-        ServerPartialOutboundConnectionTask partialOutboundConnectionTask = (ServerPartialOutboundConnectionTask) partialConnectionTask;
+        PartialOutboundConnectionTaskImpl partialOutboundConnectionTask = (PartialOutboundConnectionTaskImpl) partialConnectionTask;
 
         assertThat(partialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
         assertThat(partialOutboundConnectionTask.isDefault()).isTrue();
@@ -454,7 +455,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.CONNECTION_STRATEGY_REQUIRED_KEY + '}')
     public void testCreateWithoutConnectionStrategy() {
 
-        ServerPartialOutboundConnectionTask outboundConnectionTask;
+        PartialOutboundConnectionTaskImpl outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -484,7 +485,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS_KEY + '}')
     public void testCreateMinimizingConnectionsWithoutNextExecutionSpecs() {
 
-        ServerPartialOutboundConnectionTask outboundConnectionTask;
+        PartialOutboundConnectionTaskImpl outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -514,7 +515,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY + '}')
     public void testCreateWithNextExecutionSpecsOffsetNotWithinComWindowTest() {
 
-        ServerPartialOutboundConnectionTask outboundConnectionTask;
+        PartialOutboundConnectionTaskImpl outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -545,7 +546,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.UNDER_MINIMUM_RESCHEDULE_DELAY_KEY + '}')
     public void testCreateWithTooLowReschedulingRetryDelayTest() {
 
-        ServerPartialOutboundConnectionTask outboundConnectionTask;
+        PartialOutboundConnectionTaskImpl outboundConnectionTask;
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);

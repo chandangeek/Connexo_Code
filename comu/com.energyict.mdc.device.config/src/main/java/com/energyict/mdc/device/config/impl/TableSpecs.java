@@ -16,6 +16,7 @@ import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
@@ -342,7 +343,7 @@ public enum TableSpecs {
     MDCPARTIALCONNECTIONTASK {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<ServerPartialConnectionTask> table = dataModel.addTable(name(), ServerPartialConnectionTask.class);
+            Table<PartialConnectionTask> table = dataModel.addTable(name(), PartialConnectionTask.class);
             table.map(PartialConnectionTaskImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
             table.column("NAME").varChar(255).notNull().map("name").add();

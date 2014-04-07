@@ -11,7 +11,7 @@ import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
  * Date: 13/03/14
  * Time: 15:31
  */
-public class PartialOutboundConnectionTaskBuilderImpl extends AbstractScheduledPartialConnectionTaskBuilder<PartialOutboundConnectionTaskBuilder, ServerPartialOutboundConnectionTask> implements PartialOutboundConnectionTaskBuilder {
+public class PartialOutboundConnectionTaskBuilderImpl extends AbstractScheduledPartialConnectionTaskBuilder<PartialOutboundConnectionTaskBuilder, PartialOutboundConnectionTaskImpl> implements PartialOutboundConnectionTaskBuilder {
 
     private ComWindow comWindow;
     private ConnectionStrategy connectionStrategy;
@@ -54,12 +54,12 @@ public class PartialOutboundConnectionTaskBuilderImpl extends AbstractScheduledP
     }
 
     @Override
-    ServerPartialOutboundConnectionTask newInstance() {
+    PartialOutboundConnectionTaskImpl newInstance() {
         return PartialOutboundConnectionTaskImpl.from(dataModel, configuration);
     }
 
     @Override
-    void populate(ServerPartialOutboundConnectionTask instance) {
+    void populate(PartialOutboundConnectionTaskImpl instance) {
         super.populate(instance);
         instance.setDefault(asDefault);
         instance.setComWindow(comWindow);

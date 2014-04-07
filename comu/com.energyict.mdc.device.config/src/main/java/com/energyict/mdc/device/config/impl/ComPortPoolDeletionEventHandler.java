@@ -5,6 +5,7 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.engine.model.ComPortPool;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -24,7 +25,7 @@ public class ComPortPoolDeletionEventHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         ComPortPool source = (ComPortPool) localEvent.getSource();
-        List<ServerPartialConnectionTask> found = deviceConfigurationService.findByComPortPool(source);
+        List<PartialConnectionTask> found = deviceConfigurationService.findByComPortPool(source);
         if (!found.isEmpty()) {
             throw new VetoDeleteComPortPoolException(getThesaurus(), source, found);
         }

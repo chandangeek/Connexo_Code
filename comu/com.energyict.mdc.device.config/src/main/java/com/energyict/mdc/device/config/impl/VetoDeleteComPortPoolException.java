@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.model.ComPortPool;
 
@@ -16,14 +17,14 @@ import java.util.List;
  */
 public class VetoDeleteComPortPoolException extends LocalizedException {
 
-    public VetoDeleteComPortPoolException(Thesaurus thesaurus, ComPortPool comPortPool, List<ServerPartialConnectionTask> clients) {
+    public VetoDeleteComPortPoolException(Thesaurus thesaurus, ComPortPool comPortPool, List<PartialConnectionTask> clients) {
         super(thesaurus, MessageSeeds.VETO_COMPORTPOOL_DELETION, comPortPool, asString(clients));
     }
 
-    private static String asString(List<ServerPartialConnectionTask> clients) {
+    private static String asString(List<PartialConnectionTask> clients) {
         StringBuilder builder = new StringBuilder();
         Holder<String> separator = HolderBuilder.first("").andThen(", ");
-        for (ServerPartialConnectionTask task : clients) {
+        for (PartialConnectionTask task : clients) {
             builder.append(separator.get()).append(task.getName());
         }
         return builder.toString();

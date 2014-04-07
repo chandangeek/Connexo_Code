@@ -5,6 +5,7 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -24,7 +25,7 @@ public class ConnectionTypePluggableClassDeletionEventHandler implements TopicHa
     @Override
     public void handle(LocalEvent localEvent) {
         ConnectionTypePluggableClass source = (ConnectionTypePluggableClass) localEvent.getSource();
-        List<ServerPartialConnectionTask> found = deviceConfigurationService.findByConnectionTypePluggableClass(source);
+        List<PartialConnectionTask> found = deviceConfigurationService.findByConnectionTypePluggableClass(source);
         if (!found.isEmpty()) {
             throw new VetoDeleteConnectionTypePluggableClassException(getThesaurus(), source, found);
         }
