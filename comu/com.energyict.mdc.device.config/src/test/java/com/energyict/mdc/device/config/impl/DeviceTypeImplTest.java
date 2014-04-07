@@ -832,6 +832,45 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
+    public void testDeviceTypeDeletionWithOnlyNonActiveDeviceConfigs() {
+        String deviceTypeName = "test";
+        DeviceType deviceType;
+
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+        deviceType.setDescription("For testing purposes only");
+        deviceType.newConfiguration("first").description("this is it!").add();
+        deviceType.newConfiguration("second").description("this is it!").add();
+        deviceType.save();
+
+        long deviceTypeId = deviceType.getId();
+
+        // Business method
+        deviceType.delete();
+
+        // Asserts
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceTypeId)).isNull();
+    }
+
+    @Test(expected = CannotDeleteBecauseStillInUseException.class)
+    @Transactional
+    public void testCanNotDeleteDeviceTypeWithActiveDeviceConfig() {
+        String deviceTypeName = "test";
+        DeviceType deviceType;
+
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+        deviceType.setDescription("For testing purposes only");
+        deviceType.newConfiguration("first").description("this is it!").add();
+        DeviceConfiguration second = deviceType.newConfiguration("second").description("this is it!").add();
+        deviceType.save();
+        second.activate();
+        second.save();
+
+        // Business method
+        deviceType.delete();
+    }
+
+    @Test
+    @Transactional
     public void testDeviceTypeDeletionRemovesRegisterMappings() {
         String deviceTypeName = "testDeviceTypeDeletionRemovesRegisterMappings";
         DeviceType deviceType;
