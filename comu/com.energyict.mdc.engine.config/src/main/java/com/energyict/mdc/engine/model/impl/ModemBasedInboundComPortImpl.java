@@ -17,7 +17,6 @@ import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import com.google.common.collect.Range;
-import com.google.inject.Provider;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
@@ -199,13 +198,6 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
         return true;
     }
 
-//    private void validateSerialPortConfigurationComPortName() {
-//        if (!this.getName().equals(this.getSerialPortConfiguration().getComPortName())) {
-//            throw new TranslatableApplicationException("comport.serialportconfigurationcomportname", "The comport name of the serial port configuration ({0}) should match the name of the comport ({1}).",
-//                    this.getSerialPortConfiguration().getComPortName(), this.getName());
-//        }
-//    }
-//
     @Override
     protected void copyFrom(ComPort source) {
         super.copyFrom(source);
@@ -226,27 +218,9 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
     public static class ModemBasedInboundComPortBuilderImpl extends InboundComPortBuilderImpl<ModemBasedInboundComPortBuilder, ModemBasedInboundComPort>
             implements ModemBasedInboundComPortBuilder {
 
-        protected ModemBasedInboundComPortBuilderImpl(Provider<ModemBasedInboundComPort> inboundComPortProvider) {
-            super(ModemBasedInboundComPortBuilder.class, inboundComPortProvider);
+        protected ModemBasedInboundComPortBuilderImpl(ModemBasedInboundComPort comPort) {
+            super(ModemBasedInboundComPortBuilder.class, comPort);
             comPort.setComPortType(ComPortType.SERIAL);
-        }
-
-        @Override
-        public ModemBasedInboundComPortBuilder ringCount(int ringCount) {
-            comPort.setRingCount(ringCount);
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPortBuilder maximumDialErrors(int maximumDialErrors) {
-            comPort.setMaximumDialErrors(maximumDialErrors);
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPortBuilder connectTimeout(TimeDuration connectTimeout) {
-            comPort.setConnectTimeout(connectTimeout);
-            return this;
         }
 
         @Override
@@ -258,12 +232,6 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
         @Override
         public ModemBasedInboundComPortBuilder delayBeforeSend(TimeDuration delayBeforeSend) {
             comPort.setDelayBeforeSend(delayBeforeSend);
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPortBuilder atCommandTimeout(TimeDuration atCommandTimeout) {
-            comPort.setAtCommandTimeout(atCommandTimeout);
             return this;
         }
 
@@ -291,11 +259,6 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
             return this;
         }
 
-        @Override
-        public ModemBasedInboundComPortBuilder serialPortConfiguration(SerialPortConfiguration serialPortConfiguration) {
-            comPort.setSerialPortConfiguration(serialPortConfiguration);
-            return this;
-        }
     }
 
     public static class LegacySerialPortConfiguration {

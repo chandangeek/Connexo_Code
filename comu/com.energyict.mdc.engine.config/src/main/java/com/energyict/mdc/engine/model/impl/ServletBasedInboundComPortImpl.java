@@ -8,7 +8,6 @@ import com.energyict.mdc.engine.model.IPBasedInboundComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.google.inject.Provider;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -116,8 +115,8 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     static class ServletBasedInboundComPortBuilderImpl extends IpBasedInboundComPortBuilderImpl<ServletBasedInboundComPortBuilder, ServletBasedInboundComPort>
             implements ServletBasedInboundComPortBuilder {
 
-        protected ServletBasedInboundComPortBuilderImpl(Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider) {
-            super(ServletBasedInboundComPortBuilder.class, servletBasedInboundComPortProvider);
+        protected ServletBasedInboundComPortBuilderImpl(ServletBasedInboundComPort servletBasedInboundComPort) {
+            super(ServletBasedInboundComPortBuilder.class, servletBasedInboundComPort);
             comPort.setComPortType(ComPortType.SERVLET);
         }
 

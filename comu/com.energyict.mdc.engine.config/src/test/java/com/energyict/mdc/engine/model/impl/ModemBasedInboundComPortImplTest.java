@@ -141,21 +141,17 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void createWithoutModemInitStrings() throws BusinessException, SQLException {
-        ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport()
+        ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
+                CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
                 .name(COMPORT_NAME)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .ringCount(RING_COUNT)
-                .maximumDialErrors(MAXIMUM_NUMBER_OF_DIAL_ERRORS)
                 .comPortPool(createComPortPool())
-                .connectTimeout(CONNECT_TIMEOUT)
-                .atCommandTimeout(AT_COMMAND_TIMEOUT)
                 .atCommandTry(AT_COMMAND_TRY)
                 .delayAfterConnect(DELAY_AFTER_CONNECT)
                 .delayBeforeSend(DELAY_BEFORE_SEND)
                 .addressSelector(ADDRESS_SELECTOR)
                 .postDialCommands(POST_DIAL_COMMANDS)
-                .serialPortConfiguration(getSerialPortConfiguration(COMPORT_NAME))
                 .add();
 
         ModemBasedInboundComPort reloaded = (ModemBasedInboundComPort) getEngineModelService().findComPort(comPort.getId());
@@ -168,16 +164,12 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortPool")
     public void testCreateWithoutComPortPool() throws BusinessException, SQLException {
-        createOnlineComServer().newModemBasedInboundComport()
+        ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
+                CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .name(COMPORT_NAME)
         .description(DESCRIPTION)
         .active(ACTIVE)
-        .ringCount(RING_COUNT)
-        .maximumDialErrors(MAXIMUM_NUMBER_OF_DIAL_ERRORS)
-        .connectTimeout(CONNECT_TIMEOUT)
-        .atCommandTimeout(AT_COMMAND_TIMEOUT)
         .atCommandTry(AT_COMMAND_TRY)
-        .serialPortConfiguration(getDefaultSerialPortConfiguration(COMPORT_NAME))
         .add();
 
         // Expecting an InvalidValueException to be thrown because the ComPortPool is not set
@@ -187,16 +179,12 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     public void testCreateWithoutName() throws BusinessException, SQLException {
-        createOnlineComServer().newModemBasedInboundComport()
+        ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(null, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
+                CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
         .description(DESCRIPTION)
         .active(ACTIVE)
-        .ringCount(RING_COUNT)
-        .maximumDialErrors(MAXIMUM_NUMBER_OF_DIAL_ERRORS)
-        .connectTimeout(CONNECT_TIMEOUT)
-        .atCommandTimeout(AT_COMMAND_TIMEOUT)
         .atCommandTry(AT_COMMAND_TRY)
-        .serialPortConfiguration(getDefaultSerialPortConfiguration(COMPORT_NAME))
         .add();
 
         // Expecting a BusinessException to be thrown because the name is not set
@@ -209,17 +197,13 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         OnlineComServer onlineComServer = createOnlineComServer();
         createSimpleComPort(onlineComServer);
 
-        onlineComServer.newModemBasedInboundComport()
+        ModemBasedInboundComPort comPort = onlineComServer.newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
+                CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
         .name(COMPORT_NAME)
         .description(DESCRIPTION)
         .active(ACTIVE)
-        .ringCount(RING_COUNT)
-        .maximumDialErrors(MAXIMUM_NUMBER_OF_DIAL_ERRORS)
-        .connectTimeout(CONNECT_TIMEOUT)
-        .atCommandTimeout(AT_COMMAND_TIMEOUT)
         .atCommandTry(AT_COMMAND_TRY)
-        .serialPortConfiguration(getDefaultSerialPortConfiguration(COMPORT_NAME))
         .add();
 
         // Expecting a BusinessException to be thrown because a ComPort with the same name already exists
@@ -232,17 +216,11 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         ModemBasedInboundComPort firstComPort = this.createSimpleComPort(onlineComServer);
         onlineComServer.removeComPort(firstComPort.getId());
 
-        onlineComServer.newModemBasedInboundComport()
-        .name(COMPORT_NAME)
+        ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
+                CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .ringCount(RING_COUNT)
-                .maximumDialErrors(MAXIMUM_NUMBER_OF_DIAL_ERRORS)
-                .connectTimeout(CONNECT_TIMEOUT)
-                .atCommandTimeout(AT_COMMAND_TIMEOUT)
                 .atCommandTry(AT_COMMAND_TRY)
-                .serialPortConfiguration(getDefaultSerialPortConfiguration(COMPORT_NAME))
-                
                 .comPortPool(createComPortPool()).add();
 
         // No BusinessException expected, because a new ComPort can have the same name as a deleted one.
@@ -252,17 +230,13 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_VALUE_TOO_SMALL+"}", property = "ringCount")
     public void testCreateWithZeroRingCount() throws BusinessException, SQLException {
-        createOnlineComServer().newModemBasedInboundComport()
+        ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, 0, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
+                CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
         .name(COMPORT_NAME)
         .description(DESCRIPTION)
         .active(ACTIVE)
-        .ringCount(0)
-        .maximumDialErrors(MAXIMUM_NUMBER_OF_DIAL_ERRORS)
-        .connectTimeout(CONNECT_TIMEOUT)
-        .atCommandTimeout(AT_COMMAND_TIMEOUT)
         .atCommandTry(AT_COMMAND_TRY)
-        .serialPortConfiguration(getDefaultSerialPortConfiguration(COMPORT_NAME))
         .add();
 
         // Expecting a BusinessException to be thrown because a ComPort with the same name already exists
@@ -272,17 +246,12 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_VALUE_TOO_SMALL+"}", property = "maximumDialErrors")
     public void testCreateWithZeroMaximumNumberOfDialErrors() throws BusinessException, SQLException {
-        createOnlineComServer().newModemBasedInboundComport()
+        ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, 0,
+                CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
-        .name(COMPORT_NAME)
         .description(DESCRIPTION)
         .active(ACTIVE)
-        .ringCount(RING_COUNT)
-        .maximumDialErrors(0)
-        .connectTimeout(CONNECT_TIMEOUT)
-        .atCommandTimeout(AT_COMMAND_TIMEOUT)
         .atCommandTry(AT_COMMAND_TRY)
-        .serialPortConfiguration(getDefaultSerialPortConfiguration(COMPORT_NAME))
         .add();
 
         // Expecting a BusinessException to be thrown because a ComPort with the same name already exists
@@ -292,18 +261,14 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "connectTimeout")
     public void testCreateWithoutConnectTimeout() throws BusinessException, SQLException {
-        createOnlineComServer().newModemBasedInboundComport()
+        ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
+                null, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
         .name(COMPORT_NAME)
         .description(DESCRIPTION)
         .active(ACTIVE)
-        .ringCount(RING_COUNT)
-        .maximumDialErrors(3)
-        .atCommandTimeout(AT_COMMAND_TIMEOUT)
         .atCommandTry(AT_COMMAND_TRY)
-        .serialPortConfiguration(getDefaultSerialPortConfiguration(COMPORT_NAME))
-        
-        .connectTimeout(null).add();
+        .add();
 
         // Expecting a BusinessException to be thrown because the connect timeout is not specified
     }
@@ -312,18 +277,14 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
     public void testCreateWithoutAtCommandTimeout() throws BusinessException, SQLException {
-        createOnlineComServer().newModemBasedInboundComport()
+        ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
+                CONNECT_TIMEOUT, null, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
         .name(COMPORT_NAME)
         .description(DESCRIPTION)
         .active(ACTIVE)
-        .ringCount(RING_COUNT)
-        .maximumDialErrors(3)
-        .connectTimeout(CONNECT_TIMEOUT)
         .atCommandTry(AT_COMMAND_TRY)
-        .serialPortConfiguration(getDefaultSerialPortConfiguration(COMPORT_NAME))
-        
-        .atCommandTimeout(null).add();
+        .add();
 
         // Expecting a BusinessException to be thrown because the at command timeout is not specified
     }
@@ -332,17 +293,13 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "atCommandTry")
     public void testCreateWithoutAtCommandTry() throws BusinessException, SQLException {
-        createOnlineComServer().newModemBasedInboundComport()
+        ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
+                CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
         .name(COMPORT_NAME)
         .description(DESCRIPTION)
         .active(ACTIVE)
-        .ringCount(RING_COUNT)
-        .maximumDialErrors(3)
-        .connectTimeout(CONNECT_TIMEOUT)
-        .atCommandTimeout(AT_COMMAND_TIMEOUT)
         .atCommandTry(null)
-        .serialPortConfiguration(getDefaultSerialPortConfiguration(COMPORT_NAME))
         .add();
 
         // Expecting a BusinessException to be thrown because the at command try is not specified
@@ -352,18 +309,14 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "serialPortConfiguration")
     public void testCreateWithoutSerialPortConfiguration() throws BusinessException, SQLException {
-        createOnlineComServer().newModemBasedInboundComport()
+        ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
+                CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, null)
         .comPortPool(createComPortPool())
         .name(COMPORT_NAME)
         .description(DESCRIPTION)
         .active(ACTIVE)
-        .ringCount(RING_COUNT)
-        .maximumDialErrors(3)
-        .connectTimeout(CONNECT_TIMEOUT)
-        .atCommandTimeout(AT_COMMAND_TIMEOUT)
         .atCommandTry(AT_COMMAND_TRY)
-        
-        .serialPortConfiguration(null).add();
+        .add();
 
         // Expecting a BusinessException to be thrown because the at command try is not specified
     }
@@ -522,23 +475,20 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     }
 
     private ModemBasedInboundComPort createSimpleComPort(ComServer comServer) {
-        return comServer.newModemBasedInboundComport()
+        return comServer.newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
+                        CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
+
                 .name(COMPORT_NAME)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .ringCount(RING_COUNT)
-                .maximumDialErrors(MAXIMUM_NUMBER_OF_DIAL_ERRORS)
-                
+
                 .comPortPool(createComPortPool())
-                .connectTimeout(CONNECT_TIMEOUT)
-                .atCommandTimeout(AT_COMMAND_TIMEOUT)
                 .atCommandTry(AT_COMMAND_TRY)
                 .delayAfterConnect(DELAY_AFTER_CONNECT)
                 .delayBeforeSend(DELAY_BEFORE_SEND)
                 .atModemInitStrings(MODEM_INIT_STRINGS)
                 .addressSelector(ADDRESS_SELECTOR)
                 .postDialCommands(POST_DIAL_COMMANDS)
-                .serialPortConfiguration(getSerialPortConfiguration(COMPORT_NAME))
                 .add();
     }
 

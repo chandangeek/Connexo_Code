@@ -343,20 +343,16 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
                 .name("portB").numberOfSimultaneousConnections(1).portNumber(8081).description("hello world")
                 .active(true).comPortPool(comPortPool)
                 .add();
-        ModemBasedInboundComPort portC = onlineComServer.newModemBasedInboundComport()
+        ModemBasedInboundComPort portC = onlineComServer.newModemBasedInboundComport("portC", 10, 3, new TimeDuration(60), new TimeDuration(60),
+                new SerialPortConfiguration("portC", BaudrateValue.BAUDRATE_115200, NrOfDataBits.EIGHT, NrOfStopBits.ONE, Parities.EVEN, FlowControl.RTSCTS))
                 .name("portC")
                 .description(DESCRIPTION)
                 .active(true)
-                .ringCount(10)
-                .maximumDialErrors(3)
                 .comPortPool(comPortPool)
-                .connectTimeout(new TimeDuration(60))
-                .atCommandTimeout(new TimeDuration(60))
                 .atCommandTry(BigDecimal.ONE)
                 .delayAfterConnect(new TimeDuration(60))
                 .delayBeforeSend(new TimeDuration(60))
                 .addressSelector("?")
-                .serialPortConfiguration(new SerialPortConfiguration("portC", BaudrateValue.BAUDRATE_115200, NrOfDataBits.EIGHT, NrOfStopBits.ONE, Parities.EVEN, FlowControl.RTSCTS))
                 .add();
 
 

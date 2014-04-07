@@ -9,7 +9,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.google.inject.Provider;
 
 /**
  * Serves as the root for all {@link com.energyict.mdc.engine.model.InboundComPort}s.
@@ -69,8 +68,9 @@ public abstract class InboundComPortImpl extends ComPortImpl implements ComPort,
 
     static class InboundComPortBuilderImpl<B extends InboundComPortBuilder<B,C>, C extends InboundComPort>
             extends ComPortBuilderImpl<B, C> implements InboundComPortBuilder<B,C> {
-        protected InboundComPortBuilderImpl(Class<B> clazz, Provider<C> inboundComPortProvider) {
-            super(clazz, inboundComPortProvider.get());
+
+        protected InboundComPortBuilderImpl(Class<B> clazz, C comPort) {
+            super(clazz, comPort);
         }
 
         @Override

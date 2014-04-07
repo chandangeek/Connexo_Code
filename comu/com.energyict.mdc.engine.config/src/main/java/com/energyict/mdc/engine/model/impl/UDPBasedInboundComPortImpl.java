@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.google.inject.Provider;
 import javax.inject.Inject;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -53,8 +52,8 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
             extends IpBasedInboundComPortBuilderImpl<UDPBasedInboundComPort.UDPBasedInboundComPortBuilder, UDPBasedInboundComPort>
             implements UDPBasedInboundComPort.UDPBasedInboundComPortBuilder {
 
-        protected UDPBasedInboundComPortBuilderImpl(Provider<UDPBasedInboundComPort> ipBasedInboundComPortProvider) {
-            super(UDPBasedInboundComPort.UDPBasedInboundComPortBuilder.class, ipBasedInboundComPortProvider);
+        protected UDPBasedInboundComPortBuilderImpl(UDPBasedInboundComPort ipBasedInboundComPort) {
+            super(UDPBasedInboundComPort.UDPBasedInboundComPortBuilder.class, ipBasedInboundComPort);
             comPort.setComPortType(ComPortType.UDP);
         }
 

@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.google.inject.Provider;
 import javax.validation.Payload;
 import javax.validation.constraints.Min;
 
@@ -63,8 +62,9 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
     static class IpBasedInboundComPortBuilderImpl<B extends IpBasedInboundComPortBuilder<B,C>, C extends IPBasedInboundComPort & InboundComPort>
             extends InboundComPortBuilderImpl<B, C>
             implements IpBasedInboundComPortBuilder<B,C> {
-        protected IpBasedInboundComPortBuilderImpl(Class<B> clazz, Provider<C> ipBasedInboundComPortProvider) {
-            super(clazz, ipBasedInboundComPortProvider);
+
+        protected IpBasedInboundComPortBuilderImpl(Class<B> clazz, C comPort) {
+            super(clazz, comPort);
         }
 
         @Override

@@ -15,6 +15,7 @@ import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provider;
@@ -201,7 +202,7 @@ public abstract class ComServerImpl implements ComServer {
         implements ServletBasedInboundComPort.ServletBasedInboundComPortBuilder {
 
         protected ServletBasedComPortBuilder() {
-            super(servletBasedInboundComPortProvider);
+            super(servletBasedInboundComPortProvider.get());
             ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
         }
 
@@ -214,16 +215,26 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
-    public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder newModemBasedInboundComport() {
-        return new ModemBasedComPortBuilder();
+    public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder newModemBasedInboundComport(String name, int ringCount, int maximumDialErrors,
+                                               TimeDuration connectTimeout, TimeDuration atCommandTimeout,
+                                               SerialPortConfiguration serialPortConfiguration) {
+        return new ModemBasedComPortBuilder(name, ringCount, maximumDialErrors, connectTimeout, atCommandTimeout, serialPortConfiguration);
     }
 
     public class ModemBasedComPortBuilder extends ModemBasedInboundComPortImpl.ModemBasedInboundComPortBuilderImpl
             implements ModemBasedInboundComPort.ModemBasedInboundComPortBuilder {
 
-        protected ModemBasedComPortBuilder() {
-            super(modemBasedInboundComPortProvider);
+        protected ModemBasedComPortBuilder(String name, int ringCount, int maximumDialErrors,
+                                           TimeDuration connectTimeout, TimeDuration atCommandTimeout,
+                                           SerialPortConfiguration serialPortConfiguration) {
+            super(modemBasedInboundComPortProvider.get());
             ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
+            comPort.setName(name);
+            comPort.setRingCount(ringCount);
+            comPort.setMaximumDialErrors(maximumDialErrors);
+            comPort.setConnectTimeout(connectTimeout);
+            comPort.setAtCommandTimeout(atCommandTimeout);
+            comPort.setSerialPortConfiguration(serialPortConfiguration);
         }
 
         @Override
@@ -243,7 +254,7 @@ public abstract class ComServerImpl implements ComServer {
             implements TCPBasedInboundComPort.TCPBasedInboundComPortBuilder {
 
         protected TCPBasedComPortBuilder() {
-            super(tcpBasedInboundComPortProvider);
+            super(tcpBasedInboundComPortProvider.get());
             ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
             comPort.setComPortType(ComPortType.TCP);
         }
@@ -265,7 +276,7 @@ public abstract class ComServerImpl implements ComServer {
         implements UDPBasedInboundComPort.UDPBasedInboundComPortBuilder {
 
         protected UDPBasedComPortBuilder() {
-            super(udpBasedInboundComPortProvider);
+            super(udpBasedInboundComPortProvider.get());
             ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
         }
 

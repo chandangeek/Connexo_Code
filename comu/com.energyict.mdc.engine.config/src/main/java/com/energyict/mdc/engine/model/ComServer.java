@@ -2,8 +2,7 @@ package com.energyict.mdc.engine.model;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.engine.model.impl.ComServerImpl;
-
+import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import java.util.Date;
 import java.util.List;
 
@@ -245,7 +244,10 @@ public interface ComServer {
 
     public OutboundComPort.OutboundComPortBuilder newOutboundComPort();
     public ServletBasedInboundComPort.ServletBasedInboundComPortBuilder newServletBasedInboundComPort();
-    public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder newModemBasedInboundComport();
+    public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder newModemBasedInboundComport(
+           String name, int ringCount, int maximumDialErrors,
+           TimeDuration connectTimeout, TimeDuration atCommandTimeout,
+           SerialPortConfiguration serialPortConfiguration);
     public TCPBasedInboundComPort.TCPBasedInboundComPortBuilder newTCPBasedInboundComPort();
     public UDPBasedInboundComPort.UDPBasedInboundComPortBuilder newUDPBasedInboundComPort();
 

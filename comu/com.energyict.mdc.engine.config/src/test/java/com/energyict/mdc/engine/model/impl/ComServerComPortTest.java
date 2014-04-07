@@ -296,20 +296,16 @@ public class ComServerComPortTest extends PersistenceTest {
 
     private ModemBasedInboundComPort modemBasedComPort(ComServer comServer) {
         String name = "Inbound-" + uniqueComPortId++;
-        return comServer.newModemBasedInboundComport()
+        return comServer.newModemBasedInboundComport(name, 3, 2, new TimeDuration(30), new TimeDuration(5), new SerialPortConfiguration(name,
+                                BaudrateValue.BAUDRATE_9600,
+                                NrOfDataBits.EIGHT,
+                                NrOfStopBits.ONE,
+                                Parities.NONE,
+                                FlowControl.NONE))
                 .name(name)
                 .active(true)
                 .comPortPool(serialBasedInboundComPortPool)
-                .maximumDialErrors(2).ringCount(3)
-                .connectTimeout(new TimeDuration(30))
-                .atCommandTimeout(new TimeDuration(5))
                 .atCommandTry(new BigDecimal(3))
-                .serialPortConfiguration(new SerialPortConfiguration(name,
-                        BaudrateValue.BAUDRATE_9600,
-                        NrOfDataBits.EIGHT,
-                        NrOfStopBits.ONE,
-                        Parities.NONE,
-                        FlowControl.NONE))
                 .add();
     }
 

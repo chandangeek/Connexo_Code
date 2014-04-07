@@ -7,7 +7,6 @@ import com.energyict.mdc.engine.model.IPBasedInboundComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.google.inject.Provider;
 import javax.inject.Inject;
 
 /**
@@ -32,8 +31,8 @@ public class TCPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
             extends IpBasedInboundComPortBuilderImpl<TCPBasedInboundComPortBuilder, TCPBasedInboundComPort>
             implements TCPBasedInboundComPortBuilder {
 
-        protected TCPBasedInboundComPortBuilderImpl(Provider<TCPBasedInboundComPort> ipBasedInboundComPortProvider) {
-            super(TCPBasedInboundComPortBuilder.class, ipBasedInboundComPortProvider);
+        protected TCPBasedInboundComPortBuilderImpl(TCPBasedInboundComPort ipBasedInboundComPort) {
+            super(TCPBasedInboundComPortBuilder.class, ipBasedInboundComPort);
             comPort.setComPortType(ComPortType.TCP);
         }
     }
