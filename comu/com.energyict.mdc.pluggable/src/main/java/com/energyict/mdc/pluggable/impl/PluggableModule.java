@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
 
 /**
  * Insert your comments here.
@@ -20,7 +21,7 @@ public class PluggableModule extends AbstractModule {
         requireBinding(NlsService.class);
         requireBinding(Clock.class);
 
-        bind(PluggableService.class).to(PluggableServiceImpl.class);
+        bind(PluggableService.class).to(PluggableServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }
