@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -446,5 +447,34 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
         registerSpec.setRegisterMapping(registerMapping2); // updated
         registerSpec.save();
+    }
+
+    @Test
+    @Transactional
+    @Expected(value = OverFlowValueCanNotExceedNumberOfDigitsException.class)
+    public void testVeryBigOverflowValueExceedsMaxInt() throws Exception {
+        RegisterSpec registerSpec = this.deviceConfiguration.
+                createRegisterSpec(registerMapping).
+                setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).
+                setMultiplier(BigDecimal.ONE).
+                setNumberOfDigits(10).
+                setNumberOfFractionDigits(3).
+                setOverflow(BigDecimal.valueOf(Long.MAX_VALUE)).
+                add();
+        deviceConfiguration.save();
+    }
+
+    @Test
+    @Transactional
+    public void testVeryBigOverflowValueOverflowsToNegativeInt() throws Exception {
+        RegisterSpec registerSpec = this.deviceConfiguration.
+                createRegisterSpec(registerMapping).
+                setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).
+                setMultiplier(BigDecimal.ONE).
+                setNumberOfDigits(10).
+                setNumberOfFractionDigits(3).
+                setOverflow(BigDecimal.valueOf(Integer.MAX_VALUE).add(BigDecimal.valueOf(1000))).
+                add();
+        deviceConfiguration.save();
     }
 }

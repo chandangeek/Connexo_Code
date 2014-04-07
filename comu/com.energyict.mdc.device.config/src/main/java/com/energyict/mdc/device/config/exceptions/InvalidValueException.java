@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-
 import java.math.BigDecimal;
 
 /**
@@ -19,10 +18,6 @@ public class InvalidValueException extends LocalizedException {
 
     private InvalidValueException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
         super(thesaurus, messageSeed, args);
-    }
-
-    public static InvalidValueException registerSpecNumberOfDigitsShouldBeLargerThanOne(Thesaurus thesaurus){
-        return new InvalidValueException(thesaurus, MessageSeeds.REGISTER_SPEC_NUMBER_OF_DIGITS_LARGER_THAN_ONE);
     }
 
     public static InvalidValueException registerSpecOverFlowValueShouldBeLargerThanZero(Thesaurus thesaurus, BigDecimal overFlow){
