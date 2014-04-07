@@ -36,12 +36,18 @@ Ext.define('Uni.controller.Error', {
     },
 
     handleRequestError: function (conn, response, options) {
+        debugger;
         if(response.status!==400){
             var message = response.responseText || response.statusText;
             if(Ext.isEmpty(message)) {
                 message = '<h2>ERROR</h2><br><h4>Unexpected connection problems. Please check that server is available.</h4>';
             }
             this.showError(message);
+        } else {
+            var response = Ext.decode(response.responseText);
+            if(Ext.isEmpty(response.errors)){
+                this.showError(response.message);
+            }
         }
     },
 
