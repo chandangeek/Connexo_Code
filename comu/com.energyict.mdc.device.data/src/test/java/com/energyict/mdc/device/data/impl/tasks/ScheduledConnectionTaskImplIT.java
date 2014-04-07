@@ -7,7 +7,6 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
@@ -16,7 +15,7 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.ComTaskExecutionFactory;
@@ -46,7 +45,10 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeConstants;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.mockito.Matchers;
 
 import java.sql.PreparedStatement;
@@ -61,10 +63,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link ScheduledConnectionTaskImpl} component.
@@ -181,7 +180,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testCreateOfDifferentConfig() {
         DeviceCommunicationConfiguration mockCommunicationConfig = mock(DeviceCommunicationConfiguration.class);
         when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
-        PartialScheduledConnectionTask partialScheduledConnectionTask = mock(PartialScheduledConnectionTask.class);
+        PartialOutboundConnectionTask partialScheduledConnectionTask = mock(PartialOutboundConnectionTask.class);
         when(partialScheduledConnectionTask.getId()).thenReturn(PARTIAL_SCHEDULED_CONNECTION_TASK3_ID);
         when(partialScheduledConnectionTask.getName()).thenReturn("testCreateOfDifferentConfig");
         when(partialScheduledConnectionTask.getConfiguration()).thenReturn(mockCommunicationConfig);
@@ -1922,7 +1921,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         return createAsapWithNoPropertiesWithoutViolations(name, this.partialScheduledConnectionTask);
     }
 
-    private ScheduledConnectionTask createAsapWithNoPropertiesWithoutViolations(String name, PartialScheduledConnectionTask partialConnectionTask) {
+    private ScheduledConnectionTask createAsapWithNoPropertiesWithoutViolations(String name, PartialOutboundConnectionTask partialConnectionTask) {
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
         when(partialConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
         when(partialConnectionTask.getName()).thenReturn(name);
