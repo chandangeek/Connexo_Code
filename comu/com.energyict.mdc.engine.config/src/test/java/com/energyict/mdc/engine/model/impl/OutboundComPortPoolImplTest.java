@@ -59,16 +59,16 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
     public void testCreateWithPortsWithoutViolations() throws TranslatableApplicationException, SQLException {
         OutboundComPortPool comPortPool = newOutboundComPortPoolWithoutViolations();
         OnlineComServer onlineComServer = createOnlineComServer();
-        OutboundComPort portA = onlineComServer.newOutboundComPort()
-                .name("portA").numberOfSimultaneousConnections(1).description("hello world")
+        OutboundComPort portA = onlineComServer.newOutboundComPort("portA", 1)
+                .description("hello world")
                 .active(true).comPortType(ComPortType.TCP)
                 .add();
-        OutboundComPort portB = onlineComServer.newOutboundComPort()
-                .name("portB").numberOfSimultaneousConnections(1).description("hello world")
+        OutboundComPort portB = onlineComServer.newOutboundComPort("portB", 1)
+                .name("portB").description("hello world")
                 .active(true).comPortType(ComPortType.TCP)
                 .add();
-        OutboundComPort portC = onlineComServer.newOutboundComPort()
-                .name("portC").numberOfSimultaneousConnections(1).description("hello world")
+        OutboundComPort portC = onlineComServer.newOutboundComPort("portC", 1)
+                .name("portC").description("hello world")
                 .active(true).comPortType(ComPortType.TCP)
                 .add();
         comPortPool.addOutboundComPort(portA);
@@ -85,8 +85,8 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
         OutboundComPortPool comPortPool = newOutboundComPortPoolWithoutViolations();
         OnlineComServer onlineComServer = createOnlineComServer();
 
-        OutboundComPort portA = onlineComServer.newOutboundComPort()
-                .name("portA").numberOfSimultaneousConnections(1).description("hello world")
+        OutboundComPort portA = onlineComServer.newOutboundComPort("portA", 1)
+                .name("portA").description("hello world")
                 .active(true).comPortType(ComPortType.SERIAL)
                 .add();
 
@@ -161,16 +161,16 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
     public void testUpdateAndDeleteComPortMembers() throws TranslatableApplicationException, SQLException {
         OutboundComPortPool comPortPool = newOutboundComPortPoolWithoutViolations();
         OnlineComServer onlineComServer = createOnlineComServer();
-        OutboundComPort portA = onlineComServer.newOutboundComPort()
-                .name("portA").numberOfSimultaneousConnections(1).description("hello world")
+        OutboundComPort portA = onlineComServer.newOutboundComPort("portA", 1)
+                .name("portA").description("hello world")
                 .active(true).comPortType(ComPortType.TCP)
                 .add();
-        OutboundComPort portB = onlineComServer.newOutboundComPort()
-                .name("portB").numberOfSimultaneousConnections(1).description("hello world")
+        OutboundComPort portB = onlineComServer.newOutboundComPort("portB", 1)
+                .name("portB").description("hello world")
                 .active(true).comPortType(ComPortType.TCP)
                 .add();
-        OutboundComPort portC = onlineComServer.newOutboundComPort()
-                .name("portC").numberOfSimultaneousConnections(1).description("hello world")
+        OutboundComPort portC = onlineComServer.newOutboundComPort("portA", 1)
+                .name("portC").description("hello world")
                 .active(true).comPortType(ComPortType.TCP)
                 .add();
         comPortPool.addOutboundComPort(portA);

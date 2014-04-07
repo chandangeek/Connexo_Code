@@ -496,7 +496,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     }
 
     private void addComPort(ComServer comServer) {
-        comServer.newOutboundComPort().numberOfSimultaneousConnections(1).name("Outbound").active(true).comPortType(ComPortType.TCP).add();
+        comServer.newOutboundComPort("Outbound", 1).active(true).comPortType(ComPortType.TCP).add();
     }
 
 }

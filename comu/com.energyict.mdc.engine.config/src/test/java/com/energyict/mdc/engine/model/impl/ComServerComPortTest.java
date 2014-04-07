@@ -131,10 +131,8 @@ public class ComServerComPortTest extends PersistenceTest {
         OnlineComServer onlineComServer = createOnlineComServer();
 
         // Business method
-        onlineComServer.newOutboundComPort()
-                .name("Outbound-" + uniqueComPortId++)
+        onlineComServer.newOutboundComPort("Outbound-" + uniqueComPortId++, 1)
                 .comPortType(ComPortType.TCP)
-                .numberOfSimultaneousConnections(1)
                 .active(true).add();
 
         // Asserts
@@ -290,7 +288,7 @@ public class ComServerComPortTest extends PersistenceTest {
     private int uniqueComPortId=1;
     private void addComPorts(OnlineComServer comServerShadow, int numberOfComPorts) {
         for (int i = 0; i < numberOfComPorts; i++) {
-            comServerShadow.newOutboundComPort().name("Outbound-" + uniqueComPortId++).comPortType(ComPortType.TCP).numberOfSimultaneousConnections(1).active(true).add();
+            comServerShadow.newOutboundComPort("Outbound-" + uniqueComPortId++, 1).comPortType(ComPortType.TCP).active(true).add();
         }
     }
 

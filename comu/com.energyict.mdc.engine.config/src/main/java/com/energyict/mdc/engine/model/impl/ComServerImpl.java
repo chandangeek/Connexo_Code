@@ -171,8 +171,8 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
-    public OutboundComPort.OutboundComPortBuilder newOutboundComPort() {
-        return new OutboundComPortBuilder();
+    public OutboundComPort.OutboundComPortBuilder newOutboundComPort(String name, int numberOfSimultaneousConnections) {
+        return new OutboundComPortBuilder(name, numberOfSimultaneousConnections);
     }
 
     /**
@@ -180,9 +180,11 @@ public abstract class ComServerImpl implements ComServer {
      */
     private class OutboundComPortBuilder extends OutboundComPortImpl.OutboundComPortBuilderImpl {
 
-        private OutboundComPortBuilder() {
-            super(outboundComPortProvider);
+        private OutboundComPortBuilder(String name, int numberOfSimultaneousConnections) {
+            super(outboundComPortProvider.get());
             ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
+            comPort.setName(name);
+            comPort.setNumberOfSimultaneousConnections(numberOfSimultaneousConnections);
         }
 
         @Override

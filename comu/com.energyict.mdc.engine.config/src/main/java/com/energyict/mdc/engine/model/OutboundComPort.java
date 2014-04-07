@@ -22,7 +22,6 @@ public interface OutboundComPort extends ComPort {
     public static final int MAXIMUM_NUMBER_OF_SIMULTANEOUS_CONNECTIONS = 1000;
 
     interface OutboundComPortBuilder extends ComPort.Builder<OutboundComPortBuilder, OutboundComPort>{
-        public OutboundComPortBuilder numberOfSimultaneousConnections(int number);
         public OutboundComPortBuilder comPortType(ComPortType comPortType);
     }
 

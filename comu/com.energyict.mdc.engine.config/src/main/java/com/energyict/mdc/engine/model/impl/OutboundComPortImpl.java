@@ -10,7 +10,6 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.google.inject.Provider;
 import java.util.List;
 import javax.inject.Inject;
 import org.hibernate.validator.constraints.Range;
@@ -82,14 +81,8 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
     }
 
     static class OutboundComPortBuilderImpl extends ComPortBuilderImpl<OutboundComPortBuilder, OutboundComPort> implements OutboundComPortBuilder {
-        protected OutboundComPortBuilderImpl(Provider<OutboundComPortImpl> outboundComPortProvider) {
-            super(OutboundComPortBuilder.class, outboundComPortProvider.get());
-        }
-
-        @Override
-        public OutboundComPortBuilder numberOfSimultaneousConnections(int number) {
-            comPort.setNumberOfSimultaneousConnections(number);
-            return this;
+        protected OutboundComPortBuilderImpl(OutboundComPort outboundComPort) {
+            super(OutboundComPortBuilder.class, outboundComPort);
         }
 
         @Override

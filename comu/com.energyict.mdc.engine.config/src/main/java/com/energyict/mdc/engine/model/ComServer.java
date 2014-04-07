@@ -242,7 +242,7 @@ public interface ComServer {
 
     public String getType();
 
-    public OutboundComPort.OutboundComPortBuilder newOutboundComPort();
+    public OutboundComPort.OutboundComPortBuilder newOutboundComPort(String name, int numberOfSimultaneousConnections);
     public ServletBasedInboundComPort.ServletBasedInboundComPortBuilder newServletBasedInboundComPort();
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder newModemBasedInboundComport(
            String name, int ringCount, int maximumDialErrors,
