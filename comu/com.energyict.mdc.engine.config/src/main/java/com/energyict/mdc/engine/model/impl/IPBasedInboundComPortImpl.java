@@ -63,15 +63,10 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
             extends InboundComPortBuilderImpl<B, C>
             implements IpBasedInboundComPortBuilder<B,C> {
 
-        protected IpBasedInboundComPortBuilderImpl(Class<B> clazz, C comPort, String name, int numberOfSimultaneousConnections) {
+        protected IpBasedInboundComPortBuilderImpl(Class<B> clazz, C comPort, String name, int numberOfSimultaneousConnections, int portNumber) {
             super(clazz, comPort, name);
             this.comPort.setNumberOfSimultaneousConnections(numberOfSimultaneousConnections);
-        }
-
-        @Override
-        public B portNumber(int portNumber) {
-            comPort.setPortNumber(portNumber);
-            return self;
+            this.comPort.setPortNumber(portNumber);
         }
 
     }

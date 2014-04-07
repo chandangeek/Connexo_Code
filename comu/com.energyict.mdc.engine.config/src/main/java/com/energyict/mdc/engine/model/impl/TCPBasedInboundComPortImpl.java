@@ -31,8 +31,8 @@ public class TCPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
             extends IpBasedInboundComPortBuilderImpl<TCPBasedInboundComPortBuilder, TCPBasedInboundComPort>
             implements TCPBasedInboundComPortBuilder {
 
-        protected TCPBasedInboundComPortBuilderImpl(TCPBasedInboundComPort ipBasedInboundComPort, String name, int numberOfSimultaneousConnections) {
-            super(TCPBasedInboundComPortBuilder.class, ipBasedInboundComPort, name, numberOfSimultaneousConnections);
+        protected TCPBasedInboundComPortBuilderImpl(TCPBasedInboundComPort ipBasedInboundComPort, String name, int numberOfSimultaneousConnections, int portNumber) {
+            super(TCPBasedInboundComPortBuilder.class, ipBasedInboundComPort, name, numberOfSimultaneousConnections, portNumber);
             comPort.setComPortType(ComPortType.TCP);
         }
     }

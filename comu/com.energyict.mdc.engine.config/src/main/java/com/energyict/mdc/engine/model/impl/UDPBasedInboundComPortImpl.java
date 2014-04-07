@@ -52,8 +52,8 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
             extends IpBasedInboundComPortBuilderImpl<UDPBasedInboundComPort.UDPBasedInboundComPortBuilder, UDPBasedInboundComPort>
             implements UDPBasedInboundComPort.UDPBasedInboundComPortBuilder {
 
-        protected UDPBasedInboundComPortBuilderImpl(UDPBasedInboundComPort ipBasedInboundComPort, String name, int numberOfSimultaneousConnections) {
-            super(UDPBasedInboundComPort.UDPBasedInboundComPortBuilder.class, ipBasedInboundComPort, name, numberOfSimultaneousConnections);
+        protected UDPBasedInboundComPortBuilderImpl(UDPBasedInboundComPort ipBasedInboundComPort, String name, int numberOfSimultaneousConnections, int portNumber) {
+            super(UDPBasedInboundComPort.UDPBasedInboundComPortBuilder.class, ipBasedInboundComPort, name, numberOfSimultaneousConnections, portNumber);
             comPort.setComPortType(ComPortType.UDP);
         }
 

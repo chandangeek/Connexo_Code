@@ -115,8 +115,8 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     static class ServletBasedInboundComPortBuilderImpl extends IpBasedInboundComPortBuilderImpl<ServletBasedInboundComPortBuilder, ServletBasedInboundComPort>
             implements ServletBasedInboundComPortBuilder {
 
-        protected ServletBasedInboundComPortBuilderImpl(ServletBasedInboundComPort servletBasedInboundComPort, String name, int numberOfSimultaneousConnections) {
-            super(ServletBasedInboundComPortBuilder.class, servletBasedInboundComPort, name, numberOfSimultaneousConnections);
+        protected ServletBasedInboundComPortBuilderImpl(ServletBasedInboundComPort servletBasedInboundComPort, String name, int numberOfSimultaneousConnections, int portNumber) {
+            super(ServletBasedInboundComPortBuilder.class, servletBasedInboundComPort, name, numberOfSimultaneousConnections, portNumber);
             comPort.setComPortType(ComPortType.SERVLET);
         }
 

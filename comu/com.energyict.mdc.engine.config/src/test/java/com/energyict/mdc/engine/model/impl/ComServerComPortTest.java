@@ -270,15 +270,15 @@ public class ComServerComPortTest extends PersistenceTest {
         int duplicatePortNumber = 2222;
         OnlineComServer shadow = createOnlineComServer();
 
-        shadow.newTCPBasedInboundComPort("TCP1", 1)
+        shadow.newTCPBasedInboundComPort("TCP1", 1, duplicatePortNumber)
                 .active(true)
                 .comPortPool(tcpBasedInboundComPortPool)
-                .portNumber(duplicatePortNumber).add();
+                .add();
 
-        shadow.newTCPBasedInboundComPort("TCP2",1)
+        shadow.newTCPBasedInboundComPort("TCP2",1, duplicatePortNumber)
                 .active(true)
                 .comPortPool(tcpBasedInboundComPortPool)
-                .portNumber(duplicatePortNumber).add();
+                .add();
     }
 
     private int uniqueComPortId=1;
@@ -304,19 +304,17 @@ public class ComServerComPortTest extends PersistenceTest {
 
     private TCPBasedInboundComPort tcpComPort(ComServer comServer) {
         String name = "Inbound-" + uniqueComPortId++;
-        return comServer.newTCPBasedInboundComPort(name, 1)
+        return comServer.newTCPBasedInboundComPort(name, 1, 9000)
                 .active(true)
                 .comPortPool(tcpBasedInboundComPortPool)
-                .portNumber(9000)
                 .add();
     }
 
     private UDPBasedInboundComPort udpComPort(ComServer comServer) {
         String name = "Inbound-" + uniqueComPortId++;
-        return comServer.newUDPBasedInboundComPort(name, 1)
+        return comServer.newUDPBasedInboundComPort(name, 1, 9001)
                 .active(true)
                 .comPortPool(udpBasedInboundComPortPool)
-                .portNumber(9001)
                 .bufferSize(1024)
                 .add();
     }

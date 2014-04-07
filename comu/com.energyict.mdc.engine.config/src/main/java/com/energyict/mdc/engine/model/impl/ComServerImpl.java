@@ -195,15 +195,15 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
-    public ServletBasedInboundComPort.ServletBasedInboundComPortBuilder newServletBasedInboundComPort(String name, String contextPath, int numberOfSimultaneousConnections) {
-        return new ServletBasedComPortBuilder(name, contextPath, numberOfSimultaneousConnections);
+    public ServletBasedInboundComPort.ServletBasedInboundComPortBuilder newServletBasedInboundComPort(String name, String contextPath, int numberOfSimultaneousConnections, int portNumber) {
+        return new ServletBasedComPortBuilder(name, contextPath, numberOfSimultaneousConnections, portNumber);
     }
 
     public class ServletBasedComPortBuilder extends ServletBasedInboundComPortImpl.ServletBasedInboundComPortBuilderImpl
         implements ServletBasedInboundComPort.ServletBasedInboundComPortBuilder {
 
-        protected ServletBasedComPortBuilder(String name, String contextPath, int numberOfSimultaneousConnections) {
-            super(servletBasedInboundComPortProvider.get(), name, numberOfSimultaneousConnections);
+        protected ServletBasedComPortBuilder(String name, String contextPath, int numberOfSimultaneousConnections, int portNumber) {
+            super(servletBasedInboundComPortProvider.get(), name, numberOfSimultaneousConnections, portNumber);
             ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
             comPort.setContextPath(contextPath);
         }
@@ -247,15 +247,15 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
-    public TCPBasedInboundComPort.TCPBasedInboundComPortBuilder newTCPBasedInboundComPort(String name, int numberOfSimultaneousConnections) {
-        return new TCPBasedComPortBuilder(name, numberOfSimultaneousConnections);
+    public TCPBasedInboundComPort.TCPBasedInboundComPortBuilder newTCPBasedInboundComPort(String name, int numberOfSimultaneousConnections, int portNumber) {
+        return new TCPBasedComPortBuilder(name, numberOfSimultaneousConnections, portNumber);
     }
 
     public class TCPBasedComPortBuilder extends TCPBasedInboundComPortImpl.TCPBasedInboundComPortBuilderImpl
             implements TCPBasedInboundComPort.TCPBasedInboundComPortBuilder {
 
-        protected TCPBasedComPortBuilder(String name, int numberOfSimultaneousConnections) {
-            super(tcpBasedInboundComPortProvider.get(), name, numberOfSimultaneousConnections);
+        protected TCPBasedComPortBuilder(String name, int numberOfSimultaneousConnections, int portNumber) {
+            super(tcpBasedInboundComPortProvider.get(), name, numberOfSimultaneousConnections, portNumber);
             ((ComPortImpl)this.comPort).setComServer(ComServerImpl.this);
             this.comPort.setComPortType(ComPortType.TCP);
         }
@@ -269,15 +269,15 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
-    public UDPBasedInboundComPort.UDPBasedInboundComPortBuilder newUDPBasedInboundComPort(String name, int numberOfSimultaneousConnections) {
-        return new UDPBasedComPortBuilder(name, numberOfSimultaneousConnections);
+    public UDPBasedInboundComPort.UDPBasedInboundComPortBuilder newUDPBasedInboundComPort(String name, int numberOfSimultaneousConnections, int portNumber) {
+        return new UDPBasedComPortBuilder(name, numberOfSimultaneousConnections, portNumber);
     }
 
     public class UDPBasedComPortBuilder extends UDPBasedInboundComPortImpl.UDPBasedInboundComPortBuilderImpl
         implements UDPBasedInboundComPort.UDPBasedInboundComPortBuilder {
 
-        protected UDPBasedComPortBuilder(String name, int numberOfSimultaneousConnections) {
-            super(udpBasedInboundComPortProvider.get(), name, numberOfSimultaneousConnections);
+        protected UDPBasedComPortBuilder(String name, int numberOfSimultaneousConnections, int portNumber) {
+            super(udpBasedInboundComPortProvider.get(), name, numberOfSimultaneousConnections, portNumber);
             ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
         }
 

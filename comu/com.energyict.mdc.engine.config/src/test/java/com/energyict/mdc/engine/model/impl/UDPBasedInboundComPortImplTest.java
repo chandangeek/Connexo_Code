@@ -91,10 +91,9 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortPool")
     public void testCreateWithoutComPortPool() throws BusinessException, SQLException {
-        createOnlineComServer().newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
+        createOnlineComServer().newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
         .description(DESCRIPTION)
         .active(ACTIVE)
-        .portNumber(PORT_NUMBER)
         .bufferSize(DATAGRAM_BUFFER_SIZE)
         .add();
 
@@ -105,10 +104,9 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortPool")
     public void testCreateWithOutboundComPortPool() throws BusinessException, SQLException {
-        createOnlineComServer().newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
+        createOnlineComServer().newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
         .description(DESCRIPTION)
         .active(ACTIVE)
-        .portNumber(PORT_NUMBER)
         .bufferSize(DATAGRAM_BUFFER_SIZE)
         .add();
 
@@ -119,10 +117,9 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     public void testCreateWithoutName() throws BusinessException, SQLException {
-        createOnlineComServer().newUDPBasedInboundComPort(null, NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
+        createOnlineComServer().newUDPBasedInboundComPort(null, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
         .description(DESCRIPTION)
         .active(ACTIVE)
-        .portNumber(PORT_NUMBER)
         .bufferSize(DATAGRAM_BUFFER_SIZE)
         .comPortPool(createComPortPool())
         .add();
@@ -136,10 +133,9 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
     public void testCreateWithExistingName() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
         UDPBasedInboundComPort comPort = this.createSimpleComPort(onlineComServer);
-        onlineComServer.newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
+        onlineComServer.newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER+1)
         .description(DESCRIPTION)
         .active(ACTIVE)
-        .portNumber(PORT_NUMBER+1)
         .bufferSize(DATAGRAM_BUFFER_SIZE)
         .comPortPool(createComPortPool())
         .add();
@@ -151,10 +147,9 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_VALUE_TOO_SMALL+"}", property = "numberOfSimultaneousConnections")
     public void testCreateWithZeroSimultaneousConnections() throws BusinessException, SQLException {
-        createOnlineComServer().newUDPBasedInboundComPort(COMPORT_NAME, 0)
+        createOnlineComServer().newUDPBasedInboundComPort(COMPORT_NAME, 0, PORT_NUMBER)
         .description(DESCRIPTION)
         .active(ACTIVE)
-        .portNumber(PORT_NUMBER)
         .bufferSize(DATAGRAM_BUFFER_SIZE)
         .comPortPool(createComPortPool())
         .add();
@@ -166,10 +161,9 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_VALUE_TOO_SMALL+"}", property = "portNumber")
     public void testCreateWithZeroPortNumber() throws BusinessException, SQLException {
-        createOnlineComServer().newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
+        createOnlineComServer().newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS,0)
         .description(DESCRIPTION)
         .active(ACTIVE)
-        .portNumber(0)
         .bufferSize(DATAGRAM_BUFFER_SIZE)
         .comPortPool(createComPortPool())
         .add();
@@ -181,10 +175,9 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_VALUE_TOO_SMALL+"}", property = "bufferSize")
     public void testCreateWithZeroBufferSize() throws BusinessException, SQLException {
-        createOnlineComServer().newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
+        createOnlineComServer().newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS,PORT_NUMBER)
         .description(DESCRIPTION)
         .active(ACTIVE)
-        .portNumber(PORT_NUMBER)
         .bufferSize(0)
         .comPortPool(createComPortPool())
         .add();
@@ -252,11 +245,10 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
     }
 
     private UDPBasedInboundComPort createSimpleComPort(ComServer comServer) {
-        return comServer.newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
+        return comServer.newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
                 .comPortPool(createComPortPool())
-                .portNumber(PORT_NUMBER)
                 .bufferSize(DATAGRAM_BUFFER_SIZE)
                 .add();
 
