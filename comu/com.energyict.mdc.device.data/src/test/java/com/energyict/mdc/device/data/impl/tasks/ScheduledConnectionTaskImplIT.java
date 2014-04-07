@@ -16,6 +16,7 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.config.TemporalExpression;
@@ -1926,7 +1927,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
         when(partialConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
         when(partialConnectionTask.getName()).thenReturn(name);
-        return deviceDataService.newAsapConnectionTask(this.device, partialConnectionTask, outboundTcpipComPortPool);
+        return deviceDataService.newAsapConnectionTask(this.device, (PartialOutboundConnectionTask) partialConnectionTask, outboundTcpipComPortPool);
     }
 
     private ScheduledConnectionTask createMinimizeWithNoPropertiesWithoutViolations(String name, TemporalExpression temporalExpression) {
