@@ -18,7 +18,6 @@ import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -497,12 +496,6 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     @Override
     public Device getPrototypeDeviceFor(DeviceConfiguration deviceConfiguration) {
         return null;
-    }
-
-    @Override
-    public boolean deviceHasLogBookForLogBookSpec(Device device, LogBookSpec logBookSpec) {
-        //TODO properly implement when the persistence of LogBook has finished
-        return false;
     }
 
     @Override

@@ -18,15 +18,20 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
@@ -43,8 +48,16 @@ import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.device.data.impl.offline.DeviceOffline;
 import com.energyict.mdc.device.data.impl.offline.OfflineDeviceImpl;
+import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -57,6 +70,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 
+import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -64,7 +78,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_EXTERNAL_KEY + "}")
@@ -97,20 +113,28 @@ public class DeviceImpl implements Device {
     private TemporalReference<PhysicalGatewayReference> physicalGatewayReferenceDevice = Temporals.absent();
     @Valid
     private List<DeviceProtocolProperty> deviceProperties = new ArrayList<>();
+    @Valid
+    private List<ConnectionTask<?,?>> connectionTasks = new ArrayList<>();
 
+    private final Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
+    private final Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
     @Inject
     public DeviceImpl(DataModel dataModel,
                       EventService eventService,
                       Thesaurus thesaurus,
                       Clock clock,
                       MeteringService meteringService,
-                      DeviceDataService deviceDataService) {
+                      DeviceDataService deviceDataService,
+                      Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
+                      Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.meteringService = meteringService;
         this.deviceDataService = deviceDataService;
+        this.scheduledConnectionTaskProvider = scheduledConnectionTaskProvider;
+        this.inboundConnectionTaskProvider = inboundConnectionTaskProvider;
     }
 
     @Override
@@ -172,7 +196,7 @@ public class DeviceImpl implements Device {
 
     private void deleteCache() {
         List<DeviceCacheFactory> deviceCacheFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceCacheFactory.class);
-        if(deviceCacheFactories.size() > 0){
+        if (deviceCacheFactories.size() > 0) {
             deviceCacheFactories.get(0).removeDeviceCacheFor(getId());
         }
     }
@@ -337,7 +361,7 @@ public class DeviceImpl implements Device {
 
     private void topologyChanged() {
         List<DeviceDependant> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceDependant.class);
-        if(!modulesImplementing.isEmpty()){
+        if (!modulesImplementing.isEmpty()) {
             modulesImplementing.get(0).topologyChanged(this);
         }
     }
@@ -435,7 +459,7 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public LogBook.LogBookUpdater getLogBookUpdaterFor(LogBook logBook){
+    public LogBook.LogBookUpdater getLogBookUpdaterFor(LogBook logBook) {
         return new LogBookUpdaterForDevice((LogBookImpl) logBook);
     }
 
@@ -581,7 +605,7 @@ public class DeviceImpl implements Device {
         return this.meteringService.findAmrSystem(1);
     }
 
-    List<ReadingRecord> getReadingsFor(Register register, Interval interval){
+    List<ReadingRecord> getReadingsFor(Register register, Interval interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             Meter meter = findOrCreateMeterInKore(amrSystem);
@@ -632,8 +656,92 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public ScheduledConnectionTask createScheduledConnectionTask(PartialOutboundConnectionTask partialConnectionTask) {
-        ScheduledConnectionTask scheduledConnectionTask = this.deviceDataService.newAsapConnectionTask(this, partialConnectionTask, partialConnectionTask.getComPortPool());
-        return scheduledConnectionTask;
+    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilderFor(PartialScheduledConnectionTask partialScheduledConnectionTask) {
+        return new ScheduledConnectionTaskBuilderForDevice(this, partialScheduledConnectionTask);
+    }
+
+    @Override
+    public InboundConnectionTaskBuilder getInboundConnectionTaskBuilderFor(PartialInboundConnectionTask partialInboundConnectionTask) {
+        return new InboundConnectionTaskBuilderForDevice(this, partialInboundConnectionTask);
+    }
+
+    private class InboundConnectionTaskBuilderForDevice implements InboundConnectionTaskBuilder {
+
+        private final InboundConnectionTaskImpl inboundConnectionTask;
+
+        private InboundConnectionTaskBuilderForDevice(Device device, PartialInboundConnectionTask partialInboundConnectionTask) {
+            this.inboundConnectionTask = inboundConnectionTaskProvider.get();
+            this.inboundConnectionTask.initialize(device, partialInboundConnectionTask, partialInboundConnectionTask.getComPortPool());
+        }
+
+        @Override
+        public InboundConnectionTaskBuilder setComPortPool(InboundComPortPool comPortPool) {
+            this.inboundConnectionTask.setComPortPool(comPortPool);
+            return this;
+        }
+
+        @Override
+        public InboundConnectionTaskBuilder setProperty(String propertyName, Object value) {
+            this.inboundConnectionTask.setProperty(propertyName, value);
+            return this;
+        }
+
+        @Override
+        public InboundConnectionTask add() {
+            DeviceImpl.this.connectionTasks.add(this.inboundConnectionTask);
+            return this.inboundConnectionTask;
+        }
+    }
+
+    private class ScheduledConnectionTaskBuilderForDevice implements ScheduledConnectionTaskBuilder {
+
+        private final ScheduledConnectionTaskImpl scheduledConnectionTask;
+
+        private ScheduledConnectionTaskBuilderForDevice(Device device, PartialScheduledConnectionTask partialScheduledConnectionTask) {
+            this.scheduledConnectionTask = scheduledConnectionTaskProvider.get();
+            this.scheduledConnectionTask.initialize(device, (PartialOutboundConnectionTask) partialScheduledConnectionTask, partialScheduledConnectionTask.getComPortPool());
+        }
+
+        @Override
+        public ScheduledConnectionTaskBuilder setCommunicationWindow(ComWindow communicationWindow) {
+            this.scheduledConnectionTask.setCommunicationWindow(communicationWindow);
+            return this;
+        }
+
+        @Override
+        public ScheduledConnectionTaskBuilder setComPortPool(OutboundComPortPool comPortPool) {
+            this.scheduledConnectionTask.setComPortPool(comPortPool);
+            return this;
+        }
+
+        @Override
+        public ScheduledConnectionTaskBuilder setConnectionStrategy(ConnectionStrategy connectionStrategy) {
+            this.scheduledConnectionTask.setConnectionStrategy(connectionStrategy);
+            return this;
+        }
+
+        @Override
+        public ScheduledConnectionTaskBuilder setInitiatorTask(ConnectionInitiationTask connectionInitiationTask) {
+            this.scheduledConnectionTask.setInitiatorTask(connectionInitiationTask);
+            return this;
+        }
+
+        @Override
+        public ScheduledConnectionTaskBuilder setNextExecutionSpecsFrom(TemporalExpression temporalExpression) {
+            this.scheduledConnectionTask.setNextExecutionSpecsFrom(temporalExpression);
+            return this;
+        }
+
+        @Override
+        public ScheduledConnectionTaskBuilder setProperty(String propertyName, Object value) {
+            this.scheduledConnectionTask.setProperty(propertyName, value);
+            return this;
+        }
+
+        @Override
+        public ScheduledConnectionTask add() {
+            DeviceImpl.this.connectionTasks.add(this.scheduledConnectionTask);
+            return scheduledConnectionTask;
+        }
     }
 }
