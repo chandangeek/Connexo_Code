@@ -81,8 +81,8 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
     }
 
     static class OutboundComPortBuilderImpl extends ComPortBuilderImpl<OutboundComPortBuilder, OutboundComPort> implements OutboundComPortBuilder {
-        protected OutboundComPortBuilderImpl(OutboundComPort outboundComPort) {
-            super(OutboundComPortBuilder.class, outboundComPort);
+        protected OutboundComPortBuilderImpl(OutboundComPort outboundComPort, String name) {
+            super(OutboundComPortBuilder.class, outboundComPort, name);
         }
 
         @Override

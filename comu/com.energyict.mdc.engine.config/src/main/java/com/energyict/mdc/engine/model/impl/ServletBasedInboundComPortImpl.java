@@ -57,7 +57,7 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
 
     @Override
     public void setKeyStoreSpecsFilePath(String keyStoreSpecsFilePath) {
-        this.keyStoreSpecsFilePath = keyStoreSpecsFilePath;
+        this.keyStoreSpecsFilePath = keyStoreSpecsFilePath!=null?keyStoreSpecsFilePath.trim():null;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
 
     @Override
     public void setKeyStoreSpecsPassword(String keyStoreSpecsPassword) {
-        this.keyStoreSpecsPassword = keyStoreSpecsPassword;
+        this.keyStoreSpecsPassword = keyStoreSpecsPassword!=null?keyStoreSpecsPassword.trim():null;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
 
     @Override
     public void setTrustStoreSpecsFilePath(String trustStoreSpecsFilePath) {
-        this.trustStoreSpecsFilePath = trustStoreSpecsFilePath;
+        this.trustStoreSpecsFilePath = trustStoreSpecsFilePath!=null?trustStoreSpecsFilePath.trim():null;
     }
 
     @Override
@@ -87,7 +87,7 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
 
     @Override
     public void setTrustStoreSpecsPassword(String trustStoreSpecsPassword) {
-        this.trustStoreSpecsPassword = trustStoreSpecsPassword;
+        this.trustStoreSpecsPassword = trustStoreSpecsPassword!=null?trustStoreSpecsPassword.trim():null;
     }
 
     @Override
@@ -115,8 +115,8 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     static class ServletBasedInboundComPortBuilderImpl extends IpBasedInboundComPortBuilderImpl<ServletBasedInboundComPortBuilder, ServletBasedInboundComPort>
             implements ServletBasedInboundComPortBuilder {
 
-        protected ServletBasedInboundComPortBuilderImpl(ServletBasedInboundComPort servletBasedInboundComPort) {
-            super(ServletBasedInboundComPortBuilder.class, servletBasedInboundComPort);
+        protected ServletBasedInboundComPortBuilderImpl(ServletBasedInboundComPort servletBasedInboundComPort, String name, int numberOfSimultaneousConnections) {
+            super(ServletBasedInboundComPortBuilder.class, servletBasedInboundComPort, name, numberOfSimultaneousConnections);
             comPort.setComPortType(ComPortType.SERVLET);
         }
 
@@ -150,11 +150,6 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
             return this;
         }
 
-        @Override
-        public ServletBasedInboundComPortBuilder contextPath(String contextPath) {
-            comPort.setContextPath(contextPath);
-            return this;
-        }
     }
 
 }

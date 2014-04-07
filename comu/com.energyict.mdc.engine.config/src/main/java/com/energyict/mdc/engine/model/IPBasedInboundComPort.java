@@ -22,7 +22,6 @@ public interface IPBasedInboundComPort extends InboundComPort {
     interface IpBasedInboundComPortBuilder<B extends IpBasedInboundComPortBuilder<B,C>, C extends IPBasedInboundComPort>
             extends InboundComPortBuilder<B, C>{
         public B portNumber(int portNumber);
-        public B numberOfSimultaneousConnections(int numberOfConnections);
     }
 
 }

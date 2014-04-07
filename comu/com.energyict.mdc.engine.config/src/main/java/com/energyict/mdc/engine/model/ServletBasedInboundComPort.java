@@ -78,7 +78,6 @@ public interface ServletBasedInboundComPort extends IPBasedInboundComPort {
         public ServletBasedInboundComPortBuilder keyStoreSpecsPassword(String password);
         public ServletBasedInboundComPortBuilder trustStoreSpecsFilePath(String uri);
         public ServletBasedInboundComPortBuilder trustStoreSpecsPassword(String password);
-        public ServletBasedInboundComPortBuilder contextPath(String contextPath);
     }
 
 }

@@ -218,8 +218,8 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
     public static class ModemBasedInboundComPortBuilderImpl extends InboundComPortBuilderImpl<ModemBasedInboundComPortBuilder, ModemBasedInboundComPort>
             implements ModemBasedInboundComPortBuilder {
 
-        protected ModemBasedInboundComPortBuilderImpl(ModemBasedInboundComPort comPort) {
-            super(ModemBasedInboundComPortBuilder.class, comPort);
+        protected ModemBasedInboundComPortBuilderImpl(ModemBasedInboundComPort comPort, String name) {
+            super(ModemBasedInboundComPortBuilder.class, comPort, name);
             comPort.setComPortType(ComPortType.SERIAL);
         }
 

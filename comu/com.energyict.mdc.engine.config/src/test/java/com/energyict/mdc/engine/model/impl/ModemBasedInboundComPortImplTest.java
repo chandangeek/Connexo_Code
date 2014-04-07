@@ -143,7 +143,6 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     public void createWithoutModemInitStrings() throws BusinessException, SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
-                .name(COMPORT_NAME)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
                 .comPortPool(createComPortPool())
@@ -166,7 +165,6 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     public void testCreateWithoutComPortPool() throws BusinessException, SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
-        .name(COMPORT_NAME)
         .description(DESCRIPTION)
         .active(ACTIVE)
         .atCommandTry(AT_COMMAND_TRY)
@@ -200,7 +198,6 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         ModemBasedInboundComPort comPort = onlineComServer.newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
-        .name(COMPORT_NAME)
         .description(DESCRIPTION)
         .active(ACTIVE)
         .atCommandTry(AT_COMMAND_TRY)
@@ -233,7 +230,6 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, 0, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
-        .name(COMPORT_NAME)
         .description(DESCRIPTION)
         .active(ACTIVE)
         .atCommandTry(AT_COMMAND_TRY)
@@ -264,7 +260,6 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 null, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
-        .name(COMPORT_NAME)
         .description(DESCRIPTION)
         .active(ACTIVE)
         .atCommandTry(AT_COMMAND_TRY)
@@ -280,7 +275,6 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, null, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
-        .name(COMPORT_NAME)
         .description(DESCRIPTION)
         .active(ACTIVE)
         .atCommandTry(AT_COMMAND_TRY)
@@ -296,7 +290,6 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
-        .name(COMPORT_NAME)
         .description(DESCRIPTION)
         .active(ACTIVE)
         .atCommandTry(null)
@@ -312,7 +305,6 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, null)
         .comPortPool(createComPortPool())
-        .name(COMPORT_NAME)
         .description(DESCRIPTION)
         .active(ACTIVE)
         .atCommandTry(AT_COMMAND_TRY)
@@ -477,11 +469,8 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     private ModemBasedInboundComPort createSimpleComPort(ComServer comServer) {
         return comServer.newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                         CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
-
-                .name(COMPORT_NAME)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-
                 .comPortPool(createComPortPool())
                 .atCommandTry(AT_COMMAND_TRY)
                 .delayAfterConnect(DELAY_AFTER_CONNECT)

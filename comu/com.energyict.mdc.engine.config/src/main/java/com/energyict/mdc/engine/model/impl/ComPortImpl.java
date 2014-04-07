@@ -82,7 +82,7 @@ public abstract class ComPortImpl implements ComPort {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name!=null?name.trim():null;
     }
 
     protected void validateCreate() {
@@ -197,15 +197,10 @@ public abstract class ComPortImpl implements ComPort {
         C comPort;
         B self;
 
-        protected ComPortBuilderImpl(Class<B> clazz, C comPort) {
+        protected ComPortBuilderImpl(Class<B> clazz, C comPort, String name) {
             this.comPort = comPort;
             self = clazz.cast(this);
-        }
-
-        @Override
-        public B name(String name) {
-            comPort.setName(name);
-            return self;
+            this.comPort.setName(name);
         }
 
         @Override

@@ -181,9 +181,8 @@ public abstract class ComServerImpl implements ComServer {
     private class OutboundComPortBuilder extends OutboundComPortImpl.OutboundComPortBuilderImpl {
 
         private OutboundComPortBuilder(String name, int numberOfSimultaneousConnections) {
-            super(outboundComPortProvider.get());
+            super(outboundComPortProvider.get(), name);
             ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
-            comPort.setName(name);
             comPort.setNumberOfSimultaneousConnections(numberOfSimultaneousConnections);
         }
 
@@ -196,16 +195,17 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
-    public ServletBasedInboundComPort.ServletBasedInboundComPortBuilder newServletBasedInboundComPort() {
-        return new ServletBasedComPortBuilder();
+    public ServletBasedInboundComPort.ServletBasedInboundComPortBuilder newServletBasedInboundComPort(String name, String contextPath, int numberOfSimultaneousConnections) {
+        return new ServletBasedComPortBuilder(name, contextPath, numberOfSimultaneousConnections);
     }
 
     public class ServletBasedComPortBuilder extends ServletBasedInboundComPortImpl.ServletBasedInboundComPortBuilderImpl
         implements ServletBasedInboundComPort.ServletBasedInboundComPortBuilder {
 
-        protected ServletBasedComPortBuilder() {
-            super(servletBasedInboundComPortProvider.get());
+        protected ServletBasedComPortBuilder(String name, String contextPath, int numberOfSimultaneousConnections) {
+            super(servletBasedInboundComPortProvider.get(), name, numberOfSimultaneousConnections);
             ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
+            comPort.setContextPath(contextPath);
         }
 
         @Override
@@ -229,9 +229,8 @@ public abstract class ComServerImpl implements ComServer {
         protected ModemBasedComPortBuilder(String name, int ringCount, int maximumDialErrors,
                                            TimeDuration connectTimeout, TimeDuration atCommandTimeout,
                                            SerialPortConfiguration serialPortConfiguration) {
-            super(modemBasedInboundComPortProvider.get());
+            super(modemBasedInboundComPortProvider.get(),name);
             ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
-            comPort.setName(name);
             comPort.setRingCount(ringCount);
             comPort.setMaximumDialErrors(maximumDialErrors);
             comPort.setConnectTimeout(connectTimeout);
@@ -248,17 +247,17 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
-    public TCPBasedInboundComPort.TCPBasedInboundComPortBuilder newTCPBasedInboundComPort() {
-        return new TCPBasedComPortBuilder();
+    public TCPBasedInboundComPort.TCPBasedInboundComPortBuilder newTCPBasedInboundComPort(String name, int numberOfSimultaneousConnections) {
+        return new TCPBasedComPortBuilder(name, numberOfSimultaneousConnections);
     }
 
     public class TCPBasedComPortBuilder extends TCPBasedInboundComPortImpl.TCPBasedInboundComPortBuilderImpl
             implements TCPBasedInboundComPort.TCPBasedInboundComPortBuilder {
 
-        protected TCPBasedComPortBuilder() {
-            super(tcpBasedInboundComPortProvider.get());
-            ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
-            comPort.setComPortType(ComPortType.TCP);
+        protected TCPBasedComPortBuilder(String name, int numberOfSimultaneousConnections) {
+            super(tcpBasedInboundComPortProvider.get(), name, numberOfSimultaneousConnections);
+            ((ComPortImpl)this.comPort).setComServer(ComServerImpl.this);
+            this.comPort.setComPortType(ComPortType.TCP);
         }
 
         @Override
@@ -270,15 +269,15 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
-    public UDPBasedInboundComPort.UDPBasedInboundComPortBuilder newUDPBasedInboundComPort() {
-        return new UDPBasedComPortBuilder();
+    public UDPBasedInboundComPort.UDPBasedInboundComPortBuilder newUDPBasedInboundComPort(String name, int numberOfSimultaneousConnections) {
+        return new UDPBasedComPortBuilder(name, numberOfSimultaneousConnections);
     }
 
     public class UDPBasedComPortBuilder extends UDPBasedInboundComPortImpl.UDPBasedInboundComPortBuilderImpl
         implements UDPBasedInboundComPort.UDPBasedInboundComPortBuilder {
 
-        protected UDPBasedComPortBuilder() {
-            super(udpBasedInboundComPortProvider.get());
+        protected UDPBasedComPortBuilder(String name, int numberOfSimultaneousConnections) {
+            super(udpBasedInboundComPortProvider.get(), name, numberOfSimultaneousConnections);
             ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
         }
 

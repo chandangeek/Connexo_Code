@@ -191,8 +191,8 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
     public void testDeleteWithComPorts() {
         InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
         OnlineComServer onlineComServer = createOnlineComServer();
-        onlineComServer.newTCPBasedInboundComPort()
-                .name("port").numberOfSimultaneousConnections(1).portNumber(8080).description("hello world")
+        onlineComServer.newTCPBasedInboundComPort("port", 1)
+                .portNumber(8080).description("hello world")
                 .active(true).comPortPool(comPortPool)
                 .add();
 
@@ -251,8 +251,8 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
     public void testMakeObsoleteWithComPorts() {
         InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
         OnlineComServer onlineComServer = createOnlineComServer();
-        onlineComServer.newTCPBasedInboundComPort()
-                .name("port").numberOfSimultaneousConnections(1).portNumber(8080).description("hello world")
+        onlineComServer.newTCPBasedInboundComPort("port", 1)
+                .portNumber(8080).description("hello world")
                 .active(true).comPortPool(comPortPool)
                 .add();
 
@@ -335,17 +335,16 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
     public void testUpdateAddComPortsWithNonMatchingComPortType() {
         InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
         OnlineComServer onlineComServer = createOnlineComServer();
-        TCPBasedInboundComPort portA = onlineComServer.newTCPBasedInboundComPort()
-                .name("portA").numberOfSimultaneousConnections(1).portNumber(8080).description("hello world")
+        TCPBasedInboundComPort portA = onlineComServer.newTCPBasedInboundComPort("portA",1)
+                .portNumber(8080).description("hello world")
                 .active(true).comPortPool(comPortPool)
                 .add();
-        TCPBasedInboundComPort portB = onlineComServer.newTCPBasedInboundComPort()
-                .name("portB").numberOfSimultaneousConnections(1).portNumber(8081).description("hello world")
+        TCPBasedInboundComPort portB = onlineComServer.newTCPBasedInboundComPort("portB", 1)
+                .portNumber(8081).description("hello world")
                 .active(true).comPortPool(comPortPool)
                 .add();
         ModemBasedInboundComPort portC = onlineComServer.newModemBasedInboundComport("portC", 10, 3, new TimeDuration(60), new TimeDuration(60),
                 new SerialPortConfiguration("portC", BaudrateValue.BAUDRATE_115200, NrOfDataBits.EIGHT, NrOfStopBits.ONE, Parities.EVEN, FlowControl.RTSCTS))
-                .name("portC")
                 .description(DESCRIPTION)
                 .active(true)
                 .comPortPool(comPortPool)

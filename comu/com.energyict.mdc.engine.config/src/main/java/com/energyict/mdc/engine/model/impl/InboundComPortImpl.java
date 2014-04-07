@@ -69,8 +69,8 @@ public abstract class InboundComPortImpl extends ComPortImpl implements ComPort,
     static class InboundComPortBuilderImpl<B extends InboundComPortBuilder<B,C>, C extends InboundComPort>
             extends ComPortBuilderImpl<B, C> implements InboundComPortBuilder<B,C> {
 
-        protected InboundComPortBuilderImpl(Class<B> clazz, C comPort) {
-            super(clazz, comPort);
+        protected InboundComPortBuilderImpl(Class<B> clazz, C comPort, String name) {
+            super(clazz, comPort, name);
         }
 
         @Override

@@ -243,13 +243,13 @@ public interface ComServer {
     public String getType();
 
     public OutboundComPort.OutboundComPortBuilder newOutboundComPort(String name, int numberOfSimultaneousConnections);
-    public ServletBasedInboundComPort.ServletBasedInboundComPortBuilder newServletBasedInboundComPort();
+    public ServletBasedInboundComPort.ServletBasedInboundComPortBuilder newServletBasedInboundComPort(String name, String contextPath, int numberOfSimultaneousConnections);
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder newModemBasedInboundComport(
            String name, int ringCount, int maximumDialErrors,
            TimeDuration connectTimeout, TimeDuration atCommandTimeout,
            SerialPortConfiguration serialPortConfiguration);
-    public TCPBasedInboundComPort.TCPBasedInboundComPortBuilder newTCPBasedInboundComPort();
-    public UDPBasedInboundComPort.UDPBasedInboundComPortBuilder newUDPBasedInboundComPort();
+    public TCPBasedInboundComPort.TCPBasedInboundComPortBuilder newTCPBasedInboundComPort(String name, int numberOfSimultaneousConnections);
+    public UDPBasedInboundComPort.UDPBasedInboundComPortBuilder newUDPBasedInboundComPort(String name, int numberOfSimultaneousConnections);
 
     public void removeComPort(long id);
 

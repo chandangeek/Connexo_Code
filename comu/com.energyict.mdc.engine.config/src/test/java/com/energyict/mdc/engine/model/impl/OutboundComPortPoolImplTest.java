@@ -64,11 +64,11 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
                 .active(true).comPortType(ComPortType.TCP)
                 .add();
         OutboundComPort portB = onlineComServer.newOutboundComPort("portB", 1)
-                .name("portB").description("hello world")
+                .description("hello world")
                 .active(true).comPortType(ComPortType.TCP)
                 .add();
         OutboundComPort portC = onlineComServer.newOutboundComPort("portC", 1)
-                .name("portC").description("hello world")
+                .description("hello world")
                 .active(true).comPortType(ComPortType.TCP)
                 .add();
         comPortPool.addOutboundComPort(portA);
@@ -86,7 +86,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
         OnlineComServer onlineComServer = createOnlineComServer();
 
         OutboundComPort portA = onlineComServer.newOutboundComPort("portA", 1)
-                .name("portA").description("hello world")
+                .description("hello world")
                 .active(true).comPortType(ComPortType.SERIAL)
                 .add();
 
@@ -162,15 +162,15 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
         OutboundComPortPool comPortPool = newOutboundComPortPoolWithoutViolations();
         OnlineComServer onlineComServer = createOnlineComServer();
         OutboundComPort portA = onlineComServer.newOutboundComPort("portA", 1)
-                .name("portA").description("hello world")
+                .description("hello world")
                 .active(true).comPortType(ComPortType.TCP)
                 .add();
         OutboundComPort portB = onlineComServer.newOutboundComPort("portB", 1)
-                .name("portB").description("hello world")
+                .description("hello world")
                 .active(true).comPortType(ComPortType.TCP)
                 .add();
-        OutboundComPort portC = onlineComServer.newOutboundComPort("portA", 1)
-                .name("portC").description("hello world")
+        OutboundComPort portC = onlineComServer.newOutboundComPort("portC", 1)
+                .description("hello world")
                 .active(true).comPortType(ComPortType.TCP)
                 .add();
         comPortPool.addOutboundComPort(portA);

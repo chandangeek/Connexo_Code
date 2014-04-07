@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.model;
 
 import com.energyict.mdc.protocol.api.ComPortType;
-
 import java.util.Date;
 
 /**
@@ -110,7 +109,6 @@ public interface ComPort {
     public void save();
 
     public interface Builder<B extends Builder<B,C>, C extends ComPort> {
-        B name(String name);
         B active(boolean active);
         B description(String description);
         C add();

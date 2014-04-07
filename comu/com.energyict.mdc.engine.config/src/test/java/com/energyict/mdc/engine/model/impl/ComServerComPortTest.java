@@ -270,18 +270,14 @@ public class ComServerComPortTest extends PersistenceTest {
         int duplicatePortNumber = 2222;
         OnlineComServer shadow = createOnlineComServer();
 
-        shadow.newTCPBasedInboundComPort()
-                .name("TCP1")
+        shadow.newTCPBasedInboundComPort("TCP1", 1)
                 .active(true)
                 .comPortPool(tcpBasedInboundComPortPool)
-                .numberOfSimultaneousConnections(1)
                 .portNumber(duplicatePortNumber).add();
 
-        shadow.newTCPBasedInboundComPort()
-                .name("TCP2")
+        shadow.newTCPBasedInboundComPort("TCP2",1)
                 .active(true)
                 .comPortPool(tcpBasedInboundComPortPool)
-                .numberOfSimultaneousConnections(1)
                 .portNumber(duplicatePortNumber).add();
     }
 
@@ -300,7 +296,6 @@ public class ComServerComPortTest extends PersistenceTest {
                                 NrOfStopBits.ONE,
                                 Parities.NONE,
                                 FlowControl.NONE))
-                .name(name)
                 .active(true)
                 .comPortPool(serialBasedInboundComPortPool)
                 .atCommandTry(new BigDecimal(3))
@@ -309,24 +304,20 @@ public class ComServerComPortTest extends PersistenceTest {
 
     private TCPBasedInboundComPort tcpComPort(ComServer comServer) {
         String name = "Inbound-" + uniqueComPortId++;
-        return comServer.newTCPBasedInboundComPort()
-                .name(name)
+        return comServer.newTCPBasedInboundComPort(name, 1)
                 .active(true)
                 .comPortPool(tcpBasedInboundComPortPool)
                 .portNumber(9000)
-                .numberOfSimultaneousConnections(1)
                 .add();
     }
 
     private UDPBasedInboundComPort udpComPort(ComServer comServer) {
         String name = "Inbound-" + uniqueComPortId++;
-        return comServer.newUDPBasedInboundComPort()
-                .name(name)
+        return comServer.newUDPBasedInboundComPort(name, 1)
                 .active(true)
                 .comPortPool(udpBasedInboundComPortPool)
                 .portNumber(9001)
                 .bufferSize(1024)
-                .numberOfSimultaneousConnections(1)
                 .add();
     }
     
