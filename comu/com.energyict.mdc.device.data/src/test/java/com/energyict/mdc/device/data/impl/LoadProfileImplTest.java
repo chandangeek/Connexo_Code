@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
  * Date: 3/18/14
  * Time: 9:36 AM
  */
-public class LoadProfileImplTest extends PersistenceIntegrationTest{
+public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol {
 
     private static final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
     private final TimeDuration interval = TimeDuration.minutes(15);
@@ -116,7 +116,7 @@ public class LoadProfileImplTest extends PersistenceIntegrationTest{
     }
 
     private Device createSimpleDeviceWithLoadProfiles() {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceName");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceName");
         device.save();
         return device;
     }
@@ -129,7 +129,7 @@ public class LoadProfileImplTest extends PersistenceIntegrationTest{
     @Test
     @Transactional
     public void createWithNoLoadProfileSpecsTest() {
-        Device deviceWithoutLoadProfiles = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "DeviceWithoutLoadProfiles");
+        Device deviceWithoutLoadProfiles = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithoutLoadProfiles");
         deviceWithoutLoadProfiles.save();
 
         Device reloadedDevice = getReloadedDevice(deviceWithoutLoadProfiles);
@@ -139,7 +139,7 @@ public class LoadProfileImplTest extends PersistenceIntegrationTest{
     @Test
     @Transactional
     public void getChannelsTest() {
-        Device deviceWithLoadProfile = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
+        Device deviceWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
         deviceWithLoadProfile.save();
 
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(deviceWithLoadProfile);
@@ -159,7 +159,7 @@ public class LoadProfileImplTest extends PersistenceIntegrationTest{
     @Test
     @Transactional
     public void getAllChannelsTestWithoutSlaveDevices() {
-        Device deviceWithLoadProfile = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
+        Device deviceWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
         deviceWithLoadProfile.save();
 
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(deviceWithLoadProfile);
@@ -180,7 +180,7 @@ public class LoadProfileImplTest extends PersistenceIntegrationTest{
     @Transactional
     public void getAllChannelsTestWithASlaveDeviceTest() {
 
-        final Device masterWithLoadProfile = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
+        final Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
         masterWithLoadProfile.save();
         final Device slave = createSlaveDeviceWithSameLoadProfileType(masterWithLoadProfile);
 
@@ -216,7 +216,7 @@ public class LoadProfileImplTest extends PersistenceIntegrationTest{
     @Test
     @Transactional
     public void isNotVirtualLoadProfileTest() {
-        Device masterWithLoadProfile = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
+        Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
         masterWithLoadProfile.save();
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(masterWithLoadProfile);
         assertThat(reloadedLoadProfile.isVirtualLoadProfile()).isFalse();
@@ -225,7 +225,7 @@ public class LoadProfileImplTest extends PersistenceIntegrationTest{
     @Test
     @Transactional
     public void isVirtualLoadProfileTest() {
-        Device masterWithLoadProfile = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
+        Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
         masterWithLoadProfile.save();
 
         Device slave = createSlaveDeviceWithSameLoadProfileType(masterWithLoadProfile);
@@ -237,9 +237,9 @@ public class LoadProfileImplTest extends PersistenceIntegrationTest{
     @Test
     @Transactional
     public void isNotVirtualLoadProfileBecauseDeviceProtocolNotLogicalSlaveTest() {
-        Device masterWithLoadProfile = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
+        Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
         masterWithLoadProfile.save();
-        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "Slave");
+        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "Slave");
         slaveWithLoadProfile.setPhysicalGateway(masterWithLoadProfile);
         slaveWithLoadProfile.save();
 
@@ -260,7 +260,7 @@ public class LoadProfileImplTest extends PersistenceIntegrationTest{
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         slaveDeviceType.save();
 
-        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave");
+        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave");
         slaveWithLoadProfile.setPhysicalGateway(masterWithLoadProfile);
         slaveWithLoadProfile.save();
         return slaveWithLoadProfile;
@@ -269,7 +269,7 @@ public class LoadProfileImplTest extends PersistenceIntegrationTest{
     @Test
     @Transactional
     public void isNotVirtualLoadProfileBecauseSlaveHasLoadProfileTypeWithWildCardBFieldTest() {
-        Device masterWithLoadProfile = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
+        Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
         masterWithLoadProfile.save();
 
         LoadProfileType slaveLoadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType("SlaveType", ObisCode.fromString("0.x.24.3.0.255"), interval);
@@ -285,7 +285,7 @@ public class LoadProfileImplTest extends PersistenceIntegrationTest{
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         slaveDeviceType.save();
 
-        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave");
+        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave");
         slaveWithLoadProfile.setPhysicalGateway(masterWithLoadProfile);
         slaveWithLoadProfile.save();
 
@@ -307,7 +307,7 @@ public class LoadProfileImplTest extends PersistenceIntegrationTest{
     @Test
     @Transactional
     public void getIntervalTest() {
-        Device deviceWithLoadProfile = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
+        Device deviceWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
         deviceWithLoadProfile.save();
 
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(deviceWithLoadProfile);
@@ -317,7 +317,7 @@ public class LoadProfileImplTest extends PersistenceIntegrationTest{
     @Test
     @Transactional
     public void getDeviceObisCodeTest() {
-        Device deviceWithLoadProfile = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
+        Device deviceWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles");
         deviceWithLoadProfile.save();
 
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(deviceWithLoadProfile);
@@ -427,6 +427,6 @@ public class LoadProfileImplTest extends PersistenceIntegrationTest{
         Device reloadedDevice = getReloadedDevice(device);
         reloadedDevice.delete();
 
-        assertThat(inMemoryPersistence.getDeviceDataService().getDataModel().mapper(LoadProfile.class).find()).isEmpty();
+        assertThat(inMemoryPersistence.getDeviceService().getDataModel().mapper(LoadProfile.class).find()).isEmpty();
     }
 }

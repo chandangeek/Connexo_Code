@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
  * Date: 24/03/14
  * Time: 09:58
  */
-public class DeviceProtocolPropertyImplTest extends PersistenceIntegrationTest{
+public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDeviceProtocol {
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -41,13 +41,13 @@ public class DeviceProtocolPropertyImplTest extends PersistenceIntegrationTest{
         }
         propertySpecs.add(stringPropertySpec);
         when(deviceProtocol.getPropertySpecs()).thenReturn(propertySpecs);
-        InfoType infoType = inMemoryPersistence.getDeviceDataService().newInfoType(name);
+        InfoType infoType = inMemoryPersistence.getDeviceService().newInfoType(name);
         infoType.save();
     }
 
     private Device createSimpleDeviceWithProperty(String name, String value) {
         setupStringPropertyWithName(name);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "DeviceWithProperties");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
         device.setProperty(name, value);
         device.save();
         return device;
@@ -115,7 +115,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceIntegrationTest{
         setupStringPropertyWithName(propertyName1);
         setupStringPropertyWithName(propertyName2);
         setupStringPropertyWithName(propertyName3);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "DeviceWithProperties");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
         device.setProperty(propertyName1, value1);
         device.setProperty(propertyName2, value2);
         device.setProperty(propertyName3, value3);
@@ -131,7 +131,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceIntegrationTest{
     @Test
     @Transactional
     public void removeUnknownPropertyTest() {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "DeviceWithProperties");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -148,7 +148,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceIntegrationTest{
         String value = "MyValueOfTheProperty";
         PropertySpec<String> stringPropertySpec = OptionalPropertySpecFactory.newInstance().stringPropertySpec(name);
         when(deviceProtocol.getPropertySpecs()).thenReturn(Arrays.<PropertySpec>asList(stringPropertySpec));
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "DeviceWithProperties");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
         device.setProperty(name, value);
         try {
             device.save();
@@ -183,7 +183,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceIntegrationTest{
         String name = "MyProperty";
         String value = "MyValueOfTheProperty";
         setupStringPropertyWithName(name);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "DeviceWithProperties");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -199,7 +199,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceIntegrationTest{
     public void addPropertyThatDoesntExistOnDeviceProtocolTest() {
         String name = "MyProperty";
         String value = "MyValueOfTheProperty";
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "DeviceWithProperties");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
         device.setProperty(name, value);
         try {
             device.save();
@@ -222,6 +222,6 @@ public class DeviceProtocolPropertyImplTest extends PersistenceIntegrationTest{
         Device reloadedDevice = getReloadedDevice(device);
         reloadedDevice.delete();
 
-        assertThat(inMemoryPersistence.getDeviceDataService().getDataModel().mapper(DeviceProtocolProperty.class).find()).isEmpty();
+        assertThat(inMemoryPersistence.getDeviceService().getDataModel().mapper(DeviceProtocolProperty.class).find()).isEmpty();
     }
 }
