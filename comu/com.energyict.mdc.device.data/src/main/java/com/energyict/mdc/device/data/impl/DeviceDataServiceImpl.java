@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
@@ -26,6 +25,7 @@ import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ComTaskExecutionFactory;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
@@ -52,7 +52,6 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
@@ -100,7 +99,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     @Inject
     public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService) {
         this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false);
-;    }
+    }
 
     public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData) {
         super();
@@ -183,7 +182,10 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     @Override
     public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialOutboundConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression temporalExpression) {
-        NextExecutionSpecs nextExecutionSpecs = this.deviceConfigurationService.newNextExecutionSpecs(temporalExpression);
+        NextExecutionSpecs nextExecutionSpecs = null;
+        if (temporalExpression != null) {
+            nextExecutionSpecs = this.deviceConfigurationService.newNextExecutionSpecs(temporalExpression);
+        }
         ScheduledConnectionTaskImpl connectionTask = this.dataModel.getInstance(ScheduledConnectionTaskImpl.class);
         connectionTask.initializeWithMinimizeStrategy(device, partialConnectionTask, comPortPool, nextExecutionSpecs);
         return connectionTask;
@@ -230,7 +232,8 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     @Override
     public List<ConnectionTask> findConnectionTasksByDevice(Device device) {
-        return this.getDataModel().mapper(ConnectionTask.class).find("deviceId", device.getId(), "obsoleteDate", null);
+        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("obsoleteDate").isNull());
+        return this.getDataModel().mapper(ConnectionTask.class).select(condition);
     }
 
     @Override
@@ -240,17 +243,19 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     @Override
     public List<InboundConnectionTask> findInboundConnectionTasksByDevice(Device device) {
-        return this.getDataModel().mapper(InboundConnectionTask.class).find("deviceId", device.getId(), "obsoleteDate", null);
+        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("obsoleteDate").isNull());
+        return this.getDataModel().mapper(InboundConnectionTask.class).select(condition);
     }
 
     @Override
     public List<ScheduledConnectionTask> findScheduledConnectionTasksByDevice(Device device) {
-        return this.getDataModel().mapper(ScheduledConnectionTask.class).find("deviceId", device.getId(), "obsoleteDate", null);
+        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("obsoleteDate").isNull());
+        return this.getDataModel().mapper(ScheduledConnectionTask.class).select(condition);
     }
 
     @Override
     public ConnectionTask findDefaultConnectionTaskForDevice(Device device) {
-        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("isdefault").isNotEqual(0)).and(where("obsoleteDate").isNotNull());
+        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("isDefault").isEqualTo(true)).and(where("obsoleteDate").isNull());
         List<ConnectionTask> connectionTasks = this.getDataModel().mapper(ConnectionTask.class).select(condition);
         if (connectionTasks != null && connectionTasks.size() == 1) {
             return connectionTasks.get(0);
@@ -500,7 +505,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     @Override
     public List<BaseDevice<Channel, LoadProfile, Register>> findPhysicalConnectedDevicesFor(Device device) {
-        Condition condition = Where.where("gateway").isEqualTo(device).and(Where.where("interval").isEffective());
+        Condition condition = where("gateway").isEqualTo(device).and(where("interval").isEffective());
         List<PhysicalGatewayReference> physicalGatewayReferences = this.dataModel.mapper(PhysicalGatewayReference.class).select(condition);
         if(!physicalGatewayReferences.isEmpty()){
             List<BaseDevice<Channel, LoadProfile, Register>> baseDevices = new ArrayList<>();
@@ -515,7 +520,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     @Override
     public List<BaseDevice<Channel, LoadProfile, Register>> findCommunicationReferencingDevicesFor(Device device) {
-        Condition condition = Where.where("gateway").isEqualTo(device).and(Where.where("interval").isEffective());
+        Condition condition = where("gateway").isEqualTo(device).and(where("interval").isEffective());
         List<CommunicationGatewayReference> communicationGatewayReferences = this.dataModel.mapper(CommunicationGatewayReference.class).select(condition);
         if(!communicationGatewayReferences.isEmpty()){
             List<BaseDevice<Channel, LoadProfile, Register>> baseDevices = new ArrayList<>();

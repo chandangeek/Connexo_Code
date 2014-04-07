@@ -25,7 +25,9 @@ import java.sql.SQLException;
  * Date: 13/09/12
  * Time: 13:10
  */
-public abstract class OutboundConnectionTaskImpl<PCTT extends PartialScheduledConnectionTask> extends ConnectionTaskImpl<PCTT, OutboundComPortPool> implements OutboundConnectionTask<PCTT> {
+public abstract class OutboundConnectionTaskImpl<PCTT extends PartialScheduledConnectionTask>
+        extends ConnectionTaskImpl<PCTT, OutboundComPortPool>
+        implements OutboundConnectionTask<PCTT> {
 
     /**
      * The Default amount of seconds a ComTask should wait before retrying

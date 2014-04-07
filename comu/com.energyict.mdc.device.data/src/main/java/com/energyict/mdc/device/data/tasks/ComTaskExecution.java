@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.IdBusinessObject;
-import com.energyict.mdc.device.config.ComTask;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -10,6 +9,7 @@ import com.energyict.mdc.device.data.journal.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
+import com.energyict.mdc.tasks.ComTask;
 
 import java.sql.SQLException;
 import java.util.Date;

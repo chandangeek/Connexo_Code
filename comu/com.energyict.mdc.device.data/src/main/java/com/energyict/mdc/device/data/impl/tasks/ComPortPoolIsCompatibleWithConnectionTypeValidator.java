@@ -23,13 +23,16 @@ public class ComPortPoolIsCompatibleWithConnectionTypeValidator implements Const
     @Override
     public boolean isValid(ConnectionMethodImpl connectionMethod, ConstraintValidatorContext context) {
         ConnectionType connectionType = connectionMethod.getPluggableClass().getConnectionType();
-        ComPortPool comPortPool = connectionMethod.getComPortPool();
-        if (!connectionType.getSupportedComPortTypes().contains(comPortPool.getComPortType())) {
-            context.disableDefaultConstraintViolation();
-            context
-                .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.COMPORT_TYPE_NOT_SUPPORTED_KEY + "}")
-                .addPropertyNode("comPortPool").addConstraintViolation();
-            return false;
+        // No ComPortPool is validated by another annotation but not sure in which order they are executed
+        if (connectionMethod.hasComPortPool()) {
+            ComPortPool comPortPool = connectionMethod.getComPortPool();
+            if (!connectionType.getSupportedComPortTypes().contains(comPortPool.getComPortType())) {
+                context.disableDefaultConstraintViolation();
+                context
+                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.COMPORT_TYPE_NOT_SUPPORTED_KEY + "}")
+                        .addPropertyNode("comPortPool").addConstraintViolation();
+                return false;
+            }
         }
         return true;
     }
