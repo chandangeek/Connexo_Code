@@ -10,6 +10,9 @@ import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,11 +27,19 @@ import java.util.List;
  * Date: 9/3/13
  * Time: 11:45 AM
  */
+@XmlRootElement
 public class DeviceIdentifierBySerialNumberPlaceHolder implements ServerDeviceIdentifier {
 
     private final SerialNumberPlaceHolder serialNumberPlaceHolder;
     private Device device;
     private List<Device> allDevices;
+
+    /**
+     * Constructor only to be used by JSON (de)marshalling
+     */
+    public DeviceIdentifierBySerialNumberPlaceHolder() {
+        this.serialNumberPlaceHolder = null;
+    }
 
     public DeviceIdentifierBySerialNumberPlaceHolder(SerialNumberPlaceHolder serialNumberPlaceHolder) {
         this.serialNumberPlaceHolder = serialNumberPlaceHolder;
@@ -78,6 +89,19 @@ public class DeviceIdentifierBySerialNumberPlaceHolder implements ServerDeviceId
         return "device with serial number " + serialNumberPlaceHolder.getSerialNumber();
     }
 
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
+
+    @XmlAttribute
+    public SerialNumberPlaceHolder getSerialNumberPlaceHolder() {
+        return serialNumberPlaceHolder;
+    }
 
     @Override
     public String getIdentifier() {

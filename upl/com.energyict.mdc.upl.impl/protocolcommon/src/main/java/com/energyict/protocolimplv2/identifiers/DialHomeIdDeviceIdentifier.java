@@ -12,6 +12,9 @@ import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +25,7 @@ import java.util.List;
  * @author: sva
  * @since: 26/10/12 (11:26)
  */
+@XmlRootElement
 public class DialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
 
     public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
@@ -30,6 +34,13 @@ public class DialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
     private final String callHomeID;
     private Device device;
     private List<Device> allDevices;
+
+    /**
+     * Constructor only to be used by JSON (de)marshalling
+     */
+    public DialHomeIdDeviceIdentifier() {
+        callHomeID = "";
+    }
 
     public DialHomeIdDeviceIdentifier(String callHomeId) {
         super();
@@ -60,6 +71,20 @@ public class DialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
     @Override
     public String toString() {
         return "device with call home id " + this.callHomeID;
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
+
+    @XmlAttribute
+    public String getCallHomeID() {
+        return callHomeID;
     }
 
     @Override

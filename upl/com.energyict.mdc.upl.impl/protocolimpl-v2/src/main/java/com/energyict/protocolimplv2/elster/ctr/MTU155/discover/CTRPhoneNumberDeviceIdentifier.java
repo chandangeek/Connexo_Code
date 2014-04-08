@@ -12,6 +12,9 @@ import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +26,7 @@ import java.util.List;
  * @author: sva
  * @since: 26/10/12 (11:26)
  */
+@XmlRootElement
 public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
 
     public static final String PHONE_NUMBER_PROPERTY_NAME = "phoneNumber";
@@ -30,6 +34,13 @@ public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
     private final String phoneNumber;
     private Device device;
     private List<Device> allDevices;
+
+    /**
+     * Constructor only to be used by JSON (de)marshalling
+     */
+    public CTRPhoneNumberDeviceIdentifier() {
+        phoneNumber = "";
+    }
 
     public CTRPhoneNumberDeviceIdentifier(String phoneNumber) {
         super();
@@ -78,6 +89,20 @@ public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
     @Override
     public String toString() {
         return "device with phone number " + this.phoneNumber;
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
+
+    @XmlAttribute
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
     @Override

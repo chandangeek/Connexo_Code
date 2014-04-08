@@ -11,6 +11,9 @@ import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,11 +28,18 @@ import java.util.List;
  * Date: 13/05/13
  * Time: 13:06
  */
+@XmlRootElement
 public class DeviceIdentifierBySerialNumber implements ServerDeviceIdentifier {
 
     private String serialNumber;
     private Device device;
     private List<Device> allDevices;
+
+    /**
+     * Constructor only to be used by JSON (de)marshalling
+     */
+    public DeviceIdentifierBySerialNumber() {
+    }
 
     public DeviceIdentifierBySerialNumber(String serialNumber) {
         super();
@@ -80,6 +90,20 @@ public class DeviceIdentifierBySerialNumber implements ServerDeviceIdentifier {
     @Override
     public String toString () {
         return "device with serial number " + this.serialNumber;
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
+
+    @XmlAttribute
+    public String getSerialNumber() {
+        return serialNumber;
     }
 
     @Override
