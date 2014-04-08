@@ -22,6 +22,10 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.common.ApplicationContext;
@@ -110,7 +114,6 @@ public class InMemoryIntegrationPersistence {
                 new EventsModule(),
                 new PubSubModule(),
                 new TransactionModule(showSqlLogging),
-                new UtilModule(),
                 new NlsModule(),
                 new DomainUtilModule(),
                 new PartyModule(),
@@ -184,6 +187,7 @@ public class InMemoryIntegrationPersistence {
         )) {
             preparedStatement.execute();
         }
+        Environment.DEFAULT.get().closeConnection();
     }
 
     private void initializeMocks(String testName) {
@@ -278,6 +282,8 @@ public class InMemoryIntegrationPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(JsonService.class).toInstance(new JsonServiceImpl());
+            bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(Clock.class).toInstance(clock);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
