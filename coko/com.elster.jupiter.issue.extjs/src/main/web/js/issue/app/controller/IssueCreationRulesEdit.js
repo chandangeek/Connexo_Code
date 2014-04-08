@@ -55,10 +55,10 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 change: this.setRuleTemplate
             },
             'issues-creation-rules-edit button[action=create]': {
-                click: this.createRule
+                click: this.ruleSave
             },
             'issues-creation-rules-edit button[action=edit]': {
-                click: this.editRule
+                click: this.ruleSave
             }
         });
 
@@ -95,20 +95,22 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             prefix,
             btnTxt;
 
-        self.ruleModel = Isu.model.CreationRule.create();
-
         switch (action) {
             case 'edit':
                 prefix = 'Edit ';
                 btnTxt = 'Save';
-                self.ruleModel.load(id, {
+                self.getModel('Isu.model.CreationRule').load(id, {
                     success: function (record) {
+                        self.ruleModel = record;
                         self.modelToForm(record);
                     }
                 });
                 break;
             case 'create':
                 prefix = btnTxt = 'Create ';
+                self.ruleModel = Isu.model.CreationRule.create();
+                delete self.ruleModel.data.id;
+                self.ruleModel.data.actions = [];
                 self.modelToForm(self.ruleModel);
                 break;
         }
@@ -128,6 +130,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             nameField = form.down('[name=name]'),
             typeField = form.down('[name=type]'),
             templateField = form.down('[name=template]'),
+            reasonField = form.down('[name=reason]'),
             dueinNumberField = form.down('[name=duein.number]'),
             dueinTypeField = form.down('[name=duein.type]'),
             commentField = form.down('[name=comment]');
@@ -143,6 +146,9 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 templateField.setValue(data.template.uid);
             }, self, {single: true});
         });
+        reasonField.getStore().load(function () {
+            reasonField.setValue(data.reason.id);
+        });
         dueinNumberField.setValue(data.duein.number);
         dueinTypeField.setValue(data.duein.type);
         commentField.setValue(data.comment);
@@ -154,6 +160,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             nameField = form.down('[name=name]'),
             typeField = form.down('[name=type]'),
             templateField = form.down('[name=template]'),
+            reasonField = form.down('[name=reason]'),
             dueinNumberField = form.down('[name=duein.number]'),
             dueinTypeField = form.down('[name=duein.type]'),
             commentField = form.down('[name=comment]'),
@@ -167,18 +174,20 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         ruleModel.set('template', {
             uid: templateField.getValue()
         });
+        ruleModel.set('reason', {
+            id: reasonField.getValue()
+        });
         ruleModel.set('duein', {
-            number: dueinNumberField.getValue() || '',
-            type: dueinTypeField.getValue() || ''
+            number: dueinNumberField.getValue(),
+            type: dueinTypeField.getValue()
         });
         ruleModel.set('comment', commentField.getValue());
 
-        Ext.Array.each(templateDetails.items, function (item) {
-            var formItem = item.down('[formBind=true]'),
-                value = formItem.getValue();
+        Ext.Array.each(templateDetails.query('[formBind=false]'), function (item) {
+            var value = item.getValue();
 
             if (value) {
-                parameters[formItem.name] = value;
+                parameters[item.name] = value;
             }
         });
 
@@ -211,17 +220,20 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         if (newValue) {
             templateModel.load(newValue, {
                 success: function (template) {
-                    template.description && templateDetails.add({
+                    var description = template.get('description'),
+                        parameters = template.get('parameters');
+
+                    description && templateDetails.add({
                         xtype: 'component',
-                        html: template.description,
+                        html: description,
                         margin: '5 0 0 155',
                         cls: 'isu-creation-rule-description'
                     });
 
-                    for (var fieldName in template.parameters) {
-                        switch (template.parameters[fieldName].type) {
+                    for (var fieldName in parameters) {
+                        switch (parameters[fieldName].type) {
                             case 'number':
-                                formItem = self.createTextField(template.parameters[fieldName], fieldName);
+                                formItem = self.createTextField(parameters[fieldName], fieldName);
                                 break;
                         }
                         templateDetails.add(formItem);
@@ -235,59 +247,29 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         var formItem = {
             xtype: 'textfield',
             name: name,
-            fieldLabel: obj.label + (!obj.optional ? '*' : ''),
+            fieldLabel: obj.label,
             allowBlank: obj.optional,
-            formBind: true
+            formBind: false,
+            labelSeparator: !obj.optional ? ' *' : ''
         };
 
-        if (this.ruleModel.parameters[name]) {
-            formItem.value = this.ruleModel.parameters[name];
-            delete this.ruleModel.parameters[name];
+        if (this.ruleModel.get('parameters')[name]) {
+            formItem.value = this.ruleModel.get('parameters')[name];
+            delete this.ruleModel.get('parameters')[name];
         }
 
-        return {
-            xtype: 'container',
-            layout: {
-                type: 'hbox'
-            },
-            items: [
-                formItem,
-                {
-                    xtype: 'component',
-                    html: obj.suffix
-                }
-            ]
-        }
+        return formItem;
     },
 
-    createRule: function () {
-        this.ruleAction('create');
-    },
-
-    editRule: function () {
-        this.ruleAction('edit');
-    },
-
-    ruleAction: function (type) {
+    ruleSave: function (type) {
         var form = this.getRuleForm().getForm(),
-            rule = this.formToModel(),
+            rule = this.formToModel(this.ruleModel),
             formErrorsPanel = this.getRuleForm().down('[name=form-errors]'),
             store = this.getStore('Isu.store.CreationRule');
 
         if (form.isValid()) {
             formErrorsPanel.hide();
-            store.on('datachanged', function () {
-                window.location.href = '#/issue-administration/datacollection/issuecreationrules';
-            }, this, {single: true});
-            switch (type) {
-                case 'edit':
-                    rule.commit();
-                    break;
-                case 'create':
-                    rule.save();
-                    break;
-            }
-            rule.commit();
+            rule.save();
         } else {
             formErrorsPanel.show();
         }

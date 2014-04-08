@@ -18,6 +18,8 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                         labelAlign: 'right',
                         margin: '0 0 20 0',
                         msgTarget: 'under',
+                        validateOnChange: false,
+                        validateOnBlur: false,
                         anchor: '100%'
                     },
                     items: [
@@ -31,35 +33,34 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                         {
                             xtype: 'textfield',
                             name: 'name',
-                            fieldLabel: 'Name *',
+                            fieldLabel: 'Name',
+                            labelSeparator: ' *',
                             allowBlank: false,
-                            validateOnChange: false,
-                            validateOnBlur: false,
                             maxLength: 80
                         },
                         {
                             xtype: 'combobox',
                             name: 'type',
-                            fieldLabel: 'Issue type *',
+                            fieldLabel: 'Issue type',
+                            labelSeparator: ' *',
                             store: 'Isu.store.IssueType',
                             queryMode: 'local',
                             displayField: 'name',
                             valueField: 'id',
                             allowBlank: false,
-                            validateOnChange: false,
-                            validateOnBlur: false
+                            editable: false
                         },
                         {
                             xtype: 'combobox',
                             name: 'template',
-                            fieldLabel: 'Rule template *',
+                            fieldLabel: 'Rule template',
+                            labelSeparator: ' *',
                             store: 'Isu.store.CreationRuleTemplate',
                             queryMode: 'local',
                             displayField: 'name',
                             valueField: 'uid',
                             allowBlank: false,
-                            validateOnChange: false,
-                            validateOnBlur: false,
+                            editable: false,
                             margin: 0
                         },
                         {
@@ -69,8 +70,22 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                 labelWidth: 150,
                                 labelAlign: 'right',
                                 margin: '20 0 0 0',
-                                msgTarget: 'under'
+                                msgTarget: 'under',
+                                validateOnChange: false,
+                                validateOnBlur: false
                             }
+                        },
+                        {
+                            xtype: 'combobox',
+                            name: 'reason',
+                            fieldLabel: 'Issue reason',
+                            labelSeparator: ' *',
+                            store: 'Isu.store.IssueReason',
+                            queryMode: 'local',
+                            displayField: 'name',
+                            valueField: 'id',
+                            allowBlank: false,
+                            editable: false
                         },
                         {
                             xtype: 'container',
@@ -99,6 +114,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                     queryMode: 'local',
                                     displayField: 'name',
                                     valueField: 'name',
+                                    editable: false,
                                     width: 100
                                 }
                             ]

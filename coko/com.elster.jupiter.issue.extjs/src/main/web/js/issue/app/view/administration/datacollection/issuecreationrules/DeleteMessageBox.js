@@ -7,7 +7,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.DeleteMess
                     text: 'Delete',
                     handler: function () {
                         Ext.Ajax.request({
-                            url: '/api/isu/creation/rules/{id}?version=1',
+                            url: '/api/isu/creationrules/{id}?version=1',
                             method: 'DELETE',
                             success: function () {
                                 dialog.close();
