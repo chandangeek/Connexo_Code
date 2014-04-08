@@ -276,7 +276,7 @@ public interface DeviceConfigurationService {
 
     public NextExecutionSpecs findNextExecutionSpecs (long id);
 
-    public DeviceCommunicationConfiguration findDeviceConfigurationService(long id);
+    public DeviceCommunicationConfiguration findDeviceCommunicationConfiguration(long id);
 
     public DeviceCommunicationConfiguration findDeviceCommunicationConfigurationFor(DeviceConfiguration deviceConfiguration);
 

@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
@@ -119,8 +120,8 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     @Override
-    public DeviceCommunicationConfiguration getDeviceCommunicationConfiguration() {
-        return this.deviceCommunicationConfiguration.orNull(); // TODO should become get() instead of orNull
+    public DeviceConfiguration getDeviceCommunicationConfiguration() {
+        return this.deviceCommunicationConfiguration.get().getDeviceConfiguration();
     }
 
     @Override

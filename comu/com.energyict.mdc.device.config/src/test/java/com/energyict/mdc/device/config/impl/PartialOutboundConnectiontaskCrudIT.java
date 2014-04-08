@@ -309,7 +309,7 @@ public class PartialOutboundConnectiontaskCrudIT {
 
         ComWindow newComWindow = new ComWindow(7200, 10800);
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceConfigurationService(communicationConfiguration.getId());
+            DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceCommunicationConfiguration(communicationConfiguration.getId());
             PartialOutboundConnectionTaskImpl partialOutboundConnectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
             partialOutboundConnectionTask.setDefault(false);
             partialOutboundConnectionTask.setComportPool(outboundComPortPool1);
@@ -367,7 +367,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         }
 
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceConfigurationService(communicationConfiguration.getId());
+            DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceCommunicationConfiguration(communicationConfiguration.getId());
             PartialOutboundConnectionTaskImpl partialOutboundConnectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
             configuration.remove(partialOutboundConnectionTask);
             configuration.save();

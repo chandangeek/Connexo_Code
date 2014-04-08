@@ -293,7 +293,7 @@ public class PartialConnectionInitiationTaskCrudIT {
 
         ComWindow newComWindow = new ComWindow(7200, 10800);
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceConfigurationService(communicationConfiguration.getId());
+            DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceCommunicationConfiguration(communicationConfiguration.getId());
             PartialConnectionInitiationTask partialConnectionInitiationTask = configuration.getPartialConnectionInitiationTasks().get(0);
             partialConnectionInitiationTask.setComportPool(outboundComPortPool1);
             partialConnectionInitiationTask.setConnectionTypePluggableClass(connectionTypePluggableClass2);
@@ -345,7 +345,7 @@ public class PartialConnectionInitiationTaskCrudIT {
         }
 
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceConfigurationService(communicationConfiguration.getId());
+            DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceCommunicationConfiguration(communicationConfiguration.getId());
             PartialConnectionInitiationTask partialOutboundConnectionTask = configuration.getPartialConnectionInitiationTasks().get(0);
             configuration.remove(partialOutboundConnectionTask);
             configuration.save();
