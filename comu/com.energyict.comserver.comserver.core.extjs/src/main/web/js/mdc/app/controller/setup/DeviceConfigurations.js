@@ -119,7 +119,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             this.getDeviceConfigurationDetailsLink().update('<a href="#/setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '">' + Uni.I18n.translate('general.viewDetails', 'MDC', 'View details') + '</a>');
             this.getDeviceConfigurationPreviewTitle().update('<h1>' + deviceConfigurations[0].get('name') + '</h1>');
         } else {
-            this.getDeviceTypePreview().getLayout().setActiveItem(0);
+            this.getDeviceConfigurationPreview().getLayout().setActiveItem(0);
         }
     },
 
