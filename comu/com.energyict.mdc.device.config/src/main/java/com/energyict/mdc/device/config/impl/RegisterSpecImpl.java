@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Range;
 
 @ValidRegisterSpec(groups = { Save.Update.class })
@@ -51,7 +52,8 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     private final Reference<RegisterMapping> registerMapping = ValueReference.absent();
     @Range(min = 1, max = 20, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS + "}")
     private int numberOfDigits;
-    private int numberOfFractionDigits;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
+    private Integer numberOfFractionDigits;
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
     private BigDecimal overflow;

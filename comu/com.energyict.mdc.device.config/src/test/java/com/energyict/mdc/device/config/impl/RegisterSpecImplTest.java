@@ -118,6 +118,13 @@ public class RegisterSpecImplTest extends PersistenceTest {
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS+"}", property = "numberOfFractionDigits")
+    public void createRegisterSpecNoFractionDigits() {
+        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(1).add();
+    }
+
+    @Test
+    @Transactional
     public void createRegisterSpecTestMultiplierDefaultToOne() {
         RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(1).add();
 
