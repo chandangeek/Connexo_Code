@@ -378,7 +378,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         view.down('#editOverflowValueField').setValue(null);
         var numberOfDigits = view.down('#editNumberOfDigitsField').getValue();
         var maxOverFlowValue = Math.pow(10, numberOfDigits);
-        this.getOverflowValueInfo().update('<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo', 'MDC', 'The maximum overflow value is {0} with {1} number of digits.', [maxOverFlowValue, numberOfDigits]) + '</i></span>');
+        this.getOverflowValueInfo().update('<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo', 'MDC', 'The maximum overflow value is {0}.', [maxOverFlowValue]) + '</i></span>');
         view.down('#editOverflowValueField').setMaxValue(maxOverFlowValue);
     },
 
