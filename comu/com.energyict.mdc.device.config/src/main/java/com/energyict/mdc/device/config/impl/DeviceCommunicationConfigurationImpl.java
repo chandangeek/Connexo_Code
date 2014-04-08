@@ -60,34 +60,11 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
         return dataModel.getInstance(DeviceCommunicationConfigurationImpl.class).init(deviceConfiguration);
     }
 
-//    private void validateNew(DeviceCommunicationConfigurationShadow shadow) throws BusinessException {
-//        this.validate(shadow);
-//    }
-
-//    private void validateUpdate(DeviceCommunicationConfigurationShadow shadow) throws BusinessException {
-//        this.validate(shadow);
-//        this.validateObsoletePartialConnectionTasksNoLongerUsed(shadow.getPartialConnectionTaskShadows().getDeletedShadows(), shadow.getComTaskEnablementShadows());
-//    }
-
-//    private void validate(DeviceCommunicationConfigurationShadow shadow) throws BusinessException {
-//        this.validateConstructionValidator(shadow);
-//        this.validateDeviceConfiguration(shadow);
-//        this.validateMessages(shadow);
-//    }
-
 //    private void validateConstructionValidator(DeviceCommunicationConfigurationShadow shadow) throws BusinessException {
 //        if(!(shadow.getDeviceCommunicationConfigurationConstructionValidation() instanceof DeviceCommunicationConfigurationConstructionValidationImpl)){
 //            throw new BusinessException("illegalObjectConstruction",
 //                    "It is not allowed to create a '{0}' without the correct construction validator.",
 //                    this.getClass().getSimpleName());
-//        }
-//    }
-
-//    private void validateDeviceConfiguration(DeviceCommunicationConfigurationShadow shadow) throws InvalidValueException, InvalidReferenceException {
-//        if (shadow.getDeviceConfigurationId() == 0) {
-//            throw new InvalidValueException("XcannotBeEmpty", "\"{0}\" is a required property", "deviceCommunicationConfiguration.deviceConfiguration");
-//        } else {
-//            this.validateDeviceConfigurationExists(shadow.getDeviceConfigurationId());
 //        }
 //    }
 
@@ -177,13 +154,6 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 //        }
 //    }
 
-//    private void validateObsoletePartialConnectionTasksNoLongerUsed (List<PartialConnectionTaskShadow> obsoleteShadows, ShadowList<ComTaskEnablementShadow> comTaskEnablementShadows)
-//        throws BusinessException {
-//        for (PartialConnectionTaskShadow shadow : obsoleteShadows) {
-//            this.validateObsoletePartialConnectionTaskIsNoLongerUsed(shadow, comTaskEnablementShadows);
-//        }
-//    }
-//
 //    private void validateObsoletePartialConnectionTaskIsNoLongerUsed (PartialConnectionTaskShadow shadow, ShadowList<ComTaskEnablementShadow> comTaskEnablementShadows)
 //        throws BusinessException {
 //        for (ComTaskEnablementShadow comTaskEnablementShadow : comTaskEnablementShadows) {
