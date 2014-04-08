@@ -2,15 +2,16 @@ package com.energyict.mdc.tasks;
 
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.LoadProfileType;
+import com.energyict.mdc.protocol.api.device.LoadProfile;
 import java.util.List;
 
 /**
- * Models the ProtocolTask which can read one or multiple LoadProfile loadProfiles
+ * Models the {@link com.energyict.mdc.tasks.ProtocolTask} which can read one or multiple {@link LoadProfile loadProfiles}
  * from a Device.
  * <p>
- * The task can contain an optional list of LoadProfileType loadProfileTypes,
+ * The task can contain an optional list of {@link com.energyict.mdc.device.config.LoadProfileType loadProfileTypes},
  * which means only these types should be fetched from the device. If no list is provided, then <b>all</b>
- * LoadProfile loadProfiles should be fetched.
+ * {@link LoadProfile loadProfiles} should be fetched.
  * </p><p>
  * There is an option available to check the configuration of the loadProfiles. If checked and the configuration
  * of a certain LoadProfile does not match, then it will not be fetched from the Device.
@@ -19,7 +20,7 @@ import java.util.List;
  * All collected intervals of all the LoadProfiles can be marked as <i>BadTime</i> if the clockDifference exceeds the maximum.
  * </p><p>
  * It is also possible to map certain intervalStateBits to proper MeterEvents (of the Device itself ex. does not have MeterEvents).
- * See IntervalData#generateEvents() for a mapping between the two.
+ * See {@link com.energyict.mdc.protocol.api.device.data.IntervalData#generateEvents()} for a mapping between the two.
  * </p>
  *
  * @author gna

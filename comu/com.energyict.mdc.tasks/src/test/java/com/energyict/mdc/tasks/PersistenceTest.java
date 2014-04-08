@@ -26,7 +26,6 @@ import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
@@ -35,15 +34,14 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.osgi.framework.BundleContext;
-
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -88,7 +86,6 @@ public class PersistenceTest {
 //                new EventsModule(), // Mocked by Spy
                 new PluggableModule(),
                 new TransactionModule(true),
-                new EngineModelModule(),
                 new TasksModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
         	injector.getInstance(EnvironmentImpl.class); // fake call to make sure component is initialized
