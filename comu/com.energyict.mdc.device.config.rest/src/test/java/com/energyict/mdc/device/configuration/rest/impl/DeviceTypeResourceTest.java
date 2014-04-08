@@ -11,6 +11,7 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.Answers;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedException;
@@ -34,17 +35,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import java.io.ByteArrayInputStream;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Currency;
-import java.util.List;
-import java.util.Map;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -56,6 +46,18 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Currency;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -185,6 +187,18 @@ public class DeviceTypeResourceTest extends JerseyTest {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         return deviceType;
+    }
+
+    private DeviceConfiguration mockDeviceConfiguration(String name,long id){
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getName()).thenReturn(name);
+        when(deviceConfiguration.getId()).thenReturn(id);
+        RegisterSpec registerSpec = mock(RegisterSpec.class);
+        RegisterMapping registerMapping = mock(RegisterMapping.class);
+        when(registerSpec.getRegisterMapping()).thenReturn(registerMapping);
+        when(registerMapping.getId()).thenReturn(101L);
+        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
+        return deviceConfiguration;
     }
 
     @Test
@@ -696,11 +710,46 @@ public class DeviceTypeResourceTest extends JerseyTest {
         Finder<RegisterMapping> registerMappingFinder = mockFinder(Arrays.asList(registerMapping101, registerMapping102, registerMapping103));
         when(deviceConfigurationService.findAllRegisterMappings()).thenReturn(registerMappingFinder);
 
-        Map response = target("/devicetypes/31/registertypes").queryParam("available","true").request().get(Map.class);
+        Map response = target("/devicetypes/31/registertypes").queryParam("filter", ExtjsFilter.complexFilter().addProperty("available","true").create()).request().get(Map.class);
         assertThat(response).hasSize(2);
         List registerTypes = (List) response.get("registerTypes");
         assertThat(registerTypes).hasSize(2);
     }
+
+    @Test
+    public void testGetAllAvailableRegistersForDeviceType_FilteredByConfig() throws Exception {
+        long deviceType_id=31;
+        long deviceConfiguration_id=41;
+        long RM_ID_1 = 101L;
+        long RM_ID_2 = 102L;
+        long RM_ID_3 = 103L;
+
+        DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config",(int)deviceConfiguration_id);
+        RegisterMapping registerMapping101 = mock(RegisterMapping.class);
+        when(registerMapping101.getId()).thenReturn(RM_ID_1);
+        ReadingType readingType = mock(ReadingType.class);
+        when(registerMapping101.getReadingType()).thenReturn(readingType);
+        RegisterMapping registerMapping102 = mock(RegisterMapping.class);
+        when(registerMapping102.getId()).thenReturn(RM_ID_2);
+        when(registerMapping102.getReadingType()).thenReturn(readingType);
+        RegisterMapping registerMapping103 = mock(RegisterMapping.class);
+        when(registerMapping103.getId()).thenReturn(RM_ID_3);
+        when(registerMapping103.getReadingType()).thenReturn(readingType);
+        when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101,registerMapping102,registerMapping103));
+        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+
+        Finder<RegisterMapping> registerMappingFinder = mockFinder(Arrays.asList(registerMapping101, registerMapping102, registerMapping103));
+        when(deviceConfigurationService.findAllRegisterMappings()).thenReturn(registerMappingFinder);
+
+        Map response = target("/devicetypes/31/registertypes").queryParam("filter", ExtjsFilter.complexFilter().addProperty("available","true").addProperty("deviceconfigurationid","41").create()).request().get(Map.class);
+        assertThat(response).hasSize(2);
+        List registerTypes = (List) response.get("registerTypes");
+        assertThat(registerTypes).hasSize(2);
+    }
+
+
 
     @Test
     public void testGetDeviceCommunicationById() throws Exception {
