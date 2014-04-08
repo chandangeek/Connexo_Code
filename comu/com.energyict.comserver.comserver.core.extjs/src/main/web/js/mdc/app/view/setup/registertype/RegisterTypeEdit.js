@@ -125,7 +125,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         queryMode: 'local',
                                         displayField: 'unit',
                                         valueField: 'unit',
-                                        emptyText: Uni.I18n.translate('registerType.selectMeasurementUnit', 'MDC', 'Select unit of measure'),
+                                        emptyText: Uni.I18n.translate('registerType.selectMeasurementUnit', 'MDC', 'Select a unit of measure...'),
                                         required: true,
                                         forceSelection: true,
 
@@ -144,7 +144,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         queryMode: 'local',
                                         displayField: 'timeOfUse',
                                         valueField: 'timeOfUse',
-                                        emptyText: Uni.I18n.translate('registerType.selectTimeOfUse', 'MDC', 'Select time of use'),
+                                        emptyText: Uni.I18n.translate('registerType.selectTimeOfUse', 'MDC', 'Select a time of use...'),
                                         required: true,
                                         forceSelection: true,
 
