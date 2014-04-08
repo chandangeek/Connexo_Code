@@ -7,7 +7,8 @@
 Ext.Loader.addClassPathMappings({
   "Ext": "../../../../src",
   "Ext.Msg": "../../../../src/window/MessageBox.js",
-  "ExtThemeNeptune": "../../../ext-theme-neptune/overrides"
+  "ExtThemeNeptune": "../../../ext-theme-neptune/overrides",
+  "Skyline": "../../overrides"
 });
 Ext.ClassManager.addNameAlternateMappings({
   "ExtThemeNeptune.Component": [],
@@ -25,7 +26,8 @@ Ext.ClassManager.addNameAlternateMappings({
   "ExtThemeNeptune.resizer.Splitter": [],
   "ExtThemeNeptune.tab.Tab": [],
   "ExtThemeNeptune.toolbar.Paging": [],
-  "ExtThemeNeptune.toolbar.Toolbar": []
+  "ExtThemeNeptune.toolbar.Toolbar": [],
+  "Skyline.view.Table": []
 });
 Ext.ClassManager.addNameAliasMappings({
   "ExtThemeNeptune.Component": [],
@@ -43,7 +45,8 @@ Ext.ClassManager.addNameAliasMappings({
   "ExtThemeNeptune.resizer.Splitter": [],
   "ExtThemeNeptune.tab.Tab": [],
   "ExtThemeNeptune.toolbar.Paging": [],
-  "ExtThemeNeptune.toolbar.Toolbar": []
+  "ExtThemeNeptune.toolbar.Toolbar": [],
+  "Skyline.view.Table": []
 });
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/Component.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/panel/Panel.js");
@@ -53,6 +56,7 @@ Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/container/ButtonGrou
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/toolbar/Paging.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/picker/Month.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/form/field/HtmlEditor.js");
+Ext.Loader.loadScript("../../overrides/view/Table.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/panel/Table.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/grid/RowEditor.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/grid/column/RowNumberer.js");

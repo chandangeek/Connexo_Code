@@ -1,5 +1,15 @@
+@import "../Scrollbar";
+
 .#{$prefix}grid-body {
     border-top-width: 0;
     border-top-style: none;
     @include border-radius(0 0 $grid-header-border-radius $grid-header-border-radius);
+
+    @include scrollbar(
+        $scrollbar-size,
+        $scrollbar-margin,
+        $scrollbar-background-color,
+        $scrollbar-thumb-background-color,
+        $scrollbar-arrow-size
+    )
 }
