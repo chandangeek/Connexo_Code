@@ -161,18 +161,6 @@ public class RegisterSpecImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS+"}", property = RegisterSpecImpl.NUMBER_OF_DIGITS)
-    public void updateNumberOfDigitsRegisterSpecTooLowTest() {
-        RegisterSpec registerSpec = createDefaultRegisterSpec();
-        int updatedNumberOfDigits = -1;
-
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
-        registerSpecUpdater.setNumberOfDigits(updatedNumberOfDigits);
-        registerSpecUpdater.update();
-    }
-
-    @Test
-    @Transactional
     @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS+"}", property = RegisterSpecImpl.NUMBER_OF_DIGITS, strict = false)
     public void setNegativeNumberOfDigitsTest() {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
