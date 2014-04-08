@@ -13,13 +13,13 @@ public class ExtjsFilter {
         return URLEncoder.encode(String.format("[" + PROPERTY_VALUE_FORMAT + "]", property, value), "UTF-8");
     }
 
-    static public FilterBuilder complexFilter() {
+    static public FilterBuilder filter() {
         return new FilterBuilderImpl();
     }
 
 
     public interface FilterBuilder {
-        public FilterBuilder addProperty(String property, String value);
+        public FilterBuilder property(String property, String value);
         public String create() throws UnsupportedEncodingException;
     }
 
@@ -34,7 +34,7 @@ public class ExtjsFilter {
         }
 
         @Override
-        public FilterBuilder addProperty(String property, String value) {
+        public FilterBuilder property(String property, String value) {
             filter.append(String.format("%s" + PROPERTY_VALUE_FORMAT, separator, property, value));
             separator=",";
             return this;

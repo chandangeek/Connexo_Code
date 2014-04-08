@@ -15,10 +15,10 @@ public class ExtjsFilterTest {
 
     @Test
     public void testComplexFilter() throws Exception {
-        assertThat(URLDecoder.decode(ExtjsFilter.complexFilter().
-                addProperty("id", "5").
-                addProperty("available", "true").
-                addProperty("sort", "up").
+        assertThat(URLDecoder.decode(ExtjsFilter.filter().
+                property("id", "5").
+                property("available", "true").
+                property("sort", "up").
                 create(),"UTF-8")).
                 isEqualTo("[{\"property\":\"id\",\"value\":\"5\"},{\"property\":\"available\",\"value\":\"true\"},{\"property\":\"sort\",\"value\":\"up\"}]");
     }
