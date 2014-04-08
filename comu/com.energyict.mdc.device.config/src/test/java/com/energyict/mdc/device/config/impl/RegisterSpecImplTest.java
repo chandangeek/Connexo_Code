@@ -126,7 +126,7 @@ public class RegisterSpecImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void createRegisterSpecTestMultiplierDefaultToOne() {
-        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(1).add();
+        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(1).setNumberOfFractionDigits(0).add();
 
         assertThat(registerSpec.getRegisterMapping()).isEqualTo(registerMapping);
         assertThat(registerSpec.getMultiplier()).isEqualTo(BigDecimal.ONE);
@@ -136,7 +136,7 @@ public class RegisterSpecImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void createRegisterSpecTestOverflowDefaultIsApplied() {
-        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(5).add();
+        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(5).setNumberOfFractionDigits(0).add();
 
         assertThat(registerSpec.getOverflowValue()).isEqualTo(BigDecimal.valueOf(100000));
     }
@@ -145,7 +145,7 @@ public class RegisterSpecImplTest extends PersistenceTest {
     @Transactional
     public void createRegisterSpecTestOverflowDefaultIsAppliedLargeValue() {
         // JP-2164
-        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(20).add();
+        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(20).setNumberOfFractionDigits(0).add();
 
         assertThat(registerSpec.getOverflowValue()).isEqualTo(BigDecimal.TEN.pow(20));
     }
