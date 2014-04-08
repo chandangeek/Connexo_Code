@@ -309,7 +309,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         var me = this;
         var view = this.getRegisterConfigEditForm();
         if (field.name === 'registerMapping') {
-            var registerType = me.getRegisterTypesOfDevicetypeStore().findRecord('id', value);
+            var registerType = me.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', value);
             if (registerType != null) {
                 view.down('#create_mrid').setValue(registerType.getReadingType().get('mrid'));
                 view.down('#editObisCodeField').setValue(registerType.get('obisCode'));
