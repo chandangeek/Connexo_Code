@@ -69,6 +69,7 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_SPEC_REGISTER_MAPPING_IS_NOT_ON_DEVICE_TYPE(6011, "registerSpec.not.deviceType","The register spec contains a register mapping {0} which is not configured on the device type", SEVERE),
     REGISTER_SPEC_REGISTER_MAPPING_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6012, Constants.REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG,"The register mapping type can not be modified if the device configuration is active", SEVERE),
     REGISTER_SPEC_MULTIPLIER_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6013, Constants.REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG,"The register mapping type can not be modified if the device configuration is active", SEVERE),
+    REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_ONE(6014, Constants.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS, "Invalid number of fraction digits.", Level.SEVERE),
     DEVICE_TYPE_NAME_IS_REQUIRED(7001, "deviceType.name.required", "The name of a device type is required", SEVERE),
     DEVICE_TYPE_ALREADY_EXISTS(7002, "deviceType.duplicateNameX", "A device type with name \"{0}\" already exists", SEVERE),
     DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS(7003, Constants.DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS_KEY, "The device type {0} cannot be deleted because it still has active configurations", SEVERE),
@@ -253,6 +254,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY_KEY = "DTC.nextExecutionSpecs.offsetGreaterThanFrequency";
         public static final String UNDER_MINIMUM_RESCHEDULE_DELAY_KEY = "DTC.partialScheduledConnectionTask.underMinimumRescheduleDelay";
         public static final String REGISTER_MAPPING_DUPLICATE_READING_TYPE = "DTC.registerMapping.duplicateReadingType";
+        public static final String REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "DTC.registerSpec.invalidNumberOfFractionDigits";
     }
 
 }

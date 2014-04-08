@@ -255,16 +255,16 @@ public enum TableSpecs {
             table.map(RegisterSpecImpl.class);
             Column id = table.addAutoIdColumn();
             Column registerMapping = table.column("REGISTERMAPPINGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            table.column("NUMBEROFDIGITS").number().conversion(ColumnConversion.NUMBER2INT).notNull().map(RegisterSpecImpl.NUMBER_OF_DIGITS).add();
+            table.column("NUMBEROFDIGITS").number().conversion(ColumnConversion.NUMBER2INT).notNull().map(RegisterSpecImpl.Fields.NUMBER_OF_DIGITS.fieldName()).add();
             table.column("MOD_DATE").type("DATE").notNull().map("modificationDate").insert("sysdate").update("sysdate").add();
             table.column("DEVICEOBISCODE").varChar(80).map("overruledObisCodeString").add();
-            table.column("NUMBEROFFRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map(RegisterSpecImpl.NUMBER_OF_FRACTION_DIGITS).add();
+            table.column("NUMBEROFFRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map(RegisterSpecImpl.Fields.NUMBER_OF_FRACTION_DIGITS.fieldName()).add();
             table.column("OVERFLOWVALUE").number().map("overflow").add();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            table.column("MULTIPLIER").number().map(RegisterSpecImpl.MULTIPLIER).add();
+            table.column("MULTIPLIER").number().map(RegisterSpecImpl.Fields.MULTIPLIER.fieldName()).add();
             table.column("MULTIPLIERMODE").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("multiplierMode").add();
             table.primaryKey("PK_RTUREGISTERSPEC").on(id).add();
-            table.foreignKey("FK_EISRTUREGSPEC_REGMAP").on(registerMapping).references(EISRTUREGISTERMAPPING.name()).map(RegisterSpecImpl.REGISTER_MAPPING).add();
+            table.foreignKey("FK_EISRTUREGSPEC_REGMAP").on(registerMapping).references(EISRTUREGISTERMAPPING.name()).map(RegisterSpecImpl.Fields.REGISTER_MAPPING.fieldName()).add();
             table.foreignKey("FK_EISRTUREGSPEC_DEVCFG").on(deviceConfiguration).references(EISDEVICECONFIG.name()).map("deviceConfig").reverseMap("registerSpecs").composition().onDelete(CASCADE).add();
         }
     },
@@ -322,7 +322,7 @@ public enum TableSpecs {
             table.column("DEVICEPROTOCOLDIALECT").varChar(255).notNull().map("protocolDialectName").add();
             table.column("MOD_DATE").type("DATE").map("modDate").add();
             table.column("NAME").varChar(255).notNull().map("name").add();
-            table.foreignKey("FK_MDCDEVICECONFIG_CONFIGID").on(deviceConfiguration).references(MDCDEVICECOMMCONFIG.name()).map("deviceCommunicationConfiguration").reverseMap("configurationPropertiesList").composition().add();
+            table.foreignKey("FK_MDCDEVICECONFIG_CONFIGID").on(deviceConfiguration).references(MDCDEVICECOMMCONFIG.name()).map("deviceCommunicationConfiguration").reverseMap("configurationPropertiesList").onDelete(CASCADE).composition().add();
             table.primaryKey("PK_MDCDIALECTCONFIGPROPS").on(id).add();
         }
     },
@@ -364,7 +364,7 @@ public enum TableSpecs {
             table.primaryKey("PK_MDCPARTIALCONNTASK").on(id).add();
             table.foreignKey("FK_MDCPARTIALCT_PLUGGABLE").on(connectionType).references(PluggableService.COMPONENTNAME, "EISPLUGGABLECLASS").map("pluggableClass").add();
             table.foreignKey("FK_MDCPARTIALCT_COMPORTPOOL").on(comportpool).references(EngineModelService.COMPONENT_NAME, "MDCCOMPORTPOOL").map("comPortPool").add();
-            table.foreignKey("FK_MDCPARTCONTASK_DCOMCONFIG").on(devicecomconfig).references(MDCDEVICECOMMCONFIG.name()).map("configuration").reverseMap("partialConnectionTasks").composition().add();
+            table.foreignKey("FK_MDCPARTCONTASK_DCOMCONFIG").on(devicecomconfig).references(MDCDEVICECOMMCONFIG.name()).map("configuration").reverseMap("partialConnectionTasks").onDelete(CASCADE).composition().add();
             table.foreignKey("FK_MDCPARTIALCONNTASK_NEXTEX").on(nextexecutionspecs).references(MDCNEXTEXECUTIONSPEC.name()).onDelete(CASCADE).map("nextExecutionSpecs").add();
             table.foreignKey("FK_MDCPARTIALCONNTASK_INIT").on(initiator).references(MDCPARTIALCONNECTIONTASK.name()).map("initiator").add();
         }
@@ -377,7 +377,7 @@ public enum TableSpecs {
             Column partialconnectiontask = table.column("PARTIALCONNECTIONTASK").number().notNull().add();
             Column name = table.column("NAME").varChar(255).notNull().map("name").add();
             table.column("VALUE").varChar(4000).notNull().map("value").add();
-            table.foreignKey("FK_MDCPARTIALPROPS_TASK").on(partialconnectiontask).references(MDCPARTIALCONNECTIONTASK.name()).map("partialConnectionTask").reverseMap("properties").composition().add();
+            table.foreignKey("FK_MDCPARTIALPROPS_TASK").on(partialconnectiontask).references(MDCPARTIALCONNECTIONTASK.name()).map("partialConnectionTask").reverseMap("properties").onDelete(CASCADE).composition().add();
             table.primaryKey("PK_MDCPARTIALPROPS").on(partialconnectiontask,name).add();
         }
     },

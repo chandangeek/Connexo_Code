@@ -92,8 +92,6 @@ public class PartialOutboundConnectiontaskCrudIT {
     public final TestRule thereIsNOOOORuleNumber6 = new ExpectedConstraintViolationRule();
 
     @Mock
-    private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
-    @Mock
     MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     DeviceProtocol deviceProtocol;

@@ -28,23 +28,31 @@ public class RegisterSpecValidator implements ConstraintValidator<ValidRegisterS
         if (freshRegisterSpec.getNumberOfDigits()>registerSpec.getNumberOfDigits()) {
             valid=false;
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED+"}").addPropertyNode(RegisterSpecImpl.NUMBER_OF_DIGITS).addConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED+"}").
+                    addPropertyNode(RegisterSpecImpl.Fields.NUMBER_OF_DIGITS.fieldName()).
+                    addConstraintViolation();
         }
         if (freshRegisterSpec.getNumberOfFractionDigits()>registerSpec.getNumberOfFractionDigits()) {
             valid=false;
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED+"}").addPropertyNode(RegisterSpecImpl.NUMBER_OF_FRACTION_DIGITS).addConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED+"}").
+                    addPropertyNode(RegisterSpecImpl.Fields.NUMBER_OF_FRACTION_DIGITS.fieldName()).
+                    addConstraintViolation();
         }
         if (freshRegisterSpec.getDeviceConfiguration().isActive()) {
             if (freshRegisterSpec.getRegisterMapping().getId()!=registerSpec.getRegisterMapping().getId()) {
                 valid=false;
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG+"}").addPropertyNode(RegisterSpecImpl.REGISTER_MAPPING).addConstraintViolation();
+                context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG+"}").
+                        addPropertyNode(RegisterSpecImpl.Fields.REGISTER_MAPPING.fieldName()).
+                        addConstraintViolation();
             }
             if (!freshRegisterSpec.getMultiplier().equals(registerSpec.getMultiplier())) {
                 valid=false;
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG+"}").addPropertyNode(RegisterSpecImpl.MULTIPLIER).addConstraintViolation();
+                context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG+"}").
+                        addPropertyNode(RegisterSpecImpl.Fields.MULTIPLIER.fieldName()).
+                        addConstraintViolation();
             }
         }
         return valid;
