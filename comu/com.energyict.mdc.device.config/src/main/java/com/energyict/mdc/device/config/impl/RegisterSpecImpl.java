@@ -325,7 +325,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
                 registerSpec.setMultiplier(DEFAULT_MULTIPLIER);
             }
             if (this.registerSpec.getOverflowValue()==null) {
-                registerSpec.setOverflow(BigDecimal.valueOf(Math.round(Math.pow(10, registerSpec.getNumberOfDigits()))));
+                registerSpec.setOverflow(BigDecimal.TEN.pow(registerSpec.getNumberOfDigits()));
             }
         }
     }

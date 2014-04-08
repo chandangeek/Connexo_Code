@@ -136,6 +136,15 @@ public class RegisterSpecImplTest extends PersistenceTest {
 
     @Test
     @Transactional
+    public void createRegisterSpecTestOverflowDefaultIsAppliedLargeValue() {
+        // JP-2164
+        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(20).add();
+
+        assertThat(registerSpec.getOverflowValue()).isEqualTo(BigDecimal.TEN.pow(20));
+    }
+
+    @Test
+    @Transactional
     public void updateNumberOfDigitsRegisterSpecTest() {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
         int updatedNumberOfDigits = 18;
