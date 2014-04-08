@@ -705,6 +705,8 @@ public class DeviceImpl implements Device {
         private ScheduledConnectionTaskBuilderForDevice(Device device, PartialScheduledConnectionTask partialScheduledConnectionTask) {
             this.scheduledConnectionTask = scheduledConnectionTaskProvider.get();
             this.scheduledConnectionTask.initialize(device, (PartialOutboundConnectionTask) partialScheduledConnectionTask, partialScheduledConnectionTask.getComPortPool());
+            this.scheduledConnectionTask.setNextExecutionSpecsFrom(partialScheduledConnectionTask.getNextExecutionSpecs().getTemporalExpression());
+            this.scheduledConnectionTask.setConnectionStrategy(((PartialOutboundConnectionTask) partialScheduledConnectionTask).getConnectionStrategy());
         }
 
         @Override

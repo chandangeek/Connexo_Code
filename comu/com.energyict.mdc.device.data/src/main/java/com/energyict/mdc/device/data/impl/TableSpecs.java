@@ -172,7 +172,8 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             // Common columns
-            Column deviceId = table.column("RTU").number().conversion(NUMBER2LONG).add();
+            // Todo: change to FK and reference once Device (JP-1122) is properly moved to the mdc.device.data bundle
+            table.column("RTU").number().conversion(NUMBER2LONG).map("deviceId").add();
             Column connectionMethod = table.column("CONNECTIONMETHOD").number().add();
             table.column("MOD_DATE").type("DATE").map("modificationDate").add();
             table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map("obsoleteDate").add();
@@ -205,7 +206,6 @@ public enum TableSpecs {
             table.foreignKey("FK_MDCCONNTASK_INITIATOR").on(initiator).references(MDCCONNECTIONTASK.name()).map("initiationTask").add();
             table.foreignKey("FK_MDCCONNTASK_NEXTEXEC").on(nextExecutionSpecs).references(DeviceConfigurationService.COMPONENTNAME, "MDCNEXTEXECUTIONSPEC").map("nextExecutionSpecs").add();
             table.foreignKey("FK_MDCCONNTASK_PARTIAL").on(partialConnectionTaskColumn).references("DTC", "MDCPARTIALCONNECTIONTASK").map("partialConnectionTask").add();
-            table.foreignKey("FK_MDCCONNTASK_DEVICE").on(deviceId).references(EISRTU.name()).map("device").reverseMap("connectionTasks").composition().add();
         }
     };
 

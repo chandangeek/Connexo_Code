@@ -56,7 +56,7 @@ public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<Connectio
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
     private ConnectionTypePluggableClass pluggableClass;
-    private ConnectionTask connectionTask;
+    private Reference<ConnectionTask<?,?>> connectionTask = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
     private Reference<ComPortPool> comPortPool = ValueReference.absent();
 
@@ -69,7 +69,7 @@ public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<Connectio
     }
 
     public ConnectionMethodImpl initialize (ConnectionTask connectionTask, ConnectionTypePluggableClass pluggableClass, ComPortPool comPortPool) {
-        this.connectionTask = connectionTask;
+        this.connectionTask.set(connectionTask);
         this.setName(connectionTask.getName());
         this.pluggableClass = pluggableClass;
         this.setPluggableClassId(pluggableClass.getId());
@@ -169,7 +169,7 @@ public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<Connectio
     }
 
     public ConnectionTask getConnectionTask() {
-        return this.connectionTask;
+        return this.connectionTask.orNull();
     }
 
     @Override

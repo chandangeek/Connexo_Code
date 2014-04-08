@@ -81,6 +81,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
                     INBOUND_DISCRIMINATOR, InboundConnectionTaskImpl.class,
                     SCHEDULED_DISCRIMINATOR, ScheduledConnectionTaskImpl.class);
 
+    // Todo: remove once Device (JP-1122) is properly moved to the mdc.device.data bundle
+    private long deviceId;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_TASK_DEVICE_REQUIRED_KEY + "}")
     private Device device;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY + "}")
@@ -113,6 +115,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     public void initialize(Device device, PCTT partialConnectionTask, CPPT comPortPool) {
         this.device = device;
+        this.deviceId = device.getId();
         this.validatePartialConnectionTaskType(partialConnectionTask);
         this.validateConstraint(partialConnectionTask, device);
         /* Todo: wait for JP-1122 that will resurrect the getConfiguration method on Device
@@ -121,6 +124,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.partialConnectionTask.set(partialConnectionTask);
         this.comPortPool.set(comPortPool);
         this.connectionMethod.set(this.connectionMethodProvider.get().initialize(this, partialConnectionTask.getPluggableClass(), comPortPool));
+    }
+
+    @Override
+    public void postLoad() {
+        this.loadDevice();
     }
 
     private void validatePartialConnectionTaskType(PCTT partialConnectionTask) {
@@ -361,7 +369,14 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public Device getDevice() {
+        if (this.device == null) {
+            this.loadDevice();
+    }
         return this.device;
+    }
+
+    private void loadDevice() {
+        this.device = this.findDevice(this.deviceId);
     }
 
     @Override

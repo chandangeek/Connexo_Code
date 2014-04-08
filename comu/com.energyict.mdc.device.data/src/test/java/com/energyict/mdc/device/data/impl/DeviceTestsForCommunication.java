@@ -7,10 +7,14 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.NextExecutionSpecBuilder;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.NoParamsConnectionType;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -31,25 +35,30 @@ import static org.fest.assertions.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
 
-    private static final ComWindow COM_WINDOW = new ComWindow(3600, 7200);
+    private static final ComWindow COM_WINDOW = new ComWindow();
 
     private OutboundComPortPool outboundComPortPool;
     private ConnectionTypePluggableClass connectionTypePluggableClass;
-    private PartialOutboundConnectionTask partialOutboundConnectionTask;
+    private PartialScheduledConnectionTask partialOutboundConnectionTask;
+    private TimeDuration frequency = TimeDuration.hours(1);
 
     private DeviceConfiguration createDeviceConfigurationWithConnectionType() {
         DeviceType.DeviceConfigurationBuilder configurationWithConnectionType = deviceType.newConfiguration("ConfigurationWithRegisterMappings");
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
         DeviceCommunicationConfiguration communicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
         communicationConfiguration.save();
-        partialOutboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+        PartialOutboundConnectionTaskBuilder partialOutboundConnectionTaskBuilder = communicationConfiguration.createPartialOutboundConnectionTask()
                 .name("MyOutbound")
                 .comPortPool(outboundComPortPool)
                 .pluggableClass(connectionTypePluggableClass)
                 .comWindow(COM_WINDOW)
                 .rescheduleDelay(TimeDuration.seconds(60))
                 .connectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                .asDefault(true).build();
+                .asDefault(true);
+        NextExecutionSpecBuilder<PartialOutboundConnectionTaskBuilder> nextExecutionSpecBuilder = partialOutboundConnectionTaskBuilder.nextExecutionSpec();
+        nextExecutionSpecBuilder.temporalExpression(frequency);
+        nextExecutionSpecBuilder.set();
+        partialOutboundConnectionTask = partialOutboundConnectionTaskBuilder.build();
         communicationConfiguration.save();
         deviceType.save();
         return deviceConfiguration;
@@ -78,6 +87,20 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
         List<ConnectionTask<?, ?>> connectionTasks = reloadedDevice.getConnectionTasks();
 
         assertThat(connectionTasks).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void createDeviceWithScheduledConnectionTaskWithEverythingDefinedOnConfigurationTest() {
+        DeviceConfiguration deviceConfigurationWithConnectionType = createDeviceConfigurationWithConnectionType();
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithConnectionType, "DeviceWithoutConnectionTasks");
+        ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTaskBuilderFor(partialOutboundConnectionTask).add();
+        device.save();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        List<ConnectionTask<?, ?>> connectionTasks = reloadedDevice.getConnectionTasks();
+        assertThat(connectionTasks).hasSize(1);
+        assertThat(connectionTasks.get(0).getPartialConnectionTask().getId()).isEqualTo(partialOutboundConnectionTask.getId());
     }
 
 }
