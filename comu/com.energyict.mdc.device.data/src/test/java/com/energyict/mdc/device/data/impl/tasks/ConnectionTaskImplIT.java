@@ -95,17 +95,11 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected Device device;
     @Mock
     protected Device otherDevice;
-    @Mock
     protected PartialInboundConnectionTask partialInboundConnectionTask;
-    @Mock
     protected PartialInboundConnectionTask partialInboundConnectionTask2;
-    @Mock
     protected PartialOutboundConnectionTask partialScheduledConnectionTask;
-    @Mock
     protected PartialOutboundConnectionTask partialScheduledConnectionTask2;
-    @Mock
     protected PartialConnectionInitiationTask partialConnectionInitiationTask;
-    @Mock
     protected PartialConnectionInitiationTask partialConnectionInitiationTask2;
 
 

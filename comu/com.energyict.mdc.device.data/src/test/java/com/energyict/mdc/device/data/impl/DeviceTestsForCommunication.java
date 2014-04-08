@@ -7,16 +7,13 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.RegisterMapping;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.impl.ServerPartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.NoParamsConnectionType;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,14 +35,14 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
 
     private OutboundComPortPool outboundComPortPool;
     private ConnectionTypePluggableClass connectionTypePluggableClass;
-    private ServerPartialOutboundConnectionTask outboundConnectionTask;
+    private PartialOutboundConnectionTask partialOutboundConnectionTask;
 
     private DeviceConfiguration createDeviceConfigurationWithConnectionType() {
         DeviceType.DeviceConfigurationBuilder configurationWithConnectionType = deviceType.newConfiguration("ConfigurationWithRegisterMappings");
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
         DeviceCommunicationConfiguration communicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
         communicationConfiguration.save();
-        outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+        partialOutboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
                 .name("MyOutbound")
                 .comPortPool(outboundComPortPool)
                 .pluggableClass(connectionTypePluggableClass)
