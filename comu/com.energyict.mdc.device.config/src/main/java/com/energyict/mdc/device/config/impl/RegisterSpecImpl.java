@@ -29,16 +29,33 @@ import org.hibernate.validator.constraints.Range;
 @ValidRegisterSpec(groups = { Save.Update.class })
 public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implements RegisterSpec {
 
+    enum Fields {
+        REGISTER_MAPPING("registerMapping"),
+        NUMBER_OF_DIGITS("numberOfDigits"),
+        NUMBER_OF_FRACTION_DIGITS("numberOfFractionDigits"),
+        MULTIPLIER("multiplier");
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
+
     private final Reference<DeviceConfiguration> deviceConfig = ValueReference.absent();
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY + "}")
-    private final Reference<RegisterMapping> registerMapping = ValueReference.absent(); static final String REGISTER_MAPPING = "registerMapping";
+    private final Reference<RegisterMapping> registerMapping = ValueReference.absent();
     @Range(min = 1, max = 20, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS + "}")
-    private int numberOfDigits; static final String NUMBER_OF_DIGITS="numberOfDigits";
-    private int numberOfFractionDigits; static final String NUMBER_OF_FRACTION_DIGITS="numberOfFractionDigits";
+    private int numberOfDigits;
+    private int numberOfFractionDigits;
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
     private BigDecimal overflow;
-    private BigDecimal multiplier = BigDecimal.ONE; static final String MULTIPLIER="multiplier";
+    private BigDecimal multiplier = BigDecimal.ONE;
     private MultiplierMode multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
 
     private Date modificationDate;
