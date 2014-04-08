@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
@@ -55,7 +56,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -78,13 +78,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_EXTERNAL_KEY + "}")
-public class DeviceImpl implements Device {
+public class DeviceImpl implements Device, PersistenceAware {
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -114,10 +112,11 @@ public class DeviceImpl implements Device {
     @Valid
     private List<DeviceProtocolProperty> deviceProperties = new ArrayList<>();
     @Valid
-    private List<ConnectionTask<?,?>> connectionTasks = new ArrayList<>();
+    private List<ConnectionTask> connectionTasks = new ArrayList<>();
 
     private final Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
     private final Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
+
     @Inject
     public DeviceImpl(DataModel dataModel,
                       EventService eventService,
@@ -146,6 +145,13 @@ public class DeviceImpl implements Device {
         } else {
             Save.CREATE.save(dataModel, this);
             this.notifyCreated();
+        }
+        this.saveAllConnectionTasks();
+    }
+
+    private void saveAllConnectionTasks() {
+        for (ConnectionTask connectionTask : connectionTasks) {
+            connectionTask.save();
         }
     }
 
@@ -463,6 +469,15 @@ public class DeviceImpl implements Device {
         return new LogBookUpdaterForDevice((LogBookImpl) logBook);
     }
 
+    @Override
+    public void postLoad() {
+        loadConnectionTasks();
+    }
+
+    private void loadConnectionTasks() {
+        this.connectionTasks = this.deviceDataService.findConnectionTasksByDevice(this);
+    }
+
     class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
 
         protected LogBookUpdaterForDevice(LogBookImpl logBook) {
@@ -666,7 +681,7 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public List<ConnectionTask<?, ?>> getConnectionTasks() {
+    public List<ConnectionTask> getConnectionTasks() {
         return connectionTasks;
     }
 

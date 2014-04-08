@@ -84,23 +84,40 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<ConnectionTask<?, ?>> connectionTasks = reloadedDevice.getConnectionTasks();
+        List<ConnectionTask> connectionTasks = reloadedDevice.getConnectionTasks();
 
         assertThat(connectionTasks).isEmpty();
     }
 
     @Test
     @Transactional
-    public void createDeviceWithScheduledConnectionTaskWithEverythingDefinedOnConfigurationTest() {
+    public void createDeviceWithScheduledConnectionTaskTest() {
         DeviceConfiguration deviceConfigurationWithConnectionType = createDeviceConfigurationWithConnectionType();
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithConnectionType, "DeviceWithoutConnectionTasks");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithConnectionType, "DeviceWithConnectionTasks");
         ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTaskBuilderFor(partialOutboundConnectionTask).add();
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<ConnectionTask<?, ?>> connectionTasks = reloadedDevice.getConnectionTasks();
+        List<ConnectionTask> connectionTasks = reloadedDevice.getConnectionTasks();
         assertThat(connectionTasks).hasSize(1);
         assertThat(connectionTasks.get(0).getPartialConnectionTask().getId()).isEqualTo(partialOutboundConnectionTask.getId());
+        assertThat(connectionTasks.get(0).getId()).isEqualTo(scheduledConnectionTask.getId());
+    }
+
+    @Test
+    @Transactional
+    public void createScheduledConnectionTaskAfterDeviceCreationTest() {
+        DeviceConfiguration deviceConfigurationWithConnectionType = createDeviceConfigurationWithConnectionType();
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithConnectionType, "AddConnectionTasksAfterDeviceCreation");
+        device.save();
+        ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTaskBuilderFor(partialOutboundConnectionTask).add();
+        device.save();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        List<ConnectionTask> connectionTasks = reloadedDevice.getConnectionTasks();
+        assertThat(connectionTasks).hasSize(1);
+        assertThat(connectionTasks.get(0).getPartialConnectionTask().getId()).isEqualTo(partialOutboundConnectionTask.getId());
+        assertThat(connectionTasks.get(0).getId()).isEqualTo(scheduledConnectionTask.getId());
     }
 
 }

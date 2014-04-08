@@ -223,6 +223,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public void save() {
+        this.deviceId = device.getId();
         this.validateNotObsolete();
         this.modificationDate = this.now();
         this.getConnectionMethod().save();
