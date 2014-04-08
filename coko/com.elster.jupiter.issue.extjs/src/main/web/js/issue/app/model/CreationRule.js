@@ -56,7 +56,7 @@ Ext.define('Isu.model.CreationRule', {
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/creation/rules',
+        url: '/api/isu/creationrules',
         reader: {
             type: 'json',
             root: 'data'
