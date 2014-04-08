@@ -24,7 +24,7 @@ public interface ProtocolDialectConfigurationProperties extends HasName, HasId, 
      *
      * @return The DeviceCommunicationConfiguration
      */
-    public DeviceCommunicationConfiguration getDeviceCommunicationConfiguration();
+    public DeviceConfiguration getDeviceCommunicationConfiguration();
 
     /**
      * Gets the {@link com.energyict.mdc.protocol.api.DeviceProtocolDialect} for this ProtocolDialectConfigurationProperties.

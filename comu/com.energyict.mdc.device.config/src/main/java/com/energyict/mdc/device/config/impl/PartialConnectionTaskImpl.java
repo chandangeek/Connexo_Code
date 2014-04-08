@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -70,12 +71,11 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
 
     @Override
     protected void validateDelete () {
-        // TODO ConnectionTask bundle should listen for delete events on this and veto if any clients exist
     }
 
     @Override
-    public DeviceCommunicationConfiguration getConfiguration () {
-        return this.configuration.get();
+    public DeviceConfiguration getConfiguration () {
+        return this.configuration.get().getDeviceConfiguration();
     }
 
     @Override

@@ -10,7 +10,7 @@ import java.util.Set;
  * User: gde
  * Date: 5/11/12
  */
-public interface DeviceConfiguration extends HasId {
+public interface DeviceConfiguration extends HasId, DeviceCommunicationConfiguration {
 
 
     /**

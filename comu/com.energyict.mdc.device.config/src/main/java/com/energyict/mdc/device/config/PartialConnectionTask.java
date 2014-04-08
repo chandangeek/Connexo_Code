@@ -71,7 +71,7 @@ public interface PartialConnectionTask extends HasName, HasId {
      *
      * @return The DeviceConfiguration
      */
-    public DeviceCommunicationConfiguration getConfiguration ();
+    public DeviceConfiguration getConfiguration ();
 
     /**
      * Gets the {@link ConnectionType} that knows exactly how to connect

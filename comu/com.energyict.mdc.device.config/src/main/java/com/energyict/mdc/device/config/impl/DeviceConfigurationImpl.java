@@ -6,22 +6,29 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
-import com.energyict.mdc.device.config.DeviceCommunicationConfigurationFactory;
 import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
@@ -30,6 +37,7 @@ import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeExcept
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -92,13 +100,15 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private final Provider<RegisterSpecImpl> registerSpecProvider;
     private final Provider<LogBookSpecImpl> logBookSpecProvider;
     private final Provider<ChannelSpecImpl> channelSpecProvider;
+    private final DeviceConfigurationService deviceConfigurationService;
 
     @Inject
     protected DeviceConfigurationImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock,
                                       Provider<LoadProfileSpecImpl> loadProfileSpecProvider,
                                       Provider<RegisterSpecImpl> registerSpecProvider,
                                       Provider<LogBookSpecImpl> logBookSpecProvider,
-                                      Provider<ChannelSpecImpl> channelSpecProvider) {
+                                      Provider<ChannelSpecImpl> channelSpecProvider,
+                                      DeviceConfigurationService deviceConfigurationService) {
         super(DeviceConfiguration.class, dataModel, eventService, thesaurus);
         this.clock = clock;
 
@@ -106,6 +116,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.registerSpecProvider = registerSpecProvider;
         this.logBookSpecProvider = logBookSpecProvider;
         this.channelSpecProvider = channelSpecProvider;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     DeviceConfigurationImpl initialize(DeviceType deviceType, String name){
@@ -117,9 +128,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public DeviceCommunicationConfiguration getCommunicationConfiguration() {
         if (this.communicationConfiguration == null) {
-            List<DeviceCommunicationConfigurationFactory> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceCommunicationConfigurationFactory.class);
-            if (!modulesImplementing.isEmpty()) {
-                this.communicationConfiguration = modulesImplementing.get(0).findFor(this);
+            communicationConfiguration = deviceConfigurationService.findDeviceCommunicationConfigurationFor(this);
+            if (communicationConfiguration == null) {
+                communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(this);
+                communicationConfiguration.save();
             }
         }
         return this.communicationConfiguration;
@@ -695,5 +707,75 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             }
         }
         return false;
+    }
+
+    @Override
+    public DeviceConfiguration getDeviceConfiguration() {
+        return this;
+    }
+
+    @Override
+    public void remove(PartialConnectionTask partialConnectionTask) {
+        getCommunicationConfiguration().remove(partialConnectionTask);
+    }
+
+    @Override
+    public void setSupportsAllMessageCategories(boolean supportAllMessageCategories) {
+        getCommunicationConfiguration().setSupportsAllMessageCategories(supportAllMessageCategories);
+    }
+
+    @Override
+    public void addSecurityPropertySet(SecurityPropertySet securityPropertySet) {
+        getCommunicationConfiguration().addSecurityPropertySet(securityPropertySet);
+    }
+
+    @Override
+    public PartialOutboundConnectionTaskBuilder createPartialOutboundConnectionTask() {
+        return getCommunicationConfiguration().createPartialOutboundConnectionTask();
+    }
+
+    @Override
+    public PartialInboundConnectionTaskBuilder createPartialInboundConnectionTask() {
+        return getCommunicationConfiguration().createPartialInboundConnectionTask();
+    }
+
+    @Override
+    public PartialConnectionInitiationTaskBuilder createPartialConnectionInitiationTask() {
+        return getCommunicationConfiguration().createPartialConnectionInitiationTask();
+    }
+
+    @Override
+    public List<PartialConnectionTask> getPartialConnectionTasks() {
+        return getCommunicationConfiguration().getPartialConnectionTasks();
+    }
+
+    @Override
+    public List<PartialInboundConnectionTask> getPartialInboundConnectionTasks() {
+        return getCommunicationConfiguration().getPartialInboundConnectionTasks();
+    }
+
+    @Override
+    public List<PartialOutboundConnectionTaskImpl> getPartialOutboundConnectionTasks() {
+        return getCommunicationConfiguration().getPartialOutboundConnectionTasks();
+    }
+
+    @Override
+    public List<PartialConnectionInitiationTask> getPartialConnectionInitiationTasks() {
+        return getCommunicationConfiguration().getPartialConnectionInitiationTasks();
+    }
+
+    @Override
+    public void addPartialConnectionTask(PartialConnectionTask partialConnectionTask) {
+        getCommunicationConfiguration().addPartialConnectionTask(partialConnectionTask);
+    }
+
+    @Override
+    public ProtocolDialectConfigurationProperties createProtocolDialectConfigurationProperties(String name, DeviceProtocolDialect protocolDialect) {
+        return getCommunicationConfiguration().createProtocolDialectConfigurationProperties(name, protocolDialect);
+    }
+
+    @Override
+    public List<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationPropertiesList() {
+        return getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList();
     }
 }

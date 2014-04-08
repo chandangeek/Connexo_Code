@@ -306,7 +306,7 @@ public class PartialInboundConnectiontaskCrudIT {
         }
 
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceConfigurationService(communicationConfiguration.getId());
+            DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceCommunicationConfiguration(communicationConfiguration.getId());
             PartialInboundConnectionTask partialInboundConnectionTask = configuration.getPartialInboundConnectionTasks().get(0);
             partialInboundConnectionTask.setDefault(false);
             partialInboundConnectionTask.setComportPool(inboundComPortPool2);
@@ -359,7 +359,7 @@ public class PartialInboundConnectiontaskCrudIT {
         }
 
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceConfigurationService(communicationConfiguration.getId());
+            DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceCommunicationConfiguration(communicationConfiguration.getId());
             PartialInboundConnectionTask partialInboundConnectionTask = configuration.getPartialInboundConnectionTasks().get(0);
             configuration.remove(partialInboundConnectionTask);
             configuration.save();

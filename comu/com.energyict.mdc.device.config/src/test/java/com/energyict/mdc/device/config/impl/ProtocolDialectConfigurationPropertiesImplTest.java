@@ -240,7 +240,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             context.commit();
         }
 
-        DeviceCommunicationConfiguration communicationConfiguration = deviceConfigurationService.findDeviceConfigurationService(configuration.getId());
+        DeviceCommunicationConfiguration communicationConfiguration = deviceConfigurationService.findDeviceCommunicationConfiguration(configuration.getId());
         assertThat(communicationConfiguration).isNotNull();
         assertThat(communicationConfiguration.getProtocolDialectConfigurationPropertiesList()).isNotEmpty();
 

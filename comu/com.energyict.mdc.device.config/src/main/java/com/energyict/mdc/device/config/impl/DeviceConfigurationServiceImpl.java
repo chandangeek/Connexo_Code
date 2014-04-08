@@ -368,7 +368,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public DeviceCommunicationConfiguration findDeviceConfigurationService(long id) {
+    public DeviceCommunicationConfiguration findDeviceCommunicationConfiguration(long id) {
         return dataModel.mapper(DeviceCommunicationConfiguration.class).getOptional(id).orNull();
     }
 
