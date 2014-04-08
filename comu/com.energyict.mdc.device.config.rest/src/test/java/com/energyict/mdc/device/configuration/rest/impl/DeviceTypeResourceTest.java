@@ -59,18 +59,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Currency;
-import java.util.List;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -759,7 +747,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         Finder<RegisterMapping> registerMappingFinder = mockFinder(Arrays.asList(registerMapping101, registerMapping102, registerMapping103));
         when(deviceConfigurationService.findAllRegisterMappings()).thenReturn(registerMappingFinder);
 
-        Map response = target("/devicetypes/31/registertypes").queryParam("filter", ExtjsFilter.complexFilter().addProperty("available","true").create()).request().get(Map.class);
+        Map response = target("/devicetypes/31/registertypes").queryParam("filter", ExtjsFilter.filter().property("available","true").create()).request().get(Map.class);
         assertThat(response).hasSize(2);
         List registerTypes = (List) response.get("registerTypes");
         assertThat(registerTypes).hasSize(2);
@@ -792,7 +780,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         Finder<RegisterMapping> registerMappingFinder = mockFinder(Arrays.asList(registerMapping101, registerMapping102, registerMapping103));
         when(deviceConfigurationService.findAllRegisterMappings()).thenReturn(registerMappingFinder);
 
-        Map response = target("/devicetypes/31/registertypes").queryParam("filter", ExtjsFilter.complexFilter().addProperty("available","true").addProperty("deviceconfigurationid","41").create()).request().get(Map.class);
+        Map response = target("/devicetypes/31/registertypes").queryParam("filter", ExtjsFilter.filter().property("available","true").property("deviceconfigurationid","41").create()).request().get(Map.class);
         assertThat(response).hasSize(2);
         List registerTypes = (List) response.get("registerTypes");
         assertThat(registerTypes).hasSize(2);
