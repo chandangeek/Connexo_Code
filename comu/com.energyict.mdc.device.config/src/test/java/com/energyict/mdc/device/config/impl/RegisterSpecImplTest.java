@@ -138,13 +138,37 @@ public class RegisterSpecImplTest extends PersistenceTest {
     @Transactional
     public void updateNumberOfDigitsRegisterSpecTest() {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
-        int updatedNumberOfDigits = 98;
+        int updatedNumberOfDigits = 18;
 
         RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.setNumberOfDigits(updatedNumberOfDigits);
         registerSpecUpdater.update();
 
         assertThat(registerSpec.getNumberOfDigits()).isEqualTo(updatedNumberOfDigits);
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS+"}", property = RegisterSpecImpl.NUMBER_OF_DIGITS)
+    public void updateNumberOfDigitsRegisterSpecTooLargeTest() {
+        RegisterSpec registerSpec = createDefaultRegisterSpec();
+        int updatedNumberOfDigits = 98;
+
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        registerSpecUpdater.setNumberOfDigits(updatedNumberOfDigits);
+        registerSpecUpdater.update();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS+"}", property = RegisterSpecImpl.NUMBER_OF_DIGITS)
+    public void updateNumberOfDigitsRegisterSpecTooLowTest() {
+        RegisterSpec registerSpec = createDefaultRegisterSpec();
+        int updatedNumberOfDigits = -1;
+
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        registerSpecUpdater.setNumberOfDigits(updatedNumberOfDigits);
+        registerSpecUpdater.update();
     }
 
     @Test

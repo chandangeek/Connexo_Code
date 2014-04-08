@@ -55,7 +55,7 @@ public enum MessageSeeds implements MessageSeed {
     LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(5004, "logBookType.cannotUpdateObisCode", "The obis code of the log book type \"{0}\" cannot be updated because it is in use", Level.SEVERE),
     LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(5005, "logBookType.XstillInUseByLogBookSpecsY", "The log book type {0} cannot be deleted because it is still in use by the following log book spec(s): {1}", Level.SEVERE),
     LOG_BOOK_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(5006, "logBookType.XstillInUseByDeviceTypesY", "The log book type {0} cannot be deleted because it is still in use by the following device type(s): {1}", Level.SEVERE),
-    REGISTER_SPEC_NUMBER_OF_DIGITS_LARGER_THAN_ONE(6001, Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS, "Invalid number of digits. At least 1 digit is required", Level.SEVERE),
+    REGISTER_SPEC_NUMBER_OF_DIGITS_LARGER_THAN_ONE(6001, Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS, "Invalid number of digits. At least {min} digit is required, maximum is {max}", Level.SEVERE),
     REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED(6002, Constants.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED, "The number of digits can not be decreased", Level.SEVERE),
     REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED(6003, Constants.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY,"The register mapping of a register specification is required", Level.SEVERE),
     REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED(6004, Constants.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED, "The number of fraction digits can not be decreased", Level.SEVERE),
