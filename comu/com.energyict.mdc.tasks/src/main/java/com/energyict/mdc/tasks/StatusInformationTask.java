@@ -1,8 +1,7 @@
 package com.energyict.mdc.tasks;
 
-
 /**
- * Models the {@link com.energyict.mdc.tasks.ProtocolTask} to update the Status information of a Device.
+ * Models the ProtocolTask to update the Status information of a Device.
  *
  * @author gna
  * @since 19/04/12 - 16:17

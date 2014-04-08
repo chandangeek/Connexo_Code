@@ -10,10 +10,10 @@
         <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>mdc.task</artifactId>
+    <artifactId>mdc.tasks</artifactId>
     <packaging>bundle</packaging>
     <version>${comserver.version}</version>
-    <name>[MDC] mdc-task</name>
+    <name>[MDC] mdc-tasks</name>
     <description>
         Bundle providing TaskService to handle all ComTask and ProtocolTask related functionality
     </description>
