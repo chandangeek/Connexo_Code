@@ -83,10 +83,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_TASK_DEVICE_REQUIRED_KEY + "}")
     private Device device;
-    // Todo: remove once PartialConnectionTask (JP-809) is properly moved to the mdc.device.data bundle
-    private long partialConnectionTaskId;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY + "}")
-    private PCTT partialConnectionTask;
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY + "}")
+    private Reference<PCTT> partialConnectionTask = ValueReference.absent();
     private List<ComSession> comSessions;
     private ComSession lastComSession;
     private boolean isDefault = false;
@@ -120,15 +118,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         /* Todo: wait for JP-1122 that will resurrect the getConfiguration method on Device
         this.validateSameConfiguration(partialConnectionTask, device);
          */
-        this.partialConnectionTask = partialConnectionTask;
-        this.partialConnectionTaskId = partialConnectionTask.getId();
+        this.partialConnectionTask.set(partialConnectionTask);
         this.comPortPool.set(comPortPool);
         this.connectionMethod.set(this.connectionMethodProvider.get().initialize(this, partialConnectionTask.getPluggableClass(), comPortPool));
-    }
-
-    @Override
-    public void postLoad() {
-        this.loadPartialConnectionTask();
     }
 
     private void validatePartialConnectionTaskType(PCTT partialConnectionTask) {
@@ -385,14 +377,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public PCTT getPartialConnectionTask() {
-        if (this.partialConnectionTask == null) {
-            this.loadPartialConnectionTask();
-        }
-        return this.partialConnectionTask;
-    }
-
-    private void loadPartialConnectionTask() {
-        this.partialConnectionTask = this.findPartialConnectionTask(this.partialConnectionTaskId);
+        return this.partialConnectionTask.get();
     }
 
     @Override
