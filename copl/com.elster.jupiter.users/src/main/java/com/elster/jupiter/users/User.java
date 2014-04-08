@@ -15,6 +15,8 @@ public interface User extends Principal, HasName {
 
     boolean hasPrivilege(String privilege);
 
+    boolean hasPrivilege(Privilege privilege);
+
     boolean isMemberOf(String groupName);
 
     String getDescription();

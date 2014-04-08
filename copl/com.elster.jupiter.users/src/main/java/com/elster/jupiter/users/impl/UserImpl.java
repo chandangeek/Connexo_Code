@@ -87,6 +87,16 @@ public class UserImpl implements User {
     }
 
     @Override
+    public boolean hasPrivilege(Privilege privilege) {
+        for (Group each : getGroups()) {
+            if (each.hasPrivilege(privilege)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public String getName() {
         return authenticationName;
     }
