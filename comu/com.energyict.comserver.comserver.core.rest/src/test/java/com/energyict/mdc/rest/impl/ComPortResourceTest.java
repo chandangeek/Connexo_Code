@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
+import com.elster.jupiter.devtools.ExtjsFilter;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
@@ -20,9 +21,7 @@ import com.energyict.mdc.rest.impl.comserver.ComPortResource;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.UdpInboundComPortInfo;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -329,7 +328,7 @@ public class ComPortResourceTest extends JerseyTest {
     public void testGetOutboundComPortsWithFilter() throws Exception {
         setUpComPortFiltering();
 
-        final Map response = target(COMPORTS_RESOURCE_URL).queryParam("filter", filter("direction", "outbound")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        final Map response = target(COMPORTS_RESOURCE_URL).queryParam("filter", ExtjsFilter.filter("direction", "outbound")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).containsKey("ComPorts");
         List<Map<String, Object>> comPorts = (List) response.get("ComPorts");
         Map<String, Object> foundPort = comPorts.get(0);
@@ -340,7 +339,7 @@ public class ComPortResourceTest extends JerseyTest {
     public void testGetInboundComPortsWithFilter() throws Exception {
         setUpComPortFiltering();
 
-        final Map response = target(COMPORTS_RESOURCE_URL).queryParam("filter", filter("direction", "inbound")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        final Map response = target(COMPORTS_RESOURCE_URL).queryParam("filter", ExtjsFilter.filter("direction", "inbound")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).containsKey("ComPorts");
         List<Map<String, Object>> comPorts = (List) response.get("ComPorts");
         List<Integer> requiredIds = new ArrayList<>(Arrays.asList(10,11,12));
@@ -355,7 +354,7 @@ public class ComPortResourceTest extends JerseyTest {
     public void testGetComPortsWithComServerAFilter() throws Exception {
         setUpComPortFiltering();
 
-        final Map response = target(COMPORTS_RESOURCE_URL).queryParam("filter", filter("comserver_id", "16")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        final Map response = target(COMPORTS_RESOURCE_URL).queryParam("filter", ExtjsFilter.filter("comserver_id", "16")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).containsKey("ComPorts");
         List<Map<String, Object>> comPorts = (List) response.get("ComPorts");
         List<Integer> requiredIds = new ArrayList<>(Arrays.asList(12,11));
@@ -369,7 +368,7 @@ public class ComPortResourceTest extends JerseyTest {
     public void testGetComPortsWithComServerBFilter() throws Exception {
         setUpComPortFiltering();
 
-        final Map response = target(COMPORTS_RESOURCE_URL).queryParam("filter", filter("comserver_id", "61")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        final Map response = target(COMPORTS_RESOURCE_URL).queryParam("filter", ExtjsFilter.filter("comserver_id", "61")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).containsKey("ComPorts");
         List<Map<String, Object>> comPorts = (List) response.get("ComPorts");
         List<Integer> requiredIds = new ArrayList<>(Arrays.asList(13,10));
@@ -410,10 +409,6 @@ public class ComPortResourceTest extends JerseyTest {
         when(engineModelService.findComPortsByComServer(comServerB)).thenReturn(Arrays.<ComPort>asList(modemBasedInboundComPort, udpBasedInboundComPort));
         when(comServerA.getComPorts()).thenReturn(comPorts);
         when(comServerB.getComPorts()).thenReturn(comPorts);
-    }
-
-    private String filter(String property, String value) throws UnsupportedEncodingException {
-        return URLEncoder.encode(String.format("[{\"property\":\"%s\",\"value\":\"%s\"}]", property, value), "UTF-8");
     }
 
     private Map<String, Object> asMapValue(TimeDuration timeDuration) {

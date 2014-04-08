@@ -72,6 +72,11 @@
             <artifactId>mockito-all</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>devtools</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 
