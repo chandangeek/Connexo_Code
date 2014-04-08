@@ -7,9 +7,10 @@ import java.net.URLEncoder;
  * This helper class allows constructing a filter as it would be built by ExtJS
  */
 public class ExtjsFilter {
+    private static final String PROPERTY_VALUE_FORMAT = "{\"property\":\"%s\",\"value\":\"%s\"}";
 
     static public String filter(String property, String value) throws UnsupportedEncodingException {
-        return URLEncoder.encode(String.format("[{\"property\":\"%s\",\"value\":\"%s\"}]", property, value), "UTF-8");
+        return URLEncoder.encode(String.format("[" + PROPERTY_VALUE_FORMAT + "]", property, value), "UTF-8");
     }
 
     static public FilterBuilder complexFilter() {
@@ -17,14 +18,16 @@ public class ExtjsFilter {
     }
 
 
-    interface FilterBuilder {
-        FilterBuilder addProperty(String property, String value);
-        String create() throws UnsupportedEncodingException;
+    public interface FilterBuilder {
+        public FilterBuilder addProperty(String property, String value);
+        public String create() throws UnsupportedEncodingException;
     }
 
 
     private static class FilterBuilderImpl implements FilterBuilder {
+
         private final StringBuilder filter = new StringBuilder();
+        private String separator = "";
 
         private FilterBuilderImpl() {
             filter.append('[');
@@ -32,14 +35,17 @@ public class ExtjsFilter {
 
         @Override
         public FilterBuilder addProperty(String property, String value) {
-            filter.append(String.format("[{\"property\":\"%s\",\"value\":\"%s\"}]", property, value));
+            filter.append(String.format("%s" + PROPERTY_VALUE_FORMAT, separator, property, value));
+            separator=",";
             return this;
         }
 
         @Override
         public String create() throws UnsupportedEncodingException {
             filter.append(']');
-            return URLEncoder.encode(filter.toString(), "UTF-8");
+            String encodedFilter = URLEncoder.encode(filter.toString(), "UTF-8");
+            filter.delete(0,filter.length());
+            return encodedFilter;
         }
     }
 }
