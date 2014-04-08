@@ -3,15 +3,8 @@ package com.energyict.mdc.device.config.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdc.device.config.RegisterGroup;
-import com.energyict.mdc.device.config.RegisterMapping;
-import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.*;
+
 import java.util.List;
 
 /**
@@ -45,7 +38,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @return The CannotDeleteBecauseStillInUseException
      */
     public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUseByRegisterSpecs(Thesaurus thesaurus, RegisterMapping registerMapping, List<RegisterSpec> registerSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_REGISTER_SPEC, registerMapping.getDescription(), namesToStringListForRegisterSpecs(registerSpecs));
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_REGISTER_SPEC, registerMapping.getName(), namesToStringListForRegisterSpecs(registerSpecs));
     }
 
     /**
@@ -57,7 +50,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @return The CannotDeleteBecauseStillInUseException
      */
     public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUseByChannelSpecs(Thesaurus thesaurus, RegisterMapping registerMapping, List<ChannelSpec> channelSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_CHANNEL_SPEC, registerMapping.getDescription(), namesToStringListForChannelSpecs(channelSpecs));
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_CHANNEL_SPEC, registerMapping.getName(), namesToStringListForChannelSpecs(channelSpecs));
     }
 
     /**
@@ -69,7 +62,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @return The CannotDeleteBecauseStillInUseException
      */
     public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUseByLoadprofileTypes(Thesaurus thesaurus, RegisterMapping registerMapping, List<LoadProfileType> loadProfileTypes) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE, registerMapping.getDescription(), namesToStringListForLoadProfileTypes(loadProfileTypes));
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE, registerMapping.getName(), namesToStringListForLoadProfileTypes(loadProfileTypes));
     }
 
     /**
@@ -81,7 +74,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @return The CannotDeleteBecauseStillInUseException
      */
     public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUseByDeviceTypes(Thesaurus thesaurus, RegisterMapping registerMapping, List<DeviceType> deviceTypes) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_DEVICE_TYPE, registerMapping.getDescription(), namesToStringListForDeviceTypes(deviceTypes));
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_DEVICE_TYPE, registerMapping.getName(), namesToStringListForDeviceTypes(deviceTypes));
     }
 
     /**
