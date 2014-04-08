@@ -5,7 +5,6 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
@@ -40,13 +39,12 @@ public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundCom
     @Override
     protected UDPBasedInboundComPort.UDPBasedInboundComPortBuilder build(UDPBasedInboundComPort.UDPBasedInboundComPortBuilder builder, EngineModelService engineModelService) {
         return super.build(builder.
-                portNumber(portNumber).
-                bufferSize(bufferSize).
-                numberOfSimultaneousConnections(numberOfSimultaneousConnections), engineModelService);
+                bufferSize(bufferSize)
+                , engineModelService);
     }
 
     @Override
     protected UDPBasedInboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
-        return build(comServer.newUDPBasedInboundComPort(), engineModelService).add();
+        return build(comServer.newUDPBasedInboundComPort(this.name, this.numberOfSimultaneousConnections, this.portNumber), engineModelService).add();
     }
 }

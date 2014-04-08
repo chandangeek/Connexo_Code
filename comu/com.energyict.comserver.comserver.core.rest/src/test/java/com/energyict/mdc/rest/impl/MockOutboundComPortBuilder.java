@@ -6,16 +6,6 @@ import com.energyict.mdc.protocol.api.ComPortType;
 public class MockOutboundComPortBuilder implements OutboundComPort.OutboundComPortBuilder {
 
     @Override
-    public OutboundComPort.OutboundComPortBuilder numberOfSimultaneousConnections(int number) {
-        return this;
-    }
-
-    @Override
-    public OutboundComPort.OutboundComPortBuilder name(String name) {
-        return this;
-    }
-
-    @Override
     public OutboundComPort.OutboundComPortBuilder comPortType(ComPortType comPortType) {
         return this;
     }

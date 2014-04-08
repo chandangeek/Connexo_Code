@@ -22,6 +22,7 @@ import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.RemoteComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
+import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,6 +55,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -332,7 +334,7 @@ public class ComServerResourceTest extends JerseyTest {
         MockModemBasedComPortBuilder modemBasedComPortBuilder = new MockModemBasedComPortBuilder();
         ComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(serverSideComServer.newModemBasedInboundComport()).thenReturn(modemBasedComPortBuilder);
+        when(serverSideComServer.newModemBasedInboundComport(anyString(), anyInt(), anyInt(), (TimeDuration)anyObject(), (TimeDuration)anyObject(), (SerialPortConfiguration)anyObject())).thenReturn(modemBasedComPortBuilder);
         when(engineModelService.findComServer(comServer_id)).thenReturn(serverSideComServer);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         when(comPortPool.getId()).thenReturn(comPortPool_id);
@@ -365,9 +367,6 @@ public class ComServerResourceTest extends JerseyTest {
         verify(serverSideComServer).save();
 
         assertThat(modemBasedComPortBuilder.comPortPool).isEqualTo(comPortPool);
-        assertThat(modemBasedComPortBuilder.ringCount).isEqualTo(100);
-        assertThat(modemBasedComPortBuilder.maximumDialErrors).isEqualTo(101);
-        assertThat(modemBasedComPortBuilder.atCommandTimeout.getSeconds()).isEqualTo(2);
     }
 
     @Test
@@ -460,7 +459,7 @@ public class ComServerResourceTest extends JerseyTest {
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
         when(engineModelService.findComServer(comServer_id)).thenReturn(serverSideComServer);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(serverSideComServer.newOutboundComPort()).thenReturn(new MockOutboundComPortBuilder());
+        when(serverSideComServer.newOutboundComPort(anyString(), anyInt())).thenReturn(new MockOutboundComPortBuilder());
         when(serverSideComServer.getComPorts()).thenReturn(Arrays.asList(outboundComPortB, tcpBasedInboundComPort, outboundComPortA));
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
@@ -485,7 +484,7 @@ public class ComServerResourceTest extends JerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         verify(serverSideComServer).save();
-        verify(serverSideComServer).newOutboundComPort();
+        verify(serverSideComServer).newOutboundComPort(anyString(), anyInt());
         verify(serverSideComServer, never()).removeComPort(anyLong());
     }
 
@@ -519,7 +518,7 @@ public class ComServerResourceTest extends JerseyTest {
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
         when(engineModelService.findComServer(comServer_id)).thenReturn(serverSideComServer);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(serverSideComServer.newOutboundComPort()).thenReturn(new MockOutboundComPortBuilder());
+        when(serverSideComServer.newOutboundComPort(anyString(), anyInt())).thenReturn(new MockOutboundComPortBuilder());
         when(serverSideComServer.getComPorts()).thenReturn(Arrays.asList(outboundComPortB, tcpBasedInboundComPort, outboundComPortA));
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
@@ -544,7 +543,7 @@ public class ComServerResourceTest extends JerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         verify(serverSideComServer).save();
-        verify(serverSideComServer).newOutboundComPort();
+        verify(serverSideComServer).newOutboundComPort(anyString(), anyInt());
         verify(serverSideComServer, times(1)).removeComPort(outboundComPortA_id);
     }
 

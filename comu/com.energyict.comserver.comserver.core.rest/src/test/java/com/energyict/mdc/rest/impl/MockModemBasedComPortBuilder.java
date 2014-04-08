@@ -65,12 +65,6 @@ public class MockModemBasedComPortBuilder implements ModemBasedInboundComPort.Mo
     }
 
     @Override
-    public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder name(String name) {
-        this.name = name;
-        return this;
-    }
-
-    @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder active(boolean active) {
         this.active = active;
         return this;

@@ -6,7 +6,6 @@ import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,18 +45,10 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
         super.writeTo(source,engineModelService);
         source.setRingCount(this.ringCount);
         source.setMaximumDialErrors(this.maximumNumberOfDialErrors);
-        if (this.connectTimeout!=null) {
-            source.setConnectTimeout(this.connectTimeout.asTimeDuration());
-        }
-        if (this.delayAfterConnect!=null) {
-            source.setDelayAfterConnect(this.delayAfterConnect.asTimeDuration());
-        }
-        if (this.delayBeforeSend!=null) {
-            source.setDelayBeforeSend(this.delayBeforeSend.asTimeDuration());
-        }
-        if (this.atCommandTimeout!=null) {
-            source.setAtCommandTimeout(this.atCommandTimeout.asTimeDuration());
-        }
+        source.setConnectTimeout(this.connectTimeout!=null?this.connectTimeout.asTimeDuration():null);
+        source.setDelayAfterConnect(this.delayAfterConnect!=null?this.delayAfterConnect.asTimeDuration():null);
+        source.setDelayBeforeSend(this.delayBeforeSend!=null?this.delayBeforeSend.asTimeDuration():null);
+        source.setAtCommandTimeout(this.atCommandTimeout!=null?this.atCommandTimeout.asTimeDuration():null);
         source.setAtCommandTry(this.atCommandTry);
         source.setModemInitStrings(fromMaps(MAP_KEY,this.modemInitStrings));
         source.setAddressSelector(this.addressSelector);
@@ -74,37 +65,34 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
     @Override
     protected ModemBasedInboundComPort.ModemBasedInboundComPortBuilder build(ModemBasedInboundComPort.ModemBasedInboundComPortBuilder builder, EngineModelService engineModelService) {
         super.build(builder, engineModelService);
-        builder.ringCount(this.ringCount);
-        builder.maximumDialErrors(this.maximumNumberOfDialErrors);
-        if (this.connectTimeout!=null) {
-            builder.connectTimeout(this.connectTimeout.asTimeDuration());
-        }
         if (this.delayAfterConnect!=null) {
             builder.delayAfterConnect(this.delayAfterConnect.asTimeDuration());
         }
         if (this.delayBeforeSend!=null) {
             builder.delayBeforeSend(this.delayBeforeSend.asTimeDuration());
         }
-        if (this.atCommandTimeout!=null) {
-            builder.atCommandTimeout(this.atCommandTimeout.asTimeDuration());
-        }
         builder.atCommandTry(this.atCommandTry);
         builder.atModemInitStrings(fromMaps(MAP_KEY, this.modemInitStrings));
         builder.addressSelector(this.addressSelector);
         builder.postDialCommands(this.postDialCommands);
-        builder.serialPortConfiguration(new SerialPortConfiguration(
-                this.name,
-                this.baudrate,
-                this.nrOfDataBits,
-                this.nrOfStopBits,
-                this.parity,
-                this.flowControl));
         return super.build(builder, engineModelService);
     }
 
     @Override
     protected ModemBasedInboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
-        return build(comServer.newModemBasedInboundComport(), engineModelService).add();
+        return build(comServer.newModemBasedInboundComport(
+                this.name,
+                this.ringCount,
+                this.maximumNumberOfDialErrors,
+                this.connectTimeout!=null?this.connectTimeout.asTimeDuration():null,
+                this.atCommandTimeout!=null?this.atCommandTimeout.asTimeDuration():null,
+                new SerialPortConfiguration(
+                    this.name,
+                    this.baudrate,
+                    this.nrOfDataBits,
+                    this.nrOfStopBits,
+                    this.parity,
+                    this.flowControl)), engineModelService).add();
     }
 
     private List<Map<String, String>> asMap(String key, List<String> strings) {

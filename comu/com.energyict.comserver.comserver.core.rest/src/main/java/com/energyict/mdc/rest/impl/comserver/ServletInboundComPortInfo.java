@@ -42,14 +42,12 @@ public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedIn
                 keyStoreSpecsFilePath(keyStoreFilePath).
                 keyStoreSpecsPassword(keyStorePassword).
                 trustStoreSpecsFilePath(trustStoreFilePath).
-                trustStoreSpecsPassword(trustStorePassword).
-                portNumber(portNumber).
-                contextPath(contextPath).
-                numberOfSimultaneousConnections(numberOfSimultaneousConnections), engineModelService);
+                trustStoreSpecsPassword(trustStorePassword)
+                , engineModelService);
     }
 
     @Override
     protected ServletBasedInboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
-        return build(comServer.newServletBasedInboundComPort(), engineModelService).add();
+        return build(comServer.newServletBasedInboundComPort(this.name, this.contextPath, this.numberOfSimultaneousConnections, this.portNumber), engineModelService).add();
     }
 }

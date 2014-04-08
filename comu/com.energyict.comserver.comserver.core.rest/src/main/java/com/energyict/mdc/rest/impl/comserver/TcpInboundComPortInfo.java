@@ -23,11 +23,11 @@ public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundCom
 
     @Override
     protected TCPBasedInboundComPort.TCPBasedInboundComPortBuilder build(TCPBasedInboundComPort.TCPBasedInboundComPortBuilder builder, EngineModelService engineModelService) {
-        return super.build(builder.portNumber(portNumber).numberOfSimultaneousConnections(numberOfSimultaneousConnections), engineModelService);
+        return super.build(builder, engineModelService);
     }
 
     @Override
     protected TCPBasedInboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
-        return build(comServer.newTCPBasedInboundComPort(), engineModelService).add();
+        return build(comServer.newTCPBasedInboundComPort(this.name, this.numberOfSimultaneousConnections, this.portNumber), engineModelService).add();
     }
 }
