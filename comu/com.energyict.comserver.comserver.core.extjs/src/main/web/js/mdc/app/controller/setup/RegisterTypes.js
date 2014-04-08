@@ -89,8 +89,33 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
     onStoreLoad: function () {
         var widget = this.getRegisterTypeEditForm();
-        if (this.getReadingTypesStore().getCount() === 1) {
-            widget.down('#editMrIdField').setValue(this.getReadingTypesStore().first().get('mrid'));
+        var me = this;
+        if (me.getReadingTypesStore().getCount() === 1) {
+            if (widget.down('#editMrIdField').getValue() != '') {
+                if (me.getReadingTypesStore().first().get('mrid') !== widget.down('#editMrIdField').getValue()) {
+                    Ext.MessageBox.show({
+                        msg: Uni.I18n.translate('registerType.changeReadingType', 'MDC', 'Do you want to change the readingtype with this new readingtype {0}?', [me.getReadingTypesStore().first().get('mrid')]),
+                        title: Uni.I18n.translate('general.changeReadingType', 'MDC', 'Change readingtype') + ' ' + widget.down('#editMrIdField').getValue(),
+                        config: {
+                            widget: widget,
+                            newReadingType: me.getReadingTypesStore().first().get('mrid')
+                        },
+                        buttons: Ext.MessageBox.YESNO,
+                        fn: me.changeReadingType,
+                        icon: Ext.MessageBox.QUESTION
+                    });
+                }
+            } else {
+                widget.down('#editMrIdField').setValue(me.getReadingTypesStore().first().get('mrid'));
+            }
+        }
+    },
+
+    changeReadingType: function (btn, text, opt) {
+        if (btn === 'yes') {
+            var widget = opt.config.widget;
+            var newReadingType = opt.config.newReadingType;
+            widget.down('#editMrIdField').setValue(newReadingType);
         }
     },
 
@@ -412,9 +437,9 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var widget = this.getRegisterTypeEditForm();
         var obisCode = widget.down('#editObisCodeField').getValue();
         var measurementUnit = widget.down('#measurementUnitComboBox').getValue();
-        var mrId = widget.down('#editMrIdField').getValue();
+        //var mrId = widget.down('#editMrIdField').getValue();
 
-        if (obisCode !== '' && measurementUnit !== null && mrId === '') {
+        if (obisCode !== '' && measurementUnit !== null) {
             this.getReadingTypesStore().clearFilter();
             this.getReadingTypesStore().filter([
                 {property: 'obisCode', value: obisCode},
@@ -423,7 +448,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         }
         widget.down('#editMrIdField').setDisabled(false);
         widget.down('#editMrIdField').setReadOnly(false);
-
     }
 
 
