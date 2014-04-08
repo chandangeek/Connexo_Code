@@ -37,6 +37,9 @@ $button-small-font-family: 'Lato', helvetica, arial, verdana, sans-serif !defaul
 $button-medium-font-family: $button-small-font-family !default;
 $button-large-font-family: $button-small-font-family !default;
 
+// Toolbar Button
+@import "Toolbarbutton";
+
 // Delete Button
 @import "DeleteButton";
 
