@@ -158,8 +158,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ record.get('id') +'/edit';
     },
 
-    editDeviceConfigurationHistoryFromPreview: function(record){
-           location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ this.getDeviceConfigurationsGrid().getSelectionModel()[0].get('id') +'/edit';
+    editDeviceConfigurationHistoryFromPreview: function(){
+        location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0].get('id') +'/edit';
        },
 
     editDeviceConfigurationFromDetailsHistory: function(){
