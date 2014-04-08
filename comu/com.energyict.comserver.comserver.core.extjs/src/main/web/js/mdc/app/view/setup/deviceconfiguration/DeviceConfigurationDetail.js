@@ -50,7 +50,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                         text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
                                         itemId: 'activateDeactivateDeviceConfiguration',
                                         action: 'activateDeactivateDeviceConfiguration'
-
                                     },
                                     {
                                         xtype: 'menuseparator'
@@ -60,7 +59,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                         text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                         itemId: 'editDeviceConfiguration',
                                         action: 'editDeviceConfiguration'
-
                                     },
                                     {
                                         xtype: 'menuseparator'
@@ -69,9 +67,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                         text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
                                         itemId: 'deleteDeviceConfiguration',
                                         action: 'deleteDeviceConfiguration'
-
-                                    },
-
+                                    }
                                 ]
                             }
                         }
@@ -191,7 +187,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                                     autoEl: {
                                                         tag: 'a',
                                                         href: '#',
-                                                        html: Uni.I18n.translate('deviceconfiguration.registers', 'MDC', 'registers')
+                                                        html: Uni.I18n.translate('deviceconfig.registerconfigs', 'MDC', 'register configurations')
                                                     },
                                                     itemId: 'deviceConfigurationDetailRegistersLink'
                                                 },
