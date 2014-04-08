@@ -141,7 +141,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             }
             templateField.getStore().on('load', function () {
                 templateField.setValue(data.template.uid);
-            }, self, {single:true});
+            }, self, {single: true});
         });
         dueinNumberField.setValue(data.duein.number);
         dueinTypeField.setValue(data.duein.type);
@@ -261,11 +261,11 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
     },
 
     createRule: function () {
-        ruleAction('create');
+        this.ruleAction('create');
     },
 
     editRule: function () {
-        ruleAction('edit');
+        this.ruleAction('edit');
     },
 
     ruleAction: function (type) {
