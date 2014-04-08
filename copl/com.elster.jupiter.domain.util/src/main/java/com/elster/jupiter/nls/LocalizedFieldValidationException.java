@@ -13,7 +13,7 @@ public class LocalizedFieldValidationException extends LocalizedException {
         this.set(VIOLATING_PROPERTY_NAME, javaFieldName);
     }
 
-    protected LocalizedFieldValidationException(Thesaurus thesaurus, MessageSeed messageSeed, String javaFieldName, Object... args) {
+    public LocalizedFieldValidationException(Thesaurus thesaurus, MessageSeed messageSeed, String javaFieldName, Object... args) {
         super(thesaurus, messageSeed, args);
         this.set(VIOLATING_PROPERTY_NAME, javaFieldName);
     }
