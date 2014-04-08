@@ -119,8 +119,15 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    public void createRegisterSpecTestMultiplierDefaultToOne() {
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS+"}", property = "numberOfFractionDigits")
+    public void createRegisterSpecNoFractionDigits() {
         RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(1).add();
+    }
+
+    @Test
+    @Transactional
+    public void createRegisterSpecTestMultiplierDefaultToOne() {
+        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(1).setNumberOfFractionDigits(0).add();
 
         assertThat(registerSpec.getRegisterMapping()).isEqualTo(registerMapping);
         assertThat(registerSpec.getMultiplier()).isEqualTo(BigDecimal.ONE);
@@ -130,16 +137,25 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Test
     @Transactional
     public void createRegisterSpecTestOverflowDefaultIsApplied() {
-        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(5).add();
+        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(5).setNumberOfFractionDigits(0).add();
 
         assertThat(registerSpec.getOverflowValue()).isEqualTo(BigDecimal.valueOf(100000));
     }
 
     @Test
     @Transactional
+    public void createRegisterSpecTestOverflowDefaultIsAppliedLargeValue() {
+        // JP-2164
+        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(20).setNumberOfFractionDigits(0).add();
+
+        assertThat(registerSpec.getOverflowValue()).isEqualTo(BigDecimal.TEN.pow(20));
+    }
+
+    @Test
+    @Transactional
     public void updateNumberOfDigitsRegisterSpecTest() {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
-        int updatedNumberOfDigits = 98;
+        int updatedNumberOfDigits = 18;
 
         RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.setNumberOfDigits(updatedNumberOfDigits);
@@ -150,7 +166,19 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS+"}", property = RegisterSpecImpl.NUMBER_OF_DIGITS, strict = false)
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS+"}", property = "numberOfDigits")
+    public void updateNumberOfDigitsRegisterSpecTooLargeTest() {
+        RegisterSpec registerSpec = createDefaultRegisterSpec();
+        int updatedNumberOfDigits = 98;
+
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        registerSpecUpdater.setNumberOfDigits(updatedNumberOfDigits);
+        registerSpecUpdater.update();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS+"}", property = "numberOfDigits", strict = false)
     public void setNegativeNumberOfDigitsTest() {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
         int updatedNumberOfDigits = -1;
@@ -408,7 +436,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED+"}", property = RegisterSpecImpl.NUMBER_OF_DIGITS)
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED+"}", property = "numberOfDigits")
     public void testDecreaseNumberOfDigits() throws Exception {
         RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
         registerSpec.setNumberOfDigits(8); // decreased!!
@@ -417,7 +445,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED+"}", property = RegisterSpecImpl.NUMBER_OF_FRACTION_DIGITS)
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED+"}", property = "numberOfFractionDigits")
     public void testDecreaseNumberOfFractionDigits() throws Exception {
         RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
         registerSpec.setNumberOfFractionDigits(1); // decreased!!
@@ -426,7 +454,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG+"}", property = RegisterSpecImpl.MULTIPLIER)
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG+"}", property = "multiplier")
     public void testUpdateMultiplierForActiveConfig() throws Exception {
         RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
         deviceConfiguration.activate();
@@ -437,7 +465,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG+"}", property = RegisterSpecImpl.REGISTER_MAPPING)
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG+"}", property = "registerMapping")
     public void testUpdateRegisterMappingForActiveConfig() throws Exception {
         RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
         deviceConfiguration.activate();
