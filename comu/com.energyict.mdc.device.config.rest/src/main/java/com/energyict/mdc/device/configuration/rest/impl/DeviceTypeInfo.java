@@ -3,15 +3,16 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import org.codehaus.jackson.annotate.JsonProperty;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 @XmlRootElement
 public class DeviceTypeInfo {
-    public static final String COMMUNICATION_PROTOCOL_NAME = "communicationProtocolName";
+    @JsonIgnore
+    static final String COMMUNICATION_PROTOCOL_NAME = "communicationProtocolName";
 
     @JsonProperty("id")
     public long id;

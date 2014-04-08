@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -8,7 +10,14 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
-
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.google.common.base.Optional;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -24,23 +33,22 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
     private final ResourceHelper resourceHelper;
     private final DeviceConfigurationService deviceConfigurationService;
     private final Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider;
+    private final ProtocolPluggableService protocolPluggableService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceTypeResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider) {
+    public DeviceTypeResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider, ProtocolPluggableService protocolPluggableService, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceConfigurationResourceProvider = deviceConfigurationResourceProvider;
+        this.protocolPluggableService = protocolPluggableService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -66,7 +74,11 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
-        DeviceType deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name, deviceTypeInfo.communicationProtocolName);
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceTypeInfo.communicationProtocolName);
+        if (!deviceProtocolPluggableClass.isPresent()) {
+            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.PROTOCOL_INVALID_NAME, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME, "name", deviceTypeInfo.communicationProtocolName);
+        }
+        DeviceType deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name, deviceProtocolPluggableClass.get());
         deviceType.save();
         return DeviceTypeInfo.from(deviceType);
     }

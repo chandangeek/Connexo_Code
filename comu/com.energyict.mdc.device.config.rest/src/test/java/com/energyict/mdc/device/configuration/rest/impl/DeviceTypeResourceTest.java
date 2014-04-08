@@ -34,6 +34,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.google.common.base.Optional;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -75,12 +76,14 @@ public class DeviceTypeResourceTest extends JerseyTest {
     private static DeviceConfigurationService deviceConfigurationService;
     private static ProtocolPluggableService protocolPluggableService;
     private static NlsService nlsService;
+    private static Thesaurus thesaurus;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         deviceConfigurationService = mock(DeviceConfigurationService.class);
         protocolPluggableService = mock(ProtocolPluggableService.class);
         nlsService = mock(NlsService.class);
+        thesaurus = mock(Thesaurus.class);
     }
 
     @Override
@@ -104,6 +107,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
                 bind(nlsService).to(NlsService.class);
                 bind(ResourceHelper.class).to(ResourceHelper.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+                bind(thesaurus).to(Thesaurus.class);
             }
         });
         return resourceConfig;
@@ -140,6 +144,40 @@ public class DeviceTypeResourceTest extends JerseyTest {
         Map<String, Object> map = target("/devicetypes/").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(4);
         assertThat((List)map.get("deviceTypes")).hasSize(4);
+    }
+
+    @Test
+    public void testCreateDeviceTypeNonExistingProtocol() throws Exception {
+        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
+        deviceTypeInfo.name="newName";
+        deviceTypeInfo.communicationProtocolName="theProtocol";
+        Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
+
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = Optional.absent();
+        when(protocolPluggableService.findDeviceProtocolPluggableClassByName("theProtocol")).thenReturn(deviceProtocolPluggableClass);
+        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
+        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
+        Response response = target("/devicetypes/").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testCreateDeviceType() throws Exception {
+        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
+        deviceTypeInfo.name="newName";
+        deviceTypeInfo.communicationProtocolName="theProtocol";
+        Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
+
+        DeviceProtocolPluggableClass protocol = mock(DeviceProtocolPluggableClass.class);
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = Optional.of(protocol);
+        when(protocolPluggableService.findDeviceProtocolPluggableClassByName("theProtocol")).thenReturn(deviceProtocolPluggableClass);
+        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
+        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceConfigurationService.newDeviceType("newName", protocol)).thenReturn(deviceType);
+
+        Response response = target("/devicetypes/").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test

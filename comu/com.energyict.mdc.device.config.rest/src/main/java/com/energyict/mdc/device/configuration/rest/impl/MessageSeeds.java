@@ -5,7 +5,8 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    INVALID_VALUE(1, "DCR.InvalidValue", "Invalid value", Level.SEVERE);
+    INVALID_VALUE(1, "DCR.InvalidValue", "Invalid value", Level.SEVERE),
+    PROTOCOL_INVALID_NAME(2,"DCR.deviceType.no.such.protocol", "A protocol with name {0} does not exist",Level.SEVERE);
 
     public static final String COMPONENT_NAME = "DCR";
 
