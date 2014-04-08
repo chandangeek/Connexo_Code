@@ -10,13 +10,15 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
     requires: [
         'Mdc.store.RegisterConfigsOfDeviceConfig',
+        'Mdc.store.AvailableRegisterTypesForDeviceConfiguration',
         'Mdc.store.RegisterTypesOfDevicetype',
         'Uni.model.BreadcrumbItem'
     ],
 
     stores: [
         'RegisterConfigsOfDeviceConfig',
-        'RegisterTypesOfDevicetype'
+        'RegisterTypesOfDevicetype',
+        'AvailableRegisterTypesForDeviceConfiguration'
     ],
 
     refs: [
@@ -133,8 +135,16 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         var me = this;
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigId = deviceConfigId;
-        var registerTypesOfDevicetypeStore = Ext.data.StoreManager.lookup('RegisterTypesOfDevicetype')
+        var registerTypesOfDevicetypeStore = Ext.data.StoreManager.lookup('AvailableRegisterTypesForDeviceConfiguration');
+
         registerTypesOfDevicetypeStore.getProxy().setExtraParam('deviceType', deviceTypeId);
+        registerTypesOfDevicetypeStore.getProxy().setExtraParam('filter',Ext.encode([{
+            property:'available',
+            value:true
+        },{
+            property:'deviceconfigurationid',
+            value: this.deviceConfigId
+        }]));
 
         registerTypesOfDevicetypeStore.load({
             callback: function (store) {

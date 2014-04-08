@@ -27,6 +27,11 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
         },
     initComponent: function () {
         var me = this;
+        var store = Ext.data.StoreManager.lookup('AvailableRegisterTypes');
+        store.getProxy().setExtraParam('filter',Ext.encode([{
+            property:'available',
+            value:true
+        }]));
         this.columns = [
             {
                 header: Uni.I18n.translate('registerMappings.name', 'MDC', 'Name'),
