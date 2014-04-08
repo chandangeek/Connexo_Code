@@ -281,8 +281,14 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         if (record) {
             record.set(values);
             record.save({
-                callback: function (record) {
+                success: function (record) {
                     location.href = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        me.getDeviceTypeEditForm().getForm().markInvalid(json.errors);
+                    }
                 }
             });
 
