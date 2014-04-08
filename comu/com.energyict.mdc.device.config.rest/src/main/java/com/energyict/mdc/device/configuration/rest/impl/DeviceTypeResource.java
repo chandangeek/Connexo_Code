@@ -3,19 +3,23 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
@@ -29,7 +33,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -130,24 +133,48 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON)
-    public PagedInfoList getRegisterMappingsForDeviceType(@PathParam("id") long id, @QueryParam("available") String available, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getRegisterMappingsForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter availableFilter) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-
+        String available = availableFilter.getFilterProperties().get("available");
         final List<RegisterMapping> registerMappings = new ArrayList<>();
         if (available == null || !Boolean.parseBoolean(available)) {
             registerMappings.addAll(ListPager.of(deviceType.getRegisterMappings(), new RegisterTypeComparator()).from(queryParameters).find());
         } else {
-            Set<Long> deviceTypeRegisterMappingIds = asIds(deviceType.getRegisterMappings());
-            for (RegisterMapping registerMapping : this.deviceConfigurationService.findAllRegisterMappings().from(queryParameters).find()) {
-                if (!deviceTypeRegisterMappingIds.contains(registerMapping.getId())) {
-                    registerMappings.add(registerMapping);
-                }
+            String deviceConfiguationIdString = availableFilter.getFilterProperties().get("deviceconfigurationid");
+            if(deviceConfiguationIdString!=null){
+                findAllAvailableRegisterMappingsForDeviceConfiguration(deviceType, registerMappings, deviceConfiguationIdString);
+            } else {
+                findAllAvailableRegisterMappingsForDeviceType(queryParameters, deviceType, registerMappings);
+            }
+
+        }
+        List<RegisterMappingInfo> registerMappingInfos = asInfoList(deviceType, registerMappings);
+        return PagedInfoList.asJson("registerTypes", registerMappingInfos, queryParameters);
+    }
+
+    private void findAllAvailableRegisterMappingsForDeviceType(QueryParameters queryParameters, DeviceType deviceType, List<RegisterMapping> registerMappings) {
+        Set<Long> deviceTypeRegisterMappingIds = asIds(deviceType.getRegisterMappings());
+        for (RegisterMapping registerMapping : this.deviceConfigurationService.findAllRegisterMappings().from(queryParameters).find()) {
+            if (!deviceTypeRegisterMappingIds.contains(registerMapping.getId())) {
+                registerMappings.add(registerMapping);
             }
         }
+    }
 
-        List<RegisterMappingInfo> registerMappingInfos = asInfoList(deviceType, registerMappings);
-
-        return PagedInfoList.asJson("registerTypes", registerMappingInfos, queryParameters);
+    private void findAllAvailableRegisterMappingsForDeviceConfiguration(DeviceType deviceType, List<RegisterMapping> registerMappings, String deviceConfiguationIdString) {
+        int deviceConfigurationId = Integer.parseInt(deviceConfiguationIdString);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType ,deviceConfigurationId);
+        registerMappings.addAll(deviceType.getRegisterMappings());
+        Set<Long> unavailableRegisterMappingIds = new HashSet<>();
+        for(RegisterSpec registerSpec: deviceConfiguration.getRegisterSpecs()){
+            unavailableRegisterMappingIds.add(registerSpec.getRegisterMapping().getId());
+        }
+        for (Iterator<RegisterMapping> iterator = registerMappings.iterator(); iterator.hasNext(); ) {
+            RegisterMapping next =  iterator.next();
+            if(unavailableRegisterMappingIds.contains(next.getId())){
+                iterator.remove();
+            }
+        }
     }
 
     @POST
