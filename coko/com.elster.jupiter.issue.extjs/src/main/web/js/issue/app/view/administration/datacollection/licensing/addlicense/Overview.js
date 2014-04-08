@@ -1,7 +1,8 @@
 Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
-        'Uni.view.navigation.SubMenu'
+        'Uni.view.navigation.SubMenu',
+        'Ext.form.field.File'
     ],
     alias: 'widget.add-license-overview',
 
@@ -18,75 +19,73 @@ Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview
             items: [
                 {
                     html: '<h1>Add license</h1>',
-                    margin: '0 0 20 0'
+                    margin: '0 0 10 0'
                 },
                 {
-                    border: false,
+                    xtype: 'form',
                     layout: 'hbox',
+                    buttonAlign: 'left',
                     items: [
                         {
-                            xtype: 'form',
-                            width: 600,
-                            layout: 'anchor',
+                            xtype: 'filefield',
+                            fieldLabel: 'License file',
+                            emptyText: 'Choose license file *.lic',
+                            text: 'Browse...',
+                            msgTarget: 'side',
+                            vtype: 'fileUpload',
+                            margin: 10
+                        }
+                    ],
+                    dockedItems: [
+                        {
+                            xtype: 'toolbar',
+                            dock: 'bottom',
                             border: false,
                             defaults: {
-                                anchor: '100%'
+                                xtype: 'button'
                             },
-                            defaultType: 'textfield',
                             items: [
                                 {
-                                    fieldLabel: 'License file',
-                                    name: 'choose',
-                                    emptyText: 'Choose license file',
-                                    allowBlank: false
+                                    text: 'Add',
+                                    name: 'add',
+                                    margin: 10,
+                                    disabled: true
+                                },
+                                {
+                                    text: 'Cancel',
+                                    name: 'cancel',
+                                    margin: 10,
+                                    hrefTarget: '',
+                                    href: '#/issue-administration/datacollection/licensing',
+                                    cls: 'isu-btn-link'
                                 }
                             ]
-                        },
-                        {
-                            xtype: 'button',
-                            text: 'Browse...',
-                            margin: '0 0 0 10',
-                            hrefTarget: '',
-                            href: '#/administration/datacollection/licensing'
-                        }
+                        }                       
                     ]
-                },
-                {
-                    layout: 'hbox',
-                    defaults: {
-                        xtype: 'button',
-                        margin: '20 15 0 0'
-                    },
-                    items: [
-                        {
-                            text: 'Add'
-                        },
-                        {
-                            text: 'Cancel',
-                            hrefTarget: '',
-                            href: '#/administration/datacollection/licensing',
-                            cls: 'isu-btn-link'
-                        }
-                    ]
-                }
+                }               
             ]
         }
     ],
 
     initComponent: function () {
         this.callParent(this);
-
         this.initMenu();
+        Ext.apply(Ext.form.VTypes, {
+            fileUpload: function (val, field) {
+                var fileName = /^.*\.(lic)$/i;
+                return fileName.test(val);
+            },
+            fileUploadText: 'License must be in .lic format'
+        });
     },
 
     initMenu: function () {
-        var me = this,
-            menu = this.getSideMenuCmp();
+        var menu = this.getSideMenuCmp();
 
         menu.add({
             text: 'Add license',
             pressed: true,
-            href: '#/administration/datacollection/licensing/addlicense',
+            href: '#/issue-administration/datacollection/licensing/addlicense',
             hrefTarget: '_self'
         });
     },

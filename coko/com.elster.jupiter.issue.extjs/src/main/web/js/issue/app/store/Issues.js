@@ -2,13 +2,14 @@ Ext.define('Isu.store.Issues', {
     extend: 'Ext.data.Store',
     requires: [
         'Ext.data.proxy.Rest',
-        'Isu.component.filter.store.Filterable',
-        'Isu.component.sort.store.Sortable'
+        'Uni.component.filter.store.Filterable',
+        'Uni.component.sort.store.Sortable',
+        'Isu.model.IssueFilter'
     ],
 
     mixins: [
-        'Isu.component.filter.store.Filterable',
-        'Isu.component.sort.store.Sortable'
+        'Uni.component.filter.store.Filterable',
+        'Uni.component.sort.store.Sortable'
     ],
 
     model: 'Isu.model.Issues',
@@ -29,6 +30,9 @@ Ext.define('Isu.store.Issues', {
 
     listeners: {
         "beforeLoad": function() {
+            if (!this.proxyFilter || !this.proxySort) {
+                this.loadDefaults();
+            }
             var extraParams = this.proxy.extraParams;
 
             // replace filter extra params with new ones
@@ -48,5 +52,25 @@ Ext.define('Isu.store.Issues', {
 
             this.proxy.extraParams = extraParams;
         }
+    },
+
+    loadDefaults: function () {
+        var defaultFilter = new Isu.model.IssueFilter(),
+            store = defaultFilter.status(),
+            me = this;
+
+        // this is status "Open"
+        var model = new Isu.model.IssueStatus({
+            id: 1, name: "Open"
+        });
+        store.add(model); //todo: hardcoded value! remove after proper REST API is implemented.
+        me.proxyFilter = defaultFilter;
+
+        var defaultSort = new Isu.model.IssueSort();
+        defaultSort.addSortParam('dueDate');
+        me.proxySort = defaultSort;
+
+        this.fireEvent('updateProxyFilter', defaultFilter);
+        this.fireEvent('updateProxySort', defaultSort);
     }
 });

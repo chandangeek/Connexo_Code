@@ -6,17 +6,7 @@ Ext.define('Isu.controller.Workspace', {
     ],
 
     init: function () {
-        this.initMenu();
-    },
-
-    initMenu: function () {
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: 'Workspace',
-            href: '#/workspace',
-            glyph: 'xe01e@icomoon'
-        });
-
-        Uni.store.MenuItems.add(menuItem);
+        this.callParent(arguments);
     },
 
     showOverview: function () {

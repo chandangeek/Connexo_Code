@@ -3,9 +3,7 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
     requires: [
         'Ext.layout.container.Column',
         'Ext.grid.column.Template',
-        'Ext.grid.column.Action',
-        'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Ext.grid.column.Action'
     ],
     alias: 'widget.issues-assignment-rules-list',
     border: false,
@@ -78,7 +76,7 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
     },
 
     onStoreLoad: function (store) {
-        var storeTotal = store.getTotalCount();
+        var storeTotal = store.getCount();
 
         if (storeTotal) {
             this.setTotal(storeTotal);

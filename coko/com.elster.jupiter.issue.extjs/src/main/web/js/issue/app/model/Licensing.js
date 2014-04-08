@@ -1,5 +1,6 @@
 Ext.define('Isu.model.Licensing', {
     extend: 'Ext.data.Model',
+    alias: 'widget.lic-model',
     fields: [
         {
             name: 'id',
@@ -7,32 +8,53 @@ Ext.define('Isu.model.Licensing', {
         },
         {
             name: 'application',
-            type: 'string'
+            type: 'auto'
         },
         {
-            name: 'type',
-            type: 'string'
-        },
-        {
-            name: 'description',
-            type: 'string'
+            name: 'status',
+            type: 'auto'
         },
         {
             name: 'expires',
-            type: 'string'
+            type: 'auto'
+        },
+        {
+            name: 'version',
+            type: 'auto'
+        },
+        {
+            name: 'description',
+            type: 'auto'
+        },
+        {
+            name: 'type',
+            type: 'auto'
+        },
+        {
+            name: 'validfrom',
+            dateFormat: 'time',
+            type: 'date'
+        },
+        {
+            name: 'graceperiod',
+            type: 'auto'
         },
         {
             name: 'content',
+            type: 'auto'
+        },
+        {
+            name: 'versions',
             type: 'auto'
         }
     ],
 
     proxy: {
         type: 'rest',
-        url: '/api/sam/license',
+        url: '/apps/issue/app/licenses.json',
         reader: {
             type: 'json',
-            root: 'licensing'
+            root: 'licenses'
         }
     }
 });

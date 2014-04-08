@@ -5,6 +5,9 @@ Ext.define('Isu.view.administration.datacollection.licensing.ActionMenu', {
     border: false,
     shadow: false,
     items: [
-
+        {
+            text: 'Upgrade',
+            action: 'upgrade'
+        }
     ]
 });

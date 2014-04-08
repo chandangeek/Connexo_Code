@@ -7,9 +7,11 @@ Ext.define('Isu.controller.Issues', {
     ],
 
     stores: [
-        'Issues',
+        'Isu.store.Issues',
         'Isu.store.IssuesGroups',
-        'Isu.store.Assignee'
+        'Isu.store.Assignee',
+        'Isu.store.IssueStatus',
+        'Isu.store.IssueReason'
     ],
 
     views: [
@@ -81,9 +83,6 @@ Ext.define('Isu.controller.Issues', {
             'button[name=clearsortbtn]': {
                 click: this.clearSort
             },
-            'panel[name=sortitemspanel]': {
-                afterrender: this.setDefaults
-            },
             'issues-overview breadcrumbTrail': {
                 afterrender: this.setBreadcrumb
             },
@@ -100,7 +99,7 @@ Ext.define('Isu.controller.Issues', {
 
         this.listen({
             store: {
-                '#Issues': {
+                '#Isu.store.Issues': {
                     load: this.issueStoreLoad,
                     updateProxyFilter: this.filterUpdate,
                     updateProxySort: this.sortUpdate
@@ -109,7 +108,7 @@ Ext.define('Isu.controller.Issues', {
         });
 
         this.groupStore = this.getStore('Isu.store.IssuesGroups');
-        this.store = this.getStore('Issues');
+        this.store = this.getStore('Isu.store.Issues');
         this.sortParams = {};
         this.actionMenuXtype = 'issue-action-menu';
         this.gridItemModel = this.getModel('Isu.model.Issues');
@@ -139,7 +138,7 @@ Ext.define('Isu.controller.Issues', {
      * After "updateProxyFilter" event from the Issue store, method will redraw button tags on the filter panel
      *
      * todo: I18n
-     * @param filter Isu.component.filter.model.Filter
+     * @param filter Uni.component.filter.model.Filter
      */
     filterUpdate: function (filter) {
         var filterElm = this.getFilter().down('[name="filter"]'),
@@ -275,12 +274,6 @@ Ext.define('Isu.controller.Issues', {
         }
     },
 
-    setDefaults: function () {
-        var defaultSort = new Isu.model.IssueSort();
-        defaultSort.addSortParam('dueDate');
-        this.store.setProxySort(defaultSort);
-    },
-
     changeSortDirection: function (btn) {
         this.store.getProxySort().toggleSortParam(btn.sortValue);
         this.store.updateProxySort();
@@ -316,16 +309,14 @@ Ext.define('Isu.controller.Issues', {
 
     setGroupFields: function (view) {
         var model = Ext.ModelManager.getModel('Isu.model.Issues'),
-            reason = model.getFields()[1],
-            data = [
-                { Value: '(none)', display: 'None'}
-            ],
-            rec = { Value: reason.name,
-                display: reason.displayValue };
-        data.push(rec);
+            reason = model.getFields()[1];
+
         view.store = Ext.create('Ext.data.Store', {
-            fields: ['Value', 'display'],
-            data: data
+            fields: ['value', 'display'],
+            data: [
+                { value: 0, display: 'None'},
+                { value: 'reason', display: reason.displayValue }
+            ]
         });
     },
 
@@ -337,6 +328,7 @@ Ext.define('Isu.controller.Issues', {
             issueNoGroup = this.getIssueNoGroup(),
             issuesList = this.getIssuesList(),
             fullList = this.getIssuesList(),
+
             XtoYof = function (store, records) {
                 if (records.length > 0) {
                     var X = (store.currentPage - 1) * store.pageSize + 1,
@@ -363,7 +355,8 @@ Ext.define('Isu.controller.Issues', {
 
         this.showDefaultItems();
 
-        if (newValue != '(none)') {
+        // now grouping is active
+        if (newValue) {
             this.groupStore.proxy.extraParams.field = newValue;
             this.groupStore.loadPage(1);
             this.group = newValue;
@@ -378,20 +371,20 @@ Ext.define('Isu.controller.Issues', {
             grid.show();
             this.groupStore.on('load', XtoYof);
         } else {
+            // remove the grouping
+
             this.groupStore.removeAll();
             grid.hide();
-            this.store.load();
             groupItemsShown.hide();
             this.groupStore.un('load', XtoYof);
             this.getIssueNoGroup().hide();
             fullList.show();
             this.store.setGroup(undefined);
-            this.store.load();
+            this.store.loadPage(1);
         }
     },
 
     getIssuesForGroup: function (grid, record) {
-
         var iString = '<h3>Issues for ' + this.group + ': ' + record.data.reason + '</h3>',
             issuesFor = Ext.ComponentQuery.query('panel[name=issuesforlabel]')[0],
             lineLabel = Ext.ComponentQuery.query('label[name=forissuesline]')[0]
@@ -406,7 +399,6 @@ Ext.define('Isu.controller.Issues', {
         this.store.setGroup(record);
         this.store.loadPage(1);
         this.showDefaultItems();
-
     },
 
 

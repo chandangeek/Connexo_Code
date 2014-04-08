@@ -135,6 +135,7 @@ Ext.define('Isu.controller.IssueDetail', {
     addComment: function () {
         var self = this,
             commentsPanel = self.getCommentsPanel(),
+            commentsStore = commentsPanel.getStore(),
             formPanel = self.getCommentForm(),
             form = formPanel.getForm();
 
@@ -143,11 +144,9 @@ Ext.define('Isu.controller.IssueDetail', {
             method: 'POST',
             jsonData: form.getValues(),
             success: function (response) {
-                var data = Ext.JSON.decode(response.responseText).data,
-                    newComment;
+                var data = Ext.JSON.decode(response.responseText).data;
 
-                !commentsPanel.getStore().getTotalCount() && commentsPanel.removeAll();
-                newComment = commentsPanel.addcomment(data);
+                commentsStore.add(data);
             }
         });
 

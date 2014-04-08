@@ -88,17 +88,17 @@ Ext.define('Isu.view.workspace.issues.Filter', {
                             labelSeparator: '',
                             queryMode: 'local',
                             displayField: 'display',
-                            valueField: 'Value',
+                            valueField: 'value',
                             labelAlign: 'left',
-                            height: 20,
-                            onFocus: function () {
-                                var me = this;
-
-                                if (!me.isExpanded) {
-                                    me.expand()
-                                }
-                                me.getPicker().focus();
-                            }
+                            height: 20
+//                            onFocus: function () {
+//                                var me = this;
+//
+//                                if (!me.isExpanded) {
+//                                    me.expand()
+//                                }
+//                                me.getPicker().focus();
+//                            }
                         }
                     ]
                 },

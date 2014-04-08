@@ -3,7 +3,7 @@
  *
  * This class is to be used to provide basic methods for controllers that handle events of combobox.
  */
-Ext.define('Isu.util.IsuCombo', {
+Ext.define('Isu.util.IsuComboTooltip', {
     /**
      * Sets tooltip for combobox.
      * Combobox must has 'tooltipText' property otherwise it sets default text.
@@ -36,11 +36,11 @@ Ext.define('Isu.util.IsuCombo', {
      * Handle 'focus' event.
      * If value of combobox is null shows tooltip.
      */
-    onFocusCombo: function (combo) {
+    onFocusComboTooltip: function (combo) {
         var tooltip = combo.tooltip || this.setComboTooltip(combo);
 
         if (!combo.getValue()) {
-            tooltip && tooltip.show();
+            tooltip.show();
         }
     },
 
@@ -48,7 +48,7 @@ Ext.define('Isu.util.IsuCombo', {
      * Handle 'blur' event.
      * Hides tooltip of combobox on blur.
      */
-    onBlurCombo: function (combo) {
+    onBlurComboTooltip: function (combo) {
         var tooltip = combo.tooltip;
 
         tooltip && tooltip.hide();
@@ -59,7 +59,7 @@ Ext.define('Isu.util.IsuCombo', {
      * If value of combobox is null resets combobox and shows tooltip otherwise hides tooltip
      * and shows list of values.
      */
-    clearCombo: function (combo, newValue) {
+    clearComboTooltip: function (combo, newValue) {
         var listValues = combo.picker,
             tooltip = combo.tooltip;
 

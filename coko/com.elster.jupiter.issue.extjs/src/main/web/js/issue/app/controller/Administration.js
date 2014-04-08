@@ -6,17 +6,7 @@ Ext.define('Isu.controller.Administration', {
     ],
 
     init: function () {
-        this.initMenu();
-    },
-
-    initMenu: function () {
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: 'Administration',
-            href: '#/administration',
-            glyph: 'xe011@icomoon'
-        });
-
-        Uni.store.MenuItems.add(menuItem);
+        this.callParent(arguments);
     },
 
     showOverview: function () {

@@ -4,37 +4,40 @@ Ext.define('Isu.controller.history.Workspace', {
     rootToken: 'workspace',
     previousPath: '',
     currentPath: null,
+    requires: [
+        'Isu.controller.Workspace'
+    ],
 
     init: function () {
         var me = this;
 
         crossroads.addRoute('workspace',function(){
-            Isu.getApplication().getWorkspaceController().showOverview();
+            me.getController('Isu.controller.Workspace').showOverview();
         });
 
         crossroads.addRoute('workspace/datacollection',function(){
-            Isu.getApplication().getDataCollectionController().showOverview();
+            me.getController('Isu.controller.DataCollection').showOverview();
         });
         crossroads.addRoute('workspace/datacollection/issues',function(){
-            Isu.getApplication().getIssuesController().showOverview();
+            me.getController('Isu.controller.Issues').showOverview();
         });
         crossroads.addRoute('workspace/datacollection/issuesbulkaction',function(){
-            Isu.getApplication().getBulkChangeIssuesController().showOverview();
+            me.getController('Isu.controller.BulkChangeIssues').showOverview();
         });
         crossroads.addRoute('workspace/datacollection/issues/{id}',function(id){
-            Isu.getApplication().getIssueDetailController().showOverview(id);
+            me.getController('Isu.controller.IssueDetail').showOverview(id);
         });
         crossroads.addRoute('workspace/datacollection/issues/{id}/addcomment',function(id){
-            Isu.getApplication().getIssueDetailController().showOverview(id, true);
+            me.getController('Isu.controller.IssueDetail').showOverview(id, true);
         });
         crossroads.addRoute('workspace/datacollection/bulkaction',function(){
-            Isu.getApplication().getBulkChangeIssuesController().showOverview();
+            me.getController('Isu.controller.BulkChangeIssues').showOverview();
         });
         crossroads.addRoute('workspace/datacollection/issues/{id}/assign',function(id){
-            Isu.getApplication().getAssignIssuesController().showOverview(id);
+            me.getController('Isu.controller.AssignIssues').showOverview(id);
         });
         crossroads.addRoute('workspace/datacollection/issues/{id}/close',function(id){
-            Isu.getApplication().getCloseIssuesController().showOverview(id);
+            me.getController('Isu.controller.CloseIssues').showOverview(id);
         });
 
         this.callParent(arguments);
@@ -53,25 +56,4 @@ Ext.define('Isu.controller.history.Workspace', {
         this.currentPath = token;
         crossroads.parse(token);
     }
-
-//    doConversion: function (tokens) {
-//        if (tokens.length > 1) {
-//            if (tokens.length == 4 && !isNaN(tokens[3])) {
-//                this.showIssueDetail(parseInt(tokens[3]));
-//            } else if (tokens.length == 3) {
-//                switch (tokens[2]) {
-//                    case 'assignmentrules':
-//                        this.showAssigmentRules();
-//                        break;
-//                    case 'issues':
-//                        this.showIssues();
-//                        break;
-//                }
-//            } else if (tokens.length == 2 && tokens[1] == 'datacollection') {
-//                this.showDataCollection();
-//            }
-//        } else {
-//            this.showWorkspace();
-//        }
-//    }
 });

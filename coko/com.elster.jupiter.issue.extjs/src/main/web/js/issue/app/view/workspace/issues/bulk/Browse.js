@@ -9,10 +9,10 @@ Ext.define('Isu.view.workspace.issues.bulk.Browse', {
     ],
 
     side: [
-        {
-            xtype: 'navigationSubMenu',
-            itemId: 'sideMenu'
-        },
+//        {
+//            xtype: 'navigationSubMenu',
+//            itemId: 'sideMenu'
+//        },
         {
             xtype: 'bulk-navigation'
         }
@@ -30,22 +30,22 @@ Ext.define('Isu.view.workspace.issues.bulk.Browse', {
     initComponent: function () {
         this.callParent(this);
 
-        this.initMenu();
-    },
-
-    initMenu: function () {
-        var me = this,
-            menu = this.getSideMenuCmp();
-
-        menu.add({
-            text: 'Issues bulk action',
-            pressed: true,
-            href: '#/workspace/datacollection/issuesbulkaction',
-            hrefTarget: '_self'
-        });
-    },
-
-    getSideMenuCmp: function () {
-        return this.down('#sideMenu');
+//        this.initMenu();
     }
+
+//    initMenu: function () {
+//        var me = this,
+//            menu = this.getSideMenuCmp();
+//
+//        menu.add({
+//            text: 'Issues bulk action',
+//            pressed: true,
+//            href: '#/workspace/datacollection/issuesbulkaction',
+//            hrefTarget: '_self'
+//        });
+//    },
+
+//    getSideMenuCmp: function () {
+//        return this.down('#sideMenu');
+//    }
 });
