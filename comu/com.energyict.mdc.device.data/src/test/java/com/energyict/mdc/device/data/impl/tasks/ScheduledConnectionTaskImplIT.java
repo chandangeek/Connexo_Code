@@ -11,15 +11,12 @@ import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.ComTaskExecutionFactory;
-import com.energyict.mdc.device.data.PartialConnectionTaskFactory;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCannotBecomeObsoleteException;
@@ -46,7 +43,6 @@ import com.energyict.mdc.protocol.api.codetables.Code;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeConstants;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -172,7 +168,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     // Todo (JP-1122): enable this test when done
     @Ignore
     public void testCreateOfDifferentConfig() {
-        DeviceCommunicationConfiguration mockCommunicationConfig = mock(DeviceCommunicationConfiguration.class);
+        DeviceConfiguration mockCommunicationConfig = mock(DeviceConfiguration.class);
         when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         PartialOutboundConnectionTask partialScheduledConnectionTask = mock(PartialOutboundConnectionTask.class);
         when(partialScheduledConnectionTask.getId()).thenReturn(PARTIAL_SCHEDULED_CONNECTION_TASK3_ID);

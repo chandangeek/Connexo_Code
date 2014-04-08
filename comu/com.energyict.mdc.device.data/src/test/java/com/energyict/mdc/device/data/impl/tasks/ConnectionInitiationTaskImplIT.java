@@ -4,8 +4,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.data.ComTaskExecutionFactory;
@@ -18,7 +16,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
-import org.junit.*;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,9 +25,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link ConnectionInitiationTaskImpl} component.
@@ -152,7 +149,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     // Todo (JP-1122): enable this test when done
     @Ignore
     public void testCreateOfDifferentConfig() {
-        DeviceCommunicationConfiguration mockCommunicationConfig = mock(DeviceCommunicationConfiguration.class);
+        DeviceConfiguration mockCommunicationConfig = mock(DeviceConfiguration.class);
         when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         PartialConnectionInitiationTask partialConnectionInitiationTask = mock(PartialConnectionInitiationTask.class);
         when(partialConnectionInitiationTask.getId()).thenReturn((long) PARTIAL_CONNECTION_INITIATION_TASK2_ID);
