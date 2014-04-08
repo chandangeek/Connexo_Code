@@ -23,6 +23,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'deviceConfigurationPreviewForm', selector: '#deviceConfigurationPreviewForm'},
         {ref: 'deviceConfigurationPreview', selector: '#deviceConfigurationPreview'},
         {ref: 'deviceConfigurationDetailsLink', selector: '#deviceConfigurationDetailsLink'},
+        {ref: 'deviceConfigurationDetailForm', selector: '#deviceConfigurationDetailForm'},
+        {ref: 'activateDeactivateDeviceConfiguration', selector: '#activateDeactivateDeviceConfiguration'},
         {ref: 'deviceConfigurationPreviewTitle', selector: '#deviceConfigurationPreviewTitle'},
         {ref: 'deviceConfigurationRegisterLink', selector: '#deviceConfigurationRegistersLink'},
         {ref: 'deviceConfigurationLogBookLink', selector: '#deviceConfigurationLogBooksLink'},
@@ -138,10 +140,11 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                         me.getDeviceConfigurationDetailRegisterLink().getEl().set({href: '#/setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId +'/registerconfigurations'});
                         me.getDeviceConfigurationDetailRegisterLink().getEl().setHTML(deviceConfiguration.get('registerCount') + ' ' + Uni.I18n.translatePlural('deviceconfig.registerconfigs', deviceConfiguration.get('registerCount'), 'MDC', 'register configurations'));
                         me.getDeviceConfigurationDetailLogBookLink().getEl().set({href: '#/setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/logbooks'});
-                        me.getDeviceConfigurationDetailLogBookLink().getEl().setHTML(deviceConfiguration.get('logBookCount') + ' ' + Uni.I18n.translatePlural('deviceconfiguration.logbooks', deviceConfiguration.get('logBookCount'), 'MDC', 'logbook types'));
+                        me.getDeviceConfigurationDetailLogBookLink().getEl().setHTML(deviceConfiguration.get('logBookCount') + ' ' + Uni.I18n.translatePlural('deviceconfiguration.logbooks', deviceConfiguration.get('logBookCount'), 'MDC', 'logbooks'));
                         me.getDeviceConfigurationDetailLoadProfilesLink().getEl().set({href: '#/setup/devicetypes/' + me.deviceTypeId +  '/deviceconfigurations/' + deviceConfigurationId + '/loadprofiles'});
-                        me.getDeviceConfigurationDetailLoadProfilesLink().getEl().setHTML(deviceConfiguration.get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('deviceconfiguration.loadprofiles', deviceConfiguration.get('loadProfileCount'), 'MDC', 'load profile types'));
+                        me.getDeviceConfigurationDetailLoadProfilesLink().getEl().setHTML(deviceConfiguration.get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('deviceconfiguration.loadprofiles', deviceConfiguration.get('loadProfileCount'), 'MDC', 'load profiles'));
                         me.getDeviceConfigurationPreviewTitle().update('<h1>' + deviceConfiguration.get('name') + ' - ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
+                        me.getActivateDeactivateDeviceConfiguration().setText(deviceConfiguration.get('active')===true?Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate'):Uni.I18n.translate('general.activate', 'MDC', 'Activate'));
                         widget.down('form').loadRecord(deviceConfiguration);
                     }
                 });
@@ -179,12 +182,13 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         deviceConfigurationToActivateDeactivate.getProxy().setExtraParam('deviceType',this.deviceTypeId);
         deviceConfigurationToActivateDeactivate.save({
             callback: function(){
-                location.href = '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations';
+                me.getDeviceConfigurationsGrid().refresh()
             }
         });
     },
 
     activateDeviceConfigurationFromDetails: function(){
+        debugger;
         var me = this;
         var deviceConfigurationToActivateDeactivate = this.getDeviceConfigurationDetailForm().getRecord();
         if(deviceConfigurationToActivateDeactivate.get('active')===true){
@@ -195,18 +199,37 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         deviceConfigurationToActivateDeactivate.getProxy().setExtraParam('deviceType',this.deviceTypeId);
         deviceConfigurationToActivateDeactivate.save({
             callback: function(){
-                location.href = '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/'+deviceConfigurationToActivateDeactivate.get('id');
+                debugger;
+                me.getDeviceConfigurationDetailForm().loadRecord(deviceConfigurationToActivateDeactivate);
+                me.getActivateDeactivateDeviceConfiguration().setText(deviceConfigurationToActivateDeactivate.get('active')===true?Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate'):Uni.I18n.translate('general.activate', 'MDC', 'Activate'));
             }
         });
     },
 
+
+
+
     deleteDeviceConfiguration: function(deviceConfigurationToDelete){
         var me = this;
-        deviceConfigurationToDelete.getProxy().setExtraParam('deviceType',this.deviceTypeId);
-        deviceConfigurationToDelete.destroy({
-            callback: function () {
-                location.href = '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations';
-            }
+        Ext.MessageBox.show({
+            msg: Uni.I18n.translate('deviceconfiguration.deleteDeviceConfiguration', 'MDC', 'Are you sure you want to delete this device configuration?'),
+            title: Uni.I18n.translate('general.delete', 'MDC', 'delete') + ' ' + deviceConfigurationToDelete.get('name') + '?',
+            config: {
+                registerConfigurationToDelete: deviceConfigurationToDelete,
+                me: me
+            },
+            buttons: Ext.MessageBox.YESNO,
+            fn: function(btn){
+                if(btn === 'yes'){
+                    deviceConfigurationToDelete.getProxy().setExtraParam('deviceType',me.deviceTypeId);
+                    deviceConfigurationToDelete.destroy({
+                        callback: function () {
+                            location.href = '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations';
+                        }
+                    });
+                }
+            },
+            icon: Ext.MessageBox.WARNING
         });
     },
 
