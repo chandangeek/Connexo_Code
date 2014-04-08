@@ -1,5 +1,6 @@
 package com.elster.jupiter.issue.datacollection;
 
+import com.elster.jupiter.issue.datacollection.impl.ModuleConstants;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplateParameter;
 import org.osgi.service.component.annotations.Component;
@@ -32,12 +33,21 @@ public class BasicRuleTemplate implements CreationRuleTemplate {
     @Override
     public String getContent() {
         return
-        "rule \"" + getName() + "\n" +
-        "when \n" +
-        "    $event: DataCollectionIssueEvent( topic == @{eventTopic} )\n" +
-        "then \n"+
-        "    RuleExecutor.createIssue( @{ruleId}, $event ); \n" +
-        "end";
+            "package com.elster.jupiter.issue.datacollection\n" +
+            "import com.elster.jupiter.issue.datacollection.DataCollectionEvent;\n" +
+            "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
+            "rule \"Basic data collection issues\"\n"+
+            "when\n"+
+            "\tevent : DataCollectionEvent( eventType == \"@{eventTopic}\" )\n"+
+            "then\n"+
+            "\tSystem.out.println(\"Basic data collection issues\");\n"+
+            "\tissueCreationService.processCreationEvent(@{ruleId}, event);\n"+
+            "end";
+    }
+
+    @Override
+    public String getIssueType() {
+        return ModuleConstants.ISSUE_TYPE;
     }
 
     @Override

@@ -14,17 +14,22 @@ public class IssueEventTopicParameter implements CreationRuleTemplateParameter {
 
     @Override
     public String getType() {
-        return "string";
+        return "number";
     }
 
     @Override
     public String getLabel() {
-        return "isu.issue.i18n.rulename.eventTopic";
+        return "eventTopic";
     }
 
     @Override
     public boolean isOptional() {
         return false;
+    }
+
+    @Override
+    public String getSuffix() {
+        return "(issue)";
     }
 
     @Override
