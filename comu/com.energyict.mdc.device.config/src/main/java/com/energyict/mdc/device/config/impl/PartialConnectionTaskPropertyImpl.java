@@ -74,7 +74,7 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
         if (objectValue == null) {
             objectValue = getValueObjectFromStringValue(value);
         }
-        return value;
+        return objectValue;
     }
 
     @Override
