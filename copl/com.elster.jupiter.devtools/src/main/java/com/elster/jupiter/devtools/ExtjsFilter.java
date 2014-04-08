@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 
 /**
  * This helper class allows constructing a filter as it would be built by ExtJS
+ * The String output from these methods can be added as QueryParam to a JerseyTest WebTarget
  */
 public class ExtjsFilter {
     private static final String PROPERTY_VALUE_FORMAT = "{\"property\":\"%s\",\"value\":\"%s\"}";
