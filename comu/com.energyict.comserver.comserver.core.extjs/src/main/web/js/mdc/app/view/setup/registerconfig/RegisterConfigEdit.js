@@ -125,6 +125,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         itemId: 'editNumberOfDigitsField',
                                         maxValue: 20,
                                         minValue: 0,
+                                        enforceMaxLength: true,
+                                        maxLength: 2,
                                         width: 450
                                     },
                                     {
@@ -137,6 +139,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         allowBlank: false,
                                         maxValue: 6,
                                         minValue: 0,
+                                        maxLength: 1,
+                                        enforceMaxLength: true,
                                         width: 450
                                     },
                                     {
@@ -147,7 +151,9 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         itemId: 'editOverflowValueField',
                                         width: 450,
                                         maxValue: 100000000,
-                                        hideTrigger: true
+                                        hideTrigger: true,
+                                        maxLength: 22,
+                                        enforceMaxLength: true
                                     },
                                     {
                                         xtype: 'fieldcontainer',
@@ -159,7 +165,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         },
                                         items: [
                                             {
-                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo', 8 , 'MDC', 'The maximum overflow value is 1000000000 with 8 number of digits', ['1000000000', '8']) + '</i></span>',
+                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo', 8, 'MDC', 'The maximum overflow value is 1000000000 with 8 number of digits', ['1000000000', '8']) + '</i></span>',
                                                 xtype: 'component',
                                                 itemId: 'overflowValueInfo'
                                             }
