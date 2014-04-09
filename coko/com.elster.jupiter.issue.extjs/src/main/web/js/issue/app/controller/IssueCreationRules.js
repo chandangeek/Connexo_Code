@@ -111,10 +111,10 @@ Ext.define('Isu.controller.IssueCreationRules', {
                                 params: {
                                     version: rule.data.version
                                 },
-                                callback: function (model, operation, success) {
+                                callback: function (model, operation) {
                                     confirmMessage.close();
                                     store.loadPage(1);
-                                    if (success) {
+                                    if (operation.response.status == 204) {
                                         self.getApplication().fireEvent('isushowmsg', {
                                             type: 'notify',
                                             msgBody: [
