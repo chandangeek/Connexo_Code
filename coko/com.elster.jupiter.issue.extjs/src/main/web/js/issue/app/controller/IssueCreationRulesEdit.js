@@ -103,6 +103,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 self.getModel('Isu.model.CreationRule').load(id, {
                     success: function (record) {
                         self.ruleModel = record;
+                        delete self.ruleModel.data.creationDate;
+                        delete self.ruleModel.data.modificationDate;
                         self.modelToForm(record);
                     }
                 });
