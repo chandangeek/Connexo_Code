@@ -27,6 +27,7 @@ import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.protocols.mdc.inbound.general.InboundConnection;
 
 import java.util.Date;
 import java.util.List;
@@ -193,7 +194,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @param partialScheduledConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask
      * @return the builder
      */
-    ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilderFor(PartialScheduledConnectionTask partialScheduledConnectionTask);
+    ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialScheduledConnectionTask partialScheduledConnectionTask);
 
     /**
      * Provides a builder that allows the creation of an InboundConnectionTask for the Device
@@ -201,7 +202,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @param partialInboundConnectionTask the partialConnectionTask that will model the actual InboundConnectionTask
      * @return the builder
      */
-    InboundConnectionTaskBuilder getInboundConnectionTaskBuilderFor(PartialInboundConnectionTask partialInboundConnectionTask);
+    InboundConnectionTaskBuilder getInboundConnectionTaskBuilder(PartialInboundConnectionTask partialInboundConnectionTask);
 
     /**
      * Provides a builder that allows the creation of a ConnectionInitiationTask for the Device

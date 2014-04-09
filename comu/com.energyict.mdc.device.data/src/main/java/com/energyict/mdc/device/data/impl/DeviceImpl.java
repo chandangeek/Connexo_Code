@@ -694,12 +694,12 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     @Override
-    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilderFor(PartialScheduledConnectionTask partialScheduledConnectionTask) {
+    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialScheduledConnectionTask partialScheduledConnectionTask) {
         return new ScheduledConnectionTaskBuilderForDevice(this, partialScheduledConnectionTask);
     }
 
     @Override
-    public InboundConnectionTaskBuilder getInboundConnectionTaskBuilderFor(PartialInboundConnectionTask partialInboundConnectionTask) {
+    public InboundConnectionTaskBuilder getInboundConnectionTaskBuilder(PartialInboundConnectionTask partialInboundConnectionTask) {
         return new InboundConnectionTaskBuilderForDevice(this, partialInboundConnectionTask);
     }
 
