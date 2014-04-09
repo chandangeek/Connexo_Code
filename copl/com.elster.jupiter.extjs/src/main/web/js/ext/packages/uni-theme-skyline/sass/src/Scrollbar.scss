@@ -7,15 +7,17 @@
 ) {
   $scrollbar-arrow-margin-size: ($size - $margin) - $arrow-size;
 
-  @include arrow-up($thumb-background-color, $arrow-size) {
+  @include arrow-up($thumb-background-color, $arrow-size);
+  @include arrow-down($thumb-background-color, $arrow-size);
+
+  .arrow-up {
     margin: $scrollbar-arrow-margin-size / 2;
     margin-top: $scrollbar-arrow-margin-size;
-  };
-
-  @include arrow-down($thumb-background-color, $arrow-size) {
+  }
+  .arrow-down {
     margin: $scrollbar-arrow-margin-size / 2;
     margin-bottom: $scrollbar-arrow-margin-size;
-  };
+  }
 
   /* Tiny Scrollbar */
   .viewport {
