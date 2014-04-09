@@ -829,7 +829,7 @@ function getDatePicker() {
 
         x: 20, y: 1150,
 
-        width: 180,
+        width: 280,
         rtl: rtl,
         border: false,
         items: {
@@ -1083,9 +1083,10 @@ function doThemes(rtl) {
         getAccordion(rtl),
         getScrollingTabs(rtl),
         getPlainTabs(rtl),
-        getDatePicker(rtl),
         getProgressBar(rtl),
         getFramedGrid(rtl),
+        getDatePicker(rtl),
+
         0 // end of list (makes commenting out any of the above easy
     ];
     items.pop(); // remove the 0 on the end
