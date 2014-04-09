@@ -342,4 +342,10 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
         // should throw exception
         otherDevice.removeConnectionTask(scheduledConnectionTask);
     }
+
+    @Test
+    @Transactional
+    public void updateAConnectionTaskThroughHisDeviceTest() {
+
+    }
 }
