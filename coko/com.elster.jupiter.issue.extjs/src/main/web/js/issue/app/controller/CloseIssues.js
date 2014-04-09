@@ -20,6 +20,9 @@ Ext.define('Isu.controller.CloseIssues', {
             'issues-close button[name=close]': {
                 click: this.submitIssueClosing
             },
+            'message-window': {
+                remove: this.enableButtons
+            },
             'issues-close breadcrumbTrail': {
                 afterrender: this.setBreadcrumb
             }
@@ -40,6 +43,15 @@ Ext.define('Isu.controller.CloseIssues', {
                 self.getApplication().fireEvent('changecontentevent', widget);
             }
         });
+    },
+
+    enableButtons: function () {
+        var  formButtons = Ext.ComponentQuery.query('issues-close button');
+
+        Ext.each(formButtons, function (button) {
+            button.enable();
+        });
+
     },
 
     setBreadcrumb: function (breadcrumbs) {
@@ -139,7 +151,13 @@ Ext.define('Isu.controller.CloseIssues', {
                         });
                     } else {
                         var msges = [],
-                            bodyItem = {};
+                            bodyItem = {},
+                            formButtons = Ext.ComponentQuery.query('issues-close button');
+
+                        Ext.each(formButtons, function (button) {
+                            button.disable();
+                        });
+
                         header.text = 'Failed to close issue ' + formPanel.recordTitle;
                         msges.push(header);
                         bodyItem.text = result.failure[0].reason;

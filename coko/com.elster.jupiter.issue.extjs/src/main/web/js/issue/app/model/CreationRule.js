@@ -1,5 +1,6 @@
-Ext.define('Isu.model.CreationRules', {
+Ext.define('Isu.model.CreationRule', {
     extend: 'Ext.data.Model',
+    idProperty: 'id',
     fields: [
         {
             name: 'id',
@@ -7,27 +8,7 @@ Ext.define('Isu.model.CreationRules', {
         },
         {
             name: 'name',
-            type: 'text'
-        },
-        {
-            name: 'template',
-            type: 'auto'
-        },
-        {
-            name: 'reason',
-            type: 'auto'
-        },
-        {
-            name: 'status',
-            type: 'text'
-        },
-        {
-            name: 'assignee',
-            type: 'auto'
-        },
-        {
-            name: 'duein',
-            type: 'auto'
+            type: 'string'
         },
         {
             name: 'parameters',
@@ -39,7 +20,7 @@ Ext.define('Isu.model.CreationRules', {
         },
         {
             name: 'comment',
-            type: 'text'
+            type: 'string'
         },
         {
             name: 'creationdate',
@@ -54,12 +35,28 @@ Ext.define('Isu.model.CreationRules', {
         {
             name: 'version',
             type: 'int'
+        },
+        {
+            name: 'template',
+            type: 'auto'
+        },
+        {
+            name: 'type',
+            type: 'auto'
+        },
+        {
+            name: 'reason',
+            type: 'auto'
+        },
+        {
+            name: 'duein',
+            type: 'auto'
         }
     ],
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/creation/rules',
+        url: '/api/isu/creationrules',
         reader: {
             type: 'json',
             root: 'data'

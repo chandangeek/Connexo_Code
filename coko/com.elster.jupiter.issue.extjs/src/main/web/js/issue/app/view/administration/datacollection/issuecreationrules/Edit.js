@@ -1,8 +1,5 @@
 Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
     extend: 'Uni.view.container.ContentContainer',
-    requires: [
-        'Isu.view.administration.datacollection.issuecreationrules.EditActionsList'
-    ],
     alias: 'widget.issues-creation-rules-edit',
     content: [
         {
@@ -10,7 +7,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
             items: [
                 {
                     xtype: 'component',
-                    html: '<h1>Edit issue creation rule</h1>',
+                    name: 'pageTitle',
                     margin: '0 0 40 0'
                 },
                 {
@@ -20,72 +17,75 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                         labelWidth: 150,
                         labelAlign: 'right',
                         margin: '0 0 20 0',
+                        msgTarget: 'under',
+                        validateOnChange: false,
+                        validateOnBlur: false,
                         anchor: '100%'
                     },
                     items: [
                         {
+                            xtype: 'component',
+                            name: 'form-errors',
+                            html: '<div class="isu-error-panel">There are errors on this page that require your attention.</div>',
+                            hidden: true,
+                            margin: '0 0 20 155'
+                        },
+                        {
                             xtype: 'textfield',
                             name: 'name',
-                            fieldLabel: 'Name *',
+                            fieldLabel: 'Name',
+                            labelSeparator: ' *',
+                            allowBlank: false,
                             maxLength: 80
                         },
                         {
                             xtype: 'combobox',
                             name: 'type',
-                            fieldLabel: 'Issue type *',
-                            store: Ext.create('Ext.data.Store', {
-                                fields: ['id', 'name'],
-                                data: [
-                                    {"id": "1", "name": "Data collection"}
-                                ]
-                            }),
+                            fieldLabel: 'Issue type',
+                            labelSeparator: ' *',
+                            store: 'Isu.store.IssueType',
                             queryMode: 'local',
                             displayField: 'name',
-                            valueField: 'id'
+                            valueField: 'id',
+                            allowBlank: false,
+                            editable: false
                         },
                         {
                             xtype: 'combobox',
                             name: 'template',
-                            fieldLabel: 'Rule template *',
-                            store: Ext.create('Ext.data.Store', {
-                                fields: ['abbr', 'name'],
-                                data: [
-                                    {"abbr": "AL", "name": "Alabama"},
-                                    {"abbr": "AK", "name": "Alaska"},
-                                    {"abbr": "AZ", "name": "Arizona"}
-                                ]
-                            }),
+                            fieldLabel: 'Rule template',
+                            labelSeparator: ' *',
+                            store: 'Isu.store.CreationRuleTemplate',
                             queryMode: 'local',
                             displayField: 'name',
-                            valueField: 'abbr'
-                        },
-                        {
-                            xtype: 'component',
-                            name: 'rule-template-description',
-                            html: 'Unable to connect to meters of a concentrator. Threshold is configurable',
-                            margin: '0 0 0 155'
+                            valueField: 'uid',
+                            allowBlank: false,
+                            editable: false,
+                            margin: 0
                         },
                         {
                             xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'middle'
-                            },
-                            items: [
-                                {
-                                    xtype: 'textfield',
-                                    name: 'parameters.threshold',
-                                    fieldLabel: 'Threshold *',
-                                    fieldStyle: 'text-align: right',
-                                    labelWidth: 150,
-                                    labelAlign: 'right',
-                                    width: 200
-                                },
-                                {
-                                    xtype: 'component',
-                                    html: '%'
-                                }
-                            ]
+                            name: 'templateDetails',
+                            defaults: {
+                                labelWidth: 150,
+                                labelAlign: 'right',
+                                margin: '20 0 0 0',
+                                msgTarget: 'under',
+                                validateOnChange: false,
+                                validateOnBlur: false
+                            }
+                        },
+                        {
+                            xtype: 'combobox',
+                            name: 'reason',
+                            fieldLabel: 'Issue reason',
+                            labelSeparator: ' *',
+                            store: 'Isu.store.IssueReason',
+                            queryMode: 'local',
+                            displayField: 'name',
+                            valueField: 'id',
+                            allowBlank: false,
+                            editable: false
                         },
                         {
                             xtype: 'container',
@@ -110,17 +110,11 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                 {
                                     xtype: 'combobox',
                                     name: 'duein.type',
-                                    store: Ext.create('Ext.data.Store', {
-                                        fields: ['name'],
-                                        data: [
-                                            {"name": "days"},
-                                            {"name": "weeks"},
-                                            {"name": "months"}
-                                        ]
-                                    }),
+                                    store: 'Isu.store.DueinType',
                                     queryMode: 'local',
                                     displayField: 'name',
                                     valueField: 'name',
+                                    editable: false,
                                     width: 100
                                 }
                             ]
@@ -133,41 +127,13 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                     ]
                 },
                 {
-                    xtype: 'component',
-                    html: '<h3>Actions</h3>',
-                    margin: '40 0 20 0'
-                },
-                {
-                    xtype: 'issues-creation-rules-edit-actions-list',
-                    margin: '0 15 0 0',
-                    dockedItems: [
-                        {
-                            xtype: 'toolbar',
-                            dock: 'top',
-                            items: [
-                                {
-                                    xtype: 'component',
-                                    html: '2 actions',
-                                    flex: 1
-                                },
-                                {
-                                    xtype: 'button',
-                                    text: 'Add action',
-                                    action: 'add'
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
                     xtype: 'container',
                     layout: 'hbox',
                     defaultType: 'button',
                     margin: '20 0',
                     items: [
                         {
-                            text: 'Save',
-                            name: 'save',
+                            name: 'ruleAction',
                             formBind: false
                         },
                         {

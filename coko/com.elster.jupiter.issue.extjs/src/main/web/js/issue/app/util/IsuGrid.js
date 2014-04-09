@@ -150,6 +150,11 @@ Ext.define('Isu.util.IsuGrid', {
         });
     },
 
+    /**
+     * Handle 'refresh' event.
+     * Select first row in grid.
+     */
+
     selectFirstGridRow: function (grid) {
         var itemPanel = this.getItemPanel(),
             index = 0,

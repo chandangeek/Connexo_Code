@@ -188,6 +188,7 @@ span[class^=isu-assignee-] {
     border-radius: 10px;
     color: #CF4C35;
     padding: 10px;
+    display: inline-block;
 }
 
 .isu-item-data-table {
@@ -335,6 +336,11 @@ span[class^=isu-assignee-] {
 
 .isu-apply-filter {
     cursor: pointer;
+}
+
+.isu-creation-rule-description {
+    color: grey;
+    font-style: italic;
 }
 
 /* Message Window */

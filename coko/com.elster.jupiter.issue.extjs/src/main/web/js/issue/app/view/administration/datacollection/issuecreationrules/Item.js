@@ -13,6 +13,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
         self.callParent();
         self.addEvents('change');
         self.on('change', self.onChange, self);
+        self.on('clear', self.onClear, self);
     },
 
     onChange: function (panel, record) {
@@ -51,12 +52,13 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
                 },
                 {
                     bodyPadding: '20 10 0',
-                    data: record.data,
+                    data: record.raw,
                     tpl: new Ext.XTemplate(
                         '<table class="isu-item-data-table">',
                         '<tr>',
-                        '<td><b>Issue type</b></td>',
-                        '<td><b><tpl if="type">{type}</tpl></b></td>',
+                        '<td><b>Issue type:</b></td>',
+                        '<td><tpl if="type">{type.name}</tpl></td>',
+                        '<td><b>Due in:</b></td>',
                         '<td><tpl if="duein">{duein.number} {duein.type}</tpl></td>',
                         '</tr>',
                         '<tr>',
@@ -81,5 +83,14 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
                 }
             ]
         };
+    },
+
+    onClear: function (text) {
+        this.removeAll();
+        this.add({
+            html: text ? text : '<h3>No rule selected</h3><p>Select a rule to view its detail.</p>',
+            bodyPadding: 10,
+            border: false
+        });
     }
 });
