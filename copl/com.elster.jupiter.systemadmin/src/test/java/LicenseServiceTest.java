@@ -19,6 +19,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Scopes;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -31,7 +33,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.security.SignedObject;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -95,7 +96,6 @@ public class LicenseServiceTest {
             ObjectInputStream stream = new ObjectInputStream(baseStream);
             return (SignedObject) stream.readObject();
         }
-
     }
 
     @Test
@@ -114,7 +114,7 @@ public class LicenseServiceTest {
         assertThat(mtrLicense.get().getStatus()).isEqualTo(License.Status.ACTIVE);
         assertThat(mtrLicense.get().getType()).isEqualTo(License.Type.EVALUATION);
         assertThat(mtrLicense.get().getGracePeriodInDays()).isEqualTo(5);
-        assertThat(mtrLicense.get().getExpiration()).isEqualTo(new UtcInstant(new SimpleDateFormat("DD/MM/YYYY").parse("31/12/9999")));
+        assertThat(mtrLicense.get().getExpiration()).isEqualTo(new UtcInstant(new DateMidnight(9999, 12, 31, DateTimeZone.UTC).toDate()));
         assertThat(mtrLicense.get().getLicensedValues()).hasSize(2);
 
         Optional<Properties> mtrLicensedValues = getLicenseService().getLicensedValuesForApplication("MTR");
@@ -130,7 +130,7 @@ public class LicenseServiceTest {
         assertThat(isuLicense.get().getStatus()).isEqualTo(License.Status.ACTIVE);
         assertThat(isuLicense.get().getType()).isEqualTo(License.Type.EVALUATION);
         assertThat(isuLicense.get().getGracePeriodInDays()).isEqualTo(5);
-        assertThat(isuLicense.get().getExpiration()).isEqualTo(new UtcInstant(new SimpleDateFormat("DD/MM/YYYY").parse("31/12/9999")));
+        assertThat(isuLicense.get().getExpiration()).isEqualTo(new UtcInstant(new DateMidnight(9999, 12, 31, DateTimeZone.UTC).toDate()));
         assertThat(isuLicense.get().getLicensedValues()).hasSize(0);
 
         Optional<Properties> otherLicensedValues = getLicenseService().getLicensedValuesForApplication("OTH");
