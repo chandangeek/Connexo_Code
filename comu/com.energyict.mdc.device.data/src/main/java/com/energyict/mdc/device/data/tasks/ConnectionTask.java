@@ -313,8 +313,5 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      */
     public ComSession getLastComSession ();
 
-    public void save ();
-
-    public void delete ();
-
+    public void update();
 }

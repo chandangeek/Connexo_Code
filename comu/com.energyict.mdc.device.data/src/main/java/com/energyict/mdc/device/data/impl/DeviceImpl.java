@@ -28,6 +28,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -43,12 +44,15 @@ import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.device.data.impl.offline.DeviceOffline;
 import com.energyict.mdc.device.data.impl.offline.OfflineDeviceImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
@@ -78,6 +82,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -112,10 +117,11 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Valid
     private List<DeviceProtocolProperty> deviceProperties = new ArrayList<>();
     @Valid
-    private List<ConnectionTask> connectionTasks = new ArrayList<>();
+    private List<ConnectionTaskImpl> connectionTasks = new ArrayList<>();
 
     private final Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
     private final Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
+    private final Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
 
     @Inject
     public DeviceImpl(DataModel dataModel,
@@ -125,7 +131,8 @@ public class DeviceImpl implements Device, PersistenceAware {
                       MeteringService meteringService,
                       DeviceDataService deviceDataService,
                       Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
-                      Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider) {
+                      Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
+                      Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
@@ -134,6 +141,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         this.deviceDataService = deviceDataService;
         this.scheduledConnectionTaskProvider = scheduledConnectionTaskProvider;
         this.inboundConnectionTaskProvider = inboundConnectionTaskProvider;
+        this.connectionInitiationTaskProvider = connectionInitiationTaskProvider;
     }
 
     @Override
@@ -150,7 +158,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private void saveAllConnectionTasks() {
-        for (ConnectionTask connectionTask : connectionTasks) {
+        for (ConnectionTaskImpl connectionTask : connectionTasks) {
             connectionTask.save();
         }
     }
@@ -187,9 +195,16 @@ public class DeviceImpl implements Device, PersistenceAware {
         deleteCache();
         deleteLoadProfiles();
         deleteLogBooks();
+        deleteConnectionTasks();
         // TODO delete communication stuff, if necessary
         // TODO delete messages
         this.getDataMapper().remove(this);
+    }
+
+    private void deleteConnectionTasks() {
+        for (ConnectionTaskImpl connectionTask : connectionTasks) {
+            connectionTask.delete();
+        }
     }
 
     private void deleteLogBooks() {
@@ -475,7 +490,15 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private void loadConnectionTasks() {
-        this.connectionTasks = this.deviceDataService.findConnectionTasksByDevice(this);
+        this.connectionTasks = getConnectionTaskImpls();
+    }
+
+    private List<ConnectionTaskImpl> getConnectionTaskImpls() {
+        List<ConnectionTaskImpl> connectionTaskImpls = new ArrayList<>();
+        for (ConnectionTask connectionTask : this.deviceDataService.findConnectionTasksByDevice(this)) {
+            connectionTaskImpls.add((ConnectionTaskImpl) connectionTask);
+        }
+        return connectionTaskImpls;
     }
 
     class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
@@ -681,8 +704,59 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     @Override
+    public ConnectionInitiationTaskBuilder getConnectionInitiationTaskBuilder(PartialConnectionInitiationTask partialConnectionInitiationTask) {
+        return new ConnectionInitiationTaskBuilderForDevice(this, partialConnectionInitiationTask);
+    }
+
+    @Override
     public List<ConnectionTask> getConnectionTasks() {
-        return connectionTasks;
+        return new ArrayList<ConnectionTask>(connectionTasks);
+    }
+
+    @Override
+    public void removeConnectionTask(ConnectionTask connectionTask) {
+        Iterator<ConnectionTaskImpl> connectionTaskIterator = this.connectionTasks.iterator();
+        boolean removed = false;
+        while(connectionTaskIterator.hasNext() && !removed){
+            ConnectionTaskImpl connectionTaskToRemove = connectionTaskIterator.next();
+            if(connectionTaskToRemove.getId() == connectionTask.getId()){
+                ((ConnectionTaskImpl) connectionTask).delete();
+                this.connectionTasks.remove(connectionTaskToRemove);
+                removed = true;
+            }
+        }
+        if(!removed){
+            throw new CannotDeleteConnectionTaskWhichIsNotFromThisDevice(this.thesaurus, connectionTask, this);
+
+        }
+    }
+
+    private class ConnectionInitiationTaskBuilderForDevice implements ConnectionInitiationTaskBuilder {
+
+        private final ConnectionInitiationTaskImpl connectionInitiationTask;
+
+        private ConnectionInitiationTaskBuilderForDevice(Device device, PartialConnectionInitiationTask partialConnectionInitiationTask) {
+            this.connectionInitiationTask = connectionInitiationTaskProvider.get();
+            this.connectionInitiationTask.initialize(device, partialConnectionInitiationTask, partialConnectionInitiationTask.getComPortPool());
+        }
+
+        @Override
+        public ConnectionInitiationTaskBuilder setComPortPool(OutboundComPortPool comPortPool) {
+            this.connectionInitiationTask.setComPortPool(comPortPool);
+            return this;
+        }
+
+        @Override
+        public ConnectionInitiationTaskBuilder setProperty(String propertyName, Object value) {
+            this.connectionInitiationTask.setProperty(propertyName, value);
+            return this;
+        }
+
+        @Override
+        public ConnectionInitiationTask add() {
+            DeviceImpl.this.connectionTasks.add(this.connectionInitiationTask);
+            return this.connectionInitiationTask;
+        }
     }
 
     private class InboundConnectionTaskBuilderForDevice implements InboundConnectionTaskBuilder {

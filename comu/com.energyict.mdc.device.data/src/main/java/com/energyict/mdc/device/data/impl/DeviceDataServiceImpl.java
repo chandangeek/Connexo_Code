@@ -341,7 +341,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
             T lockedConnectionTask = (T) lockResult.get();
             if (lockedConnectionTask.getExecutingComServer() == null) {
                 ((ConnectionTaskImpl) lockedConnectionTask).setExecutingComServer(comServer);
-                lockedConnectionTask.save();
+                ((ConnectionTaskImpl) lockedConnectionTask).save();
                 return lockedConnectionTask;
             }
             else {

@@ -7,6 +7,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
@@ -202,7 +203,18 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     InboundConnectionTaskBuilder getInboundConnectionTaskBuilderFor(PartialInboundConnectionTask partialInboundConnectionTask);
 
+    /**
+     * Provides a builder that allows the creation of a ConnectionInitiationTask for the Device
+     *
+     * @param partialConnectionInitiationTask the partialConnectionTask that will model the actual ConnectionInitiationTask
+     * @return the builder
+     */
+    ConnectionInitiationTaskBuilder getConnectionInitiationTaskBuilder(PartialConnectionInitiationTask partialConnectionInitiationTask);
+
+
     List<ConnectionTask> getConnectionTasks();
+
+    void removeConnectionTask(ConnectionTask connectionTask);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask
@@ -223,6 +235,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
         /**
          * Creates the actual ScheduledConnectionTask with the objects set in this builder
+         *
          * @return the newly created ScheduledConnectionTask
          */
         ScheduledConnectionTask add();
@@ -239,8 +252,23 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
         /**
          * Creates the actual InboundConnectionTask with the objects set in this builder
+         *
          * @return the newly created InboundConnectionTask
          */
         InboundConnectionTask add();
+    }
+
+    interface ConnectionInitiationTaskBuilder {
+
+        ConnectionInitiationTaskBuilder setComPortPool(OutboundComPortPool comPortPool);
+
+        ConnectionInitiationTaskBuilder setProperty(String propertyName, Object value);
+
+        /**
+         * Creates the actual ConnectionInitiationTask with the objects set in this builder
+         *
+         * @return the newly created ConnectionInitiationTask
+         */
+        ConnectionInitiationTask add();
     }
 }

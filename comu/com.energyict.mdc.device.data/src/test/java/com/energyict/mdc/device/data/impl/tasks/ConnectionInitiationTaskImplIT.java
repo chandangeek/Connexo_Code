@@ -45,7 +45,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         ConnectionInitiationTask firstInitiationTask = this.createWithoutPropertiesAndNoViolations();
 
         // Create a second initiator task with another connection type
-        ConnectionInitiationTask secondInitiationTask = inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask2, outboundTcpipComPortPool);
+        ConnectionInitiationTaskImpl secondInitiationTask = ((ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask2, outboundTcpipComPortPool));
         this.setIpConnectionProperties(secondInitiationTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE, codeTable);
 
         // Business method
@@ -81,8 +81,8 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     public void testCreateWithOnlyRequiredPropertiesAndNoViolations() {
         partialConnectionInitiationTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
-        ConnectionInitiationTask connectionInitiationTask = inMemoryPersistence.getDeviceDataService()
-                .newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
+        ConnectionInitiationTaskImpl connectionInitiationTask = ((ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService()
+                .newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool));
         this.setIpConnectionProperties(connectionInitiationTask, IP_ADDRESS_PROPERTY_VALUE, null, null);
 
         // Business method
@@ -104,8 +104,8 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     public void testCreateWithMissingRequiredProperty() {
         partialConnectionInitiationTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
-        ConnectionInitiationTask connectionInitiationTask = inMemoryPersistence.getDeviceDataService()
-                .newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
+        ConnectionInitiationTaskImpl connectionInitiationTask = ((ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService()
+                .newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool));
         this.setIpConnectionProperties(connectionInitiationTask, null, PORT_PROPERTY_VALUE, codeTable);
 
         // Business method
@@ -120,8 +120,8 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     public void testCreateWithNonExistingProperty() {
         partialConnectionInitiationTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
-        ConnectionInitiationTask connectionInitiationTask = inMemoryPersistence.getDeviceDataService()
-                .newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
+        ConnectionInitiationTaskImpl connectionInitiationTask = ((ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService()
+                .newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool));
         this.setIpConnectionProperties(connectionInitiationTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE, codeTable);
         // Add values for non existing property
         connectionInitiationTask.setProperty("doesNotExist", "don't care");
@@ -138,8 +138,8 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     public void testCreateWithIpWithModemComPortPool() {
         partialConnectionInitiationTask.setConnectionTypePluggableClass(modemConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
-        ConnectionInitiationTask connectionInitiationTask = inMemoryPersistence.getDeviceDataService()
-                .newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
+        ConnectionInitiationTaskImpl connectionInitiationTask = ((ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService()
+                .newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool));
 
         // Business method
         connectionInitiationTask.save();
@@ -165,7 +165,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         List<PartialConnectionTaskFactory> partialConnectionTaskFactories = Arrays.asList(partialConnectionTaskFactory);
         when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(PartialConnectionTaskFactory.class)).thenReturn(partialConnectionTaskFactories);
 
-        ConnectionInitiationTask connectionInitiationTask = inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
+        ConnectionInitiationTaskImpl connectionInitiationTask = ((ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool));
 
         // Business method
         connectionInitiationTask.save();
@@ -178,7 +178,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     public void testAddMissingProperties() {
         partialConnectionInitiationTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
-        ConnectionInitiationTask connectionInitiationTask = inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
+        ConnectionInitiationTaskImpl connectionInitiationTask = ((ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool));
         this.setIpConnectionProperties(connectionInitiationTask, IP_ADDRESS_PROPERTY_VALUE, null, null);
         connectionInitiationTask.save();
 
@@ -199,7 +199,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testMakeObsoleteWithoutProperties() {
-        ConnectionInitiationTask connectionInitiationTask = inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
+        ConnectionInitiationTaskImpl connectionInitiationTask = ((ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool));
         connectionInitiationTask.save();
 
         // Business method
@@ -213,7 +213,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testIsObsoleteAfterReload() {
-        ConnectionInitiationTask connectionInitiationTask = inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
+        ConnectionInitiationTaskImpl connectionInitiationTask = ((ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool));
         connectionInitiationTask.save();
         long id = connectionInitiationTask.getId();
 
@@ -252,7 +252,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testReallyDeleteWithoutParams() {
-        ConnectionInitiationTask connectionInitiationTask = inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
+        ConnectionInitiationTaskImpl connectionInitiationTask = ((ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool));
         connectionInitiationTask.save();
         long id = connectionInitiationTask.getId();
 
@@ -407,19 +407,19 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         // Asserts: see expected exception rule
     }
 
-    private ConnectionInitiationTask createWithAllPropertiesAndNoViolations(String name) {
+    private ConnectionInitiationTaskImpl createWithAllPropertiesAndNoViolations(String name) {
         partialConnectionInitiationTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
         partialConnectionInitiationTask.setName(name);
         partialConnectionInitiationTask.save();
-        ConnectionInitiationTask connectionInitiationTask = inMemoryPersistence.getDeviceDataService()
-                .newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
+        ConnectionInitiationTaskImpl connectionInitiationTask = ((ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService()
+                .newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool));
         this.setIpConnectionProperties(connectionInitiationTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE, codeTable);
         connectionInitiationTask.save();
         return connectionInitiationTask;
     }
 
-    private ConnectionInitiationTask createWithoutPropertiesAndNoViolations() {
-        ConnectionInitiationTask connectionInitiationTask = inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
+    private ConnectionInitiationTaskImpl createWithoutPropertiesAndNoViolations() {
+        ConnectionInitiationTaskImpl connectionInitiationTask = ((ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool));
         connectionInitiationTask.save();
         return connectionInitiationTask;
     }

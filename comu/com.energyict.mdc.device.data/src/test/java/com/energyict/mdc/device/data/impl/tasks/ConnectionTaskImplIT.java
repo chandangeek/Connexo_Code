@@ -438,7 +438,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
             connectionTask = inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
         }
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE, codeTable);
-        connectionTask.save();
+        ((ScheduledConnectionTaskImpl) connectionTask).save();
         return connectionTask;
     }
 

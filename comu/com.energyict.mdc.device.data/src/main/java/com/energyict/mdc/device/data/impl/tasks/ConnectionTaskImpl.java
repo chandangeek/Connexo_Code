@@ -231,6 +231,16 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.getConnectionMethod().saveAllProperties();
     }
 
+
+    @Override
+    public void update() {
+        if(getId() > 0){
+            save();
+        } else {
+
+        }
+    }
+
     protected Date now() {
         return this.clock.now();
     }
