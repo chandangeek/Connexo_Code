@@ -132,8 +132,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             typeField = form.down('[name=type]'),
             templateField = form.down('[name=template]'),
             reasonField = form.down('[name=reason]'),
-            dueinNumberField = form.down('[name=duein.number]'),
-            dueinTypeField = form.down('[name=duein.type]'),
+            dueInNumberField = form.down('[name=dueIn.number]'),
+            dueInTypeField = form.down('[name=dueIn.type]'),
             commentField = form.down('[name=comment]');
 
         nameField.setValue(data.name);
@@ -146,8 +146,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         reasonField.getStore().load(function () {
             reasonField.setValue(data.reason.id);
         });
-        dueinNumberField.setValue(data.duein.number);
-        dueinTypeField.setValue(data.duein.type || dueinTypeField.getStore().getAt(0).get('name'));
+        dueInNumberField.setValue(data.dueIn.number || null);
+        dueInTypeField.setValue(data.dueIn.type || dueInTypeField.getStore().getAt(0).get('name'));
         commentField.setValue(data.comment);
     },
 
@@ -158,8 +158,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             typeField = form.down('[name=type]'),
             templateField = form.down('[name=template]'),
             reasonField = form.down('[name=reason]'),
-            dueinNumberField = form.down('[name=duein.number]'),
-            dueinTypeField = form.down('[name=duein.type]'),
+            dueInNumberField = form.down('[name=dueIn.number]'),
+            dueInTypeField = form.down('[name=dueIn.type]'),
             commentField = form.down('[name=comment]'),
             templateDetails = this.getTemplateDetails(),
             parameters = {};
@@ -174,9 +174,9 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         ruleModel.set('reason', {
             id: reasonField.getValue()
         });
-        ruleModel.set('duein', {
-            number: dueinNumberField.getValue(),
-            type: dueinTypeField.getValue()
+        ruleModel.set('dueIn', {
+            number: dueInNumberField.getValue(),
+            type: dueInTypeField.getValue()
         });
         ruleModel.set('comment', commentField.getValue());
 

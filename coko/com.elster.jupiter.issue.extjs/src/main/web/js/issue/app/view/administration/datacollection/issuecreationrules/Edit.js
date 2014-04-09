@@ -102,14 +102,14 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                 },
                                 {
                                     xtype: 'numberfield',
-                                    name: 'duein.number',
+                                    name: 'dueIn.number',
                                     minValue: 1,
                                     width: 60,
                                     margin: '0 10 0 0'
                                 },
                                 {
                                     xtype: 'combobox',
-                                    name: 'duein.type',
+                                    name: 'dueIn.type',
                                     store: 'Isu.store.DueinType',
                                     queryMode: 'local',
                                     displayField: 'name',

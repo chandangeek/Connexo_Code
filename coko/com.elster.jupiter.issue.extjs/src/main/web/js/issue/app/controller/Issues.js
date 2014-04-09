@@ -491,7 +491,12 @@ Ext.define('Isu.controller.Issues', {
     setChecboxFilter: function (filterType, filterValue) {
         var filterController = this.getController('Isu.controller.IssueFilter'),
             filterForm = filterController.getIssueFilter().down('filter-form'),
+            allCheckboxes = filterForm.query('checkboxfield');
             checkbox = filterForm.down('[name='+ filterType +'] checkboxfield[inputValue=' + filterValue + ']');
+
+        Ext.Array.each(allCheckboxes, function (item) {
+            item.setValue(false);
+        });
 
         checkbox.setValue(true);
         filterController.filter();
