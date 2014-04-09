@@ -9,10 +9,10 @@ Ext.define('Isu.controller.IssueCreationRules', {
         'Isu.store.CreationRule'
     ],
     views: [
-        'administration.datacollection.issuecreationrules.Overview',
-        'ext.button.GridAction',
-        'administration.datacollection.issuecreationrules.ActionMenu',
-        'administration.datacollection.issuecreationrules.DeleteMessageBox'
+        'Isu.view.administration.datacollection.issuecreationrules.Overview',
+        'Isu.view.ext.button.GridAction',
+        'Isu.view.administration.datacollection.issuecreationrules.ActionMenu',
+        'Isu.view.workspace.issues.MessagePanel'
     ],
 
     mixins: {
@@ -81,7 +81,7 @@ Ext.define('Isu.controller.IssueCreationRules', {
         this.selectFirstGridRow(grid);
     },
 
-    chooseAction: function(menu, item) {
+    chooseAction: function (menu, item) {
         var action = item.action;
 
         switch (action) {
@@ -98,8 +98,52 @@ Ext.define('Isu.controller.IssueCreationRules', {
         window.location.href = '#/issue-administration/datacollection/issuecreationrules/create';
     },
 
-    deleteRule: function(menu) {
-        var dialog = Ext.widget('delete-message-box');
-        dialog.show(menu);
+    deleteRule: function (menu) {
+        var self = this,
+            store = self.getStore('Isu.store.CreationRule'),
+            rule = store.getById(menu.issueId),
+            confirmMessage = Ext.widget('messagebox', {
+                buttons: [
+                    {
+                        text: 'Delete',
+                        handler: function () {
+                            rule.destroy({
+                                params: {
+                                    version: rule.data.version
+                                },
+                                callback: function () {
+                                    confirmMessage.close();
+                                    store.load();
+                                    self.getApplication().fireEvent('isushowmsg', {
+                                        type: 'notify',
+                                        msgBody: [
+                                            {
+                                                style: 'msgHeaderStyle',
+                                                text: 'Issue creation rule deleted'
+                                            }
+                                        ],
+                                        y: 10,
+                                        showTime: 5000
+                                    });
+                                }
+                            });
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        cls: 'isu-btn-link',
+                        handler: function () {
+                            confirmMessage.close();
+                        }
+                    }
+                ]
+            });
+
+        confirmMessage.show({
+            title: 'Delete issue creation rule',
+            msg: '<p><b>Delete rule "' + rule.data.name + '"?</b></p><p>This issue creation rule disappears from the list.<br>Issues will not be created automatically by this rule.</p>',
+            icon: Ext.MessageBox.WARNING,
+            cls: 'isu-delete-message'
+        });
     }
 });

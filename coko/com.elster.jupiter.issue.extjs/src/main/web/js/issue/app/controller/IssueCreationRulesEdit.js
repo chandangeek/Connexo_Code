@@ -13,7 +13,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         'Isu.store.DueinType'
     ],
     views: [
-        'administration.datacollection.issuecreationrules.Edit'
+        'Isu.view.administration.datacollection.issuecreationrules.Edit',
+        'Isu.view.workspace.issues.MessagePanel'
     ],
 
     refs: [
@@ -136,12 +137,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             commentField = form.down('[name=comment]');
 
         nameField.setValue(data.name);
-        typeField.getStore().load(function (store) {
-            if (data.type.id) {
-                typeField.setValue(data.type.id);
-            } else {
-                typeField.setValue(typeField.getStore().getAt(0).get('id'));
-            }
+        typeField.getStore().load(function () {
+            typeField.setValue(data.type.id || typeField.getStore().getAt(0).get('id'));
             templateField.getStore().on('load', function () {
                 templateField.setValue(data.template.uid);
             }, self, {single: true});
@@ -150,7 +147,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             reasonField.setValue(data.reason.id);
         });
         dueinNumberField.setValue(data.duein.number);
-        dueinTypeField.setValue(data.duein.type);
+        dueinTypeField.setValue(data.duein.type || dueinTypeField.getStore().getAt(0).get('name'));
         commentField.setValue(data.comment);
     },
 
@@ -262,14 +259,42 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
     },
 
     ruleSave: function (type) {
-        var form = this.getRuleForm().getForm(),
-            rule = this.formToModel(this.ruleModel),
-            formErrorsPanel = this.getRuleForm().down('[name=form-errors]'),
-            store = this.getStore('Isu.store.CreationRule');
+        var self = this,
+            form = self.getRuleForm().getForm(),
+            rule = self.formToModel(self.ruleModel),
+            formErrorsPanel = self.getRuleForm().down('[name=form-errors]'),
+            store = self.getStore('Isu.store.CreationRule');
 
         if (form.isValid()) {
             formErrorsPanel.hide();
-            rule.save();
+            rule.save({
+                callback: function (model, operation, success) {
+                    var messageText;
+
+                    if (success) {
+                        switch (operation.action) {
+                            case 'create':
+                                messageText = 'Issue creation rule created';
+                                break;
+                            case 'update':
+                                messageText = 'Issue creation rule updated';
+                                break;
+                        }
+                        self.getApplication().fireEvent('isushowmsg', {
+                            type: 'notify',
+                            msgBody: [
+                                {
+                                    style: 'msgHeaderStyle',
+                                    text: messageText
+                                }
+                            ],
+                            y: 10,
+                            showTime: 5000
+                        });
+                        window.location.href = '#/issue-administration/datacollection/issuecreationrules'
+                    }
+                }
+            });
         } else {
             formErrorsPanel.show();
         }
