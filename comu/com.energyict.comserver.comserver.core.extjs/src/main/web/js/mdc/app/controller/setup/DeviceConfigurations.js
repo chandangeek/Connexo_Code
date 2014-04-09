@@ -212,7 +212,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     deleteDeviceConfiguration: function(deviceConfigurationToDelete){
         var me = this;
         Ext.MessageBox.show({
-            msg: Uni.I18n.translate('deviceconfiguration.deleteDeviceConfiguration', 'MDC', 'Are you sure you want to delete this device configuration?'),
+            msg: Uni.I18n.translate('deviceconfiguration.deleteDeviceConfiguration', 'MDC', 'The item will no longer be available.'),
             title: Uni.I18n.translate('general.delete', 'MDC', 'delete') + ' ' + deviceConfigurationToDelete.get('name') + '?',
             config: {
                 registerConfigurationToDelete: deviceConfigurationToDelete,
