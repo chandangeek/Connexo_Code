@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config.impl;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import java.util.List;
@@ -15,8 +14,6 @@ import java.util.Set;
  * Time: 15:23
  */
 public interface ServerDeviceCommunicationConfiguration  extends DeviceCommunicationConfiguration {
-    public List<SecurityPropertySet> getSecurityPropertySets();
-
     /**
      * Tests if this configuration supports all current and future
      * DeviceMessageCategory DeviceMessageCategories.

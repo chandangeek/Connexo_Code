@@ -10,6 +10,7 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -19,6 +20,7 @@ import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.exceptions.PartialConnectionTaskDoesNotExist;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -40,7 +42,7 @@ import java.util.Set;
 public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<DeviceCommunicationConfiguration> implements ServerDeviceCommunicationConfiguration {
 
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-//    private List<SecurityPropertySet> securityPropertySets;
+    private List<SecurityPropertySet> securityPropertySets;
 //    private List<ComTaskEnablement> comTaskEnablements;
     private boolean supportsAllMessageCategories;
     private long userActions; // temp place holder for the enumset
@@ -418,7 +420,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public List<SecurityPropertySet> getSecurityPropertySets() {
-        return new ArrayList<>();
+        return Collections.unmodifiableList(securityPropertySets);
     }
 
     @Override
@@ -670,5 +672,42 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
         ProtocolDialectConfigurationProperties props = ProtocolDialectConfigurationPropertiesImpl.from(dataModel, this, name, protocolDialect);
         configurationPropertiesList.add(props);
         return props;
+    }
+
+    @Override
+    public SecurityPropertySetBuilder createSecurityPropertySet() {
+        return new InternalSecurityPropertySetBuilder();
+    }
+
+    private class InternalSecurityPropertySetBuilder implements SecurityPropertySetBuilder {
+        private final SecurityPropertySetImpl underConstruction;
+
+        private InternalSecurityPropertySetBuilder() {
+            this.underConstruction = SecurityPropertySetImpl.from(dataModel, DeviceCommunicationConfigurationImpl.this);
+        }
+
+        @Override
+        public SecurityPropertySetBuilder authenticationLevel(int level) {
+            underConstruction.setAuthenticationLevel(level);
+            return this;
+        }
+
+        @Override
+        public SecurityPropertySetBuilder encryptionLevel(int level) {
+            underConstruction.setEncryptionLevelId(level);
+            return this;
+        }
+
+        @Override
+        public SecurityPropertySetBuilder addUserAction(DeviceSecurityUserAction userAction) {
+            underConstruction.addUserAction(userAction);
+            return this;
+        }
+
+        @Override
+        public SecurityPropertySet build() {
+            DeviceCommunicationConfigurationImpl.this.addSecurityPropertySet(underConstruction);
+            return underConstruction;
+        }
     }
 }

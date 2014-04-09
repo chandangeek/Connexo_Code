@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.UserAction;
+import com.google.common.base.Optional;
 
 /**
  * Defines the {@link UserAction}s that relate to device security properties.
@@ -91,22 +92,6 @@ public enum DeviceSecurityUserAction {
         this.userAction = userAction;
     }
 
-    public boolean viewingIsAuthorizedFor (Role role) {
-        return this.isViewing() && this.isAuthorized(role);
-    }
-
-    public boolean editingIsAuthorizedFor (Role role) {
-        return this.isEditing() && this.isAuthorized(role);
-    }
-
-    public boolean isExecutableIsAuthorizedFor(Role rol){
-        return this.isExecutable() && this.isAuthorized(rol);
-    }
-
-    private boolean isAuthorized (Role role) {
-        return true;
-    }
-
     public boolean isViewing () {
         return false;
     }
@@ -134,5 +119,14 @@ public enum DeviceSecurityUserAction {
 
     public String getLocalizedName() {
         return Environment.DEFAULT.get().getTranslation(userAction.getDisplayNameKey());
+    }
+
+    public static Optional<DeviceSecurityUserAction> forName(String name) {
+        for (DeviceSecurityUserAction userAction : values()) {
+            if (userAction.name().equals(name)) {
+                return Optional.of(userAction);
+            }
+        }
+        return Optional.absent();
     }
 }
