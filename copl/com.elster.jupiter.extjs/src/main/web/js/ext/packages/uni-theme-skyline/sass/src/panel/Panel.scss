@@ -1,0 +1,7 @@
+.#{$prefix}panel-default-framed {
+    overflow: visible;
+
+  .#{$prefix}panel-header {
+      border-color: $panel-frame-header-border-color;
+  }
+}
