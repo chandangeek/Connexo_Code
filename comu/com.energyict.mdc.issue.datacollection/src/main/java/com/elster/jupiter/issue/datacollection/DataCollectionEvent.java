@@ -47,17 +47,6 @@ public class DataCollectionEvent implements IssueEvent{
             this.status = statusList.get(0);
         }
 
-        /*
-        IssueReason reason = null;
-        Query<IssueReason> reasonQuery = issueService.query(IssueReason.class);
-        List<IssueReason> reasonList = reasonQuery.select(where("topic").isEqualToIgnoreCase(topic));
-        if (reasonList.isEmpty()){
-            LOG.severe("Issue creation failed due to unexpected reason topic value: " + topic);
-        } else {
-            reason = reasonList.get(0);
-        }
-        */
-
         String amrId = String.class.cast(rawEvent.get(ModuleConstants.DEVICE_IDENTIFIER));
         Optional<AmrSystem> amrSystemRef = meteringService.findAmrSystem(ModuleConstants.MDC_AMR_SYSTEM_ID);
         if (amrSystemRef.isPresent()) {

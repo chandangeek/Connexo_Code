@@ -28,6 +28,6 @@ public class DataCollectionEventHandler implements MessageHandler {
     public void process(Message message) {
         Map<?, ?> map = jsonService.deserialize(message.getPayload(), Map.class);
         DataCollectionEvent event = new DataCollectionEvent(issueService, meteringService, map);
-        issueCreationService.checkCreationEvent(event);
+        issueCreationService.dispatchCreationEvent(event);
     }
 }

@@ -37,6 +37,8 @@ public class Installer {
         // TODO set correct reasons
     }
 
+    // TODO remove it when MDC will register topics
+    @Deprecated
     private void setEventTopics() {
         for (IssueEventType eventType : IssueEventType.values()) {
             try {
