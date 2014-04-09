@@ -13,7 +13,8 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
     INVALID_LICENSE(0, "invalid.license", "Invalid license file", Level.SEVERE),
     ALREADY_ACTIVE(1, "license.already.active", "License is already active", Level.SEVERE),
-    NEWER_LICENSE_EXISTS(2, "newer.license.active", "A newer license is already active", Level.SEVERE);
+    NEWER_LICENSE_EXISTS(2, "newer.license.active", "A newer license is already active", Level.SEVERE),
+    LICENSE_FOR_OTHER_APP(3, "license.for.different.app", "License is for different application", Level.SEVERE);
 
     private int errorNumber;
     private String key;

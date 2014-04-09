@@ -1,7 +1,7 @@
 package com.elster.jupiter.license.impl;
 
 import com.elster.jupiter.license.InvalidLicenseException;
-import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
 
@@ -19,6 +19,7 @@ import java.security.SignatureException;
 import java.security.SignedObject;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Properties;
 
 /**
@@ -26,7 +27,14 @@ import java.util.Properties;
  * Date: 2/04/2014
  * Time: 11:17
  */
-public class License {
+public class LicenseImpl implements License {
+    private static final String LICENSE_APP_KEY = "license.application.key";
+    private static final String LICENSE_CREATION_DATE_KEY = "license.creation.date";
+    private static final String LICENSE_EXPIRATION_DATE_KEY = "license.expiration.date";
+    private static final String LICENSE_DESCRIPTION_KEY = "license.description";
+    private static final String LICENSE_GRACE_PERIOD_KEY = "license.grace.period";
+    private static final String LICENSE_TYPE_KEY = "license.type";
+
     @NotNull
     @Size(min = 1, max = 3)
     private String appKey;
@@ -41,10 +49,6 @@ public class License {
     @SuppressWarnings("unused")
     private long version;
 
-    String getApplicationName() {
-        return appKey;
-    }
-
     private SignedObject getSignedObject() throws IOException, ClassNotFoundException {
         try (InputStream baseStream = new ByteArrayInputStream(signedObject)) {
             ObjectInputStream stream = new ObjectInputStream(baseStream);
@@ -54,12 +58,15 @@ public class License {
 
     void setSignedObject(SignedObject signedObject) throws IOException {
         if (signedObject == null) {
-            throw new InvalidLicenseException();
+            throw InvalidLicenseException.invalidLicense();
         }
         if (this.signedObject != null) {
             try {
                 Properties newProperties = extractProperties(signedObject);
-                if (getUtcInstant(LicenseService.LICENSE_CREATION_DATE_KEY, newProperties).before(getUtcInstant(LicenseService.LICENSE_CREATION_DATE_KEY, getProperties()))) {
+                if (!appKey.equals(newProperties.getProperty(LICENSE_APP_KEY))) {
+                    throw InvalidLicenseException.licenseForOtherApp();
+                }
+                if (getUtcInstant(LICENSE_CREATION_DATE_KEY, newProperties).before(getUtcInstant(LICENSE_CREATION_DATE_KEY, getProperties()))) {
                     throw InvalidLicenseException.newerLicenseAlreadyExists();
                 }
             } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | SignatureException | ClassNotFoundException e) {
@@ -80,17 +87,7 @@ public class License {
         }
     }
 
-    private UtcInstant getUtcInstant(String key, Properties newProperties) {
-        try {
-            long creationTimeStamp = Long.parseLong(newProperties.getProperty(key, "not present"));
-            return new UtcInstant(creationTimeStamp);
-        } catch (NumberFormatException e) {
-            throw new InvalidLicenseException(e);
-        }
-
-    }
-
-    Properties getProperties() {
+    private Properties getProperties() {
         if (properties == null) {
             try {
                 properties = extractProperties(getSignedObject());
@@ -105,15 +102,15 @@ public class License {
         return (Properties) new LicenseVerifier().extract(object);
     }
 
-    static License from(DataModel dataModel, String applicationKey, SignedObject signedObject) {
+    static LicenseImpl from(DataModel dataModel, String applicationKey, SignedObject signedObject) {
         try {
-            return dataModel.getInstance(License.class).init(applicationKey, signedObject);
+            return dataModel.getInstance(LicenseImpl.class).init(applicationKey, signedObject);
         } catch (NoSuchAlgorithmException | IOException | ClassNotFoundException | SignatureException | InvalidKeyException | InvalidKeySpecException e) {
             throw new InvalidLicenseException(e);
         }
     }
 
-    private License init(String applicationKey, SignedObject signedObject) throws NoSuchAlgorithmException, IOException, ClassNotFoundException, SignatureException, InvalidKeyException, InvalidKeySpecException {
+    private LicenseImpl init(String applicationKey, SignedObject signedObject) throws NoSuchAlgorithmException, IOException, ClassNotFoundException, SignatureException, InvalidKeyException, InvalidKeySpecException {
         appKey = applicationKey;
         new LicenseVerifier().extract(signedObject);
         setSignedObject(signedObject);
@@ -121,4 +118,71 @@ public class License {
     }
 
 
+    @Override
+    public String getApplicationKey() {
+        return appKey;
+    }
+
+    @Override
+    public Status getStatus() {
+        return getExpiration().before(new Date()) ? Status.EXPIRED : Status.ACTIVE;
+    }
+
+    @Override
+    public String getDescription() {
+        return getProperties().getProperty(LICENSE_DESCRIPTION_KEY);
+    }
+
+    @Override
+    public UtcInstant getExpiration() {
+        return getUtcInstant(LICENSE_EXPIRATION_DATE_KEY, getProperties());
+    }
+
+    @Override
+    public UtcInstant getActivation() {
+        return modTime;
+    }
+
+    @Override
+    public int getGracePeriodInDays() {
+        return getInt(LICENSE_GRACE_PERIOD_KEY, getProperties());
+    }
+
+    @Override
+    public Type getType() {
+        return "full".equals(getProperties().getProperty(LICENSE_TYPE_KEY, "evaluation")) ? Type.FULL : Type.EVALUATION;
+    }
+
+    @Override
+    public Properties getLicensedValues() {
+        Properties props = new Properties();
+        props.putAll(getProperties());
+        return filterStandardProperties(props);
+    }
+
+    private Properties filterStandardProperties(Properties props) {
+        String[] defaultKeys = new String[]{LICENSE_CREATION_DATE_KEY, LICENSE_DESCRIPTION_KEY,
+                LICENSE_EXPIRATION_DATE_KEY, LICENSE_APP_KEY, LICENSE_GRACE_PERIOD_KEY, LICENSE_TYPE_KEY};
+        for (String defaultKey : defaultKeys) {
+            props.remove(defaultKey);
+        }
+        return props;
+    }
+
+    private UtcInstant getUtcInstant(String key, Properties properties) {
+        try {
+            long creationTimeStamp = Long.parseLong(properties.getProperty(key, "not present"));
+            return new UtcInstant(creationTimeStamp);
+        } catch (NumberFormatException e) {
+            throw new InvalidLicenseException(e);
+        }
+    }
+
+    private int getInt(String key, Properties properties) {
+        try {
+            return Integer.parseInt(properties.getProperty(key, "not present"));
+        } catch (NumberFormatException e) {
+            throw new InvalidLicenseException(e);
+        }
+    }
 }

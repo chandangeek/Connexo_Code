@@ -1,5 +1,6 @@
 package com.elster.jupiter.license.impl;
 
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -15,7 +16,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<License> table = dataModel.addTable(name(), License.class);
-            table.map(License.class);
+            table.map(LicenseImpl.class);
             table.setJournalTableName("LIC_LICENSEJRNL");
             Column appName = table.column("APPNAME").varChar().map("appKey").add();
             table.column("LICENSE").type("blob").map("signedObject").conversion(ColumnConversion.BLOB2BYTE).add();

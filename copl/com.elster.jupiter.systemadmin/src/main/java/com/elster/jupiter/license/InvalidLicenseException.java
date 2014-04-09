@@ -10,10 +10,6 @@ import com.elster.jupiter.util.exception.BaseException;
  */
 public final class InvalidLicenseException extends BaseException {
 
-    public InvalidLicenseException() {
-        this(MessageSeeds.INVALID_LICENSE);
-    }
-
     private InvalidLicenseException(MessageSeeds message) {
         super(message);
 
@@ -29,5 +25,13 @@ public final class InvalidLicenseException extends BaseException {
 
     public static InvalidLicenseException newerLicenseAlreadyExists() {
         return new InvalidLicenseException(MessageSeeds.NEWER_LICENSE_EXISTS);
+    }
+
+    public static InvalidLicenseException licenseForOtherApp() {
+        return new InvalidLicenseException(MessageSeeds.LICENSE_FOR_OTHER_APP);
+    }
+
+    public static InvalidLicenseException invalidLicense() {
+        return new InvalidLicenseException(MessageSeeds.INVALID_LICENSE);
     }
 }

@@ -15,10 +15,11 @@ import java.util.Set;
 public interface LicenseService {
 
     String COMPONENTNAME = "LIC";
-    String LICENSE_CREATION_DATE_KEY = "license.creation.date";
 
     // Returns the application names/keys for which there is a license
     List<String> getLicensedApplicationKeys();
+
+    Optional<License> getLicenseForApplication(String applicationKey);
 
     Optional<Properties> getLicensedValuesForApplication(String applicationKey);
 

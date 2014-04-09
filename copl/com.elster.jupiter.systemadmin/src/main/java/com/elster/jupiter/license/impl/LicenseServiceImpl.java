@@ -1,6 +1,7 @@
 package com.elster.jupiter.license.impl;
 
 import com.elster.jupiter.license.InvalidLicenseException;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -81,9 +82,14 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
         List<License> licenses = dataModel.mapper(License.class).find();
         List<String> keys = new ArrayList<>(licenses.size());
         for (License license : licenses) {
-            keys.add(license.getApplicationName());
+            keys.add(license.getApplicationKey());
         }
         return keys;
+    }
+
+    @Override
+    public Optional<License> getLicenseForApplication(String applicationKey) {
+        return dataModel.mapper(License.class).getOptional(applicationKey);
     }
 
     @Override
@@ -91,7 +97,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
         Optional<License> license = dataModel.mapper(License.class).getOptional(applicationKey);
         if (license.isPresent()) {
             Properties properties = new Properties();
-            properties.putAll(license.get().getProperties());
+            properties.putAll(license.get().getLicensedValues());
             return Optional.of(properties);
         } else {
             return Optional.absent();
@@ -118,17 +124,17 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
             throw new InvalidLicenseException(e);
         }
         if (!(licensedMap instanceof Hashtable)) {
-            throw new InvalidLicenseException();
+            throw InvalidLicenseException.invalidLicense();
         } else {
             Hashtable<String, SignedObject> licensedApps = (Hashtable<String, SignedObject>) licensedMap;
             for (String applicationKey : licensedApps.keySet()) {
                 Optional<License> licenseOption = dataModel.mapper(License.class).getOptional(applicationKey);
                 if (licenseOption.isPresent()) {
-                    License license = licenseOption.get();
+                    LicenseImpl license = (LicenseImpl) licenseOption.get();
                     license.setSignedObject(licensedApps.get(applicationKey));
                     dataModel.update(license, "signedObject");
                 } else {
-                    License license = License.from(dataModel, applicationKey, licensedApps.get(applicationKey));
+                    LicenseImpl license = LicenseImpl.from(dataModel, applicationKey, licensedApps.get(applicationKey));
                     dataModel.persist(license);
                 }
             }
