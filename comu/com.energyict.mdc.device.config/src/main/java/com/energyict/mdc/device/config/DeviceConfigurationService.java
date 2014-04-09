@@ -27,8 +27,6 @@ public interface DeviceConfigurationService {
 
     public Finder<DeviceType> findAllDeviceTypes();
 
-    public DeviceType newDeviceType (String name, String deviceProtocolPluggableClassName);
-
     public DeviceType newDeviceType (String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
     /**

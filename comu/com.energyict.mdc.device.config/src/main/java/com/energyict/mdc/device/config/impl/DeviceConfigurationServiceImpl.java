@@ -22,7 +22,6 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.DeviceTypeFields;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
@@ -34,7 +33,6 @@ import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TemporalExpression;
-import com.energyict.mdc.device.config.exceptions.NoSuchProtocolException;
 import com.energyict.mdc.device.config.exceptions.UnitHasNoMatchingPhenomenonException;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -42,15 +40,13 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import java.util.List;
+import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -99,16 +95,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Finder<DeviceType> findAllDeviceTypes() {
         return DefaultFinder.of(DeviceType.class, this.getDataModel()).defaultSortColumn("lower(name)");
-    }
-
-    @Override
-    public DeviceType newDeviceType(String name, String deviceProtocolPluggableClassName) {
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass =
-                protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceProtocolPluggableClassName).orNull();
-        if (deviceProtocolPluggableClass == null) {
-            throw new NoSuchProtocolException(this.thesaurus,deviceProtocolPluggableClassName, DeviceTypeFields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName());
-        }
-        return newDeviceType(name, deviceProtocolPluggableClass);
     }
 
     @Override
