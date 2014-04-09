@@ -108,20 +108,25 @@ Ext.define('Isu.controller.IssueCreationRules', {
                         text: 'Delete',
                         handler: function () {
                             rule.destroy({
-                                callback: function () {
+                                params: {
+                                    version: rule.data.version
+                                },
+                                callback: function (model, operation, success) {
                                     confirmMessage.close();
                                     store.loadPage(1);
-                                    self.getApplication().fireEvent('isushowmsg', {
-                                        type: 'notify',
-                                        msgBody: [
-                                            {
-                                                style: 'msgHeaderStyle',
-                                                text: 'Issue creation rule deleted'
-                                            }
-                                        ],
-                                        y: 10,
-                                        showTime: 5000
-                                    });
+                                    if (success) {
+                                        self.getApplication().fireEvent('isushowmsg', {
+                                            type: 'notify',
+                                            msgBody: [
+                                                {
+                                                    style: 'msgHeaderStyle',
+                                                    text: 'Issue creation rule deleted'
+                                                }
+                                            ],
+                                            y: 10,
+                                            showTime: 5000
+                                        });
+                                    }
                                 }
                             });
                         }
