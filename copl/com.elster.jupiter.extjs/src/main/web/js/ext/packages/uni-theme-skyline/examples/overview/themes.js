@@ -1,3 +1,4 @@
+
 Ext.require([
     'Ext.window.Window',
     'Ext.panel.Panel',
@@ -16,6 +17,8 @@ Ext.require([
 
     'Ext.perf.Monitor'
 ]);
+
+
 
 function hasOption(name) {
     return window.location.search.indexOf(name) >= 0;
@@ -388,13 +391,15 @@ function getFormWidgets() {
             },
             {
                 xtype: 'label',
-                text: 'Plain Label'
+                text: 'Plain label',
+                cls: 'x-label-normal'
             },
             {
                 fieldLabel: 'TextField',
                 xtype: 'textfield',
                 name: 'someField',
                 emptyText: 'Enter a value'
+
             },
             {
                 fieldLabel: 'ComboBox',
@@ -405,6 +410,7 @@ function getFormWidgets() {
                 fieldLabel: 'DateField',
                 xtype: 'datefield',
                 name: 'date'
+
             },
             {
                 fieldLabel: 'TimeField',
@@ -417,6 +423,7 @@ function getFormWidgets() {
                 name: 'number',
                 emptyText: '(This field is optional)',
                 allowBlank: true
+
             },
             {
                 fieldLabel: 'TextArea',

@@ -1,0 +1,19 @@
+.#{$prefix}form-field,
+.#{$prefix}form-trigger-wrap {
+  border-radius: 3px;
+}
+
+.#{$prefix}trigger-cell,
+div.#{$prefix}form-spinner-up,
+div.#{$prefix}form-spinner-down {
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.#{$prefix}form-invalid-under {
+
+    background: none;
+    color: $form-error-msg-color;
+    font: 13px/16px "Lato",helvetica,arial,verdana,sans-serif;
+    padding: 10px 0px 10px 0px;
+
+}

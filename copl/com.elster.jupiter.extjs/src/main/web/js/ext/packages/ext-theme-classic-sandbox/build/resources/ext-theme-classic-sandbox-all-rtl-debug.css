@@ -4916,12 +4916,12 @@ div.x4-editor {
   display: none;
 }
 
-/* line 1, ../../../ext-theme-base/sass/src/form/field/TextArea.scss */
+/* line 1, ../../../ext-theme-base/sass/src/form/field/Base.scss */
 .x4-form-textarea {
   overflow: auto;
   resize: none;
 }
-/* line 5, ../../../ext-theme-base/sass/src/form/field/TextArea.scss */
+/* line 5, ../../../ext-theme-base/sass/src/form/field/Base.scss */
 .x4-safari.x4-mac .x4-form-textarea {
   margin-bottom: -2px;
 }
@@ -16125,13 +16125,13 @@ textarea.x4-form-empty-field {
   margin-bottom: -1px;
 }
 
-/* line 1, ../../../ext-theme-neutral/sass/src/form/field/TextArea.scss */
+/* line 1, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x4-form-textarea {
   line-height: normal;
   height: auto;
   background-image: url(images/form/text-bg.gif);
 }
-/* line 5, ../../../ext-theme-neutral/sass/src/form/field/TextArea.scss */
+/* line 5, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x4-content-box .x4-form-textarea {
   height: auto;
 }

@@ -4970,12 +4970,12 @@ div.x-editor {
   display: none;
 }
 
-/* line 1, ../../../../../../packages/ext-theme-base/sass/src/form/field/TextArea.scss */
+/* line 1, ../../../../../../packages/ext-theme-base/sass/src/form/field/Base.scss */
 .x-form-textarea {
   overflow: auto;
   resize: none;
 }
-/* line 5, ../../../../../../packages/ext-theme-base/sass/src/form/field/TextArea.scss */
+/* line 5, ../../../../../../packages/ext-theme-base/sass/src/form/field/Base.scss */
 .x-safari.x-mac .x-form-textarea {
   margin-bottom: -2px;
 }
@@ -16195,12 +16195,12 @@ textarea.x-form-empty-field {
   margin-bottom: -1px;
 }
 
-/* line 1, ../../../../../../packages/ext-theme-neutral/sass/src/form/field/TextArea.scss */
+/* line 1, ../../../../../../packages/ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-textarea {
   line-height: normal;
   height: auto;
 }
-/* line 5, ../../../../../../packages/ext-theme-neutral/sass/src/form/field/TextArea.scss */
+/* line 5, ../../../../../../packages/ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-content-box .x-form-textarea {
   height: auto;
 }
