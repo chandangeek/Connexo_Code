@@ -1,10 +1,32 @@
 /** @class Ext.panel.Panel */
 
 $panel-base-color: $base-color;
+$panel-border-radius: 0 !default;
+$panel-padding: 16px !default;
 
-$panel-header-font-family: $font-family !default;
-$panel-header-padding: 8px 16px !default;
-$panel-header-background-color: $panel-base-color !default;
+$panel-body-background-color: $color-white !default;
+$panel-body-color: #000 !default;
+$panel-body-border-width: 0 !default;
+$panel-body-border-style: none !default;
+
+$panel-header-color:$color-blue-3;
+//$panel-header-font-family: $header-font-family !default;
+//$panel-header-font-size: 30px;
+//$panel-header-line-height: 30px;
+$panel-header-padding: 0 !default;
+$panel-header-background-color: $panel-body-background-color !default;
+$panel-header-border-width: 0 !default;
+$panel-header-border-style: none !default;
+
+$panel-large-header-font-family: $header-font-family !default;
+$panel-large-header-font-size: 60px;
+$panel-large-header-font-weight: normal;
+$panel-large-header-padding: 0 0 16px 0 !default;
+
+$panel-medium-header-font-family: $header-font-family !default;
+$panel-medium-header-font-size: 30px;
+$panel-medium-header-font-weight: normal;
+$panel-medium-header-padding: 0 0 16px 0 !default;
 
 $panel-frame-header-padding: $panel-header-padding !default;
 $panel-frame-header-border-width: 1px !default;
@@ -13,3 +35,19 @@ $panel-frame-border-radius: 10px !default;
 //$panel-frame-padding: 16px !default;
 $panel-frame-border-width: 1px !default;
 $panel-frame-border-color: $color-grey-7 !default;
+
+$panel-filter-padding: 16px !default;
+$panel-filter-border-radius: 0 !default;
+$panel-filter-body-color: $color-grey !default;
+$panel-filter-body-background-color: $color-grey-10 !default;
+
+$panel-filter-border-color: none;
+$panel-filter-border-width: 0;
+
+$panel-filter-header-padding: 0 0 16px 0 !default;
+$panel-filter-header-color: $panel-filter-body-color !default;
+$panel-filter-header-background-color: $color-grey-10 !default;
+$panel-filter-header-font-family: $header-font-family !default;
+$panel-filter-header-font-size: 30px !default;
+$panel-filter-header-font-weight: normal !default;
+$panel-filter-background-color: $color-grey-10;

@@ -27,6 +27,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "ExtThemeNeptune.tab.Tab": [],
   "ExtThemeNeptune.toolbar.Paging": [],
   "ExtThemeNeptune.toolbar.Toolbar": [],
+  "Skyline.grid.Panel": [],
   "Skyline.view.Table": []
 });
 Ext.ClassManager.addNameAliasMappings({
@@ -46,6 +47,7 @@ Ext.ClassManager.addNameAliasMappings({
   "ExtThemeNeptune.tab.Tab": [],
   "ExtThemeNeptune.toolbar.Paging": [],
   "ExtThemeNeptune.toolbar.Toolbar": [],
+  "Skyline.grid.Panel": [],
   "Skyline.view.Table": []
 });
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/Component.js");
@@ -56,6 +58,7 @@ Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/container/ButtonGrou
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/toolbar/Paging.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/picker/Month.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/form/field/HtmlEditor.js");
+Ext.Loader.loadScript("../../overrides/grid/Panel.js");
 Ext.Loader.loadScript("../../overrides/view/Table.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/panel/Table.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/grid/RowEditor.js");
