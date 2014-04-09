@@ -108,9 +108,6 @@ Ext.define('Isu.controller.IssueCreationRules', {
                         text: 'Delete',
                         handler: function () {
                             rule.destroy({
-                                params: {
-                                    version: rule.data.version
-                                },
                                 callback: function () {
                                     confirmMessage.close();
                                     store.loadPage(1);
