@@ -113,7 +113,7 @@ Ext.define('Isu.controller.IssueCreationRules', {
                                 },
                                 callback: function () {
                                     confirmMessage.close();
-                                    store.load();
+                                    store.loadPage(1);
                                     self.getApplication().fireEvent('isushowmsg', {
                                         type: 'notify',
                                         msgBody: [
