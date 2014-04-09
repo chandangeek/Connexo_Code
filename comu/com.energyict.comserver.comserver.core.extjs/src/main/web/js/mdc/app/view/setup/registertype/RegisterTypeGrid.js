@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
             {
                 xtype: 'actioncolumn',
                 renderer: function (value, metaData, record) {
-                    return '<div style="float:left; font-size: 13px; line-height: 1em;">'
+                    return '<div class="x-grid-cell-inner" style="float:left; font-size: 13px; line-height: 1em;">'
                         + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
                         + '</div>'
                 },
@@ -35,6 +35,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 items: [
                     {
                         icon: '../mdc/resources/images/information.png',
+                        iconCls: 'uni-info-icon',
                         tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
                         handler: function (grid, rowIndex, colIndex, item, e) {
                             var record = grid.getStore().getAt(rowIndex);
@@ -42,10 +43,9 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                         }
                     }
                 ],
-                flex: 2,
+                width: 300,
                 tdCls: 'view',
                 sortable: false,
-                fixed: true,
                 hideable: false
 
             },
