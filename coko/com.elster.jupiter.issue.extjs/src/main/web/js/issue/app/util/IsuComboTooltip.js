@@ -72,7 +72,12 @@ Ext.define('Isu.util.IsuComboTooltip', {
             tooltip && tooltip.show();
         } else {
             tooltip && tooltip.hide();
-            listValues && listValues.show();
+            if (listValues) {
+                listValues.show();
+                Ext.get(listValues.getEl()).setStyle({
+                    visibility: 'visible'
+                });
+            }
         }
     }
 });
