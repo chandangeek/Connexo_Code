@@ -36,6 +36,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 items: [
                     {
                         icon: '../mdc/resources/images/information.png',
+                        iconCls: 'uni-info-icon',
                         tooltip: Uni.I18n.translate('readingType.tooltip','MDC','Reading type info'),
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             //var record = grid.getStore().getAt(rowIndex);
@@ -46,8 +47,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 flex: 2,
                 tdCls: 'view',
                 sortable: false,
-                fixed: true,
-                hideable: false
+                width: 300
             },
             {
                 header: Uni.I18n.translate('registerMappings.obisCode', 'MDC', 'OBIS code'),

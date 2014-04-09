@@ -37,6 +37,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                 items: [
                     {
                         icon: '../mdc/resources/images/information.png',
+                        iconCls: 'uni-info-icon',
                         tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             //var record = grid.getStore().getAt(rowIndex);
@@ -44,10 +45,9 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                         }
                     }
                 ],
-                flex: 2,
+                width: 300,
                 tdCls: 'view',
                 sortable: false,
-                fixed: true,
                 hideable: false
             },
             {
