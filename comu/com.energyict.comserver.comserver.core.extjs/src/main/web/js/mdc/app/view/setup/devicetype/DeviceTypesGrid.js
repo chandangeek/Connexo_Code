@@ -96,6 +96,9 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
+                displayMsg: Uni.I18n.translate('devicetype.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} device types'),
+                displayMoreMsg: Uni.I18n.translate('devicetype.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} device types'),
+                emptyMsg: Uni.I18n.translate('devicetype.pagingtoolbartop.emptyMsg', 'MDC', 'There are no device types to display'),
                 items: [
                     {
                         xtype: 'component',
@@ -112,7 +115,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
-                dock: 'bottom'
+                dock: 'bottom',
+                itemsPerPageMsg: Uni.I18n.translate('devicetype.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Device types per page')
             }
         ];
 
