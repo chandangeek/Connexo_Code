@@ -76,6 +76,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
                         '</table>',
                         {
                             formatRuleDate: function (date) {
+                                date = Ext.isDate(date) ? date : new Date(date);
                                 return Ext.Date.format(date, 'M d, Y H:i');
                             }
                         }
