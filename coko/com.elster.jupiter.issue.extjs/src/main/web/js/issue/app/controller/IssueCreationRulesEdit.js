@@ -49,7 +49,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             'issues-creation-rules-edit breadcrumbTrail': {
                 afterrender: this.setBreadcrumb
             },
-            'issues-creation-rules-edit form [name=type]': {
+            'issues-creation-rules-edit form [name=issueType]': {
                 change: this.setRuleTemplateCombobox
             },
             'issues-creation-rules-edit form [name=template]': {

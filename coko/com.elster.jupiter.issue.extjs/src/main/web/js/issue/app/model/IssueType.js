@@ -3,7 +3,7 @@ Ext.define('Isu.model.IssueType', {
     fields: [
         {
             name: 'uid',
-            type: 'int'
+            type: 'text'
         },
         {
             name: 'name',
