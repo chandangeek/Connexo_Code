@@ -17,7 +17,6 @@ import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -222,7 +221,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     @Override
     public Optional<ConnectionTask> findConnectionTaskForPartialOnDevice(PartialConnectionTask partialConnectionTask, Device device) {
-        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("obsoleteDate").isNull()).and(where("partialConnectionTaskId").isEqualTo(partialConnectionTask.getId()));
+        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("obsoleteDate").isNull()).and(where("partialConnectionTask").isEqualTo(partialConnectionTask));
         List<ConnectionTask> connectionTasks = this.getDataModel().mapper(ConnectionTask.class).select(condition);
         if (connectionTasks.isEmpty()) {
             return Optional.absent();
@@ -343,7 +342,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
             T lockedConnectionTask = (T) lockResult.get();
             if (lockedConnectionTask.getExecutingComServer() == null) {
                 ((ConnectionTaskImpl) lockedConnectionTask).setExecutingComServer(comServer);
-                lockedConnectionTask.save();
+                ((ConnectionTaskImpl) lockedConnectionTask).save();
                 return lockedConnectionTask;
             }
             else {
@@ -522,12 +521,6 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     @Override
     public Device getPrototypeDeviceFor(DeviceConfiguration deviceConfiguration) {
         return null;
-    }
-
-    @Override
-    public boolean deviceHasLogBookForLogBookSpec(Device device, LogBookSpec logBookSpec) {
-        //TODO properly implement when the persistence of LogBook has finished
-        return false;
     }
 
     @Override

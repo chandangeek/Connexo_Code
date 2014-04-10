@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
@@ -60,15 +61,15 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static final int CODE_TABLE_ID = 102;
     protected static final TimeDuration EVERY_HOUR = new TimeDuration(1, TimeDuration.HOURS);
 
-    protected static final long PARTIAL_SCHEDULED_CONNECTION_TASK1_ID = CODE_TABLE_ID + 1;
-    protected static final long PARTIAL_SCHEDULED_CONNECTION_TASK2_ID = PARTIAL_SCHEDULED_CONNECTION_TASK1_ID + 1;
-    protected static final long PARTIAL_SCHEDULED_CONNECTION_TASK3_ID = PARTIAL_SCHEDULED_CONNECTION_TASK2_ID + 1;
-    protected static final long PARTIAL_INBOUND_CONNECTION_TASK1_ID = PARTIAL_SCHEDULED_CONNECTION_TASK3_ID + 1;
-    protected static final long PARTIAL_INBOUND_CONNECTION_TASK2_ID = PARTIAL_INBOUND_CONNECTION_TASK1_ID + 1;
-    protected static final long PARTIAL_INBOUND_CONNECTION_TASK3_ID = PARTIAL_INBOUND_CONNECTION_TASK2_ID + 1;
-    protected static final long PARTIAL_CONNECTION_INITIATION_TASK1_ID = PARTIAL_INBOUND_CONNECTION_TASK3_ID + 1;
-    protected static final long PARTIAL_CONNECTION_INITIATION_TASK2_ID = PARTIAL_CONNECTION_INITIATION_TASK1_ID + 1;
-    protected static final long PARTIAL_CONNECTION_INITIATION_TASK3_ID = PARTIAL_CONNECTION_INITIATION_TASK2_ID + 1;
+    protected static long PARTIAL_SCHEDULED_CONNECTION_TASK1_ID;
+    protected static long PARTIAL_SCHEDULED_CONNECTION_TASK2_ID;
+    protected static long PARTIAL_SCHEDULED_CONNECTION_TASK3_ID;
+    protected static long PARTIAL_INBOUND_CONNECTION_TASK1_ID;
+    protected static long PARTIAL_INBOUND_CONNECTION_TASK2_ID;
+    protected static long PARTIAL_INBOUND_CONNECTION_TASK3_ID;
+    protected static long PARTIAL_CONNECTION_INITIATION_TASK1_ID;
+    protected static long PARTIAL_CONNECTION_INITIATION_TASK2_ID;
+    protected static long PARTIAL_CONNECTION_INITIATION_TASK3_ID;
 
     protected static final long IP_COMPORT_POOL_ID = 1;
     protected static final long MODEM_COMPORT_POOL_ID = IP_COMPORT_POOL_ID + 1;
@@ -89,23 +90,16 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static InboundComPortPool inboundTcpipComPortPool2;
     protected static OutboundComPortPool outboundModemComPortPool;
 
-    @Mock
     protected DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
     protected Device device;
     @Mock
     protected Device otherDevice;
-    @Mock
     protected PartialInboundConnectionTask partialInboundConnectionTask;
-    @Mock
     protected PartialInboundConnectionTask partialInboundConnectionTask2;
-    @Mock
     protected PartialOutboundConnectionTask partialScheduledConnectionTask;
-    @Mock
     protected PartialOutboundConnectionTask partialScheduledConnectionTask2;
-    @Mock
     protected PartialConnectionInitiationTask partialConnectionInitiationTask;
-    @Mock
     protected PartialConnectionInitiationTask partialConnectionInitiationTask2;
 
 
@@ -373,47 +367,55 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         List<DeviceFactory> deviceFactories = Arrays.asList(deviceFactory);
         when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class)).thenReturn(deviceFactories);
 
-        when(this.deviceCommunicationConfiguration.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
+        deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
 
-        when(this.partialInboundConnectionTask.getId()).thenReturn(PARTIAL_INBOUND_CONNECTION_TASK1_ID);
-        when(this.partialInboundConnectionTask.getName()).thenReturn("Inbound (1)");
-        when(this.partialInboundConnectionTask.getConfiguration()).thenReturn(this.deviceConfiguration);
-        when(this.partialInboundConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
+        partialInboundConnectionTask = deviceCommunicationConfiguration.createPartialInboundConnectionTask().
+                name("Inbound (1)").
+                pluggableClass(noParamsConnectionTypePluggableClass).
+                build();
 
-        when(this.partialInboundConnectionTask2.getId()).thenReturn(PARTIAL_INBOUND_CONNECTION_TASK2_ID);
-        when(this.partialInboundConnectionTask2.getName()).thenReturn("Inbound (2)");
-        when(this.partialInboundConnectionTask2.getConfiguration()).thenReturn(this.deviceConfiguration);
-        when(this.partialInboundConnectionTask2.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
+        partialInboundConnectionTask2 = deviceCommunicationConfiguration.createPartialInboundConnectionTask().
+                name("Inbound (2)").
+                pluggableClass(noParamsConnectionTypePluggableClass).
+                build();
 
-        when(this.partialScheduledConnectionTask.getId()).thenReturn(PARTIAL_SCHEDULED_CONNECTION_TASK1_ID);
-        when(this.partialScheduledConnectionTask.getName()).thenReturn("Outbound (1)");
-        when(this.partialScheduledConnectionTask.getConfiguration()).thenReturn(this.deviceConfiguration);
-        when(this.partialScheduledConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
+        partialScheduledConnectionTask = deviceCommunicationConfiguration.createPartialOutboundConnectionTask().
+                name("Outbound (1)").
+                comWindow(new ComWindow(0, 7200)).
+                rescheduleDelay(TimeDuration.minutes(5)).
+                connectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+                pluggableClass(noParamsConnectionTypePluggableClass).
+                build();
 
-        when(this.partialScheduledConnectionTask2.getId()).thenReturn(PARTIAL_SCHEDULED_CONNECTION_TASK2_ID);
-        when(this.partialScheduledConnectionTask2.getName()).thenReturn("Outbound (2)");
-        when(this.partialScheduledConnectionTask2.getConfiguration()).thenReturn(this.deviceConfiguration);
-        when(this.partialScheduledConnectionTask2.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
+        partialScheduledConnectionTask2 = deviceCommunicationConfiguration.createPartialOutboundConnectionTask().
+                name("Outbound (2)").
+                comWindow(new ComWindow(0, 7200)).
+                rescheduleDelay(TimeDuration.minutes(5)).
+                connectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+                pluggableClass(noParamsConnectionTypePluggableClass).
+                build();
 
-        when(this.partialConnectionInitiationTask.getId()).thenReturn(PARTIAL_CONNECTION_INITIATION_TASK1_ID);
-        when(this.partialConnectionInitiationTask.getName()).thenReturn("Initiation (1)");
-        when(this.partialConnectionInitiationTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
-        when(this.partialConnectionInitiationTask.getTypedProperties()).thenReturn(TypedProperties.empty());
+        partialConnectionInitiationTask = deviceCommunicationConfiguration.createPartialConnectionInitiationTask().
+                name("Initiation (1)").
+                rescheduleDelay(TimeDuration.minutes(5)).
+                pluggableClass(ipConnectionTypePluggableClass).
+                build();
 
-        when(this.partialConnectionInitiationTask2.getId()).thenReturn(PARTIAL_CONNECTION_INITIATION_TASK2_ID);
-        when(this.partialConnectionInitiationTask2.getName()).thenReturn("Initiation (2)");
-        when(this.partialConnectionInitiationTask2.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
-        when(this.partialConnectionInitiationTask2.getTypedProperties()).thenReturn(TypedProperties.empty());
+        partialConnectionInitiationTask2 = deviceCommunicationConfiguration.createPartialConnectionInitiationTask().
+                name("Initiation (2)").
+                rescheduleDelay(TimeDuration.minutes(5)).
+                pluggableClass(ipConnectionTypePluggableClass).
+                build();
 
-        PartialConnectionTaskFactory partialConnectionTaskFactory = mock(PartialConnectionTaskFactory.class);
-        when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_INBOUND_CONNECTION_TASK1_ID)).thenReturn(this.partialInboundConnectionTask);
-        when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_INBOUND_CONNECTION_TASK2_ID)).thenReturn(this.partialInboundConnectionTask2);
-        when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_SCHEDULED_CONNECTION_TASK1_ID)).thenReturn(this.partialScheduledConnectionTask);
-        when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_SCHEDULED_CONNECTION_TASK2_ID)).thenReturn(this.partialScheduledConnectionTask2);
-        when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_CONNECTION_INITIATION_TASK1_ID)).thenReturn(this.partialConnectionInitiationTask);
-        when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_CONNECTION_INITIATION_TASK2_ID)).thenReturn(this.partialConnectionInitiationTask2);
-        List<PartialConnectionTaskFactory> partialConnectionTaskFactories = Arrays.asList(partialConnectionTaskFactory);
-        when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(PartialConnectionTaskFactory.class)).thenReturn(partialConnectionTaskFactories);
+        deviceCommunicationConfiguration.save();
+
+        PARTIAL_INBOUND_CONNECTION_TASK1_ID = partialInboundConnectionTask.getId();
+        PARTIAL_INBOUND_CONNECTION_TASK2_ID = partialInboundConnectionTask2.getId();
+        PARTIAL_SCHEDULED_CONNECTION_TASK1_ID = partialScheduledConnectionTask.getId();
+        PARTIAL_SCHEDULED_CONNECTION_TASK2_ID = partialScheduledConnectionTask2.getId();
+        PARTIAL_CONNECTION_INITIATION_TASK1_ID = partialConnectionInitiationTask.getId();
+        PARTIAL_CONNECTION_INITIATION_TASK2_ID = partialConnectionInitiationTask2.getId();
+
     }
 
     protected ScheduledConnectionTask createOutboundWithIpPropertiesWithoutViolations(String name) {
@@ -421,8 +423,8 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected ScheduledConnectionTask createOutboundWithIpPropertiesWithoutViolations(String name, ConnectionStrategy connectionStrategy) {
-        when(this.partialScheduledConnectionTask.getPluggableClass()).thenReturn(ipConnectionTypePluggableClass);
-        when(this.partialScheduledConnectionTask.getName()).thenReturn(name);
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialScheduledConnectionTask.save();
         ScheduledConnectionTask connectionTask;
         if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(connectionStrategy)) {
             TemporalExpression nextExecutionSpecs = new TemporalExpression(EVERY_HOUR);
@@ -436,7 +438,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
             connectionTask = inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
         }
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE, codeTable);
-        connectionTask.save();
+        ((ScheduledConnectionTaskImpl) connectionTask).save();
         return connectionTask;
     }
 

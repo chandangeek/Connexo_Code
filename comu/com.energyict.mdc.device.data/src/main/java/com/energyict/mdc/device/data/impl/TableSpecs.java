@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
@@ -20,14 +19,8 @@ import com.energyict.mdc.pluggable.PluggableService;
 
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.DATE2DATE;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2UTCINSTANT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2DATE;
-import static com.elster.jupiter.orm.DeleteRule.*;
+import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 /**
  * Models the database tables that hold the data of the
@@ -191,8 +184,7 @@ public enum TableSpecs {
             table.column("LASTSUCCESSFULCOMMUNICATIONEND").conversion(NUMBERINUTCSECONDS2DATE).number().map("lastSuccessfulCommunicationEnd").add();
             Column comServer = table.column("COMSERVER").number().add();
             Column comPortPool = table.column("COMPORTPOOL").number().add();
-            // Todo: change to FK and reference once PartialConnectionTask (JP-809) is properly moved to the mdc.device.config bundle
-            table.column("PARTIALCONNECTIONTASK").number().conversion(NUMBER2LONG).map("partialConnectionTaskId").add();
+            Column partialConnectionTaskColumn = table.column("PARTIALCONNECTIONTASK").number().conversion(NUMBER2LONG).add();
             // Common columns for sheduled connection tasks
             table.column("CURRENTRETRYCOUNT").number().conversion(NUMBER2INT).map("currentRetryCount").add();
             table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map("lastExecutionFailed").add();
@@ -214,6 +206,7 @@ public enum TableSpecs {
             table.foreignKey("FK_MDCCONNTASK_COMSERVER").on(comServer).references(EngineModelService.COMPONENT_NAME, "MDCCOMSERVER").map("comServer").add();
             table.foreignKey("FK_MDCCONNTASK_INITIATOR").on(initiator).references(MDCCONNECTIONTASK.name()).map("initiationTask").add();
             table.foreignKey("FK_MDCCONNTASK_NEXTEXEC").on(nextExecutionSpecs).references(DeviceConfigurationService.COMPONENTNAME, "MDCNEXTEXECUTIONSPEC").map("nextExecutionSpecs").add();
+            table.foreignKey("FK_MDCCONNTASK_PARTIAL").on(partialConnectionTaskColumn).references("DTC", "MDCPARTIALCONNECTIONTASK").map("partialConnectionTask").add();
         }
     },
 

@@ -31,8 +31,8 @@ public interface Register extends BaseRegister {
     RegisterSpec getRegisterSpec();
 
     /**
-     * Gets a list of ReadingRecords, filterd by the given interval
-     * @param interval
+     * Gets a list of ReadingRecords, filtered by the given interval
+     * @param interval the Interval to fetch readings fr
      * @return
      */
     List<ReadingRecord> getRegisterReadings(Interval interval);

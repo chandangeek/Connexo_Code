@@ -222,10 +222,10 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = this.getEarliestNextExecutionTimeStampAndPriority();
         if (earliestNextExecutionTimeStampAndPriority != null) {
             if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
-                this.doAsSoonAsPossibleSchedule(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp, PostingMode.NOW);
+                this.doAsSoonAsPossibleSchedule(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp, PostingMode.LATER);
             }
             else {
-                this.doMinimizeConnectionsSchedule(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp, PostingMode.NOW);
+                this.doMinimizeConnectionsSchedule(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp, PostingMode.LATER);
             }
         }
     }

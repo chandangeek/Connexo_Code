@@ -1,17 +1,25 @@
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.TemporalExpression;
+import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -19,6 +27,7 @@ import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.protocols.mdc.inbound.general.InboundConnection;
 
 import java.util.Date;
 import java.util.List;
@@ -187,5 +196,90 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     BaseChannel getChannel(String name);
 
-    ScheduledConnectionTask createScheduledConnectionTask(PartialOutboundConnectionTask partialConnectionTask);
+    /**
+     * Provides a builder that allows the creation of a ScheduledConnectionTask for the Device
+     *
+     * @param partialScheduledConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask
+     * @return the builder
+     */
+    ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialScheduledConnectionTask partialScheduledConnectionTask);
+
+    /**
+     * Provides a builder that allows the creation of an InboundConnectionTask for the Device
+     *
+     * @param partialInboundConnectionTask the partialConnectionTask that will model the actual InboundConnectionTask
+     * @return the builder
+     */
+    InboundConnectionTaskBuilder getInboundConnectionTaskBuilder(PartialInboundConnectionTask partialInboundConnectionTask);
+
+    /**
+     * Provides a builder that allows the creation of a ConnectionInitiationTask for the Device
+     *
+     * @param partialConnectionInitiationTask the partialConnectionTask that will model the actual ConnectionInitiationTask
+     * @return the builder
+     */
+    ConnectionInitiationTaskBuilder getConnectionInitiationTaskBuilder(PartialConnectionInitiationTask partialConnectionInitiationTask);
+
+
+    List<ConnectionTask> getConnectionTasks();
+
+    void removeConnectionTask(ConnectionTask connectionTask);
+
+    /**
+     * Builder that support basic value setters for a ScheduledConnectionTask
+     */
+    interface ScheduledConnectionTaskBuilder {
+
+        ScheduledConnectionTaskBuilder setCommunicationWindow(ComWindow communicationWindow);
+
+        ScheduledConnectionTaskBuilder setComPortPool(OutboundComPortPool comPortPool);
+
+        ScheduledConnectionTaskBuilder setConnectionStrategy(ConnectionStrategy connectionStrategy);
+
+        ScheduledConnectionTaskBuilder setInitiatorTask(ConnectionInitiationTask connectionInitiationTask);
+
+        ScheduledConnectionTaskBuilder setNextExecutionSpecsFrom(TemporalExpression temporalExpression);
+
+        ScheduledConnectionTaskBuilder setProperty(String propertyName, Object value);
+
+        ScheduledConnectionTaskBuilder setSimultaneousConnectionsAllowed(boolean allowSimultaneousConnections);
+
+        /**
+         * Creates the actual ScheduledConnectionTask with the objects set in this builder
+         *
+         * @return the newly created ScheduledConnectionTask
+         */
+        ScheduledConnectionTask add();
+    }
+
+    /**
+     * Builder that supports basic value setters for an InboundConnectionTask
+     */
+    interface InboundConnectionTaskBuilder {
+
+        InboundConnectionTaskBuilder setComPortPool(InboundComPortPool comPortPool);
+
+        InboundConnectionTaskBuilder setProperty(String propertyName, Object value);
+
+        /**
+         * Creates the actual InboundConnectionTask with the objects set in this builder
+         *
+         * @return the newly created InboundConnectionTask
+         */
+        InboundConnectionTask add();
+    }
+
+    interface ConnectionInitiationTaskBuilder {
+
+        ConnectionInitiationTaskBuilder setComPortPool(OutboundComPortPool comPortPool);
+
+        ConnectionInitiationTaskBuilder setProperty(String propertyName, Object value);
+
+        /**
+         * Creates the actual ConnectionInitiationTask with the objects set in this builder
+         *
+         * @return the newly created ConnectionInitiationTask
+         */
+        ConnectionInitiationTask add();
+    }
 }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.exceptions;
 
+import com.elster.jupiter.util.conditions.Constant;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 
@@ -50,8 +51,8 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE(2014, Constants.DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY, "''{0}'' is not a valid value for attribute ''{1}'' of device dialect protocol ''{2}''", Level.SEVERE),
     DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING(2015, Constants.DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY, "A value is missing for required attribute ''{0}'' of device dialect protocol''{1}''", Level.SEVERE),
     DEVICE_PROTOCOL_DIALECT_DEVICE_REQUIRED(2017, Constants.DEVICE_PROTOCOL_DIALECT_DEVICE_REQUIRED_KEY, "Device protocol dialect properties need to be created against a device", Level.SEVERE),
+    CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2018, Constants.CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not delete connection task {0} because it is not owned by device {1}", Level.SEVERE),
     ;
-
     private final int number;
     private final String key;
     private final String defaultFormat;
@@ -120,6 +121,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String COMMUNICATION_GATEWAY_STILL_IN_USE = "DDC.device.delete.linked.communication.gateway";
         public static final String INFOTYPE_DOESNT_EXIST = "DDC.device.property.infotype.required";
         public static final String PROPERTY_NOT_ON_DEVICE_PROTOCOL = "DDC.not.deviceprotocol.property";
+        public static final String CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE = "DDC.cannotDeleteIfNotFromDevice";
         public static final String PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY = "DDC.protocolDialectConfigurationProperties.required";
         public static final String DEVICE_PROTOCOL_DIALECT_DEVICE_REQUIRED_KEY = "DDC.deviceProtocolDialectProperty.device.required";
         public static final String DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY = "DDC.deviceProtocolDialectPropertyXIsNotInSpec";

@@ -214,36 +214,118 @@ public interface DeviceDataService {
      */
     public void releaseTimedOutConnectionTasks(ComServer outboundCapableComServer);
 
+    /**
+     * Creates a new Device based on the given name and DeviceConfiguration
+     *
+     * @param deviceConfiguration the deviceConfiguration which models the device
+     * @param name                the name which should be used for the device
+     * @return the newly created Device
+     */
     public Device newDevice(DeviceConfiguration deviceConfiguration, String name);
 
     public Device getPrototypeDeviceFor(DeviceConfiguration deviceConfiguration);
 
+    /**
+     * Finds the Device based on his unique ID
+     *
+     * @param id the unique ID of the device
+     * @return the requested Device or null if none was found
+     */
     public Device findDeviceById(long id);
 
+    /**
+     * Finds the Device based on his unique External name
+     *
+     * @param externalName the external name of the device
+     * @return the requested Device or null if none was found
+     */
     public Device findDeviceByExternalName(String externalName);
 
-    public boolean deviceHasLogBookForLogBookSpec(Device device, LogBookSpec logBookSpec);
-
+    /**
+     * Finds the devices which are physically connected to the given Device
+     *
+     * @param device the 'master' device
+     * @return a list of physically connected devices to the given device
+     */
     public List<BaseDevice<Channel, LoadProfile, Register>> findPhysicalConnectedDevicesFor(Device device);
 
+    /**
+     * Finds the devices which are linked to the given device for communication purposes.
+     *
+     * @param device the device that arranges the communication
+     * @return a list of devices which use the given device for communication purposes
+     */
     public List<BaseDevice<Channel, LoadProfile, Register>> findCommunicationReferencingDevicesFor(Device device);
 
+    /**
+     * Finds the LoadProfile based on the given unique ID
+     *
+     * @param id the unique ID of the loadProfile
+     * @return the requested LoadProfile or null
+     */
     public LoadProfile findLoadProfileById(long id);
 
+    /**
+     * Finds the Devices (multiple are possible) based on the given serialNumber
+     *
+     * @param serialNumber the serialNumber of the device
+     * @return a list of Devices which have the given serialNumber
+     */
     public List<Device> findDevicesBySerialNumber(String serialNumber);
 
+    /**
+     * Finds all the devices in the system
+     *
+     * @return a list of all devices in the system
+     */
     public List<Device> findAllDevices();
 
+    /**
+     * Finds all the devices which use the given TimeZone
+     *
+     * @param timeZone the timeZone
+     * @return a list of Devices which use the given TimeZone
+     */
     public List<Device> findDevicesByTimeZone(TimeZone timeZone);
 
+    /**
+     * Creates a new InfoType object based on the given name
+     *
+     * @param name the name for the InfoType object
+     * @return the newly created infoType object
+     */
     public InfoType newInfoType(String name);
 
+    /**
+     * Finds the infoType which has the given name
+     *
+     * @param name the name of the InfoType to find
+     * @return the requested InfoType or null if none exists with that name
+     */
     public InfoType findInfoType(String name);
 
+    /**
+     * Finds the infoType with the given unique ID
+     *
+     * @param infoTypeId the unique ID of the InfoType
+     * @return the requested InfoType or null if none exists with that ID
+     */
     public InfoType findInfoTypeById(long infoTypeId);
 
+    /**
+     * Finds the LogBook with the given unique ID
+     *
+     * @param id the unique ID of the LogBook
+     * @return the requested LogBook or null if none exists with that ID
+     */
     public LogBook findLogBookById(long id);
 
+    /**
+     * Finds all the LogBooks for the given Device
+     *
+     * @param device the device
+     * @return a list of LogBooks which exist for the given Device
+     */
     public List<LogBook> findLogBooksByDevice(Device device);
 
 }
