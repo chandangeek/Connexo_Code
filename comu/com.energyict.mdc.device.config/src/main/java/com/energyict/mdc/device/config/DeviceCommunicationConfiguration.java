@@ -53,5 +53,7 @@ public interface DeviceCommunicationConfiguration extends HasId {
 
     List<SecurityPropertySet> getSecurityPropertySets();
 
-    SecurityPropertySetBuilder createSecurityPropertySet();
+    SecurityPropertySetBuilder createSecurityPropertySet(String name);
+
+    void removeSecurityPropertySet(SecurityPropertySet propertySet);
 }

@@ -20,6 +20,7 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.ApplicationContext;
@@ -81,6 +82,7 @@ public class InMemoryPersistence {
     private ProtocolPluggableService protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
     private EngineModelService engineModelService;
+    private UserService userService;
 
     public void initializeDatabase(String testName, boolean showSqlLogging, boolean createMasterData) {
         this.initializeMocks(testName);
@@ -117,6 +119,7 @@ public class InMemoryPersistence {
             this.engineModelService = injector.getInstance(EngineModelService.class);
             injector.getInstance(PluggableService.class);
             this.dataModel = this.createNewDeviceConfigurationService(createMasterData);
+            userService = injector.getInstance(UserService.class);
             ctx.commit();
         }
         Environment environment = injector.getInstance(Environment.class);
@@ -125,7 +128,7 @@ public class InMemoryPersistence {
     }
 
     private DataModel createNewDeviceConfigurationService(boolean createMasterData) {
-        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.protocolPluggableService, this.readingTypeUtilService, engineModelService, createMasterData);
+        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.protocolPluggableService, this.readingTypeUtilService, engineModelService, createMasterData, userService);
         return this.deviceConfigurationService.getDataModel();
     }
 

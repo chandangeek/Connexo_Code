@@ -66,38 +66,32 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
     @Override
     protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+        return DuplicateNameException.securityPropertySetAlreadyExists(thesaurus, name);
     }
 
     @Override
     protected CreateEventType createEventType() {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+        return CreateEventType.SECURITY_PROPERTY_SET;
     }
 
     @Override
     protected UpdateEventType updateEventType() {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+        return UpdateEventType.SECURITY_PROPERTY_SET;
     }
 
     @Override
     protected DeleteEventType deleteEventType() {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+        return DeleteEventType.SECURITY_PROPERTY_SET;
     }
 
     @Override
     protected void doDelete() {
-        //TODO automatically generated method body, provide implementation.
-
+        dataModel.mapper(SecurityPropertySet.class).remove(this);
     }
 
     @Override
     protected void validateDelete() {
-        //TODO automatically generated method body, provide implementation.
-
+        //TODO JP-1866 automatically generated method body, provide implementation.
     }
 
     static class UserActionRecord {
@@ -128,12 +122,13 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    static SecurityPropertySetImpl from(DataModel dataModel, DeviceCommunicationConfigurationImpl deviceCommunicationConfiguration) {
-        return dataModel.getInstance(SecurityPropertySetImpl.class).init(deviceCommunicationConfiguration);
+    static SecurityPropertySetImpl from(DataModel dataModel, DeviceCommunicationConfigurationImpl deviceCommunicationConfiguration, String name) {
+        return dataModel.getInstance(SecurityPropertySetImpl.class).init(deviceCommunicationConfiguration, name);
     }
 
-    private SecurityPropertySetImpl init(DeviceCommunicationConfiguration deviceCommunicationConfiguration) {
+    private SecurityPropertySetImpl init(DeviceCommunicationConfiguration deviceCommunicationConfiguration, String name) {
         this.deviceCommunicationConfiguration.set(deviceCommunicationConfiguration);
+        this.setName(name);
         return this;
     }
 
@@ -674,4 +669,8 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         }
     }
 
+    @Override
+    public void update() {
+        dataModel.mapper(SecurityPropertySet.class).update(this);
+    }
 }

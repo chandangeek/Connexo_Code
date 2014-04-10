@@ -786,7 +786,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public SecurityPropertySetBuilder createSecurityPropertySet() {
-        return getCommunicationConfiguration().createSecurityPropertySet();
+    public SecurityPropertySetBuilder createSecurityPropertySet(String name) {
+        return getCommunicationConfiguration().createSecurityPropertySet(name);
+    }
+
+    @Override
+    public void removeSecurityPropertySet(SecurityPropertySet propertySet) {
+        getCommunicationConfiguration().removeSecurityPropertySet(propertySet);
     }
 }

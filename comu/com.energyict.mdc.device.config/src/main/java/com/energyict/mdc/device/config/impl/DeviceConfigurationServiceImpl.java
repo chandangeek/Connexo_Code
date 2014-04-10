@@ -84,13 +84,14 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, MdcReadingTypeUtilService mdcReadingTypeUtilService, EngineModelService engineModelService) {
-        this(ormService, eventService, nlsService, meteringService, protocolPluggableService, mdcReadingTypeUtilService, engineModelService, false);
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, MdcReadingTypeUtilService mdcReadingTypeUtilService, EngineModelService engineModelService, UserService userService) {
+        this(ormService, eventService, nlsService, meteringService, protocolPluggableService, mdcReadingTypeUtilService, engineModelService, false, userService);
     }
 
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, MdcReadingTypeUtilService mdcReadingTypeUtilService, EngineModelService engineModelService, boolean createMasterData) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, MdcReadingTypeUtilService mdcReadingTypeUtilService, EngineModelService engineModelService, boolean createMasterData, UserService userService) {
         this();
         this.setOrmService(ormService);
+        this.setUserService(userService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
@@ -481,6 +482,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(EngineModelService.class).toInstance(engineModelService);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }

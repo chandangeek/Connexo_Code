@@ -26,7 +26,6 @@ import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Operator.EQUAL;
@@ -36,7 +35,7 @@ import static com.elster.jupiter.util.conditions.Operator.EQUAL;
  * @since 5/03/13 - 16:12
  */
 @ProtocolDialectConfigurationPropertiesCannotDuplicate(groups = {Save.Create.class})
-@ProtocolDialectConfigurationHasAllRequiredProperties(groups = {Save.Create.class, Save.Update.class})
+@ProtocolDialectConfigurationHasCorrectPropertyValues(groups = {Save.Create.class, Save.Update.class})
 class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<ProtocolDialectConfigurationProperties> implements ProtocolDialectConfigurationProperties {
 
     private Reference<DeviceCommunicationConfiguration> deviceCommunicationConfiguration = ValueReference.absent();
@@ -85,22 +84,17 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
 
     }
 
-    static class RequiredPropertiesValidator implements ConstraintValidator<ProtocolDialectConfigurationHasAllRequiredProperties, ProtocolDialectConfigurationPropertiesImpl> {
+    static class PropertyValueValidator implements ConstraintValidator<ProtocolDialectConfigurationHasCorrectPropertyValues, ProtocolDialectConfigurationPropertiesImpl> {
 
         @Override
-        public void initialize(ProtocolDialectConfigurationHasAllRequiredProperties constraintAnnotation) {
+        public void initialize(ProtocolDialectConfigurationHasCorrectPropertyValues constraintAnnotation) {
             //nothing for now
 
         }
 
         @Override
         public boolean isValid(ProtocolDialectConfigurationPropertiesImpl value, ConstraintValidatorContext context) {
-            TypedProperties typedProperties = value.getTypedProperties();
-            for (PropertySpec propertySpec : value.getPropertySpecs()) {
-                if (propertySpec.isRequired() && !typedProperties.hasValueFor(propertySpec.getName())) {
-                    return false;
-                }
-            }
+            //TODO values atm are validated upon setting...
             return true;
         }
     }
@@ -245,12 +239,21 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
 
     @Override
     public void removeProperty(String name) {
+        ProtocolDialectConfigurationProperty found = findProperty(name);
+        if (getId() != 0 && found != null && getPropertySpec(name).isRequired()) {
+            throw new ProtocolDialectConfigurationPropertiesCannotDropRequiredProperty(thesaurus, this, name);
+        }
         getTypedProperties().removeProperty(name);
-        for (Iterator<ProtocolDialectConfigurationProperty> iterator = propertyList.iterator(); iterator.hasNext(); ) {
-            if (iterator.next().getName().equals(name)) {
-                iterator.remove();
+        propertyList.remove(found);
+    }
+
+    private ProtocolDialectConfigurationProperty findProperty(String name) {
+        for (ProtocolDialectConfigurationProperty candidate : propertyList) {
+            if (candidate.getName().equals(name)) {
+                return candidate;
             }
         }
+        return null;
     }
 
     private void setNewProperty(String name, Object value) {

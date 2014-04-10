@@ -42,7 +42,7 @@ import java.util.Set;
 public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<DeviceCommunicationConfiguration> implements ServerDeviceCommunicationConfiguration {
 
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-    private List<SecurityPropertySet> securityPropertySets;
+    private List<SecurityPropertySet> securityPropertySets = new ArrayList<>();
 //    private List<ComTaskEnablement> comTaskEnablements;
     private boolean supportsAllMessageCategories;
     private long userActions; // temp place holder for the enumset
@@ -644,7 +644,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public void addSecurityPropertySet(SecurityPropertySet securityPropertySet) {
-        this.getSecurityPropertySets().add(securityPropertySet);
+        securityPropertySets.add(securityPropertySet);
     }
 
     @Override
@@ -675,15 +675,20 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     }
 
     @Override
-    public SecurityPropertySetBuilder createSecurityPropertySet() {
-        return new InternalSecurityPropertySetBuilder();
+    public SecurityPropertySetBuilder createSecurityPropertySet(String name) {
+        return new InternalSecurityPropertySetBuilder(name);
+    }
+
+    @Override
+    public void removeSecurityPropertySet(SecurityPropertySet propertySet) {
+        securityPropertySets.remove(propertySet);
     }
 
     private class InternalSecurityPropertySetBuilder implements SecurityPropertySetBuilder {
         private final SecurityPropertySetImpl underConstruction;
 
-        private InternalSecurityPropertySetBuilder() {
-            this.underConstruction = SecurityPropertySetImpl.from(dataModel, DeviceCommunicationConfigurationImpl.this);
+        private InternalSecurityPropertySetBuilder(String name) {
+            this.underConstruction = SecurityPropertySetImpl.from(dataModel, DeviceCommunicationConfigurationImpl.this, name);
         }
 
         @Override

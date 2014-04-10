@@ -159,7 +159,9 @@ public enum MessageSeeds implements MessageSeed {
     UNDER_MINIMUM_RESCHEDULE_DELAY(13024, Constants.UNDER_MINIMUM_RESCHEDULE_DELAY_KEY, "Reschedule delay is below minimum.", SEVERE),
     VETO_CONNECTIONTYPE_PLUGGABLECLASS_DELETION(13025, "connectionTypePluggableClass.XstillInUseByY", "ConnectionType Pluggable Class {0} is still in use by {1}", SEVERE),
     VETO_COMPORTPOOL_DELETION(13026, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by {1}", SEVERE),
-    PROTOCOL_INVALID_NAME(13027,"deviceType.no.such.protocol", "A protocol with name {0} does not exist", SEVERE);
+    PROTOCOL_INVALID_NAME(13027,"deviceType.no.such.protocol", "A protocol with name {0} does not exist", SEVERE),
+    PROTOCOLDIALECT_CONF_PROPS_CANT_DROP_REQUIRED(13028, "protocolDialectConfigurationProperties.cannotDropRequired", "ProtocolDialectConfigurationProperties {0} cannot drop property {1} since it is required.", SEVERE),
+    DUPLICATE_SECURITY_PROPERTY_SET(13029, "securityPropertySet.duplicate", "A Security Property Set by name {0} already exists.",SEVERE);
 
     private final int number;
     private final String key;

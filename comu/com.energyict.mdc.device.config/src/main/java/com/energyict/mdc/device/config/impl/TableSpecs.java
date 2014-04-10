@@ -403,7 +403,7 @@ public enum TableSpecs {
             table.map(SecurityPropertySetImpl.UserActionRecord.class);
             Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction").add();
             Column securitypropertyset = table.column("SECURITYPROPERTYSET").number().notNull().add();
-            table.foreignKey("FK_MDCSECPROPSETUSRACT_SPS").on(securitypropertyset).references(MDCSECURITYPROPERTYSET.name()).map("set").add();
+            table.foreignKey("FK_MDCSECPROPSETUSRACT_SPS").on(securitypropertyset).references(MDCSECURITYPROPERTYSET.name()).reverseMap("userActionRecords").onDelete(CASCADE).composition().map("set").add();
             table.primaryKey("PK_MDCSECURITYPROPETUSERACTION").on(useraction,securitypropertyset).add();
         }
     },
