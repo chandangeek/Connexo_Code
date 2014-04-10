@@ -1,57 +1,54 @@
 package com.elster.jupiter.systemadmin.rest.response;
 
-import com.elster.jupiter.systemadmin.Properties;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import javax.management.monitor.StringMonitor;
+import java.util.*;
 
 public class LicenseInfo extends LicenseShortInfo {
 
     private long validfrom;
-    private String graceperiod;
-    private List<Map.Entry<String, String>> content;
+    private int graceperiod;
+    protected String type;
+    protected String description;
+    private Set<Map.Entry<Object, Object>> content;
 
     public LicenseInfo() {
-        this.content = new ArrayList<>();
     }
 
-    public LicenseInfo(Properties properties) {
+    public LicenseInfo(License license) {
         this();
-        Map <String, String> props = properties.getProperties();
-        this.applicationtag = properties.getProperty(LicenseProperties.TAG.getName());
-        props.remove(LicenseProperties.TAG.getName());
-        this.application = properties.getProperty(LicenseProperties.NAME.getName());
-        props.remove(LicenseProperties.NAME.getName());
-        this.type = properties.getProperty(LicenseProperties.TYPE.getName());
-        props.remove(LicenseProperties.TYPE.getName());
-        this.status = properties.getProperty(LicenseProperties.STATUS.getName());
-        props.remove(LicenseProperties.STATUS.getName());
-        this.description = properties.getProperty(LicenseProperties.DESCRIPTION.getName());
-        props.remove(LicenseProperties.DESCRIPTION.getName());
-        this.validfrom = Long.parseLong(properties.getProperty(LicenseProperties.VALID_FROM.getName()));
-        props.remove(LicenseProperties.VALID_FROM.getName());
-        this.graceperiod = properties.getProperty(LicenseProperties.GRACEPERIOD.getName());
-        props.remove(LicenseProperties.GRACEPERIOD.getName());
-        Date date = new Date(properties.getProperty(LicenseProperties.EXPIRES.getName()));
-        this.expires = date.getTime();
-        props.remove(LicenseProperties.EXPIRES.getName());
-        this.content.addAll(props.entrySet());
+        this.applicationtag = license.getApplicationKey();
+        this.type = license.getType().name().toLowerCase();
+        this.status = license.getStatus().name().toLowerCase();
+        this.description = license.getDescription();
+        this.validfrom = license.getActivation().getTime();
+        this.graceperiod = license.getGracePeriodInDays();
+        this.expires = license.getExpiration().getTime();
+        this.content = license.getLicensedValues().entrySet();
     }
 
-    public List<Map.Entry<String, String>> getContent() {
+    public Set<Map.Entry<Object, Object>> getContent() {
         return this.content;
     }
-    public long getExpires() {
+    public Long getExpires() {
         return expires;
     }
 
-    public String getGraceperiod() {
+    public int getGraceperiod() {
         return graceperiod;
     }
 
     public long getValidfrom() {
         return validfrom;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

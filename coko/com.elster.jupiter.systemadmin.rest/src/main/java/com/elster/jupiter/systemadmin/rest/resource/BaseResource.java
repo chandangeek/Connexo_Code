@@ -1,8 +1,8 @@
 package com.elster.jupiter.systemadmin.rest.resource;
 
 
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.systemadmin.LicensingService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 
@@ -14,7 +14,7 @@ public abstract class BaseResource {
     private RestQueryService queryService;
     private TransactionService transactionService;
 
-    private LicensingService licensingService;
+    private LicenseService licenseService;
     private UserService userService;
 
     public BaseResource(){
@@ -30,11 +30,11 @@ public abstract class BaseResource {
     }
 
     @Inject
-    public void setLicensingService(LicensingService licensingService) {
-        this.licensingService = licensingService;
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
     }
-    protected LicensingService getLicensingService() {
-        return licensingService;
+    protected LicenseService getLicenseService() {
+        return licenseService;
     }
 
     @Inject

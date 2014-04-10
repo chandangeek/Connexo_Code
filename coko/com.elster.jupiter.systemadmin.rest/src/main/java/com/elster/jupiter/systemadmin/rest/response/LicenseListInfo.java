@@ -1,9 +1,11 @@
 package com.elster.jupiter.systemadmin.rest.response;
 
-import com.elster.jupiter.systemadmin.Properties;
+import com.elster.jupiter.license.License;
+import com.google.common.base.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class LicenseListInfo {
     List<LicenseShortInfo> data;
@@ -13,13 +15,13 @@ public class LicenseListInfo {
         data = new ArrayList<>();
     }
 
-    public LicenseListInfo(List<Properties> props) {
+    public LicenseListInfo(List<License> lics) {
         this();
-        for (Properties prop : props) {
-            LicenseShortInfo info = new LicenseShortInfo(prop);
+        for (License lic : lics) {
+            LicenseShortInfo info = new LicenseShortInfo(lic);
             data.add(info);
         }
-        total = props.size();
+        total = lics.size();
 
     }
 
