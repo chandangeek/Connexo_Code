@@ -5,6 +5,10 @@ Ext.define('Cfg.view.validation.RuleList', {
     alias: 'widget.validationruleList',
     itemId: 'validationruleList',
     store: 'ValidationRules',
+    overflowY: 'auto',
+    selModel: {
+        mode: 'SINGLE'
+    },
 
     requires: [
         'Uni.view.toolbar.PagingTop',
@@ -12,14 +16,14 @@ Ext.define('Cfg.view.validation.RuleList', {
     ],
 
     ruleSetId: null,
+    initComponent: function () {
+        var me = this;
+        this.columns = [
 
-    columns: {
-
-        items: [
             { header: Uni.I18n.translate('validation.name', 'CFG', 'Name'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true},
             { header: Uni.I18n.translate('validation.rule', 'CFG', 'Rule'), dataIndex: 'displayName', flex: 0.3, sortable: false, fixed: true},
             { header: Uni.I18n.translate('validation.active', 'CFG', 'Active'), dataIndex: 'active', flex: 0.3, sortable: false, fixed: true,
-                renderer:function(value){
+                renderer: function (value) {
                     if (value) {
                         return Uni.I18n.translate('general.yes', 'CFG', 'Yes')
                     } else {
@@ -28,56 +32,57 @@ Ext.define('Cfg.view.validation.RuleList', {
                 }
             },
             {
-                xtype:'actioncolumn',
+                xtype: 'actioncolumn',
                 fixed: true,
                 sortable: false,
                 header: Uni.I18n.translate('validation.actions', 'CFG', 'Actions'),
                 align: 'center',
                 //width:150,
                 flex: 0.1,
-                items: [{
-                    icon: '../cfg/resources/images/gear-16x16.png',
-                    handler: function(grid, rowIndex, colIndex,item,e) {
-                        var menu = Ext.widget('menu', {
-                            items: [{
-                                xtype: 'menuitem',
-                                text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
-                                listeners: {
-                                    click: {
-                                        element: 'el',
-                                        fn: function(){
-                                            this.fireEvent('edit',grid.getSelectionModel().getSelection());
-                                        },
-                                        scope: this
+                items: [
+                    {
+                        icon: '../cfg/resources/images/gear-16x16.png',
+                        handler: function (grid, rowIndex, colIndex, item, e) {
+                            var menu = Ext.widget('menu', {
+                                items: [
+                                    {
+                                        xtype: 'menuitem',
+                                        text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
+                                        listeners: {
+                                            click: {
+                                                element: 'el',
+                                                fn: function () {
+                                                    this.fireEvent('edit', grid.getSelectionModel().getSelection());
+                                                },
+                                                scope: this
+                                            }
+                                        }
+                                    },
+                                    {
+                                        xtype: 'menuseparator'
+                                    },
+                                    {
+                                        xtype: 'menuitem',
+                                        text: Uni.I18n.translate('general.delete', 'CFG', 'Delete'),
+                                        listeners: {
+                                            click: {
+                                                element: 'el',
+                                                fn: function () {
+                                                    console.log('delete');
+                                                    this.fireEvent('delete', grid.getSelectionModel().getSelection());
+                                                },
+                                                scope: this
+                                            }
+                                        }
                                     }
-                                }
-                            },
-                            {
-                                    xtype: 'menuseparator'
-                            },
-                            {
-                                xtype: 'menuitem',
-                                text: Uni.I18n.translate('general.delete', 'CFG', 'Delete'),
-                                listeners: {
-                                    click: {
-                                        element: 'el',
-                                        fn: function(){
-                                            console.log('delete');
-                                            this.fireEvent('delete',grid.getSelectionModel().getSelection());
-                                        },
-                                        scope: this
-                                    }
-                                }
-                            }]
-                        });
-                        menu.showAt(e.getXY());
+                                ]
+                            });
+                            menu.showAt(e.getXY());
+                        }
                     }
-                }]
+                ]
             }
-        ]
-    },
-
-    initComponent: function () {
+        ];
         this.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
@@ -91,7 +96,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                     },
                     {
                         xtype: 'button',
-                        text:  Uni.I18n.translate('validation.addRule', 'CFG', 'Add rule'),
+                        text: Uni.I18n.translate('validation.addRule', 'CFG', 'Add rule'),
                         itemId: 'addRuleLink',
                         href: '#administration/validation/addRule/' + this.ruleSetId,
                         hrefTarget: '_self'
@@ -110,7 +115,8 @@ Ext.define('Cfg.view.validation.RuleList', {
                 itemsPerPageMsg: 'Rules per page',
                 itemId: 'rulesListBottomPagingToolbar',
                 params: {id: this.ruleSetId}
-            }];
+            }
+        ];
         this.callParent(arguments);
     }
 
