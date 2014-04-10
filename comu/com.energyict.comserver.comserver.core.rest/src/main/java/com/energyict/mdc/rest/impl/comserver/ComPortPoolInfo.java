@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
@@ -19,27 +18,17 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
         @JsonSubTypes.Type(value = InboundComPortPoolInfo.class, name = "inbound"),
         @JsonSubTypes.Type(value = OutboundComPortPoolInfo.class, name = "outbound")})
 public abstract class ComPortPoolInfo<S extends ComPortPool> {
-    @JsonProperty("id")
     public long id;
-    @JsonProperty("name")
     public String name;
-    @JsonProperty("active")
     public boolean active;
-    @JsonProperty("description")
     public String description;
-    @JsonProperty("obsoleteFlag")
     public boolean obsoleteFlag;
-    @JsonProperty("obsoleteDate")
     public Date obsoleteDate;
     @XmlJavaTypeAdapter(ComPortTypeAdapter.class)
     public ComPortType type;
-    @JsonProperty("inboundComPorts")
     public List<InboundComPortInfo> inboundComPorts;
-    @JsonProperty("discoveryProtocolPluggableClassId")
     public long discoveryProtocolPluggableClassId;
-    @JsonProperty("outboundComPorts")
     public List<OutboundComPortInfo> outboundComPorts;
-    @JsonProperty("taskExecutionTimeout")
     public TimeDurationInfo taskExecutionTimeout;
 
     public ComPortPoolInfo() {
