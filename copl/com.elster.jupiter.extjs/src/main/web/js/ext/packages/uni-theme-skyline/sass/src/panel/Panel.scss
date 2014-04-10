@@ -42,6 +42,10 @@
 
   .#{$prefix}panel-header {
     border-color: $panel-frame-header-border-color;
+    background: $panel-frame-header-border-color;
+    .#{$prefix}panel-header-text-container {
+      color: $panel-frame-header-color;
+    }
   }
 }
 

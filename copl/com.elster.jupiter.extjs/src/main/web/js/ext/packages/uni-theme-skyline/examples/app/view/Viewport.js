@@ -81,8 +81,24 @@ Ext.define('example.view.Viewport', {
             {
                 xtype: 'panel',
                 title: 'Details',
-                border: true,
-                flex: 1
+                frame: true,
+                flex: 2,
+                html: 'some content',
+
+                tools:[
+                    {
+                        xtype: 'button',
+                        glyph: 71,
+                        text: 'Action',
+                        menu: [{
+                            text:'Do One'
+                        },{
+                            text:'Do Two'
+                        },{
+                            text:'Do Three'
+                        }]
+                    }
+                ]
             }
         ]
     }]
