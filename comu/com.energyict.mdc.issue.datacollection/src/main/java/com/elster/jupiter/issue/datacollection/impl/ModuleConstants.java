@@ -6,6 +6,7 @@ public final class ModuleConstants {
 
     public static final String COMPONENT_NAME = "IDC";
     public static final String ISSUE_TYPE = "Data Collection";
+    public static final String ISSUE_TYPE_UUID = "datacollection";
     public static final String AQ_SUBSCRIBER_NAME = "ISSUECREATOR";
 
     public static final String DEVICE_IDENTIFIER = "deviceIdentifier";

@@ -26,7 +26,7 @@ public class Installer {
     }
 
     private void setSupportedIssueType(){
-        issueService.createIssueType(ModuleConstants.ISSUE_TYPE);
+        issueService.createIssueType(ModuleConstants.ISSUE_TYPE_UUID, ModuleConstants.ISSUE_TYPE);
     }
 
     private void setAQSubscriber() {
