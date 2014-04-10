@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -9,7 +10,6 @@ import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
-import com.energyict.mdc.rest.impl.TimeDurationInfo;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;

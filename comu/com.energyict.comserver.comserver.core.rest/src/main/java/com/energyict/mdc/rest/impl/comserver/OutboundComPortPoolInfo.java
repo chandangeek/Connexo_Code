@@ -1,11 +1,11 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.rest.impl.TimeDurationInfo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

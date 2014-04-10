@@ -6,10 +6,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
 import com.energyict.mdc.rest.impl.comserver.ComPortResource;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
@@ -28,10 +25,7 @@ public class MdcApplication extends Application {
 
     private static final Logger LOGGER = Logger.getLogger(MdcApplication.class.getSimpleName());
 
-    private volatile ProtocolPluggableService protocolPluggableService;
-    private volatile LicensedProtocolService licensedProtocolService;
     private volatile EngineModelService engineModelService;
-    private volatile PropertySpecService propertySpecService;
     private volatile TransactionService transactionService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private NlsService nlsService;
@@ -40,19 +34,11 @@ public class MdcApplication extends Application {
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(AutoCloseDatabaseConnection.class,
                 TransactionWrapper.class,
-//                ExceptionLogger.class,
                 ConstraintViolationExceptionMapper.class,
                 ComServerResource.class,
                 ComPortResource.class,
                 ComPortPoolResource.class,
-                DeviceCommunicationProtocolsResource.class,
-                ComServerFieldResource.class,
-                DeviceDiscoveryProtocolsResource.class,
-                LicensedProtocolResource.class,
-                TimeZoneInUseResource.class,
-                UserFileReferenceResource.class,
-                LoadProfileTypeResource.class,
-                CodeTableResource.class);
+                ComServerFieldResource.class);
     }
 
     @Override
@@ -64,23 +50,8 @@ public class MdcApplication extends Application {
     }
 
     @Reference
-    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
-        this.protocolPluggableService = protocolPluggableService;
-    }
-
-    @Reference
     public void setEngineModelService(EngineModelService engineModelService) {
         this.engineModelService = engineModelService;
-    }
-
-    @Reference
-    public void setLicensedProtocolService(LicensedProtocolService licensedProtocolService) {
-        this.licensedProtocolService = licensedProtocolService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
     }
 
     @Reference
@@ -102,9 +73,6 @@ public class MdcApplication extends Application {
 
         @Override
         protected void configure() {
-            bind(protocolPluggableService).to(ProtocolPluggableService.class);
-            bind(licensedProtocolService).to(LicensedProtocolService.class);
-            bind(propertySpecService).to(PropertySpecService.class);
             bind(engineModelService).to(EngineModelService.class);
             bind(transactionService).to(TransactionService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);

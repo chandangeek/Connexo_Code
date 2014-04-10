@@ -1,10 +1,10 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.rest.impl.TimeDurationInfo;
 import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;

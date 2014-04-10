@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;

@@ -20,9 +20,19 @@
     </description>
 
     <dependencies>
+        <!--<dependency>-->
+            <!--<groupId>com.energyict</groupId>-->
+            <!--<artifactId>mdc-all</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc-all</artifactId>
+            <artifactId>mdc-engine-config</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.config</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -30,12 +40,6 @@
             <artifactId>mdc-common</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc-protocols-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>

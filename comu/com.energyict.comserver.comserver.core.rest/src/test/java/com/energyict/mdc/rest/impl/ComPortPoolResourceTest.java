@@ -1,6 +1,7 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
