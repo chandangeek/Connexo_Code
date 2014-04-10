@@ -36,7 +36,7 @@ import static com.elster.jupiter.util.conditions.Operator.EQUAL;
  * @since 5/03/13 - 16:12
  */
 @ProtocolDialectConfigurationPropertiesCannotDuplicate(groups = {Save.Create.class})
-@ProtocolDialectConfigurationHasAllRequiredProperties(groups = {Save.Create.class, Save.Update.class})
+//@ProtocolDialectConfigurationHasAllRequiredProperties(groups = {Save.Create.class, Save.Update.class})
 class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<ProtocolDialectConfigurationProperties> implements ProtocolDialectConfigurationProperties {
 
     private Reference<DeviceCommunicationConfiguration> deviceCommunicationConfiguration = ValueReference.absent();
@@ -120,8 +120,13 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     @Override
-    public DeviceConfiguration getDeviceCommunicationConfiguration() {
+    public DeviceCommunicationConfiguration getDeviceCommunicationConfiguration() {
         return this.deviceCommunicationConfiguration.get().getDeviceConfiguration();
+    }
+
+    @Override
+    public DeviceConfiguration getDeviceConfiguration() {
+        return this.getDeviceCommunicationConfiguration().getDeviceConfiguration();
     }
 
     @Override
@@ -142,7 +147,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     private List<DeviceProtocolDialect> getAllDeviceProtocolDialectsSupportedByTheDeviceType() {
-        DeviceType deviceType = this.getDeviceCommunicationConfiguration().getDeviceConfiguration().getDeviceType();
+        DeviceType deviceType = this.getDeviceConfiguration().getDeviceType();
         DeviceProtocol deviceProtocol = deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol();
         return deviceProtocol.getDeviceProtocolDialects();
     }
