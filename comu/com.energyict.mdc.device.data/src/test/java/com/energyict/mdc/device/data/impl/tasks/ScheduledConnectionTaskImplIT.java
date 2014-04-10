@@ -43,9 +43,7 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeConstants;
-import org.junit.After;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Matchers;
 
 import java.sql.PreparedStatement;
@@ -60,7 +58,10 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link ScheduledConnectionTaskImpl} component.
@@ -170,11 +171,13 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Ignore
     public void testCreateOfDifferentConfig() {
         DeviceCommunicationConfiguration mockCommunicationConfig = mock(DeviceCommunicationConfiguration.class);
-        when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(mockCommunicationConfig);
+        when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         PartialOutboundConnectionTask partialScheduledConnectionTask = mock(PartialOutboundConnectionTask.class);
         when(partialScheduledConnectionTask.getId()).thenReturn(PARTIAL_SCHEDULED_CONNECTION_TASK3_ID);
         when(partialScheduledConnectionTask.getName()).thenReturn("testCreateOfDifferentConfig");
-        when(partialScheduledConnectionTask.getConfiguration()).thenReturn(mockCommunicationConfig);
+        when(partialScheduledConnectionTask.getConfiguration()).thenReturn(deviceConfiguration);
         when(partialScheduledConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
 
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateOfDifferentConfig", partialScheduledConnectionTask);

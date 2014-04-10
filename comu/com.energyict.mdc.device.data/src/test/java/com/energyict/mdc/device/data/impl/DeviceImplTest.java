@@ -404,8 +404,10 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         DeviceType.DeviceConfigurationBuilder configurationWithRegisterMappings = deviceType.newConfiguration("ConfigurationWithRegisterMappings");
         RegisterSpec.RegisterSpecBuilder registerSpecBuilder1 = configurationWithRegisterMappings.newRegisterSpec(registerMapping1);
         registerSpecBuilder1.setNumberOfDigits(9);
+        registerSpecBuilder1.setNumberOfFractionDigits(0);
         RegisterSpec.RegisterSpecBuilder registerSpecBuilder2 = configurationWithRegisterMappings.newRegisterSpec(registerMapping2);
         registerSpecBuilder2.setNumberOfDigits(9);
+        registerSpecBuilder2.setNumberOfFractionDigits(0);
         DeviceConfiguration deviceConfiguration = configurationWithRegisterMappings.add();
         deviceType.save();
         return deviceConfiguration;
