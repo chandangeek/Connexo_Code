@@ -35,11 +35,9 @@ public class V2ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolClasses.add("com.energyict.protocolimplv2.nta.elster.MbusDevice");  this.protocolNames.add("Elster AS220/AS1440 AM100 DLMS (PRE-NTA) Mbus Slave");
         this.protocolClasses.add("com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155");  this.protocolNames.add("Elster MTU155 CTR");
         this.protocolClasses.add("com.energyict.protocolimplv2.eict.eiweb.EIWeb");  this.protocolNames.add("EnergyICT RTU EIWeb V2");
-        this.protocolClasses.add("com.energyict.protocolimplv2.eict.eiweb.EIWebBulk");  this.protocolNames.add("EnergyICT RTU+Server EIWebPlus");
         this.protocolClasses.add("com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer");  this.protocolNames.add("EnergyICT RTU+Server2 DLMS (G3)");
         this.protocolClasses.add("com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice");  this.protocolNames.add("EnergyICT WebRTU KP DLMS (NTA DSMR2.3) Mbus Slave V2");
         this.protocolClasses.add("com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP");  this.protocolNames.add("EnergyICT WebRTU KP DLMS (NTA DSMR2.3) V2");
-        this.protocolClasses.add("com.energyict.protocolimplv2.coronis.muc.WebRTUWavenisGateway");  this.protocolNames.add("EnergyICT WebRTU MUC Wavenis Gateway");
         this.protocolClasses.add("com.energyict.protocolimplv2.eict.gatewayz3.GateWayZ3");  this.protocolNames.add("EnergyICT WebRTU Z3 DLMS Gateway");
         this.protocolClasses.add("com.energyict.protocolimplv2.edp.JanzB280");  this.protocolNames.add("Janz B280 DLMS");
         this.protocolClasses.add("com.energyict.protocolimplv2.edp.CX20009");  this.protocolNames.add("SagemCom CX2000-9 DLMS");
