@@ -234,6 +234,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
         ScheduledConnectionTaskBuilder setProperty(String propertyName, Object value);
 
+        ScheduledConnectionTaskBuilder setSimultaneousConnectionsAllowed(boolean allowSimultaneousConnections);
+
         /**
          * Creates the actual ScheduledConnectionTask with the objects set in this builder
          *

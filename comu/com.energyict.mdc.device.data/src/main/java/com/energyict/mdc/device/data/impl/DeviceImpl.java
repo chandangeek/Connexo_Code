@@ -835,6 +835,12 @@ public class DeviceImpl implements Device, PersistenceAware {
         }
 
         @Override
+        public ScheduledConnectionTaskBuilder setSimultaneousConnectionsAllowed(boolean allowSimultaneousConnections) {
+            this.scheduledConnectionTask.setSimultaneousConnectionsAllowed(allowSimultaneousConnections);
+            return this;
+        }
+
+        @Override
         public ScheduledConnectionTask add() {
             DeviceImpl.this.connectionTasks.add(this.scheduledConnectionTask);
             return scheduledConnectionTask;
