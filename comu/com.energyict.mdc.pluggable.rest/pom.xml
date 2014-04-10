@@ -25,9 +25,24 @@
       <version>${comserver.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc-protocols-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc-all</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>events</artifactId>
       <version>${jupiter.version}</version>
+    </dependency>
+    <dependency>
+    <groupId>com.energyict</groupId>
+    <artifactId>mdc.protocol.pluggable</artifactId>
+    <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
