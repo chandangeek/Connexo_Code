@@ -19,6 +19,7 @@ import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.ServerDeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.exceptions.PartialConnectionTaskDoesNotExist;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
