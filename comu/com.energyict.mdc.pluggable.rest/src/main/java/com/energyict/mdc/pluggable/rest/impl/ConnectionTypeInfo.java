@@ -29,7 +29,7 @@ public class ConnectionTypeInfo {
         ConnectionTypeInfo connectionTypeInfo = new ConnectionTypeInfo();
         connectionTypeInfo.id = connectionTypePluggableClass.getId();
         connectionTypeInfo.name = connectionTypePluggableClass.getName();
-        connectionTypePluggableClass.getProperties(connectionTypePluggableClass.getPropertySpecs());
+        connectionTypePluggableClass.getProperties(connectionTypePluggableClass.getConnectionType().getPropertySpecs());
         return connectionTypeInfo;
     }
 }
