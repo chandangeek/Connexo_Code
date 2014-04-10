@@ -70,6 +70,7 @@ Ext.define('Isu.util.IsuComboTooltip', {
             combo.reset();
             listValues && listValues.hide();
             tooltip && tooltip.show();
+            combo.limitNotification && combo.limitNotification.hide();
         } else {
             tooltip && tooltip.hide();
             if (listValues) {
@@ -118,7 +119,7 @@ Ext.define('Isu.util.IsuComboTooltip', {
         });
 
         store.on('refresh', function (refreshedStore) {
-            if (refreshedStore.getTotalCount() == '+1') {
+            if (refreshedStore.getTotalCount() > refreshedStore.getCount()) {
                 combo.limitNotification.setStyle({
                     top: comboEl.getY() + comboEl.getHeight(false) - combo.limitNotification.getHeight(false) + 'px',
                     left: comboEl.getX() + comboEl.getWidth(false) + 'px'
