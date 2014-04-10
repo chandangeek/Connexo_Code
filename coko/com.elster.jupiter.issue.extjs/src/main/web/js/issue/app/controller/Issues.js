@@ -121,7 +121,7 @@ Ext.define('Isu.controller.Issues', {
         var issueNoGroup = this.getIssueNoGroup(),
             issueList = this.getIssuesList();
 
-        if (records.length < 1) {
+        if (records && records.length < 1) {
 
             issueNoGroup.removeAll();
             issueNoGroup.add({
