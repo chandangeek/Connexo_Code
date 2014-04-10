@@ -27,7 +27,7 @@ public interface SecurityPropertySet extends NamedBusinessObject, RelationPartic
 
     public EncryptionDeviceAccessLevel getEncryptionDeviceAccessLevel();
 
-    public DeviceConfiguration getDeviceCommunicationConfiguration ();
+    public DeviceConfiguration getDeviceConfiguration();
 
     public Set<DeviceSecurityUserAction> getUserActions ();
 
