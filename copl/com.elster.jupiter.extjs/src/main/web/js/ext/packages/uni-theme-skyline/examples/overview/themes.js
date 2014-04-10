@@ -338,7 +338,6 @@ function getFormWidgets() {
 
         defaults: {
             anchor: '98%',
-            msgTarget: 'side',
             allowBlank: false
         },
 
