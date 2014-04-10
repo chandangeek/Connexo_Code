@@ -57,7 +57,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
                         '<table class="isu-item-data-table">',
                         '<tr>',
                         '<td><b>Issue type:</b></td>',
-                        '<td><tpl if="type">{type.name}</tpl></td>',
+                        '<td><tpl if="issueType">{issueType.name}</tpl></td>',
                         '<td><b>Due in:</b></td>',
                         '<td><tpl if="dueIn && dueIn.number">{dueIn.number} {dueIn.type}</tpl></td>',
                         '</tr>',
