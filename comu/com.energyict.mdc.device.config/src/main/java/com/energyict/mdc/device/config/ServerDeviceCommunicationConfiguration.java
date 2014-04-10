@@ -1,15 +1,15 @@
-package com.energyict.mdc.device.config.impl;
+package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import java.util.List;
 import java.util.Set;
 
 /**
+ * TODO at some point, this will have to be moved to the IMPL folder.
+ * TODO Preferably when mdc-all is deleted so no external bundles require this anymore
+ * TODO I'm sure @tgr will tell you all about it
+ *
  * Copyrights EnergyICT
  * Date: 07/02/14
  * Time: 15:23
