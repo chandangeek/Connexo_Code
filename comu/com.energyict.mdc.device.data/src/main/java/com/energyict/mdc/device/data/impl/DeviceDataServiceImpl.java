@@ -30,6 +30,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.finders.DeviceFinder;
 import com.energyict.mdc.device.data.finders.LoadProfileFinder;
@@ -96,7 +97,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     private volatile EngineModelService engineModelService;
     private volatile MeteringService meteringService;
     private volatile Environment environment;
-    
+
     @Inject
     public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService) {
         this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false);
@@ -455,8 +456,9 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
         environment.registerFinder(new LoadProfileFinder(this.dataModel));
         environment.registerFinder(new LogBookFinder(this.dataModel));
         environment.registerFinder(new ConnectionMethodFinder());
+        environment.registerFinder(new ProtocolDialectPropertiesFinder());
     }
-    
+
     @Override
     public void install() {
         this.install(false, true);
@@ -479,6 +481,24 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
         @Override
         public Optional<ConnectionMethod> findByPrimaryKey(long id) {
+            return dataModel.mapper(this.valueDomain()).getUnique("id", id);
+        }
+
+    }
+
+    private class ProtocolDialectPropertiesFinder implements CanFindByLongPrimaryKey<ProtocolDialectProperties> {
+        @Override
+        public FactoryIds registrationKey() {
+            return FactoryIds.DEVICE_PROTOCOL_DIALECT;
+        }
+
+        @Override
+        public Class<ProtocolDialectProperties> valueDomain() {
+            return ProtocolDialectProperties.class;
+        }
+
+        @Override
+        public Optional<ProtocolDialectProperties> findByPrimaryKey(long id) {
             return dataModel.mapper(this.valueDomain()).getUnique("id", id);
         }
 

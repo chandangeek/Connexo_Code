@@ -138,6 +138,14 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     void removeProperty(String name);
 
+    List<ProtocolDialectProperties> getProtocolDialectPropertiesList();
+
+    ProtocolDialectProperties getProtocolDialectProperties(String dialectName);
+
+    void setProtocolDialectProperty(String dialectName, String propertyName, Object value);
+
+    void removeProtocolDialectProperty(String dialectName, String propertyName);
+
     /**
      * Stores the given MeterReadings
      *

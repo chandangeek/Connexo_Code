@@ -41,10 +41,15 @@ public enum MessageSeeds implements MessageSeed {
     OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY(2015, Constants.OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY_KEY, "The offset of the next execution scheduling specifications should not extend its frequency", Level.SEVERE),
     OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW(2016, Constants.OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW_KEY, "The offset of the next execution scheduling specifications is not within the communication window", Level.SEVERE),
     OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW(2017, Constants.OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW_KEY, "The offset of the next execution scheduling specifications within a week or month, once calculated back to a daily offset is not within the communication window", Level.SEVERE),
-    DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(101, Constants.PHYSICAL_GATEWAY_STILL_IN_USE,"You can not delete device '{0}' because it is still used as a physical gateway for '{1}'", Level.SEVERE),
-    DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(102, Constants.COMMUNICATION_GATEWAY_STILL_IN_USE,"You can not delete device '{0}' because it is still used as a communication gateway for '{1}'", Level.SEVERE),
-    DEVICE_PROPERTY_INFO_TYPE_DOENST_EXIST(103, Constants.INFOTYPE_DOESNT_EXIST,"The intotype for property value '{0}' does not exist.", Level.SEVERE),
-    DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL(104, Constants.PROPERTY_NOT_ON_DEVICE_PROTOCOL,"The property '{0}' is not defined by the device protocol '{1}' of device '{2}'", Level.SEVERE),
+    DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(2018, Constants.PHYSICAL_GATEWAY_STILL_IN_USE,"You can not delete device '{0}' because it is still used as a physical gateway for '{1}'", Level.SEVERE),
+    DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(2019, Constants.COMMUNICATION_GATEWAY_STILL_IN_USE,"You can not delete device '{0}' because it is still used as a communication gateway for '{1}'", Level.SEVERE),
+    DEVICE_PROPERTY_INFO_TYPE_DOENST_EXIST(2020, Constants.INFOTYPE_DOESNT_EXIST,"The intotype for property value '{0}' does not exist.", Level.SEVERE),
+    DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL(2021, Constants.PROPERTY_NOT_ON_DEVICE_PROTOCOL,"The property '{0}' is not defined by the device protocol '{1}' of device '{2}'", Level.SEVERE),
+    PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED(2022, Constants.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY, "The protocol dialect configuration properties are required to create device protocol dialect properties", Level.SEVERE),
+    DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC(2023, Constants.DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY, "The protocol dialect ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
+    DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE(2014, Constants.DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY, "''{0}'' is not a valid value for attribute ''{1}'' of device dialect protocol ''{2}''", Level.SEVERE),
+    DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING(2015, Constants.DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY, "A value is missing for required attribute ''{0}'' of device dialect protocol''{1}''", Level.SEVERE),
+    DEVICE_PROTOCOL_DIALECT_DEVICE_REQUIRED(2017, Constants.DEVICE_PROTOCOL_DIALECT_DEVICE_REQUIRED_KEY, "Device protocol dialect properties need to be created against a device", Level.SEVERE),
     ;
 
     private final int number;
@@ -115,6 +120,11 @@ public enum MessageSeeds implements MessageSeed {
         public static final String COMMUNICATION_GATEWAY_STILL_IN_USE = "DDC.device.delete.linked.communication.gateway";
         public static final String INFOTYPE_DOESNT_EXIST = "DDC.device.property.infotype.required";
         public static final String PROPERTY_NOT_ON_DEVICE_PROTOCOL = "DDC.not.deviceprotocol.property";
+        public static final String PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY = "DDC.protocolDialectConfigurationProperties.required";
+        public static final String DEVICE_PROTOCOL_DIALECT_DEVICE_REQUIRED_KEY = "DDC.deviceProtocolDialectProperty.device.required";
+        public static final String DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY = "DDC.deviceProtocolDialectPropertyXIsNotInSpec";
+        public static final String DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY = "DDC.deviceProtocolDialectProperty.value.invalid";
+        public static final String DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY = "DDC.deviceProtocolDialectProperty.required";
     }
 
 }

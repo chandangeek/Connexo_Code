@@ -161,11 +161,14 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     @Ignore
     public void testCreateOfDifferentConfig() {
         DeviceCommunicationConfiguration mockCommunicationConfig = mock(DeviceCommunicationConfiguration.class);
-        when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(mockCommunicationConfig);
+        when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         PartialConnectionInitiationTask partialConnectionInitiationTask = mock(PartialConnectionInitiationTask.class);
-        when(partialConnectionInitiationTask.getId()).thenReturn((long) PARTIAL_CONNECTION_INITIATION_TASK2_ID);
+        when(partialConnectionInitiationTask.getId()).thenReturn(PARTIAL_CONNECTION_INITIATION_TASK2_ID);
         when(partialConnectionInitiationTask.getName()).thenReturn("testCreateOfDifferentConfig");
-        when(partialConnectionInitiationTask.getConfiguration()).thenReturn(mockCommunicationConfig);
+        when(partialConnectionInitiationTask.getConfiguration()).thenReturn(deviceConfiguration);
         when(partialConnectionInitiationTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
         PartialConnectionTaskFactory partialConnectionTaskFactory = mock(PartialConnectionTaskFactory.class);
         when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_CONNECTION_INITIATION_TASK1_ID)).thenReturn(this.partialConnectionInitiationTask);

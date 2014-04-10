@@ -124,11 +124,13 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Ignore
     public void testCreateOfDifferentConfig() {
         DeviceCommunicationConfiguration mockCommunicationConfig = mock(DeviceCommunicationConfiguration.class);
-        when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(mockCommunicationConfig);
+        when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         PartialInboundConnectionTask partialInboundConnectionTask = mock(PartialInboundConnectionTask.class);
         when(partialInboundConnectionTask.getId()).thenReturn((long) PARTIAL_INBOUND_CONNECTION_TASK3_ID);
         when(partialInboundConnectionTask.getName()).thenReturn("testCreateOfDifferentConfig");
-        when(partialInboundConnectionTask.getConfiguration()).thenReturn(mockCommunicationConfig);
+        when(partialInboundConnectionTask.getConfiguration()).thenReturn(deviceConfiguration);
         when(partialInboundConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
         PartialConnectionTaskFactory partialConnectionTaskFactory = mock(PartialConnectionTaskFactory.class);
         when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_INBOUND_CONNECTION_TASK1_ID)).thenReturn(this.partialInboundConnectionTask);

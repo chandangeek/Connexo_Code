@@ -29,6 +29,9 @@ public enum EventType {
     LOGBOOK_CREATED("logbook/CREATED"),
     LOGBOOK_DELETED("logbook/DELETED"),
     LOGBOOK_UPDATED("logbook/UPDATED"),
+    PROTOCOLDIALECTPROPERTIES_CREATED("protocoldialectproperties/CREATED"),
+    PROTOCOLDIALECTPROPERTIES_UPDATED("protocoldialectproperties/UPDATED"),
+    PROTOCOLDIALECTPROPERTIES_DELETED("protocoldialectproperties/DELETED"),
     ;
 
     private static final String NAMESPACE = "com/energyict/mdc/device/data/";

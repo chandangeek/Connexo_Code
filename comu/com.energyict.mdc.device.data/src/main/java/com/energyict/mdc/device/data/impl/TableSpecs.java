@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionMethodImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -154,8 +155,8 @@ public enum TableSpecs {
 //            table.foreignKey("FK_EISDEVICECACHE_RTU").on(deviceId).references(EISRTU.name()).map("device").add();
 //        }
 //    },
-    
-    
+
+
     MDCCONNECTIONMETHOD {
         @Override
         public void addTo(DataModel dataModel) {
@@ -213,6 +214,24 @@ public enum TableSpecs {
             table.foreignKey("FK_MDCCONNTASK_COMSERVER").on(comServer).references(EngineModelService.COMPONENT_NAME, "MDCCOMSERVER").map("comServer").add();
             table.foreignKey("FK_MDCCONNTASK_INITIATOR").on(initiator).references(MDCCONNECTIONTASK.name()).map("initiationTask").add();
             table.foreignKey("FK_MDCCONNTASK_NEXTEXEC").on(nextExecutionSpecs).references(DeviceConfigurationService.COMPONENTNAME, "MDCNEXTEXECUTIONSPEC").map("nextExecutionSpecs").add();
+        }
+    },
+
+    MDCPROTOCOLDIALECTPROPERTIES {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ProtocolDialectProperties> table = dataModel.addTable(name(), ProtocolDialectProperties.class);
+            table.map(ProtocolDialectPropertiesImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.column("NAME").varChar(255).map("name").add();
+            Column deviceProtocolId = table.column("DEVICEPROTOCOLID").number().conversion(NUMBER2LONG).notNull().map("pluggableClassId").add();
+            Column device = table.column("RTUID").number().conversion(NUMBER2LONG).notNull().add();
+            table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map("modificationDate").add();
+            Column configurationProperties = table.column("CONFIGURATIONPROPERTIESID").number().add();
+            table.foreignKey("FK_MDCPRTDIALECTPROPS_PCID").on(deviceProtocolId).references(PluggableService.COMPONENTNAME, "EISPLUGGABLECLASS").map("deviceProtocolPluggableClass").add();
+            table.foreignKey("FK_MDCPRTDIALECTPROPS_RTU").on(device).references(EISRTU.name()).map("device").reverseMap("dialectPropertiesList").add();
+            table.foreignKey("FK_MDCPRTDIALECTPROPS_PDCP").on(configurationProperties).references(DeviceConfigurationService.COMPONENTNAME, "MDCDIALECTCONFIGPROPERTIES").map("configurationProperties").add();
+            table.primaryKey("PK_MDCPRTDIALECTPROPS").on(id).add();
         }
     };
 

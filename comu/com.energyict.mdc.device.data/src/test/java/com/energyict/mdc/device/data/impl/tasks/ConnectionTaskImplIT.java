@@ -377,22 +377,22 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
         when(this.partialInboundConnectionTask.getId()).thenReturn(PARTIAL_INBOUND_CONNECTION_TASK1_ID);
         when(this.partialInboundConnectionTask.getName()).thenReturn("Inbound (1)");
-        when(this.partialInboundConnectionTask.getConfiguration()).thenReturn(this.deviceCommunicationConfiguration);
+        when(this.partialInboundConnectionTask.getConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.partialInboundConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
 
         when(this.partialInboundConnectionTask2.getId()).thenReturn(PARTIAL_INBOUND_CONNECTION_TASK2_ID);
         when(this.partialInboundConnectionTask2.getName()).thenReturn("Inbound (2)");
-        when(this.partialInboundConnectionTask2.getConfiguration()).thenReturn(this.deviceCommunicationConfiguration);
+        when(this.partialInboundConnectionTask2.getConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.partialInboundConnectionTask2.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
 
         when(this.partialScheduledConnectionTask.getId()).thenReturn(PARTIAL_SCHEDULED_CONNECTION_TASK1_ID);
         when(this.partialScheduledConnectionTask.getName()).thenReturn("Outbound (1)");
-        when(this.partialScheduledConnectionTask.getConfiguration()).thenReturn(this.deviceCommunicationConfiguration);
+        when(this.partialScheduledConnectionTask.getConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.partialScheduledConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
 
         when(this.partialScheduledConnectionTask2.getId()).thenReturn(PARTIAL_SCHEDULED_CONNECTION_TASK2_ID);
         when(this.partialScheduledConnectionTask2.getName()).thenReturn("Outbound (2)");
-        when(this.partialScheduledConnectionTask2.getConfiguration()).thenReturn(this.deviceCommunicationConfiguration);
+        when(this.partialScheduledConnectionTask2.getConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.partialScheduledConnectionTask2.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
 
         when(this.partialConnectionInitiationTask.getId()).thenReturn(PARTIAL_CONNECTION_INITIATION_TASK1_ID);

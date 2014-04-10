@@ -180,11 +180,13 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Ignore
     public void testCreateOfDifferentConfig() {
         DeviceCommunicationConfiguration mockCommunicationConfig = mock(DeviceCommunicationConfiguration.class);
-        when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(mockCommunicationConfig);
+        when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         PartialScheduledConnectionTask partialScheduledConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialScheduledConnectionTask.getId()).thenReturn(PARTIAL_SCHEDULED_CONNECTION_TASK3_ID);
         when(partialScheduledConnectionTask.getName()).thenReturn("testCreateOfDifferentConfig");
-        when(partialScheduledConnectionTask.getConfiguration()).thenReturn(mockCommunicationConfig);
+        when(partialScheduledConnectionTask.getConfiguration()).thenReturn(deviceConfiguration);
         when(partialScheduledConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
         PartialConnectionTaskFactory partialConnectionTaskFactory = mock(PartialConnectionTaskFactory.class);
         when(partialConnectionTaskFactory.findPartialConnectionTask(PARTIAL_SCHEDULED_CONNECTION_TASK1_ID)).thenReturn(this.partialScheduledConnectionTask);
@@ -1926,7 +1928,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
         when(partialConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
         when(partialConnectionTask.getName()).thenReturn(name);
-        return deviceDataService.newAsapConnectionTask(this.device, partialConnectionTask, outboundTcpipComPortPool);
+//        return deviceDataService.newAsapConnectionTask(this.device, partialConnectionTask, outboundTcpipComPortPool);
+        return null;
     }
 
     private ScheduledConnectionTask createMinimizeWithNoPropertiesWithoutViolations(String name, TemporalExpression temporalExpression) {

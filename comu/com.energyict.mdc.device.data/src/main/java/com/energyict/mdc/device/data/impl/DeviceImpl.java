@@ -26,6 +26,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
@@ -36,9 +37,11 @@ import com.energyict.mdc.device.data.DeviceDependant;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.device.data.impl.offline.DeviceOffline;
@@ -97,6 +100,10 @@ public class DeviceImpl implements Device {
     private TemporalReference<PhysicalGatewayReference> physicalGatewayReferenceDevice = Temporals.absent();
     @Valid
     private List<DeviceProtocolProperty> deviceProperties = new ArrayList<>();
+    @Valid
+    private List<ProtocolDialectProperties> dialectPropertiesList = new ArrayList<>();
+    private List<ProtocolDialectProperties> newDialectProperties = new ArrayList<>();
+    private List<ProtocolDialectProperties> dirtyDialectProperties = new ArrayList<>();
 
     @Inject
     public DeviceImpl(DataModel dataModel,
@@ -118,11 +125,39 @@ public class DeviceImpl implements Device {
         this.modificationDate = this.clock.now();
         if (this.id > 0) {
             Save.UPDATE.save(dataModel, this);
+            this.saveNewAndDirtyDialectProperties();
             this.notifyUpdated();
         } else {
             Save.CREATE.save(dataModel, this);
+            this.saveNewDialectProperties();
             this.notifyCreated();
         }
+    }
+
+    private void saveNewAndDirtyDialectProperties() {
+        this.saveNewDialectProperties();
+        this.saveDirtyDialectProperties();
+    }
+
+    private void saveDirtyDialectProperties() {
+        this.saveDialectProperties(this.dirtyDialectProperties);
+        this.dirtyDialectProperties = new ArrayList<>();
+    }
+
+    private void saveNewDialectProperties() {
+        this.saveDialectProperties(this.newDialectProperties);
+        this.dialectPropertiesList.addAll(this.newDialectProperties);
+        this.newDialectProperties = new ArrayList<>();
+    }
+
+    private void saveDialectProperties(List<ProtocolDialectProperties> dialectProperties) {
+        for (ProtocolDialectProperties newDialectProperty : dialectProperties) {
+            this.save((ProtocolDialectPropertiesImpl) newDialectProperty);
+        }
+    }
+
+    private void save (ProtocolDialectPropertiesImpl dialectProperties) {
+        dialectProperties.save();
     }
 
     private void notifyUpdated() {
@@ -490,6 +525,89 @@ public class DeviceImpl implements Device {
     }
 
     @Override
+    public List<ProtocolDialectProperties> getProtocolDialectPropertiesList() {
+        List<ProtocolDialectProperties> all = new ArrayList<>(this.dialectPropertiesList.size() + this.newDialectProperties.size());
+        all.addAll(this.dialectPropertiesList);
+        all.addAll(this.newDialectProperties);
+        return all;
+    }
+
+    @Override
+    public ProtocolDialectProperties getProtocolDialectProperties(String dialectName) {
+        ProtocolDialectProperties dialectProperties = this.getProtocolDialectPropertiesFrom(dialectName, this.dialectPropertiesList);
+        if (dialectProperties != null) {
+            return dialectProperties;
+        }
+        else {
+            // Attempt to find the dialect properties in the list of new ones that have not been saved yet
+            return this.getProtocolDialectPropertiesFrom(dialectName, this.newDialectProperties);
+        }
+    }
+
+    private ProtocolDialectProperties getProtocolDialectPropertiesFrom(String dialectName, List<ProtocolDialectProperties> propertiesList) {
+        for (ProtocolDialectProperties properties : propertiesList) {
+            if (properties.getDeviceProtocolDialectName().equals(dialectName)) {
+                return properties;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void setProtocolDialectProperty(String dialectName, String propertyName, Object value) {
+        ProtocolDialectProperties dialectProperties = this.getProtocolDialectProperties(dialectName);
+        if (dialectProperties == null) {
+            ProtocolDialectConfigurationProperties configurationProperties = this.getProtocolDialectConfigurationProperties(dialectName);
+            if (configurationProperties != null) {
+                dialectProperties = this.dataModel.getInstance(ProtocolDialectPropertiesImpl.class).initialize(this, configurationProperties);
+                dialectProperties.setProperty(propertyName, value);
+                this.newDialectProperties.add(dialectProperties);
+            }
+            else {
+                throw new ProtocolDialectConfigurationPropertiesIsRequiredException(this.thesaurus);
+            }
+        }
+        else {
+            dialectProperties.setProperty(propertyName, value);
+            this.dirtyDialectProperties.add(dialectProperties);
+        }
+    }
+
+    private ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties(String dialectName) {
+        List<ProtocolDialectConfigurationProperties> allConfigurationProperties =
+                this.getDeviceConfiguration().getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList();
+        for (ProtocolDialectConfigurationProperties configurationProperties : allConfigurationProperties) {
+            if (configurationProperties.getDeviceProtocolDialectName().equals(dialectName)) {
+                return configurationProperties;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void removeProtocolDialectProperty(String dialectName, String propertyName) {
+        ProtocolDialectProperties dialectProperties = this.getProtocolDialectProperties(dialectName);
+        if (dialectProperties != null) {
+            dialectProperties.removeProperty(propertyName);
+            if (dialectProperties.getTypedProperties().localSize() == 0) {
+                // No properties left
+                this.removeProtocolDialectProperty(dialectProperties);
+            }
+        }
+    }
+
+    private void removeProtocolDialectProperty(ProtocolDialectProperties dialectProperties) {
+        if (dialectProperties.getId() == 0) {
+            // Not persistent, must be in the list of new properties
+            this.newDialectProperties.remove(dialectProperties);
+        }
+        else {
+            // Persistent, remove if from the managed list of properties, which will delete it from the database
+            this.dialectPropertiesList.remove(dialectProperties);
+        }
+    }
+
+    @Override
     public void setProperty(String name, Object value) {
         if (propertyExistsOnDeviceProtocol(name)) {
             String propertyValue = getPropertyValue(name, value);
@@ -506,6 +624,7 @@ public class DeviceImpl implements Device {
         if (propertyValue != null) {
             InfoType infoType = this.deviceDataService.findInfoType(name);
             DeviceProtocolPropertyImpl deviceProtocolProperty = this.dataModel.getInstance(DeviceProtocolPropertyImpl.class).initialize(this, infoType, propertyValue);
+            Save.CREATE.validate(dataModel, deviceProtocolProperty);
             this.deviceProperties.add(deviceProtocolProperty);
         }
     }
