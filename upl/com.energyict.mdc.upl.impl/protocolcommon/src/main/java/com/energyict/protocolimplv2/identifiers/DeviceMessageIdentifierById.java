@@ -5,15 +5,27 @@ import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Copyrights EnergyICT
  * Date: 7/06/13
  * Time: 9:59
  * Author: khe
  */
+@XmlRootElement
 public class DeviceMessageIdentifierById implements MessageIdentifier {
 
     private final int messageId;
+
+    /**
+     * Constructor only to be used by JSON (de)marshalling
+     */
+    public DeviceMessageIdentifierById() {
+        messageId = -1;
+    }
 
     public DeviceMessageIdentifierById(int messageId) {
         this.messageId = messageId;
@@ -31,6 +43,20 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
     @Override
     public String toString() {
         return "messageId = " + messageId;
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
+
+    @XmlAttribute
+    public int getMessageId() {
+        return messageId;
     }
 
     @Override
