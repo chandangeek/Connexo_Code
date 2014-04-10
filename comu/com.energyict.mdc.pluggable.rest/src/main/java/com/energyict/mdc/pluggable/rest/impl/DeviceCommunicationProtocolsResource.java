@@ -1,9 +1,11 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -19,6 +21,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -57,6 +61,25 @@ public class DeviceCommunicationProtocolsResource {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.protocolPluggableService.findDeviceProtocolPluggableClass(id);
         LicensedProtocol licensedProtocol = this.licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
         return new DeviceCommunicationProtocolInfo(uriInfo, this.propertySpecService, deviceProtocolPluggableClass, licensedProtocol, true);
+    }
+
+    @GET
+    @Path("/{deviceProtocolId}/supportedconnectiontypes")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<ConnectionTypeInfo> getSupportedConnectionTypes(@PathParam("deviceProtocolId") long deviceProtocolId){
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolId);
+        List<ConnectionType> supportedConnectionTypes = deviceProtocolPluggableClass.getDeviceProtocol().getSupportedConnectionTypes();
+        List<ConnectionTypePluggableClass> allConnectionTypePluggableClassesToCheck = this.protocolPluggableService.findAllConnectionTypePluggableClasses();
+        List<ConnectionTypeInfo> infos = new ArrayList<>();
+        for(ConnectionType supportedConnectionType: supportedConnectionTypes){
+            for(ConnectionTypePluggableClass connectionTypePluggableClass:allConnectionTypePluggableClassesToCheck){
+                if(connectionTypePluggableClass.getJavaClassName().equals(supportedConnectionType.getClass().getCanonicalName())){
+                    // todo
+                    //     infos.add(ConnectionTypeInfo.from(connectionTypePluggableClass));
+                }
+            }
+        }
+        return infos;
     }
 
     @DELETE
