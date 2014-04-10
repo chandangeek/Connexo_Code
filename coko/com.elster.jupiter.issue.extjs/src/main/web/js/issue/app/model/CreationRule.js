@@ -41,7 +41,7 @@ Ext.define('Isu.model.CreationRule', {
             type: 'auto'
         },
         {
-            name: 'type',
+            name: 'issueType',
             type: 'auto'
         },
         {

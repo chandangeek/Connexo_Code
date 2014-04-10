@@ -131,7 +131,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             form = self.getRuleForm(),
             data = record.getData(),
             nameField = form.down('[name=name]'),
-            typeField = form.down('[name=type]'),
+            issueTypeField = form.down('[name=issueType]'),
             templateField = form.down('[name=template]'),
             reasonField = form.down('[name=reason]'),
             dueInNumberField = form.down('[name=dueIn.number]'),
@@ -139,8 +139,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             commentField = form.down('[name=comment]');
 
         nameField.setValue(data.name);
-        typeField.getStore().load(function () {
-            typeField.setValue(data.type.id || typeField.getStore().getAt(0).get('id'));
+        issueTypeField.getStore().load(function () {
+            issueTypeField.setValue(data.issueType.uid || issueTypeField.getStore().getAt(0).get('uid'));
             templateField.getStore().on('load', function () {
                 templateField.setValue(data.template.uid);
             }, self, {single: true});
@@ -157,7 +157,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         var form = this.getRuleForm(),
             ruleModel = model || Isu.model.CreationRule.create(),
             nameField = form.down('[name=name]'),
-            typeField = form.down('[name=type]'),
+            issueTypeField = form.down('[name=issueType]'),
             templateField = form.down('[name=template]'),
             reasonField = form.down('[name=reason]'),
             dueInNumberField = form.down('[name=dueIn.number]'),
@@ -167,8 +167,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             parameters = {};
 
         ruleModel.set('name', nameField.getValue());
-        ruleModel.set('type', {
-            id: typeField.getValue()
+        ruleModel.set('issueType', {
+            uid: issueTypeField.getValue()
         });
         ruleModel.set('template', {
             uid: templateField.getValue()

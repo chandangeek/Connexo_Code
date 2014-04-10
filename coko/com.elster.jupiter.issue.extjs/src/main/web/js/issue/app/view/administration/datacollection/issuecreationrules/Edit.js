@@ -40,13 +40,13 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                         },
                         {
                             xtype: 'combobox',
-                            name: 'type',
+                            name: 'issueType',
                             fieldLabel: 'Issue type',
                             labelSeparator: ' *',
                             store: 'Isu.store.IssueType',
                             queryMode: 'local',
                             displayField: 'name',
-                            valueField: 'id',
+                            valueField: 'uid',
                             allowBlank: false,
                             editable: false
                         },
