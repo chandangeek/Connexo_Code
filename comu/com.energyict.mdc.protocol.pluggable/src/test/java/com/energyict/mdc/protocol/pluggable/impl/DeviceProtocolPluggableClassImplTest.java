@@ -17,6 +17,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
@@ -51,6 +52,7 @@ import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocolWithTestProp
 import com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.NotADeviceProtocol;
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -151,6 +153,7 @@ public class DeviceProtocolPluggableClassImplTest {
                 fail("Code Factory was not cleaned up properly by previous test");
             }
         }
+        Environment.DEFAULT.get().registerFinder(new ProtocolDialectPropertiesFinder());
 
         when(applicationContext.findFactory(FactoryIds.CODE.id())).thenReturn(codeFactory);
         Translator translator = mock(Translator.class);
@@ -163,10 +166,10 @@ public class DeviceProtocolPluggableClassImplTest {
     }
 
     private static void createOracleMetaDataTables(Connection connection) throws SQLException {
-        executeDDL(connection, "create table user_tables (table_name varchar2(30) not null)");
-        executeDDL(connection, "create table user_tab_columns (table_name varchar2(30) not null, column_name varchar2(30) not null)");
-        executeDDL(connection, "create table user_sequences (sequence_name varchar2(30) not null)");
-        executeDDL(connection, "create table user_ind_columns (index_name varchar2(30) not null, table_name varchar2(30), column_name varchar2(30), column_position number)");
+        executeDDL(connection, "create table if not exists user_tables (table_name varchar2(30) not null)");
+        executeDDL(connection, "create table if not exists user_tab_columns (table_name varchar2(30) not null, column_name varchar2(30) not null)");
+        executeDDL(connection, "create table if not exists user_sequences (sequence_name varchar2(30) not null)");
+        executeDDL(connection, "create table if not exists user_ind_columns (index_name varchar2(30) not null, table_name varchar2(30), column_name varchar2(30), column_position number)");
     }
 
     private static void executeDDL(Connection connection, String ddl) throws SQLException {
@@ -448,6 +451,26 @@ public class DeviceProtocolPluggableClassImplTest {
                     return dataModel;
                 }
             });
+        }
+
+    }
+
+    public interface ProtocolDialectProperties {}
+
+    private class ProtocolDialectPropertiesFinder implements CanFindByLongPrimaryKey {
+        @Override
+        public FactoryIds registrationKey() {
+            return FactoryIds.DEVICE_PROTOCOL_DIALECT;
+        }
+
+        @Override
+        public Class<?> valueDomain() {
+            return ProtocolDialectProperties.class;
+        }
+
+        @Override
+        public Optional<?> findByPrimaryKey(long id) {
+            return null;
         }
 
     }

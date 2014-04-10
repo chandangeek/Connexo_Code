@@ -531,7 +531,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     private void install(boolean executeDdl) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(executeDdl, false, true);
+        new Installer(this.dataModel, this.eventService, this.thesaurus).install(executeDdl, true, true);
     }
 
 }
