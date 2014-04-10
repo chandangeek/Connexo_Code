@@ -88,7 +88,7 @@ Ext.define('Isu.util.IsuComboTooltip', {
     limitNotification: function (combo) {
         var store = combo.getStore(),
             comboEl = Ext.get(combo.getEl()),
-            text = combo.limitNotificationText || 'There are more than 50 results. Specify query to narrow the search results.';
+            text = combo.limitNotificationText || 'There are more than ' + store.pageSize + ' results. Specify query to narrow the search results.';
 
         combo.limitNotification = Ext.DomHelper.append(Ext.getBody(), {
             tag: 'div',
