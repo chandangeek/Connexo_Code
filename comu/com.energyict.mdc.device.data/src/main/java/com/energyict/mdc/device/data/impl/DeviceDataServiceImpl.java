@@ -97,6 +97,9 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     private volatile MeteringService meteringService;
     private volatile Environment environment;
 
+    public DeviceDataServiceImpl() {
+    }
+
     @Inject
     public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService) {
         this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false);
