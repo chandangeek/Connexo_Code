@@ -48,7 +48,7 @@ Ext.define('Isu.controller.IssueFilter', {
             },
             'issues-side-filter filter-form combobox[name=meter]': {
                 render: this.setComboTooltip,
-                afterrender: this.limitNotification
+                expand: this.limitNotification
             }
         });
 

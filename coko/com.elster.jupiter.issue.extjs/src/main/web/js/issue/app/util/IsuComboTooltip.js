@@ -70,7 +70,6 @@ Ext.define('Isu.util.IsuComboTooltip', {
             combo.reset();
             listValues && listValues.hide();
             tooltip && tooltip.show();
-            combo.limitNotification && combo.limitNotification.hide();
         } else {
             tooltip && tooltip.hide();
             if (listValues) {
@@ -82,52 +81,25 @@ Ext.define('Isu.util.IsuComboTooltip', {
         }
     },
 
-    /**
-     * Sets notification icon with tooltip for combobox if total count of search results more than displayed search results.
-     * Combobox must has 'limitNotificationText' property otherwise it sets default text.
-     */
     limitNotification: function (combo) {
-        var store = combo.getStore(),
-            comboEl = Ext.get(combo.getEl()),
-            text = combo.limitNotificationText || 'There are more than ' + store.pageSize + ' results. Specify query to narrow the search results.';
+        var picker = combo.getPicker();
 
-        combo.limitNotification = Ext.DomHelper.append(Ext.getBody(), {
-            tag: 'div',
-            cls: 'isu-icon-info isu-combo-limit-notification'
-        }, true);
+        if (picker) {
+            picker.un('refresh', this.triggerLimitNotification, this);
+            picker.on('refresh', this.triggerLimitNotification, this);
+        }
+    },
 
-        combo.limitNotification.hide();
+    triggerLimitNotification: function (view) {
+        var store = view.getStore(),
+            el = view.getEl().down('.' + Ext.baseCSSPrefix + 'list-plain');
 
-        combo.limitNotification.tooltip = Ext.create('Ext.tip.ToolTip', {
-            target: combo.limitNotification,
-            html: text,
-            style: {
-                borderColor: 'black'
-            }
-        });
-
-        combo.limitNotification.on('mouseenter', function () {
-            combo.limitNotification.tooltip.show();
-        });
-        combo.limitNotification.on('mouseleave', function () {
-            combo.limitNotification.tooltip.hide();
-        });
-
-        combo.on('destroy', function () {
-            combo.limitNotification.tooltip.destroy();
-            combo.limitNotification.destroy();
-        });
-
-        store.on('refresh', function (refreshedStore) {
-            if (refreshedStore.getTotalCount() > refreshedStore.getCount()) {
-                combo.limitNotification.setStyle({
-                    top: comboEl.getY() + comboEl.getHeight(false) - combo.limitNotification.getHeight(false) + 'px',
-                    left: comboEl.getX() + comboEl.getWidth(false) + 'px'
-                });
-                combo.limitNotification.show();
-            } else {
-                combo.limitNotification.hide();
-            }
-        });
+        if (store.getTotalCount() > store.getCount()) {
+            el.appendChild({
+                tag: 'li',
+                html: 'Keep typing to narrow down',
+                cls: Ext.baseCSSPrefix + 'boundlist-item isu-combo-limit-notification'
+            });
+        }
     }
 });
