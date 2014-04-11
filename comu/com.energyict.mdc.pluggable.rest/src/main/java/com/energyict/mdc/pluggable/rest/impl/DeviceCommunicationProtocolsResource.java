@@ -70,16 +70,15 @@ public class DeviceCommunicationProtocolsResource {
     @GET
     @Path("/{deviceProtocolId}/supportedconnectiontypes")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<ConnectionTypeInfo> getSupportedConnectionTypes(@PathParam("deviceProtocolId") long deviceProtocolId){
+    public List<ConnectionTypeInfo> getSupportedConnectionTypes(@PathParam("deviceProtocolId") long deviceProtocolId, @Context UriInfo uriInfo){
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolId);
         List<ConnectionType> supportedConnectionTypes = deviceProtocolPluggableClass.getDeviceProtocol().getSupportedConnectionTypes();
         List<ConnectionTypePluggableClass> allConnectionTypePluggableClassesToCheck = this.protocolPluggableService.findAllConnectionTypePluggableClasses();
         List<ConnectionTypeInfo> infos = new ArrayList<>();
         for(ConnectionType supportedConnectionType: supportedConnectionTypes){
-            for(ConnectionTypePluggableClass connectionTypePluggableClass:allConnectionTypePluggableClassesToCheck){
-                if(connectionTypePluggableClass.getJavaClassName().equals(supportedConnectionType.getClass().getCanonicalName())){
-                    // todo
-                    //     infos.add(ConnectionTypeInfo.from(connectionTypePluggableClass));
+            for(ConnectionTypePluggableClass registeredConnectionTypePluggableClass:allConnectionTypePluggableClassesToCheck){
+                if(registeredConnectionTypePluggableClass.getJavaClassName().equals(supportedConnectionType.getClass().getCanonicalName())){
+                     infos.add(ConnectionTypeInfo.from(registeredConnectionTypePluggableClass, uriInfo));
                 }
             }
         }

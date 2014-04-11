@@ -1,6 +1,13 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.pluggable.rest.PropertyInfo;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import java.util.ArrayList;
+import java.util.List;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * Copyrights EnergyICT
@@ -10,6 +17,7 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 public class ConnectionTypeInfo {
     public long id;
     public String name;
+    public List<PropertyInfo> propertyInfos;
 
     public ConnectionTypeInfo() {
     }
@@ -21,11 +29,14 @@ public class ConnectionTypeInfo {
         return connectionTypeInfo;
     }
 
-    public static ConnectionTypeInfo from(ConnectionTypePluggableClass connectionTypePluggableClass) {
+    public static ConnectionTypeInfo from(ConnectionTypePluggableClass connectionTypePluggableClass, UriInfo uriInfo) {
         ConnectionTypeInfo connectionTypeInfo = new ConnectionTypeInfo();
         connectionTypeInfo.id = connectionTypePluggableClass.getId();
         connectionTypeInfo.name = connectionTypePluggableClass.getName();
-        connectionTypePluggableClass.getProperties(connectionTypePluggableClass.getConnectionType().getPropertySpecs());
+        connectionTypeInfo.propertyInfos= new ArrayList<>();
+        List<PropertySpec> propertySpecs = connectionTypePluggableClass.getPropertySpecs();
+        TypedProperties typedProperties = connectionTypePluggableClass.getProperties(propertySpecs);
+        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, connectionTypeInfo.propertyInfos);
         return connectionTypeInfo;
     }
 }
