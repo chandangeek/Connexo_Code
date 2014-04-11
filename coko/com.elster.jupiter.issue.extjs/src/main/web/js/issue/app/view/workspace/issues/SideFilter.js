@@ -2,7 +2,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.issues-side-filter',
     cls: 'filter-form',
-    width: 180,
+    width: 200,
     title: "Filter",
     ui: "filter",
     requires: [
