@@ -1,10 +1,10 @@
 Ext.define('Isu.view.workspace.issues.SideFilter', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.issues-side-filter',
-    title: 'Filter',
     cls: 'filter-form',
     width: 180,
-
+    title: "Filter",
+    ui: "filter",
     requires: [
         'Isu.view.workspace.issues.component.AssigneeCombo',
         'Isu.util.FilterCheckboxgroup',
@@ -16,6 +16,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
     items: [
         {
             xtype: 'filter-form',
+
             items: [
                 {
                     xtype: 'filter-checkboxgroup',

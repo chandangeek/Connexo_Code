@@ -9,25 +9,25 @@ Ext.define('Isu.view.workspace.issues.Overview', {
         'Isu.view.workspace.issues.SideFilter'
     ],
 
-    content: [
-        {
-            xtype: 'issues-browse'
-        }
-    ],
+    content: { xtype: 'issues-browse'},
 
-    side: [
-        {
-            xtype: 'navigationSubMenu',
-            itemId: 'sideMenu'
-        },
-        {
-            xtype: 'issues-side-filter'
-        }
-    ],
+    side: {
+        xtype: 'panel',
+        ui: 'medium',
+        title: "Navigation",
+        items: [
+            {
+                xtype: 'navigationSubMenu',
+                itemId: 'sideMenu'
+            },
+            {
+                xtype: 'issues-side-filter'
+            }
+        ]
+    },
 
     initComponent: function () {
         this.callParent(this);
-
         this.initMenu();
     },
 
