@@ -20,7 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class PropertyInfo {
 
     public String key;
-    public PropertyValueInfo propertyValueInfo;
+    public PropertyValueInfo<?> propertyValueInfo;
     public PropertyTypeInfo propertyTypeInfo;
     public boolean required;
 
@@ -30,7 +30,7 @@ public class PropertyInfo {
     public PropertyInfo() {
     }
 
-    public PropertyInfo(String key, PropertyValueInfo propertyValueInfo, PropertyTypeInfo propertyTypeInfo, boolean required) {
+    public PropertyInfo(String key, PropertyValueInfo<?> propertyValueInfo, PropertyTypeInfo propertyTypeInfo, boolean required) {
         this.key = key;
         this.propertyValueInfo = propertyValueInfo;
         this.propertyTypeInfo = propertyTypeInfo;
@@ -49,7 +49,7 @@ public class PropertyInfo {
         return required;
     }
 
-    public PropertyValueInfo getPropertyValueInfo() {
+    public PropertyValueInfo<?> getPropertyValueInfo() {
         return propertyValueInfo;
     }
 }
