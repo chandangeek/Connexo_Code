@@ -37,7 +37,7 @@ public class ComServerResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getComServers(@BeanParam QueryParameters queryParameters) {
-        List<ComServerInfo> comServers = new ArrayList<>();
+        List<ComServerInfo<?>> comServers = new ArrayList<>();
         List<ComServer> allComServers = engineModelService.findAllComServers().from(queryParameters).find();
 
         for (ComServer comServer : allComServers) {
@@ -50,7 +50,7 @@ public class ComServerResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServerInfo getComServer(@PathParam("id") int id) {
+    public ComServerInfo<?> getComServer(@PathParam("id") int id) {
         ComServer comServer = engineModelService.findComServer(id);
         if (comServer == null) {
             throw new WebApplicationException("No ComServer with id "+id,
@@ -85,7 +85,7 @@ public class ComServerResource {
                 return Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id "+id).build();
             }
             comServer.delete();
-            return Response.ok().build();
+            return Response.noContent().build();
         } catch (Exception e) {
             throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
         }
@@ -94,7 +94,7 @@ public class ComServerResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServerInfo createComServer(ComServerInfo comServerInfo) {
+    public Response createComServer(ComServerInfo<? super ComServer> comServerInfo) {
         ComServer comServer = comServerInfo.createNew(engineModelService);
         comServerInfo.writeTo(comServer,engineModelService);
         comServer.save();
@@ -103,10 +103,10 @@ public class ComServerResource {
         allComPorts.addAll(comServerInfo.inboundComPorts);
         allComPorts.addAll(comServerInfo.outboundComPorts);
 
-        for (ComPortInfo comPortInfo : allComPorts) {
+        for (ComPortInfo<?,?> comPortInfo : allComPorts) {
             comPortInfo.createNew(comServer, engineModelService);
         }
-        return ComServerInfoFactory.asInfo(comServer);
+        return Response.status(Response.Status.CREATED).entity(ComServerInfoFactory.asInfo(comServer)).build();
     }
 
     @PUT

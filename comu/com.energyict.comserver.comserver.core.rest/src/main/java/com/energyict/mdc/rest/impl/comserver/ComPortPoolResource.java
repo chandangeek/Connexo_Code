@@ -91,7 +91,7 @@ public class ComPortPoolResource {
                 throw new WebApplicationException("No ComPortPool with id "+id, Response.Status.NOT_FOUND);
             }
             comPortPool.delete();
-            return Response.ok().build();
+            return Response.noContent().build();
         } catch (Exception e) {
             if (e.getClass().equals(WebApplicationException.class)) {
                throw e;
@@ -103,12 +103,12 @@ public class ComPortPoolResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortPoolInfo createComPortPool(ComPortPoolInfo<ComPortPool> comPortPoolInfo) {
+    public Response createComPortPool(ComPortPoolInfo<ComPortPool> comPortPoolInfo) {
         try {
             ComPortPool comPortPool = comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService), protocolPluggableService);
             comPortPool.save();
             comPortPoolInfo.handlePools(comPortPool, engineModelService);
-            return ComPortPoolInfoFactory.asInfo(comPortPool);
+            return Response.status(Response.Status.CREATED).entity(ComPortPoolInfoFactory.asInfo(comPortPool)).build();
         } catch (Exception e) {
             throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
         }

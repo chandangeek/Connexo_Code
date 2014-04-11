@@ -7,6 +7,7 @@ import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
 import com.energyict.mdc.rest.impl.comserver.ComPortResource;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
@@ -28,6 +29,7 @@ public class MdcApplication extends Application {
     private volatile EngineModelService engineModelService;
     private volatile TransactionService transactionService;
     private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile ProtocolPluggableService protocolPluggableService;
     private NlsService nlsService;
 
     @Override
@@ -69,6 +71,11 @@ public class MdcApplication extends Application {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
+    @Reference
+    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
+        this.protocolPluggableService = protocolPluggableService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -76,6 +83,7 @@ public class MdcApplication extends Application {
             bind(engineModelService).to(EngineModelService.class);
             bind(transactionService).to(TransactionService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
+            bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(nlsService).to(NlsService.class);
         }
     }
