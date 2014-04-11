@@ -26,6 +26,7 @@ import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
@@ -70,7 +71,7 @@ public class PersistenceTest {
                 new NlsModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
-//                new MdcCommonModule(),
+                new EngineModelModule(),
                 new InMemoryMessagingModule(),
                 new ProtocolsModule(),
                 new IssuesModule(),
