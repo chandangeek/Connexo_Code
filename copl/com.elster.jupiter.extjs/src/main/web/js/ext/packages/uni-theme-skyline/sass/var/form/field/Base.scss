@@ -1,7 +1,20 @@
+// Field style
 $form-field-border-color: #A0A0A0;
 $form-field-color: #686868;
 $form-field-font-family: Lato;
 $form-field-invalid-border-color: #eb5642;
+$form-field-trigger-background: rgba(0, 0, 0, 0);
+$form-field-border-radius: 3px;
+
+// Error msg style
 $form-error-msg-color: #eb5642;
+$form-error-msp-padding: 10px 0px 10px 0px;
+$form-error-under-font: 13px/16px "Lato",helvetica,arial,verdana,sans-serif;
+
+// Label style
+$form-label-font-color: $form-field-color;
+$form-label-font-family: $form-field-font-family;
+$form-label-font-size: 13px;
+
 
 

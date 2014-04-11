@@ -1,19 +1,18 @@
 .#{$prefix}form-field,
 .#{$prefix}form-trigger-wrap {
-  border-radius: 3px;
+  border-radius: $form-field-border-radius;
 }
 
 .#{$prefix}trigger-cell,
 div.#{$prefix}form-spinner-up,
 div.#{$prefix}form-spinner-down {
-  background-color: rgba(0, 0, 0, 0);
+  background-color: $form-field-trigger-background;
 }
 
 .#{$prefix}form-invalid-under {
-
     background: none;
     color: $form-error-msg-color;
-    font: 13px/16px "Lato",helvetica,arial,verdana,sans-serif;
-    padding: 10px 0px 10px 0px;
-
+    font: $form-error-under-font;
+    padding: $form-error-msp-padding;
 }
+

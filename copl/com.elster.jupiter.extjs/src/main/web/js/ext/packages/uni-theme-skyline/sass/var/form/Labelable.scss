@@ -1,9 +1,11 @@
+
 $form-label-font-color: #686868 !default;
 $form-label-font-weight: normal !default;
 $form-label-font-size: 13px !default;
 $form-label-font-family: 'Lato' !default;
 $form-label-line-height: round($form-label-font-size * 1.15) !default;
 $form-label-font: $form-label-font-weight #{$form-label-font-size}/#{$form-label-line-height} $form-label-font-family !default;
+
 $form-toolbar-label-color: #686868 !default;
 $form-toolbar-label-font-weight: normal !default;
 $form-toolbar-label-font-size: 13px !default;
