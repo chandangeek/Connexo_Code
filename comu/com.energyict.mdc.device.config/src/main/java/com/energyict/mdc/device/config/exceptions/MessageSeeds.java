@@ -161,7 +161,8 @@ public enum MessageSeeds implements MessageSeed {
     VETO_COMPORTPOOL_DELETION(13026, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by {1}", SEVERE),
     PROTOCOL_INVALID_NAME(13027,"deviceType.no.such.protocol", "A protocol with name {0} does not exist", SEVERE),
     PROTOCOLDIALECT_CONF_PROPS_CANT_DROP_REQUIRED(13028, "protocolDialectConfigurationProperties.cannotDropRequired", "ProtocolDialectConfigurationProperties {0} cannot drop property {1} since it is required.", SEVERE),
-    DUPLICATE_SECURITY_PROPERTY_SET(13029, "securityPropertySet.duplicate", "A Security Property Set by name {0} already exists.",SEVERE);
+    DUPLICATE_SECURITY_PROPERTY_SET(13029, "securityPropertySet.duplicate", "A Security Property Set by name {0} already exists.", SEVERE),
+    UNSUPPORTED_SECUIRY_LEVEL(13030, Constants.UNSUPPORTED_SECURITY_LEVEL_KEY, "Security level {0} is not supported", SEVERE);
 
     private final int number;
     private final String key;
@@ -257,6 +258,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String UNDER_MINIMUM_RESCHEDULE_DELAY_KEY = "DTC.partialScheduledConnectionTask.underMinimumRescheduleDelay";
         public static final String REGISTER_MAPPING_DUPLICATE_READING_TYPE = "DTC.registerMapping.duplicateReadingType";
         public static final String REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "DTC.registerSpec.invalidNumberOfFractionDigits";
+        public static final String UNSUPPORTED_SECURITY_LEVEL_KEY = "DTC.securityPropertySet.unsupportedSecurityLevel";
     }
 
 }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -644,6 +645,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public void addSecurityPropertySet(SecurityPropertySet securityPropertySet) {
+        Save.CREATE.validate(dataModel, securityPropertySet);
         securityPropertySets.add(securityPropertySet);
     }
 

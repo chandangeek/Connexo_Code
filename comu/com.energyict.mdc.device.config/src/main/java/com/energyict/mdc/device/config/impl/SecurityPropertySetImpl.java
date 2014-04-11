@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -25,15 +26,17 @@ import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 import java.security.Principal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
@@ -44,12 +47,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
+
 /**
  * Provides an implemention for the {@link SecurityPropertySet} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-12-14 (11:09)
  */
+@LevelMustBeProvidedIfSupportedByDevice(groups = {Save.Create.class, Save.Update.class})
 public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPropertySet> implements SecurityPropertySet, PersistenceAware {
 
     private Reference<DeviceCommunicationConfiguration> deviceCommunicationConfiguration = ValueReference.absent();
@@ -132,251 +138,6 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         return this;
     }
 
-//    public SecurityPropertySetImpl() {
-//        super();
-//    }
-//    protected SecurityPropertySetImpl(int id, DeviceCommunicationConfiguration deviceCommunicationConfiguration) {
-//        super(id);
-//        this.setDeviceCommunicationConfiguration(deviceCommunicationConfiguration);
-//    }
-//
-//    protected SecurityPropertySetImpl(ResultSet resultSet) throws SQLException {
-//        super();
-//        this.doLoad(resultSet);
-//    }
-//
-//    protected SecurityPropertySetImpl(ResultSet resultSet, DeviceCommunicationConfiguration deviceCommunicationConfiguration) throws SQLException {
-//        super();
-//        this.setDeviceCommunicationConfiguration(deviceCommunicationConfiguration);
-//        this.doLoad(resultSet);
-//    }
-
-//    @Override
-//    protected int bindBody(PreparedStatement preparedStatement, int firstParameterNumber) throws SQLException {
-//        int parameterNumber = firstParameterNumber;
-//        preparedStatement.setInt(parameterNumber++, this.deviceCommunicationConfigurationId);
-//        preparedStatement.setInt(parameterNumber++, this.authenticationLevelId);
-//        preparedStatement.setInt(parameterNumber++, this.encryptionLevelId);
-//        return parameterNumber;
-//    }
-//
-//    @Override
-//    protected void doLoad(ResultSet resultSet) throws SQLException {
-//        super.doLoad(resultSet);
-//        this.doLoad(ResultSetIterator.newForPersistentNamedObject(resultSet));
-//    }
-//
-//    private void doLoad(ResultSetIterator resultSet) throws SQLException {
-//        int deviceConfigurationId = resultSet.nextInt();
-//        if (this.deviceCommunicationConfiguration == null) {
-//            this.deviceCommunicationConfigurationId = deviceConfigurationId;
-//        }
-//        this.authenticationLevelId = resultSet.nextInt();
-//        this.encryptionLevelId = resultSet.nextInt();
-//    }
-
-//    @Override
-//    public String getType () {
-//        return SecurityPropertySet.class.getName();
-//    }
-//
-//    public void init(final SecurityPropertySetShadow shadow) throws BusinessException, SQLException {
-//        this.execute(new Transaction<Void>() {
-//            public Void doExecute() throws BusinessException, SQLException {
-//                doInit(shadow);
-//                return null;
-//            }
-//        });
-//    }
-//
-//    public void doInit(SecurityPropertySetShadow shadow) throws BusinessException, SQLException {
-//        this.validateNew(shadow);
-//        this.copyNew(shadow);
-//        this.postNew();
-//        this.doUserActionCrud(shadow.getUserActions());
-//        this.created();
-//    }
-//
-//    private void doUserActionCrud(Set<DeviceSecurityUserAction> userActions) throws SQLException {
-//        this.deleteAllUserActions();
-//        this.createUserActions(userActions);
-//    }
-
-//    private void deleteAllUserActions() throws SQLException {
-//        SqlBuilder sqlBuilder = new SqlBuilder("delete from mdcsecuritypropsetuseraction where securitypropertyset = ?");
-//        sqlBuilder.bindInt(this.getId());
-//        try (PreparedStatement preparedStatement = sqlBuilder.getStatement(Environment.DEFAULT.get().getConnection())) {
-//            preparedStatement.executeUpdate();
-//            // Don't care about the number of rows that were effectively deleted.
-//        }
-//    }
-//
-//    private void createUserActions(Set<DeviceSecurityUserAction> userActions) throws SQLException {
-//        BatchStatement batchStatement = null;
-//        try {
-//            batchStatement = new BatchStatement("insert into mdcsecuritypropsetuseraction (securitypropertyset, useraction) values (?, ?)", userActions.size());
-//            for (DeviceSecurityUserAction userAction : userActions) {
-//                batchStatement.setInt(1, this.getId());
-//                batchStatement.setInt(2, userAction.ordinal());
-//                batchStatement.addBatch();
-//            }
-//            batchStatement.executeBatch();
-//        } finally {
-//            if (batchStatement != null) {
-//                batchStatement.close();
-//            }
-//        }
-//    }
-
-//    private void validateNew(SecurityPropertySetShadow shadow) throws BusinessException {
-//        this.validate(shadow);
-//    }
-//
-//    private void validate(SecurityPropertySetShadow shadow) throws BusinessException {
-//        String name = shadow.getName();
-//        this.validate(name);
-//        this.validateConstraint(name);
-//        this.validateAuthenticationLevel(shadow);
-//        this.validateEncryptionLevel(shadow);
-//    }
-//
-//    private void validateAuthenticationLevel(SecurityPropertySetShadow shadow) throws BusinessException {
-//        List<AuthenticationDeviceAccessLevel> levels = this.getDeviceProtocol().getAuthenticationAccessLevels();
-//        if (levels.isEmpty()) {
-//            if (shadow.getAuthenticationLevelId() != DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
-//                this.unsupportedAuthenticationLevel(shadow);
-//            }
-//        } else {
-//            AuthenticationDeviceAccessLevel authenticationLevel = this.findAuthenticationLevel(shadow.getAuthenticationLevelId());
-//            if (authenticationLevel.getId() == DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
-//                unsupportedAuthenticationLevel(shadow);
-//            }
-//        }
-//    }
-//
-//    private void unsupportedAuthenticationLevel(SecurityPropertySetShadow shadow) throws BusinessException {
-//        throw new BusinessException(
-//                "deviceProtocolXDoesNotSupportAuthenticationLevelY",
-//                "The device procotol '{0}' does not support authentication level {1,number}",
-//                this.getDeviceProtocolPluggableClass().getName(),
-//                shadow.getAuthenticationLevelId());
-//    }
-//
-//    private void validateEncryptionLevel(SecurityPropertySetShadow shadow) throws BusinessException {
-//        List<EncryptionDeviceAccessLevel> levels = this.getDeviceProtocol().getEncryptionAccessLevels();
-//        if (levels.isEmpty()) {
-//            if (shadow.getEncryptionLevelId() != DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
-//                this.unsupportedEncryptionLevel(shadow);
-//            }
-//        } else {
-//            EncryptionDeviceAccessLevel encryptionLevel = this.findEncryptionLevel(shadow.getEncryptionLevelId());
-//            if (encryptionLevel.getId() == DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
-//                unsupportedEncryptionLevel(shadow);
-//            }
-//        }
-//    }
-//
-//    private void unsupportedEncryptionLevel(SecurityPropertySetShadow shadow) throws BusinessException {
-//        throw new BusinessException(
-//                "deviceProtocolXDoesNotSupportEncryptionLevelY",
-//                "The device procotol '{0}' does not support encryption level {1,number}",
-//                this.getDeviceProtocolPluggableClass().getName(),
-//                shadow.getEncryptionLevelId());
-//    }
-//
-//    @Override
-//    protected void validateConstraint(String newName) throws DuplicateException {
-//        SecurityPropertySet propertySetWithTheSameName = this.newFactoryInstance().find(newName, this.getDeviceCommunicationConfiguration());
-//        if (propertySetWithTheSameName != null) {
-//            if (this.getId() != propertySetWithTheSameName.getId()) {
-//                throw new DuplicateException("duplicateSecurityPropertySetX",
-//                        "A security set with the name '{0}' already exists (id={1,number}) for the device configuration '{2}'",
-//                        newName, propertySetWithTheSameName.getId(), getDeviceCommunicationConfiguration().getDeviceConfiguration().getName());
-//            }
-//        }
-//    }
-//
-//    private void copyNew(SecurityPropertySetShadow shadow) {
-//        this.copy(shadow);
-//    }
-//
-//    private void copy(SecurityPropertySetShadow shadow) {
-//        this.setName(shadow.getName());
-//        this.authenticationLevel = null;
-//        this.authenticationLevelId = shadow.getAuthenticationLevelId();
-//        this.encryptionLevel = null;
-//        this.encryptionLevelId = shadow.getEncryptionLevelId();
-//    }
-//
-//    private void doUpdate(SecurityPropertySetShadow shadow) throws BusinessException, SQLException {
-//        this.validateUpdate(shadow);
-//        this.copyUpdate(shadow);
-//        this.post();
-//        this.doUserActionCrud(shadow.getUserActions());
-//        this.updated();
-//    }
-//
-//    private void validateUpdate(SecurityPropertySetShadow shadow) throws BusinessException {
-//        this.validate(shadow);
-//    }
-//
-//    private void copyUpdate(SecurityPropertySetShadow shadow) {
-//        this.copy(shadow);
-//    }
-//
-//    @Override
-//    protected void validateDelete() throws SQLException, BusinessException {
-//        super.validateDelete();
-//        validateUsageInComTaskEnablements();
-//        validateUsageOnDevice();
-//    }
-//
-//    private void validateUsageOnDevice() throws BusinessException {
-//        if (this.isUsedOnDevices()) {
-//            throw new BusinessException("securityPropertySetXIsStillUsedByDevices",
-//                    "The security property set '{0}' is still used by at least one device",
-//                    new Object[]{getName()});
-//        }
-//    }
-
-//    @Override
-//    public boolean isUsedOnDevices () {
-//        DeviceProtocol protocol = getDeviceProtocol();
-//        if (protocol != null) {
-//            SecurityPropertySetRelationSupport relationSupport = new SecurityPropertySetRelationSupport(protocol, this);
-//            return relationSupport.hasValues();
-//        }
-//        else {
-//            return false;
-//        }
-//    }
-
-//    private void validateUsageInComTaskEnablements() throws BusinessException {
-//        final List<ComTaskEnablement> allComTaskEnablementsForSecPropSet = ManagerFactory.getCurrent().getComTaskEnablementFactory().findBySecurityPropertySet(this);
-//        if (!allComTaskEnablementsForSecPropSet.isEmpty()) {
-//            throw new BusinessException("securityPropertySetXIsStillUsedByComTaskEnablements",
-//                    "The security property set '{0}' is still used by the comtaskenablements with ComTask : '{1}'",
-//                    new Object[]{getName(), getComTaskEnablementNames(allComTaskEnablementsForSecPropSet)});
-//        }
-//    }
-
-//    private String getComTaskEnablementNames(List<ComTaskEnablement> allComTaskEnablementsForSecPropSet) {
-//        final String separator = " - ";
-//        StringBuilder stringBuilder = new StringBuilder(allComTaskEnablementsForSecPropSet.size());
-//        for (ComTaskEnablement comTaskEnablement : allComTaskEnablementsForSecPropSet) {
-//            stringBuilder.append(comTaskEnablement.getComTask().getName());
-//            stringBuilder.append(separator);
-//        }
-//        final String comTaskNames = stringBuilder.toString();
-//        return comTaskNames.substring(0, comTaskNames.lastIndexOf(separator));
-//    }
-
-//    @Override
-//    protected void deleteDependents() throws SQLException, BusinessException {
-//        super.deleteDependents();
-//        this.deleteAllUserActions();
-//    }
-
     @Override
     public List<RelationType> getAvailableRelationTypes() {
 //TODO        return this.getMdwInterface().getRelationTypeFactory().findByParticipant(this);
@@ -406,7 +167,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Override
     public AuthenticationDeviceAccessLevel getAuthenticationDeviceAccessLevel() {
         if (this.authenticationLevel == null) {
-            if (this.authenticationLevelId == DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
+            if (this.authenticationLevelId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
                 this.authenticationLevel = new NoAuthentication();
             } else {
                 this.authenticationLevel = this.findAuthenticationLevel(this.authenticationLevelId);
@@ -436,7 +197,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Override
     public EncryptionDeviceAccessLevel getEncryptionDeviceAccessLevel() {
         if (this.encryptionLevel == null) {
-            if (this.encryptionLevelId == DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
+            if (this.encryptionLevelId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
                 this.encryptionLevel = new NoEncryption();
             } else {
                 this.encryptionLevel = this.findEncryptionLevel(this.encryptionLevelId);
@@ -487,22 +248,10 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         }
     }
 
-//    protected SecurityPropertySetFactory newFactoryInstance() {
-//        return ManagerFactory.getCurrent().getSecurityPropertySetFactory();
-//    }
-
     @Override
     public DeviceConfiguration getDeviceCommunicationConfiguration() {
         return this.deviceCommunicationConfiguration.get().getDeviceConfiguration();
     }
-
-//    private DeviceCommunicationConfiguration findDeviceConfiguration(int deviceConfigurationId) {
-//        return this.getDeviceCommunicationConfigurationFactory().find(deviceConfigurationId);
-//    }
-//
-//    private DeviceCommunicationConfigurationFactory getDeviceCommunicationConfigurationFactory() {
-//        return ManagerFactory.getCurrent().getDeviceCommunicationConfigurationFactory();
-//    }
 
     @Override
     public Set<PropertySpec> getPropertySpecs() {
@@ -613,25 +362,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         this.encryptionLevelId = encryptionLevelId;
     }
 
-//    private MdwInterface getMdwInterface() {
-//        return ManagerFactory.getCurrent().getMdwInterface();
-//    }
-//
-//    public SecurityPropertySetShadow getShadow() {
-//        return new SecurityPropertySetShadow(this);
-//    }
-
-//    @Override
-//    protected String[] getColumns() {
-//        return SecurityPropertySetFactoryImpl.COLUMNS;
-//    }
-
-//    @Override
-//    protected String getTableName() {
-//        return SecurityPropertySetFactoryImpl.TABLENAME;
-//    }
-//
-    private class NoAuthentication implements AuthenticationDeviceAccessLevel {
+    private static class NoAuthentication implements AuthenticationDeviceAccessLevel {
         @Override
         public int getId() {
             return NOT_USED_DEVICE_ACCESS_LEVEL_ID;
@@ -648,7 +379,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         }
     }
 
-    private class NoEncryption implements EncryptionDeviceAccessLevel {
+    private static class NoEncryption implements EncryptionDeviceAccessLevel {
         @Override
         public int getId() {
             return NOT_USED_DEVICE_ACCESS_LEVEL_ID;
@@ -672,5 +403,45 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Override
     public void update() {
         dataModel.mapper(SecurityPropertySet.class).update(this);
+    }
+
+    public static class LevelsAreSupportedValidator implements ConstraintValidator<LevelMustBeProvidedIfSupportedByDevice, SecurityPropertySetImpl> {
+
+        @Override
+        public void initialize(LevelMustBeProvidedIfSupportedByDevice constraintAnnotation) {
+        }
+
+        @Override
+        public boolean isValid(SecurityPropertySetImpl value, ConstraintValidatorContext context) {
+            return authLevelSupported(value) && encLevelSupported(value);
+        }
+
+        private boolean encLevelSupported(SecurityPropertySetImpl value) {
+            for (EncryptionDeviceAccessLevel supportedEncLevel : supportedEncryptionlevels(value)) {
+                if (supportedEncLevel.getId() == value.encryptionLevelId) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private List<EncryptionDeviceAccessLevel> supportedEncryptionlevels(SecurityPropertySetImpl value) {
+            List<EncryptionDeviceAccessLevel> levels = value.getDeviceProtocol().getEncryptionAccessLevels();
+            return levels.isEmpty() ? Arrays.<EncryptionDeviceAccessLevel>asList(new NoEncryption()) : levels;
+        }
+
+        private boolean authLevelSupported(SecurityPropertySetImpl value) {
+            for (AuthenticationDeviceAccessLevel supportedAuthLevel : supportedAutheticationLevels(value)) {
+                if (supportedAuthLevel.getId() == value.authenticationLevelId) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private List<AuthenticationDeviceAccessLevel> supportedAutheticationLevels(SecurityPropertySetImpl value) {
+            List<AuthenticationDeviceAccessLevel> levels = value.getDeviceProtocol().getAuthenticationAccessLevels();
+            return levels.isEmpty() ? Arrays.<AuthenticationDeviceAccessLevel>asList(new NoAuthentication()) : levels;
+        }
     }
 }

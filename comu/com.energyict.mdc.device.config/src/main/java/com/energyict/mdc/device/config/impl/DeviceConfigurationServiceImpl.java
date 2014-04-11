@@ -456,6 +456,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+        initPrivileges();
+    }
+
+    private void initPrivileges() {
+        privileges.clear();
         for (Privilege privilege : userService.getPrivileges()) {
             if (COMPONENTNAME.equals(privilege.getComponentName())) {
                 Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forName(privilege.getName());
@@ -499,6 +504,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     private void install(boolean exeuteDdl, boolean createMasterData) {
         new Installer(this.dataModel, this.eventService, this.thesaurus, this.meteringService, readingTypeUtilService, this, userService).install(exeuteDdl, false, createMasterData);
+        initPrivileges();
     }
 
     @Reference
