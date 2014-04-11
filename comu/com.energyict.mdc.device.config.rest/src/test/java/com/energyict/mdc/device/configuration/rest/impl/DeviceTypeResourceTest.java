@@ -412,7 +412,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(registerMapping101.getId()).thenReturn(RM_ID_1);
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101));
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
-        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList()));
+        Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
+        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
         when(deviceConfigurationService.findRegisterMapping(RM_ID_1)).thenReturn(registerMapping101);
 
         Response response = target("/devicetypes/31/registertypes/102").request().delete();
@@ -441,7 +442,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(registerMapping102.getId()).thenReturn(RM_ID_2);
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101, registerMapping102));
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
-        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList()));
+        Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
+        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
 
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.registerMappings=Arrays.asList(registerMappingInfo1, registerMappingInfo2);
@@ -477,7 +479,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
         when(deviceConfigurationService.findRegisterMapping(RM_ID_1)).thenReturn(registerMapping101);
         when(deviceConfigurationService.findRegisterMapping(RM_ID_2)).thenReturn(registerMapping102);
-        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList()));
+        Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
+        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
 
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.registerMappings=Arrays.asList(registerMappingInfo1, registerMappingInfo2);
@@ -652,7 +655,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
         when(deviceConfigurationService.findRegisterMapping(RM_ID_1)).thenReturn(registerMapping101);
         when(deviceConfigurationService.findRegisterMapping(RM_ID_2)).thenReturn(null);
-        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList()));
+        Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
+        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
 
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.registerMappings=Arrays.asList(registerMappingInfo1, registerMappingInfo2);
@@ -679,7 +683,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         RegisterMapping registerMapping102 = mock(RegisterMapping.class);
         when(registerMapping102.getId()).thenReturn(RM_ID_2);
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101, registerMapping102));
-        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList()));
+        Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
+        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
         when(deviceConfigurationService.findRegisterMapping(RM_ID_1)).thenReturn(registerMapping101);
         when(deviceConfigurationService.findRegisterMapping(RM_ID_2)).thenReturn(registerMapping102);
@@ -991,7 +996,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         RegisterMapping registerMapping102 = mock(RegisterMapping.class);
         when(registerMapping102.getId()).thenReturn(RM_ID_2);
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101, registerMapping102));
-        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList()));
+        Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
+        when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
         when(deviceConfigurationService.findRegisterMapping(RM_ID_1)).thenReturn(registerMapping101);
         when(deviceConfigurationService.findRegisterMapping(RM_ID_2)).thenReturn(registerMapping102);
