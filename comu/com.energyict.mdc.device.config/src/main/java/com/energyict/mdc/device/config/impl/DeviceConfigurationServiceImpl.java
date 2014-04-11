@@ -58,7 +58,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:38)
  */
-@Component(name="com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, InstallService.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME)
+@Component(name="com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, InstallService.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
 public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, InstallService {
 
     private volatile ProtocolPluggableService protocolPluggableService;

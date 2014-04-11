@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pubsub.Subscriber;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -17,7 +16,7 @@ import java.util.List;
  * Date: 27/03/2014
  * Time: 10:37
  */
-@Component(name="com.energyict.mdc.device.config.protocol.delete.connectiontypepluggableclass.eventhandler", service = Subscriber.class, immediate = true)
+@Component(name="com.energyict.mdc.device.config.protocol.delete.connectiontypepluggableclass.eventhandler", service = TopicHandler.class, immediate = true)
 public class ConnectionTypePluggableClassDeletionEventHandler implements TopicHandler {
 
     private volatile DeviceConfigurationService deviceConfigurationService;
