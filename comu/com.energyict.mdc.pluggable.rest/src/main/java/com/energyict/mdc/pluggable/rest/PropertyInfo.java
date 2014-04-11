@@ -1,5 +1,7 @@
-package com.energyict.mdc.pluggable.rest.impl.properties;
+package com.energyict.mdc.pluggable.rest;
 
+import com.energyict.mdc.pluggable.rest.impl.properties.PropertyTypeInfo;
+import com.energyict.mdc.pluggable.rest.impl.properties.PropertyValueInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**

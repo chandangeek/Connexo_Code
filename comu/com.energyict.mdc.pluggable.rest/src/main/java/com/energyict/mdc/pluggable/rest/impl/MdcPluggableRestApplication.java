@@ -39,8 +39,7 @@ public class MdcPluggableRestApplication extends Application {
                 TimeZoneInUseResource.class,
                 UserFileReferenceResource.class,
                 LoadProfileTypeResource.class,
-                CodeTableResource.class,
-                ConnectionMethodResource.class);
+                CodeTableResource.class);
     }
 
     @Override

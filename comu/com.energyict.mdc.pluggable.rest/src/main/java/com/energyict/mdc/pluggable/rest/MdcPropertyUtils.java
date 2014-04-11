@@ -1,4 +1,4 @@
-package com.energyict.mdc.pluggable.rest.impl.properties;
+package com.energyict.mdc.pluggable.rest;
 
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TimeDuration;
@@ -6,6 +6,13 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.BoundedBigDecimalPropertySpec;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecPossibleValues;
+import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
+import com.energyict.mdc.pluggable.rest.impl.properties.PredefinedPropertyValuesInfo;
+import com.energyict.mdc.pluggable.rest.impl.properties.PropertySelectionMode;
+import com.energyict.mdc.pluggable.rest.impl.properties.PropertyTypeInfo;
+import com.energyict.mdc.pluggable.rest.impl.properties.PropertyValidationRule;
+import com.energyict.mdc.pluggable.rest.impl.properties.PropertyValueInfo;
+import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.pluggable.rest.impl.properties.validators.NumberValidationRules;
 import java.math.BigDecimal;
 import java.net.URI;

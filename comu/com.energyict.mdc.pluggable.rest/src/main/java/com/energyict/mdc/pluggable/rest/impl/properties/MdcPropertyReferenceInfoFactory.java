@@ -68,7 +68,7 @@ public class MdcPropertyReferenceInfoFactory {
      * @param simplePropertyType the simplePropertyType to use if we could not convert it
      * @return the converted simplePropertyType
      */
-    static SimplePropertyType getReferencedSimplePropertyType(PropertySpec propertySpec, SimplePropertyType simplePropertyType) {
+    public static SimplePropertyType getReferencedSimplePropertyType(PropertySpec propertySpec, SimplePropertyType simplePropertyType) {
         if (HexString.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
             return SimplePropertyType.TEXT;
         } else if (TimeZoneInUse.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
