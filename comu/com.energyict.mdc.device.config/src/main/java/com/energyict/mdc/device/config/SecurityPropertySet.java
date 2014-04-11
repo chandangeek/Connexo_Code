@@ -1,12 +1,12 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.common.NamedBusinessObject;
+import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import java.util.Set;
 
@@ -21,7 +21,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-12-14 (10:29)
  */
-public interface SecurityPropertySet extends NamedBusinessObject, RelationParticipant {
+public interface SecurityPropertySet extends HasName, HasId, RelationParticipant {
 
     public AuthenticationDeviceAccessLevel getAuthenticationDeviceAccessLevel();
 
@@ -66,15 +66,13 @@ public interface SecurityPropertySet extends NamedBusinessObject, RelationPartic
      */
     public boolean currentUserIsAllowedToViewDeviceProperties ();
 
-    /**
-     * Tests if this SecurityPropertySet is still used
-     * at the Device level.
-     * This will be the case when there is at least one
-     * Device that specifies {@link SecurityProperty values}
-     * for this SecurityPropertySet.
-     *
-     * @return A flag that indicates if this SecurityPropertySet is still used
-     */
-    public boolean isUsedOnDevices ();
+    public void addUserAction(DeviceSecurityUserAction userAction);
 
+    public void removeUserAction(DeviceSecurityUserAction userAction);
+
+    void setAuthenticationLevel(int authenticationLevelId);
+
+    void setEncryptionLevelId(int encryptionLevelId);
+
+    void update();
 }

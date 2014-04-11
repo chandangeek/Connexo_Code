@@ -21,6 +21,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.PluggableService;
 
@@ -379,6 +380,31 @@ public enum TableSpecs {
             table.column("VALUE").varChar(4000).notNull().map("value").add();
             table.foreignKey("FK_MDCPARTIALPROPS_TASK").on(partialconnectiontask).references(MDCPARTIALCONNECTIONTASK.name()).map("partialConnectionTask").reverseMap("properties").onDelete(CASCADE).composition().add();
             table.primaryKey("PK_MDCPARTIALPROPS").on(partialconnectiontask,name).add();
+        }
+    },
+    MDCSECURITYPROPERTYSET {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<SecurityPropertySet> table = dataModel.addTable(name(), SecurityPropertySet.class);
+            table.map(SecurityPropertySetImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.column("NAME").varChar(255).notNull().map("name").add();
+            Column devicecomconfig = table.column("DEVICECOMCONFIG").conversion(NUMBER2LONG).number().notNull().add();
+            table.column("AUTHENTICATIONLEVEL").number().conversion(NUMBER2INT).notNull().map("authenticationLevelId").add();
+            table.column("ENCRYPTIONLEVEL").number().conversion(NUMBER2INT).notNull().map("encryptionLevelId").add();
+            table.foreignKey("FK_MDCSECPROPSET_DEVCOMCONFIG").on(devicecomconfig).references(MDCDEVICECOMMCONFIG.name()).map("deviceCommunicationConfiguration").reverseMap("securityPropertySets").composition().add();
+            table.primaryKey("PK_MDCSECURITYPROPERTYSET").on(id).add();
+        }
+    },
+    MDCSECURITYPROPSETUSERACTION {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<SecurityPropertySetImpl.UserActionRecord> table = dataModel.addTable(name(), SecurityPropertySetImpl.UserActionRecord.class);
+            table.map(SecurityPropertySetImpl.UserActionRecord.class);
+            Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction").add();
+            Column securitypropertyset = table.column("SECURITYPROPERTYSET").number().notNull().add();
+            table.foreignKey("FK_MDCSECPROPSETUSRACT_SPS").on(securitypropertyset).references(MDCSECURITYPROPERTYSET.name()).reverseMap("userActionRecords").onDelete(CASCADE).composition().map("set").add();
+            table.primaryKey("PK_MDCSECURITYPROPETUSERACTION").on(useraction,securitypropertyset).add();
         }
     },
     ;

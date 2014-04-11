@@ -289,4 +289,8 @@ public interface DeviceConfigurationService {
     public Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(long id);
 
     List<PartialConnectionTask> findByComPortPool(ComPortPool comPortPool);
+
+    Optional<SecurityPropertySet> findSecurityPropertySet(long id);
+
+    List<SecurityPropertySet> findAllSecurityPropertySets();
 }

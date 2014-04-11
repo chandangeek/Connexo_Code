@@ -16,8 +16,8 @@ import java.lang.annotation.Target;
  */
 @Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = {ProtocolDialectConfigurationPropertiesImpl.RequiredPropertiesValidator .class })
-public @interface ProtocolDialectConfigurationHasAllRequiredProperties {
+@Constraint(validatedBy = {ProtocolDialectConfigurationPropertiesImpl.PropertyValueValidator.class })
+public @interface ProtocolDialectConfigurationHasCorrectPropertyValues {
 
     String message() default "{" + MessageSeeds.Constants.PROTOCOLDIALECT_CONF_PROPS_MISSING_REQUIRED + "}";
 
