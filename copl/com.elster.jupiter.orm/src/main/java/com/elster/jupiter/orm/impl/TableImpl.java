@@ -246,10 +246,18 @@ public class TableImpl<T> implements Table<T> {
     public List<String> getDdl() {
 		return new TableDdlGenerator(this).getDdl();
 	}
-	
-	
-	String getExtraJournalPrimaryKeyColumnName() {		
-		Column[] versionColumns = getVersionColumns();
+
+    public List<String> upgradeDdl(TableImpl toTable) {
+        return new TableDdlGenerator(this).upgradeDdl(toTable);
+    }
+
+    public List<String> upgradeSequenceDdl(ColumnImpl column, long startValue) {
+        return new TableDdlGenerator(this).upgradeSequenceDdl(column, startValue);
+    }
+
+
+    String getExtraJournalPrimaryKeyColumnName() {
+        Column[] versionColumns = getVersionColumns();
 		return versionColumns.length > 0 ? versionColumns[0].getName() : JOURNALTIMECOLUMNNAME;			
 	}
 	
@@ -768,6 +776,24 @@ public class TableImpl<T> implements Table<T> {
 		}
 		return false;
 	}
+
+    public TableConstraintImpl getConstraint(String name) {
+        for (TableConstraintImpl tableConstraint : getConstraints()) {
+            if (tableConstraint.getName().equals(name)) {
+                return tableConstraint;
+            }
+        }
+        return null;
+    }
+
+    public TableConstraintImpl findMatchingConstraint(TableConstraintImpl other) {
+        for (TableConstraintImpl tableConstraint : getConstraints()) {
+            if (tableConstraint.matches(other)) {
+                return tableConstraint;
+            }
+        }
+        return null;
+    }
 }
 	
 

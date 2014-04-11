@@ -151,4 +151,22 @@ public abstract class TableConstraintImpl implements TableConstraint {
 			throw new IllegalArgumentException("Column list should not be emty");
 		}
 	}
+
+    public boolean matches(TableConstraintImpl other) {
+        if (!getClass().equals(other.getClass())) {
+            return false;
+        }
+        if (getColumns().size() != other.getColumns().size()) {
+            return false;
+        }
+        for (int i = 0; i < getColumns().size(); i++) {
+            Column each = getColumns().get(i);
+            Column otherCol = other.getColumns().get(i);
+            if (!each.getName().equals(otherCol.getName())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
