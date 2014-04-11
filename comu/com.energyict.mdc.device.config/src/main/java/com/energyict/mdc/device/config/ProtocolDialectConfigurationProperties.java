@@ -25,7 +25,7 @@ public interface ProtocolDialectConfigurationProperties extends HasName, HasId, 
      * @return The DeviceCommunicationConfiguration
      * @deprecated Use #getDeviceConfiguration instead
      */
-    public DeviceCommunicationConfiguration getDeviceCommunicationConfiguration();
+    public DeviceConfiguration getDeviceCommunicationConfiguration();
 
     public DeviceConfiguration getDeviceConfiguration();
 

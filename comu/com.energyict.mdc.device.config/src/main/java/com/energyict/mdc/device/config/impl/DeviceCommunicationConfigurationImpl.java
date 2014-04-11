@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -10,6 +11,7 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -20,6 +22,7 @@ import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.ServerDeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.exceptions.PartialConnectionTaskDoesNotExist;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -41,7 +44,7 @@ import java.util.Set;
 public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<DeviceCommunicationConfiguration> implements ServerDeviceCommunicationConfiguration {
 
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-//    private List<SecurityPropertySet> securityPropertySets;
+    private List<SecurityPropertySet> securityPropertySets = new ArrayList<>();
 //    private List<ComTaskEnablement> comTaskEnablements;
     private boolean supportsAllMessageCategories;
     private long userActions; // temp place holder for the enumset
@@ -61,34 +64,11 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
         return dataModel.getInstance(DeviceCommunicationConfigurationImpl.class).init(deviceConfiguration);
     }
 
-//    private void validateNew(DeviceCommunicationConfigurationShadow shadow) throws BusinessException {
-//        this.validate(shadow);
-//    }
-
-//    private void validateUpdate(DeviceCommunicationConfigurationShadow shadow) throws BusinessException {
-//        this.validate(shadow);
-//        this.validateObsoletePartialConnectionTasksNoLongerUsed(shadow.getPartialConnectionTaskShadows().getDeletedShadows(), shadow.getComTaskEnablementShadows());
-//    }
-
-//    private void validate(DeviceCommunicationConfigurationShadow shadow) throws BusinessException {
-//        this.validateConstructionValidator(shadow);
-//        this.validateDeviceConfiguration(shadow);
-//        this.validateMessages(shadow);
-//    }
-
 //    private void validateConstructionValidator(DeviceCommunicationConfigurationShadow shadow) throws BusinessException {
 //        if(!(shadow.getDeviceCommunicationConfigurationConstructionValidation() instanceof DeviceCommunicationConfigurationConstructionValidationImpl)){
 //            throw new BusinessException("illegalObjectConstruction",
 //                    "It is not allowed to create a '{0}' without the correct construction validator.",
 //                    this.getClass().getSimpleName());
-//        }
-//    }
-
-//    private void validateDeviceConfiguration(DeviceCommunicationConfigurationShadow shadow) throws InvalidValueException, InvalidReferenceException {
-//        if (shadow.getDeviceConfigurationId() == 0) {
-//            throw new InvalidValueException("XcannotBeEmpty", "\"{0}\" is a required property", "deviceCommunicationConfiguration.deviceConfiguration");
-//        } else {
-//            this.validateDeviceConfigurationExists(shadow.getDeviceConfigurationId());
 //        }
 //    }
 
@@ -178,13 +158,6 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 //        }
 //    }
 
-//    private void validateObsoletePartialConnectionTasksNoLongerUsed (List<PartialConnectionTaskShadow> obsoleteShadows, ShadowList<ComTaskEnablementShadow> comTaskEnablementShadows)
-//        throws BusinessException {
-//        for (PartialConnectionTaskShadow shadow : obsoleteShadows) {
-//            this.validateObsoletePartialConnectionTaskIsNoLongerUsed(shadow, comTaskEnablementShadows);
-//        }
-//    }
-//
 //    private void validateObsoletePartialConnectionTaskIsNoLongerUsed (PartialConnectionTaskShadow shadow, ShadowList<ComTaskEnablementShadow> comTaskEnablementShadows)
 //        throws BusinessException {
 //        for (ComTaskEnablementShadow comTaskEnablementShadow : comTaskEnablementShadows) {
@@ -449,7 +422,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public List<SecurityPropertySet> getSecurityPropertySets() {
-        return new ArrayList<>();
+        return Collections.unmodifiableList(securityPropertySets);
     }
 
     @Override
@@ -673,7 +646,8 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public void addSecurityPropertySet(SecurityPropertySet securityPropertySet) {
-        this.getSecurityPropertySets().add(securityPropertySet);
+        Save.CREATE.validate(dataModel, securityPropertySet);
+        securityPropertySets.add(securityPropertySet);
     }
 
     @Override
@@ -693,6 +667,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public void addPartialConnectionTask(PartialConnectionTask partialConnectionTask) {
+        Save.CREATE.validate(dataModel, partialConnectionTask);
         partialConnectionTasks.add(partialConnectionTask);
     }
 
@@ -701,5 +676,47 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
         ProtocolDialectConfigurationProperties props = ProtocolDialectConfigurationPropertiesImpl.from(dataModel, this, name, protocolDialect);
         configurationPropertiesList.add(props);
         return props;
+    }
+
+    @Override
+    public SecurityPropertySetBuilder createSecurityPropertySet(String name) {
+        return new InternalSecurityPropertySetBuilder(name);
+    }
+
+    @Override
+    public void removeSecurityPropertySet(SecurityPropertySet propertySet) {
+        securityPropertySets.remove(propertySet);
+    }
+
+    private class InternalSecurityPropertySetBuilder implements SecurityPropertySetBuilder {
+        private final SecurityPropertySetImpl underConstruction;
+
+        private InternalSecurityPropertySetBuilder(String name) {
+            this.underConstruction = SecurityPropertySetImpl.from(dataModel, DeviceCommunicationConfigurationImpl.this, name);
+        }
+
+        @Override
+        public SecurityPropertySetBuilder authenticationLevel(int level) {
+            underConstruction.setAuthenticationLevel(level);
+            return this;
+        }
+
+        @Override
+        public SecurityPropertySetBuilder encryptionLevel(int level) {
+            underConstruction.setEncryptionLevelId(level);
+            return this;
+        }
+
+        @Override
+        public SecurityPropertySetBuilder addUserAction(DeviceSecurityUserAction userAction) {
+            underConstruction.addUserAction(userAction);
+            return this;
+        }
+
+        @Override
+        public SecurityPropertySet build() {
+            DeviceCommunicationConfigurationImpl.this.addSecurityPropertySet(underConstruction);
+            return underConstruction;
+        }
     }
 }

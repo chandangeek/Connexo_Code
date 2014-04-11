@@ -15,8 +15,6 @@ import java.util.Set;
  * Time: 15:23
  */
 public interface ServerDeviceCommunicationConfiguration  extends DeviceCommunicationConfiguration {
-    public List<SecurityPropertySet> getSecurityPropertySets();
-
     /**
      * Tests if this configuration supports all current and future
      * DeviceMessageCategory DeviceMessageCategories.

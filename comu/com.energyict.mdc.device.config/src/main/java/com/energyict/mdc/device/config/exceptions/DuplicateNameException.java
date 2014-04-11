@@ -158,4 +158,8 @@ public class DuplicateNameException extends LocalizedFieldValidationException {
     public static DuplicateNameException partialConnectionInitiationTaskExists(Thesaurus thesaurus, String name) {
         return new DuplicateNameException(thesaurus, MessageSeeds.DUPLICATE_PARTIAL_CONNECTION_INITIATION_TYPE, name);
     }
+
+    public static DuplicateNameException securityPropertySetAlreadyExists(Thesaurus thesaurus, String name) {
+        return new DuplicateNameException(thesaurus, MessageSeeds.DUPLICATE_SECURITY_PROPERTY_SET, name);
+    }
 }

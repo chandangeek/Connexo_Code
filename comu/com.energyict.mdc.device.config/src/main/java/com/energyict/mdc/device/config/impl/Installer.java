@@ -8,7 +8,9 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import java.util.ArrayList;
@@ -32,8 +34,9 @@ public class Installer {
     private final MeteringService meteringService;
     private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final UserService userService;
 
-    public Installer(DataModel dataModel, EventService eventService, Thesaurus thesaurus, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, DeviceConfigurationService deviceConfigurationService) {
+    public Installer(DataModel dataModel, EventService eventService, Thesaurus thesaurus, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, DeviceConfigurationService deviceConfigurationService, UserService userService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -41,6 +44,7 @@ public class Installer {
         this.meteringService = meteringService;
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.userService = userService;
     }
 
     public void install(boolean executeDdl, boolean updateOrm, boolean createMasterData) {
@@ -54,6 +58,14 @@ public class Installer {
         if (createMasterData) {
             this.createMasterData();
         }
+        createPrivileges();
+    }
+
+    private void createPrivileges() {
+        for (DeviceSecurityUserAction userAction : DeviceSecurityUserAction.values()) {
+            userService.createPrivilege(DeviceConfigurationService.COMPONENTNAME, userAction.name(), "");
+        }
+
     }
 
     private void createTranslations() {

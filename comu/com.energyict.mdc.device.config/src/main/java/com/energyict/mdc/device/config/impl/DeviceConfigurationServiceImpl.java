@@ -9,6 +9,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
@@ -21,6 +23,7 @@ import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
@@ -32,6 +35,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.config.exceptions.UnitHasNoMatchingPhenomenonException;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -48,7 +52,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -69,19 +75,23 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile MeteringService meteringService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
     private volatile EngineModelService engineModelService;
+    private volatile UserService userService;
+
+    private final Map<DeviceSecurityUserAction, Privilege> privileges = new EnumMap<>(DeviceSecurityUserAction.class);
 
     public DeviceConfigurationServiceImpl() {
         super();
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, MdcReadingTypeUtilService mdcReadingTypeUtilService, EngineModelService engineModelService) {
-        this(ormService, eventService, nlsService, meteringService, protocolPluggableService, mdcReadingTypeUtilService, engineModelService, false);
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, MdcReadingTypeUtilService mdcReadingTypeUtilService, EngineModelService engineModelService, UserService userService) {
+        this(ormService, eventService, nlsService, meteringService, protocolPluggableService, mdcReadingTypeUtilService, engineModelService, false, userService);
     }
 
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, MdcReadingTypeUtilService mdcReadingTypeUtilService, EngineModelService engineModelService, boolean createMasterData) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, ProtocolPluggableService protocolPluggableService, MdcReadingTypeUtilService mdcReadingTypeUtilService, EngineModelService engineModelService, boolean createMasterData, UserService userService) {
         this();
         this.setOrmService(ormService);
+        this.setUserService(userService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
@@ -443,6 +453,28 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.protocolPluggableService = protocolPluggableService;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+        initPrivileges();
+    }
+
+    private void initPrivileges() {
+        privileges.clear();
+        for (Privilege privilege : userService.getPrivileges()) {
+            if (COMPONENTNAME.equals(privilege.getComponentName())) {
+                Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forName(privilege.getName());
+                if (found.isPresent()) {
+                    privileges.put(found.get(), privilege);
+                }
+            }
+        }
+    }
+
+    Optional<Privilege> findPrivilege(DeviceSecurityUserAction userAction) {
+        return Optional.fromNullable(privileges.get(userAction));
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -455,6 +487,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(EngineModelService.class).toInstance(engineModelService);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }
@@ -470,11 +503,22 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     private void install(boolean exeuteDdl, boolean createMasterData) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus, this.meteringService, readingTypeUtilService, this).install(exeuteDdl, false, createMasterData);
+        new Installer(this.dataModel, this.eventService, this.thesaurus, this.meteringService, readingTypeUtilService, this, userService).install(exeuteDdl, false, createMasterData);
+        initPrivileges();
     }
 
     @Reference
     public void setEngineModelService(EngineModelService engineModelService) {
         this.engineModelService = engineModelService;
+    }
+
+    @Override
+    public Optional<SecurityPropertySet> findSecurityPropertySet(long id) {
+        return dataModel.mapper(SecurityPropertySet.class).getOptional(id);
+    }
+
+    @Override
+    public List<SecurityPropertySet> findAllSecurityPropertySets() {
+        return dataModel.mapper(SecurityPropertySet.class).find();
     }
 }

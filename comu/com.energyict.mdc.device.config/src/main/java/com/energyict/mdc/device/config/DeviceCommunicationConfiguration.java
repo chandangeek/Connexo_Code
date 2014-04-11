@@ -50,4 +50,10 @@ public interface DeviceCommunicationConfiguration extends HasId {
      * @return The List of ProtocolDialectConfigurationProperties
      */
     List<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationPropertiesList();
+
+    List<SecurityPropertySet> getSecurityPropertySets();
+
+    SecurityPropertySetBuilder createSecurityPropertySet(String name);
+
+    void removeSecurityPropertySet(SecurityPropertySet propertySet);
 }

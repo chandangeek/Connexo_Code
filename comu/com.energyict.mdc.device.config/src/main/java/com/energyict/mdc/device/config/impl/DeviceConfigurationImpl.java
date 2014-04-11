@@ -29,6 +29,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
@@ -777,5 +778,20 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public List<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationPropertiesList() {
         return getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList();
+    }
+
+    @Override
+    public List<SecurityPropertySet> getSecurityPropertySets() {
+        return getCommunicationConfiguration().getSecurityPropertySets();
+    }
+
+    @Override
+    public SecurityPropertySetBuilder createSecurityPropertySet(String name) {
+        return getCommunicationConfiguration().createSecurityPropertySet(name);
+    }
+
+    @Override
+    public void removeSecurityPropertySet(SecurityPropertySet propertySet) {
+        getCommunicationConfiguration().removeSecurityPropertySet(propertySet);
     }
 }

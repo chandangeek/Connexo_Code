@@ -242,23 +242,20 @@ public class PartialInboundConnectiontaskCrudIT {
     public void testCreate() {
 
         PartialInboundConnectionTaskImpl inboundConnectionTask;
-        DeviceCommunicationConfiguration communicationConfiguration;
+        DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
-            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
-            communicationConfiguration.save();
-
-            inboundConnectionTask = communicationConfiguration.createPartialInboundConnectionTask()
+            inboundConnectionTask = deviceConfiguration.createPartialInboundConnectionTask()
                     .name("MyInbound")
                     .comPortPool(inboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true).build();
-            communicationConfiguration.save();
+            deviceConfiguration.save();
 
             context.commit();
         }
@@ -274,7 +271,7 @@ public class PartialInboundConnectiontaskCrudIT {
 
         assertThat(partialInboundConnectionTask.getComPortPool().getId()).isEqualTo(inboundComPortPool.getId());
         assertThat(partialInboundConnectionTask.isDefault()).isTrue();
-        assertThat(partialInboundConnectionTask.getConfiguration().getId()).isEqualTo(communicationConfiguration.getId());
+        assertThat(partialInboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
         assertThat(partialInboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialInboundConnectionTask.getName()).isEqualTo("MyInbound");
 
@@ -284,30 +281,26 @@ public class PartialInboundConnectiontaskCrudIT {
     public void testUpdate() {
 
         PartialInboundConnectionTaskImpl inboundConnectionTask;
-        DeviceCommunicationConfiguration communicationConfiguration;
+        DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
-            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
-            communicationConfiguration.save();
-
-            inboundConnectionTask = communicationConfiguration.createPartialInboundConnectionTask()
+            inboundConnectionTask = deviceConfiguration.createPartialInboundConnectionTask()
                     .name("MyInbound")
                     .comPortPool(inboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true).build();
-            communicationConfiguration.save();
+            deviceConfiguration.save();
 
             context.commit();
         }
 
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceCommunicationConfiguration(communicationConfiguration.getId());
-            PartialInboundConnectionTask partialInboundConnectionTask = configuration.getPartialInboundConnectionTasks().get(0);
+            PartialInboundConnectionTask partialInboundConnectionTask = deviceConfiguration.getPartialInboundConnectionTasks().get(0);
             partialInboundConnectionTask.setDefault(false);
             partialInboundConnectionTask.setComportPool(inboundComPortPool2);
             partialInboundConnectionTask.setConnectionTypePluggableClass(connectionTypePluggableClass2);
@@ -328,7 +321,7 @@ public class PartialInboundConnectiontaskCrudIT {
 
         assertThat(partialInboundConnectionTask.getComPortPool().getId()).isEqualTo(inboundComPortPool2.getId());
         assertThat(partialInboundConnectionTask.isDefault()).isFalse();
-        assertThat(partialInboundConnectionTask.getConfiguration().getId()).isEqualTo(communicationConfiguration.getId());
+        assertThat(partialInboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
         assertThat(partialInboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
         assertThat(partialInboundConnectionTask.getName()).isEqualTo("Changed");
 
@@ -337,32 +330,28 @@ public class PartialInboundConnectiontaskCrudIT {
     @Test
     public void testDelete() {
         PartialInboundConnectionTaskImpl inboundConnectionTask;
-        DeviceCommunicationConfiguration communicationConfiguration;
+        DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
-            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
-            communicationConfiguration.save();
-
-            inboundConnectionTask = communicationConfiguration.createPartialInboundConnectionTask()
+            inboundConnectionTask = deviceConfiguration.createPartialInboundConnectionTask()
                     .name("MyInbound")
                     .comPortPool(inboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true).build();
-            communicationConfiguration.save();
+            deviceConfiguration.save();
 
             context.commit();
         }
 
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceCommunicationConfiguration(communicationConfiguration.getId());
-            PartialInboundConnectionTask partialInboundConnectionTask = configuration.getPartialInboundConnectionTasks().get(0);
-            configuration.remove(partialInboundConnectionTask);
-            configuration.save();
+            PartialInboundConnectionTask partialInboundConnectionTask = deviceConfiguration.getPartialInboundConnectionTasks().get(0);
+            deviceConfiguration.remove(partialInboundConnectionTask);
+            deviceConfiguration.save();
 
             context.commit();
         }
@@ -406,7 +395,6 @@ public class PartialInboundConnectiontaskCrudIT {
     public void testCreateWithDuplicateName() {
 
         PartialInboundConnectionTaskImpl inboundConnectionTask;
-        DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
@@ -414,22 +402,19 @@ public class PartialInboundConnectiontaskCrudIT {
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
-            communicationConfiguration.save();
-
-            inboundConnectionTask = communicationConfiguration.createPartialInboundConnectionTask()
+            inboundConnectionTask = deviceConfiguration.createPartialInboundConnectionTask()
                     .name("MyInbound")
                     .comPortPool(inboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true).build();
-            communicationConfiguration.save();
+            deviceConfiguration.save();
 
-            inboundConnectionTask = communicationConfiguration.createPartialInboundConnectionTask()
+            inboundConnectionTask = deviceConfiguration.createPartialInboundConnectionTask()
                     .name("MyInbound")
                     .comPortPool(inboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true).build();
-            communicationConfiguration.save();
+            deviceConfiguration.save();
 
             context.commit();
         }
