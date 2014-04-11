@@ -32,6 +32,7 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -320,7 +321,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Override
-        public List<DeviceProtocolPluggableClass> findAllDeviceProtocolPluggableClasses() {
+        public Finder<DeviceProtocolPluggableClass> findAllDeviceProtocolPluggableClasses() {
             return protocolPluggableService.findAllDeviceProtocolPluggableClasses();
         }
 
