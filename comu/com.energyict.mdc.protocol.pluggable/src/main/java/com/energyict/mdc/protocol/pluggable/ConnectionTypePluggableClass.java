@@ -5,6 +5,8 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassWithRelationSupport;
 import com.energyict.mdc.protocol.api.ConnectionType;
 
+import java.util.List;
+
 /**
  * Models a {@link ConnectionType} that was registered
  * in EIServer as a {@link PluggableClass}.
@@ -52,4 +54,7 @@ public interface ConnectionTypePluggableClass extends PluggableClassWithRelation
      */
     public boolean isInstance (ConnectionType connectionType);
 
-}
+    public List<PropertySpec> getPropertySpecs();
+
+
+    }

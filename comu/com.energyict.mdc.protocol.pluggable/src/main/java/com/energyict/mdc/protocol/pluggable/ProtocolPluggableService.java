@@ -1,13 +1,13 @@
 package com.energyict.mdc.protocol.pluggable;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.google.common.base.Optional;
-
 import java.util.List;
 
 /**
@@ -66,7 +66,7 @@ public interface ProtocolPluggableService {
      *
      * @return The List of all DeviceProtocolPluggableClasses
      */
-    public List<DeviceProtocolPluggableClass> findAllDeviceProtocolPluggableClasses();
+    public Finder<DeviceProtocolPluggableClass> findAllDeviceProtocolPluggableClasses();
 
     public DeviceProtocolPluggableClass findDeviceProtocolPluggableClass(long id);
 
@@ -195,7 +195,7 @@ public interface ProtocolPluggableService {
      */
     public ConnectionTypePluggableClass newConnectionTypePluggableClass (String name, String javaClassName, TypedProperties properties);
 
-    public String createOriginalAndConformRelationNameBasedOnJavaClassname (Class clazz);
+    public String createOriginalAndConformRelationNameBasedOnJavaClassname (Class<?> clazz);
 
     public String createConformRelationTypeName (String name);
 

@@ -9,6 +9,8 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.common.services.WrappingFinder;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
@@ -39,17 +41,16 @@ import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRe
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Provides an interface for the {@link ProtocolPluggableService} interface.
@@ -111,7 +112,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public Class loadProtocolClass(String javaClassName) {
+    public Class<?> loadProtocolClass(String javaClassName) {
         for (DeviceProtocolService service : this.deviceProtocolServices) {
             try {
                 return service.loadProtocolClass(javaClassName);
@@ -163,7 +164,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         boolean dirty = false;
         Set<String> unsupportedPropertyNames = properties.propertyNames();
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.newDeviceProtocolPluggableClass(name, className);
-        for (PropertySpec propertySpec : deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs()) {
+        for (PropertySpec<?> propertySpec : deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs()) {
             unsupportedPropertyNames.remove(propertySpec.getName());
             if (properties.hasValueFor(propertySpec.getName())) {
                 deviceProtocolPluggableClass.setProperty(propertySpec, properties.getProperty(propertySpec.getName()));
@@ -180,13 +181,17 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public List<DeviceProtocolPluggableClass> findAllDeviceProtocolPluggableClasses() {
-        List<PluggableClass> pluggableClasses = this.pluggableService.findAllByType(PluggableClassType.DeviceProtocol);
-        List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = new ArrayList<>(pluggableClasses.size());
-        for (PluggableClass pluggableClass : pluggableClasses) {
-            deviceProtocolPluggableClasses.add(DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass));
-        }
-        return deviceProtocolPluggableClasses;
+    public Finder<DeviceProtocolPluggableClass> findAllDeviceProtocolPluggableClasses() {
+        return new WrappingFinder<DeviceProtocolPluggableClass, PluggableClass>(this.pluggableService.findAllByType(PluggableClassType.DeviceProtocol).defaultSortColumn("name")) {
+            @Override
+            public List<DeviceProtocolPluggableClass> convert(List<PluggableClass> pluggableClasses) {
+                List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = new ArrayList<>(pluggableClasses.size());
+                for (PluggableClass pluggableClass : pluggableClasses) {
+                    deviceProtocolPluggableClasses.add(DeviceProtocolPluggableClassImpl.from(ProtocolPluggableServiceImpl.this.dataModel, pluggableClass));
+                }
+                return deviceProtocolPluggableClasses;
+            }
+        };
     }
 
     @Override
@@ -279,7 +284,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     @Override
     public List<InboundDeviceProtocolPluggableClass> findAllInboundDeviceProtocolPluggableClass() {
-        List<PluggableClass> pluggableClasses = this.pluggableService.findAllByType(PluggableClassType.DiscoveryProtocol);
+        List<PluggableClass> pluggableClasses = this.pluggableService.findAllByType(PluggableClassType.DiscoveryProtocol).find();
         List<InboundDeviceProtocolPluggableClass> inboundDeviceProtocolPluggableClasses = new ArrayList<>(pluggableClasses.size());
         for (PluggableClass pluggableClass : pluggableClasses) {
             inboundDeviceProtocolPluggableClasses.add(InboundDeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass));
@@ -299,7 +304,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Override
     public InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass(String name, String javaClassName, TypedProperties properties) {
         InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass = this.newInboundDeviceProtocolPluggableClass(name, javaClassName);
-        for (PropertySpec propertySpec : inboundDeviceProtocolPluggableClass.getInboundDeviceProtocol().getPropertySpecs()) {
+        for (PropertySpec<?> propertySpec : inboundDeviceProtocolPluggableClass.getInboundDeviceProtocol().getPropertySpecs()) {
             if (properties.hasValueFor(propertySpec.getName())) {
                 inboundDeviceProtocolPluggableClass.setProperty(propertySpec, properties.getProperty(propertySpec.getName()));
             }
@@ -331,7 +336,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     @Override
     public List<ConnectionTypePluggableClass> findAllConnectionTypePluggableClasses() {
-        List<PluggableClass> pluggableClasses = this.pluggableService.findAllByType(PluggableClassType.ConnectionType);
+        List<PluggableClass> pluggableClasses = this.pluggableService.findAllByType(PluggableClassType.ConnectionType).find();
         List<ConnectionTypePluggableClass> connectionTypePluggableClasses = new ArrayList<>(pluggableClasses.size());
         for (PluggableClass pluggableClass : pluggableClasses) {
             connectionTypePluggableClasses.add(ConnectionTypePluggableClassImpl.from(this.dataModel, pluggableClass));
@@ -351,7 +356,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Override
     public ConnectionTypePluggableClass newConnectionTypePluggableClass(String name, String javaClassName, TypedProperties properties) {
         ConnectionTypePluggableClass connectionTypePluggableClass = this.newConnectionTypePluggableClass(name, javaClassName);
-        for (PropertySpec propertySpec : connectionTypePluggableClass.getConnectionType().getPropertySpecs()) {
+        for (PropertySpec<?> propertySpec : connectionTypePluggableClass.getConnectionType().getPropertySpecs()) {
             if (properties.hasValueFor(propertySpec.getName())) {
                 connectionTypePluggableClass.setProperty(propertySpec, properties.getProperty(propertySpec.getName()));
             }
@@ -361,7 +366,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public String createOriginalAndConformRelationNameBasedOnJavaClassname(Class clazz) {
+    public String createOriginalAndConformRelationNameBasedOnJavaClassname(Class<?> clazz) {
         return RelationUtils.createOriginalAndConformRelationNameBasedOnJavaClassname(clazz.getCanonicalName());
     }
 
