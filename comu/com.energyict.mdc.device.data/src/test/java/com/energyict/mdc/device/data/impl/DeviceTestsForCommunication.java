@@ -14,7 +14,7 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
@@ -59,7 +59,7 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
     private ConnectionTypePluggableClass connectionTypePluggableClass;
     private ConnectionTypePluggableClass ipConnectionTypePluggableClass;
     private InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass;
-    private PartialScheduledConnectionTask partialOutboundConnectionTask;
+    private PartialOutboundConnectionTask partialOutboundConnectionTask;
     private PartialInboundConnectionTask partialInboundConnectionTask;
     private PartialConnectionInitiationTask partialConnectionInitiationTask;
     private TimeDuration frequency = TimeDuration.hours(1);

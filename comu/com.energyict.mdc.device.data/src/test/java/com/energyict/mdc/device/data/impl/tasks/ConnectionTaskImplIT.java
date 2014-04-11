@@ -8,16 +8,14 @@ import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Transaction;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFactory;
-import com.energyict.mdc.device.data.PartialConnectionTaskFactory;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -97,8 +95,8 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected Device otherDevice;
     protected PartialInboundConnectionTask partialInboundConnectionTask;
     protected PartialInboundConnectionTask partialInboundConnectionTask2;
-    protected PartialOutboundConnectionTask partialScheduledConnectionTask;
-    protected PartialOutboundConnectionTask partialScheduledConnectionTask2;
+    protected PartialScheduledConnectionTask partialScheduledConnectionTask;
+    protected PartialScheduledConnectionTask partialScheduledConnectionTask2;
     protected PartialConnectionInitiationTask partialConnectionInitiationTask;
     protected PartialConnectionInitiationTask partialConnectionInitiationTask2;
 
