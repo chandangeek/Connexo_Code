@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.model;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+
 import java.util.List;
 
 /**

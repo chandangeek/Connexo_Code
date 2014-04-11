@@ -13,14 +13,12 @@ import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.Provider;
-import java.sql.SQLException;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import java.sql.SQLException;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests for the {@link TCPBasedInboundComPortImpl} object
