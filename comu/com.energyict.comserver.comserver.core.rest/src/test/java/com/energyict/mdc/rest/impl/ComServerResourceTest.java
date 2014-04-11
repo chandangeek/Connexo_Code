@@ -269,7 +269,7 @@ public class ComServerResourceTest extends JerseyTest {
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
 
         final Response response = target("/comservers").request().post(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
         verify(serverSideComServer).save();
     }
@@ -293,7 +293,7 @@ public class ComServerResourceTest extends JerseyTest {
         Entity<OfflineComServerInfo> json = Entity.json(offlineComServerInfo);
 
         final Response response = target("/comservers").request().post(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
         verify(serverSideComServer).save();
     }
@@ -322,7 +322,7 @@ public class ComServerResourceTest extends JerseyTest {
         Entity<RemoteComServerInfo> json = Entity.json(remoteComServerInfo);
 
         final Response response = target("/comservers").request().post(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
         verify(serverSideComServer).save();
     }
@@ -419,7 +419,7 @@ public class ComServerResourceTest extends JerseyTest {
         when(engineModelService.findComServer(comServer_id)).thenReturn(serverSideComServer);
 
         final Response response = target("/comservers/5").request().delete();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
 
         verify(serverSideComServer).delete();
     }

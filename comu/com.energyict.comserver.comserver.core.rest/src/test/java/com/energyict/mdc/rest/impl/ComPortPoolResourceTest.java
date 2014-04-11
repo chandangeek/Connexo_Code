@@ -240,7 +240,7 @@ public class ComPortPoolResourceTest extends JerseyTest {
         Entity<OutboundComPortPoolInfo> json = Entity.json(outboundComPortPoolInfo);
 
         final Response response = target("/comportpools/").request().post(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
     @Test
@@ -251,7 +251,7 @@ public class ComPortPoolResourceTest extends JerseyTest {
         when(engineModelService.findComPortPool(comPortPool_id)).thenReturn(mock);
 
         final Response response = target("/comportpools/5").request().delete();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
 
         verify(mock).delete();
     }
