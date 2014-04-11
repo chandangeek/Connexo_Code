@@ -65,11 +65,6 @@ Ext.define('Isu.controller.Issues', {
                 beforehide: this.hideItemAction,
                 click: this.chooseIssuesAction
             },
-            // ====================================  IssueListFilter controls  ====================================
-
-            'button[name=addsortbtn]': {
-                click: this.setAddSortMenu
-            },
             'menu[name=addsortitemmenu]': {
                 click: this.addSortItem
             },
@@ -80,8 +75,11 @@ Ext.define('Isu.controller.Issues', {
             'grid[name=groupgrid]': {
                 itemclick: this.getIssuesForGroup
             },
-            'button[name=clearsortbtn]': {
+            'button[action=clearSort]': {
                 click: this.clearSort
+            },
+            'button[action=addSort]': {
+                click: this.setAddSortMenu
             },
             'issues-overview breadcrumbTrail': {
                 afterrender: this.setBreadcrumb
@@ -90,8 +88,6 @@ Ext.define('Isu.controller.Issues', {
                 click: this.changeSortDirection,
                 arrowclick: this.removeSortItem
             },
-
-            // ====================================  END IssueListFilter controls  ================================
             'issues-filter [name="filter"] button-tag': {
                 arrowclick: this.removeFilter
             }
@@ -142,8 +138,7 @@ Ext.define('Isu.controller.Issues', {
      */
     filterUpdate: function (filter) {
         var filterElm = this.getFilter().down('[name="filter"]'),
-            emptyText = this.getFilter().down('[name="empty-text"]'),
-            clearFilterBtn = this.getFilter().down('button[action="clearfilter"]'),
+            clearFilterBtn = this.getFilter().down('button[action="clearFilter"]'),
             buttons = [];
 
         if (filter.get('assignee')) {
@@ -179,14 +174,12 @@ Ext.define('Isu.controller.Issues', {
         filterElm.removeAll();
 
         if (buttons.length) {
-            emptyText.hide();
             clearFilterBtn.setDisabled(false);
 
             Ext.Array.each(buttons, function (button) {
                 filterElm.add(button);
             });
         } else {
-            emptyText.show();
             clearFilterBtn.setDisabled(true);
         }
     },
@@ -227,7 +220,7 @@ Ext.define('Isu.controller.Issues', {
             }
         });
 
-        this.getFilter().down('[name="clearsortbtn"]').setDisabled(!filterElm.items.length);
+        this.getFilter().down('[action="clearSort"]').setDisabled(!filterElm.items.length);
     },
 
     removeFilter: function (elm) {
