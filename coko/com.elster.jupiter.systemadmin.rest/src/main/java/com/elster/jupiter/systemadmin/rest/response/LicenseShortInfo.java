@@ -7,13 +7,13 @@ import java.util.Map;
 import java.util.Properties;
 
 public class LicenseShortInfo {
-    protected String applicationtag;
+    protected String applicationkey;
     protected String status;
     protected Long expires;
 
     public LicenseShortInfo() {}
     public LicenseShortInfo(License lic) {
-        this.applicationtag = lic.getApplicationKey();
+        this.applicationkey = lic.getApplicationKey();
         this.status = lic.getStatus().name().toLowerCase();
         this.expires = lic.getExpiration().getTime();
     }
@@ -22,8 +22,8 @@ public class LicenseShortInfo {
         return status;
     }
 
-    public String getApplicationtag() {
-        return applicationtag;
+    public String getApplicationkey() {
+        return applicationkey;
     }
 
     public Long getExpires() {

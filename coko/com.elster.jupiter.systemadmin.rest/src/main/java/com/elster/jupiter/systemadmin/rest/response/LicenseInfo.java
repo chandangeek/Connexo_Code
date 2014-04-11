@@ -19,7 +19,7 @@ public class LicenseInfo extends LicenseShortInfo {
 
     public LicenseInfo(License license) {
         this();
-        this.applicationtag = license.getApplicationKey();
+        this.applicationkey = license.getApplicationKey();
         this.type = license.getType().name().toLowerCase();
         this.status = license.getStatus().name().toLowerCase();
         this.description = license.getDescription();

@@ -37,9 +37,9 @@ public class LicenseResource extends BaseResource {
     }
 
     @GET
-    @Path("/{tag}")
+    @Path("/{applicationkey}")
     @Produces(MediaType.APPLICATION_JSON)
-    public RootEntity getLicenseById(@PathParam("tag") String tag) {
+    public RootEntity getLicenseById(@PathParam("applicationkey") String tag) {
         Optional<License> licenseRef = getLicenseService().getLicenseForApplication(tag);
         LicenseInfo info = new LicenseInfo();
         if (licenseRef.isPresent()) {
@@ -57,7 +57,6 @@ public class LicenseResource extends BaseResource {
     public Response uploadLicense(@FormDataParam("uploadField") InputStream fileInputStream,
                                   @FormDataParam("uploadField") FormDataContentDisposition contentDispositionHeader) {
         SignedObject signedObject = null;
-        Response response = null;
         try {
             ObjectInputStream serializedObject = new ObjectInputStream(fileInputStream);
             signedObject = (SignedObject) serializedObject.readObject();
@@ -67,11 +66,6 @@ public class LicenseResource extends BaseResource {
         }
 
         ActionInfo info =  getTransactionService().execute(new UploadLicenseTransaction(getLicenseService(), signedObject));
-        if (!info.getSuccess().isEmpty()) {
-            response = Response.status(Response.Status.OK).entity(new RootEntity<ActionInfo>(info)).build();
-        } /*else {
-            response = Response.status(UNPROCESSIBLE_ENTITY).entity(new RootEntity<ActionInfo>(info)).build();
-        }*/
-        return response;
+         return Response.status(Response.Status.OK).entity(new RootEntity<ActionInfo>(info)).build();
     }
 }
