@@ -6,9 +6,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.data.PartialConnectionTaskFactory;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
@@ -18,13 +16,13 @@ import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDe
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import org.junit.*;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,9 +31,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for the {@link InboundConnectionTaskImpl} component.
@@ -123,8 +119,8 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     // Todo (JP-1122): enable this test when done
     @Ignore
     public void testCreateOfDifferentConfig() {
-        DeviceCommunicationConfiguration mockCommunicationConfig = mock(DeviceCommunicationConfiguration.class);
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        DeviceConfiguration mockCommunicationConfig = mock(DeviceConfiguration.class);
+        when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(mockCommunicationConfig);
         when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         PartialInboundConnectionTask partialInboundConnectionTask = mock(PartialInboundConnectionTask.class);
