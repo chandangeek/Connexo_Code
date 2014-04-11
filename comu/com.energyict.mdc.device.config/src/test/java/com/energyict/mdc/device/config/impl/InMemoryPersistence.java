@@ -112,6 +112,7 @@ public class InMemoryPersistence {
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.ormService = injector.getInstance(OrmService.class);
+            userService = injector.getInstance(UserService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
@@ -119,7 +120,6 @@ public class InMemoryPersistence {
             this.engineModelService = injector.getInstance(EngineModelService.class);
             injector.getInstance(PluggableService.class);
             this.dataModel = this.createNewDeviceConfigurationService(createMasterData);
-            userService = injector.getInstance(UserService.class);
             ctx.commit();
         }
         Environment environment = injector.getInstance(Environment.class);

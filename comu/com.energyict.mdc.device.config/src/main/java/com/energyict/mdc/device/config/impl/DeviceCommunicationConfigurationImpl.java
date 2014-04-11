@@ -667,6 +667,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public void addPartialConnectionTask(PartialConnectionTask partialConnectionTask) {
+        Save.CREATE.validate(dataModel, partialConnectionTask);
         partialConnectionTasks.add(partialConnectionTask);
     }
 

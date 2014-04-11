@@ -235,7 +235,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     private DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
-        DeviceType deviceType = getDeviceCommunicationConfiguration().getDeviceConfiguration().getDeviceType();
+        DeviceType deviceType = getDeviceConfiguration().getDeviceType();
         DeviceProtocolPluggableClass protocolClass = deviceType.getDeviceProtocolPluggableClass();
         if (protocolClass != null) {
             return protocolClass;
@@ -249,7 +249,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Override
-    public DeviceConfiguration getDeviceCommunicationConfiguration() {
+    public DeviceConfiguration getDeviceConfiguration() {
         return this.deviceCommunicationConfiguration.get().getDeviceConfiguration();
     }
 

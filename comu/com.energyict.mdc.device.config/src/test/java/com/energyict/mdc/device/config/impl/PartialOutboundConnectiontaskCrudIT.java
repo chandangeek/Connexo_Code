@@ -31,7 +31,6 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -231,18 +230,15 @@ public class PartialOutboundConnectiontaskCrudIT {
     public void testCreate() {
 
         PartialOutboundConnectionTaskImpl outboundConnectionTask;
-        DeviceCommunicationConfiguration communicationConfiguration;
+        DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
-            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
-            communicationConfiguration.save();
-
-            outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+            outboundConnectionTask = deviceConfiguration.createPartialOutboundConnectionTask()
                     .name("MyOutbound")
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
@@ -251,7 +247,7 @@ public class PartialOutboundConnectiontaskCrudIT {
                     .rescheduleDelay(TimeDuration.seconds(60))
                     .connectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
                     .asDefault(true).build();
-            communicationConfiguration.save();
+            deviceConfiguration.save();
 
             context.commit();
         }
@@ -267,7 +263,7 @@ public class PartialOutboundConnectiontaskCrudIT {
 
         assertThat(partialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
         assertThat(partialOutboundConnectionTask.isDefault()).isTrue();
-        assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(communicationConfiguration.getId());
+        assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
         assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(COM_WINDOW);
         assertThat(partialOutboundConnectionTask.getNextExecutionSpecs()).isNotNull();
@@ -283,18 +279,15 @@ public class PartialOutboundConnectiontaskCrudIT {
     public void testUpdate() {
 
         PartialOutboundConnectionTaskImpl outboundConnectionTask;
-        DeviceCommunicationConfiguration communicationConfiguration;
+        DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
-            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
-            communicationConfiguration.save();
-
-            outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+            outboundConnectionTask = deviceConfiguration.createPartialOutboundConnectionTask()
                     .name("MyOutbound")
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
@@ -302,15 +295,14 @@ public class PartialOutboundConnectiontaskCrudIT {
                     .rescheduleDelay(TimeDuration.seconds(60))
                     .connectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                     .asDefault(true).build();
-            communicationConfiguration.save();
+            deviceConfiguration.save();
 
             context.commit();
         }
 
         ComWindow newComWindow = new ComWindow(7200, 10800);
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceCommunicationConfiguration(communicationConfiguration.getId());
-            PartialOutboundConnectionTaskImpl partialOutboundConnectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
+            PartialOutboundConnectionTaskImpl partialOutboundConnectionTask = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
             partialOutboundConnectionTask.setDefault(false);
             partialOutboundConnectionTask.setComportPool(outboundComPortPool1);
             partialOutboundConnectionTask.setConnectionTypePluggableClass(connectionTypePluggableClass2);
@@ -332,7 +324,7 @@ public class PartialOutboundConnectiontaskCrudIT {
 
         assertThat(partialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool1.getId());
         assertThat(partialOutboundConnectionTask.isDefault()).isFalse();
-        assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(communicationConfiguration.getId());
+        assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
         assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
         assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(newComWindow);
         assertThat(partialOutboundConnectionTask.getName()).isEqualTo("Changed");
@@ -342,18 +334,15 @@ public class PartialOutboundConnectiontaskCrudIT {
     @Test
     public void testDelete() {
         PartialOutboundConnectionTaskImpl outboundConnectionTask;
-        DeviceCommunicationConfiguration communicationConfiguration;
+        DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
-            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
-            communicationConfiguration.save();
-
-            outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+            outboundConnectionTask = deviceConfiguration.createPartialOutboundConnectionTask()
                     .name("MyOutbound")
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
@@ -361,16 +350,15 @@ public class PartialOutboundConnectiontaskCrudIT {
                     .rescheduleDelay(TimeDuration.seconds(60))
                     .connectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                     .asDefault(true).build();
-            communicationConfiguration.save();
+            deviceConfiguration.save();
 
             context.commit();
         }
 
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceCommunicationConfiguration configuration = deviceConfigurationService.findDeviceCommunicationConfiguration(communicationConfiguration.getId());
-            PartialOutboundConnectionTaskImpl partialOutboundConnectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
-            configuration.remove(partialOutboundConnectionTask);
-            configuration.save();
+            PartialOutboundConnectionTaskImpl partialOutboundConnectionTask = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
+            deviceConfiguration.remove(partialOutboundConnectionTask);
+            deviceConfiguration.save();
 
             context.commit();
         }
@@ -384,9 +372,8 @@ public class PartialOutboundConnectiontaskCrudIT {
     public void testCreateReferencingInitiation() {
 
         PartialConnectionInitiationTaskImpl connectionInitiationTask;
-        DeviceCommunicationConfiguration communicationConfiguration;
-        DeviceType deviceType;
         DeviceConfiguration deviceConfiguration;
+        DeviceType deviceType;
         try (TransactionContext context = transactionService.getContext()) {
             deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
@@ -394,26 +381,21 @@ public class PartialOutboundConnectiontaskCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
-            communicationConfiguration.save();
-
-            connectionInitiationTask = communicationConfiguration.createPartialConnectionInitiationTask()
+            connectionInitiationTask = deviceConfiguration.createPartialConnectionInitiationTask()
                     .name("MyInitiation")
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
                     .rescheduleDelay(TimeDuration.seconds(60))
                     .build();
-            communicationConfiguration.save();
+            deviceConfiguration.save();
 
             context.commit();
         }
 
         PartialOutboundConnectionTaskImpl outboundConnectionTask;
         try (TransactionContext context = transactionService.getContext()) {
-            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
-            communicationConfiguration.save();
 
-            outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+            outboundConnectionTask = deviceConfiguration.createPartialOutboundConnectionTask()
                     .name("MyOutbound")
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
@@ -423,7 +405,7 @@ public class PartialOutboundConnectiontaskCrudIT {
                     .connectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
                     .rescheduleDelay(TimeDuration.seconds(60))
                     .asDefault(true).build();
-            communicationConfiguration.save();
+            deviceConfiguration.save();
 
             context.commit();
         }
@@ -439,7 +421,7 @@ public class PartialOutboundConnectiontaskCrudIT {
 
         assertThat(partialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
         assertThat(partialOutboundConnectionTask.isDefault()).isTrue();
-        assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(communicationConfiguration.getId());
+        assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
         assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(COM_WINDOW);
         assertThat(partialOutboundConnectionTask.getNextExecutionSpecs()).isNotNull();
@@ -454,18 +436,15 @@ public class PartialOutboundConnectiontaskCrudIT {
     public void testCreateWithoutConnectionStrategy() {
 
         PartialOutboundConnectionTaskImpl outboundConnectionTask;
-        DeviceCommunicationConfiguration communicationConfiguration;
+        DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
-            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
-            communicationConfiguration.save();
-
-            outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+            outboundConnectionTask = deviceConfiguration.createPartialOutboundConnectionTask()
                     .name("MyOutbound")
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
@@ -473,7 +452,7 @@ public class PartialOutboundConnectiontaskCrudIT {
                     .nextExecutionSpec().temporalExpression(TimeDuration.days(1), TimeDuration.minutes(90)).set()
                     .rescheduleDelay(TimeDuration.seconds(60))
                     .asDefault(true).build();
-            communicationConfiguration.save();
+            deviceConfiguration.save();
 
             context.commit();
         }
@@ -484,18 +463,15 @@ public class PartialOutboundConnectiontaskCrudIT {
     public void testCreateMinimizingConnectionsWithoutNextExecutionSpecs() {
 
         PartialOutboundConnectionTaskImpl outboundConnectionTask;
-        DeviceCommunicationConfiguration communicationConfiguration;
+        DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
-            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
-            communicationConfiguration.save();
-
-            outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+            outboundConnectionTask = deviceConfiguration.createPartialOutboundConnectionTask()
                     .name("MyOutbound")
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
@@ -503,7 +479,7 @@ public class PartialOutboundConnectiontaskCrudIT {
                     .rescheduleDelay(TimeDuration.seconds(60))
                     .connectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
                     .asDefault(true).build();
-            communicationConfiguration.save();
+            deviceConfiguration.save();
 
             context.commit();
         }
@@ -514,18 +490,15 @@ public class PartialOutboundConnectiontaskCrudIT {
     public void testCreateWithNextExecutionSpecsOffsetNotWithinComWindowTest() {
 
         PartialOutboundConnectionTaskImpl outboundConnectionTask;
-        DeviceCommunicationConfiguration communicationConfiguration;
+        DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
-            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
-            communicationConfiguration.save();
-
-            outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+            outboundConnectionTask = deviceConfiguration.createPartialOutboundConnectionTask()
                     .name("MyOutbound")
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
@@ -534,7 +507,7 @@ public class PartialOutboundConnectiontaskCrudIT {
                     .rescheduleDelay(TimeDuration.seconds(60))
                     .connectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
                     .asDefault(true).build();
-            communicationConfiguration.save();
+            deviceConfiguration.save();
 
             context.commit();
         }
@@ -545,18 +518,15 @@ public class PartialOutboundConnectiontaskCrudIT {
     public void testCreateWithTooLowReschedulingRetryDelayTest() {
 
         PartialOutboundConnectionTaskImpl outboundConnectionTask;
-        DeviceCommunicationConfiguration communicationConfiguration;
+        DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
-            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
-            communicationConfiguration.save();
-
-            outboundConnectionTask = communicationConfiguration.createPartialOutboundConnectionTask()
+            outboundConnectionTask = deviceConfiguration.createPartialOutboundConnectionTask()
                     .name("MyOutbound")
                     .comPortPool(outboundComPortPool)
                     .pluggableClass(connectionTypePluggableClass)
@@ -565,7 +535,7 @@ public class PartialOutboundConnectiontaskCrudIT {
                     .rescheduleDelay(TimeDuration.seconds(59))
                     .connectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
                     .asDefault(true).build();
-            communicationConfiguration.save();
+            deviceConfiguration.save();
 
             context.commit();
         }
