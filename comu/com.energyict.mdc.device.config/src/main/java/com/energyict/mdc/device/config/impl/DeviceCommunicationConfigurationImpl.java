@@ -17,7 +17,7 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -461,7 +461,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 //    }
 
     @Override
-    public List<PartialOutboundConnectionTaskImpl> getPartialOutboundConnectionTasks() {
+    public List<PartialScheduledConnectionTaskImpl> getPartialOutboundConnectionTasks() {
         return this.filter(this.findAllPartialConnectionTasks(), new PartialOutboundConnectionTaskFilterPredicate());
     }
 
@@ -540,11 +540,11 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     }
 
-    private class PartialOutboundConnectionTaskFilterPredicate implements PartialConnectionTaskFilterPredicate<PartialOutboundConnectionTask> {
+    private class PartialOutboundConnectionTaskFilterPredicate implements PartialConnectionTaskFilterPredicate<PartialScheduledConnectionTask> {
 
         @Override
         public boolean retain(PartialConnectionTask task) {
-            return task instanceof PartialOutboundConnectionTask;
+            return task instanceof PartialScheduledConnectionTask;
         }
     }
 

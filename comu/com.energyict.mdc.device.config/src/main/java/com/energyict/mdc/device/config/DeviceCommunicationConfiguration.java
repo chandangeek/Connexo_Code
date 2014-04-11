@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.device.config.impl.PartialOutboundConnectionTaskImpl;
+import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public interface DeviceCommunicationConfiguration extends HasId {
 
     List<PartialInboundConnectionTask> getPartialInboundConnectionTasks();
 
-    List<PartialOutboundConnectionTaskImpl> getPartialOutboundConnectionTasks();
+    List<PartialScheduledConnectionTaskImpl> getPartialOutboundConnectionTasks();
 
     List<PartialConnectionInitiationTask> getPartialConnectionInitiationTasks();
 

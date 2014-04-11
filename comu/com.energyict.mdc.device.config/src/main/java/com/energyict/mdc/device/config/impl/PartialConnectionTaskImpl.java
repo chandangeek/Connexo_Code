@@ -41,7 +41,7 @@ import java.util.Map;
 @PartialConnectionTaskCannotHaveDuplicateName(groups = {Save.Create.class, Save.Update.class})
 public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialConnectionTask> implements PartialConnectionTask {
 
-    public static final Map<String, Class<? extends PartialConnectionTask>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends PartialConnectionTask>>of("0", PartialConnectionInitiationTaskImpl.class, "1", PartialInboundConnectionTaskImpl.class, "2", PartialOutboundConnectionTaskImpl.class);
+    public static final Map<String, Class<? extends PartialConnectionTask>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends PartialConnectionTask>>of("0", PartialConnectionInitiationTaskImpl.class, "1", PartialInboundConnectionTaskImpl.class, "2", PartialScheduledConnectionTaskImpl.class);
 
     private final EngineModelService engineModelService;
     private final ProtocolPluggableService protocolPluggableService;

@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = {PartialOutboundConnectionTaskImpl.NextExecutionSpecVsComWindowValidator.class})
+@Constraint(validatedBy = {PartialScheduledConnectionTaskImpl.NextExecutionSpecVsComWindowValidator.class})
 public @interface NextExecutionSpecsValidForComWindow {
 
     String message() default '{' + MessageSeeds.Constants.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY + '}';

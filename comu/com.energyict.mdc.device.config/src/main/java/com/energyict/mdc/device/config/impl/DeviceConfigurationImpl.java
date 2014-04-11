@@ -756,7 +756,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public List<PartialOutboundConnectionTaskImpl> getPartialOutboundConnectionTasks() {
+    public List<PartialScheduledConnectionTaskImpl> getPartialOutboundConnectionTasks() {
         return getCommunicationConfiguration().getPartialOutboundConnectionTasks();
     }
 
