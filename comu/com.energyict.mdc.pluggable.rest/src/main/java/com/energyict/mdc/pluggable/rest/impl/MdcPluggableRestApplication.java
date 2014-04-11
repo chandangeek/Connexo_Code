@@ -5,6 +5,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
 import com.energyict.mdc.common.rest.TransactionWrapper;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -24,6 +25,7 @@ public class MdcPluggableRestApplication extends Application {
     private volatile LicensedProtocolService licensedProtocolService;
     private volatile PropertySpecService propertySpecService;
     private volatile TransactionService transactionService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
     private NlsService nlsService;
 
     @Override
@@ -37,7 +39,8 @@ public class MdcPluggableRestApplication extends Application {
                 TimeZoneInUseResource.class,
                 UserFileReferenceResource.class,
                 LoadProfileTypeResource.class,
-                CodeTableResource.class);
+                CodeTableResource.class,
+                ConnectionMethodResource.class);
     }
 
     @Override
@@ -73,6 +76,11 @@ public class MdcPluggableRestApplication extends Application {
         this.nlsService = nlsService;
     }
 
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -82,6 +90,7 @@ public class MdcPluggableRestApplication extends Application {
             bind(propertySpecService).to(PropertySpecService.class);
             bind(transactionService).to(TransactionService.class);
             bind(nlsService).to(NlsService.class);
+            bind(deviceConfigurationService).to(DeviceConfigurationService.class);
         }
     }
 

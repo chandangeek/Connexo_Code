@@ -1,7 +1,6 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Copyrights EnergyICT
@@ -9,11 +8,8 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * Time: 13:40
  */
 public class ConnectionTypeInfo {
-    @JsonProperty("id")
     public long id;
-    @JsonProperty("name")
     public String name;
-
 
     public ConnectionTypeInfo() {
     }
@@ -29,7 +25,7 @@ public class ConnectionTypeInfo {
         ConnectionTypeInfo connectionTypeInfo = new ConnectionTypeInfo();
         connectionTypeInfo.id = connectionTypePluggableClass.getId();
         connectionTypeInfo.name = connectionTypePluggableClass.getName();
-        connectionTypePluggableClass.getProperties(connectionTypePluggableClass.getPropertySpecs());
+        connectionTypePluggableClass.getProperties(connectionTypePluggableClass.getConnectionType().getPropertySpecs());
         return connectionTypeInfo;
     }
 }

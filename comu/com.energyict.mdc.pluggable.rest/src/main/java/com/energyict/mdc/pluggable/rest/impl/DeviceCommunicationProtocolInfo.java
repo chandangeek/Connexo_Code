@@ -53,7 +53,7 @@ public class DeviceCommunicationProtocolInfo {
         List<PropertySpec> propertySpecs = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs();
         TypedProperties properties = deviceProtocolPluggableClass.getProperties(propertySpecs);
         List<PropertyInfo> propertyInfoList = new ArrayList<>();
-        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecService, propertySpecs, properties, propertyInfoList);
+        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, properties, propertyInfoList);
         return propertyInfoList;
     }
 
