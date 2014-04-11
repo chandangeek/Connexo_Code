@@ -1,8 +1,8 @@
 package com.energyict.mdc.pluggable;
 
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.google.common.base.Optional;
-
 import java.util.List;
 
 /**
@@ -36,6 +36,6 @@ public interface PluggableService {
 
     public PluggableClass findByTypeAndId (PluggableClassType type, long id);
 
-    public List<PluggableClass> findAllByType (PluggableClassType type);
+    public Finder<PluggableClass> findAllByType(PluggableClassType type);
 
 }
