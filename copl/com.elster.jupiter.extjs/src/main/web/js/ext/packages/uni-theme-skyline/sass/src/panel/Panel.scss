@@ -52,4 +52,8 @@
 .#{$prefix}panel-filter {
   background-color: $panel-filter-background-color;
   @include border-radius(10px);
+
+  .#{$prefix}panel-body {
+    background: transparent;
+  }
 }
