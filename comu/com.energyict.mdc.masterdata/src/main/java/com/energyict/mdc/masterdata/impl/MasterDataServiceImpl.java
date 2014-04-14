@@ -25,7 +25,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-11 (16:41)
  */
-@Component(name="com.energyict.mdc.masterdata", service = {MasterDataService.class, InstallService.class}, property = "name=" + MasterDataService.COMPONENTNAME)
+@Component(name="com.energyict.mdc.masterdata", service = {MasterDataService.class, InstallService.class}, property = "name=" + MasterDataService.COMPONENTNAME, immediate = true)
 public class MasterDataServiceImpl implements MasterDataService, InstallService {
 
     private volatile DataModel dataModel;
