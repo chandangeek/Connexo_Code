@@ -6,12 +6,8 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialConnectionTaskBuilder;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.pluggable.rest.PropertyInfo;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -111,19 +107,4 @@ public class ConnectionMethodResource {
 
     }
 
-    private void addPropertiesToPartialConnectionTask(ConnectionMethodInfo connectionMethodInfo, PartialConnectionTaskBuilder<?,?,?> connectionTaskBuilder) {
-        if (connectionMethodInfo.propertyInfos!=null) {
-            for (PropertyInfo propertyInfo : connectionMethodInfo.propertyInfos) {
-                connectionTaskBuilder.addProperty(propertyInfo.key, propertyInfo.getPropertyValueInfo().value);
-            }
-        }
-    }
-
-    private ConnectionTypePluggableClass findConnectionTypeOrThrowException(String pluggableClassName) {
-        Optional<? extends ConnectionTypePluggableClass> pluggableClassOptional = protocolPluggableService.findConnectionTypePluggableClassByName(pluggableClassName);
-        if (!pluggableClassOptional.isPresent()) {
-            throw new WebApplicationException("No such connection type", Response.status(Response.Status.NOT_FOUND).entity("No such connection type").build());
-        }
-        return pluggableClassOptional.get();
-    }
 }
