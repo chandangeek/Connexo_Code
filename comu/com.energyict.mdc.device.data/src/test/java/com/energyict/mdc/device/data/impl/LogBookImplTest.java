@@ -4,7 +4,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import org.junit.Before;
@@ -36,7 +36,7 @@ public class LogBookImplTest extends PersistenceIntegrationTest{
     }
 
     private DeviceConfiguration createDeviceConfigurationWithLogBookSpec() {
-        logBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType("DefaultTestLogBookType", logBookObiscode);
+        logBookType = inMemoryPersistence.getMasterDataService().newLogBookType("DefaultTestLogBookType", logBookObiscode);
         logBookType.save();
         deviceType.addLogBookType(logBookType);
         DeviceType.DeviceConfigurationBuilder configWithLogBookSpec = deviceType.newConfiguration("ConfigurationWithLogBookSpec");

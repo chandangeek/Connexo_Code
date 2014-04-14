@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.offline;
 
-import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.config.LogBookSpec;
