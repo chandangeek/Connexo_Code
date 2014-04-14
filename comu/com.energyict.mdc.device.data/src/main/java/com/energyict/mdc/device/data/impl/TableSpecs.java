@@ -43,6 +43,7 @@ public enum TableSpecs {
             table.column("TIMEZONE").varChar(32).map("timeZoneId").add();
             Column externid = table.column("EXTERNID").varChar(255).map("externalName").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
+            table.column("CERTIF_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("yearOfCertification").add();
             Column deviceConfigId = table.column("DEVICECONFIGID").number().add();
             table.foreignKey("FK_EISRTU_DEVICECONFIG").on(deviceConfigId).references(DeviceConfigurationService.COMPONENTNAME, "EISDEVICECONFIG").map("deviceConfiguration").add();
             table.unique("UK_RTU_EXTID").on(externid).add();
