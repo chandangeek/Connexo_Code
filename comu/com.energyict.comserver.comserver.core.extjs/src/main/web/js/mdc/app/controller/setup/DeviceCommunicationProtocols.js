@@ -4,7 +4,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     requires: [
         'Uni.model.BreadcrumbItem',
         'Ext.ux.window.Notification',
-        'Mdc.controller.setup.Properties'
+        'Mdc.controller.setup.PropertiesView'
     ],
 
     views: [
