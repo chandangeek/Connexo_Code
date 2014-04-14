@@ -43,6 +43,8 @@ import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableService;
@@ -144,6 +146,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new PluggableModule(),
 //                new ProtocolPluggableModule(),
                 new EngineModelModule(),
+                new MasterDataModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new DeviceDataModule());
