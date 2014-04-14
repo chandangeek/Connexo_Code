@@ -8,7 +8,7 @@ Ext.define('Mdc.store.CodeTables', {
     autoLoad: true,
     proxy: {
         type: 'rest',
-        url: '../../api/mdc/codetables',
+        url: '../../api/plr/codetables',
         reader: {
             type: 'json',
             root: 'Code'

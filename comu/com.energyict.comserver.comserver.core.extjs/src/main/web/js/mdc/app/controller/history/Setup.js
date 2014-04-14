@@ -54,11 +54,8 @@ Ext.define('Mdc.controller.history.Setup', {
         crossroads.addRoute('setup/devicecommunicationprotocols',function(){
             me.getApplication().getController('Mdc.controller.setup.SetupOverview').showDeviceCommunicationProtocols();
         });
-        crossroads.addRoute('setup/devicecommunicationprotocols/create',function(){
-            me.getApplication().getController('Mdc.controller.setup.DeviceCommunicationProtocol').showEditView();
-        });
         crossroads.addRoute('setup/devicecommunicationprotocols/{id}',function(id){
-            me.getApplication().getController('Mdc.controller.setup.DeviceCommunicationProtocol').showEditView(id);
+            me.getApplication().getController('Mdc.controller.setup.DeviceCommunicationProtocols').showDeviceCommunicationProtocolEditView(id);
         });
         crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/protocols',function(deviceTypeId,deviceConfigurationId){
             me.getApplication().getController('Mdc.controller.setup.ProtocolDialects').showProtocolDialectsView(deviceTypeId,deviceConfigurationId);

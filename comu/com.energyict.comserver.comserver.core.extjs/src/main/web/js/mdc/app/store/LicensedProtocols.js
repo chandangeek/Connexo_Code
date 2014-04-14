@@ -8,7 +8,7 @@ Ext.define('Mdc.store.LicensedProtocols', {
 
     proxy: {
         type: 'rest',
-        url: '../../api/mdc/licensedprotocols',
+        url: '../../api/plr/licensedprotocols',
         reader: {
             type: 'json',
             root: 'LicensedProtocol'

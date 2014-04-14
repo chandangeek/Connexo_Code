@@ -7,7 +7,7 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         'setup.comserver.ComServersSetup',
         'setup.comportpool.ComPortPoolsGrid',
         'setup.comportpool.ComPortPoolsSetup',
-        'setup.devicecommunicationprotocol.List',
+        'setup.devicecommunicationprotocol.DeviceCommunicationProtocolSetup',
         'setup.licensedprotocol.List',
         'setup.devicetype.DeviceTypesSetup',
         'setup.register.RegisterMappingsSetup',
@@ -29,7 +29,7 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         this.getApplication().getController('Mdc.controller.Main').showContent(widget);
     },
     showDeviceCommunicationProtocols: function () {
-        var widget = Ext.widget('setupDeviceCommunicationProtocols');
+        var widget = Ext.widget('deviceCommunicationProtocolSetup');
         this.getApplication().getController('Mdc.controller.Main').showContent(widget);
     },
     showLicensedProtocols: function () {
@@ -53,7 +53,6 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         this.getApplication().getController('Mdc.controller.Main').showContent(widget);
     },
     showRegisterConfigs: function () {
-        console.log('show register configs');
         var widget = Ext.widget('registerConfigSetup');
         this.getApplication().getController('Mdc.controller.Main').showContent(widget);
     }
