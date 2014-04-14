@@ -1,12 +1,15 @@
 package com.elster.jupiter.schema.oracle.impl;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.schema.oracle.UserTable;
+import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import com.elster.jupiter.schema.oracle.UserTable;
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
 
 public class UserTableImpl implements UserTable {
 
@@ -61,8 +64,22 @@ public class UserTableImpl implements UserTable {
 		return code;
 	}
 
-	public List<UserColumnImpl> getPrimaryKeyColumns() {
-		for (UserConstraintImpl constraint : constraints) {
+    @Override
+    public void addTo(DataModel dataModel, Optional<String> journalTableName) {
+        Table table = dataModel.addTable(getName(), Object.class);
+        if (journalTableName.isPresent()) {
+            table.setJournalTableName(journalTableName.get());
+        }
+        for (UserColumnImpl column : columns) {
+            column.addTo(table);
+        }
+        for (UserConstraintImpl constraint : constraints) {
+            constraint.addTo(table);
+        }
+    }
+
+    public List<UserColumnImpl> getPrimaryKeyColumns() {
+        for (UserConstraintImpl constraint : constraints) {
 			if (constraint.isPrimaryKey()) {
 				return constraint.getColumns();
 			}
