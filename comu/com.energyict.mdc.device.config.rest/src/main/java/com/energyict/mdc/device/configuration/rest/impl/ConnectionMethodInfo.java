@@ -32,7 +32,7 @@ public class ConnectionMethodInfo {
         connectionMethodInfo.name= partialConnectionTask.getName();
         connectionMethodInfo.direction=determineDirection(partialConnectionTask);
         connectionMethodInfo.connectionType= partialConnectionTask.getPluggableClass().getName();
-        connectionMethodInfo.comPortPool= partialConnectionTask.getComPortPool().getName();
+        connectionMethodInfo.comPortPool= partialConnectionTask.getComPortPool()!=null?partialConnectionTask.getComPortPool().getName():null;
         connectionMethodInfo.isDefault= partialConnectionTask.isDefault();
         List<PropertySpec> propertySpecs = partialConnectionTask.getConnectionType().getPropertySpecs();
         TypedProperties typedProperties = partialConnectionTask.getTypedProperties();

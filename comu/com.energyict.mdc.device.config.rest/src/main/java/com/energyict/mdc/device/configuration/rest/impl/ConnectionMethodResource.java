@@ -10,11 +10,9 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.pluggable.PluggableClassType;
-import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.rest.PropertyInfo;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,13 +37,13 @@ import javax.ws.rs.core.UriInfo;
  */
 public class ConnectionMethodResource {
     private final ResourceHelper resourceHelper;
-    private final PluggableService pluggableService;
+    private final ProtocolPluggableService protocolPluggableService;
     private final EngineModelService engineModelService;
 
     @Inject
-    public ConnectionMethodResource(ResourceHelper resourceHelper, PluggableService pluggableService, EngineModelService engineModelService) {
+    public ConnectionMethodResource(ResourceHelper resourceHelper, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService) {
         this.resourceHelper = resourceHelper;
-        this.pluggableService = pluggableService;
+        this.protocolPluggableService = protocolPluggableService;
         this.engineModelService = engineModelService;
     }
 
@@ -93,12 +91,14 @@ public class ConnectionMethodResource {
             case "Inbound":
                 PartialInboundConnectionTaskBuilder connectionTaskBuilder = deviceConfiguration.getCommunicationConfiguration().createPartialInboundConnectionTask();
                 connectionTaskBuilder.name(connectionMethodInfo.name);
-                Optional<PluggableClass> pluggableClassOptional = findConnectionTypeOrThrowException(connectionMethodInfo);
-                connectionTaskBuilder.pluggableClass((ConnectionTypePluggableClass) pluggableClassOptional.get());
+                ConnectionTypePluggableClass pluggableClassOptional = findConnectionTypeOrThrowException(connectionMethodInfo.connectionType);
+                connectionTaskBuilder.pluggableClass(pluggableClassOptional);
                 connectionTaskBuilder.comPortPool((InboundComPortPool) engineModelService.findComPortPool(connectionMethodInfo.comPortPool));
                 connectionTaskBuilder.asDefault(connectionMethodInfo.isDefault);
-                for (PropertyInfo propertyInfo : connectionMethodInfo.propertyInfos) {
-                    connectionTaskBuilder.addProperty(propertyInfo.key, propertyInfo.getPropertyValueInfo().value);
+                if (connectionMethodInfo.propertyInfos!=null) {
+                    for (PropertyInfo propertyInfo : connectionMethodInfo.propertyInfos) {
+                        connectionTaskBuilder.addProperty(propertyInfo.key, propertyInfo.getPropertyValueInfo().value);
+                    }
                 }
                 created = connectionTaskBuilder.build();
         }
@@ -106,11 +106,11 @@ public class ConnectionMethodResource {
 
     }
 
-    private Optional<PluggableClass> findConnectionTypeOrThrowException(ConnectionMethodInfo connectionMethodInfo) {
-        Optional<PluggableClass> pluggableClassOptional = pluggableService.findByTypeAndName(PluggableClassType.ConnectionType, connectionMethodInfo.connectionType);
+    private ConnectionTypePluggableClass findConnectionTypeOrThrowException(String pluggableClassName) {
+        Optional<? extends ConnectionTypePluggableClass> pluggableClassOptional = protocolPluggableService.findConnectionTypePluggableClassByName(pluggableClassName);
         if (!pluggableClassOptional.isPresent()) {
             throw new WebApplicationException("No such connection type", Response.status(Response.Status.NOT_FOUND).entity("No such connection type").build());
         }
-        return pluggableClassOptional;
+        return pluggableClassOptional.get();
     }
 }

@@ -16,7 +16,6 @@ import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
@@ -37,7 +36,6 @@ public class DeviceConfigurationApplication extends Application {
     private volatile TransactionService transactionService;
     private volatile MeteringService meteringService;
     private volatile EngineModelService engineModelService;
-    private volatile PluggableService pluggableService;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private volatile NlsService nlsService;
     private volatile JsonService jsonService;
@@ -111,11 +109,6 @@ public class DeviceConfigurationApplication extends Application {
         this.engineModelService = engineModelService;
     }
 
-    @Reference
-    public void setPluggableService(PluggableService pluggableService) {
-        this.pluggableService = pluggableService;
-    }
-
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -131,7 +124,6 @@ public class DeviceConfigurationApplication extends Application {
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(engineModelService).to(EngineModelService.class);
-            bind(pluggableService).to(PluggableService.class);
         }
     }
 
