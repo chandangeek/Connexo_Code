@@ -128,7 +128,6 @@ Ext.define('Isu.controller.IssueFilter', {
                 grid = Ext.ComponentQuery.query('issues-filter panel gridpanel[name=groupgrid]')[0],
                 gridview = Ext.ComponentQuery.query('issues-overview issues-list gridview')[0];
             reason.data.reason = reason.data.name;
-            console.log(reason);
 
             grid.fireEvent('itemclick', gridview, reason);
             grid.getSelectionModel().select([reason]);

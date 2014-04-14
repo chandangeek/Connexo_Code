@@ -2,8 +2,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem',
-        'Isu.view.administration.datacollection.issuecreationrules.EditActionsMenu'
+        'Uni.model.BreadcrumbItem'
     ],
 
     stores: [
