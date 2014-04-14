@@ -8,12 +8,12 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.ComServers',
         'Mdc.controller.setup.ComPortPools',
         'Mdc.controller.history.Setup',
-        'Mdc.controller.setup.DeviceCommunicationProtocol',
         'Mdc.controller.setup.LicensedProtocol',
         'Mdc.controller.setup.DeviceTypes',
         'Mdc.controller.setup.RegisterTypes',
         'Mdc.controller.setup.RegisterMappings',
-        'Mdc.controller.setup.DeviceConfigurations'
+        'Mdc.controller.setup.DeviceConfigurations',
+        'Mdc.controller.setup.DeviceCommunicationProtocols'
     ],
 
     controllers: [
@@ -22,7 +22,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.SetupOverview',
         'Mdc.controller.setup.ComServers',
         'Mdc.controller.history.Setup',
-        'Mdc.controller.setup.DeviceCommunicationProtocol',
+        'Mdc.controller.setup.DeviceCommunicationProtocols',
         'Mdc.controller.setup.LicensedProtocol',
         'Mdc.controller.setup.RegisterTypes',
         'Mdc.controller.setup.RegisterMappings',

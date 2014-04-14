@@ -8,7 +8,7 @@ Ext.define('Mdc.store.LoadProfileTypes', {
     autoLoad: true,
     proxy: {
         type: 'rest',
-        url: '../../api/mdc/loadprofiletypes',
+        url: '../../api/plr/loadprofiletypes',
         reader: {
             type: 'json',
             root: 'LoadProfileType'
