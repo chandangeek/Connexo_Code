@@ -40,6 +40,7 @@ public class LicenseImpl implements License {
     private String appKey;
     private byte[] signedObject;
     private transient Properties properties;
+    private String info;
     @SuppressWarnings("unused")
     private UtcInstant createTime;
     @SuppressWarnings("unused")

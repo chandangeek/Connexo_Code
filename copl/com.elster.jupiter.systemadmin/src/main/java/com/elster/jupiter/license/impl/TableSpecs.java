@@ -18,7 +18,7 @@ public enum TableSpecs {
             Table<License> table = dataModel.addTable(name(), License.class);
             table.map(LicenseImpl.class);
             table.setJournalTableName("LIC_LICENSEJRNL");
-            Column appName = table.column("APPNAME").varChar().map("appKey").add();
+            Column appName = table.column("APPNAME").varChar().notNull().map("appKey").add();
             table.column("LICENSE").type("blob").map("signedObject").conversion(ColumnConversion.BLOB2BYTE).add();
             table.addAuditColumns();
             table.primaryKey("LIC_PK_LICENSE").on(appName).add();
