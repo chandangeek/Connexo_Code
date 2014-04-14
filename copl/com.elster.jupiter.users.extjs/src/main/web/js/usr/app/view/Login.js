@@ -49,7 +49,7 @@ Ext.define('Usr.view.Login', {
                         },
                         border: 1,
                         style: {
-                            borderColor: 'red',
+                            borderColor: 'orangered',
                             borderStyle: 'solid'
                         },
                         hidden: true,
@@ -69,7 +69,7 @@ Ext.define('Usr.view.Login', {
                                 width: 290,
                                 padding: 10,
                                 fieldStyle: {
-                                    color: 'red'
+                                    color: 'orangered'
                                 }
                             }
                         ]

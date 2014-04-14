@@ -18,12 +18,10 @@ Ext.define('Usr.view.Home', {
             maxWidth: 500,
             minHeight: 200,
             padding: '10 10 0 10',
+            margins: '0 0 0 10',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
-            },
-            defaults: {
-                margins: '0 0 10 5'
             },
             items: [
                 {
