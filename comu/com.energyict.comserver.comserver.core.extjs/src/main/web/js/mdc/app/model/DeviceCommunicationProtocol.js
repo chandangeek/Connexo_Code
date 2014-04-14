@@ -17,7 +17,7 @@ Ext.define('Mdc.model.DeviceCommunicationProtocol', {
     idProperty: 'id',
     proxy: {
         type: 'rest',
-        url: '../../api/mdc/devicecommunicationprotocols',
+        url: '../../api/plr/devicecommunicationprotocols',
         reader: {
             type: 'json'
         }

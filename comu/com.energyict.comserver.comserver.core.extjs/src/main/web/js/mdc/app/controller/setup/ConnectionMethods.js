@@ -4,7 +4,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     deviceConfigurationId: null,
     requires: [
         'Mdc.store.ConnectionMethodsOfDeviceConfiguration',
-        'Uni.model.BreadcrumbItem'
+        'Uni.model.BreadcrumbItem',
+        'Mdc.controller.setup.Properties'
     ],
 
     views: [
@@ -17,7 +18,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     ],
 
     stores: [
-        'ConnectionMethodsOfDeviceConfiguration'
+        'ConnectionMethodsOfDeviceConfiguration',
+        'ConnectionTypes'
     ],
 
     refs: [
@@ -26,7 +28,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         {ref: 'connectionMethodPreview', selector: '#connectionMethodPreview'},
         {ref: 'connectionMethodPreviewTitle', selector: '#connectionMethodPreviewTitle'},
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
-        {ref: 'connectionMethodPreviewForm', selector: '#connectionMethodPreviewForm'}
+        {ref: 'connectionMethodPreviewForm', selector: '#connectionMethodPreviewForm'},
+        {ref: 'connectionMethodEditView',selector: '#connectionMethodEdit'}
     ],
 
     init: function () {
@@ -43,6 +46,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 },
                 '#connectionMethodPreview menuitem[action=editConnectionMethod]': {
                     click: this.editConnectionMethodHistoryFromPreview
+                },
+                '#connectionTypeComboBox': {
+                    select: this.showConnectionTypeProperties
                 }
         });
     },
@@ -96,13 +102,16 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     showConnectionMethodCreateView:function(deviceTypeId,deviceConfigId){
+        var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes');
         var me=this;
         this.deviceTypeId=deviceTypeId;
         this.deviceConfigurationId=deviceConfigId;
         var widget = Ext.widget('connectionMethodEdit', {
             edit: false,
-            returnLink: '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+this.deviceConfigurationId+'/connectionmethods'
+            returnLink: '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+this.deviceConfigurationId+'/connectionmethods',
+            connectionTypes: connectionTypesStore
         });
+
         me.getApplication().getController('Mdc.controller.Main').showContent(widget);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
@@ -110,14 +119,29 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
-                        var deviceTypeName = deviceType.get('name');
-                        var deviceConfigName = deviceConfig.get('name');
-                        widget.down('#connectionMethodEditAddTitle').update('<H2>' + Uni.I18n.translate('connectionmethod.addConnectionMethod', 'MDC', 'Add connection method') + '</H2>');
-                        me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName);
+                        debugger;
+                        connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('communicationProtocolId'));
+                        connectionTypesStore.load({
+                            callback: function(){
+                                var deviceTypeName = deviceType.get('name');
+                                var deviceConfigName = deviceConfig.get('name');
+                                widget.down('#connectionMethodEditAddTitle').update('<H2>' + Uni.I18n.translate('connectionmethod.addConnectionMethod', 'MDC', 'Add connection method') + '</H2>');
+                                me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName);
+                            }
+                        });
                     }
                 });
             }
         });
+    },
+
+    showConnectionTypeProperties: function(combobox,objList){
+        debugger;
+        this.getPropertiesController().showProperties(objList[0],this.getConnectionMethodEditView());
+    },
+
+    getPropertiesController: function () {
+        return this.getController('Mdc.controller.setup.Properties');
     },
 
     showConnectionMethodEditView: function(deviceTypeId,deviceConfigId,connectionMethodId){
@@ -144,7 +168,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                             success: function (deviceConfiguration) {
 //                                me.editBreadCrumb(deviceTypeId, deviceConfigurationId, registerConfigurationId, deviceType.get('name'), deviceConfiguration.get('name'), registerConfiguration.get('name'));
                                 widget.down('form').loadRecord(connectionMethod);
-                                widget.down('#connectionMethodEditCreateTitle').update('<H2>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + connectionMethod.get('name') + '"</H2>');
+                                widget.down('#connectionMethodEditAddTitle').update('<H2>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + connectionMethod.get('name') + '"</H2>');
                                 widget.setLoading(false);
                             }
                         });

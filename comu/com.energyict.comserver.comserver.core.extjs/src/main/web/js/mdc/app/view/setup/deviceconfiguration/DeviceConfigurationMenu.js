@@ -39,6 +39,13 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 itemId: 'connectionMethodsLink',
                 href: '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId+ '/connectionmethods',
                 hrefTarget: '_self'
+            },
+            {
+                text: Uni.I18n.translate('deviceconfigurationmenu.protocols', 'MDC', 'Protocols'),
+                pressed: false,
+                itemId: 'protocolLink',
+                href: '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId+ '/protocols',
+                hrefTarget: '_self'
             }
         );
         this.toggleMenuItem(this.toggle);

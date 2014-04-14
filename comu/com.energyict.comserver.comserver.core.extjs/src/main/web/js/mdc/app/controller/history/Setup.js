@@ -60,6 +60,9 @@ Ext.define('Mdc.controller.history.Setup', {
         crossroads.addRoute('setup/devicecommunicationprotocols/{id}',function(id){
             me.getApplication().getController('Mdc.controller.setup.DeviceCommunicationProtocol').showEditView(id);
         });
+        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/protocols',function(deviceTypeId,deviceConfigurationId){
+            me.getApplication().getController('Mdc.controller.setup.ProtocolDialects').showProtocolDialectsView(deviceTypeId,deviceConfigurationId);
+        });
 
         //Licensed protocol routes
         crossroads.addRoute('setup/licensedprotocols',function(){

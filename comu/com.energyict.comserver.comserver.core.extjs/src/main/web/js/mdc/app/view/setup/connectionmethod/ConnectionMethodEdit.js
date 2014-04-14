@@ -5,6 +5,9 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
     autoScroll: true,
     cls: 'content-container',
     edit: false,
+    requires: [
+        'Mdc.store.ConnectionTypes'
+    ],
     isEdit: function(){
         return this.edit
     },
@@ -66,16 +69,31 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                                 name: 'name',
                                                 validator:function(text){
                                                     if(Ext.util.Format.trim(text).length==0)
-                                                        return Uni.I18n.translate('deviceconfiguration.emptyName', 'MDC', 'The name of a device configuration can not be empty.')
+                                                        return Uni.I18n.translate('connectionmethod.emptyName', 'MDC', 'The name of a connection method can not be empty.')
                                                     else
                                                         return true;
                                                 },
                                                 msgTarget: 'under',
                                                 required: true,
-                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.name', 'MDC', 'Name'),
-                                                itemId: 'editDeviceConfigurationNameField',
+                                                fieldLabel: Uni.I18n.translate('connectionmethod.name', 'MDC', 'Name'),
+                                                itemId: 'editConnectionMethodNameField',
                                                 maxLength: 80,
                                                 enforceMaxLength: true
+                                            },
+                                            {
+                                                xtype: 'combobox',
+                                                name: 'connectionType',
+                                                fieldLabel: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type'),
+                                                itemId: 'connectionTypeComboBox',
+                                                store: this.connectionTypes,
+                                                queryMode: 'local',
+                                                displayField: 'name',
+                                                valueField: 'name',
+                                                emptyText: Uni.I18n.translate('connectionmethod.selectConnectionMethod', 'MDC', 'Select a connection type...'),
+                                                required: true,
+                                                forceSelection: true,
+                                                typeAhead: true,
+                                                msgTarget: 'under'
                                             },
                                             {
                                                 xtype: 'fieldcontainer',
@@ -106,6 +124,9 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                                 ]
                                             }
                                         ]
+                                    },
+                                    {
+                                        xtype: 'propertyEdit'
                                     }
                                 ]
                             }
