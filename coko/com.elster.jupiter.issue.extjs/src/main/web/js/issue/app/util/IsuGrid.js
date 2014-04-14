@@ -28,10 +28,10 @@ Ext.define('Isu.util.IsuGrid', {
             if (text) {
                 icon.tooltip = Ext.create('Ext.tip.ToolTip', {
                     target: icon,
-                    html: text,
-                    style: {
+                    html: text//,
+                    /*style: {
                         borderColor: 'black'
-                    }
+                    }  */
                 });
 
                 icon.on('mouseenter', function () {
