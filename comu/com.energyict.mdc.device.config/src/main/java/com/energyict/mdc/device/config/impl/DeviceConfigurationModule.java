@@ -23,7 +23,6 @@ public class DeviceConfigurationModule extends AbstractModule {
         requireBinding(EventService.class);
         requireBinding(MeteringService.class);
         requireBinding(MdcReadingTypeUtilService.class);
-        requireBinding(MasterDataService.class);
 
         bind(DeviceConfigurationService.class).to(DeviceConfigurationServiceImpl.class).in(Scopes.SINGLETON);
     }

@@ -491,7 +491,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     private void install(boolean exeuteDdl, boolean createMasterData) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus, this.meteringService, readingTypeUtilService, this, userService).install(exeuteDdl, false, createMasterData);
+        new Installer(this.dataModel, this.eventService, this.thesaurus, this.meteringService, readingTypeUtilService, this, userService).install(exeuteDdl, true, createMasterData);
         initPrivileges();
     }
 

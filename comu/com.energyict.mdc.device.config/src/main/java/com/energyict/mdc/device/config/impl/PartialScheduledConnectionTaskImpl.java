@@ -15,7 +15,6 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
-import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -84,11 +83,6 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     @Override
     public boolean isSimultaneousConnectionsAllowed() {
         return allowSimultaneousConnections;
-    }
-
-    @Override
-    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
-        return DuplicateNameException.partialOutboundConnectionTaskExists(thesaurus, name);
     }
 
     @Override
