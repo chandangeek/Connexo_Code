@@ -66,10 +66,10 @@ Ext.define('Isu.util.IsuGrid', {
 
             cell.tooltip = Ext.create('Ext.tip.ToolTip', {
                 target: cell,
-                html: text,
-                style: {
+                html: text//,
+                /*style: {
                     borderColor: 'black'
-                }
+                } */
             });
 
             cell.on('mouseenter', function () {
