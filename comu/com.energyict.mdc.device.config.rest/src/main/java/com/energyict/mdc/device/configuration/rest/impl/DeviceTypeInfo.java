@@ -3,35 +3,29 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement
 public class DeviceTypeInfo {
     @JsonIgnore
     static final String COMMUNICATION_PROTOCOL_NAME = "communicationProtocolName";
 
-    @JsonProperty("id")
     public long id;
-    @JsonProperty("name")
     public String name;
-    @JsonProperty("loadProfileCount")
     public int loadProfileCount;
-    @JsonProperty("registerCount")
     public int registerCount;
-    @JsonProperty("logBookCount")
     public int logBookCount;
-    @JsonProperty("deviceConfigurationCount")
     public int deviceConfigurationCount;
-    @JsonProperty("canBeDirectlyAddressed")
     public boolean canBeDirectlyAddressed;
-    @JsonProperty("canBeGateway")
     public boolean canBeGateway;
     @JsonProperty(COMMUNICATION_PROTOCOL_NAME)
     public String communicationProtocolName;
+    public long communicationProtocolId;
     @JsonProperty("registerTypes")
     public List<RegisterMappingInfo> registerMappings;
 
@@ -60,6 +54,7 @@ public class DeviceTypeInfo {
         deviceTypeInfo.canBeDirectlyAddressed = deviceType.isDirectlyAddressable();
         if (deviceProtocolPluggableClass!=null) {
             deviceTypeInfo.communicationProtocolName=deviceProtocolPluggableClass.getName();
+            deviceTypeInfo.communicationProtocolId =deviceProtocolPluggableClass.getId();
         }
         return deviceTypeInfo;
     }
