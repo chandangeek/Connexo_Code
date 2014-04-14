@@ -14,7 +14,7 @@
     <artifactId>mdc.masterdata.rest</artifactId>
     <packaging>bundle</packaging>
     <version>${comserver.version}</version>
-    <name>[MDC] Master Data Rest</name>
+    <name>[MDC] mdc.masterdata - Rest</name>
     <description>
         Contains Rest implementations to interface between the FrontEnd and BackEnd regarding master data
     </description>
