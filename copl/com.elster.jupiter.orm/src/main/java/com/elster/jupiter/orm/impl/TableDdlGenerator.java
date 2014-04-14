@@ -21,7 +21,7 @@ class TableDdlGenerator {
         ddl = new ArrayList<>();
         ddl.add(getTableDdl());
         if (table.hasJournal()) {
-            ddl.add(getJournalTableDdl());
+            ddl.add(getJournalTableDdl(table));
         }
         for (TableConstraintImpl constraint : table.getConstraints()) {
             if (constraint.needsIndex()) {
@@ -53,7 +53,7 @@ class TableDdlGenerator {
         return sb.toString();
     }
 
-    private String getJournalTableDdl() {
+    private String getJournalTableDdl(TableImpl<?> table) {
         StringBuilder sb = new StringBuilder("create table ");
         sb.append(table.getQualifiedName(table.getJournalTableName()));
         sb.append(" (");
@@ -198,7 +198,7 @@ class TableDdlGenerator {
         }
 
         if (toTable.hasJournal() && !table.hasJournal()) {
-            result.add(getJournalTableDdl());
+            result.add(getJournalTableDdl(toTable));
         }
         return result;
     }
@@ -250,7 +250,7 @@ class TableDdlGenerator {
     private String getSetNullColumnDdl(ColumnImpl column) {
         StringBuilder builder = new StringBuilder("alter table ");
         builder.append(column.getTable().getName());
-        builder.append(" add ");
+        builder.append(" modify ");
         appendDdl(column, builder, false);
         builder.append(" NULL ");
         return builder.toString();
@@ -258,7 +258,8 @@ class TableDdlGenerator {
 
 
     private Optional<String> getUpgradeDdl(ColumnImpl fromColumn, ColumnImpl toColumn) {
-        if (!fromColumn.getDbType().equals(toColumn.getDbType()) || fromColumn.isNotNull() == toColumn.isNotNull()) {
+        if (!fromColumn.getDbType().equalsIgnoreCase(toColumn.getDbType())
+                || (fromColumn.isNotNull() != toColumn.isNotNull())) {
             StringBuilder builder = new StringBuilder("alter table ");
             builder.append(table.getName());
             builder.append(" modify ");
