@@ -51,6 +51,9 @@ public class InstallServiceImpl implements InstallService {
         setIssueMappingService(issueMappingService);
 
         activate();
+        if (!dataModel.isInstalled()) {
+            install();
+        }
     }
 
     @Activate
@@ -65,9 +68,6 @@ public class InstallServiceImpl implements InstallService {
                 bind(IssueAssignmentService.class).toInstance(issueAssignmentService);
             }
         });
-        if (!dataModel.isInstalled()) {
-            install();
-        }
     }
     @Override
     public void install() {
