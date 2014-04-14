@@ -12,7 +12,7 @@ Ext.define('Mdc.store.DeviceCommunicationProtocols', {
     }],
     proxy: {
         type: 'rest',
-        url: '../../api/mdc/devicecommunicationprotocols',
+        url: '../../api/plr/devicecommunicationprotocols',
         reader: {
             type: 'json',
             root: 'DeviceProtocolPluggableClass'
