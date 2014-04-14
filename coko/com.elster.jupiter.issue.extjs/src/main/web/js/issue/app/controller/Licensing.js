@@ -22,7 +22,7 @@ Ext.define('Isu.controller.Licensing', {
 
     refs: [
         {
-            ref: 'detailsPanel',
+            ref: 'itemPanel',
             selector: 'licensing-details'
         },
         {
@@ -36,21 +36,26 @@ Ext.define('Isu.controller.Licensing', {
             'administration-licensing-overview breadcrumbTrail': {
                 afterrender: this.setBreadcrumb
             },
-            'administration-licensing-overview licensing-list grid': {
-                viewready: this.showDefaults
-            },
             'administration-licensing-overview licensing-list actioncolumn': {
                 click: this.showItemAction
             },
             'licensing-action-menu': {
-                beforehide: this.hideItemAction
+                beforehide: this.hideItemAction,
+                click: this.chooseAction
             },
             'administration-licensing-overview licensing-list gridview': {
-                itemclick: this.loadDetail
+                itemclick: this.loadGridItemDetail,
+                refresh: this.showDefaults
             }
         });
-
+        this.getApplication().on('addlicense', this.showDefault);
         this.actionMenuXtype = 'licensing-action-menu';
+        this.gridItemModel = this.getModel('Isu.model.Licensing');
+    },
+
+    showDefault: function(last) {
+        var self = this.getController('Isu.controller.Licensing');
+        self.lastItem = last;
     },
 
     showOverview: function () {
@@ -76,21 +81,31 @@ Ext.define('Isu.controller.Licensing', {
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
-    loadDetail: function (grid, record) {
-        var model = this.getModel('Isu.model.Licensing'),
-            detailsPanel = this.getDetailsPanel();
-        model.load(record.data.id, {
+    showDefaults: function (grid) {
+        var itemPanel = this.getItemPanel(),
+            index = 0,
+            store = grid.getStore(),
+            record;
+        if (this.lastItem) {
+            record = store.getById(this.lastItem);
+        } else {
+            record = store.getAt(index);
+        }
+        grid.selModel.doSelect(record);
+        this.gridItemModel.load(record.data.id, {
             success: function (rec) {
-                detailsPanel.fireEvent('change', detailsPanel, rec);
+                itemPanel.fireEvent('change', itemPanel, rec);
             }
         });
+
     },
 
-    showDefaults: function () {
-        var grid = this.getListPanel().down('grid'),
-            detailsPanel = this.getDetailsPanel(),
-            store = grid.getStore();
-        grid.selModel.doSelect(store.data.items[0]);
-        detailsPanel.fireEvent('change', detailsPanel, store.data.items[0]);
+    chooseAction: function (menu, item) {
+        var action = item.action;
+        switch (action) {
+            case 'upgrade':
+                window.location.href = '#/issue-administration/datacollection/licensing/upgradelicense/' + menu.issueId;
+                break;
+        }
     }
 });

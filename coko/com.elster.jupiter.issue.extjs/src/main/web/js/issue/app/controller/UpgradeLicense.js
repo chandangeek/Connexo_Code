@@ -1,38 +1,53 @@
-Ext.define('Isu.controller.AddLicense', {
+Ext.define('Isu.controller.UpgradeLicense', {
     extend: 'Ext.app.Controller',
 
     requires: [
         'Uni.model.BreadcrumbItem'
     ],
 
+    stores: [
+        'Isu.store.Licensing'
+    ],
+
     views: [
-        'administration.datacollection.licensing.addlicense.Overview'
+        'administration.datacollection.licensing.upgradelicense.Overview'
     ],
 
     refs: [
         {
-            ref: 'addPanel',
-            selector: 'add-license-overview'
+            ref: 'upgradePanel',
+            selector: 'upgrade-license-overview'
         }
     ],
 
     init: function () {
         this.control({
-            'add-license-overview breadcrumbTrail': {
+            'upgrade-license-overview breadcrumbTrail': {
                 afterrender: this.setBreadcrumb
             },
-            'add-license-overview filefield': {
+            'upgrade-license-overview filefield': {
                 change: this.onChange
             },
-            'add-license-overview button[name=add]': {
+            'upgrade-license-overview button[name=upgrade]': {
                 click: this.onSubmit
+            },
+            'upgrade-license-overview displayfield[name=appType]': {
+                afterrender: this.setApplication
             }
         });
     },
 
-    showOverview: function () {
-        var widget = Ext.widget('add-license-overview');
+    showOverview: function (id) {
+        var widget = Ext.widget('upgrade-license-overview'),
+            self = this;
+        self.issueId = id;
         this.getApplication().fireEvent('changecontentevent', widget);
+    },
+
+    setApplication: function(field) {
+        var self = this,
+            record = this.getStore('Isu.store.Licensing').getById(self.issueId);
+        field.setValue(record.data.application);
     },
 
     setBreadcrumb: function (breadcrumbs) {
@@ -50,39 +65,42 @@ Ext.define('Isu.controller.AddLicense', {
                 href: 'licensing'
             }),
             breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Add license',
-                href: 'addlicense'
+                text: 'Upgrade license',
+                href: 'upgradelicense'
             });
         breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2).setChild(breadcrumbChild3);
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
     onChange: function (fileField, value) {
-        var addView = this.getAddPanel(),
-            addButton = addView.down('button[name=add]'),
-            form = addView.down('form').getForm();
+        var upgradeView = this.getUpgradePanel(),
+            upgradeButton = upgradeView.down('button[name=upgrade]'),
+            form = upgradeView.down('form').getForm();
         if (value !== "" && form.isValid()) {
-            addButton.enable();
+            upgradeButton.enable();
         } else {
-            addButton.disable();
+            upgradeButton.disable();
         }
     },
 
     onSubmit: function () {
         var self = this,
-            form = self.getAddPanel().down('form').getForm(),
+            form = self.getUpgradePanel().down('form').getForm(),
             header = {
                 style: 'msgHeaderStyle'
             };
         if (form.isValid()) {
             form.submit({
                 url: '/api/sam/license/upload',
+                params: {
+                    application: self.issueId
+                },
                 method: 'POST',
                 waitMsg: 'Loading...',
                 failure: function (form, action) {
                     if (Ext.isEmpty(action.result.data.failure)) {
                         window.location.href = '#/issue-administration/datacollection/licensing';
-                        header.text = 'License successfully uploaded';
+                        header.text = 'License successfully upgraded';
                         self.getApplication().fireEvent('isushowmsg', {
                             type: 'notify',
                             msgBody: [header],
@@ -93,7 +111,7 @@ Ext.define('Isu.controller.AddLicense', {
                     } else {
                         var msges = [],
                             bodyItem = {};
-                        header.text = 'Failed to add license';
+                        header.text = 'Failed to upgrade license';
                         msges.push(header);
                         bodyItem.text = action.result.data.failure;
                         bodyItem.style = 'msgItemStyle';
@@ -119,4 +137,5 @@ Ext.define('Isu.controller.AddLicense', {
         }
     }
 });
+
 

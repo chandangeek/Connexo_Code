@@ -73,7 +73,7 @@ Ext.define('Isu.view.administration.datacollection.licensing.List', {
                                     return exp == 'never';
                                 },
                                 func: function (date) {
-                                    return Ext.Date.format(new Date(parseInt(date)), 'M d Y');
+                                    return Ext.Date.format(new Date(parseInt(date)), 'd-m-Y');
                                 }
                             }
                         ),

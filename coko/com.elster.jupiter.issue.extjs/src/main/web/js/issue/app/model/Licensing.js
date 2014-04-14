@@ -3,8 +3,15 @@ Ext.define('Isu.model.Licensing', {
     alias: 'widget.lic-model',
     fields: [
         {
+            name: 'applicationtag',
+            type: 'text'
+        },
+        {
             name: 'id',
-            type: 'int'
+            convert: function(value, record) {
+                return record.get('applicationtag');
+            },
+            type: 'text'
         },
         {
             name: 'application',
@@ -16,10 +23,6 @@ Ext.define('Isu.model.Licensing', {
         },
         {
             name: 'expires',
-            type: 'auto'
-        },
-        {
-            name: 'version',
             type: 'auto'
         },
         {
@@ -42,19 +45,15 @@ Ext.define('Isu.model.Licensing', {
         {
             name: 'content',
             type: 'auto'
-        },
-        {
-            name: 'versions',
-            type: 'auto'
         }
     ],
 
     proxy: {
         type: 'rest',
-        url: '/apps/issue/app/licenses.json',
+        url: '/api/sam/license',
         reader: {
             type: 'json',
-            root: 'licenses'
+            root: 'data'
         }
     }
 });

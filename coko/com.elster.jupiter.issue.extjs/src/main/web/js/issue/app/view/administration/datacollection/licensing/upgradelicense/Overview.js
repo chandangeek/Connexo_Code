@@ -1,10 +1,9 @@
-Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview', {
+Ext.define('Isu.view.administration.datacollection.licensing.upgradelicense.Overview', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
-        'Uni.view.navigation.SubMenu',
-        'Ext.form.field.File'
+        'Uni.view.navigation.SubMenu'
     ],
-    alias: 'widget.add-license-overview',
+    alias: 'widget.upgrade-license-overview',
 
     side: [
         {
@@ -18,8 +17,14 @@ Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview
             cls: 'content-wrapper',
             items: [
                 {
-                    html: '<h1>Add license</h1>',
+                    html: '<h1>Upgrade license</h1>',
                     margin: '0 0 10 0'
+                },
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: 'Application',
+                    margin: '0 0 0 10',
+                    name: 'appType'
                 },
                 {
                     xtype: 'form',
@@ -47,8 +52,8 @@ Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview
                             },
                             items: [
                                 {
-                                    text: 'Add',
-                                    name: 'add',
+                                    text: 'Upgrade',
+                                    name: 'upgrade',
                                     margin: 10,
                                     disabled: true
                                 },
@@ -61,9 +66,9 @@ Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview
                                     cls: 'isu-btn-link'
                                 }
                             ]
-                        }                       
+                        }
                     ]
-                }               
+                }
             ]
         }
     ],
@@ -84,9 +89,9 @@ Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview
         var menu = this.getSideMenuCmp();
 
         menu.add({
-            text: 'Add license',
+            text: 'Upgrade license',
             pressed: true,
-            href: '#/issue-administration/datacollection/licensing/addlicense',
+            href: '#/issue-administration/datacollection/licensing/upgradelicense',
             hrefTarget: '_self'
         });
     },
@@ -95,3 +100,4 @@ Ext.define('Isu.view.administration.datacollection.licensing.addlicense.Overview
         return this.down('#sideMenu');
     }
 });
+

@@ -70,6 +70,8 @@ Ext.define('Isu.store.Issues', {
         defaultSort.addSortParam('dueDate');
         me.proxySort = defaultSort;
 
+        defaultFilter.isDefault = true;  //todo: not good option
+
         this.fireEvent('updateProxyFilter', defaultFilter);
         this.fireEvent('updateProxySort', defaultSort);
     }

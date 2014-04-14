@@ -8,7 +8,10 @@ Ext.define('Isu.controller.IssueFilter', {
         'Isu.store.Assignee',
         'Isu.store.IssueStatus',
         'Isu.store.IssueReason',
-        'Isu.store.Issues'
+        'Isu.store.UserGroupList',
+        'Isu.store.IssueMeter',
+        'Isu.store.Issues',
+        'Isu.store.IssuesGroups'
     ],
 
     views: [
@@ -41,6 +44,16 @@ Ext.define('Isu.controller.IssueFilter', {
                 focus: this.onFocusComboTooltip,
                 blur: this.onBlurComboTooltip,
                 change: this.clearComboTooltip
+            },
+            'issues-side-filter filter-form combobox[name=department]': {
+                focus: this.onFocusComboTooltip,
+                blur: this.onBlurComboTooltip,
+                change: this.clearComboTooltip
+            },
+            'issues-side-filter filter-form combobox[name=meter]': {
+                focus: this.onFocusComboTooltip,
+                blur: this.onBlurComboTooltip,
+                change: this.clearComboTooltip
             }
         });
 
@@ -51,38 +64,7 @@ Ext.define('Isu.controller.IssueFilter', {
                 }
             }
         });
-     //   this.getStore('Isu.store.Assignee').on('load', this.assigneeLoad);
-    },
-
-    assigneeLoad: function (store, records, success) {
-        var combo = Ext.ComponentQuery.query('issues-side-filter filter-form combobox[name=assignee]')[0];
-        if (combo.getValue && records.length > 0) {
-            var types = {};
-            Ext.Array.each(records, function (item) {
-                types[item.get('type')] = true
-            })
-            if (!types.ROLE) {
-                store.add({
-                    name: 'No matches',
-                    type: 'ROLE',
-                    id: 'empty'
-                })
-            }
-            if (!types.USER) {
-                store.add({
-                    name: 'No matches',
-                    type: 'USER',
-                    id: 'empty'
-                })
-            }
-            if (!types.GROUP) {
-                store.add({
-                    name: 'No matches',
-                    type: 'GROUP',
-                    id: 'empty'
-                })
-            }
-        }
+        this.groupStore = this.getStore('Isu.store.IssuesGroups');
     },
 
     reset: function () {
@@ -96,12 +78,26 @@ Ext.define('Isu.controller.IssueFilter', {
      * @param filter
      */
     filterUpdate: function (filter) {
-        var form = this.getIssueFilter().down('filter-form');
-        form.loadRecord(filter);
-
-        var grstore = this.getStore('Isu.store.IssuesGroups'),
+        if (!this.getIssueFilter()) {
+            return;
+        }
+        var form = this.getIssueFilter().down('filter-form'),
+            chkbx = form.down('filter-checkboxgroup'),
+            loadRecord = function () {
+                form.loadRecord(filter);
+                chkbx.store.un('load', loadRecord);
+            },
+            grstore = this.getStore('Isu.store.IssuesGroups'),
             reason = filter.get('reason'),
             status = filter.statusStore;
+
+        if (!chkbx.store.getCount()){
+            chkbx.store.on('load', loadRecord);
+        } else if (!chkbx.child()) {
+            chkbx.on('afterRender', loadRecord);
+        } else {
+            loadRecord();
+        }
 
         if (reason) {
             grstore.proxy.extraParams.id = reason.get('id');
@@ -122,11 +118,28 @@ Ext.define('Isu.controller.IssueFilter', {
     },
 
     filter: function () {
+        if (!this.getIssueFilter()) {
+            return;
+        }
         var form = this.getIssueFilter().down('filter-form'),
-            filter = form.getRecord();
+            filter = form.getRecord(),
+            groupCombobox = Ext.ComponentQuery.query('issues-filter panel combobox[name=groupnames]')[0];
 
         form.updateRecord(filter);
 
+        var reason = filter.data.reason;
+
         this.getStore('Isu.store.Issues').setProxyFilter(filter);
+
+        if ( !Ext.isEmpty(groupCombobox.getValue()) && groupCombobox.getValue() != 0 && !Ext.isEmpty(reason) ) {
+            var combobox = form.down('combobox[name=reason]'),
+                grid = Ext.ComponentQuery.query('issues-filter panel gridpanel[name=groupgrid]')[0],
+                gridview = Ext.ComponentQuery.query('issues-overview issues-list gridview')[0];
+            reason.data.reason = reason.data.name;
+            console.log(reason);
+
+            grid.fireEvent('itemclick', gridview, reason);
+            grid.getSelectionModel().select([reason]);
+        }
     }
 });

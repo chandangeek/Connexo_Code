@@ -6,12 +6,13 @@ Ext.define('Isu.controller.IssueCreationRules', {
     ],
 
     stores: [
-        'CreationRules'
+        'Isu.store.CreationRule'
     ],
     views: [
         'administration.datacollection.issuecreationrules.Overview',
         'ext.button.GridAction',
-        'administration.datacollection.issuecreationrules.ActionMenu'
+        'administration.datacollection.issuecreationrules.ActionMenu',
+        'administration.datacollection.issuecreationrules.DeleteMessageBox'
     ],
 
     mixins: {
@@ -38,12 +39,16 @@ Ext.define('Isu.controller.IssueCreationRules', {
                 click: this.showItemAction
             },
             'creation-rule-action-menu': {
-                beforehide: this.hideItemAction
+                beforehide: this.hideItemAction,
+                click: this.chooseAction
+            },
+            'issue-creation-rules-overview button[action=create]': {
+                click: this.createRule
             }
         });
 
         this.actionMenuXtype = 'creation-rule-action-menu';
-        this.gridItemModel = this.getModel('CreationRules');
+        this.gridItemModel = this.getModel('Isu.model.CreationRule');
     },
 
     showOverview: function () {
@@ -73,14 +78,28 @@ Ext.define('Isu.controller.IssueCreationRules', {
     onGridRefresh: function (grid) {
         this.setAssigneeTypeIconTooltip(grid);
         this.setDescriptionTooltip(grid);
-        this.selectFirstRule(grid);
+        this.selectFirstGridRow(grid);
     },
 
-    selectFirstRule: function (grid) {
-        var index = 0,
-            item = grid.getNode(index),
-            record = grid.getRecord(item);
+    chooseAction: function(menu, item) {
+        var action = item.action;
 
-        grid.fireEvent('itemclick', grid, record, item, index);
+        switch (action) {
+            case 'delete':
+                this.deleteRule(menu);
+                break;
+            case 'edit':
+                window.location.href = '#/issue-administration/datacollection/issuecreationrules/' + menu.issueId + '/edit';
+                break;
+        }
+    },
+
+    createRule: function () {
+        window.location.href = '#/issue-administration/datacollection/issuecreationrules/create';
+    },
+
+    deleteRule: function(menu) {
+        var dialog = Ext.widget('delete-message-box');
+        dialog.show(menu);
     }
 });

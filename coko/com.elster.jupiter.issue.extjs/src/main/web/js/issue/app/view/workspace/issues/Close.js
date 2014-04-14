@@ -28,7 +28,7 @@ Ext.define('Isu.view.workspace.issues.Close', {
             items: [
                 {
                     html: '<h3 class="isu-assign-text"><span>Close issue </span><span>'
-                    + self.record.data.reason.charAt(0).toLowerCase() + self.record.data.reason.slice(1)
+                    + (self.record.data.reason ? self.record.data.reason.name : '')
                     + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '')
                     + '</span></h3>'
                 },
