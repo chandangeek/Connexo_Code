@@ -19,7 +19,7 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo {
     }
 
     @Override
-    public PartialConnectionTask asTask(DeviceConfiguration deviceConfiguration, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
+    public PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
         PartialInboundConnectionTaskBuilder connectionTaskBuilder = deviceConfiguration.getCommunicationConfiguration().createPartialInboundConnectionTask()
             .name(this.name)
             .pluggableClass(findConnectionTypeOrThrowException(this.connectionType, protocolPluggableService))

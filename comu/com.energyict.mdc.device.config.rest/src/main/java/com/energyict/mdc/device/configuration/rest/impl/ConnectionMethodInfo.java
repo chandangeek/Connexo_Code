@@ -75,5 +75,5 @@ public abstract class ConnectionMethodInfo {
     }
 
 
-    public abstract PartialConnectionTask asTask(DeviceConfiguration deviceConfiguration, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService);
+    public abstract PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService);
 }

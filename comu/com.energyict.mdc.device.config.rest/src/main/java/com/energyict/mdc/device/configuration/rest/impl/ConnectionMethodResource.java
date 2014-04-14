@@ -106,7 +106,7 @@ public class ConnectionMethodResource {
                                            ConnectionMethodInfo connectionMethodInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        PartialConnectionTask created = connectionMethodInfo.asTask(deviceConfiguration, engineModelService, protocolPluggableService);
+        PartialConnectionTask created = connectionMethodInfo.createPartialTask(deviceConfiguration, engineModelService, protocolPluggableService);
         return Response.status(Response.Status.CREATED).entity(ConnectionMethodInfoFactory.asInfo(created, uriInfo)).build();
 
     }

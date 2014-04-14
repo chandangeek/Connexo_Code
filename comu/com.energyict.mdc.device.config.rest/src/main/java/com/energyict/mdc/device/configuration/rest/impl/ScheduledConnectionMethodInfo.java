@@ -22,7 +22,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo {
     }
 
     @Override
-    public PartialConnectionTask asTask(DeviceConfiguration deviceConfiguration, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
+    public PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
         PartialScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = deviceConfiguration.createPartialScheduledConnectionTask()
             .name(this.name)
             .pluggableClass(findConnectionTypeOrThrowException(this.connectionType, protocolPluggableService))
