@@ -36,11 +36,11 @@ public class BasicRuleTemplate implements CreationRuleTemplate {
             "package com.elster.jupiter.issue.datacollection\n" +
             "import com.elster.jupiter.issue.datacollection.DataCollectionEvent;\n" +
             "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
-            "rule \"Basic data collection issues\"\n"+
+            "rule \"Basic data collection issues @{ruleId}\"\n"+
             "when\n"+
             "\tevent : DataCollectionEvent( eventType == \"@{eventTopic}\" )\n"+
             "then\n"+
-            "\tSystem.out.println(\"Basic data collection issues\");\n"+
+            "\tSystem.out.println(\"Basic data collection issues @{ruleId}\");\n"+
             "\tissueCreationService.processCreationEvent(@{ruleId}, event);\n"+
             "end";
     }
