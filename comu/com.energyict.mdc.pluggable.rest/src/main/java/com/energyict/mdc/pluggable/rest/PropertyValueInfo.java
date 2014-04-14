@@ -1,4 +1,4 @@
-package com.energyict.mdc.pluggable.rest.impl.properties;
+package com.energyict.mdc.pluggable.rest;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

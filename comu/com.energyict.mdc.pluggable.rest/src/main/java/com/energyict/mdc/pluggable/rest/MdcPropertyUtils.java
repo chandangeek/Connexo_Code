@@ -11,7 +11,6 @@ import com.energyict.mdc.pluggable.rest.impl.properties.PredefinedPropertyValues
 import com.energyict.mdc.pluggable.rest.impl.properties.PropertySelectionMode;
 import com.energyict.mdc.pluggable.rest.impl.properties.PropertyTypeInfo;
 import com.energyict.mdc.pluggable.rest.impl.properties.PropertyValidationRule;
-import com.energyict.mdc.pluggable.rest.impl.properties.PropertyValueInfo;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.pluggable.rest.impl.properties.validators.NumberValidationRules;
 import java.math.BigDecimal;
@@ -127,7 +126,7 @@ public class MdcPropertyUtils {
     //find propertyValue in info
     public static Object findPropertyValue(PropertySpec propertySpec, PropertyInfo[] propertyInfos) throws ParseException {
         for (PropertyInfo propertyInfo : propertyInfos) {
-            if (propertyInfo.getKey().equals(propertySpec.getName())) {
+            if (propertyInfo.key.equals(propertySpec.getName())) {
                 if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().getValue()!= null) {
                     return convertPropertyInfoValueToPropertyValue(propertySpec, propertyInfo.getPropertyValueInfo().getValue());
                 } else {

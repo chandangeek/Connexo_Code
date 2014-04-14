@@ -1,7 +1,6 @@
 package com.energyict.mdc.pluggable.rest;
 
 import com.energyict.mdc.pluggable.rest.impl.properties.PropertyTypeInfo;
-import com.energyict.mdc.pluggable.rest.impl.properties.PropertyValueInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -37,18 +36,6 @@ public class PropertyInfo {
         this.propertyValueInfo = propertyValueInfo;
         this.propertyTypeInfo = propertyTypeInfo;
         this.required = required;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public PropertyTypeInfo getPropertyTypeInfo() {
-        return propertyTypeInfo;
-    }
-
-    public boolean isRequired() {
-        return required;
     }
 
     public PropertyValueInfo<?> getPropertyValueInfo() {
