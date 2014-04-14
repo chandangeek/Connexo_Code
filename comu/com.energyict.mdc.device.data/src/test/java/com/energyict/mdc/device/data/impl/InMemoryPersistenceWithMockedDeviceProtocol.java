@@ -57,6 +57,7 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ConnectionTypePluggableClassImpl;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
@@ -64,10 +65,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -78,6 +75,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import javax.inject.Inject;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -388,6 +388,11 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         @Override
         public List<ConnectionTypePluggableClass> findConnectionTypePluggableClassByClassName(String javaClassName) {
             return protocolPluggableService.findConnectionTypePluggableClassByClassName(javaClassName);
+        }
+
+        @Override
+        public Optional<ConnectionTypePluggableClassImpl> findConnectionTypePluggableClassByName(String name) {
+            return protocolPluggableService.findConnectionTypePluggableClassByName(name);
         }
 
         @Override
