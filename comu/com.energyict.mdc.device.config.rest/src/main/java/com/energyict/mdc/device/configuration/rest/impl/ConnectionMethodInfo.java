@@ -28,8 +28,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "direction")
 @JsonSubTypes({
      @JsonSubTypes.Type(value = InboundConnectionMethodInfo.class, name = "Inbound"),
-     @JsonSubTypes.Type(value = OutboundConnectionMethodInfo.class, name = "Outbound"),
-     @JsonSubTypes.Type(value = ScheduledConnectionMethodInfo.class, name = "Scheduled") })
+     @JsonSubTypes.Type(value = ScheduledConnectionMethodInfo.class, name = "Outbound") })
 public abstract class ConnectionMethodInfo {
     public long id;
     public String name;

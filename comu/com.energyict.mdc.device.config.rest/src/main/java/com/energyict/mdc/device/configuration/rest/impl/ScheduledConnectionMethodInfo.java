@@ -12,7 +12,6 @@ import javax.ws.rs.core.UriInfo;
 public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo {
 
     public ScheduledConnectionMethodInfo() {
-        this.direction="Scheduled";
     }
 
     public ScheduledConnectionMethodInfo(PartialScheduledConnectionTask partialConnectionTask, UriInfo uriInfo) {
