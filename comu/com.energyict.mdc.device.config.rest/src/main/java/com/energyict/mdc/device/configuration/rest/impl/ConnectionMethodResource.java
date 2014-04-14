@@ -108,24 +108,23 @@ public class ConnectionMethodResource {
                                            ConnectionMethodInfo connectionMethodInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        PartialInboundConnectionTask created=null;
+        PartialInboundConnectionTask created;
         switch (connectionMethodInfo.direction) {
             case "Inbound":
-                PartialInboundConnectionTaskBuilder connectionTaskBuilder = deviceConfiguration.getCommunicationConfiguration().createPartialInboundConnectionTask();
-                connectionTaskBuilder.name(connectionMethodInfo.name);
-                ConnectionTypePluggableClass pluggableClassOptional = findConnectionTypeOrThrowException(connectionMethodInfo.connectionType);
-                connectionTaskBuilder.pluggableClass(pluggableClassOptional);
-                connectionTaskBuilder.comPortPool((InboundComPortPool) engineModelService.findComPortPool(connectionMethodInfo.comPortPool));
-                connectionTaskBuilder.asDefault(connectionMethodInfo.isDefault);
+                PartialInboundConnectionTaskBuilder connectionTaskBuilder = deviceConfiguration.getCommunicationConfiguration().createPartialInboundConnectionTask()
+                .name(connectionMethodInfo.name)
+                .pluggableClass(findConnectionTypeOrThrowException(connectionMethodInfo.connectionType))
+                .comPortPool((InboundComPortPool) engineModelService.findComPortPool(connectionMethodInfo.comPortPool))
+                .asDefault(connectionMethodInfo.isDefault);
                 if (connectionMethodInfo.propertyInfos!=null) {
                     for (PropertyInfo propertyInfo : connectionMethodInfo.propertyInfos) {
                         connectionTaskBuilder.addProperty(propertyInfo.key, propertyInfo.getPropertyValueInfo().value);
                     }
                 }
                 created = connectionTaskBuilder.build();
-        }
-        if (created==null) {
-            throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+                break;
+            default:
+                throw new WebApplicationException("Unsupported direction:" +connectionMethodInfo.direction, Response.Status.NOT_ACCEPTABLE);
         }
         return Response.status(Response.Status.CREATED).entity(ConnectionMethodInfo.from(created, uriInfo)).build();
 
