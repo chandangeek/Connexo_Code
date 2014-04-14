@@ -17,7 +17,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     ],
 
     stores: [
-        'DeviceCommunicationProtocols'
+        'DeviceCommunicationProtocolsPaged'
     ],
 
     refs: [

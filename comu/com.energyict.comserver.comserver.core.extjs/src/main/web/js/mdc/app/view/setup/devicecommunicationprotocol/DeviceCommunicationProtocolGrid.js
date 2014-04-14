@@ -9,9 +9,9 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.DeviceCommunicationProtocols'
+        'Mdc.store.DeviceCommunicationProtocolsPaged'
     ],
-    store: 'DeviceCommunicationProtocols',
+    store: 'DeviceCommunicationProtocolsPaged',
     padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
