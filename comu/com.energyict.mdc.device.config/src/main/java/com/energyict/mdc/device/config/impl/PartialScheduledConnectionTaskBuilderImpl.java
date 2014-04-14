@@ -4,14 +4,14 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
 
 /**
  * Copyrights EnergyICT
  * Date: 13/03/14
  * Time: 15:31
  */
-public class PartialOutboundConnectionTaskBuilderImpl extends AbstractScheduledPartialConnectionTaskBuilder<PartialOutboundConnectionTaskBuilder, PartialScheduledConnectionTaskImpl> implements PartialOutboundConnectionTaskBuilder {
+public class PartialScheduledConnectionTaskBuilderImpl extends AbstractScheduledPartialConnectionTaskBuilder<PartialScheduledConnectionTaskBuilder, PartialScheduledConnectionTaskImpl> implements PartialScheduledConnectionTaskBuilder {
 
     private ComWindow comWindow;
     private ConnectionStrategy connectionStrategy;
@@ -19,36 +19,36 @@ public class PartialOutboundConnectionTaskBuilderImpl extends AbstractScheduledP
     private PartialConnectionInitiationTaskImpl partialConnectionInitiationTask;
 
 
-    PartialOutboundConnectionTaskBuilderImpl(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
-        super(PartialOutboundConnectionTaskBuilder.class, dataModel, configuration);
+    PartialScheduledConnectionTaskBuilderImpl(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
+        super(PartialScheduledConnectionTaskBuilder.class, dataModel, configuration);
     }
 
     @Override
-    public PartialOutboundConnectionTaskBuilder comWindow(ComWindow communicationWindow) {
+    public PartialScheduledConnectionTaskBuilder comWindow(ComWindow communicationWindow) {
         this.comWindow = communicationWindow;
         return myself;
     }
 
     @Override
-    public PartialOutboundConnectionTaskBuilder connectionStrategy(ConnectionStrategy connectionStrategy) {
+    public PartialScheduledConnectionTaskBuilder connectionStrategy(ConnectionStrategy connectionStrategy) {
         this.connectionStrategy = connectionStrategy;
         return myself;
     }
 
     @Override
-    public PartialOutboundConnectionTaskBuilder allowSimultaneousConnections(boolean simultaneousConnectionsAllowed) {
+    public PartialScheduledConnectionTaskBuilder allowSimultaneousConnections(boolean simultaneousConnectionsAllowed) {
         this.allowSimultaneousConnections = simultaneousConnectionsAllowed;
         return myself;
     }
 
     @Override
-    public PartialOutboundConnectionTaskBuilder initiatonTask(PartialConnectionInitiationTaskImpl connectionInitiationTask) {
+    public PartialScheduledConnectionTaskBuilder initiationTask(PartialConnectionInitiationTaskImpl connectionInitiationTask) {
         this.partialConnectionInitiationTask = connectionInitiationTask;
         return myself;
     }
 
     @Override
-    public PartialOutboundConnectionTaskBuilder asDefault(boolean asDefault) {
+    public PartialScheduledConnectionTaskBuilder asDefault(boolean asDefault) {
         this.asDefault = asDefault;
         return myself;
     }

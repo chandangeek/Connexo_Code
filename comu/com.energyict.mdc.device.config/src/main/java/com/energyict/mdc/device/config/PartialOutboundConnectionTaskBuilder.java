@@ -1,23 +1,16 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.device.config.impl.PartialConnectionInitiationTaskImpl;
-import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 
 /**
  * Copyrights EnergyICT
  * Date: 13/03/14
- * Time: 11:42
+ * Time: 14:36
  */
-public interface PartialOutboundConnectionTaskBuilder extends PartialScheduledConnectionTaskBuilder<PartialOutboundConnectionTaskBuilder, PartialScheduledConnectionTaskImpl> {
+public interface PartialOutboundConnectionTaskBuilder<S, U extends com.energyict.mdc.device.config.PartialConnectionTask> extends PartialConnectionTaskBuilder<S, OutboundComPortPool, U> {
 
-    PartialOutboundConnectionTaskBuilder comWindow(ComWindow communicationWindow);
+    NextExecutionSpecBuilder<S> nextExecutionSpec();
 
-    PartialOutboundConnectionTaskBuilder connectionStrategy(ConnectionStrategy connectionStrategy);
-
-    PartialOutboundConnectionTaskBuilder allowSimultaneousConnections(boolean simultaneousConnectionsAllowed);
-
-    PartialOutboundConnectionTaskBuilder asDefault(boolean asDefault);
-
-    PartialOutboundConnectionTaskBuilder initiatonTask(PartialConnectionInitiationTaskImpl connectionInitiationTask);
+    S rescheduleDelay(TimeDuration duration);
 }

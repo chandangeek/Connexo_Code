@@ -7,6 +7,6 @@ import com.energyict.mdc.device.config.impl.PartialConnectionInitiationTaskImpl;
  * Date: 14/03/14
  * Time: 10:29
  */
-public interface PartialConnectionInitiationTaskBuilder extends PartialScheduledConnectionTaskBuilder<PartialConnectionInitiationTaskBuilder, PartialConnectionInitiationTaskImpl> {
+public interface PartialConnectionInitiationTaskBuilder extends PartialOutboundConnectionTaskBuilder<PartialConnectionInitiationTaskBuilder, PartialConnectionInitiationTaskImpl> {
 
 }
