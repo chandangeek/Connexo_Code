@@ -12,6 +12,9 @@ Ext.define('Mdc.store.DeviceCommunicationProtocols', {
     }],
     proxy: {
         type: 'rest',
+        limitParam: false,
+        pageParam: false,
+        startParam: false,
         url: '../../api/plr/devicecommunicationprotocols',
         reader: {
             type: 'json',
