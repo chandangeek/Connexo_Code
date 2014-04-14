@@ -1,58 +1,43 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.device.config.impl.PartialConnectionInitiationTaskImpl;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 
 /**
  * Partial version of a OutboundConnectionTask.
  *
  * @author sva
- * @since 21/01/13 - 15:49
+ * @since 21/01/13 - 15:40
  */
-public interface PartialOutboundConnectionTask extends PartialScheduledConnectionTask {
+public interface PartialOutboundConnectionTask extends PartialConnectionTask {
 
     /**
-     * Gets the time window during which communication with the device
-     * is allowed or <code>null</code> if the {@link ConnectionType}
-     * specifies that it does not support ComWindows.
+     * Gets the {@link OutboundComPortPool} that is used
+     * by preference for actual OutboundConnectionTasks.
      *
-     * @return The ComWindow
+     * @return The ComPortPool
      */
-    public ComWindow getCommunicationWindow();
+    public OutboundComPortPool getComPortPool ();
 
     /**
-     * Gets the {@link ConnectionStrategy} that calculates
-     * the next time a connection will be established.
+     * Gets the specifications for the calculation of the next
+     * execution timestamp of the ScheduledConnectionTask
      *
-     * @return The ConnectionStrategy
+     * @return The NextExecutionSpecs
      */
-    public ConnectionStrategy getConnectionStrategy();
+    public NextExecutionSpecs getNextExecutionSpecs();
 
-    /**
-     * Returns the {@link PartialConnectionInitiationTask} that will execute first
-     * to initiate the connection to the device before actually connecting to it.
+      /**
+     * Defines the delay before rescheduling this ConnectionTask after a fail
      *
-     * @return The PartialConnectionInitiationTask that will initiate the connection to the device
+     * @return the delay to wait before we may retry after a failing sessions
      */
-    public PartialConnectionInitiationTask getInitiatorTask();
+    public TimeDuration getRescheduleDelay();
 
-    /**
-     * Returns whether this PartialConnectionTask is allowed to perform simultaneous connections to the same endPoint
-     *
-     * @return true if simultaneous connections are allowed, false otherwise
-     */
-    public boolean isSimultaneousConnectionsAllowed();
 
-    void setComWindow(ComWindow comWindow);
+    void setNextExecutionSpecs(NextExecutionSpecs nextExecutionSpec);
 
-    void setConnectionStrategy(ConnectionStrategy connectionStrategy);
+    void setComportPool(OutboundComPortPool comPortPool);
 
-    void setAllowSimultaneousConnections(boolean allowSimultaneousConnections);
-
-    void setInitiationTask(PartialConnectionInitiationTask partialConnectionInitiationTask);
-
-    void setDefault(boolean asDefault);
-
-    void setInitiationTask(PartialConnectionInitiationTaskImpl partialConnectionInitiationTask);
+    void setRescheduleRetryDelay(TimeDuration rescheduleRetryDelay);
 }

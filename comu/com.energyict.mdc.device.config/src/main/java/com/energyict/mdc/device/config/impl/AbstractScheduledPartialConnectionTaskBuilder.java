@@ -5,7 +5,8 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.NextExecutionSpecBuilder;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 
@@ -14,7 +15,7 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
  * Date: 13/03/14
  * Time: 15:12
  */
-public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends com.energyict.mdc.device.config.PartialScheduledConnectionTask> extends AbstractPartialConnectionTaskBuilder<S, OutboundComPortPool, U> implements PartialScheduledConnectionTaskBuilder<S, U> {
+public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends PartialOutboundConnectionTask> extends AbstractPartialConnectionTaskBuilder<S, OutboundComPortPool, U> implements PartialOutboundConnectionTaskBuilder<S, U> {
 
     private NextExecutionSpecs nextExecutionSpecs;
     private TimeDuration retryDelay;

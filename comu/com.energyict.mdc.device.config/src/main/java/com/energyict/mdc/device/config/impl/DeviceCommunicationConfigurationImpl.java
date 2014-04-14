@@ -17,23 +17,22 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.ServerDeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
+import com.energyict.mdc.device.config.ServerDeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.exceptions.PartialConnectionTaskDoesNotExist;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-
-import javax.inject.Inject;
-import javax.validation.Valid;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import javax.inject.Inject;
+import javax.validation.Valid;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.device.config.DeviceCommunicationConfiguration} interface.
@@ -461,7 +460,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 //    }
 
     @Override
-    public List<PartialOutboundConnectionTaskImpl> getPartialOutboundConnectionTasks() {
+    public List<PartialScheduledConnectionTaskImpl> getPartialOutboundConnectionTasks() {
         return this.filter(this.findAllPartialConnectionTasks(), new PartialOutboundConnectionTaskFilterPredicate());
     }
 
@@ -540,11 +539,11 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     }
 
-    private class PartialOutboundConnectionTaskFilterPredicate implements PartialConnectionTaskFilterPredicate<PartialOutboundConnectionTask> {
+    private class PartialOutboundConnectionTaskFilterPredicate implements PartialConnectionTaskFilterPredicate<PartialScheduledConnectionTask> {
 
         @Override
         public boolean retain(PartialConnectionTask task) {
-            return task instanceof PartialOutboundConnectionTask;
+            return task instanceof PartialScheduledConnectionTask;
         }
     }
 
@@ -651,8 +650,8 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     }
 
     @Override
-    public PartialOutboundConnectionTaskBuilder createPartialOutboundConnectionTask() {
-        return new PartialOutboundConnectionTaskBuilderImpl(dataModel, this);
+    public PartialScheduledConnectionTaskBuilder createPartialScheduledConnectionTask() {
+        return new PartialScheduledConnectionTaskBuilderImpl(dataModel, this);
     }
 
     @Override

@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = {PartialScheduledConnectionTaskImpl.MinimumRescheduleDelayValidator.class})
+@Constraint(validatedBy = {PartialOutboundConnectionTaskImpl.MinimumRescheduleDelayValidator.class})
 public @interface CheckMinimumRescheduleDelay {
 
     String message() default '{' + MessageSeeds.Constants.UNDER_MINIMUM_RESCHEDULE_DELAY_KEY + '}';

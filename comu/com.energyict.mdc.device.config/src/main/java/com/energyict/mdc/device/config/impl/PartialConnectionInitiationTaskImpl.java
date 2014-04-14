@@ -17,7 +17,7 @@ import javax.inject.Inject;
  *  @author sva
  * @since 22/01/13 - 14:35
  */
-public class PartialConnectionInitiationTaskImpl extends PartialScheduledConnectionTaskImpl implements PartialConnectionInitiationTask {
+public class PartialConnectionInitiationTaskImpl extends PartialOutboundConnectionTaskImpl implements PartialConnectionInitiationTask {
 
     @Inject
     PartialConnectionInitiationTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {

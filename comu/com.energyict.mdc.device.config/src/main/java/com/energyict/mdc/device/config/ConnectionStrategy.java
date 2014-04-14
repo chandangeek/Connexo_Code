@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.common.LocalizableEnum;
-
 /**
  * Models the algorithm that calculates the next time
  * a connection will be established by a ConnectionTask.
@@ -19,14 +17,9 @@ import com.energyict.mdc.common.LocalizableEnum;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-11 (12:05)
  */
-public enum ConnectionStrategy implements LocalizableEnum {
+public enum ConnectionStrategy {
 
     AS_SOON_AS_POSSIBLE,
-    MINIMIZE_CONNECTIONS;
-
-    // Todo: remove once REST layer has translation keys for ConnectionStrategy values
-    public String getLocalizedName() {
-        return this.name();
-    }
+    MINIMIZE_CONNECTIONS
 
 }

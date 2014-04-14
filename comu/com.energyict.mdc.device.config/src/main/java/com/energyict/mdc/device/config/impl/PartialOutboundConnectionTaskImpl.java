@@ -6,84 +6,55 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.interval.PartialTime;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.TemporalExpression;
-import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import org.joda.time.DateTimeConstants;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import javax.validation.constraints.NotNull;
-
 
 /**
- * Provides an implementation for an {@link com.energyict.mdc.device.config.PartialOutboundConnectionTask}
+ *  Provides an implementation for an {@link com.energyict.mdc.device.config.PartialOutboundConnectionTask}
  *
  * @author sva
- * @since 22/01/13 - 17:27
+ * @since 22/01/13 - 11:52
  */
-@NextExecutionSpecsRequiredForMinimizeConnections(groups = {Save.Create.class, Save.Update.class})
-@NextExecutionSpecsValidForComWindow(groups = {Save.Create.class, Save.Update.class})
-public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectionTaskImpl implements PartialConnectionTask, PartialOutboundConnectionTask {
+@CheckMinimumRescheduleDelay(groups = {Save.Create.class, Save.Update.class}, minimumRescheduleDelayInSeconds = 60)
+public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectionTaskImpl implements PartialOutboundConnectionTask {
 
-    private ComWindow comWindow;
-    private int comWindowStart;
-    private int comWindowEnd;
-    @NotNull(message = '{' + MessageSeeds.Constants.CONNECTION_STRATEGY_REQUIRED_KEY + '}', groups = {Save.Create.class, Save.Update.class})
-    private ConnectionStrategy connectionStrategy;
-    private boolean allowSimultaneousConnections;
-    private Reference<PartialConnectionInitiationTask> initiator = ValueReference.absent();
+    private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
 
-    @Inject
+    /**
+     * Defines the delay to wait before retrying when this connectionTask failed
+     */
+    private TimeDuration rescheduleRetryDelay;
+
     PartialOutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
         super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService);
     }
 
-    static PartialOutboundConnectionTaskImpl from(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
-        return dataModel.getInstance(PartialOutboundConnectionTaskImpl.class).init(configuration);
-    }
-
-    private PartialOutboundConnectionTaskImpl init(DeviceCommunicationConfiguration configuration) {
-        setConfiguration(configuration);
-        return this;
+    @Override
+    public TimeDuration getRescheduleDelay() {
+        return rescheduleRetryDelay;
     }
 
     @Override
-    public void setDefault(boolean asDefault) {
-        super.setDefault(asDefault);
+    public NextExecutionSpecs getNextExecutionSpecs() {
+        return this.nextExecutionSpecs.orNull();
     }
 
     @Override
-    public ComWindow getCommunicationWindow() {
-        if (comWindow == null) {
-            comWindow = new ComWindow(PartialTime.fromMilliSeconds(comWindowStart), PartialTime.fromMilliSeconds(comWindowEnd));
-        }
-        return this.comWindow;
-    }
-
-    public ConnectionStrategy getConnectionStrategy() {
-        return connectionStrategy;
+    public OutboundComPortPool getComPortPool () {
+        return (OutboundComPortPool) super.getComPortPool();
     }
 
     @Override
-    public PartialConnectionInitiationTask getInitiatorTask() {
-        return initiator.orNull();
-    }
-
-    @Override
-    public boolean isSimultaneousConnectionsAllowed() {
-        return allowSimultaneousConnections;
+    public void setComportPool(OutboundComPortPool comPortPool) {
+        doSetComportPool(comPortPool);
     }
 
     @Override
@@ -92,106 +63,37 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
     }
 
     @Override
-    protected UpdateEventType updateEventType() {
-        return UpdateEventType.PARTIAL_OUTBOUND_CONNECTION_TASK;
+    protected Class<OutboundComPortPool> expectedComPortPoolType () {
+        return OutboundComPortPool.class;
     }
 
     @Override
-    protected DeleteEventType deleteEventType() {
-        return DeleteEventType.PARTIAL_OUTBOUND_CONNECTION_TASK;
+    public void setNextExecutionSpecs(NextExecutionSpecs nextExecutionSpec) {
+        nextExecutionSpecs.set(nextExecutionSpec);
     }
 
     @Override
-    protected void doDelete() {
-        dataModel.mapper(PartialOutboundConnectionTaskImpl.class).remove(this);
+    public void setRescheduleRetryDelay(TimeDuration rescheduleRetryDelay) {
+        this.rescheduleRetryDelay = rescheduleRetryDelay;
     }
 
-    public static PartialOutboundConnectionTaskImpl from(DataModel dataModel, ConnectionStrategy connectionStrategy) {
-        return dataModel.getInstance(PartialOutboundConnectionTaskImpl.class).init(connectionStrategy);
-    }
+    public static class MinimumRescheduleDelayValidator implements ConstraintValidator<CheckMinimumRescheduleDelay, PartialOutboundConnectionTaskImpl> {
 
-    private PartialOutboundConnectionTaskImpl init(ConnectionStrategy connectionStrategy) {
-        this.connectionStrategy = connectionStrategy;
-        return this;
-    }
-
-    @Override
-    public void setComWindow(ComWindow comWindow) {
-        this.comWindow = comWindow;
-        this.comWindowStart = comWindow.getStart().getMillis();
-        this.comWindowEnd = comWindow.getEnd().getMillis();
-    }
-
-    @Override
-    public void setConnectionStrategy(ConnectionStrategy connectionStrategy) {
-        this.connectionStrategy = connectionStrategy;
-    }
-
-    @Override
-    public void setAllowSimultaneousConnections(boolean allowSimultaneousConnections) {
-        this.allowSimultaneousConnections = allowSimultaneousConnections;
-    }
-
-    @Override
-    public void setInitiationTask(PartialConnectionInitiationTask partialConnectionInitiationTask) {
-        this.initiator.set(partialConnectionInitiationTask);
-    }
-
-    @Override
-    public void setInitiationTask(PartialConnectionInitiationTaskImpl partialConnectionInitiationTask) {
-        this.initiator.set(partialConnectionInitiationTask);
-    }
-
-    public static class NextExecutionSpecValidator implements ConstraintValidator<NextExecutionSpecsRequiredForMinimizeConnections, PartialOutboundConnectionTaskImpl> {
+        private int minimalDelayInSeconds;
 
         @Inject
-        public NextExecutionSpecValidator() {
+        public MinimumRescheduleDelayValidator() {
         }
 
         @Override
-        public void initialize(NextExecutionSpecsRequiredForMinimizeConnections constraintAnnotation) {
+        public void initialize(CheckMinimumRescheduleDelay constraintAnnotation) {
+            minimalDelayInSeconds = constraintAnnotation.minimumRescheduleDelayInSeconds();
         }
 
         @Override
         public boolean isValid(PartialOutboundConnectionTaskImpl value, ConstraintValidatorContext context) {
-            return !ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(value.getConnectionStrategy()) || value.getNextExecutionSpecs() != null;
+            TimeDuration rescheduleDelay = value.getRescheduleDelay();
+            return rescheduleDelay!= null && rescheduleDelay.getSeconds() >= minimalDelayInSeconds;
         }
-    }
-
-    public static class NextExecutionSpecVsComWindowValidator implements ConstraintValidator<NextExecutionSpecsValidForComWindow, PartialOutboundConnectionTaskImpl> {
-
-        @Inject
-        public NextExecutionSpecVsComWindowValidator() {
-        }
-
-        @Override
-        public void initialize(NextExecutionSpecsValidForComWindow constraintAnnotation) {
-        }
-
-        @Override
-        public boolean isValid(PartialOutboundConnectionTaskImpl value, ConstraintValidatorContext context) {
-            if (value.getNextExecutionSpecs() == null || value.getCommunicationWindow() == null) {
-                return true;
-            }
-            TemporalExpression temporalExpression = value.getNextExecutionSpecs().getTemporalExpression();
-            TimeDuration offset = temporalExpression.getOffset();
-            /* Note that it's possible that the offset is 3 days, 16 hours and 30 min
-            * allowing the communication expert to specify a weekly execution
-            * of the connection task on Wednesday, 16:30:00
-            * So we need to truncate the offset to be within one day.
-            * In the above example we would get 16:30:00 as a result
-            * and we check if that is still within the ComWindow. */
-            return offset == null || value.getCommunicationWindow().includes(truncateToDay(offset)) || isMoreFrequentThanDaily(temporalExpression);
-        }
-
-        private boolean isMoreFrequentThanDaily(TemporalExpression temporalExpression) {
-            return temporalExpression.getEvery().getSeconds() > DateTimeConstants.SECONDS_PER_DAY;
-        }
-
-        private TimeDuration truncateToDay(TimeDuration timeDuration) {
-            int secondsWithinDay = timeDuration.getSeconds() % DateTimeConstants.SECONDS_PER_DAY;
-            return timeDuration.getSeconds() == secondsWithinDay ? timeDuration : TimeDuration.seconds(secondsWithinDay);
-        }
-
     }
 }

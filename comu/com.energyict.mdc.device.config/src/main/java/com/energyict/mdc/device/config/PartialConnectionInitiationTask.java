@@ -6,5 +6,5 @@ package com.energyict.mdc.device.config;
  * @author sva
  * @since 21/01/13 - 16:04
  */
-public interface PartialConnectionInitiationTask extends PartialScheduledConnectionTask {
+public interface PartialConnectionInitiationTask extends PartialOutboundConnectionTask {
 }
