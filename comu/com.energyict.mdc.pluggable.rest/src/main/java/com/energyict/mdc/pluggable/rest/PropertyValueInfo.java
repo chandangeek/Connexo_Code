@@ -38,14 +38,6 @@ public class PropertyValueInfo<T> {
         this.defaultValue = defaultValue;
     }
 
-    public T getInheritedValue() {
-        return inheritedValue;
-    }
-
-    public T getDefaultValue() {
-        return defaultValue;
-    }
-
     public T getValue() {
         return value;
     }
