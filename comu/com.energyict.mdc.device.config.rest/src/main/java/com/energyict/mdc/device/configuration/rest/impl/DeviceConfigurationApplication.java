@@ -14,17 +14,18 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableSet;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.ws.rs.core.Application;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import javax.ws.rs.core.Application;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.dtc.rest", service = Application.class, immediate = true, property = {"alias=/dtc"})
 public class DeviceConfigurationApplication extends Application {
@@ -35,6 +36,8 @@ public class DeviceConfigurationApplication extends Application {
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile TransactionService transactionService;
     private volatile MeteringService meteringService;
+    private volatile EngineModelService engineModelService;
+    private volatile PluggableService pluggableService;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private volatile NlsService nlsService;
     private volatile JsonService jsonService;
@@ -103,6 +106,16 @@ public class DeviceConfigurationApplication extends Application {
         this.jsonService = jsonService;
     }
 
+    @Reference
+    public void setEngineModelService(EngineModelService engineModelService) {
+        this.engineModelService = engineModelService;
+    }
+
+    @Reference
+    public void setPluggableService(PluggableService pluggableService) {
+        this.pluggableService = pluggableService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -117,6 +130,8 @@ public class DeviceConfigurationApplication extends Application {
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(engineModelService).to(EngineModelService.class);
+            bind(pluggableService).to(PluggableService.class);
         }
     }
 

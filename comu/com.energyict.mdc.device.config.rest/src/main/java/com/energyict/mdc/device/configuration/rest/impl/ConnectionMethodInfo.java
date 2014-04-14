@@ -7,7 +7,6 @@ import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyInfo;
-import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.UriInfo;
@@ -17,8 +16,11 @@ import javax.ws.rs.core.UriInfo;
  */
 public class ConnectionMethodInfo {
     public long id;
+    public String name;
     public String direction;
     public String connectionType;
+    public String comPortPool;
+    public boolean isDefault;
     public List<PropertyInfo> propertyInfos;
 
     public ConnectionMethodInfo() {
@@ -27,13 +29,15 @@ public class ConnectionMethodInfo {
     public static ConnectionMethodInfo from(PartialConnectionTask partialConnectionTask, UriInfo uriInfo) {
         ConnectionMethodInfo connectionMethodInfo = new ConnectionMethodInfo();
         connectionMethodInfo.id=partialConnectionTask.getId();
+        connectionMethodInfo.name= partialConnectionTask.getName();
         connectionMethodInfo.direction=determineDirection(partialConnectionTask);
-        connectionMethodInfo.connectionType= Joiner.on(',').join(partialConnectionTask.getConnectionType().getSupportedComPortTypes());
+        connectionMethodInfo.connectionType= partialConnectionTask.getPluggableClass().getName();
+        connectionMethodInfo.comPortPool= partialConnectionTask.getComPortPool().getName();
+        connectionMethodInfo.isDefault= partialConnectionTask.isDefault();
         List<PropertySpec> propertySpecs = partialConnectionTask.getConnectionType().getPropertySpecs();
         TypedProperties typedProperties = partialConnectionTask.getTypedProperties();
-        List<PropertyInfo> propertyInfoList = new ArrayList<>();
-        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, propertyInfoList);
-        connectionMethodInfo.propertyInfos= propertyInfoList;
+        connectionMethodInfo.propertyInfos= new ArrayList<>();
+        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, connectionMethodInfo.propertyInfos);
         return connectionMethodInfo;
     }
 
