@@ -65,9 +65,6 @@ Ext.define('Isu.controller.Issues', {
                 beforehide: this.hideItemAction,
                 click: this.chooseIssuesAction
             },
-            'issues-overview issues-item': {
-                afterChange: this.setFilterIconsActions
-            },
             // ====================================  IssueListFilter controls  ====================================
 
             'button[name=addsortbtn]': {
@@ -83,8 +80,11 @@ Ext.define('Isu.controller.Issues', {
             'grid[name=groupgrid]': {
                 itemclick: this.getIssuesForGroup
             },
-            'button[name=clearsortbtn]': {
+            'button[action=clearSort]': {
                 click: this.clearSort
+            },
+            'button[action=addSort]': {
+                click: this.setAddSortMenu
             },
             'issues-overview breadcrumbTrail': {
                 afterrender: this.setBreadcrumb
@@ -93,8 +93,6 @@ Ext.define('Isu.controller.Issues', {
                 click: this.changeSortDirection,
                 arrowclick: this.removeSortItem
             },
-
-            // ====================================  END IssueListFilter controls  ================================
             'issues-filter [name="filter"] button-tag': {
                 arrowclick: this.removeFilter
             }
@@ -121,7 +119,7 @@ Ext.define('Isu.controller.Issues', {
         var issueNoGroup = this.getIssueNoGroup(),
             issueList = this.getIssuesList();
 
-        if (records && records.length < 1) {
+        if (records.length < 1) {
 
             issueNoGroup.removeAll();
             issueNoGroup.add({
@@ -148,8 +146,7 @@ Ext.define('Isu.controller.Issues', {
             return;
         }
         var filterElm = this.getFilter().down('[name="filter"]'),
-            emptyText = this.getFilter().down('[name="empty-text"]'),
-            clearFilterBtn = this.getFilter().down('button[action="clearfilter"]'),
+            clearFilterBtn = this.getFilter().down('button[action="clearFilter"]'),
             buttons = [];
 
         if (filter.get('assignee')) {
@@ -165,6 +162,15 @@ Ext.define('Isu.controller.Issues', {
             var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
                 text: 'Reason: ' + filter.get('reason').get('name'),
                 target: 'reason'
+            });
+
+            buttons.push(button);
+        }
+
+        if (filter.get('department')) {
+            var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
+                text: 'Department: ' + filter.get('department').get('name'),
+                target: 'department'
             });
 
             buttons.push(button);
@@ -194,14 +200,12 @@ Ext.define('Isu.controller.Issues', {
         filterElm.removeAll();
 
         if (buttons.length) {
-            emptyText.hide();
             clearFilterBtn.setDisabled(false);
 
             Ext.Array.each(buttons, function (button) {
                 filterElm.add(button);
             });
         } else {
-            emptyText.show();
             clearFilterBtn.setDisabled(true);
         }
     },
@@ -252,8 +256,7 @@ Ext.define('Isu.controller.Issues', {
             }
         });
 
-        this.getFilter().down('[name="clearsortbtn"]').setDisabled(!filterElm.items.length);
-
+        this.getFilter().down('[action="clearSort"]').setDisabled(!filterElm.items.length);
     },
 
     removeFilter: function (elm) {
@@ -262,58 +265,14 @@ Ext.define('Isu.controller.Issues', {
     },
 
     showOverview: function () {
-        var widget = Ext.widget('issues-overview');
-
-        this.setFilter();
-
-        this.getApplication().fireEvent('changecontentevent', widget);
-    },
-
-    setFilter: function () {
         var issuesStore = this.getStore('Isu.store.Issues'),
-            queryString = Uni.util.QueryString.getQueryStringValues(),
-            sortModel = new Isu.model.IssueSort(),
-            filterModel = new Isu.model.IssueFilter(),
-            statusStore = this.getStore('Isu.store.IssueStatus'),
-            sortParam,
-            sortDirection;
+            widget;
 
         delete issuesStore.proxyFilter;
         delete issuesStore.proxySort;
 
-        if (queryString.sort) {
-            if (!Ext.isArray(queryString.sort)) {
-                sortParam = queryString.sort.charAt(0) == '-' ? queryString.sort.slice(1) : queryString.sort;
-                sortDirection = queryString.sort.charAt(0) == '-' ? Isu.model.IssueSort.DESC : Isu.model.IssueSort.ASC;
-                sortModel.addSortParam(sortParam, sortDirection);
-            } else {
-                Ext.Array.each(queryString.sort, function (sort) {
-                    sortParam = sort.charAt(0) == '-' ? sort.slice(1) : sort;
-                    sortDirection = sort.charAt(0) == '-' ? Isu.model.IssueSort.DESC : Isu.model.IssueSort.ASC;
-                    sortModel.addSortParam(sortParam, sortDirection);
-                });
-            }
-        } else {
-            sortModel.addSortParam('dueDate');
-        }
-        issuesStore.proxySort = sortModel;
-        issuesStore.fireEvent('updateProxySort', sortModel);
-
-        statusStore.load(function () {
-            if (queryString.status) {
-                if (!Ext.isArray(queryString.status)) {
-                    filterModel.status().add(statusStore.getById(parseInt(queryString.status)));
-                } else {
-                    Ext.Array.each(queryString.status, function (status) {
-                        filterModel.status().add(statusStore.getById(parseInt(status)));
-                    });
-                }
-            } else {
-                filterModel.status().add(statusStore.first());
-            }
-            issuesStore.proxyFilter = filterModel;
-            issuesStore.fireEvent('updateProxyFilter', filterModel);
-        });
+        widget = Ext.widget('issues-overview');
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     setBreadcrumb: function (breadcrumbs) {
@@ -526,12 +485,7 @@ Ext.define('Isu.controller.Issues', {
     setChecboxFilter: function (filterType, filterValue) {
         var filterController = this.getController('Isu.controller.IssueFilter'),
             filterForm = filterController.getIssueFilter().down('filter-form'),
-            allCheckboxes = filterForm.query('checkboxfield');
             checkbox = filterForm.down('[name='+ filterType +'] checkboxfield[inputValue=' + filterValue + ']');
-
-        Ext.Array.each(allCheckboxes, function (item) {
-            item.setValue(false);
-        });
 
         checkbox.setValue(true);
         filterController.filter();
