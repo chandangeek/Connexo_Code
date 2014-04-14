@@ -55,7 +55,7 @@ public class DeviceCommunicationProtocolsResource {
             LicensedProtocol licensedProtocol = this.licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
             deviceCommunicationProtocolInfos.add(new DeviceCommunicationProtocolInfo(uriInfo, this.propertySpecService, deviceProtocolPluggableClass, licensedProtocol, false));
         }
-        return PagedInfoList.asJson("deviceCommunicationProtocolInfos", deviceCommunicationProtocolInfos, queryParameters);
+        return PagedInfoList.asJson("DeviceProtocolPluggableClass", deviceCommunicationProtocolInfos, queryParameters);
     }
 
     @GET
