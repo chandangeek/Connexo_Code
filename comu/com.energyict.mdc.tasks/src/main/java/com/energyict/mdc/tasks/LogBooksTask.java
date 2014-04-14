@@ -1,6 +1,6 @@
 package com.energyict.mdc.tasks;
 
-import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.masterdata.LogBookType;
 import java.util.List;
 
 /**

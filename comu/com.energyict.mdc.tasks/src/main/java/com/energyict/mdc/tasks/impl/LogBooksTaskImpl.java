@@ -1,7 +1,7 @@
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.LogBooksTask;
 import java.util.Collections;
