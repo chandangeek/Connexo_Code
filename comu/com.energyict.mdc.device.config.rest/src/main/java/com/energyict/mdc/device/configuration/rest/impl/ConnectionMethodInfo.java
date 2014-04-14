@@ -40,16 +40,15 @@ public class ConnectionMethodInfo {
     }
 
     protected ConnectionMethodInfo(PartialConnectionTask partialConnectionTask, UriInfo uriInfo) {
-        ConnectionMethodInfo connectionMethodInfo = new ConnectionMethodInfo();
-        connectionMethodInfo.id=partialConnectionTask.getId();
-        connectionMethodInfo.name= partialConnectionTask.getName();
-        connectionMethodInfo.connectionType= partialConnectionTask.getPluggableClass().getName();
-        connectionMethodInfo.comPortPool= partialConnectionTask.getComPortPool()!=null?partialConnectionTask.getComPortPool().getName():null;
-        connectionMethodInfo.isDefault= partialConnectionTask.isDefault();
+        this.id=partialConnectionTask.getId();
+        this.name= partialConnectionTask.getName();
+        this.connectionType= partialConnectionTask.getPluggableClass().getName();
+        this.comPortPool= partialConnectionTask.getComPortPool()!=null?partialConnectionTask.getComPortPool().getName():null;
+        this.isDefault= partialConnectionTask.isDefault();
         List<PropertySpec> propertySpecs = partialConnectionTask.getConnectionType().getPropertySpecs();
         TypedProperties typedProperties = partialConnectionTask.getTypedProperties();
-        connectionMethodInfo.propertyInfos= new ArrayList<>();
-        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, connectionMethodInfo.propertyInfos);
+        this.propertyInfos= new ArrayList<>();
+        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, this.propertyInfos);
     }
 
 }

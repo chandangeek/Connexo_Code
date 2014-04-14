@@ -6,6 +6,7 @@ import javax.ws.rs.core.UriInfo;
 public class InboundConnectionMethodInfo extends ConnectionMethodInfo {
 
     public InboundConnectionMethodInfo() {
+        this.direction="Inbound";
     }
 
     public InboundConnectionMethodInfo(PartialInboundConnectionTask partialInboundConnectionTask, UriInfo uriInfo) {
