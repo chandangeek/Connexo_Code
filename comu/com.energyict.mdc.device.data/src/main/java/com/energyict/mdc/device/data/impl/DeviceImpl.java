@@ -113,6 +113,8 @@ public class DeviceImpl implements Device, PersistenceAware {
     private TimeZone timeZone;
     private String externalName;
     private Date modificationDate;
+    private Date yearOfCertification;
+
     @Valid
     private TemporalReference<CommunicationGatewayReference> communicationGatewayReferenceDevice = Temporals.absent();
     @Valid
@@ -357,6 +359,16 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Override
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
+    }
+
+    @Override
+    public void setYearOfCertification(Date yearOfCertification) {
+        this.yearOfCertification = yearOfCertification;
+    }
+
+    @Override
+    public Date getYearOfCertification() {
+        return yearOfCertification;
     }
 
     public Date getModDate() {

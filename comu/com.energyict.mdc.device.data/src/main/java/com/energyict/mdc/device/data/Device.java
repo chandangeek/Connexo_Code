@@ -125,6 +125,15 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     void setSerialNumber(String serialNumber);
 
+    void setYearOfCertification(Date yearOfCertification);
+
+    /**
+     * Returns the year of certification of a device
+     *
+     * @return a certification date
+     */
+    Date getYearOfCertification();
+
     /**
      * Returns the receiver's last modification date
      *
