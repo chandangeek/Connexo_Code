@@ -17,6 +17,8 @@ Ext.define('Isu.view.workspace.issues.Filter', {
             xtype: 'panel',
             layout: 'hbox',
             title: 'Filters',
+            ui: 'toolbar',
+//            headerPosition: 'top',
             name: 'filter',
             emptyText: 'None',
             items: [],
