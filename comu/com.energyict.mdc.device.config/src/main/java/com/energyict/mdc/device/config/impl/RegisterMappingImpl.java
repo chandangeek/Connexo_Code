@@ -123,11 +123,6 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         return DeleteEventType.REGISTERMAPPING;
     }
 
-    @Override
-    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
-        return DuplicateNameException.registerMappingAlreadyExists(this.getThesaurus(), name);
-    }
-
     public ObisCode getObisCode() {
         if (this.obisCodeCached == null && !is(this.obisCode).empty()) {
             this.obisCodeCached = ObisCode.fromString(this.obisCode);

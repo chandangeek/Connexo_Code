@@ -34,11 +34,6 @@ public class PartialConnectionInitiationTaskImpl extends PartialScheduledConnect
     }
 
     @Override
-    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
-        return DuplicateNameException.partialConnectionInitiationTaskExists(thesaurus, name);
-    }
-
-    @Override
     protected CreateEventType createEventType() {
         return CreateEventType.PARTIAL_CONNECTION_INITIATION_TASK;
     }

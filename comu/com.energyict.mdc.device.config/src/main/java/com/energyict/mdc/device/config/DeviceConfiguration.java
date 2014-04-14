@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.masterdata.LogBookType;
 
 import java.util.List;
 import java.util.Set;

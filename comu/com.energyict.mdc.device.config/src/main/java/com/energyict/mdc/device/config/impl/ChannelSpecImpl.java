@@ -16,10 +16,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
-import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceConfigurationReferenceException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLoadProfileSpecOfChannelSpec;
 import com.energyict.mdc.device.config.exceptions.CannotChangeRegisterMappingOfChannelSpecException;
-import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.DuplicateRegisterMappingException;
 import com.energyict.mdc.device.config.exceptions.IncompatibleUnitsException;
 import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
@@ -30,10 +28,11 @@ import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-import java.math.BigDecimal;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -268,21 +267,16 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         // the configuration will validate the active 'part'
     }
 
-    protected void validateUniqueName(String name) {
-        ServerDeviceConfigurationService deviceConfigurationService = (ServerDeviceConfigurationService) this.deviceConfigurationService;
-        if (deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfiguration(), name) != null) {
-            throw this.duplicateNameException(this.getThesaurus(), name);
-        }
-        if (name.length() > 27) {
-            if (deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfiguration(), name.substring(0, 27)) != null) {
-                throw DuplicateNameException.channelSpecAlreadyExistsFirstChars(this.getThesaurus(), name.substring(0, 27));
-            }
-        }
+    protected boolean validateUniqueName() {
+        return this.validateUniqueName(this.getName())
+            && (   this.getName().length() <= 27
+                || this.validateUniqueName(this.getName().substring(0, 27)));
     }
 
-    @Override
-    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
-        return DuplicateNameException.channelSpecAlreadyExists(this.getThesaurus(), name);
+    protected boolean validateUniqueName(String name) {
+        ServerDeviceConfigurationService deviceConfigurationService = (ServerDeviceConfigurationService) this.deviceConfigurationService;
+        ChannelSpec otherChannelSpec = deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfiguration(), name);
+        return otherChannelSpec == null || otherChannelSpec.getId() == this.getId();
     }
 
     @Override

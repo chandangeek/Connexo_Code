@@ -18,7 +18,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -210,17 +210,14 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    protected void validateUniqueName(String name) {
+    protected boolean validateUniqueName() {
+        String name = this.getName();
         for (DeviceConfiguration deviceConfiguration : this.deviceType.get().getConfigurations()) {
-            if(!isSameIdObject(deviceConfiguration, this) && deviceConfiguration.getName().equals(name)){
-                throw this.duplicateNameException(this.getThesaurus(), name);
+            if (!isSameIdObject(deviceConfiguration, this) && deviceConfiguration.getName().equals(name)){
+                return false;
             }
         }
-    }
-
-    @Override
-    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
-        return DuplicateNameException.deviceConfigurationExists(thesaurus, name);
+        return true;
     }
 
     @Override

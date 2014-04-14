@@ -28,7 +28,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -40,6 +40,7 @@ import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.config.exceptions.UnitHasNoMatchingPhenomenonException;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.masterdata.impl.LogBookTypeImpl;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -182,16 +183,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public List<LogBookType> findAllLogBookTypes() {
-        return this.getDataModel().mapper(LogBookType.class).find();
-    }
-
-    @Override
-    public LogBookType newLogBookType(String name, ObisCode obisCode) {
-        return LogBookTypeImpl.from(this.getDataModel(), name, obisCode);
-    }
-
-    @Override
     public DeviceConfiguration findDeviceConfiguration(long deviceConfigId) {
         return this.getDataModel().mapper((DeviceConfiguration.class)).getUnique("id", deviceConfigId).orNull();
     }
@@ -254,11 +245,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public LogBookType findLogBookType(long logBookTypeId) {
-        return this.getDataModel().mapper(LogBookType.class).getUnique("id", logBookTypeId).orNull();
-    }
-
-    @Override
     public LogBookSpec findLogBookSpec(long logBookSpecId) {
         return this.getDataModel().mapper(LogBookSpec.class).getUnique("id", logBookSpecId).orNull();
     }
@@ -313,11 +299,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public LogBookType findLogBookTypeByName(String name) {
-        return this.getDataModel().mapper(LogBookType.class).getUnique("name", name).orNull();
-    }
-
-    @Override
     public List<Phenomenon> findAllPhenomena() {
         return this.getDataModel().mapper(Phenomenon.class).find();
     }
@@ -337,6 +318,13 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                         where("registerMapping").isEqualTo(registerMapping).
                                 and(where("loadProfileSpec.loadProfileType").isEqualTo(loadProfileType))
                 );
+    }
+
+    @Override
+    public List<DeviceType> findDeviceTypesUsingLogBookType(LogBookType logBookType) {
+        return this.getDataModel().
+                query(DeviceType.class, DeviceTypeLogBookTypeUsage.class).
+                select(where("logBookTypeUsages.logBookType").isEqualTo(logBookType));
     }
 
     @Override

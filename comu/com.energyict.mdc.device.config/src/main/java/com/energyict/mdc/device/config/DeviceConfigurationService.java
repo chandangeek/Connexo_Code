@@ -7,6 +7,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.google.common.base.Optional;
@@ -119,22 +120,6 @@ public interface DeviceConfigurationService {
     public LoadProfileType newLoadProfileType(String name, ObisCode obisCode, TimeDuration interval);
 
     /**
-     * Find all {@link LogBookType LogBookTypes} in the system
-     *
-     * @return all the LogBookTypes in the system
-     */
-    public List<LogBookType> findAllLogBookTypes();
-
-    /**
-     * Creates a new LogBookType based on the given parameters
-     *
-     * @param name     the name of the LogBookType
-     * @param obisCode the ObisCode of the LogBookType
-     * @return the newly created LogBookType
-     */
-    public LogBookType newLogBookType(String name, ObisCode obisCode);
-
-    /**
      * Finds a {@link DeviceConfiguration} which is uniquely identified by the given ID
      *
      * @param deviceConfigId the id of the DeviceConfiguration
@@ -221,14 +206,6 @@ public interface DeviceConfigurationService {
     public LoadProfileSpec findLoadProfileSpecsByDeviceConfigAndLoadProfileType(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType);
 
     /**
-     * Find a {@link LogBookType} with the given ID
-     *
-     * @param logBookTypeId the ID of the LogBookType
-     * @return the LogBookType or <code>null</code> if there is no such LogBookType
-     */
-    public LogBookType findLogBookType(long logBookTypeId);
-
-    /**
      * Find a {@link LogBookSpec} with the given ID
      *
      * @param id the ID of the LogBookSpec
@@ -256,6 +233,8 @@ public interface DeviceConfigurationService {
 
     public List<ChannelSpec> findChannelSpecsForRegisterMappingInLoadProfileType (RegisterMapping registerMapping, LoadProfileType loadProfileType);
 
+    public List<DeviceType> findDeviceTypesUsingLogBookType(LogBookType logBookType);
+
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLogBookType(LogBookType logBookType);
 
     public List<DeviceConfiguration> findDeviceConfigurationsUsingRegisterMapping(RegisterMapping registerMapping);
@@ -265,8 +244,6 @@ public interface DeviceConfigurationService {
     public List<DeviceType> findDeviceTypesWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
     public List<LoadProfileType> findLoadProfileTypesByName(String name);
-
-    public LogBookType findLogBookTypeByName(String name);
 
     public List<Phenomenon> findAllPhenomena();
 

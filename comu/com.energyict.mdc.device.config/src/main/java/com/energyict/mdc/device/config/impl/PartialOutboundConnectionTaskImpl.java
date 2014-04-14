@@ -87,11 +87,6 @@ public class PartialOutboundConnectionTaskImpl extends PartialScheduledConnectio
     }
 
     @Override
-    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
-        return DuplicateNameException.partialOutboundConnectionTaskExists(thesaurus, name);
-    }
-
-    @Override
     protected CreateEventType createEventType() {
         return CreateEventType.PARTIAL_OUTBOUND_CONNECTION_TASK;
     }

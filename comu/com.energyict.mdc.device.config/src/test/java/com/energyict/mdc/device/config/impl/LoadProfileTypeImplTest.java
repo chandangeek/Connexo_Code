@@ -96,8 +96,9 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         assertThat(loadProfileType.getInterval()).isEqualTo(interval);
     }
 
-    @Test(expected = DuplicateNameException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_UNIQUE_KEY + "}")
     public void testDuplicateName() {
         DeviceConfigurationServiceImpl deviceConfigurationService = inMemoryPersistence.getDeviceConfigurationService();
         String loadProfileTypeName = "testDuplicateName";

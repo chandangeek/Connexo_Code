@@ -2,12 +2,12 @@ package com.energyict.mdc.device.config.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.masterdata.LogBookType;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
  * to add a {@link com.energyict.mdc.device.config.LogBookSpec} to a {@link com.energyict.mdc.device.config.DeviceConfiguration}
- * which is modeled by a {@link com.energyict.mdc.device.config.LogBookType} which is not part of the {@link com.energyict.mdc.device.config.DeviceType}
+ * which is modeled by a {@link LogBookType} which is not part of the {@link com.energyict.mdc.device.config.DeviceType}
  * <p/>
  * Copyrights EnergyICT
  * Date: 05/02/14

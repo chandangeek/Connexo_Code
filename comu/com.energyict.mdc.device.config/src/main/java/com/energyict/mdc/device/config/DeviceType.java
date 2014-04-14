@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import java.util.List;

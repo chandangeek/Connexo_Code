@@ -5,7 +5,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
@@ -42,7 +42,7 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     }
 
     private void initializeDeviceTypeWithLogBookTypeAndDeviceConfiguration() {
-        logBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(LOGBOOK_TYPE_NAME, logBookTypeObisCode);
+        logBookType = inMemoryPersistence.getMasterDataService().newLogBookType(LOGBOOK_TYPE_NAME, logBookTypeObisCode);
         logBookType.save();
 
         // Business method
@@ -93,7 +93,7 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LogBookSpec logBookSpec;
         LogBookType logBookType;
 
-        logBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", ObisCode.fromString("1.0.1.0.1.0"));
+        logBookType = inMemoryPersistence.getMasterDataService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", ObisCode.fromString("1.0.1.0.1.0"));
         logBookType.save();
 
         LogBookSpec.LogBookSpecBuilder logBookSpecBuilder = deviceConfiguration.createLogBookSpec(logBookType);
@@ -113,7 +113,7 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Test(expected = DuplicateObisCodeException.class)
     @Transactional
     public void addTwoSpecsWithDiffTypeButSameObisCodeTest() {
-        LogBookType otherLogBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", logBookTypeObisCode);
+        LogBookType otherLogBookType = inMemoryPersistence.getMasterDataService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", logBookTypeObisCode);
         otherLogBookType.save();
         this.deviceType.addLogBookType(otherLogBookType);
         LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(this.logBookType);
@@ -125,7 +125,7 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Test(expected = DuplicateObisCodeException.class)
     @Transactional
     public void addTwoSpecsWithDiffObisCodeButOverruledAsSameObisCodeTest() {
-        LogBookType otherLogBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", ObisCode.fromString("1.0.1.0.1.0"));
+        LogBookType otherLogBookType = inMemoryPersistence.getMasterDataService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", ObisCode.fromString("1.0.1.0.1.0"));
         otherLogBookType.save();
         this.deviceType.addLogBookType(otherLogBookType);
         LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(this.logBookType);
@@ -139,7 +139,7 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void addTwoSpecsWithDiffObisCodeButSameAfterUpdateTest() {
         LogBookSpec logBookSpec2;
-        LogBookType otherLogBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", ObisCode.fromString("1.0.1.0.1.0"));
+        LogBookType otherLogBookType = inMemoryPersistence.getMasterDataService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", ObisCode.fromString("1.0.1.0.1.0"));
         otherLogBookType.save();
         this.deviceType.addLogBookType(otherLogBookType);
         LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(this.logBookType);

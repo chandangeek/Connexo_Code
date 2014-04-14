@@ -14,7 +14,6 @@ import com.energyict.mdc.device.config.DeviceTypeFields;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -23,9 +22,13 @@ import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.PluggableService;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 /**
@@ -66,20 +69,6 @@ public enum TableSpecs {
             table.column("DEVICEUSAGETYPE").number().conversion(ColumnConversion.NUMBER2INT).map("deviceUsageTypeId").add();
             table.unique("UK_SYSRTUTYPE").on(name).add();
             table.primaryKey("PK_SYSRTUTYPE").on(id).add();
-        }
-    },
-
-    EISLOGBOOKTYPE {
-        @Override
-        public void addTo(DataModel dataModel) {
-            Table<LogBookType> table = dataModel.addTable(this.name(), LogBookType.class);
-            table.map(LogBookTypeImpl.class);
-            Column id = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar(80).notNull().map("name").add();
-            table.column("DESCRIPTION").varChar(255).map("description").add();
-            table.column("OBISCODE").varChar(80).notNull().map(LogBookTypeImpl.Fields.OBIS_CODE.fieldName()).add();
-            table.unique("UK_EISLOGBOOKTYPE").on(name).add();
-            table.primaryKey("PK_EISLOGBOOKTYPE").on(id).add();
         }
     },
 
@@ -172,7 +161,7 @@ public enum TableSpecs {
             Column deviceType = table.column("RTUTYPEID").number().notNull().add();
             table.primaryKey("PK_LOGBOOKTYPEFORRTUTYPE").on(logBookType, deviceType).add();
             table.foreignKey("FK_RTUTYPEID_LBT_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("logBookTypeUsages").composition().add();
-            table.foreignKey("FK_LBTYPEID_LBTT_RTUTYPE_JOIN").on(logBookType).references(EISLOGBOOKTYPE.name()).map("logBookType").add();
+            table.foreignKey("FK_LBTYPEID_LBTT_RTUTYPE_JOIN").on(logBookType).references(MasterDataService.COMPONENTNAME, "EISLOGBOOKTYPE").map("logBookType").add();
         }
     },
 
@@ -281,7 +270,7 @@ public enum TableSpecs {
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
             table.primaryKey("PK_EISLOGBOOKSPECID").on(id).add();
             table.foreignKey("FK_EISLGBSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("logBookSpecs").composition().onDelete(CASCADE).add();
-            table.foreignKey("FK_EISLGBSPEC_LOGBOOKTYPE").on(logbooktypeid).references(EISLOGBOOKTYPE.name()).map("logBookType").add();
+            table.foreignKey("FK_EISLGBSPEC_LOGBOOKTYPE").on(logbooktypeid).references(MasterDataService.COMPONENTNAME, "EISLOGBOOKTYPE").map("logBookType").add();
         }
     },
 

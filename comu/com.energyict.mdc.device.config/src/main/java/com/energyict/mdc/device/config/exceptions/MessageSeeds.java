@@ -13,9 +13,11 @@ import static java.util.logging.Level.SEVERE;
  * @since 2014-01-29 (16:04)
  */
 public enum MessageSeeds implements MessageSeed {
+    VETO_LOGBOOKTYPE_DELETION(998, "logBookType.XstillInUseByDeviceTypesY", "The log book type {0} is still used by the following device types: {1}", SEVERE),
     VETO_DEVICEPROTOCOLPLUGGABLECLASS_DELETION(999, "deviceProtocolPluggableClass.XstillInUseByDeviceTypesY", "The device protocol pluggable class {0} is still used by the following device types: {1}", SEVERE),
     DEVICE_TYPE(1, "DTC.deviceType.with.article", "a device type", SEVERE),
     NAME_IS_REQUIRED(1000, Constants.NAME_REQUIRED_KEY, "The name of {0} is required", SEVERE),
+    NAME_IS_UNIQUE(1001, Constants.NAME_UNIQUE_KEY, "The name must be unique", SEVERE),
     REGISTER_GROUP_NAME_IS_REQUIRED(1501, "registerGroup.name.required", "The name of a register group is required", SEVERE),
     REGISTER_GROUP_ALREADY_EXISTS(1502, "registerGroup.duplicateNameX", "A register group with name \"{0}\" already exists", SEVERE),
     REGISTER_GROUP_STILL_IN_USE(1503, "registerGroup.XstillInUseByY", "The register group with name \"{0}\" cannot be deleted because it is still in use by the following register mappings: {1}", SEVERE),
@@ -51,12 +53,8 @@ public enum MessageSeeds implements MessageSeed {
     LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(4012, "loadProfileType.XstillInUseByDeviceTypesY", "The product spec with reading type {0} cannot be deleted because it is still in use by the following device type(s): {1}", SEVERE),
     LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED(4013, Constants.LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED_KEY, "The obis code of a load profile type is required", SEVERE),
     LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED(4014, "loadProfileType.interval.required", "The interval of a load profile type is required", SEVERE),
-    LOG_BOOK_TYPE_NAME_IS_REQUIRED(5001, "logBookType.name.required", "The name of a log book type is required", SEVERE),
-    LOG_BOOK_TYPE_ALREADY_EXISTS(5002, "logBookType.duplicateNameX", "A log book type with name \"{0}\" already exists", SEVERE),
-    LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED(5003, Constants.LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED_KEY, "The obis code of a log book type is required", SEVERE),
-    LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(5004, "logBookType.cannotUpdateObisCode", "The obis code of the log book type \"{0}\" cannot be updated because it is in use", SEVERE),
-    LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(5005, "logBookType.XstillInUseByLogBookSpecsY", "The log book type {0} cannot be deleted because it is still in use by the following log book spec(s): {1}", SEVERE),
-    LOG_BOOK_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(5006, "logBookType.XstillInUseByDeviceTypesY", "The log book type {0} cannot be deleted because it is still in use by the following device type(s): {1}", SEVERE),
+    LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(5000, "DTC.logBookType.cannotUpdateObisCode", "The obis code of the log book type \"{0}\" cannot be updated because it is in use", SEVERE),
+    LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(5001, "logBookType.XstillInUseByLogBookSpecsY", "The log book type {0} cannot be deleted because it is still in use by the following log book spec(s): {1}", SEVERE),
     REGISTER_SPEC_NUMBER_OF_DIGITS_LARGER_THAN_ONE(6001, Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS, "Invalid number of digits. At least 1 digit is required", SEVERE),
     REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED(6002, Constants.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED, "The number of digits can not be decreased", SEVERE),
     REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED(6003, Constants.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY,"The register mapping of a register specification is required", SEVERE),
@@ -212,6 +210,7 @@ public enum MessageSeeds implements MessageSeed {
 
     public static class Constants {
         public static final String NAME_REQUIRED_KEY = "DTC.X.name.required";
+        public static final String NAME_UNIQUE_KEY = "DTC.X.name.unique";
         public static final String DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS_KEY = "DTC.deviceType.XstillHasActiveConfigurations";
         public static final String DUPLICATE_DEVICE_CONFIGURATION_KEY = "DTC.deviceType.deviceConfig.duplicateName";
         public static final String DEVICE_PROTOCOL_IS_REQUIRED_KEY = "DTC.deviceType.protocol.required";
@@ -220,7 +219,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String PRODUCT_SPEC_IS_REQUIRED_KEY = "DTC.registerMapping.productSpec.required";
         public static final String UNIT_IS_REQUIRED_KEY = "DTC.registerMapping.unit.required";
         public static final String LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED_KEY = "DTC.loadProfileType.obisCode.required";
-        public static final String LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED_KEY = "DTC.logBookType.obisCode.required";
         public static final String LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED_KEY = "DTC.logBookSpec.logbookType.required";
         public static final String LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED_KEY = "DTC.loadProfileSpec.loadProfileType.required";
         public static final String CHANNEL_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY = "DTC.channelSpec.registerMapping.required";

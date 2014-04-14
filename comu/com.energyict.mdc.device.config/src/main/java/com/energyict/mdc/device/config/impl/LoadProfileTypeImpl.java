@@ -88,11 +88,6 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         }
     }
 
-    @Override
-    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
-        return DuplicateNameException.loadProfileTypeAlreadyExists(thesaurus, name);
-    }
-
     protected void doDelete() {
         this.registerMappingUsages.clear();
         this.getDataMapper().remove(this);

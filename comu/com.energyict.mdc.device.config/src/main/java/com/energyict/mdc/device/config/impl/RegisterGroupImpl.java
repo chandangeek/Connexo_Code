@@ -34,11 +34,6 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     }
 
     @Override
-    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
-        return DuplicateNameException.registerGroupAlreadyExists(thesaurus, name);
-    }
-
-    @Override
     public void save () {
         this.modificationDate = this.clock.now();
         super.save();

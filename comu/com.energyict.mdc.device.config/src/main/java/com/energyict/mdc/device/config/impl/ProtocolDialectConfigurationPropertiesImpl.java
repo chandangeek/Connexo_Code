@@ -206,11 +206,6 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     @Override
-    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
-        return DuplicateNameException.protocolConfigurationPropertiesAlreadyExists(this.getThesaurus(), name);
-    }
-
-    @Override
     protected final void doDelete() {
         dataModel.mapper(ProtocolDialectConfigurationProperties.class).remove(this);
     }

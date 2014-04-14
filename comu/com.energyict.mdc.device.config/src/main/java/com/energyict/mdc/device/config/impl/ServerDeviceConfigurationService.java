@@ -6,6 +6,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.masterdata.LogBookType;
+
 import java.util.List;
 
 /**

@@ -115,11 +115,6 @@ public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements
     }
 
     @Override
-    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
-        return DuplicateNameException.phenomenonAlreadyExists(this.getThesaurus(), name);
-    }
-
-    @Override
     public void setUnit(Unit unit) {
         if(unit != null){
             this.unitString = unit.dbString();

@@ -18,7 +18,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
@@ -26,10 +25,10 @@ import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeExcept
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
+import org.junit.*;
+import org.junit.rules.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -124,8 +123,9 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         this.deviceType.save();
     }
 
-    @Test(expected = DuplicateNameException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_UNIQUE_KEY + "}")
     public void duplicateNameTest() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder1 = this.deviceType.newConfiguration("DeviceConfiguration");
         deviceConfigurationBuilder1.add();
@@ -196,7 +196,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
 
     private LogBookType createDefaultLogBookType() {
-        LogBookType logBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType("LBTName", ObisCode.fromString("0.0.99.98.0.255"));
+        LogBookType logBookType = inMemoryPersistence.getMasterDataService().newLogBookType("LBTName", ObisCode.fromString("0.0.99.98.0.255"));
         logBookType.save();
         this.deviceType.addLogBookType(logBookType);
         return logBookType;

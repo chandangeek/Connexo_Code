@@ -4,12 +4,11 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.google.common.base.Optional;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import static com.elster.jupiter.util.Checks.is;
 
 /**
  * Provides code reuse opportunities for entities in this bundle
@@ -18,10 +17,11 @@ import static com.elster.jupiter.util.Checks.is;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-31 (13:38)
  */
+@HasUniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_UNIQUE_KEY + "}")
 public abstract class PersistentNamedObject<T> extends PersistentIdObject<T> {
 
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private String name;
 
     protected PersistentNamedObject(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
@@ -33,25 +33,30 @@ public abstract class PersistentNamedObject<T> extends PersistentIdObject<T> {
     }
 
     public void setName(String name) {
-        if(name!=null){
+        if (name != null) {
             name = name.trim();
-        }
-        if (!is(name).equalTo(this.getName())) {
-            this.validateUniqueName(name);
         }
         this.name = name;
     }
 
-    protected void validateUniqueName(String name) {
-        if (this.findOtherByName(name) != null) {
-            throw this.duplicateNameException(this.getThesaurus(), name);
-        }
+    protected boolean validateUniqueName() {
+        return this.findOtherByName(this.name) == null;
     }
 
-    protected abstract DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name);
-
     private T findOtherByName(String name) {
-        return this.getDataMapper().getUnique("name", name).orNull();
+        Optional<T> other = this.getDataMapper().getUnique("name", name);
+        if (other.isPresent()) {
+            PersistentIdObject otherPersistent = (PersistentIdObject) other.get();
+            if (otherPersistent.getId() == this.getId()) {
+                return null;
+            }
+            else {
+                return other.get();
+            }
+        }
+        else {
+            return null;
+        }
     }
 
 }

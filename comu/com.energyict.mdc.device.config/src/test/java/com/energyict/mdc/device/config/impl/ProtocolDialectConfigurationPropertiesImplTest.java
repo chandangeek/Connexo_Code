@@ -34,6 +34,8 @@ import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
@@ -101,7 +103,6 @@ import static org.mockito.Mockito.when;
 public class ProtocolDialectConfigurationPropertiesImplTest {
 
 
-    static final String DEVICE_TYPE_NAME = PersistenceTest.class.getName() + "Type";
     private static final String NAME = "name";
     private static final String MY_PROPERTY = "myProperty";
     public static final String PROTOCOL_DIALECT = "protocolDialect";
@@ -147,7 +148,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
 
     }
 
-    public void initializeDatabase(boolean showSqlLogging, boolean createMasterData) {
+    public void initializeDatabase(boolean showSqlLogging) {
         LicenseServer.licenseHolder.set(license);
         bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
@@ -168,6 +169,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new EventsModule(),
                 new OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
+                new MasterDataModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
@@ -187,6 +189,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
             injector.getInstance(PluggableService.class);
+            injector.getInstance(MasterDataService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }
@@ -201,7 +204,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         when(license.hasAllProtocols()).thenReturn(true);
         when(principal.getName()).thenReturn("test");
 //        when(deviceconfiguration.get)
-        initializeDatabase(false, false);
+        initializeDatabase(false);
         try (TransactionContext context = transactionService.getContext()) {
             DeviceProtocolPluggableClass protocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass("protocolPluggableClass", MyDeviceProtocolPluggableClass.class.getName());
             protocolPluggableClass.save();

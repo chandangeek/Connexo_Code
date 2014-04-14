@@ -2,7 +2,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.device.config.RegisterMapping;
 
 /**

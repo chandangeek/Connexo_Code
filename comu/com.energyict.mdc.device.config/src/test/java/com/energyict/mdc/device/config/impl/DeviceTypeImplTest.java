@@ -18,7 +18,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
@@ -176,8 +176,9 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     }
 
-    @Test(expected = DuplicateNameException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_UNIQUE_KEY + "}")
     public void testDuplicateDeviceTypeCreation() {
         String deviceTypeName = "testDuplicateDeviceTypeCreation";
         // Setup first device type
@@ -678,7 +679,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.addLoadProfileType(this.loadProfileType);
         deviceType.save();
 
-        // Add DeviceConfiguration with a ChannelSpec that uses the ChannelMapping
+        // Add DeviceConfiguration with a ChannelSpec that uses the RegisterMapping
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Conf 1 for " + deviceTypeName);
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(this.loadProfileType);
         deviceConfigurationBuilder.newChannelSpec(this.registerMapping, this.phenomenon, loadProfileSpecBuilder);
@@ -917,9 +918,9 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     }
 
     private void setupLogBookTypesInExistingTransaction(String logBookTypeBaseName) {
-        this.logBookType = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(logBookTypeBaseName + "-1", ObisCode.fromString("0.0.99.98.0.255"));
+        this.logBookType = inMemoryPersistence.getMasterDataService().newLogBookType(logBookTypeBaseName + "-1", ObisCode.fromString("0.0.99.98.0.255"));
         this.logBookType.save();
-        this.logBookType2 = inMemoryPersistence.getDeviceConfigurationService().newLogBookType(logBookTypeBaseName + "-2", ObisCode.fromString("1.0.99.97.0.255"));
+        this.logBookType2 = inMemoryPersistence.getMasterDataService().newLogBookType(logBookTypeBaseName + "-2", ObisCode.fromString("1.0.99.97.0.255"));
         this.logBookType2.save();
     }
 

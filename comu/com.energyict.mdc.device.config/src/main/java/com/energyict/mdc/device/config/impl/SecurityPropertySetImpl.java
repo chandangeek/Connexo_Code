@@ -71,11 +71,6 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private final DeviceConfigurationService deviceConfigurationService;
 
     @Override
-    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
-        return DuplicateNameException.securityPropertySetAlreadyExists(thesaurus, name);
-    }
-
-    @Override
     protected CreateEventType createEventType() {
         return CreateEventType.SECURITY_PROPERTY_SET;
     }

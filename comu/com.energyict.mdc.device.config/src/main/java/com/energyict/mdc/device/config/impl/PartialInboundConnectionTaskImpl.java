@@ -74,8 +74,4 @@ public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl 
         return InboundComPortPool.class;
     }
 
-    @Override
-    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
-        return DuplicateNameException.partialInboundConnectionTaskExists(thesaurus, name);
-    }
 }

@@ -13,7 +13,7 @@ import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
@@ -79,11 +79,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     DeviceConfigurationService getDeviceConfigurationService() {
         return deviceConfigurationService;
-    }
-
-    @Override
-    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
-        return DuplicateNameException.deviceTypeExists(thesaurus, name);
     }
 
     @Override

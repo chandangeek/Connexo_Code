@@ -15,6 +15,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -29,6 +31,8 @@ import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableService;
@@ -72,17 +76,21 @@ public class InMemoryPersistence {
     private TransactionService transactionService;
     private OrmService ormService;
     private EventService eventService;
+    private Publisher publisher;
     private NlsService nlsService;
+    private MasterDataService masterDataService;
     private DeviceConfigurationServiceImpl deviceConfigurationService;
     private MeteringService meteringService;
+    private MdcReadingTypeUtilService readingTypeUtilService;
+    private EngineModelService engineModelService;
+    private UserService userService;
     private DataModel dataModel;
     private Injector injector;
 
     private ApplicationContext applicationContext;
     private ProtocolPluggableService protocolPluggableService;
-    private MdcReadingTypeUtilService readingTypeUtilService;
-    private EngineModelService engineModelService;
-    private UserService userService;
+    private LogBookTypeUpdateEventHandler logBookTypeUpdateEventHandler;
+    private LogBookTypeDeletionEventHandler logBookTypeDeletionEventHandler;
 
     public void initializeDatabase(String testName, boolean showSqlLogging, boolean createMasterData) {
         this.initializeMocks(testName);
@@ -105,6 +113,7 @@ public class InMemoryPersistence {
                 new EventsModule(),
                 new OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
+                new MasterDataModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
@@ -114,10 +123,12 @@ public class InMemoryPersistence {
             this.ormService = injector.getInstance(OrmService.class);
             userService = injector.getInstance(UserService.class);
             this.eventService = injector.getInstance(EventService.class);
+            this.publisher = injector.getInstance(Publisher.class);
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.engineModelService = injector.getInstance(EngineModelService.class);
+            this.masterDataService = injector.getInstance(MasterDataService.class);
             injector.getInstance(PluggableService.class);
             this.dataModel = this.createNewDeviceConfigurationService(createMasterData);
             ctx.commit();
@@ -175,6 +186,10 @@ public class InMemoryPersistence {
         return meteringService;
     }
 
+    public MasterDataService getMasterDataService() {
+        return masterDataService;
+    }
+
     public DeviceConfigurationServiceImpl getDeviceConfigurationService() {
         return deviceConfigurationService;
     }
@@ -202,7 +217,8 @@ public class InMemoryPersistence {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             new ResultSetPrinter(new PrintStream(out)).print(resultSet);
             return new String(out.toByteArray());
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             StringWriter stringWriter = new StringWriter();
             e.printStackTrace(new PrintWriter(stringWriter));
             return stringWriter.toString();
@@ -211,6 +227,27 @@ public class InMemoryPersistence {
 
     public Injector getInjector() {
         return injector;
+    }
+
+    public void registerEventHandlers() {
+        this.logBookTypeDeletionEventHandler = this.registerSubscriber(new LogBookTypeDeletionEventHandler(this.deviceConfigurationService));
+        this.logBookTypeUpdateEventHandler = this.registerSubscriber(new LogBookTypeUpdateEventHandler(this.deviceConfigurationService));
+    }
+
+    private <T extends Subscriber> T registerSubscriber(T subscriber) {
+        this.publisher.addThreadSubscriber(subscriber);
+        return subscriber;
+    }
+
+    public void unregisterEventHandlers() {
+        this.unregisterSubscriber(this.logBookTypeDeletionEventHandler);
+        this.unregisterSubscriber(this.logBookTypeUpdateEventHandler);
+    }
+
+    private void unregisterSubscriber(Subscriber subscriber) {
+        if (subscriber != null) {
+            this.publisher.removeThreadSubscriber(subscriber);
+        }
     }
 
     private class MockModule extends AbstractModule {
