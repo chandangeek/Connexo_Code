@@ -63,6 +63,33 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     anchor: '100%',
                     emptyText: 'select a reason',
                     tooltipText: 'Start typing for reason'
+                },
+                {
+                    xtype: 'combobox',
+                    name: 'meter',
+                    fieldLabel: 'Meter',
+                    labelAlign: 'top',
+
+                    displayField: 'name',
+                    valueField: 'id',
+                    forceSelection: true,
+                    store: 'Isu.store.IssueMeter',
+
+                    listConfig: {
+                        cls: 'isu-combo-color-list',
+                        emptyText: 'No meter found'
+                    },
+
+                    queryMode: 'remote',
+                    queryParam: 'like',
+                    queryDelay: 100,
+                    queryCaching: false,
+                    minChars: 1,
+
+                    triggerAction: 'query',
+                    anchor: '100%',
+                    emptyText: 'select a meter',
+                    tooltipText: 'Start typing for meter'
                 }
             ]
         }

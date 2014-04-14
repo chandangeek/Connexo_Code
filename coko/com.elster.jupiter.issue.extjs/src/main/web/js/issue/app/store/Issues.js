@@ -30,9 +30,9 @@ Ext.define('Isu.store.Issues', {
 
     listeners: {
         "beforeLoad": function() {
-            if (!this.proxyFilter || !this.proxySort) {
+            /*if (!this.proxyFilter || !this.proxySort) {
                 this.loadDefaults();
-            }
+            }*/
             var extraParams = this.proxy.extraParams;
 
             // replace filter extra params with new ones
@@ -69,6 +69,8 @@ Ext.define('Isu.store.Issues', {
         var defaultSort = new Isu.model.IssueSort();
         defaultSort.addSortParam('dueDate');
         me.proxySort = defaultSort;
+
+        defaultFilter.isDefault = true;  //todo: not good option
 
         this.fireEvent('updateProxyFilter', defaultFilter);
         this.fireEvent('updateProxySort', defaultSort);

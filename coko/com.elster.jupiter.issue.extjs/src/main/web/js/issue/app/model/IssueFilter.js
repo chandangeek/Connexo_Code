@@ -22,6 +22,11 @@ Ext.define('Isu.model.IssueFilter', {
             model: 'Isu.model.IssueReason',
             associationKey: 'reason',
             name: 'reason'
+        },
+        {
+            model: 'Isu.model.IssueMeter',
+            associationKey: 'meter',
+            name: 'meter'
         }
     ],
 
@@ -33,7 +38,6 @@ Ext.define('Isu.model.IssueFilter', {
         var fields = this.callParent();
         fields.push('assigneeId');
         fields.push('assigneeType');
-
         return fields;
     },
 

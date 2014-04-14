@@ -30,7 +30,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
         },
         {
             xtype: 'grid',
-            store: 'CreationRules',
+            store: 'Isu.store.CreationRule',
             height: 285,
             columns: {
                 defaults: {
@@ -46,20 +46,16 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
                     },
                     {
                         header: 'Rule template',
-                        dataIndex: 'template',
-                        tdCls: 'isu-grid-description',
-                        flex: 1
-                    },
-                    {
-                        header: 'Issue reason',
-                        dataIndex: 'reason',
-                        tdCls: 'isu-grid-description',
-                        flex: 1
-                    },
-                    {
-                        header: 'Assignee',
                         xtype: 'templatecolumn',
-                        tpl: '<tpl if="assignee"><tpl if="assignee.type"><span class="isu-icon-{assignee.type} isu-assignee-type-icon"></span></tpl> {assignee.name}<tpl else>Automatic</tpl>',
+                        tpl: '<tpl if="template">{template.name}</tpl>',
+                        tdCls: 'isu-grid-description',
+                        flex: 1
+                    },
+                    {
+                        header: 'Issue type',
+                        xtype: 'templatecolumn',
+                        tpl: '<tpl if="issueType">{issueType.name}</tpl>',
+                        tdCls: 'isu-grid-description',
                         flex: 1
                     },
                     {
@@ -82,7 +78,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
             items: [
                 {
                     xtype: 'pagingtoolbartop',
-                    store: 'CreationRules',
+                    store: 'Isu.store.CreationRule',
                     border: false,
                     flex: 1
                 },
@@ -95,7 +91,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
         },
         {
             xtype: 'pagingtoolbarbottom',
-            store: 'CreationRules',
+            store: 'Isu.store.CreationRule',
             dock: 'bottom'
         }
     ],
@@ -108,16 +104,12 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
 
         store = this.down('grid').getStore();
 
-        self.onStoreLoad(store);
-
         store.on({
             load: {
                 fn: self.onStoreLoad,
                 scope: self
             }
         });
-
-        store.load();
     },
 
     onStoreLoad: function (store) {

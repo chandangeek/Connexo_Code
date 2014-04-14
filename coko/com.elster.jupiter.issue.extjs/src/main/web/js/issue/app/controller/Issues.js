@@ -65,6 +65,14 @@ Ext.define('Isu.controller.Issues', {
                 beforehide: this.hideItemAction,
                 click: this.chooseIssuesAction
             },
+            'issues-overview issues-item': {
+                afterChange: this.setFilterIconsActions
+            },
+            // ====================================  IssueListFilter controls  ====================================
+
+            'button[name=addsortbtn]': {
+                click: this.setAddSortMenu
+            },
             'menu[name=addsortitemmenu]': {
                 click: this.addSortItem
             },
@@ -75,11 +83,8 @@ Ext.define('Isu.controller.Issues', {
             'grid[name=groupgrid]': {
                 itemclick: this.getIssuesForGroup
             },
-            'button[action=clearSort]': {
+            'button[name=clearsortbtn]': {
                 click: this.clearSort
-            },
-            'button[action=addSort]': {
-                click: this.setAddSortMenu
             },
             'issues-overview breadcrumbTrail': {
                 afterrender: this.setBreadcrumb
@@ -88,6 +93,8 @@ Ext.define('Isu.controller.Issues', {
                 click: this.changeSortDirection,
                 arrowclick: this.removeSortItem
             },
+
+            // ====================================  END IssueListFilter controls  ================================
             'issues-filter [name="filter"] button-tag': {
                 arrowclick: this.removeFilter
             }
@@ -114,7 +121,7 @@ Ext.define('Isu.controller.Issues', {
         var issueNoGroup = this.getIssueNoGroup(),
             issueList = this.getIssuesList();
 
-        if (records.length < 1) {
+        if (records && records.length < 1) {
 
             issueNoGroup.removeAll();
             issueNoGroup.add({
@@ -137,8 +144,12 @@ Ext.define('Isu.controller.Issues', {
      * @param filter Uni.component.filter.model.Filter
      */
     filterUpdate: function (filter) {
+        if (!this.getFilter()) {
+            return;
+        }
         var filterElm = this.getFilter().down('[name="filter"]'),
-            clearFilterBtn = this.getFilter().down('button[action="clearFilter"]'),
+            emptyText = this.getFilter().down('[name="empty-text"]'),
+            clearFilterBtn = this.getFilter().down('button[action="clearfilter"]'),
             buttons = [];
 
         if (filter.get('assignee')) {
@@ -159,6 +170,15 @@ Ext.define('Isu.controller.Issues', {
             buttons.push(button);
         }
 
+        if (filter.get('meter')) {
+            var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
+                text: 'Meter: ' + filter.get('meter').get('name'),
+                target: 'meter'
+            });
+
+            buttons.push(button);
+        }
+
         if (filter.status().count()) {
             filter.status().each(function (status) {
                 var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
@@ -174,12 +194,14 @@ Ext.define('Isu.controller.Issues', {
         filterElm.removeAll();
 
         if (buttons.length) {
+            emptyText.hide();
             clearFilterBtn.setDisabled(false);
 
             Ext.Array.each(buttons, function (button) {
                 filterElm.add(button);
             });
         } else {
+            emptyText.show();
             clearFilterBtn.setDisabled(true);
         }
     },
@@ -196,10 +218,20 @@ Ext.define('Isu.controller.Issues', {
     onIssuesListGridViewRefreshEvent: function (gridView) {
         this.setAssigneeTypeIconTooltip(gridView);
         this.bulkChangeButtonDisable(gridView);
+        this.selectFirstGridRow(gridView);
     },
 
     sortUpdate: function (sortModel) {
-        var filterElm = this.getFilter().down('[name="sortitemspanel"]');
+        if (!this.getFilter()) {
+            return;
+        }
+        var filterElm = this.getFilter().down('[name="sortitemspanel"]'),
+            isuList = this.getIssuesList();
+
+        if (isuList) {
+            isuList.getSelectionModel().deselectAll()
+        }
+        this.showDefaultItems();
 
         filterElm.removeAll();
 
@@ -220,7 +252,8 @@ Ext.define('Isu.controller.Issues', {
             }
         });
 
-        this.getFilter().down('[action="clearSort"]').setDisabled(!filterElm.items.length);
+        this.getFilter().down('[name="clearsortbtn"]').setDisabled(!filterElm.items.length);
+
     },
 
     removeFilter: function (elm) {
@@ -230,7 +263,57 @@ Ext.define('Isu.controller.Issues', {
 
     showOverview: function () {
         var widget = Ext.widget('issues-overview');
+
+        this.setFilter();
+
         this.getApplication().fireEvent('changecontentevent', widget);
+    },
+
+    setFilter: function () {
+        var issuesStore = this.getStore('Isu.store.Issues'),
+            queryString = Uni.util.QueryString.getQueryStringValues(),
+            sortModel = new Isu.model.IssueSort(),
+            filterModel = new Isu.model.IssueFilter(),
+            statusStore = this.getStore('Isu.store.IssueStatus'),
+            sortParam,
+            sortDirection;
+
+        delete issuesStore.proxyFilter;
+        delete issuesStore.proxySort;
+
+        if (queryString.sort) {
+            if (!Ext.isArray(queryString.sort)) {
+                sortParam = queryString.sort.charAt(0) == '-' ? queryString.sort.slice(1) : queryString.sort;
+                sortDirection = queryString.sort.charAt(0) == '-' ? Isu.model.IssueSort.DESC : Isu.model.IssueSort.ASC;
+                sortModel.addSortParam(sortParam, sortDirection);
+            } else {
+                Ext.Array.each(queryString.sort, function (sort) {
+                    sortParam = sort.charAt(0) == '-' ? sort.slice(1) : sort;
+                    sortDirection = sort.charAt(0) == '-' ? Isu.model.IssueSort.DESC : Isu.model.IssueSort.ASC;
+                    sortModel.addSortParam(sortParam, sortDirection);
+                });
+            }
+        } else {
+            sortModel.addSortParam('dueDate');
+        }
+        issuesStore.proxySort = sortModel;
+        issuesStore.fireEvent('updateProxySort', sortModel);
+
+        statusStore.load(function () {
+            if (queryString.status) {
+                if (!Ext.isArray(queryString.status)) {
+                    filterModel.status().add(statusStore.getById(parseInt(queryString.status)));
+                } else {
+                    Ext.Array.each(queryString.status, function (status) {
+                        filterModel.status().add(statusStore.getById(parseInt(status)));
+                    });
+                }
+            } else {
+                filterModel.status().add(statusStore.first());
+            }
+            issuesStore.proxyFilter = filterModel;
+            issuesStore.fireEvent('updateProxyFilter', filterModel);
+        });
     },
 
     setBreadcrumb: function (breadcrumbs) {
@@ -298,6 +381,7 @@ Ext.define('Isu.controller.Issues', {
 
     clearSort: function () {
         this.store.setProxySort(new Isu.model.IssueSort());
+
     },
 
     setGroupFields: function (view) {
@@ -397,14 +481,75 @@ Ext.define('Isu.controller.Issues', {
 
     showDefaultItems: function () {
         var issueItemView = this.getItemPanel();
-        if (issueItemView) {
-            issueItemView.removeAll();
-            issueItemView.add({
-                html: '<h3>No issue selected</h3><p>Select an issue to view its detail.</p>',
-                bodyPadding: 10,
-                border: false
-            });
+
+        issueItemView && issueItemView.fireEvent('clear');
+    },
+
+    setFilterIconsActions: function (itemPanel) {
+        var self = this,
+            icons = Ext.get(itemPanel.getEl()).select('.isu-apply-filter');
+
+        icons.on('click', self.addFilterIconAction, self);
+        itemPanel.on('change', function () {
+            icons.un('click', self.addFilterIconAction, self);
+        });
+        itemPanel.on('clear', function () {
+            icons.un('click', self.addFilterIconAction, self);
+        });
+    },
+
+    addFilterIconAction: function (event, icon) {
+        var filterType = icon.getAttribute('data-filterType'),
+            filterValue = icon.getAttribute('data-filterValue'),
+            visualValue = Ext.get(icon).prev().getHTML();
+
+        if (!filterType || !filterValue) {
+            return;
         }
+
+        switch (filterType) {
+            case 'status':
+                this.setChecboxFilter(filterType, filterValue);
+                break;
+            case 'assignee':
+                this.setComboFilter(filterType, filterValue, visualValue);
+                break;
+            case 'reason':
+                this.setComboFilter(filterType, parseInt(filterValue), visualValue);
+                break;
+            case 'meter':
+                this.setComboFilter(filterType, parseInt(filterValue), visualValue);
+                break;
+        }
+    },
+
+    setChecboxFilter: function (filterType, filterValue) {
+        var filterController = this.getController('Isu.controller.IssueFilter'),
+            filterForm = filterController.getIssueFilter().down('filter-form'),
+            allCheckboxes = filterForm.query('checkboxfield');
+            checkbox = filterForm.down('[name='+ filterType +'] checkboxfield[inputValue=' + filterValue + ']');
+
+        Ext.Array.each(allCheckboxes, function (item) {
+            item.setValue(false);
+        });
+
+        checkbox.setValue(true);
+        filterController.filter();
+    },
+
+    setComboFilter: function (filterType, filterValue, visualValue) {
+        var filterController = this.getController('Isu.controller.IssueFilter'),
+            filterForm = filterController.getIssueFilter().down('filter-form'),
+            combo = filterForm.down('[name=' + filterType + ']'),
+            comboStore = combo.getStore(),
+            storeProxy = comboStore.getProxy();
+
+        storeProxy.setExtraParam(combo.queryParam, visualValue);
+
+        comboStore.load(function () {
+            combo.setValue(filterValue);
+            filterController.filter();
+        });
     }
     // ====================================  END IssueListFilter controls  ====================================
 });

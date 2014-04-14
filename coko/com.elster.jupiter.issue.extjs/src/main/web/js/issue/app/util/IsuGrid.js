@@ -148,5 +148,24 @@ Ext.define('Isu.util.IsuGrid', {
                 preloader.destroy();
             }
         });
+    },
+
+    /**
+     * Handle 'refresh' event.
+     * Select first row in grid.
+     */
+
+    selectFirstGridRow: function (grid) {
+        var itemPanel = this.getItemPanel(),
+            index = 0,
+            item = grid.getNode(index),
+            record;
+
+        if (item) {
+            record = grid.getRecord(item);
+            grid.fireEvent('itemclick', grid, record, item, index);
+        } else {
+            itemPanel.fireEvent('clear');
+        }
     }
 });
