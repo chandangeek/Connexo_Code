@@ -87,7 +87,7 @@ public enum MeasurementKind {
 	ONEWAYADDRESS (114, "OneWayAddress"),
 	SIGNALSTRENGTH (115, "SignalStrength"),
 	TWOWAYADDRESS (116, "TwoWayAddress") ,
-	SIGNALNOISERATION(117,"SignalNoiseRatio"),
+	SIGNALNOISERATIO(117,"SignalNoiseRatio"),
 	ALARM (118, "Alarm"),
 	BATTERYCARRYOVER (119, "BatteryCarryOver"),
 	DATAOVERFLOWALARM (120, "DataOverflowAlarm"),
