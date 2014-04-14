@@ -19,6 +19,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -77,6 +78,27 @@ public class ConnectionMethodResource {
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 
+    @DELETE
+    @Path("/{connectionMethodId}")
+    public Response deleteConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
+                                            @PathParam("deviceConfigurationId") long deviceConfigurationId,
+                                            @PathParam("connectionMethodId") long connectionMethodId) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        PartialConnectionTask partialConnectionTaskToDelete = getPartialConnectionTaskOrThrowException(connectionMethodId, deviceConfiguration);
+        deviceConfiguration.remove(partialConnectionTaskToDelete);
+        return Response.ok().build();
+    }
+
+    private PartialConnectionTask getPartialConnectionTaskOrThrowException(long connectionMethodId, DeviceConfiguration deviceConfiguration) {
+        for (PartialConnectionTask partialConnectionTask : deviceConfiguration.getPartialConnectionTasks()) {
+            if (partialConnectionTask.getId()==connectionMethodId) {
+                return partialConnectionTask;
+            }
+        }
+        throw new WebApplicationException("No such connection task", Response.Status.NOT_FOUND);
+    }
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -102,9 +124,14 @@ public class ConnectionMethodResource {
                 }
                 created = connectionTaskBuilder.build();
         }
+        if (created==null) {
+            throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+        }
         return Response.status(Response.Status.CREATED).entity(ConnectionMethodInfo.from(created, uriInfo)).build();
 
     }
+
+
 
     private ConnectionTypePluggableClass findConnectionTypeOrThrowException(String pluggableClassName) {
         Optional<? extends ConnectionTypePluggableClass> pluggableClassOptional = protocolPluggableService.findConnectionTypePluggableClassByName(pluggableClassName);
