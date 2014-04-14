@@ -1,0 +1,62 @@
+package com.energyict.mdc.masterdata.impl;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+import com.google.common.base.Optional;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+/**
+ * Provides code reuse opportunities for entities in this bundle
+ * that have a name that is unique across all entities of the same type.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2014-01-31 (13:38)
+ */
+@HasUniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_UNIQUE_KEY + "}")
+public abstract class PersistentNamedObject<T> extends PersistentIdObject<T> {
+
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    private String name;
+
+    protected PersistentNamedObject(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+        super(domainClass, dataModel, eventService, thesaurus);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        if (name != null) {
+            name = name.trim();
+        }
+        this.name = name;
+    }
+
+    protected boolean validateUniqueName() {
+        return this.findOtherByName(this.name) == null;
+    }
+
+    private T findOtherByName(String name) {
+        Optional<T> other = this.getDataMapper().getUnique("name", name);
+        if (other.isPresent()) {
+            PersistentIdObject otherPersistent = (PersistentIdObject) other.get();
+            if (otherPersistent.getId() == this.getId()) {
+                return null;
+            }
+            else {
+                return other.get();
+            }
+        }
+        else {
+            return null;
+        }
+    }
+
+}
