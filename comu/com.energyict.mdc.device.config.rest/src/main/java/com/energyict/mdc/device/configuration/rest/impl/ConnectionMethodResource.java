@@ -7,11 +7,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskBuilder;
-import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.pluggable.rest.PropertyInfo;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -110,32 +106,7 @@ public class ConnectionMethodResource {
                                            ConnectionMethodInfo connectionMethodInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        PartialConnectionTask created;
-        switch (connectionMethodInfo.direction) {
-            case "Inbound":
-                PartialInboundConnectionTaskBuilder connectionTaskBuilder = deviceConfiguration.getCommunicationConfiguration().createPartialInboundConnectionTask()
-                    .name(connectionMethodInfo.name)
-                    .pluggableClass(findConnectionTypeOrThrowException(connectionMethodInfo.connectionType))
-                    .comPortPool((InboundComPortPool) engineModelService.findComPortPool(connectionMethodInfo.comPortPool))
-                    .asDefault(connectionMethodInfo.isDefault);
-                addPropertiesToPartialConnectionTask(connectionMethodInfo, connectionTaskBuilder);
-                created = connectionTaskBuilder.build();
-                break;
-            case "Scheduled":
-                PartialScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = deviceConfiguration.createPartialScheduledConnectionTask()
-                    .name(connectionMethodInfo.name)
-                    .pluggableClass(findConnectionTypeOrThrowException(connectionMethodInfo.connectionType))
-                    .comPortPool((OutboundComPortPool) engineModelService.findComPortPool(connectionMethodInfo.comPortPool))
-                    .asDefault(connectionMethodInfo.isDefault)
-                    .connectionStrategy(connectionMethodInfo.connectionStrategy)
-                    .allowSimultaneousConnections(connectionMethodInfo.allowSimultaneousConnections);
-
-                addPropertiesToPartialConnectionTask(connectionMethodInfo, scheduledConnectionTaskBuilder);
-                created = scheduledConnectionTaskBuilder.build();
-                break;
-            default:
-                throw new WebApplicationException("Unsupported direction:" +connectionMethodInfo.direction, Response.Status.NOT_ACCEPTABLE);
-        }
+        PartialConnectionTask created = connectionMethodInfo.asTask(deviceConfiguration, engineModelService, protocolPluggableService);
         return Response.status(Response.Status.CREATED).entity(ConnectionMethodInfoFactory.asInfo(created, uriInfo)).build();
 
     }

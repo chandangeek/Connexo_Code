@@ -3,12 +3,20 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialConnectionTaskBuilder;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyInfo;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.codehaus.jackson.annotate.JsonSubTypes;
@@ -22,7 +30,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
      @JsonSubTypes.Type(value = InboundConnectionMethodInfo.class, name = "Inbound"),
      @JsonSubTypes.Type(value = OutboundConnectionMethodInfo.class, name = "Outbound"),
      @JsonSubTypes.Type(value = ScheduledConnectionMethodInfo.class, name = "Scheduled") })
-public class ConnectionMethodInfo {
+public abstract class ConnectionMethodInfo {
     public long id;
     public String name;
     public String direction;
@@ -51,4 +59,22 @@ public class ConnectionMethodInfo {
         MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, this.propertyInfos);
     }
 
+    protected void addPropertiesToPartialConnectionTask(PartialConnectionTaskBuilder<?,?,?> connectionTaskBuilder) {
+        if (this.propertyInfos!=null) {
+            for (PropertyInfo propertyInfo : this.propertyInfos) {
+                connectionTaskBuilder.addProperty(propertyInfo.key, propertyInfo.getPropertyValueInfo().value);
+            }
+        }
+    }
+
+    protected ConnectionTypePluggableClass findConnectionTypeOrThrowException(String pluggableClassName, ProtocolPluggableService protocolPluggableService) {
+        Optional<? extends ConnectionTypePluggableClass> pluggableClassOptional = protocolPluggableService.findConnectionTypePluggableClassByName(pluggableClassName);
+        if (!pluggableClassOptional.isPresent()) {
+            throw new WebApplicationException("No such connection type", Response.status(Response.Status.NOT_FOUND).entity("No such connection type").build());
+        }
+        return pluggableClassOptional.get();
+    }
+
+
+    public abstract PartialConnectionTask asTask(DeviceConfiguration deviceConfiguration, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService);
 }
