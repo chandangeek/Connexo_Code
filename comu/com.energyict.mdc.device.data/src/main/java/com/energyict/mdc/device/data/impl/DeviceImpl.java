@@ -30,9 +30,9 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.Channel;
@@ -113,6 +113,8 @@ public class DeviceImpl implements Device, PersistenceAware {
     private TimeZone timeZone;
     private String externalName;
     private Date modificationDate;
+    private Date yearOfCertification;
+
     @Valid
     private TemporalReference<CommunicationGatewayReference> communicationGatewayReferenceDevice = Temporals.absent();
     @Valid
@@ -357,6 +359,16 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Override
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
+    }
+
+    @Override
+    public void setYearOfCertification(Date yearOfCertification) {
+        this.yearOfCertification = yearOfCertification;
+    }
+
+    @Override
+    public Date getYearOfCertification() {
+        return yearOfCertification;
     }
 
     public Date getModDate() {
@@ -813,8 +825,8 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     @Override
-    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialScheduledConnectionTask partialScheduledConnectionTask) {
-        return new ScheduledConnectionTaskBuilderForDevice(this, partialScheduledConnectionTask);
+    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask) {
+        return new ScheduledConnectionTaskBuilderForDevice(this, partialOutboundConnectionTask);
     }
 
     @Override
@@ -910,11 +922,11 @@ public class DeviceImpl implements Device, PersistenceAware {
 
         private final ScheduledConnectionTaskImpl scheduledConnectionTask;
 
-        private ScheduledConnectionTaskBuilderForDevice(Device device, PartialScheduledConnectionTask partialScheduledConnectionTask) {
+        private ScheduledConnectionTaskBuilderForDevice(Device device, PartialOutboundConnectionTask partialOutboundConnectionTask) {
             this.scheduledConnectionTask = scheduledConnectionTaskProvider.get();
-            this.scheduledConnectionTask.initialize(device, (PartialOutboundConnectionTask) partialScheduledConnectionTask, partialScheduledConnectionTask.getComPortPool());
-            this.scheduledConnectionTask.setNextExecutionSpecsFrom(partialScheduledConnectionTask.getNextExecutionSpecs().getTemporalExpression());
-            this.scheduledConnectionTask.setConnectionStrategy(((PartialOutboundConnectionTask) partialScheduledConnectionTask).getConnectionStrategy());
+            this.scheduledConnectionTask.initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool());
+            this.scheduledConnectionTask.setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
+            this.scheduledConnectionTask.setConnectionStrategy(((PartialScheduledConnectionTask) partialOutboundConnectionTask).getConnectionStrategy());
         }
 
         @Override

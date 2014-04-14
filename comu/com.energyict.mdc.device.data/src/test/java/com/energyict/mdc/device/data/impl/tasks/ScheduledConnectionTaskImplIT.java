@@ -13,7 +13,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.ComTaskExecutionFactory;
@@ -43,7 +43,6 @@ import com.energyict.mdc.protocol.api.codetables.Code;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeConstants;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -176,7 +175,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(mockCommunicationConfig);
         when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        PartialOutboundConnectionTask partialScheduledConnectionTask = mock(PartialOutboundConnectionTask.class);
+        PartialScheduledConnectionTask partialScheduledConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialScheduledConnectionTask.getId()).thenReturn(PARTIAL_SCHEDULED_CONNECTION_TASK3_ID);
         when(partialScheduledConnectionTask.getName()).thenReturn("testCreateOfDifferentConfig");
         when(partialScheduledConnectionTask.getConfiguration()).thenReturn(deviceConfiguration);
@@ -1885,7 +1884,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         return createAsapWithNoPropertiesWithoutViolations(name, this.partialScheduledConnectionTask);
     }
 
-    private ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name, PartialOutboundConnectionTask partialConnectionTask) {
+    private ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name, PartialScheduledConnectionTask partialConnectionTask) {
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
         partialConnectionTask.setName(name);
         partialConnectionTask.save();

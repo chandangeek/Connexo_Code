@@ -8,26 +8,21 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.protocols.mdc.inbound.general.InboundConnection;
 
 import java.util.Date;
 import java.util.List;
@@ -130,6 +125,15 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     void setSerialNumber(String serialNumber);
 
+    void setYearOfCertification(Date yearOfCertification);
+
+    /**
+     * Returns the year of certification of a device
+     *
+     * @return a certification date
+     */
+    Date getYearOfCertification();
+
     /**
      * Returns the receiver's last modification date
      *
@@ -199,10 +203,10 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     /**
      * Provides a builder that allows the creation of a ScheduledConnectionTask for the Device
      *
-     * @param partialScheduledConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask
+     * @param partialOutboundConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask
      * @return the builder
      */
-    ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialScheduledConnectionTask partialScheduledConnectionTask);
+    ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask);
 
     /**
      * Provides a builder that allows the creation of an InboundConnectionTask for the Device

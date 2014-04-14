@@ -21,7 +21,7 @@ import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ComTaskExecutionFactory;
@@ -178,14 +178,14 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
 
     @Override
-    public ScheduledConnectionTask newAsapConnectionTask(Device device, PartialOutboundConnectionTask partialConnectionTask, OutboundComPortPool comPortPool) {
+    public ScheduledConnectionTask newAsapConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool) {
         ScheduledConnectionTaskImpl connectionTask = this.dataModel.getInstance(ScheduledConnectionTaskImpl.class);
         connectionTask.initializeWithAsapStrategy(device, partialConnectionTask, comPortPool);
         return connectionTask;
     }
 
     @Override
-    public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialOutboundConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression temporalExpression) {
+    public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression temporalExpression) {
         NextExecutionSpecs nextExecutionSpecs = null;
         if (temporalExpression != null) {
             nextExecutionSpecs = this.deviceConfigurationService.newNextExecutionSpecs(temporalExpression);

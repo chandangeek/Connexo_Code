@@ -13,8 +13,8 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
@@ -31,14 +31,13 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import java.util.List;
 import org.fest.assertions.core.Condition;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -59,7 +58,7 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
     private ConnectionTypePluggableClass connectionTypePluggableClass;
     private ConnectionTypePluggableClass ipConnectionTypePluggableClass;
     private InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass;
-    private PartialScheduledConnectionTask partialOutboundConnectionTask;
+    private PartialOutboundConnectionTask partialOutboundConnectionTask;
     private PartialInboundConnectionTask partialInboundConnectionTask;
     private PartialConnectionInitiationTask partialConnectionInitiationTask;
     private TimeDuration frequency = TimeDuration.hours(1);
@@ -135,7 +134,7 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
     }
 
     private void addPartialOutboundConnectionTaskFor(DeviceCommunicationConfiguration communicationConfiguration, ConnectionTypePluggableClass connectionTypePluggableClass) {
-        PartialOutboundConnectionTaskBuilder partialOutboundConnectionTaskBuilder = communicationConfiguration.createPartialOutboundConnectionTask()
+        PartialScheduledConnectionTaskBuilder partialScheduledConnectionTaskBuilder = communicationConfiguration.createPartialScheduledConnectionTask()
                 .name("MyOutbound")
                 .comPortPool(outboundComPortPool)
                 .pluggableClass(connectionTypePluggableClass)
@@ -143,10 +142,10 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
                 .rescheduleDelay(TimeDuration.seconds(60))
                 .connectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .asDefault(true);
-        NextExecutionSpecBuilder<PartialOutboundConnectionTaskBuilder> nextExecutionSpecBuilder = partialOutboundConnectionTaskBuilder.nextExecutionSpec();
+        NextExecutionSpecBuilder<PartialScheduledConnectionTaskBuilder> nextExecutionSpecBuilder = partialScheduledConnectionTaskBuilder.nextExecutionSpec();
         nextExecutionSpecBuilder.temporalExpression(frequency);
         nextExecutionSpecBuilder.set();
-        partialOutboundConnectionTask = partialOutboundConnectionTaskBuilder.build();
+        partialOutboundConnectionTask = partialScheduledConnectionTaskBuilder.build();
         communicationConfiguration.save();
     }
 

@@ -8,16 +8,14 @@ import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Transaction;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFactory;
-import com.energyict.mdc.device.data.PartialConnectionTaskFactory;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -33,15 +31,16 @@ import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -97,8 +96,8 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected Device otherDevice;
     protected PartialInboundConnectionTask partialInboundConnectionTask;
     protected PartialInboundConnectionTask partialInboundConnectionTask2;
-    protected PartialOutboundConnectionTask partialScheduledConnectionTask;
-    protected PartialOutboundConnectionTask partialScheduledConnectionTask2;
+    protected PartialScheduledConnectionTask partialScheduledConnectionTask;
+    protected PartialScheduledConnectionTask partialScheduledConnectionTask2;
     protected PartialConnectionInitiationTask partialConnectionInitiationTask;
     protected PartialConnectionInitiationTask partialConnectionInitiationTask2;
 
@@ -379,7 +378,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
                 pluggableClass(noParamsConnectionTypePluggableClass).
                 build();
 
-        partialScheduledConnectionTask = deviceCommunicationConfiguration.createPartialOutboundConnectionTask().
+        partialScheduledConnectionTask = deviceCommunicationConfiguration.createPartialScheduledConnectionTask().
                 name("Outbound (1)").
                 comWindow(new ComWindow(0, 7200)).
                 rescheduleDelay(TimeDuration.minutes(5)).
@@ -387,7 +386,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
                 pluggableClass(noParamsConnectionTypePluggableClass).
                 build();
 
-        partialScheduledConnectionTask2 = deviceCommunicationConfiguration.createPartialOutboundConnectionTask().
+        partialScheduledConnectionTask2 = deviceCommunicationConfiguration.createPartialScheduledConnectionTask().
                 name("Outbound (2)").
                 comWindow(new ComWindow(0, 7200)).
                 rescheduleDelay(TimeDuration.minutes(5)).
