@@ -68,7 +68,7 @@ public class DeviceCommunicationProtocolsResource {
     }
 
     @GET
-    @Path("/{deviceProtocolId}/supportedconnectiontypes")
+    @Path("/{deviceProtocolId}/connectiontypes")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ConnectionTypeInfo> getSupportedConnectionTypes(@PathParam("deviceProtocolId") long deviceProtocolId, @Context UriInfo uriInfo){
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolId);
