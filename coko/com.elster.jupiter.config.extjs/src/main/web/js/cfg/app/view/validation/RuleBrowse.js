@@ -3,12 +3,11 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.validationruleBrowse',
     itemId: 'validationruleBrowse',
-    autoScroll: true,
    // cls: 'content-container',
   //  overflowY: 'auto',
     requires: [
         'Cfg.view.validation.RuleList',
-        'Cfg.view.validation.RulePreview',
+        'Cfg.view.validation.RulePreview'
      //   'Uni.view.breadcrumb.Trail'
     ],
 
