@@ -7,6 +7,7 @@ import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.impl.ConnectionTypePluggableClassImpl;
 import com.google.common.base.Optional;
 import java.util.List;
 
@@ -151,6 +152,7 @@ public interface ProtocolPluggableService {
     public void deleteInboundDeviceProtocolPluggableClass(long id);
 
     public List<ConnectionTypePluggableClass> findConnectionTypePluggableClassByClassName(String javaClassName);
+    public Optional<ConnectionTypePluggableClassImpl> findConnectionTypePluggableClassByName(String name);
 
     public ConnectionTypePluggableClass findConnectionTypePluggableClass(long id);
 

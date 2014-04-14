@@ -324,6 +324,16 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
+    public Optional<ConnectionTypePluggableClassImpl> findConnectionTypePluggableClassByName(String name) {
+        Optional<PluggableClass> pluggableClasses = this.pluggableService.findByTypeAndName(PluggableClassType.ConnectionType, name);
+        if (pluggableClasses.isPresent()) {
+            return Optional.of(ConnectionTypePluggableClassImpl.from(this.dataModel, pluggableClasses.get()));
+        } else {
+            return Optional.absent();
+        }
+    }
+
+    @Override
     public ConnectionTypePluggableClass findConnectionTypePluggableClass(long id) {
         PluggableClass pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.ConnectionType, id);
         if (pluggableClass == null) {
