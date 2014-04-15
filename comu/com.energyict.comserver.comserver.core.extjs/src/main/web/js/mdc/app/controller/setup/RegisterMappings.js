@@ -187,13 +187,11 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
     },
 
     addRegisterMappingsToDeviceType: function () {
-        console.log('addRegisterMappingsToDeviceType');
         var me = this;
         var registerMappings = this.getRegisterMappingAddGrid().getSelectionModel().getSelection();
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
             success: function (deviceType) {
-                console.log(deviceType);
                 deviceType.registerTypes().add(registerMappings);
                 deviceType.save({
                     callback: function () {

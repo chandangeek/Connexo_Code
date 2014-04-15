@@ -43,7 +43,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
             '#deviceCommunicationProtocolPreview menuitem[action=editProtocol]': {
                 click: this.editDeviceCommunicationProtocolHistoryFromPreview
             },
-            '#createEditButton[action=editProtocol]': {
+            '#createEditButton[action=editDeviceCommunicationProtocol]': {
                 click: this.editDeviceCommunicationProtocol
             }
         });
@@ -109,6 +109,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
             values = this.getDeviceCommunicationProtocolEditForm().getValues(),
             me = this;
 
+        console.log(record);
+        console.log(values);
+        console.log('edit device communication protocol');
         if (record) {
             record.set(values);
             record.propertyInfosStore = me.getPropertiesController().updateProperties();

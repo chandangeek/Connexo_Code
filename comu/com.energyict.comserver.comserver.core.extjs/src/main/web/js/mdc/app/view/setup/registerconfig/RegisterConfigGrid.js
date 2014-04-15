@@ -96,7 +96,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                                             click: {
                                                 element: 'el',
                                                 fn: function () {
-                                                    console.log('Delete');
                                                     this.fireEvent('deleteItem', record, me.deviceTypeId, me.deviceConfigId);
                                                 },
                                                 scope: this
