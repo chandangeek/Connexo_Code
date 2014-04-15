@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerMappingAdd',
-    autoScroll: true,
+    //autoScroll: true,
     requires: [
         'Mdc.view.setup.register.RegisterMappingAddGrid',
         'Mdc.view.setup.register.RegisterMappingsAddFilter'
