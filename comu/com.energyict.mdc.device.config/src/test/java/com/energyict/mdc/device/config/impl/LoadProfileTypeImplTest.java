@@ -17,7 +17,6 @@ import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateIntervalWhenLoadProfileTypeIsInUseException;
-import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
@@ -109,17 +108,12 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         loadProfileType.setDescription("For testing purposes only");
         loadProfileType.save();
 
-        try {
-            // Business method
-            LoadProfileType loadProfileType2 = deviceConfigurationService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
-            loadProfileType2.setDescription("For testing purposes only");
-            loadProfileType2.save();
-        }
-        catch (DuplicateNameException e) {
-            // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_ALREADY_EXISTS);
-            throw e;
-        }
+        // Business method
+        LoadProfileType loadProfileType2 = deviceConfigurationService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+        loadProfileType2.setDescription("For testing purposes only");
+        loadProfileType2.save();
+
+        // Asserts: see ExpectedConstraintViolation rule
     }
 
     @Test

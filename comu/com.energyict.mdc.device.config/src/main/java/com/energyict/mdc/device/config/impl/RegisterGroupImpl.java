@@ -7,7 +7,7 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
-import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
+
 import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;

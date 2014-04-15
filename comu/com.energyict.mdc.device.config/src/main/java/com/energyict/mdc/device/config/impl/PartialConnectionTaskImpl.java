@@ -37,7 +37,6 @@ import javax.validation.constraints.NotNull;
  * @author sva
  * @since 21/01/13 - 16:44
  */
-@PartialConnectionTaskCannotHaveDuplicateName(groups = {Save.Create.class, Save.Update.class})
 public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialConnectionTask> implements PartialConnectionTask {
 
     public static final Map<String, Class<? extends PartialConnectionTask>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends PartialConnectionTask>>of("0", PartialConnectionInitiationTaskImpl.class, "1", PartialInboundConnectionTaskImpl.class, "2", PartialScheduledConnectionTaskImpl.class);
@@ -183,26 +182,6 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
 
     void setDefault(boolean asDefault) {
         this.isDefault = asDefault;
-    }
-
-    public static class DuplicateValidator implements ConstraintValidator<PartialConnectionTaskCannotHaveDuplicateName, PartialConnectionTask> {
-
-        @Override
-        public void initialize(PartialConnectionTaskCannotHaveDuplicateName constraintAnnotation) {
-        }
-
-        @Override
-        public boolean isValid(PartialConnectionTask value, ConstraintValidatorContext context) {
-            ArrayList<PartialConnectionTask> partialConnectionTasks = new ArrayList<>(value.getConfiguration().getPartialConnectionTasks());
-            partialConnectionTasks.remove(value);
-            for (PartialConnectionTask partialConnectionTask : partialConnectionTasks) {
-                if (partialConnectionTask.getName().equals(value.getName())) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
     }
 
     public static class HasSpecValidator implements ConstraintValidator<PartialConnectionTaskPropertyMustHaveSpec, PartialConnectionTaskPropertyImpl> {

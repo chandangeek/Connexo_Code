@@ -23,7 +23,6 @@ import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
-import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
@@ -186,18 +185,12 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.setDescription("For testing purposes only");
         deviceType.save();
 
-        try {
-            // Business method
-            DeviceType deviceType2 = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
-            deviceType2.setDescription("For testing purposes only");
-            deviceType2.save();
-        }
-        catch (DuplicateNameException e) {
-            // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.DEVICE_TYPE_ALREADY_EXISTS);
-            throw e;
-        }
+        // Business method
+        DeviceType deviceType2 = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+        deviceType2.setDescription("For testing purposes only");
+        deviceType2.save();
 
+        // Asserts: see ExpectedConstraintViolation rule
     }
 
     @Test

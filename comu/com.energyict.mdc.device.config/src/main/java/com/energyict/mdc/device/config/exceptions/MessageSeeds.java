@@ -19,14 +19,12 @@ public enum MessageSeeds implements MessageSeed {
     NAME_IS_REQUIRED(1000, Constants.NAME_REQUIRED_KEY, "The name of {0} is required", SEVERE),
     NAME_IS_UNIQUE(1001, Constants.NAME_UNIQUE_KEY, "The name must be unique", SEVERE),
     REGISTER_GROUP_NAME_IS_REQUIRED(1501, "registerGroup.name.required", "The name of a register group is required", SEVERE),
-    REGISTER_GROUP_ALREADY_EXISTS(1502, "registerGroup.duplicateNameX", "A register group with name \"{0}\" already exists", SEVERE),
     REGISTER_GROUP_STILL_IN_USE(1503, "registerGroup.XstillInUseByY", "The register group with name \"{0}\" cannot be deleted because it is still in use by the following register mappings: {1}", SEVERE),
     READING_TYPE_IS_REQUIRED(2001, Constants.READING_TYPE_IS_REQUIRED_KEY, "The reading type of a product spec is required", SEVERE),
     READING_TYPE_ALREADY_EXISTS(2002, Constants.READING_TYPE_ALREADY_EXISTS_KEY, "The product spec with the reading type {0} already exists", SEVERE),
     DEFAULT_PRODUCT_SPEC_CANNOT_BE_DELETED(2003, "productSpec.cannotDeleteDefault", "The default product spec cannot be deleted", SEVERE),
     PRODUCT_SPEC_STILL_IN_USE(2004, "productSpec.XstillInUseByY", "The product spec with reading type {0} cannot be deleted because it is still in use by the following register mappings: {1}", SEVERE),
     REGISTER_MAPPING_NAME_IS_REQUIRED(3001, "registerMapping.name.required", "The name of a register mapping is required", SEVERE),
-    REGISTER_MAPPING_ALREADY_EXISTS(3002, "registerMapping.duplicateNameX", "A register mapping with name \"{0}\" already exists", SEVERE),
     REGISTER_MAPPING_OBIS_CODE_TOU_PEHNOMENON_ALREADY_EXISTS(3003, "registerMapping.duplicateObisCodeX", "A register mapping with obis code \"{0}\", unit \"{1}\" and time of use \"{2}\" already exists", SEVERE),
     REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED(3004, Constants.REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY, "The obis code of a register mapping is required", SEVERE),
     PRODUCT_SPEC_IS_REQUIRED(3005, Constants.PRODUCT_SPEC_IS_REQUIRED_KEY, "The product spec of a register mapping is required", SEVERE),
@@ -40,7 +38,6 @@ public enum MessageSeeds implements MessageSeed {
     TOME_OF_USE_TOO_SMALL(3014, Constants.TIMEOFUSE_TOO_SMALL, "The time of use must be a positive number", SEVERE),
     REGISTER_MAPPING_READING_TYPE_ALREADY_USED(3015, Constants.REGISTER_MAPPING_DUPLICATE_READING_TYPE, "Reading type is already used by a register type", SEVERE),
     LOAD_PROFILE_TYPE_NAME_IS_REQUIRED(4001, "loadProfileType.name.required", "The name of a load profile type is required", SEVERE),
-    LOAD_PROFILE_TYPE_ALREADY_EXISTS(4002, "loadProfileType.duplicateNameX", "A load profile type with name \"{0}\" already exists", SEVERE),
     LOAD_PROFILE_TYPE_INTERVAL_IN_WEEKS_IS_NOT_SUPPORTED(4003, "loadProfileType.interval.notsupported.weeks", "The interval of a load profile type cannot be expressed in number of weeks", SEVERE),
     INTERVAL_IN_DAYS_MUST_BE_ONE(4004, "loadProfileType.interval.notsupported.multipledays", "The number of days of the interval of a load profile type cannot be greater than 1 but got {0}", SEVERE),
     INTERVAL_IN_MONTHS_MUST_BE_ONE(4005, "loadProfileType.interval.notsupported.multiplemonths", "The number of months of the interval of a load profile type cannot be greater than 1 but got {0}", SEVERE),
@@ -69,14 +66,12 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_SPEC_MULTIPLIER_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6013, Constants.REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG,"The register mapping type can not be modified if the device configuration is active", SEVERE),
     REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_ONE(6014, Constants.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS, "Invalid number of fraction digits.", Level.SEVERE),
     DEVICE_TYPE_NAME_IS_REQUIRED(7001, "deviceType.name.required", "The name of a device type is required", SEVERE),
-    DEVICE_TYPE_ALREADY_EXISTS(7002, "deviceType.duplicateNameX", "A device type with name \"{0}\" already exists", SEVERE),
     DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS(7003, Constants.DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS_KEY, "The device type {0} cannot be deleted because it still has active configurations", SEVERE),
     DEVICE_PROTOCOL_IS_REQUIRED(7004, Constants.DEVICE_PROTOCOL_IS_REQUIRED_KEY, "The protocol of a device type is required", SEVERE),
     DUPLICATE_LOAD_PROFILE_TYPE_IN_DEVICE_TYPE(7005, "deviceType.loadProfileType.duplicate", "The load profile type {0} was already added to the device type {1}", SEVERE),
     DUPLICATE_LOG_BOOK_TYPE_IN_DEVICE_TYPE(7006, "deviceType.logBookType.duplicate", "The log book type {0} was already added to the device type {1}", SEVERE),
     DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS(7007, Constants.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS_KEY, "The protocol of a device type cannot change when the device type has configurations", SEVERE),
     DUPLICATE_REGISTER_MAPPING_IN_DEVICE_TYPE(7008, "deviceType.registerMapping.duplicate", "The register mapping {0} was already added to the device type {1}", SEVERE),
-    DUPLICATE_DEVICE_CONFIGURATION(7009, Constants.DUPLICATE_DEVICE_CONFIGURATION_KEY, "All device configurations must have a unique name", SEVERE),
     LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_NOT_ON_DEVICE_TYPE(8002, "loadProfileSpec.cannotAddLoadProfileSpecOfTypeXBecauseRtuTypeYDoesNotContainIt", "The load profile spec contains a load profile type {0} which is not configured on the device type", SEVERE),
     LOAD_PROFILE_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(8003, "loadProfileSpec.active.configuration", "You can not add a load profile spec to an active device configuration", SEVERE),
     LOAD_PROFILE_SPEC_CANNOT_CHANGE_DEVICE_CONFIG(8004, "loadProfileSpec.change.configuration", "You can not change the device configuration of an existing load profile specification", SEVERE),
@@ -93,7 +88,6 @@ public enum MessageSeeds implements MessageSeed {
     LOGBOOK_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(9007, "logBookSpec.cannot.add.active.config", "You can not add a logbook spec to an active device configuration", SEVERE),
     PHENOMENON_NAME_IS_REQUIRED(10001, "phenomenon.name.required", "The name of a phenomenon is required", SEVERE),
     PHENOMENON_STILL_IN_USE(10002, "phenomenon.stillInUse", "You can not delete a phenomenon when it is still in use", SEVERE),
-    PHENOMENON_ALREADY_EXISTS(10003, "phenomenon.duplicateNameX", "A phenomenon with name \"{0}\" already exists", SEVERE),
     CHANNEL_SPEC_NAME_IS_REQUIRED(11001, "channelSpec.name.required", "The name of the channel specification is required", SEVERE),
     CHANNEL_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(11003, "channelSpec.active.configuration", "You can not add a channel spec to an active device configuration", SEVERE),
     CHANNEL_SPEC_LOAD_PROFILE_SPEC_IS_NOT_ON_DEVICE_CONFIGURATION(11004, "channelSpec.cannotAddChannelSpecOfTypeXBecauseDeviceConfigYDoesNotContainIt", "The channel specification is linked to a load profile specification \"{0}\" which is not configuration on the device type", SEVERE),
@@ -113,8 +107,6 @@ public enum MessageSeeds implements MessageSeed {
     CHANNEL_SPEC_INVALID_INTERVAL_COUNT_LARGE_UNIT(11018, "channelSpec.interval.invalid.count.large.unit","The amount in the interval of a channel specification should be '1' if the interval unit is larger than 'hours', but was \"{0}\"", SEVERE),
     CHANNEL_SPEC_INTERVAL_IN_WEEKS_IS_NOT_SUPPORTED(11019, "channelSpec.interval.notsupported.weeks", "The interval of a channel specification cannot be expressed in number of weeks", SEVERE),
     CHANNEL_SPEC_CANNOT_CHANGE_DEVICE_CONFIG(11020, "channelSpec.change.configuration", "You can not change the device configuration of an existing channel specification", SEVERE),
-    CHANNEL_SPEC_ALREADY_EXISTS(11021, "channelSpec.duplicateName", "A channel specification with the name \"{0}\" already exists", SEVERE),
-    CHANNEL_SPEC_ALREADY_EXISTS_27_CHAR(11022, "channelSpec.duplicateName.27", "A channel specification with the same first 27 characters \"{0}\" already exists", SEVERE),
     CHANNEL_SPEC_CANNOT_CHANGE_REGISTER_MAPPING(11023, "channelSpec.change.registerMapping", "You can not change the register mapping of an existing channel specification", SEVERE),
     CHANNEL_SPEC_CANNOT_CHANGE_LOAD_PROFILE_SPEC(11024, "channelSpec.change.loadProfileSpec", "You can not change the load profile specification of an existing channel specification", SEVERE),
     DEVICE_CONFIGURATION_NAME_IS_REQUIRED(12001, "deviceConfig.name.required", "The name of the device configuration is required", SEVERE),
@@ -135,19 +127,14 @@ public enum MessageSeeds implements MessageSeed {
     TEMPORAL_EXPRESSION_UNKNOWN_UNIT(13002, Constants.TEMPORAL_EXPRESSION_UNKNOWN_UNIT_KEY, "The unit {0} is unknown or unsupported for temporal expressions", SEVERE),
     TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE(13003, Constants.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY, "The frequency value of a temporal expression must be a strictly positive number", SEVERE),
     TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE(13004, Constants.TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY, "The offset value of a temporal expression must be a positive number", SEVERE),
-    DUPLICATE_PROTOCOL_CONFIGURATION_PROPERTIES(13005, "protocolConfigurationProperties.duplicateName", "A protocolDialectConfigurationProperties with the name {0} already exists.", SEVERE),
     PROTOCOL_DIALECT_REQUIRED(13006, Constants.PROTOCOLDIALECT_REQUIRED_KEY, "The protocol dialect name is required for a protocolDialectConfigurationProperties", SEVERE),
     PROTOCOL_DIALECT_HAS_NO_SUCH_PROPERTY(13007, "protocolDialectConfigurationProperties.noSuchProperty", "The protocol dialect {0} does not have a configuration property with name {1}", SEVERE),
     PROTOCOL_DIALECT_DUPLICATE(13008, Constants.PROTOCOLDIALECT_CONF_PROPS_DUPLICATE_KEY, "A dialect configuration properties having device configuration  \"{0}\" and device protocol dialect \"{1}\" already exists.", SEVERE),
     PROTOCOLDIALECT_CONF_PROPS_MISSING_REQUIRED(13009, Constants.PROTOCOLDIALECT_CONF_PROPS_MISSING_REQUIRED, "The protocol dialect {0} is missing required configuration property with name {1}", SEVERE),
-    DUPLICATE_PARTIAL_INBOUND_CONNECTION_TYPE(13010, "partialInboundConnectionTask.duplicate", "A Partial Inbound Connection Task by name {0} already exists.", SEVERE),
-    DUPLICATE_PARTIAL_OUTBOUND_CONNECTION_TYPE(13011, "partialOutboundConnectionTask.duplicate", "A Partial Outbound Connection Task by name {0} already exists.", SEVERE),
-    DUPLICATE_PARTIAL_CONNECTION_INITIATION_TYPE(13012, "partialConnectionInitiationTask.duplicate", "A Partial Connection Initiation Task by name {0} already exists.", SEVERE),
     PROTOCOL_DIALECT_NAME_DOES_NOT_EXIST(13013, "protocolConfigurationProperties.doesNotExistName", "A protocolDialectConfigurationProperties with name {0} does not exist", SEVERE),
     PROTOCOL_DIALECT_ID_DOES_NOT_EXIST(13014, "protocolConfigurationProperties.doesNotExistId", "A protocolDialectConfigurationProperties with id {0} does not exist", SEVERE),
     PARTIAL_CONNECTION_TASK_NAME_DOES_NOT_EXIST(13015, "partialConnectionTask.doesNotExistName", "There is no Partial Connection Task by name {0}", SEVERE),
     PARTIAL_CONNECTION_TASK_ID_DOES_NOT_EXIST(13016, "partialConnectionTask.doesNotExistId", "There is no Partial Connection Task with id {0}", SEVERE),
-    PARTIAL_CONNECTION_TASK_DUPLICATE(13017, Constants.PARTIAL_CONNECTION_TASK_DUPLICATE_KEY, "There is already a Connection task with name {0}", SEVERE),
     PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC(13018, Constants.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC_KEY, "There is no spec for connection type property with name {0}", SEVERE),
     PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE(13019, Constants.PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE_KEY, "The value for property {0} is of the wrong type.", SEVERE),
     CONNECTION_STRATEGY_REQUIRED(13020, Constants.CONNECTION_STRATEGY_REQUIRED_KEY, "Connection Strategy is required", SEVERE),
@@ -159,7 +146,6 @@ public enum MessageSeeds implements MessageSeed {
     VETO_COMPORTPOOL_DELETION(13026, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by {1}", SEVERE),
     PROTOCOL_INVALID_NAME(13027,"deviceType.no.such.protocol", "A protocol with name {0} does not exist", SEVERE),
     PROTOCOLDIALECT_CONF_PROPS_CANT_DROP_REQUIRED(13028, "protocolDialectConfigurationProperties.cannotDropRequired", "ProtocolDialectConfigurationProperties {0} cannot drop property {1} since it is required.", SEVERE),
-    DUPLICATE_SECURITY_PROPERTY_SET(13029, "securityPropertySet.duplicate", "A Security Property Set by name {0} already exists.", SEVERE),
     UNSUPPORTED_SECUIRY_LEVEL(13030, Constants.UNSUPPORTED_SECURITY_LEVEL_KEY, "Security level {0} is not supported", SEVERE);
 
     private final int number;
@@ -212,7 +198,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NAME_REQUIRED_KEY = "DTC.X.name.required";
         public static final String NAME_UNIQUE_KEY = "DTC.X.name.unique";
         public static final String DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS_KEY = "DTC.deviceType.XstillHasActiveConfigurations";
-        public static final String DUPLICATE_DEVICE_CONFIGURATION_KEY = "DTC.deviceType.deviceConfig.duplicateName";
         public static final String DEVICE_PROTOCOL_IS_REQUIRED_KEY = "DTC.deviceType.protocol.required";
         public static final String DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS_KEY = "DTC.deviceType.protocol.noupdate";
         public static final String REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY = "DTC.registerMapping.obisCode.required";
@@ -246,7 +231,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String PROTOCOLDIALECT_REQUIRED_KEY = "DTC.protocolDialectConfigurationProperties.dialectName.required";
         public static final String PROTOCOLDIALECT_CONF_PROPS_DUPLICATE_KEY = "DTC.protocolDialectConfigurationProperties.duplicate";
         public static final String PROTOCOLDIALECT_CONF_PROPS_MISSING_REQUIRED = "DTC.protocolDialectConfigurationProperties.missing.required.properties";
-        public static final String PARTIAL_CONNECTION_TASK_DUPLICATE_KEY = "DTC.partialConnectionTask.duplicate";
         public static final String PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC_KEY = "DTC.partialConnectionTaskProperty.hasNoSpec";
         public static final String PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE_KEY = "DTC.partialConnectionTaskProperty.wrongValueType";
         public static final String CONNECTION_STRATEGY_REQUIRED_KEY = "DTC.partialOutboundConnectionTask.connectionStrategyRequired";
