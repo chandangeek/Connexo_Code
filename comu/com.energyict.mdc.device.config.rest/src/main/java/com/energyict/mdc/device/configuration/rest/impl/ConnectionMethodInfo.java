@@ -32,7 +32,6 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 public abstract class ConnectionMethodInfo {
     public long id;
     public String name;
-    public String direction;
     public String connectionType;
     public String comPortPool;
     public boolean isDefault;

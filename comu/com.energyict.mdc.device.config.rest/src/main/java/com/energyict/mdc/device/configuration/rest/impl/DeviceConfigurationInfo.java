@@ -8,6 +8,7 @@ import org.codehaus.jackson.annotate.JsonUnwrapped;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.codehaus.jackson.annotate.JsonUnwrapped;
 import java.util.ArrayList;
 import java.util.List;
 

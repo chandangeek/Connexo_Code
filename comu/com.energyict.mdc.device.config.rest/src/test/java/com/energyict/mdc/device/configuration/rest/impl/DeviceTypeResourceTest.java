@@ -23,17 +23,25 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.StringFactory;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
 import java.io.ByteArrayInputStream;
@@ -78,11 +86,13 @@ public class DeviceTypeResourceTest extends JerseyTest {
     private static ProtocolPluggableService protocolPluggableService;
     private static NlsService nlsService;
     private static Thesaurus thesaurus;
+    private static EngineModelService engineModelService;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         deviceConfigurationService = mock(DeviceConfigurationService.class);
         protocolPluggableService = mock(ProtocolPluggableService.class);
+        engineModelService = mock(EngineModelService.class);
         nlsService = mock(NlsService.class);
         thesaurus = mock(Thesaurus.class);
     }
@@ -91,20 +101,28 @@ public class DeviceTypeResourceTest extends JerseyTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        reset(deviceConfigurationService, protocolPluggableService);
+        reset(deviceConfigurationService, protocolPluggableService, engineModelService);
     }
 
     @Override
     protected Application configure() {
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
-        ResourceConfig resourceConfig = new ResourceConfig(ResourceHelper.class, DeviceTypeResource.class, DeviceConfigurationResource.class, RegisterConfigurationResource.class, ConstraintViolationExceptionMapper.class, LocalizedExceptionMapper.class);
+        ResourceConfig resourceConfig = new ResourceConfig(
+                ResourceHelper.class,
+                DeviceTypeResource.class,
+                DeviceConfigurationResource.class,
+                RegisterConfigurationResource.class,
+                ConnectionMethodResource.class,
+                ConstraintViolationExceptionMapper.class,
+                LocalizedExceptionMapper.class);
         resourceConfig.register(JacksonFeature.class); // Server side JSON processing
         resourceConfig.register(new AbstractBinder() {
             @Override
             protected void configure() {
                 bind(deviceConfigurationService).to(DeviceConfigurationService.class);
                 bind(protocolPluggableService).to(ProtocolPluggableService.class);
+                bind(engineModelService).to(EngineModelService.class);
                 bind(nlsService).to(NlsService.class);
                 bind(ResourceHelper.class).to(ResourceHelper.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
@@ -960,10 +978,66 @@ public class DeviceTypeResourceTest extends JerseyTest {
     }
 
     @Test
+    public void testGetAllConnectionMethodJavaScriptMappings() throws Exception {
+        long deviceType_id=41L;
+        long deviceConfig_id=51L;
+        long connectionMethodId = 61L;
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getId()).thenReturn(deviceConfig_id);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
+        PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
+        ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
+        when(connectionTypePluggableClass.getName()).thenReturn("connection type PC");
+        ConnectionType connectionType = mock(ConnectionType.class);
+        when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
+        when(partialConnectionTask.getId()).thenReturn(connectionMethodId);
+        when(partialConnectionTask.getName()).thenReturn("connection method");
+        PropertySpec<String> propertySpec1 = mock(PropertySpec.class);
+        when(propertySpec1.getName()).thenReturn("macAddress");
+        when(propertySpec1.getValueFactory()).thenReturn(new StringFactory());
+        TypedProperties typedProperties = new TypedProperties();
+        typedProperties.setProperty("macAddress", "aa:bb:cc:dd:ee:ff");
+        when(partialConnectionTask.getTypedProperties()).thenReturn(typedProperties);
+        when(connectionType.getPropertySpecs()).thenReturn(Arrays.<PropertySpec>asList(propertySpec1));
+        when(partialConnectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass);
+        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
+        Map<String, Object> response = target("/devicetypes/41/deviceconfigurations/51/connectionmethods").request().get(Map.class);
+        assertThat(response).hasSize(2);
+        assertThat(response.get("total")).isEqualTo(1);
+        List<Map<String, Object>> connectionMethods = (List<Map<String, Object>>) response.get("connectionMethods");
+        assertThat(connectionMethods).hasSize(1);
+        Map<String, Object> connectionMethod = connectionMethods.get(0);
+        assertThat(connectionMethod).containsKey("id")
+                .containsKey("name")
+                .containsKey("direction")
+                .containsKey("connectionType")
+                .containsKey("allowSimultaneousConnections")
+                .containsKey("rescheduleDelay");
+        List<Map<String, Object>> propertyInfos = (List<Map<String, Object>>) connectionMethod.get("propertyInfos");
+        assertThat(propertyInfos).isNotNull().hasSize(1);
+        Map<String, Object> macAddressProperty = propertyInfos.get(0);
+        assertThat(macAddressProperty)
+                .containsKey("key")
+                .containsKey("propertyValueInfo")
+                .containsKey("propertyTypeInfo")
+                .containsKey("required");
+        Map<String, Object> propertyValueInfo = (Map<String, Object>) macAddressProperty.get("propertyValueInfo");
+        assertThat(propertyValueInfo).containsKey("inheritedValue").containsKey("defaultValue").containsKey("value");
+        Map<String, Object> propertyTypeInfo = (Map<String, Object>) macAddressProperty.get("propertyTypeInfo");
+        assertThat(propertyTypeInfo)
+                .containsKey("simplePropertyType")
+                .containsKey("propertyValidationRule")
+                .containsKey("predefinedPropertyValuesInfo")
+                .containsKey("referenceUri");
+    }
+
+    @Test
     public void testDeleteRegisterConfig() throws Exception {
-        long deviceType_id=41;
-        long deviceConfig_id=51;
-        long registerSpec_id=61;
+        long deviceType_id=41L;
+        long deviceConfig_id=51L;
+        long registerSpec_id=61L;
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(deviceConfig_id);
         RegisterSpec registerSpec = mock(RegisterSpec.class);
