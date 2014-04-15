@@ -6,14 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 @XmlRootElement
 public class LogBookTypeInfo {
 
-    @JsonProperty("name")
     public String name;
-    @JsonProperty("obisCode")
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
 
