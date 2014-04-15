@@ -4,11 +4,13 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import java.util.ArrayList;
-import java.util.List;
+import org.codehaus.jackson.annotate.JsonUnwrapped;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.codehaus.jackson.annotate.JsonUnwrapped;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement
 public class DeviceConfigurationInfo {
