@@ -6,7 +6,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
             cls: 'content-wrapper',
             items: [
                 {
-                    xtype: 'component',
+                    xtype: 'panel',
                     name: 'pageTitle',
                     margin: '0 0 40 0'
                 },
@@ -15,18 +15,18 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                     width: '70%',
                     defaults: {
                         labelWidth: 150,
-                        labelAlign: 'right',
                         margin: '0 0 20 0',
-                        msgTarget: 'under',
                         validateOnChange: false,
                         validateOnBlur: false,
-                        anchor: '100%'
+                        anchor: '100%',
+                        labelAlign: 'right',
+                        msgTarget: 'under'
                     },
                     items: [
                         {
-                            xtype: 'component',
+                           // xtype: 'component',
                             name: 'form-errors',
-                            html: '<div class="isu-error-panel">There are errors on this page that require your attention.</div>',
+                            html: 'There are errors on this page that require your attention.',
                             hidden: true,
                             margin: '0 0 20 155'
                         },
@@ -130,7 +130,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                     xtype: 'container',
                     layout: 'hbox',
                     defaultType: 'button',
-                    margin: '20 0',
+                    margin: '20 0 0 20',
                     items: [
                         {
                             name: 'ruleAction',
@@ -138,6 +138,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                         },
                         {
                             text: 'Cancel',
+                            ui: 'link',
                             name: 'cancel',
                             cls: 'isu-btn-link',
                             hrefTarget: '',
