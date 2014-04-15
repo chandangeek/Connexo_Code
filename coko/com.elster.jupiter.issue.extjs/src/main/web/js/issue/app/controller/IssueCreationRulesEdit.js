@@ -266,7 +266,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             formErrorsPanel.hide();
             rule.save({
                 callback: function (model, operation, success) {
-                    var messageText;
+                    var messageText,
+                        json;
 
                     if (success) {
                         switch (operation.action) {
@@ -289,6 +290,12 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                             showTime: 5000
                         });
                         window.location.href = '#/issue-administration/issuecreationrules'
+                    } else {
+                        json = Ext.decode(operation.response.responseText);
+                        if (json && json.errors) {
+                            form.markInvalid(json.errors);
+                            formErrorsPanel.show();
+                        }
                     }
                 }
             });
