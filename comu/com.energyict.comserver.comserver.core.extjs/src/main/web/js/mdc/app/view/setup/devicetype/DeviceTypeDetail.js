@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceTypeDetail',
     itemId: 'deviceTypeDetail',
-    autoScroll: true,
+    //autoScroll: true,
     requires: [
         'Mdc.view.setup.devicetype.DeviceTypesGrid',
         'Mdc.view.setup.devicetype.DeviceTypePreview',

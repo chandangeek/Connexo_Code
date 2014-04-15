@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.register.ReadingTypeDetails', {
     extend: 'Ext.window.Window',
     alias: 'widget.readingTypeDetails',
-    autoScroll: true,
+    //autoScroll: true,
     itemId: 'readingTypeDetails',
     closable: true,
     width: 700,
