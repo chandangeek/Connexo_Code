@@ -15,7 +15,7 @@ import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.pluggable.rest.impl.properties.validators.NumberValidationRules;
 import java.math.BigDecimal;
 import java.net.URI;
-import java.text.ParseException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import javax.ws.rs.core.UriInfo;
@@ -123,8 +123,12 @@ public class MdcPropertyUtils {
         return MdcPropertyReferenceInfoFactory.asInfoObject(possibleValues.getDefault());
     }
 
+    public static Object findPropertyValue(PropertySpec propertySpec, Collection<PropertyInfo> propertyInfos) {
+        return findPropertyValue(propertySpec, propertyInfos.toArray(new PropertyInfo[propertyInfos.size()]));
+    }
+
     //find propertyValue in info
-    public static Object findPropertyValue(PropertySpec propertySpec, PropertyInfo[] propertyInfos) throws ParseException {
+    public static Object findPropertyValue(PropertySpec propertySpec, PropertyInfo[] propertyInfos) {
         for (PropertyInfo propertyInfo : propertyInfos) {
             if (propertyInfo.key.equals(propertySpec.getName())) {
                 if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().getValue()!= null) {
@@ -137,7 +141,7 @@ public class MdcPropertyUtils {
         return null;
     }
 
-    private static Object convertPropertyInfoValueToPropertyValue(PropertySpec propertySpec, Object value) throws ParseException {
+    private static Object convertPropertyInfoValueToPropertyValue(PropertySpec propertySpec, Object value) {
         //SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
         if (propertySpec.getValueFactory().getValueType() == Password.class){
             return new Password(value.toString());
