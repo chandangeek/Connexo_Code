@@ -141,7 +141,7 @@ public class MdcPropertyUtils {
         return null;
     }
 
-    public static Object convertPropertyInfoValueToPropertyValue(PropertySpec propertySpec, Object value) {
+    private static Object convertPropertyInfoValueToPropertyValue(PropertySpec propertySpec, Object value) {
         //SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
         if (propertySpec.getValueFactory().getValueType() == Password.class){
             return new Password(value.toString());
