@@ -107,9 +107,11 @@ Ext.define('Isu.controller.IssueFilter', {
             groupStoreProxy.setExtraParam('status', statusValues);
         }
         if (assignee) {
-            groupStoreProxy.setExtraParam('assignee', assignee.get('id'));
+            groupStoreProxy.setExtraParam('assigneeId', assignee.get('id'));
+            groupStoreProxy.setExtraParam('assigneeType', assignee.get('type'));
         } else {
-            groupStoreProxy.setExtraParam('assignee', []);
+            groupStoreProxy.setExtraParam('assigneeId', []);
+            groupStoreProxy.setExtraParam('assigneeType', []);
         }
         if (reason) {
             groupStoreProxy.setExtraParam('id', reason.get('id'));

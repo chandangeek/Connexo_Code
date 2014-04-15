@@ -1,5 +1,8 @@
 Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
     extend: 'Uni.view.container.ContentContainer',
+    requires: [
+        'Isu.view.administration.datacollection.issuecreationrules.ActionsList'
+    ],
     alias: 'widget.issues-creation-rules-edit',
     content: [
         {
@@ -8,7 +11,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                 {
                     xtype: 'component',
                     name: 'pageTitle',
-                    margin: '0 0 40 0'
+                    margin: '0 20 40 20'
                 },
                 {
                     xtype: 'form',
@@ -122,15 +125,20 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                         {
                             xtype: 'textareafield',
                             name: 'comment',
-                            fieldLabel: 'Comment'
+                            fieldLabel: 'Comment',
+                            emptyText: 'Provide a comment (optionally)'
                         }
                     ]
+                },
+                {
+                    xtype: 'issues-creation-rules-actions-list',
+                    margin: '0 20'
                 },
                 {
                     xtype: 'container',
                     layout: 'hbox',
                     defaultType: 'button',
-                    margin: '20 0',
+                    margin: '20',
                     items: [
                         {
                             name: 'ruleAction',
