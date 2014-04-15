@@ -51,4 +51,10 @@ public class DeviceConfigFieldResource extends FieldResource{
         return asJsonArrayObject("timeOfUse", "timeOfUse", ints);
     }
 
+    @GET
+    @Path("/connectionStrategy")
+    public Object getConnectionStrategies() {
+        return asJsonArrayObject("connectionStrategies", "connectionStrategy", new ConnectionStrategyAdapter().getClientSideValues());
+    }
+
 }
