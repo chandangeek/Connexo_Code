@@ -141,7 +141,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             name: 'cancel',
                             cls: 'isu-btn-link',
                             hrefTarget: '',
-                            href: '#/issue-administration/datacollection/issuecreationrules'
+                            href: '#/issue-administration/issuecreationrules'
                         }
                     ]
                 }

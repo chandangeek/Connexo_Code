@@ -63,14 +63,10 @@ Ext.define('Isu.controller.IssueCreationRules', {
                 href: me.getController('Isu.controller.history.Administration').tokenizeShowOverview()
             }),
             breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Data collection',
-                href: 'datacollection'
-            }),
-            breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
                 text: 'Issue creation rules',
                 href: 'issuecreationrules'
             });
-        breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2);
+        breadcrumbParent.setChild(breadcrumbChild1);
 
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
@@ -89,13 +85,13 @@ Ext.define('Isu.controller.IssueCreationRules', {
                 this.deleteRule(menu);
                 break;
             case 'edit':
-                window.location.href = '#/issue-administration/datacollection/issuecreationrules/' + menu.issueId + '/edit';
+                window.location.href = '#/issue-administration/issuecreationrules/' + menu.issueId + '/edit';
                 break;
         }
     },
 
     createRule: function () {
-        window.location.href = '#/issue-administration/datacollection/issuecreationrules/create';
+        window.location.href = '#/issue-administration/issuecreationrules/create';
     },
 
     deleteRule: function (menu) {

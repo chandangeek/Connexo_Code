@@ -18,13 +18,13 @@ Ext.define('Isu.controller.history.Administration', {
         crossroads.addRoute('issue-administration/datacollection/issueassignmentrules',function(){
             me.getController('Isu.controller.IssueAssignmentRules').showOverview();
         });
-        crossroads.addRoute('issue-administration/datacollection/issuecreationrules',function(){
+        crossroads.addRoute('issue-administration/issuecreationrules',function(){
             me.getController('Isu.controller.IssueCreationRules').showOverview();
         });
-        crossroads.addRoute('issue-administration/datacollection/issuecreationrules/create',function(id){
+        crossroads.addRoute('issue-administration/issuecreationrules/create',function(id){
             me.getController('Isu.controller.IssueCreationRulesEdit').showOverview(id, 'create');
         });
-        crossroads.addRoute('issue-administration/datacollection/issuecreationrules/{id}/edit',function(id){
+        crossroads.addRoute('issue-administration/issuecreationrules/{id}/edit',function(id){
             me.getController('Isu.controller.IssueCreationRulesEdit').showOverview(id, 'edit');
         });
 
