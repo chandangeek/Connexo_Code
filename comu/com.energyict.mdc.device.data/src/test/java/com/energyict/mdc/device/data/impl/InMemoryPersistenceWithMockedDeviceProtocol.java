@@ -161,6 +161,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
+            injector.getInstance(MasterDataService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.dataModel = this.createNewDeviceDataService(injector);
             ctx.commit();

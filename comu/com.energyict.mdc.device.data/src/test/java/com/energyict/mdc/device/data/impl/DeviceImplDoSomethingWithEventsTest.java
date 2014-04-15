@@ -48,6 +48,7 @@ import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
@@ -198,6 +199,7 @@ public class DeviceImplDoSomethingWithEventsTest {
 
         public static final String JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME = "jupiter.bootstrap.module";
 
+        private InMemoryBootstrapModule bootstrapModule;
         private BundleContext bundleContext;
         private Principal principal;
         private EventAdmin eventAdmin;
@@ -219,10 +221,10 @@ public class DeviceImplDoSomethingWithEventsTest {
 
         public void initializeDatabase(String testName, boolean showSqlLogging) {
             this.initializeMocks(testName);
-            InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+            this.bootstrapModule = new InMemoryBootstrapModule();
             Injector injector = Guice.createInjector(
                     new MockModule(),
-                    bootstrapModule,
+                    this.bootstrapModule,
                     new ThreadSecurityModule(this.principal),
                     new PubSubModule(),
                     new TransactionModule(showSqlLogging),
@@ -249,7 +251,7 @@ public class DeviceImplDoSomethingWithEventsTest {
             when(this.applicationContext.createEventManager()).thenReturn(eventManager);
             this.transactionService = injector.getInstance(TransactionService.class);
             this.environment = injector.getInstance(Environment.class);
-            this.environment.put(InMemoryIntegrationPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
+            this.environment.put(InMemoryIntegrationPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, this.bootstrapModule, true);
             this.environment.setApplicationContext(this.applicationContext);
             try (TransactionContext ctx = this.transactionService.getContext()) {
                 this.ormService = injector.getInstance(OrmService.class);
@@ -258,6 +260,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.nlsService = injector.getInstance(NlsService.class);
                 this.meteringService = injector.getInstance(MeteringService.class);
                 this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
+                injector.getInstance(MasterDataService.class);
                 this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
                 this.engineModelService = injector.getInstance(EngineModelService.class);
                 this.relationService = injector.getInstance(RelationService.class);
@@ -295,20 +298,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         }
 
         public void cleanUpDataBase() throws SQLException {
-            Environment environment = Environment.DEFAULT.get();
-            if (environment != null) {
-                Object bootstrapModule = environment.get(JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME);
-                if (bootstrapModule != null) {
-                    deactivate(bootstrapModule);
-                }
-            }
-        }
-
-        private void deactivate(Object bootstrapModule) {
-            if (bootstrapModule instanceof InMemoryBootstrapModule) {
-                InMemoryBootstrapModule inMemoryBootstrapModule = (InMemoryBootstrapModule) bootstrapModule;
-                inMemoryBootstrapModule.deactivate();
-            }
+            this.bootstrapModule.deactivate();
         }
 
         public MeteringService getMeteringService() {
