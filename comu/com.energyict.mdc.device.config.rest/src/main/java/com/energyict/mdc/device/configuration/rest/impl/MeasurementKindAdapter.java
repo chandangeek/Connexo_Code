@@ -93,7 +93,6 @@ public class MeasurementKindAdapter extends MapBasedXmlAdapter<MeasurementKind> 
         register("One way address",MeasurementKind.ONEWAYADDRESS );
         register("Signal strength",MeasurementKind.SIGNALSTRENGTH );
         register("Two way address",MeasurementKind.TWOWAYADDRESS );
-        register("Signal/Noise ratio",MeasurementKind.SIGNALNOISERATION);
         register("Alarm",MeasurementKind.ALARM );
         register("Battery carry over",MeasurementKind.BATTERYCARRYOVER );
         register("Data overflow alarm",MeasurementKind.DATAOVERFLOWALARM );
