@@ -2,15 +2,15 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import org.codehaus.jackson.annotate.JsonProperty;
-
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class RegisterConfigInfo {
 

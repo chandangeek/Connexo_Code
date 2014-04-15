@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.masterdata.LogBookType;
 import java.util.ArrayList;
 import java.util.List;
