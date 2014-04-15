@@ -28,6 +28,8 @@ import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
@@ -83,6 +85,7 @@ public class PersistenceTest {
                 new IdsModule(),
                 new DomainUtilModule(),
                 new MeteringModule(),
+                new MasterDataModule(),
                 new DeviceConfigurationModule(),
 //                new EventsModule(), // Mocked by Spy
                 new PluggableModule(),
@@ -92,6 +95,7 @@ public class PersistenceTest {
         	injector.getInstance(EnvironmentImpl.class); // fake call to make sure component is initialized
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
             injector.getInstance(EventService.class); // fake call to make sure component is initialized
+            injector.getInstance(MasterDataService.class); // fake call to make sure component is initialized
             injector.getInstance(DeviceConfigurationService.class); // fake call to make sure component is initialized
             ctx.commit();
         }
