@@ -6,9 +6,14 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.pluggable.rest.PropertyInfo;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.google.common.base.Optional;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -16,6 +21,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -79,18 +85,9 @@ public class ConnectionMethodResource {
                                             @PathParam("connectionMethodId") long connectionMethodId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        PartialConnectionTask partialConnectionTaskToDelete = getPartialConnectionTaskOrThrowException(connectionMethodId, deviceConfiguration);
+        PartialConnectionTask partialConnectionTaskToDelete = findPartialConnectionTaskOrThrowException(connectionMethodId, deviceConfiguration);
         deviceConfiguration.remove(partialConnectionTaskToDelete);
         return Response.ok().build();
-    }
-
-    private PartialConnectionTask getPartialConnectionTaskOrThrowException(long connectionMethodId, DeviceConfiguration deviceConfiguration) {
-        for (PartialConnectionTask partialConnectionTask : deviceConfiguration.getPartialConnectionTasks()) {
-            if (partialConnectionTask.getId()==connectionMethodId) {
-                return partialConnectionTask;
-            }
-        }
-        throw new WebApplicationException("No such connection task", Response.Status.NOT_FOUND);
     }
 
     @POST
@@ -104,7 +101,62 @@ public class ConnectionMethodResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         PartialConnectionTask created = connectionMethodInfo.createPartialTask(deviceConfiguration, engineModelService, protocolPluggableService);
         return Response.status(Response.Status.CREATED).entity(ConnectionMethodInfoFactory.asInfo(created, uriInfo)).build();
-
     }
+
+    @PUT
+    @Path("/{connectionMethodId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ConnectionMethodInfo updateConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
+                                                       @PathParam("deviceConfigurationId") long deviceConfigurationId,
+                                                       @PathParam("connectionMethodId") long connectionMethodId,
+                                                       @Context UriInfo uriInfo,
+                                                       ConnectionMethodInfo connectionMethodInfo) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(connectionMethodId, deviceConfiguration);
+        partialConnectionTask.setName(connectionMethodInfo.name);
+        updateProperties(connectionMethodInfo, partialConnectionTask);
+        partialConnectionTask.save();
+        return ConnectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo);
+    }
+
+    /**
+     * Add new properties, update existing and remove properties no longer listed
+     */
+    private void updateProperties(ConnectionMethodInfo connectionMethodInfo, PartialConnectionTask partialConnectionTask) {
+        for (PartialConnectionTaskProperty partialConnectionTaskProperty : partialConnectionTask.getProperties()) {
+            for (Iterator<PropertyInfo> iterator = connectionMethodInfo.propertyInfos.iterator(); iterator.hasNext(); ) {
+                PropertyInfo propertyInfo =  iterator.next();
+                if (propertyInfo.key.equals(partialConnectionTaskProperty.getName())) {
+                    partialConnectionTaskProperty.setValue(propertyInfo.propertyValueInfo.value);
+                    iterator.remove();
+                    break;
+                }
+                partialConnectionTask.removeProperty(partialConnectionTaskProperty.getName());
+            }
+        }
+        for (PropertyInfo propertyInfo : connectionMethodInfo.propertyInfos) {
+            partialConnectionTask.setProperty(propertyInfo.key, propertyInfo.getPropertyValueInfo().value);
+        }
+    }
+
+    private PartialConnectionTask findPartialConnectionTaskOrThrowException(long connectionMethodId, DeviceConfiguration deviceConfiguration) {
+        for (PartialConnectionTask partialConnectionTask : deviceConfiguration.getPartialConnectionTasks()) {
+            if (partialConnectionTask.getId()==connectionMethodId) {
+                return partialConnectionTask;
+            }
+        }
+        throw new WebApplicationException("No such connection task", Response.Status.NOT_FOUND);
+    }
+
+    protected ConnectionTypePluggableClass findConnectionTypeOrThrowException(String pluggableClassName, ProtocolPluggableService protocolPluggableService) {
+        Optional<? extends ConnectionTypePluggableClass> pluggableClassOptional = protocolPluggableService.findConnectionTypePluggableClassByName(pluggableClassName);
+        if (!pluggableClassOptional.isPresent()) {
+            throw new WebApplicationException("No such connection type", Response.status(Response.Status.NOT_FOUND).entity("No such connection type").build());
+        }
+        return pluggableClassOptional.get();
+    }
+
 
 }
