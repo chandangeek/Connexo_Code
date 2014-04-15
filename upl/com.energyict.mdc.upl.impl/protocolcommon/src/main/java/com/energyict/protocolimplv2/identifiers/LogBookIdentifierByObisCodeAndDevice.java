@@ -8,6 +8,10 @@ import com.energyict.mdw.core.LogBookFactory;
 import com.energyict.mdw.core.LogBookFactoryProvider;
 import com.energyict.obis.ObisCode;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Provides an implementation for the {@link com.energyict.mdc.meterdata.identifiers.LogBookIdentifier} interface
  * that uses a device's {@link com.energyict.mdc.protocol.inbound.DeviceIdentifier} and the {@link com.energyict.obis.ObisCode} of the logbook to identify it
@@ -16,10 +20,17 @@ import com.energyict.obis.ObisCode;
  * Date: 13/05/13
  * Time: 16:12
  */
+@XmlRootElement
 public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
 
     private DeviceIdentifier deviceIdentifier;
     private ObisCode logBookObisCode;
+
+    /**
+     * Constructor only to be used by JSON (de)marshalling
+     */
+    public LogBookIdentifierByObisCodeAndDevice() {
+    }
 
     public LogBookIdentifierByObisCodeAndDevice(DeviceIdentifier deviceIdentifier, ObisCode logBookObisCode) {
         super();
@@ -37,12 +48,23 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
         }
     }
 
+    @XmlAttribute
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
     }
 
+    @XmlAttribute
     public ObisCode getLogBookObisCode() {
         return logBookObisCode;
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 
     /**
