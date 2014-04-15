@@ -18,7 +18,7 @@ Ext.define('Mdc.store.DeviceCommunicationProtocols', {
         url: '../../api/plr/devicecommunicationprotocols',
         reader: {
             type: 'json',
-            root: 'deviceCommunicationProtocolInfos'
+            root: 'DeviceProtocolPluggableClass'
         }
     }
 
