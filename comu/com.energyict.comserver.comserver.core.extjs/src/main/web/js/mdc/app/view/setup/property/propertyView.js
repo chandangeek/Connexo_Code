@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.property.PropertyView', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.propertyView',
-    autoScroll: true,
+   // autoScroll: true,
     layout: {
         type: 'vbox',
         align: 'stretch'
@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.property.PropertyView', {
             {
                 xtype: 'form',
                 itemId: 'propertiesViewform',
-                margin: "10 0 0 0",
+                margin: '10 0 0 0',
                 border: 0,
                 layout: {
                     type: 'column',
