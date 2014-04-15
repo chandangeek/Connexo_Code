@@ -2,6 +2,7 @@ package com.elster.jupiter.systemadmin.rest.response;
 
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.nls.NlsService;
 
 import javax.management.monitor.StringMonitor;
 import java.util.*;
@@ -17,15 +18,12 @@ public class LicenseInfo extends LicenseShortInfo {
     public LicenseInfo() {
     }
 
-    public LicenseInfo(License license) {
-        this();
-        this.applicationkey = license.getApplicationKey();
+    public LicenseInfo(NlsService nlsService, License license) {
+        super(nlsService, license);
         this.type = license.getType().name().toLowerCase();
-        this.status = license.getStatus().name().toLowerCase();
         this.description = license.getDescription();
         this.validfrom = license.getActivation().getTime();
         this.graceperiod = license.getGracePeriodInDays();
-        this.expires = license.getExpiration().getTime();
         this.content = license.getLicensedValues().entrySet();
     }
 

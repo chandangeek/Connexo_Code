@@ -1,6 +1,8 @@
 package com.elster.jupiter.systemadmin.rest;
 
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.systemadmin.rest.resource.LicenseResource;
@@ -24,6 +26,7 @@ public class LicensingApplication  extends Application implements BinderProvider
     private volatile RestQueryService restQueryService;
     private volatile UserService userService;
     private volatile LicenseService licenseService;
+    private volatile NlsService nlsService;
 
     @Override
     public Binder getBinder() {
@@ -34,6 +37,7 @@ public class LicensingApplication  extends Application implements BinderProvider
                 bind(userService).to(UserService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(restQueryService).to(RestQueryService.class);
+                bind(nlsService).to(NlsService.class);
             }
         };
     }
@@ -66,5 +70,10 @@ public class LicensingApplication  extends Application implements BinderProvider
     @Reference
     public void setRestQueryService(RestQueryService restQueryService) {
         this.restQueryService = restQueryService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
     }
 }

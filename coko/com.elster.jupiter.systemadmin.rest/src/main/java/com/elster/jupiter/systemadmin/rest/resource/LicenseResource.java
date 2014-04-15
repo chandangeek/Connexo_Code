@@ -33,7 +33,7 @@ public class LicenseResource extends BaseResource {
                 resultList.add(licRef.get());
             }
         }
-        return new LicenseListInfo(resultList);
+        return new LicenseListInfo(getNlsService(), resultList);
     }
 
     @GET
@@ -43,7 +43,7 @@ public class LicenseResource extends BaseResource {
         Optional<License> licenseRef = getLicenseService().getLicenseForApplication(tag);
         LicenseInfo info = new LicenseInfo();
         if (licenseRef.isPresent()) {
-            info = new LicenseInfo(licenseRef.get());
+            info = new LicenseInfo(getNlsService(), licenseRef.get());
         } else {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
@@ -65,7 +65,7 @@ public class LicenseResource extends BaseResource {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
 
-        ActionInfo info =  getTransactionService().execute(new UploadLicenseTransaction(getLicenseService(), signedObject));
-         return Response.status(Response.Status.OK).entity(new RootEntity<ActionInfo>(info)).build();
+        ActionInfo info =  getTransactionService().execute(new UploadLicenseTransaction(getLicenseService(), getNlsService(), signedObject));
+        return Response.status(Response.Status.OK).entity(new RootEntity<ActionInfo>(info)).build();
     }
 }

@@ -2,6 +2,7 @@ package com.elster.jupiter.systemadmin.rest.resource;
 
 
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -16,6 +17,7 @@ public abstract class BaseResource {
 
     private LicenseService licenseService;
     private UserService userService;
+    private NlsService nlsService;
 
     public BaseResource(){
     }
@@ -51,5 +53,13 @@ public abstract class BaseResource {
     }
     protected UserService getUserService() {
         return userService;
+    }
+
+    @Inject
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
+    }
+    protected NlsService getNlsService() {
+        return nlsService;
     }
 }
