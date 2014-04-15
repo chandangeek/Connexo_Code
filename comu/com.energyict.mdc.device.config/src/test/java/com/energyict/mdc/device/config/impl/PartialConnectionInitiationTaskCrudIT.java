@@ -39,6 +39,8 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableService;
@@ -151,6 +153,7 @@ public class PartialConnectionInitiationTaskCrudIT {
                 new EventsModule(),
                 new OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
+                new MasterDataModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
@@ -169,6 +172,7 @@ public class PartialConnectionInitiationTaskCrudIT {
             engineModelService = injector.getInstance(EngineModelService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
+            injector.getInstance(MasterDataService.class);
             injector.getInstance(PluggableService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();

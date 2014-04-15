@@ -35,6 +35,8 @@ import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
@@ -130,6 +132,7 @@ public class SecurityPropertySetImplCrudIT {
                 new EventsModule(),
                 new OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
+                new MasterDataModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
@@ -145,6 +148,7 @@ public class SecurityPropertySetImplCrudIT {
 //            protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
 //            inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
             injector.getInstance(PluggableService.class);
+            injector.getInstance(MasterDataService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }
