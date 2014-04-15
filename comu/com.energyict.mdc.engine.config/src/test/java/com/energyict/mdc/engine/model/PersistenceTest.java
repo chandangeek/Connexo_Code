@@ -62,7 +62,7 @@ public class PersistenceTest {
                 new MdcCommonModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
-                new TransactionModule(true),
+                new TransactionModule(false),
                 new EngineModelModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
         	injector.getInstance(EnvironmentImpl.class); // fake call to make sure component is initialized
