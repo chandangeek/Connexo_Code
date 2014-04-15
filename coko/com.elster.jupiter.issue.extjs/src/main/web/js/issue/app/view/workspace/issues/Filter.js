@@ -3,7 +3,8 @@ Ext.define('Isu.view.workspace.issues.Filter', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Ext.form.Label'
+        'Ext.form.Label',
+        'Skyline.panel.Header'
     ],
     alias: "widget.issues-filter",
     store: 'Isu.store.Issues',
@@ -12,29 +13,17 @@ Ext.define('Isu.view.workspace.issues.Filter', {
         align: 'stretch'
     },
     items: [
-        // Filter
         {
-            xtype: 'panel',
-            layout: 'hbox',
             title: 'Filters',
-            ui: 'toolbar',
-//            headerPosition: 'top',
+            xtype: 'filter-toolbar',
             name: 'filter',
-            emptyText: 'None',
-            items: [],
-            dockedItems: {
-                xtype: 'button',
-                action: 'clearFilter',
-                text: 'Clear all',
-                disabled: true,
-                dock: 'right'
-            }
+            emptyText: 'None'
         },
+        // Filter
         { xtype: 'menuseparator' },
         // Group
         {
-            xtype: 'panel',
-            layout: 'hbox',
+            xtype: 'filter-toolbar',
             title: 'Group',
             name: 'group',
             items: {
@@ -81,13 +70,11 @@ Ext.define('Isu.view.workspace.issues.Filter', {
         { xtype: 'menuseparator' },
         // Sort
         {
-            xtype: 'panel',
-            layout: 'hbox',
+            xtype: 'filter-toolbar',
             title: 'Sort',
             name: 'sortitemspanel',
             emptyText: 'None',
-            items: [],
-            dockedItems: [
+            tools: [
                 {
                     xtype: 'button',
                     action: 'addSort',
@@ -96,13 +83,6 @@ Ext.define('Isu.view.workspace.issues.Filter', {
                         name: 'addsortitemmenu'
                     },
                     dock: 'left'
-                },
-                {
-                    xtype: 'button',
-                    action: 'clearSort',
-                    text: 'Clear all',
-                    disabled: true,
-                    dock: 'right'
                 }
             ]
         }

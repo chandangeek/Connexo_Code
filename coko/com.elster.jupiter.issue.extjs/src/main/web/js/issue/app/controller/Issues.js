@@ -146,7 +146,7 @@ Ext.define('Isu.controller.Issues', {
             return;
         }
         var filterElm = this.getFilter().down('[name="filter"]'),
-            clearFilterBtn = this.getFilter().down('button[action="clearFilter"]'),
+//            clearFilterBtn = this.getFilter().down('button[action="clearFilter"]'),
             buttons = [];
 
         if (filter.get('assignee')) {
@@ -200,13 +200,13 @@ Ext.define('Isu.controller.Issues', {
         filterElm.removeAll();
 
         if (buttons.length) {
-            clearFilterBtn.setDisabled(false);
+//            clearFilterBtn.setDisabled(false);
 
             Ext.Array.each(buttons, function (button) {
                 filterElm.add(button);
             });
         } else {
-            clearFilterBtn.setDisabled(true);
+//            clearFilterBtn.setDisabled(true);
         }
     },
 
@@ -256,7 +256,7 @@ Ext.define('Isu.controller.Issues', {
             }
         });
 
-        this.getFilter().down('[action="clearSort"]').setDisabled(!filterElm.items.length);
+//        this.getFilter().down('[action="clearSort"]').setDisabled(!filterElm.items.length);
     },
 
     removeFilter: function (elm) {
