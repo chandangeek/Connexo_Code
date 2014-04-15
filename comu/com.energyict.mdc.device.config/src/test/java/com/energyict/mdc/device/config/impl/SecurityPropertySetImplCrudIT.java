@@ -360,7 +360,8 @@ public class SecurityPropertySetImplCrudIT {
         }
     }
 
-    @Test(expected = DuplicateNameException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.NAME_UNIQUE_KEY + '}')
     public void testCreateWithDuplicateName () {
         DeviceConfiguration deviceConfiguration;
         SecurityPropertySet propertySet = null;

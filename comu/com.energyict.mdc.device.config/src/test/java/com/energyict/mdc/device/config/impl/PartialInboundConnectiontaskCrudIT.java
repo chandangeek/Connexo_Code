@@ -394,8 +394,8 @@ public class PartialInboundConnectiontaskCrudIT {
         }
     }
 
-    @Test(expected = DuplicateNameException.class)
-//    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.PARTIAL_CONNECTION_TASK_DUPLICATE_KEY + '}')
+    @Test
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.NAME_UNIQUE_KEY + '}')
     public void testCreateWithDuplicateName() {
 
         PartialInboundConnectionTaskImpl inboundConnectionTask;
