@@ -7,11 +7,11 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyInfo;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -123,13 +123,20 @@ public class ConnectionMethodResource {
 
     /**
      * Add new properties, update existing and remove properties no longer listed
+     * Converts String values to correct type and discards properties if there is no matching propertySpec
      */
     private void updateProperties(ConnectionMethodInfo connectionMethodInfo, PartialConnectionTask partialConnectionTask) {
         for (PartialConnectionTaskProperty partialConnectionTaskProperty : partialConnectionTask.getProperties()) {
             for (Iterator<PropertyInfo> iterator = connectionMethodInfo.propertyInfos.iterator(); iterator.hasNext(); ) {
                 PropertyInfo propertyInfo =  iterator.next();
-                if (propertyInfo.key.equals(partialConnectionTaskProperty.getName())) {
-                    partialConnectionTaskProperty.setValue(propertyInfo.propertyValueInfo.value);
+                if (propertyInfo.key.equals(partialConnectionTaskProperty.getName()) && propertyInfo.propertyValueInfo.value!=null) {
+                    PropertySpec propertySpec = partialConnectionTask.getPluggableClass().getPropertySpec(propertyInfo.key);
+                    if (propertySpec==null) {
+                        iterator.remove();
+                        break;
+                    }
+                    Object value = MdcPropertyUtils.convertPropertyInfoValueToPropertyValue(propertySpec, propertyInfo.propertyValueInfo.value);
+                    partialConnectionTaskProperty.setValue(value);
                     iterator.remove();
                     break;
                 }
@@ -149,14 +156,5 @@ public class ConnectionMethodResource {
         }
         throw new WebApplicationException("No such connection task", Response.Status.NOT_FOUND);
     }
-
-    protected ConnectionTypePluggableClass findConnectionTypeOrThrowException(String pluggableClassName, ProtocolPluggableService protocolPluggableService) {
-        Optional<? extends ConnectionTypePluggableClass> pluggableClassOptional = protocolPluggableService.findConnectionTypePluggableClassByName(pluggableClassName);
-        if (!pluggableClassOptional.isPresent()) {
-            throw new WebApplicationException("No such connection type", Response.status(Response.Status.NOT_FOUND).entity("No such connection type").build());
-        }
-        return pluggableClassOptional.get();
-    }
-
 
 }
