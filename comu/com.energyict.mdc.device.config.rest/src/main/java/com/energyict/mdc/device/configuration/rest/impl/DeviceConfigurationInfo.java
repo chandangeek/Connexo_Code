@@ -8,33 +8,22 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonUnwrapped;
 
 @XmlRootElement
 public class DeviceConfigurationInfo {
 
-    @JsonProperty("id")
     public long id;
-    @JsonProperty("name")
     public String name;
-    @JsonProperty("description")
     public String description;
-    @JsonProperty("active")
     public Boolean active;
-    @JsonProperty("loadProfileCount")
     public Integer loadProfileCount;
-    @JsonProperty("registerCount")
     public Integer registerCount;
-    @JsonProperty("logBookCount")
     public Integer logBookCount;
-    @JsonProperty("canBeGateway")
     public Boolean canBeGateway;
-    @JsonProperty("isDirectlyAddressable")
     public Boolean isDirectlyAddressable;
     @JsonUnwrapped // As requested by ExtJS people
     public DeviceProtocolInfo deviceProtocolInfo;
-    @JsonProperty("deviceFunction")
     @XmlJavaTypeAdapter(DeviceFunctionAdapter.class)
     public DeviceFunction deviceFunction;
 
