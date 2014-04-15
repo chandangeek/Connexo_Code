@@ -73,15 +73,16 @@ public class LogBookTypeUpdateEventHandlerTest {
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
 
+    private InMemoryBootstrapModule bootstrapModule;
     private TransactionService transactionService;
     private Injector injector;
 
     @Before
     public void setup () {
-        InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+        this.bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
                 new MockModule(),
-                bootstrapModule,
+                this.bootstrapModule,
                 new ThreadSecurityModule(this.principal),
                 new OrmModule(),
                 new EventsModule(),
@@ -101,6 +102,11 @@ public class LogBookTypeUpdateEventHandlerTest {
             injector.getInstance(EventService.class);
             ctx.commit();
         }
+    }
+
+    @After
+    public void cleanupDatabase () {
+        this.bootstrapModule.deactivate();
     }
 
     @Before
