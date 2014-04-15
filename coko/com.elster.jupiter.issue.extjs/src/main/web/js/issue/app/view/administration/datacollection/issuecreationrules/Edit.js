@@ -115,7 +115,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                     name: 'dueIn.type',
                                     store: 'Isu.store.DueinType',
                                     queryMode: 'local',
-                                    displayField: 'name',
+                                    displayField: 'displayValue',
                                     valueField: 'name',
                                     editable: false,
                                     width: 100
@@ -131,14 +131,40 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                     ]
                 },
                 {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    items: [
+                        {
+                            xtype: 'component',
+                            html: '<b>Actions</b>',
+                            width: 150,
+                            style: 'margin-right: 5px',
+                            cls: 'x-form-item-label uni-form-item-bold x-form-item-label-right'
+                        },
+                        {
+                            xtype: 'toolbar',
+                            border: false,
+                            padding: 0,
+                            items: [
+                                {
+                                    text: 'Add action',
+                                    disabled: true
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
                     xtype: 'issues-creation-rules-actions-list',
-                    margin: '0 20'
+                    margin: '15 20 0 150'
                 },
                 {
                     xtype: 'container',
                     layout: 'hbox',
                     defaultType: 'button',
-                    margin: '20',
+                    margin: '20 20 20 150',
                     items: [
                         {
                             name: 'ruleAction',

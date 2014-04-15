@@ -4,6 +4,10 @@ Ext.define('Isu.model.DueinType', {
         {
             name: 'name',
             type: 'string'
+        },
+        {
+            name: 'displayValue',
+            type: 'string'
         }
     ]
 });

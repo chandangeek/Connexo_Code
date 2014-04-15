@@ -124,12 +124,15 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
 
     showEmptyText: function () {
         var grid = this.down('grid'),
-            emtyText = this.down('panel[name=empty-text]');
+            emtyText = this.down('panel[name=empty-text]'),
+            pagingtoolbartop = this.down('pagingtoolbartop');
 
         if (grid && emtyText) {
             grid.hide();
             emtyText.show();
         }
+
+        pagingtoolbartop && pagingtoolbartop.child('#displayItem').update('0 rules');
     },
 
     hideEmptyText: function () {
