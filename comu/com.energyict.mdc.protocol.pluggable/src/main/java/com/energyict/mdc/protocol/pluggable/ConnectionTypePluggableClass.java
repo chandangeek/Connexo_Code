@@ -4,7 +4,6 @@ import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassWithRelationSupport;
 import com.energyict.mdc.protocol.api.ConnectionType;
-
 import java.util.List;
 
 /**
@@ -24,7 +23,7 @@ public interface ConnectionTypePluggableClass extends PluggableClassWithRelation
      * @return The PropertySpec or <code>null</code>
      *         if no such PropertySpec exists
      */
-    public PropertySpec getPropertySpec (String name);
+    public PropertySpec<?> getPropertySpec (String name);
 
     /**
      * Returns the version of the {@link ConnectionType} and removes
