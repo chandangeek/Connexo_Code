@@ -4,7 +4,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     requires: [
         'Uni.model.BreadcrumbItem',
         'Ext.ux.window.Notification',
-        'Mdc.controller.setup.PropertiesView'
+        'Mdc.controller.setup.PropertiesView',
+        'Mdc.controller.setup.Properties'
     ],
 
     views: [
@@ -12,7 +13,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
         'setup.devicecommunicationprotocol.DeviceCommunicationProtocolSetup',
         'setup.devicecommunicationprotocol.DeviceCommunicationProtocolGrid',
         'setup.devicecommunicationprotocol.DeviceCommunicationProtocolPreview',
-        'setup.devicecommunicationprotocol.DeviceCommunicationProtocolDetail',
         'setup.devicecommunicationprotocol.DeviceCommunicationProtocolEdit'
     ],
 
@@ -40,7 +40,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
             '#devicecommunicationprotocolgrid actioncolumn': {
                 editItem: this.editDeviceCommunicatonProtocolHistory
             },
-            '#registerTypePreview menuitem[action=editRegisterType]': {
+            '#deviceCommunicationProtocolPreview menuitem[action=editProtocol]': {
                 click: this.editDeviceCommunicationProtocolHistoryFromPreview
             },
             '#createEditButton[action=editProtocol]': {
@@ -70,6 +70,10 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
         return this.getController('Mdc.controller.setup.PropertiesView');
     },
 
+    getPropertiesController: function () {
+        return this.getController('Mdc.controller.setup.Properties');
+    },
+
 
     editDeviceCommunicatonProtocolHistory: function (item) {
         location.href = '#setup/devicecommunicationprotocols/' + item.get('id') + '/edit';
@@ -80,7 +84,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     },
 
     showDeviceCommunicationProtocolEditView: function (deviceCommunicationProtocol) {
-
+        console.log('show device communication protocol edit');
         var widget = Ext.widget('deviceCommunicationProtocolEdit', {
             edit: true
         });
@@ -92,6 +96,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
                 me.editBreadCrumb(protocol.get('name'), deviceCommunicationProtocol)
                 widget.down('form').loadRecord(protocol);
                 widget.down('#deviceCommunicationProtocolEditCreateTitle').update('<H2>' + protocol.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('deviceCommunicationProtocol.protocol', 'MDC', 'Protocol') + '</H2>');
+                me.getPropertiesController().showProperties(protocol, widget);
                 widget.setLoading(false);
             }
         })
@@ -106,6 +111,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
 
         if (record) {
             record.set(values);
+            record.propertyInfosStore = me.getPropertiesController().updateProperties();
             record.save({
                 success: function (record) {
                     location.href = '#setup/devicecommunicationprotocols/';
@@ -141,7 +147,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
         });
         var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('deviceCommunicationProtocol.prototocls', 'MDC', 'Protocols'),
-            href: 'protocols'
+            href: 'devicecommunicationprotocols'
         });
         var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('deviceCommunicationProtocol.edit', 'MDC', 'Edit protocol'),
