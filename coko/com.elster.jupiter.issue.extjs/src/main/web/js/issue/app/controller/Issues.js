@@ -262,58 +262,15 @@ Ext.define('Isu.controller.Issues', {
     },
 
     showOverview: function () {
-        var widget = Ext.widget('issues-overview');
-
-        this.setFilter();
-
-        this.getApplication().fireEvent('changecontentevent', widget);
-    },
-
-    setFilter: function () {
-        var issuesStore = this.getStore('Isu.store.Issues'),
-            queryString = Uni.util.QueryString.getQueryStringValues(),
-            sortModel = new Isu.model.IssueSort(),
-            filterModel = new Isu.model.IssueFilter(),
-            statusStore = this.getStore('Isu.store.IssueStatus'),
-            sortParam,
-            sortDirection;
+        var widget,
+            issuesStore = this.getStore('Isu.store.Issues');
 
         delete issuesStore.proxyFilter;
         delete issuesStore.proxySort;
 
-        if (queryString.sort) {
-            if (!Ext.isArray(queryString.sort)) {
-                sortParam = queryString.sort.charAt(0) == '-' ? queryString.sort.slice(1) : queryString.sort;
-                sortDirection = queryString.sort.charAt(0) == '-' ? Isu.model.IssueSort.DESC : Isu.model.IssueSort.ASC;
-                sortModel.addSortParam(sortParam, sortDirection);
-            } else {
-                Ext.Array.each(queryString.sort, function (sort) {
-                    sortParam = sort.charAt(0) == '-' ? sort.slice(1) : sort;
-                    sortDirection = sort.charAt(0) == '-' ? Isu.model.IssueSort.DESC : Isu.model.IssueSort.ASC;
-                    sortModel.addSortParam(sortParam, sortDirection);
-                });
-            }
-        } else {
-            sortModel.addSortParam('dueDate');
-        }
-        issuesStore.proxySort = sortModel;
-        issuesStore.fireEvent('updateProxySort', sortModel);
+        widget = Ext.widget('issues-overview');
 
-        statusStore.load(function () {
-            if (queryString.status) {
-                if (!Ext.isArray(queryString.status)) {
-                    filterModel.status().add(statusStore.getById(parseInt(queryString.status)));
-                } else {
-                    Ext.Array.each(queryString.status, function (status) {
-                        filterModel.status().add(statusStore.getById(parseInt(status)));
-                    });
-                }
-            } else {
-                filterModel.status().add(statusStore.first());
-            }
-            issuesStore.proxyFilter = filterModel;
-            issuesStore.fireEvent('updateProxyFilter', filterModel);
-        });
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     setBreadcrumb: function (breadcrumbs) {
@@ -518,7 +475,7 @@ Ext.define('Isu.controller.Issues', {
                 this.setComboFilter(filterType, parseInt(filterValue), visualValue);
                 break;
             case 'meter':
-                this.setComboFilter(filterType, parseInt(filterValue), visualValue);
+                this.setComboFilter(filterType, parseInt(filterValue), filterValue);
                 break;
         }
     },

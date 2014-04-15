@@ -30,14 +30,10 @@ Ext.define('Isu.store.Issues', {
 
     listeners: {
         "beforeLoad": function() {
-            /*if (!this.proxyFilter || !this.proxySort) {
+            if (!this.proxyFilter || !this.proxySort) {
                 this.loadDefaults();
-            }*/
-            var extraParams = this.proxy.extraParams,
-                queryString = Uni.util.QueryString.getQueryStringValues();
-
-            delete queryString.limit;
-            delete queryString.start;
+            }
+            var extraParams = this.proxy.extraParams;
 
             // replace filter extra params with new ones
             if (this.proxyFilter) {
@@ -53,8 +49,6 @@ Ext.define('Isu.store.Issues', {
             if (this.group) {
                 Ext.merge(extraParams, this.getGroupParams());
             }
-
-            Ext.merge(extraParams, queryString);
 
             this.proxy.extraParams = extraParams;
         }

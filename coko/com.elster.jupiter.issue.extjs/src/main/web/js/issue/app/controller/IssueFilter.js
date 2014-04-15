@@ -78,10 +78,7 @@ Ext.define('Isu.controller.IssueFilter', {
             loadRecord = function () {
                 form.loadRecord(filter);
                 chkbx.store.un('load', loadRecord);
-            },
-            grstore = this.getStore('Isu.store.IssuesGroups'),
-            reason = filter.get('reason'),
-            status = filter.statusStore;
+            };
 
         if (!chkbx.store.getCount()){
             chkbx.store.on('load', loadRecord);
@@ -91,22 +88,40 @@ Ext.define('Isu.controller.IssueFilter', {
             loadRecord();
         }
 
-        if (reason) {
-            grstore.proxy.extraParams.id = reason.get('id');
+        this.setParamsForIssueGroups(filter);
+    },
 
-        } else {
-            delete grstore.proxy.extraParams.id;
+    setParamsForIssueGroups: function (filter) {
+        var groupStore = this.getStore('Isu.store.IssuesGroups'),
+            groupStoreProxy = groupStore.getProxy(),
+            status = filter.statusStore,
+            statusValues = [],
+            reason = filter.get('reason'),
+            assignee = filter.get('assignee'),
+            meter = filter.get('meter');
 
-        }
         if (status) {
-            var stat = [];
             status.each(function (item) {
-                stat.push(item.get('id'))
+                statusValues.push(item.get('id'));
             });
-            grstore.proxy.extraParams.status = stat;
-
+            groupStoreProxy.setExtraParam('status', statusValues);
         }
-        grstore.loadPage(1);
+        if (assignee) {
+            groupStoreProxy.setExtraParam('assignee', assignee.get('id'));
+        } else {
+            groupStoreProxy.setExtraParam('assignee', []);
+        }
+        if (reason) {
+            groupStoreProxy.setExtraParam('id', reason.get('id'));
+        } else {
+            groupStoreProxy.setExtraParam('id', []);
+        }
+        if (meter) {
+            groupStoreProxy.setExtraParam('meter', meter.get('id'));
+        } else {
+            groupStoreProxy.setExtraParam('meter', []);
+        }
+        groupStore.loadPage(1);
     },
 
     filter: function () {
