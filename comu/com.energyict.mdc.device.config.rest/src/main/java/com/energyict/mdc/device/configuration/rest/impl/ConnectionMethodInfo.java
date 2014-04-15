@@ -35,6 +35,8 @@ public abstract class ConnectionMethodInfo {
     public String connectionType;
     public String comPortPool;
     public boolean isDefault;
+    public int comWindowStart;
+    public int comWindowEnd;
     @XmlJavaTypeAdapter(ConnectionStrategyAdapter.class)
     public ConnectionStrategy connectionStrategy;
     public List<PropertyInfo> propertyInfos;
@@ -57,10 +59,13 @@ public abstract class ConnectionMethodInfo {
         MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, this.propertyInfos);
     }
 
-    protected void addPropertiesToPartialConnectionTask(PartialConnectionTaskBuilder<?,?,?> connectionTaskBuilder) {
+    protected void addPropertiesToPartialConnectionTask(PartialConnectionTaskBuilder<?, ?, ?> connectionTaskBuilder, ConnectionTypePluggableClass connectionTypePluggableClass) {
         if (this.propertyInfos!=null) {
-            for (PropertyInfo propertyInfo : this.propertyInfos) {
-                connectionTaskBuilder.addProperty(propertyInfo.key, propertyInfo.getPropertyValueInfo().value);
+            for (PropertySpec propertySpec : connectionTypePluggableClass.getPropertySpecs()) {
+                Object propertyValue = MdcPropertyUtils.findPropertyValue(propertySpec, this.propertyInfos);
+                if (propertyValue!=null) {
+                    connectionTaskBuilder.addProperty(propertySpec.getName(), propertyValue);
+                }
             }
         }
     }

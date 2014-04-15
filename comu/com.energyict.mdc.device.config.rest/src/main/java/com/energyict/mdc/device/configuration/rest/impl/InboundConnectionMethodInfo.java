@@ -6,6 +6,7 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import javax.ws.rs.core.UriInfo;
 
@@ -20,12 +21,13 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo {
 
     @Override
     public PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
+        ConnectionTypePluggableClass connectionTypePluggableClass = findConnectionTypeOrThrowException(this.connectionType, protocolPluggableService);
         PartialInboundConnectionTaskBuilder connectionTaskBuilder = deviceConfiguration.getCommunicationConfiguration().createPartialInboundConnectionTask()
             .name(this.name)
-            .pluggableClass(findConnectionTypeOrThrowException(this.connectionType, protocolPluggableService))
+            .pluggableClass(connectionTypePluggableClass)
             .comPortPool((InboundComPortPool) engineModelService.findComPortPool(this.comPortPool))
             .asDefault(this.isDefault);
-        addPropertiesToPartialConnectionTask(connectionTaskBuilder);
+        addPropertiesToPartialConnectionTask(connectionTaskBuilder, connectionTypePluggableClass);
         return connectionTaskBuilder.build();
     }
 }
