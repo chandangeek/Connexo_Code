@@ -1,5 +1,9 @@
 @import "../Scrollbar";
-
+.#{$prefix}grid {
+  .#{$prefix}toolbar {
+      border: none;
+  }
+}
 .#{$prefix}grid-body {
     border-top-width: 0;
     border-top-style: none;

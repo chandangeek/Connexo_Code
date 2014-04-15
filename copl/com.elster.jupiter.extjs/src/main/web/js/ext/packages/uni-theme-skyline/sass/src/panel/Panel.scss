@@ -1,40 +1,38 @@
 @include extjs-panel-ui(
-    $ui: 'large',
-    $ui-padding: $panel-padding,
-    $ui-header-font-family: $panel-large-header-font-family,
-    $ui-header-font-size: $panel-large-header-font-size,
-    $ui-header-line-height: $panel-large-header-font-size,
-    $ui-header-font-weight: $panel-large-header-font-weight,
-    $ui-header-padding: $panel-large-header-padding
+$ui: 'large',
+$ui-padding: $panel-padding,
+$ui-header-font-family: $panel-large-header-font-family,
+$ui-header-font-size: $panel-large-header-font-size,
+$ui-header-line-height: $panel-large-header-font-size,
+$ui-header-font-weight: $panel-large-header-font-weight,
+$ui-header-padding: $panel-large-header-padding
 );
 
 @include extjs-panel-ui(
-    $ui: 'medium',
-    $ui-padding: $panel-padding,
-    $ui-header-font-family: $panel-medium-header-font-family,
-    $ui-header-font-size: $panel-medium-header-font-size,
-    $ui-header-line-height: $panel-medium-header-font-size,
-    $ui-header-font-weight: $panel-medium-header-font-weight,
-    $ui-header-padding: $panel-medium-header-padding
+$ui: 'medium',
+$ui-padding: $panel-padding,
+$ui-header-font-family: $panel-medium-header-font-family,
+$ui-header-font-size: $panel-medium-header-font-size,
+$ui-header-line-height: $panel-medium-header-font-size,
+$ui-header-font-weight: $panel-medium-header-font-weight,
+$ui-header-padding: $panel-medium-header-padding
 );
 
 @include extjs-panel-ui(
-    $ui: 'filter',
-    $ui-padding: $panel-filter-padding,
-    $ui-border-radius: $panel-filter-border-radius,
-    $ui-border-color: $panel-filter-border-color,
-    $ui-border-width: $panel-filter-border-width,
-
-    $ui-header-padding: $panel-filter-header-padding,
-    $ui-header-color: $panel-filter-header-color,
-    $ui-header-font-family: $panel-filter-header-font-family,
-    $ui-header-font-size: $panel-filter-header-font-size,
-    $ui-header-line-height: $panel-filter-header-font-size,
-    $ui-header-font-weight: $panel-filter-header-font-weight,
-    $ui-header-background-color: $panel-filter-background-color,
-
-    $ui-body-color: $panel-filter-body-color,
-    $ui-body-background-color: $panel-filter-background-color
+$ui: 'filter',
+$ui-padding: $panel-filter-padding,
+$ui-border-radius: $panel-filter-border-radius,
+$ui-border-color: $panel-filter-border-color,
+$ui-border-width: $panel-filter-border-width,
+$ui-header-padding: $panel-filter-header-padding,
+$ui-header-color: $panel-filter-header-color,
+$ui-header-font-family: $panel-filter-header-font-family,
+$ui-header-font-size: $panel-filter-header-font-size,
+$ui-header-line-height: $panel-filter-header-font-size,
+$ui-header-font-weight: $panel-filter-header-font-weight,
+$ui-header-background-color: $panel-filter-background-color,
+$ui-body-color: $panel-filter-body-color,
+$ui-body-background-color: $panel-filter-background-color
 );
 
 .#{$prefix}panel-default-framed {
@@ -53,6 +51,21 @@
   background-color: $panel-filter-background-color;
   @include border-radius(10px);
 
+  .#{$prefix}panel-body {
+    background: transparent;
+  }
+}
+
+.#{$prefix}panel-filter-toolbar {
+  padding: 8px 0;
+  .#{$prefix}header-text-container {
+    width: 16px * 4;
+    color: $panel-filter-header-color;
+    font-weight: bold;
+  }
+  .#{$prefix}box-item {
+    margin-right: 8px;
+  }
   .#{$prefix}panel-body {
     background: transparent;
   }
