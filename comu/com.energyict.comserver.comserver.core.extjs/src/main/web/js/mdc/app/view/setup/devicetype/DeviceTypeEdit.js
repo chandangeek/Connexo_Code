@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceTypeEdit',
     itemId: 'deviceTypeEdit',
-    autoScroll: true,
+    //autoScroll: true,
     requires: [
         'Mdc.store.DeviceCommunicationProtocols'
     ],
