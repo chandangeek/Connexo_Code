@@ -2,7 +2,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
     //extend: 'Ext.panel.Panel',
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerTypeSetup',
-    //autoScroll: true,
     itemId: 'registerTypeSetup',
     requires: [
         'Mdc.view.setup.registertype.RegisterTypeGrid',

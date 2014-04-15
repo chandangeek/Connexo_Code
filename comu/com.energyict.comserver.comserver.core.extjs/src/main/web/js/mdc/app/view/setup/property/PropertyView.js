@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.property.PropertyView', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.propertyView',
-   // autoScroll: true,
     layout: {
         type: 'vbox',
         align: 'stretch'
@@ -33,7 +32,7 @@ Ext.define('Mdc.view.setup.property.PropertyView', {
                 items: [
                     {
                         xtype: 'container',
-                        columnWidth: 0.49,
+                        columnWidth: 0.50,
                         layout: {
                             type: 'vbox'
                         },
@@ -41,7 +40,7 @@ Ext.define('Mdc.view.setup.property.PropertyView', {
                     },
                     {
                         xtype: 'container',
-                        columnWidth: 0.49,
+                        columnWidth: 0.50,
                         layout: {
                             type: 'vbox'
                         },

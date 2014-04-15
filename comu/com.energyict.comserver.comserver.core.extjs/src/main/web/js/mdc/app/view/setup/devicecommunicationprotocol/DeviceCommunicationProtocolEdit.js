@@ -1,7 +1,137 @@
-/**
- * Created with IntelliJ IDEA.
- * User: sla
- * Date: 10/04/14
- * Time: 10:34
- * To change this template use File | Settings | File Templates.
- */
+Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolEdit', {
+    extend: 'Uni.view.container.ContentContainer',
+    alias: 'widget.deviceCommunicationProtocolEdit',
+    itemId: 'deviceCommunicationProtocolEdit',
+    cls: 'content-container',
+    edit: false,
+    requires: [
+           'Mdc.view.setup.property.Edit'
+       ],
+    isEdit: function () {
+        return this.edit
+    },
+    setEdit: function (edit) {
+        if (edit) {
+            this.edit = edit;
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#createEditButton').action = 'editRegisterConfiguration';
+        } else {
+            this.edit = edit;
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
+            this.down('#createEditButton').action = 'createRegisterConfiguration';
+        }
+    },
+
+    initComponent: function () {
+        var me = this;
+        this.content = [
+            {
+                xtype: 'container',
+                cls: 'content-container',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+
+                items: [
+                    {
+                        xtype: 'breadcrumbTrail',
+                        region: 'north',
+                        padding: 6
+                    },
+                    {
+                        xtype: 'component',
+                        html: '',
+                        itemId: 'deviceCommunicationProtocolEditCreateTitle',
+                        margins: '10 10 10 10'
+                    },
+                    {
+                        xtype: 'container',
+                        columnWidth: 0.5,
+                        items: [
+                            {
+                                xtype: 'form',
+                                border: false,
+                                itemId: 'deviceCommunicationProtocolEditForm',
+                                padding: '10 10 0 10',
+                                width:' 100%',
+                                layout: {
+                                    type: 'vbox'
+                                },
+                                defaults: {
+                                    labelWidth: 250
+                                },
+                                items: [
+
+                                    {
+                                        xtype: 'textfield',
+                                        name: 'name',
+                                        msgTarget: 'under',
+                                        fieldLabel: Uni.I18n.translate('deviceCommunicationProtocol.name', 'MDC', 'Name'),
+                                        itemId: 'editName',
+                                        disabled: true,
+                                        readOnly: true,
+                                        width: 650
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        name: 'deviceProtocolVersion',
+                                        msgTarget: 'under',
+                                        fieldLabel: Uni.I18n.translate('deviceCommunicationProtocol.version', 'MDC', 'Version'),
+                                        itemId: 'editDeviceProtocolVersion',
+                                        disabled: true,
+                                        readOnly: true,
+                                        width: 650
+                                    },
+                                    {
+                                        xtype: 'propertyEdit',
+                                        width: '100%'
+                                    },
+                                    {
+                                        xtype: 'fieldcontainer',
+                                        fieldLabel: '&nbsp',
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        items: [
+                                            {
+                                                text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
+                                                xtype: 'button',
+                                                action: 'createAction',
+                                                itemId: 'createEditButton'
+                                            },
+                                            {
+                                                xtype: 'component',
+                                                padding: '3 0 0 10',
+                                                itemId: 'cancelLink',
+                                                autoEl: {
+                                                    tag: 'a',
+                                                    href: '#setup/devicecommunicationprotocols/',
+                                                    html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+
+                        ]
+                    }
+
+
+                ]
+            }
+        ];
+        this.callParent(arguments);
+        if (this.isEdit()) {
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#createEditButton').action = 'editDeviceCommunicationProtocol';
+        } else {
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
+            this.down('#createEditButton').action = 'createDeviceCommunicationProtocol';
+        }
+
+    }
+});
+

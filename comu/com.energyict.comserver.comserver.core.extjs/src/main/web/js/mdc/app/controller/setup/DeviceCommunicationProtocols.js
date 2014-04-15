@@ -80,7 +80,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     },
 
     editDeviceCommunicationProtocolHistoryFromPreview: function () {
-        location.href = '#setup/devicecommunicationprotocols/' + this.getRegisterTypeGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
+        location.href = '#setup/devicecommunicationprotocols/' + this.getDeviceCommunicationProtocolGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
     },
 
     showDeviceCommunicationProtocolEditView: function (deviceCommunicationProtocol) {
@@ -96,7 +96,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
                 me.editBreadCrumb(protocol.get('name'), deviceCommunicationProtocol)
                 widget.down('form').loadRecord(protocol);
                 widget.down('#deviceCommunicationProtocolEditCreateTitle').update('<H2>' + protocol.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('deviceCommunicationProtocol.protocol', 'MDC', 'Protocol') + '</H2>');
-                me.getPropertiesController().showProperties(protocol, widget);
+                me.getPropertiesController().showProperties(protocol, widget, false);
                 widget.setLoading(false);
             }
         })

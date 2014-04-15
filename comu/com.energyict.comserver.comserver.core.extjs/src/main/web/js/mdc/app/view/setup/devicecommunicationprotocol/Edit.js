@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.devicecommunicationprotocol.Edit', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.deviceCommunicationProtocolEdit',
-    autoScroll: true,
     layout: {
         type: 'vbox',
         align: 'stretch'

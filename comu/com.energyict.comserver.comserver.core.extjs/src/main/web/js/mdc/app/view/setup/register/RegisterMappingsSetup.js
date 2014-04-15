@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerMappingsSetup',
-    //autoScroll: true,
     itemId: 'registerMappingSetup',
     deviceTypeId: null,
     requires: [

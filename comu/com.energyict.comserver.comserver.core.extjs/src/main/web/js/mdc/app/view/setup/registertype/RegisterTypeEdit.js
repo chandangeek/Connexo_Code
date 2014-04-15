@@ -2,7 +2,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.registerTypeEdit',
     itemId: 'registerTypeEdit',
-    //autoScroll: true,
     requires: [
 
     ],

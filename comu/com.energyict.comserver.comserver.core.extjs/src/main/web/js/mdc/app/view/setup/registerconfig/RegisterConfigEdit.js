@@ -2,7 +2,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerConfigEdit',
     itemId: 'registerConfigEdit',
-    //autoScroll: true,
     cls: 'content-container',
     edit: false,
     isEdit: function () {

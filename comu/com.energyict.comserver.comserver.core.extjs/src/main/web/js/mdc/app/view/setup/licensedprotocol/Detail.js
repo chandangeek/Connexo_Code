@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.licensedprotocol.Detail', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.licensedProtocolDetail',
-    autoScroll: true,
     layout: {
         type: 'vbox',
         align: 'stretch'

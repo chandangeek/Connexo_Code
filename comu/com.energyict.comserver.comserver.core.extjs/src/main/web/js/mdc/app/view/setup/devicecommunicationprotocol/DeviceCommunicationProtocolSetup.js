@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceCommunicationProtocolSetup',
-    autoScroll: true,
     itemId: 'deviceCommunicationProtocolSetup',
     requires: [
         'Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolGrid',

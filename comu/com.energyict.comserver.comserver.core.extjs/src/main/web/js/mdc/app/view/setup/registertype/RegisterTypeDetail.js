@@ -2,7 +2,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.registerTypeDetail',
     itemId: 'registerTypeDetail',
-    //autoScroll: true,
     requires: [
         'Mdc.view.setup.registertype.RegisterTypeGrid',
         'Mdc.view.setup.registertype.RegisterTypePreview'

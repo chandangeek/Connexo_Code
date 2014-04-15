@@ -1,15 +1,12 @@
 Ext.define('Mdc.view.setup.property.Edit', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.propertyEdit',
-    autoScroll: true,
     layout: {
         type: 'vbox',
         align: 'stretch'
     },
     itemId: 'propertyEdit',
-    autoShow: true,
     border: 0,
-    autoWidth: true,
     requires: ['Ext.form.Panel',
         'Mdc.view.setup.property.CodeTableSelector',
         'Mdc.view.setup.property.CodeTable',
@@ -23,39 +20,27 @@ Ext.define('Mdc.view.setup.property.Edit', {
             {
                 xtype: 'form',
                 itemId: 'propertiesform',
-                shrinkWrap: 1,
-                padding: 10,
+                margin: '20 0 0 0',
                 border: 0,
                 defaults: {
-                    labelWidth: 200
+                    labelWidth: 250
+                },
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+
                 },
                 items: [
-                    {
-                        xtype: 'fieldset',
-                        title: 'Properties',
-                        defaults: {
-                            labelWidth: 200,
-                            anchor: '100%'
-                        },
-                        collapsible: true,
-                        layout: {
-                            type: 'vbox',
-                            align: 'stretch'
-                        },
 
-
-                        itemId: 'fsproperties'
-
-                    }
                 ]
             }
         ];
 
         this.callParent(arguments);
     },
-    addTextProperty: function (key, text) {
+    addTextProperty: function (key, text, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
             layout: 'hbox',
@@ -69,25 +54,27 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     fieldLabel: key,
                     itemId: key,
                     value: text,
-                    size: 200,
-                    margin: '0 5 0 0',
-                    width: 350
+                    width: 395,
+                    msgTarget: 'under'
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    margin: '0 0 0 5',
+                    hidden: hidden
                 }
             ]
         });
     },
-    addPasswordProperty: function (key, text) {
+    addPasswordProperty: function (key, text, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
             layout: 'hbox',
@@ -104,23 +91,26 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     inputType: 'password',
                     size: 200,
                     margin: '0 5 0 0',
-                    width: 350
+                    width: 395,
+                    msgTarget: 'under'
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     },
-    addHexStringProperty: function (key, text) {
+    addHexStringProperty: function (key, text, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
             layout: 'hbox',
@@ -136,24 +126,27 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     value: text,
                     size: 200,
                     margin: '0 5 0 0',
-                    width: 350,
-                    vtype: 'hexstring'
+                    width: 395,
+                    vtype: 'hexstring',
+                    msgTarget: 'under'
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     },
-    addTextAreaProperty: function (key, text) {
+    addTextAreaProperty: function (key, text, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
             layout: 'hbox',
@@ -169,25 +162,28 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     value: text,
                     size: 200,
                     margin: '0 5 0 0',
-                    width: 350,
+                    width: 395,
                     grow: true,
-                    anchor: '100%'
+                    anchor: '100%',
+                    msgTarget: 'under'
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     },
-    addNumberProperty: function (key, value, minvalue, maxvalue, allowdecimals) {
+    addNumberProperty: function (key, value, minvalue, maxvalue, allowdecimals, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
             layout: 'hbox',
@@ -209,26 +205,29 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     mouseWheelEnabled: false,
                     minValue: minvalue,
                     maxValue: maxvalue,
-                    allowDecimals: allowdecimals
+                    allowDecimals: allowdecimals,
+                    msgTarget: 'under'
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     },
-    addBooleanProperty: function (key, value) {
+    addBooleanProperty: function (key, value, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
-            msgTarget: 'side',
+            msgTarget: 'under',
             layout: 'hbox',
             defaults: {
                 hideLabel: true
@@ -241,27 +240,28 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: key,
                     checked: value,
                     margin: '0 5 0 0',
-                    width: 350,
                     cls: 'check'
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     },
-    addNullableBooleanProperty: function (key, value1, value2, value3) {
+    addNullableBooleanProperty: function (key, value1, value2, value3, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
-            msgTarget: 'side',
+            msgTarget: 'under',
             layout: 'hbox',
             defaults: {
                 hideLabel: true
@@ -300,22 +300,24 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     },
-    addDateProperty: function (key, value) {
+    addDateProperty: function (key, value, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
-            msgTarget: 'side',
+            msgTarget: 'under',
             layout: 'hbox',
             defaults: {
                 hideLabel: true
@@ -329,27 +331,28 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     value: value,
                     format: 'd/m/Y',
                     altFormats: 'd.m.Y|d m Y',
-                    margin: '0 5 0 0',
-                    width: 100
+                    margin: '0 5 0 0'
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     },
-    addTimeProperty: function (key, value) {
+    addTimeProperty: function (key, value, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
-            msgTarget: 'side',
+            msgTarget: 'under',
             layout: 'hbox',
             defaults: {
                 hideLabel: true
@@ -362,27 +365,28 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: 'time' + key,
                     value: value,
                     format: 'H:i:s',
-                    margin: '0 5 0 0',
-                    width: 100
+                    margin: '0 5 0 0'
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     },
-    addDateTimeProperty: function (key, dateValue, timeValue) {
+    addDateTimeProperty: function (key, dateValue, timeValue, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
-            msgTarget: 'side',
+            msgTarget: 'under',
             layout: 'hbox',
             defaults: {
                 hideLabel: true
@@ -409,22 +413,24 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     },
-    addTimeDurationProperty: function (key, count, unit, timeUnitsStore) {
+    addTimeDurationProperty: function (key, count, unit, timeUnitsStore, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
-            msgTarget: 'side',
+            msgTarget: 'under',
             layout: 'hbox',
             defaults: {
                 hideLabel: true
@@ -458,19 +464,21 @@ Ext.define('Mdc.view.setup.property.Edit', {
 
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     },
-    addCodeTableProperty: function (key, value) {
+    addCodeTableProperty: function (key, value, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'codeTableSelector',
             name: key,
             fieldLabel: key,
@@ -482,12 +490,12 @@ Ext.define('Mdc.view.setup.property.Edit', {
             }
         })
     },
-    addCodeTablePropertyWithSelectionWindow: function (key, value) {
+    addCodeTablePropertyWithSelectionWindow: function (key, value, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
-            msgTarget: 'side',
+            msgTarget: 'under',
             layout: 'hbox',
             defaults: {
                 hideLabel: true
@@ -500,7 +508,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: key,
                     size: 75,
                     margin: '0 5 0 0',
-                    width: 350
+                    width: 395
                 },
                 {
                     xtype: 'button',
@@ -513,22 +521,24 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     },
-    addUserReferenceFilePropertyWithSelectionWindow: function (key, value) {
+    addUserReferenceFilePropertyWithSelectionWindow: function (key, value, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
-            msgTarget: 'side',
+            msgTarget: 'under',
             layout: 'hbox',
             defaults: {
                 hideLabel: true
@@ -541,7 +551,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: key,
                     size: 75,
                     margin: '0 5 0 0',
-                    width: 350
+                    width: 395
                 },
                 {
                     xtype: 'button',
@@ -554,22 +564,24 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     },
-    addLoadProfileTypePropertyWithSelectionWindow: function (key, value) {
+    addLoadProfileTypePropertyWithSelectionWindow: function (key, value, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
-            msgTarget: 'side',
+            msgTarget: 'under',
             layout: 'hbox',
             defaults: {
                 hideLabel: true
@@ -595,22 +607,24 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     },
-    addComboBoxTextProperty: function (key, store, selectedValue, exhaustive) {
+    addComboBoxTextProperty: function (key, store, selectedValue, exhaustive, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
-            msgTarget: 'side',
+            msgTarget: 'under',
             layout: 'hbox',
             defaults: {
                 hideLabel: true
@@ -633,22 +647,24 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     },
-    addComboBoxNumberProperty: function (key, store, selectedValue, exhaustive) {
+    addComboBoxNumberProperty: function (key, store, selectedValue, exhaustive, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
-            msgTarget: 'side',
+            msgTarget: 'under',
             layout: 'hbox',
             defaults: {
                 hideLabel: true
@@ -672,21 +688,24 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     },
-    addEan18StringProperty: function (key, text) {
+    addEan18StringProperty: function (key, text, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
+            msgTarget: 'under',
             layout: 'hbox',
             defaults: {
                 hideLabel: true
@@ -705,21 +724,24 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     },
-    addEan13StringProperty: function (key, text) {
+    addEan13StringProperty: function (key, text, hidden) {
         var me = this;
-        me.down('#fsproperties').add({
+        me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
+            msgTarget: 'under',
             layout: 'hbox',
             defaults: {
                 hideLabel: true
@@ -738,14 +760,17 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 },
                 {
                     xtype: 'button',
+                    icon: '../mdc/resources/images/redo.png',
+                    tooltip: 'Restore to default value',
                     name: 'btn_delete_' + key,
                     itemId: 'btn_delete_' + key,
-                    text: 'Restore defaults',
                     scale: 'small',
                     action: 'delete',
-                    disabled: true
+                    disabled: true,
+                    hidden: hidden
                 }
             ]
         });
     }
-});
+})
+;

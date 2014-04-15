@@ -2,7 +2,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceConfigurationEdit',
     itemId: 'deviceConfigurationEdit',
-    autoScroll: true,
     cls: 'content-container',
     edit: false,
     isEdit: function () {

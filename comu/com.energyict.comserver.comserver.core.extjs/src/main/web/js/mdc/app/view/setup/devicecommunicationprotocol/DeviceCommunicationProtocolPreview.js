@@ -58,8 +58,8 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                             items: [
                                 {
                                     text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                    itemId: 'editRegisterType',
-                                    action: 'editRegisterType'
+                                    itemId: 'editProtocol',
+                                    action: 'editProtocol'
                                 }
                             ]
                         }
@@ -78,7 +78,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                         items: [
                             {
                                 xtype: 'container',
-                                columnWidth: 0.49,
+                                columnWidth: 0.50,
                                 layout: {
                                     type: 'vbox'
                                 },
@@ -94,7 +94,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                             },
                             {
                                 xtype: 'container',
-                                columnWidth: 0.49,
+                                columnWidth: 0.50,
                                 layout: {
                                     type: 'vbox'
                                 },
