@@ -13,7 +13,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         'Isu.store.DueinType'
     ],
     views: [
-        'administration.datacollection.issuecreationrules.Edit'
+        'Isu.view.administration.datacollection.issuecreationrules.Edit',
+        'Isu.view.workspace.issues.MessagePanel'
     ],
 
     refs: [
@@ -48,21 +49,21 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             'issues-creation-rules-edit breadcrumbTrail': {
                 afterrender: this.setBreadcrumb
             },
-            'issues-creation-rules-edit form [name=type]': {
+            'issues-creation-rules-edit form [name=issueType]': {
                 change: this.setRuleTemplateCombobox
             },
             'issues-creation-rules-edit form [name=template]': {
                 change: this.setRuleTemplate
             },
             'issues-creation-rules-edit button[action=create]': {
-                click: this.createRule
+                click: this.ruleSave
             },
             'issues-creation-rules-edit button[action=edit]': {
-                click: this.editRule
+                click: this.ruleSave
             }
         });
 
-        this.actionMenuXtype = 'issues-creation-rules-edit-actions-menu';
+    //    this.actionMenuXtype = 'issues-creation-rules-edit-actions-menu';
     },
 
     showOverview: function (id, action) {
@@ -95,20 +96,24 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             prefix,
             btnTxt;
 
-        self.ruleModel = Isu.model.CreationRule.create();
-
         switch (action) {
             case 'edit':
                 prefix = 'Edit ';
                 btnTxt = 'Save';
-                self.ruleModel.load(id, {
+                self.getModel('Isu.model.CreationRule').load(id, {
                     success: function (record) {
+                        self.ruleModel = record;
+                        delete self.ruleModel.data.creationDate;
+                        delete self.ruleModel.data.modificationDate;
                         self.modelToForm(record);
                     }
                 });
                 break;
             case 'create':
                 prefix = btnTxt = 'Create ';
+                self.ruleModel = Isu.model.CreationRule.create();
+                delete self.ruleModel.data.id;
+                self.ruleModel.data.actions = [];
                 self.modelToForm(self.ruleModel);
                 break;
         }
@@ -116,7 +121,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         this.lastBreadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
             text: prefix + 'issue creation rules'
         });
-        self.getPageTitle().update('<h1>' + prefix + 'issue creation rule</h1>');
+        self.getPageTitle().title = prefix + 'issue creation rule',
+        self.getPageTitle().ui = 'large';
         ruleActionBtn.action = action;
         ruleActionBtn.setText(btnTxt);
     },
@@ -126,25 +132,25 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             form = self.getRuleForm(),
             data = record.getData(),
             nameField = form.down('[name=name]'),
-            typeField = form.down('[name=type]'),
+            issueTypeField = form.down('[name=issueType]'),
             templateField = form.down('[name=template]'),
-            dueinNumberField = form.down('[name=duein.number]'),
-            dueinTypeField = form.down('[name=duein.type]'),
+            reasonField = form.down('[name=reason]'),
+            dueInNumberField = form.down('[name=dueIn.number]'),
+            dueInTypeField = form.down('[name=dueIn.type]'),
             commentField = form.down('[name=comment]');
 
         nameField.setValue(data.name);
-        typeField.getStore().load(function (store) {
-            if (data.type.id) {
-                typeField.setValue(data.type.id);
-            } else {
-                typeField.setValue(typeField.getStore().getAt(0).get('id'));
-            }
+        issueTypeField.getStore().load(function () {
+            issueTypeField.setValue(data.issueType.uid || issueTypeField.getStore().getAt(0).get('uid'));
             templateField.getStore().on('load', function () {
                 templateField.setValue(data.template.uid);
-            }, self, {single:true});
+            }, self, {single: true});
         });
-        dueinNumberField.setValue(data.duein.number);
-        dueinTypeField.setValue(data.duein.type);
+        reasonField.getStore().load(function () {
+            reasonField.setValue(data.reason.id);
+        });
+        dueInNumberField.setValue(data.dueIn.number || null);
+        dueInTypeField.setValue(data.dueIn.type || dueInTypeField.getStore().getAt(0).get('name'));
         commentField.setValue(data.comment);
     },
 
@@ -152,33 +158,36 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         var form = this.getRuleForm(),
             ruleModel = model || Isu.model.CreationRule.create(),
             nameField = form.down('[name=name]'),
-            typeField = form.down('[name=type]'),
+            issueTypeField = form.down('[name=issueType]'),
             templateField = form.down('[name=template]'),
-            dueinNumberField = form.down('[name=duein.number]'),
-            dueinTypeField = form.down('[name=duein.type]'),
+            reasonField = form.down('[name=reason]'),
+            dueInNumberField = form.down('[name=dueIn.number]'),
+            dueInTypeField = form.down('[name=dueIn.type]'),
             commentField = form.down('[name=comment]'),
             templateDetails = this.getTemplateDetails(),
             parameters = {};
 
         ruleModel.set('name', nameField.getValue());
-        ruleModel.set('type', {
-            id: typeField.getValue()
+        ruleModel.set('issueType', {
+            uid: issueTypeField.getValue()
         });
         ruleModel.set('template', {
             uid: templateField.getValue()
         });
-        ruleModel.set('duein', {
-            number: dueinNumberField.getValue() || '',
-            type: dueinTypeField.getValue() || ''
+        ruleModel.set('reason', {
+            id: reasonField.getValue()
+        });
+        ruleModel.set('dueIn', {
+            number: dueInNumberField.getValue(),
+            type: dueInTypeField.getValue()
         });
         ruleModel.set('comment', commentField.getValue());
 
-        Ext.Array.each(templateDetails.items, function (item) {
-            var formItem = item.down('[formBind=true]'),
-                value = formItem.getValue();
+        Ext.Array.each(templateDetails.query('[formBind=false]'), function (item) {
+            var value = item.getValue();
 
             if (value) {
-                parameters[formItem.name] = value;
+                parameters[item.name] = value;
             }
         });
 
@@ -211,17 +220,20 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         if (newValue) {
             templateModel.load(newValue, {
                 success: function (template) {
-                    template.description && templateDetails.add({
+                    var description = template.get('description'),
+                        parameters = template.get('parameters');
+
+                    description && templateDetails.add({
                         xtype: 'component',
-                        html: template.description,
+                        html: description,
                         margin: '5 0 0 155',
                         cls: 'isu-creation-rule-description'
                     });
 
-                    for (var fieldName in template.parameters) {
-                        switch (template.parameters[fieldName].type) {
+                    for (var fieldName in parameters) {
+                        switch (parameters[fieldName].type) {
                             case 'number':
-                                formItem = self.createTextField(template.parameters[fieldName], fieldName);
+                                formItem = self.createTextField(parameters[fieldName], fieldName);
                                 break;
                         }
                         templateDetails.add(formItem);
@@ -235,59 +247,57 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         var formItem = {
             xtype: 'textfield',
             name: name,
-            fieldLabel: obj.label + (!obj.optional ? '*' : ''),
+            fieldLabel: obj.label,
             allowBlank: obj.optional,
-            formBind: true
+            formBind: false,
+            labelSeparator: !obj.optional ? ' *' : ''
         };
 
-        if (this.ruleModel.parameters[name]) {
-            formItem.value = this.ruleModel.parameters[name];
-            delete this.ruleModel.parameters[name];
+        if (this.ruleModel.get('parameters')[name]) {
+            formItem.value = this.ruleModel.get('parameters')[name];
+            delete this.ruleModel.get('parameters')[name];
         }
 
-        return {
-            xtype: 'container',
-            layout: {
-                type: 'hbox'
-            },
-            items: [
-                formItem,
-                {
-                    xtype: 'component',
-                    html: obj.suffix
-                }
-            ]
-        }
+        return formItem;
     },
 
-    createRule: function () {
-        ruleAction('create');
-    },
-
-    editRule: function () {
-        ruleAction('edit');
-    },
-
-    ruleAction: function (type) {
-        var form = this.getRuleForm().getForm(),
-            rule = this.formToModel(),
-            formErrorsPanel = this.getRuleForm().down('[name=form-errors]'),
-            store = this.getStore('Isu.store.CreationRule');
+    ruleSave: function (type) {
+        var self = this,
+            form = self.getRuleForm().getForm(),
+            rule = self.formToModel(self.ruleModel),
+            formErrorsPanel = self.getRuleForm().down('[name=form-errors]'),
+            store = self.getStore('Isu.store.CreationRule');
 
         if (form.isValid()) {
             formErrorsPanel.hide();
-            store.on('datachanged', function () {
-                window.location.href = '#/issue-administration/datacollection/issuecreationrules';
-            }, this, {single: true});
-            switch (type) {
-                case 'edit':
-                    rule.commit();
-                    break;
-                case 'create':
-                    rule.save();
-                    break;
-            }
-            rule.commit();
+            rule.save({
+                callback: function (model, operation, success) {
+                    var messageText;
+
+                    if (success) {
+                        switch (operation.action) {
+                            case 'create':
+                                messageText = 'Issue creation rule created';
+                                break;
+                            case 'update':
+                                messageText = 'Issue creation rule updated';
+                                break;
+                        }
+                        self.getApplication().fireEvent('isushowmsg', {
+                            type: 'notify',
+                            msgBody: [
+                                {
+                                    style: 'msgHeaderStyle',
+                                    text: messageText
+                                }
+                            ],
+                            y: 10,
+                            showTime: 5000
+                        });
+                        window.location.href = '#/issue-administration/datacollection/issuecreationrules'
+                    }
+                }
+            });
         } else {
             formErrorsPanel.show();
         }

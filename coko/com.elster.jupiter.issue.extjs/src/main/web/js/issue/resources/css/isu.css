@@ -343,6 +343,11 @@ span[class^=isu-assignee-] {
     font-style: italic;
 }
 
+.isu-combo-limit-notification {
+    color: gray;
+    font-size: 11px;
+}
+
 /* Message Window */
 
 /* Window */

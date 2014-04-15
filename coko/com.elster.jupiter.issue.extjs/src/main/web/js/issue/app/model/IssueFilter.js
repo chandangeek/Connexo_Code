@@ -24,11 +24,6 @@ Ext.define('Isu.model.IssueFilter', {
             name: 'reason'
         },
         {
-            model: 'Isu.model.UserGroupList',
-            associationKey: 'department',
-            name: 'department'
-        },
-        {
             model: 'Isu.model.IssueMeter',
             associationKey: 'meter',
             name: 'meter'

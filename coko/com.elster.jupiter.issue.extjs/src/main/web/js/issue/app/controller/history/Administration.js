@@ -15,15 +15,6 @@ Ext.define('Isu.controller.history.Administration', {
         crossroads.addRoute('issue-administration/datacollection',function(){
             me.getController('Isu.controller.AdministrationDataCollection').showOverview();
         });
-        crossroads.addRoute('issue-administration/datacollection/licensing',function(){
-            me.getController('Isu.controller.Licensing').showOverview();
-        });
-        crossroads.addRoute('issue-administration/datacollection/licensing/addlicense',function(){
-            me.getController('Isu.controller.AddLicense').showOverview();
-        });
-        crossroads.addRoute('issue-administration/datacollection/licensing/upgradelicense/{id}',function(id){
-            me.getController('Isu.controller.UpgradeLicense').showOverview(id);
-        });
         crossroads.addRoute('issue-administration/datacollection/issueassignmentrules',function(){
             me.getController('Isu.controller.IssueAssignmentRules').showOverview();
         });

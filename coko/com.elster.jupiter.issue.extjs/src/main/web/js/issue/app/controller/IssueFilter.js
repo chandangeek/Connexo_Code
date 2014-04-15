@@ -41,19 +41,11 @@ Ext.define('Isu.controller.IssueFilter', {
                 click: this.reset
             },
             'issues-side-filter filter-form combobox[name=reason]': {
-                focus: this.onFocusComboTooltip,
-                blur: this.onBlurComboTooltip,
-                change: this.clearComboTooltip
-            },
-            'issues-side-filter filter-form combobox[name=department]': {
-                focus: this.onFocusComboTooltip,
-                blur: this.onBlurComboTooltip,
-                change: this.clearComboTooltip
+                render: this.setComboTooltip
             },
             'issues-side-filter filter-form combobox[name=meter]': {
-                focus: this.onFocusComboTooltip,
-                blur: this.onBlurComboTooltip,
-                change: this.clearComboTooltip
+                render: this.setComboTooltip,
+                expand: this.limitNotification
             }
         });
 

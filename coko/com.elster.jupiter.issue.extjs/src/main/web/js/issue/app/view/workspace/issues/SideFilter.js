@@ -7,7 +7,6 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
     ui: "filter",
     requires: [
         'Isu.view.workspace.issues.component.AssigneeCombo',
-        'Isu.view.workspace.issues.component.DepartmentCombo',
         'Isu.util.FilterCheckboxgroup',
         'Uni.component.filter.view.Filter',
         'Isu.store.IssueStatus',
@@ -64,15 +63,6 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     anchor: '100%',
                     emptyText: 'select a reason',
                     tooltipText: 'Start typing for reason'
-                },
-                {
-                    xtype: 'issues-departmenr-combo',
-                    name: 'department',
-                    fieldLabel: 'Department',
-                    labelAlign: 'top',
-
-                    emptyText: 'select a department',
-                    tooltipText: 'Start typing for department'
                 },
                 {
                     xtype: 'combobox',

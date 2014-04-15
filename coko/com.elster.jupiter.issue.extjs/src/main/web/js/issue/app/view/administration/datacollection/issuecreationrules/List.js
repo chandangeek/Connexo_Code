@@ -54,7 +54,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
                     {
                         header: 'Issue type',
                         xtype: 'templatecolumn',
-                        tpl: '<tpl if="type">{type.name}</tpl>',
+                        tpl: '<tpl if="issueType">{issueType.name}</tpl>',
                         tdCls: 'isu-grid-description',
                         flex: 1
                     },

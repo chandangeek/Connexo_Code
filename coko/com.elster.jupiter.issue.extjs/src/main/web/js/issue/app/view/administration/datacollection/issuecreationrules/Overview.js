@@ -17,7 +17,8 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview',
             cls: 'content-wrapper',
             items: [
                 {
-                    html: '<h1>Issue creation rules</h1>',
+                    title: 'Issue creation rules',
+                    ui: 'large',
                     margin: '0 0 20 0'
                 },
                 {

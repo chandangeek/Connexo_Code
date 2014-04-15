@@ -2,8 +2,8 @@ Ext.define('Isu.model.IssueType', {
     extend: 'Ext.data.Model',
     fields: [
         {
-            name: 'id',
-            type: 'int'
+            name: 'uid',
+            type: 'text'
         },
         {
             name: 'name',
@@ -11,9 +11,11 @@ Ext.define('Isu.model.IssueType', {
         }
     ],
 
+    idProperty: 'uid',
+
     proxy: {
         type: 'rest',
-        url: '/api/isu/issue/types',
+        url: '/api/isu/issuetypes',
         reader: {
             type: 'json',
             root: 'data'

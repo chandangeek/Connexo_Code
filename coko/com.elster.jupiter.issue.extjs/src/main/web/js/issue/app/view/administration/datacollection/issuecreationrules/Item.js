@@ -13,6 +13,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
         self.callParent();
         self.addEvents('change');
         self.on('change', self.onChange, self);
+        self.on('clear', self.onClear, self);
     },
 
     onChange: function (panel, record) {
@@ -56,25 +57,26 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
                         '<table class="isu-item-data-table">',
                         '<tr>',
                         '<td><b>Issue type:</b></td>',
-                        '<td><b><tpl if="type">{type.name}</tpl></b></td>',
+                        '<td><tpl if="issueType">{issueType.name}</tpl></td>',
                         '<td><b>Due in:</b></td>',
-                        '<td><tpl if="duein">{duein.number} {duein.type}</tpl></td>',
+                        '<td><tpl if="dueIn && dueIn.number">{dueIn.number} {dueIn.type}</tpl></td>',
                         '</tr>',
                         '<tr>',
                         '<td><b>Rule template:</b></td>',
                         '<td><tpl if="template">{template.name}</tpl></td>',
                         '<td><b>Created:</b></td>',
-                        '<td>{[values.creationdate ? this.formatRuleDate(values.creationdate) : ""]}</td>',
+                        '<td>{[values.creationDate ? this.formatRuleDate(values.creationDate) : ""]}</td>',
                         '</tr>',
                         '<tr>',
                         '<td><b>Issue reason:</b></td>',
                         '<td><tpl if="reason">{reason.name}</tpl></td>',
                         '<td><b>Last modified:</b></td>',
-                        '<td>{[values.modificationdate ? this.formatRuleDate(values.modificationdate) : ""]}</td>',
+                        '<td>{[values.modificationDate ? this.formatRuleDate(values.modificationDate) : ""]}</td>',
                         '</tr>',
                         '</table>',
                         {
                             formatRuleDate: function (date) {
+                                date = Ext.isDate(date) ? date : new Date(date);
                                 return Ext.Date.format(date, 'M d, Y H:i');
                             }
                         }
@@ -82,5 +84,14 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
                 }
             ]
         };
+    },
+
+    onClear: function (text) {
+        this.removeAll();
+        this.add({
+            html: text ? text : '<h3>No rule selected</h3><p>Select a rule to view its detail.</p>',
+            bodyPadding: 10,
+            border: false
+        });
     }
 });
