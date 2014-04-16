@@ -4,6 +4,7 @@
 Ext.define('Uni.view.breadcrumb.Link', {
     extend: 'Ext.Component',
     alias: 'widget.breadcrumbLink',
+    ui: 'link',
 
     text: '',
     href: '',
