@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceCommunicationProtocolEdit',
     itemId: 'deviceCommunicationProtocolEdit',
+    overflowY: true,
     cls: 'content-container',
     edit: false,
     requires: [
@@ -29,6 +30,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
             {
                 xtype: 'container',
                 cls: 'content-container',
+                overflowY: true,
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
@@ -93,7 +95,8 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                         ]},
                     {
                         xtype: 'container',
-                        margins: '0 0 0 10',
+                        margins: '10 10 10 10',
+                        width:'100%',
                         items: [
 
                             {
@@ -116,6 +119,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                                             type: 'hbox',
                                             align: 'stretch'
                                         },
+                                        width: '100%',
                                         items: [
                                             {
                                                 text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
