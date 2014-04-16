@@ -1,1 +1,19 @@
+@mixin link (
+$ui,
+$background-color: $link-default-background-color,
+$color: $link-default-color
+) {
+  .#{$prefix}container-#{$ui} {
+    background-color: $background-color;
+    //font-weight: bold;
+    color: $color;
+    a {
+      color: $color;
+    }
+  }
+}
+
+@include link('default');
+
 @import "Arrow_legacy";
+@import "Link";
