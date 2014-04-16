@@ -4,6 +4,7 @@
 Ext.define('Uni.view.breadcrumb.Trail', {
     extend: 'Ext.container.Container',
     alias: 'widget.breadcrumbTrail',
+    ui: 'breadcrumbtrail',
 
     requires: [
         'Uni.view.breadcrumb.Link',
