@@ -61,7 +61,7 @@ Ext.define('Isu.controller.IssueDetail', {
         var self = this,
             widget = Ext.widget('issue-detail-overview'),
             issueDetailModel = self.getModel('Isu.model.Issues'),
-            detailPanel = self.getDetailPanel();
+            form = widget.down('issue-form');
 
         self.commentsAPI = '/api/isu/issue/' + issueId + '/comments';
 
@@ -69,7 +69,9 @@ Ext.define('Isu.controller.IssueDetail', {
 
         issueDetailModel.load(issueId, {
             success: function (record) {
-                self.detailData = detailPanel.data = record.data;
+                form.loadRecord(record);
+                form.setTitle(record.get('title'));
+
                 self.loadComments();
                 self.getApplication().fireEvent('changecontentevent', widget);
             }
