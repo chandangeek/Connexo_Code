@@ -105,6 +105,10 @@ Ext.define('Mdc.controller.setup.Properties', {
     showProperties: function (objectWithProperties, view, hidden) {
         var me = this;
         var propertiesView = view.down('#propertyEdit');
+
+        var propertiesForm = view.down('#propertiesform');
+        propertiesForm.removeAll();
+
         var properties = objectWithProperties.propertyInfosStore.data.items;
         me.propertiesStore = objectWithProperties.propertyInfosStore;
 

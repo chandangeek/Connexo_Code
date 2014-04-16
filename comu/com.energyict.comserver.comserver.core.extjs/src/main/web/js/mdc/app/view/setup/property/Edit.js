@@ -271,6 +271,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     xtype: 'radiogroup',
                     itemId: 'rg' + key,
                     allowBlank: false,
+                    vertical: true,
+                    columns: 1,
                     items: [
                         {
                             boxLabel: 'true',
