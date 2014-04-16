@@ -1,7 +1,7 @@
 @include container(
     'breadcrumbtrail',
-    $background-color: $color-blue-2,
-    $color: $color-white
+    $background-color: $breadcrumb-default-background-color,
+    $color: $breadcrumb-default-color
 );
 
 

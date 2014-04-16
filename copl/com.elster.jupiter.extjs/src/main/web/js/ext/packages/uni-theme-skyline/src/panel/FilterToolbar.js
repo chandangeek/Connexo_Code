@@ -1,4 +1,4 @@
-Ext.define('Skyline.panel.Header', {
+Ext.define('Skyline.panel.FilterToolbar', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.filter-toolbar',
     titlePosition: 'left',
