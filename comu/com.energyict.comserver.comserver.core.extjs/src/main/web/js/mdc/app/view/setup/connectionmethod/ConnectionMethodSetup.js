@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.connectionMethodSetup',
-    autoScroll: true,
     itemId: 'connectionMethodSetup',
     deviceTypeId: null,
     deviceConfigId: null,

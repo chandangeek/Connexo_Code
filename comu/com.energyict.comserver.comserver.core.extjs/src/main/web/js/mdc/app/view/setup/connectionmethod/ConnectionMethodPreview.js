@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
     alias: 'widget.connectionMethodPreview',
     itemId: 'connectionMethodPreview',
     requires: [
-        'Mdc.model.ConnectionMethod'
+        'Mdc.model.ConnectionMethod',
+        'Mdc.view.setup.property.PropertyView'
     ],
 //    controllers: [
 //        'Mdc.controller.setup.DeviceTypes'
@@ -86,7 +87,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                     items: [
                         {
                             xtype: 'container',
-                            columnWidth: 0.5,
+                            columnWidth: 0.50,
                             layout: {
                                 type: 'vbox',
                                 align: 'stretch'
@@ -109,24 +110,14 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'simultaneousConnectionsAllowed',
+                                    name: 'allowSimultaneousConnections',
                                     fieldLabel: Uni.I18n.translate('connectionmethod.simultaneousConnectionsAllowed', 'MDC', 'Simultaneous connections allowed')
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'setAsDefault',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default')
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'portPool',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.portPool', 'MDC', 'Port pool')
                                 }
                             ]
                         },
                         {
                             xtype: 'container',
-                            columnWidth: 0.5,
+                            columnWidth: 0.50,
                             layout: {
                                 type: 'vbox',
                                 align: 'stretch'
@@ -142,24 +133,22 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'host',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.host', 'MDC', 'Host')
+                                    name: 'isDefault',
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default')
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'portNumber',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.portNumber', 'MDC', 'Port number')
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'connectionTimeout',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.connectionTimeout', 'MDC', 'Connection timeout')
+                                    name: 'portPool',
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.portPool', 'MDC', 'Port pool')
                                 }
                             ]
                         }
 
 
                     ]
+                },
+                {
+                    xtype: 'propertyView'
                 }
             ]
         }

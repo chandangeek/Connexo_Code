@@ -96,6 +96,34 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                                 msgTarget: 'under'
                                             },
                                             {
+                                                xtype: 'combobox',
+                                                name: 'portPool',
+                                                fieldLabel: Uni.I18n.translate('connectionmethod.comPortPool', 'MDC', 'Communication port pool'),
+                                                itemId: 'communicationPortPoolComboBox',
+//                                                store: this.comPortPools,
+                                                queryMode: 'local',
+                                                displayField: 'name',
+                                                valueField: 'name',
+                                                emptyText: Uni.I18n.translate('connectionmethod.selectComPortPool', 'MDC', 'Select a communication port pool...'),
+                                                forceSelection: true,
+                                                typeAhead: true,
+                                                msgTarget: 'under'
+                                            },
+                                            {
+                                                xtype: 'combobox',
+                                                name: 'connectionStrategy',
+                                                fieldLabel: Uni.I18n.translate('connectionmethod.connectionStrategy', 'MDC', 'Connection strategy'),
+                                                itemId: 'connectionStrategyComboBox',
+//                                                store: this.comPortPools,
+                                                queryMode: 'local',
+                                                displayField: 'name',
+                                                valueField: 'name',
+                                                emptyText: Uni.I18n.translate('connectionmethod.selectconnectionStrategy', 'MDC', 'Select a connection strategy'),
+                                                forceSelection: true,
+                                                typeAhead: true,
+                                                msgTarget: 'under'
+                                            },
+                                            {
                                                 xtype: 'fieldcontainer',
                                                 fieldLabel: '&nbsp',
                                                 //width: 430,
