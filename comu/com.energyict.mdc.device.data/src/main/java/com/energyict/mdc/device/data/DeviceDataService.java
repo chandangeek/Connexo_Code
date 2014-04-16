@@ -9,7 +9,9 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
+import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.InfoType;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -335,4 +337,12 @@ public interface DeviceDataService {
      * @return the requested ComTaskExecution
      */
     ComTaskExecution findComTaskExecution(long id);
+
+    /**
+     * Finds all ComTaskExecutions for the given Device which aren't made obsolete yet
+     *
+     * @param device the device
+     * @return the currently active ComTaskExecutions for this device
+     */
+    List<ComTaskExecution> findComTaskExecutionsByDevice(Device device);
 }

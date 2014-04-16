@@ -34,6 +34,7 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.finders.DeviceFinder;
 import com.energyict.mdc.device.data.finders.LoadProfileFinder;
 import com.energyict.mdc.device.data.finders.LogBookFinder;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -605,4 +606,9 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     public ComTaskExecution findComTaskExecution(long id) {
         return this.dataModel.mapper(ComTaskExecution.class).getUnique("id", id).orNull();
     }
+
+    @Override
+    public List<ComTaskExecution> findComTaskExecutionsByDevice(Device device) {
+        Condition condition = where("device").isEqualTo(device).and(where("obsoleteDate").isNull());
+        return this.getDataModel().mapper(ComTaskExecution.class).select(condition);    }
 }

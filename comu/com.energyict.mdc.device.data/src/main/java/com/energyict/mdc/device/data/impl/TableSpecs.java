@@ -260,7 +260,7 @@ public enum TableSpecs {
             table.foreignKey("FK_MDCCOMTASKEXEC_COMTASK").on(comtask).references(TaskService.COMPONENT_NAME, "MDCCOMTASK").map("comTask").add();
             table.foreignKey("FK_MDCCOMTASKEXEC_CONNECTTASK").on(connectionTask).references(MDCCONNECTIONTASK.name()).map("connectionTask").add();
             table.foreignKey("FK_MDCCOMTASKEXEC_DIALECT").on(protocolDialectConfigurationProperties).references(DeviceConfigurationService.COMPONENTNAME, "MDCDIALECTCONFIGPROPERTIES").map("protocolDialectConfigurationProperties").add();
-            table.foreignKey("FK_MDCCOMTASKEXEC_RTU").on(deviceId).references(EISRTU.name()).map("device").reverseMap("comTaskExecutions").composition().add();
+            table.foreignKey("FK_MDCCOMTASKEXEC_RTU").on(deviceId).references(EISRTU.name()).map("device").add();
             table.primaryKey("PK_MDCCOMTASKEXEC").on(id).add();
         }
     }

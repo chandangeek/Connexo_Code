@@ -174,6 +174,13 @@ public class DeviceImpl implements Device, PersistenceAware {
             this.notifyCreated();
         }
         this.saveAllConnectionTasks();
+        this.saveAllComTaskExecutions();
+    }
+
+    private void saveAllComTaskExecutions() {
+        for (ComTaskExecutionImpl comTaskExecution : comTaskExecutions) {
+            comTaskExecution.save();
+        }
     }
 
     private void saveAllConnectionTasks() {
@@ -247,11 +254,8 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private void deleteComTaskExecutions() {
-        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.comTaskExecutions.iterator();
-        while (comTaskExecutionIterator.hasNext()){
-            ComTaskExecutionImpl comTaskExecution = comTaskExecutionIterator.next();
+        for (ComTaskExecutionImpl comTaskExecution : comTaskExecutions) {
             comTaskExecution.delete();
-            comTaskExecutionIterator.remove();
         }
     }
 
@@ -541,6 +545,19 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Override
     public void postLoad() {
         loadConnectionTasks();
+        loadComTaskExecutions();
+    }
+
+    private void loadComTaskExecutions() {
+        this.comTaskExecutions = getComTAskExecutionImpls();
+    }
+
+    private List<ComTaskExecutionImpl> getComTAskExecutionImpls() {
+        List<ComTaskExecutionImpl> comTaskExecutionImpls = new ArrayList<>();
+        for (ComTaskExecution comTaskExecution : this.deviceDataService.findComTaskExecutionsByDevice(this)) {
+            comTaskExecutionImpls.add((ComTaskExecutionImpl) comTaskExecution);
+        }
+        return comTaskExecutionImpls;
     }
 
     private void loadConnectionTasks() {
@@ -858,7 +875,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         while(connectionTaskIterator.hasNext() && !removed){
             ConnectionTaskImpl<?,?> connectionTaskToRemove = connectionTaskIterator.next();
             if(connectionTaskToRemove.getId() == connectionTask.getId()){
-                ((ConnectionTaskImpl<?,?>) connectionTask).delete();
+                connectionTask.makeObsolete();
                 connectionTaskIterator.remove();
                 removed = true;
             }
@@ -891,7 +908,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         while (comTaskExecutionIterator.hasNext() && !removed){
             ComTaskExecution comTaskExecutionToRemove = comTaskExecutionIterator.next();
             if(comTaskExecutionToRemove.getId() == comTaskExecution.getId()){
-                ((ComTaskExecutionImpl) comTaskExecution).delete();
+                comTaskExecution.makeObsolete();
                 comTaskExecutionIterator.remove();
                 removed = true;
             }
