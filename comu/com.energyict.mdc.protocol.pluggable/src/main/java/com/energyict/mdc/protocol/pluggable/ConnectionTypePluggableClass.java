@@ -23,7 +23,7 @@ public interface ConnectionTypePluggableClass extends PluggableClassWithRelation
      * @return The PropertySpec or <code>null</code>
      *         if no such PropertySpec exists
      */
-    public PropertySpec<?> getPropertySpec (String name);
+    public PropertySpec getPropertySpec (String name);
 
     /**
      * Returns the version of the {@link ConnectionType} and removes
