@@ -31,6 +31,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -1009,28 +1010,70 @@ public class DeviceTypeResourceTest extends JerseyTest {
         List<Map<String, Object>> connectionMethods = (List<Map<String, Object>>) response.get("connectionMethods");
         assertThat(connectionMethods).hasSize(1);
         Map<String, Object> connectionMethod = connectionMethods.get(0);
-        assertThat(connectionMethod).containsKey("id")
+        assertThat(connectionMethod).hasSize(12)
+                .containsKey("id")
                 .containsKey("name")
                 .containsKey("direction")
                 .containsKey("connectionType")
+                .containsKey("comWindowStart")
+                .containsKey("comWindowEnd")
+                .containsKey("isDefault")
                 .containsKey("allowSimultaneousConnections")
-                .containsKey("rescheduleDelay");
+                .containsKey("rescheduleDelay")
+                .containsKey("connectionStrategy")
+                .containsKey("propertyInfos");
         List<Map<String, Object>> propertyInfos = (List<Map<String, Object>>) connectionMethod.get("propertyInfos");
         assertThat(propertyInfos).isNotNull().hasSize(1);
         Map<String, Object> macAddressProperty = propertyInfos.get(0);
-        assertThat(macAddressProperty)
+        assertThat(macAddressProperty).hasSize(4)
                 .containsKey("key")
                 .containsKey("propertyValueInfo")
                 .containsKey("propertyTypeInfo")
                 .containsKey("required");
         Map<String, Object> propertyValueInfo = (Map<String, Object>) macAddressProperty.get("propertyValueInfo");
-        assertThat(propertyValueInfo).containsKey("inheritedValue").containsKey("defaultValue").containsKey("value");
+        assertThat(propertyValueInfo).hasSize(3)
+                .containsKey("inheritedValue")
+                .containsKey("defaultValue")
+                .containsKey("value");
         Map<String, Object> propertyTypeInfo = (Map<String, Object>) macAddressProperty.get("propertyTypeInfo");
-        assertThat(propertyTypeInfo)
+        assertThat(propertyTypeInfo).hasSize(4)
                 .containsKey("simplePropertyType")
                 .containsKey("propertyValidationRule")
                 .containsKey("predefinedPropertyValuesInfo")
                 .containsKey("referenceUri");
+    }
+
+    @Test
+    public void testUpdateConnectionMethodNormalProperties() throws Exception {
+        long deviceType_id=41L;
+        long deviceConfig_id=51L;
+        long connectionMethodId = 71L;
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getId()).thenReturn(deviceConfig_id);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
+        PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
+        when(partialConnectionTask.getId()).thenReturn(connectionMethodId);
+        ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
+        when(protocolPluggableService.findConnectionTypePluggableClassByName("ConnType")).thenReturn(connectionTypePluggableClass);
+        when(partialConnectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass); // it will not be set in the PUT!
+        ConnectionType connectionType = mock(ConnectionType.class);
+        when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
+        when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
+        when(connectionTypePluggableClass.getConnectionType()).thenReturn(connectionType);
+        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
+
+        ScheduledConnectionMethodInfo connectionMethodInfo = new ScheduledConnectionMethodInfo();
+        connectionMethodInfo.name="connection method";
+        connectionMethodInfo.id=connectionMethodId;
+        connectionMethodInfo.comWindowStart=3600;
+        connectionMethodInfo.comWindowEnd=7200;
+        connectionMethodInfo.isDefault=true;
+        connectionMethodInfo.allowSimultaneousConnections=true;
+        connectionMethodInfo.connectionType="ConnType";
+        Entity<ScheduledConnectionMethodInfo> json = Entity.json(connectionMethodInfo);
+        Response response = target("/devicetypes/41/deviceconfigurations/51/connectionmethods/71").request().put(json);
     }
 
     @Test

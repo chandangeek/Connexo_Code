@@ -12,7 +12,6 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyInfo;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.WebApplicationException;
@@ -29,7 +28,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 @JsonSubTypes({
      @JsonSubTypes.Type(value = InboundConnectionMethodInfo.class, name = "Inbound"),
      @JsonSubTypes.Type(value = ScheduledConnectionMethodInfo.class, name = "Outbound") })
-public abstract class ConnectionMethodInfo {
+public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
     public long id;
     public String name;
     public String connectionType;
@@ -71,11 +70,15 @@ public abstract class ConnectionMethodInfo {
     }
 
     protected ConnectionTypePluggableClass findConnectionTypeOrThrowException(String pluggableClassName, ProtocolPluggableService protocolPluggableService) {
-        Optional<? extends ConnectionTypePluggableClass> pluggableClassOptional = protocolPluggableService.findConnectionTypePluggableClassByName(pluggableClassName);
-        if (!pluggableClassOptional.isPresent()) {
+        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName(pluggableClassName);
+        if (pluggableClass==null) {
             throw new WebApplicationException("No such connection type", Response.status(Response.Status.NOT_FOUND).entity("No such connection type").build());
         }
-        return pluggableClassOptional.get();
+        return pluggableClass;
+    }
+
+    protected void writeTo(T partialConnectionTask, EngineModelService engineModelService) {
+        partialConnectionTask.setName(this.name);
     }
 
 

@@ -50,18 +50,18 @@ public class ConnectionMethodResource {
     public PagedInfoList getConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        List<ConnectionMethodInfo> connectionMethodInfos = new ArrayList<>();
+        List<ConnectionMethodInfo<?>> connectionMethodInfos = new ArrayList<>();
         for (PartialConnectionTask partialConnectionTask : deviceConfiguration.getPartialConnectionTasks()) {
             connectionMethodInfos.add(ConnectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo));
         }
-        List<ConnectionMethodInfo> pagedConnectionMethodInfos = ListPager.of(connectionMethodInfos).from(queryParameters).find();
+        List<ConnectionMethodInfo<?>> pagedConnectionMethodInfos = ListPager.of(connectionMethodInfos).from(queryParameters).find();
         return PagedInfoList.asJson("connectionMethods", pagedConnectionMethodInfos, queryParameters);
     }
 
     @GET
     @Path("/{connectionMethodId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ConnectionMethodInfo getConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
+    public ConnectionMethodInfo<?> getConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
                                                      @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                                      @PathParam("connectionMethodId") long connectionMethodId,
                                                      @Context UriInfo uriInfo) {
@@ -93,7 +93,7 @@ public class ConnectionMethodResource {
     public Response createConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
                                            @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                            @Context UriInfo uriInfo,
-                                           ConnectionMethodInfo connectionMethodInfo) {
+                                           ConnectionMethodInfo<?> connectionMethodInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         PartialConnectionTask created = connectionMethodInfo.createPartialTask(deviceConfiguration, engineModelService, protocolPluggableService);
@@ -104,15 +104,15 @@ public class ConnectionMethodResource {
     @Path("/{connectionMethodId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ConnectionMethodInfo updateConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
+    public ConnectionMethodInfo<?> updateConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
                                                        @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                                        @PathParam("connectionMethodId") long connectionMethodId,
                                                        @Context UriInfo uriInfo,
-                                                       ConnectionMethodInfo connectionMethodInfo) {
+                                                       ConnectionMethodInfo<? super PartialConnectionTask> connectionMethodInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(connectionMethodId, deviceConfiguration);
-        partialConnectionTask.setName(connectionMethodInfo.name);
+        connectionMethodInfo.writeTo(partialConnectionTask, engineModelService);
         updateProperties(connectionMethodInfo, partialConnectionTask);
         partialConnectionTask.save();
         return ConnectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo);
@@ -123,7 +123,7 @@ public class ConnectionMethodResource {
      * Converts String values to correct type
      * Discards properties if there is no matching propertySpec
      */
-    private void updateProperties(ConnectionMethodInfo connectionMethodInfo, PartialConnectionTask partialConnectionTask) {
+    private void updateProperties(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask partialConnectionTask) {
         if (connectionMethodInfo.propertyInfos!=null) {
             for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
                 Object propertyValue = MdcPropertyUtils.findPropertyValue(propertySpec, connectionMethodInfo.propertyInfos);

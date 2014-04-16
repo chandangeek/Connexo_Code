@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -11,7 +12,7 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import javax.ws.rs.core.UriInfo;
 
-public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo {
+public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialScheduledConnectionTask> {
 
     public ScheduledConnectionMethodInfo() {
     }
@@ -21,6 +22,19 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo {
         this.connectionStrategy=partialConnectionTask.getConnectionStrategy();
         this.allowSimultaneousConnections=partialConnectionTask.isSimultaneousConnectionsAllowed();
         this.rescheduleDelay=partialConnectionTask.getRescheduleDelay();
+        this.comWindowStart=partialConnectionTask.getCommunicationWindow().getStart().getMillis()/1000;
+        this.comWindowEnd=partialConnectionTask.getCommunicationWindow().getEnd().getMillis()/1000;
+    }
+
+    @Override
+    protected void writeTo(PartialScheduledConnectionTask partialConnectionTask, EngineModelService engineModelService) {
+        super.writeTo(partialConnectionTask, engineModelService);
+        partialConnectionTask.setDefault(this.isDefault);
+        partialConnectionTask.setAllowSimultaneousConnections(this.allowSimultaneousConnections);
+        partialConnectionTask.setComWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
+        partialConnectionTask.setConnectionStrategy(this.connectionStrategy);
+        partialConnectionTask.setComportPool(Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace() ? null : (OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool));
+        partialConnectionTask.setRescheduleRetryDelay(this.rescheduleDelay);
     }
 
     @Override

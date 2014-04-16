@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
@@ -10,13 +11,20 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import javax.ws.rs.core.UriInfo;
 
-public class InboundConnectionMethodInfo extends ConnectionMethodInfo {
+public class InboundConnectionMethodInfo extends ConnectionMethodInfo<PartialInboundConnectionTask> {
 
     public InboundConnectionMethodInfo() {
     }
 
     public InboundConnectionMethodInfo(PartialInboundConnectionTask partialInboundConnectionTask, UriInfo uriInfo) {
         super(partialInboundConnectionTask, uriInfo);
+    }
+
+    @Override
+    protected void writeTo(PartialInboundConnectionTask partialConnectionTask, EngineModelService engineModelService) {
+        super.writeTo(partialConnectionTask, engineModelService);
+        partialConnectionTask.setComportPool(Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()?null:(InboundComPortPool) engineModelService.findComPortPool(this.comPortPool));
+        partialConnectionTask.setDefault(this.isDefault);
     }
 
     @Override
