@@ -4,7 +4,8 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
     title: 'Select issues',
     border: false,
     requires: [
-        'Isu.view.workspace.issues.List'
+        'Isu.view.workspace.issues.List',
+        'Isu.util.FormErrorMessage'
     ],
 
     items: [
@@ -12,12 +13,10 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
             name: 'step1-errors',
             layout: 'hbox',
             hidden: true,
-            defaults: {
-                xtype: 'container',
-                cls: 'isu-error-panel'
-            },
             items: [
-                {html: '<b>There are errors on this page that require your attention.</b>'}
+                {
+                    xtype: 'uni-form-error-message'
+                }
             ]
         },
         {
