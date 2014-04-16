@@ -188,9 +188,10 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     DeviceMultiplier getDeviceMultiplier();
 
-    String getExternalName();
-
-    void setExternalName(String externalName);
+    /**
+     * return the Unique mRID of the device
+     */
+    String getmRID();
 
     /**
      * Returns the channel with the given name or null.

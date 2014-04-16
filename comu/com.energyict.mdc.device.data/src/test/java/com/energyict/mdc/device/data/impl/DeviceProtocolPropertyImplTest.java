@@ -30,6 +30,8 @@ import static org.mockito.Mockito.when;
  */
 public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDeviceProtocol {
 
+    private static final String MRID = "MyUniqueMRID";
+
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
@@ -47,7 +49,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
 
     private Device createSimpleDeviceWithProperty(String name, String value) {
         setupStringPropertyWithName(name);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties", MRID);
         device.setProperty(name, value);
         device.save();
         return device;
@@ -115,7 +117,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         setupStringPropertyWithName(propertyName1);
         setupStringPropertyWithName(propertyName2);
         setupStringPropertyWithName(propertyName3);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties", MRID);
         device.setProperty(propertyName1, value1);
         device.setProperty(propertyName2, value2);
         device.setProperty(propertyName3, value3);
@@ -131,7 +133,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
     @Test
     @Transactional
     public void removeUnknownPropertyTest() {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties", MRID);
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -148,7 +150,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         String value = "MyValueOfTheProperty";
         PropertySpec<String> stringPropertySpec = OptionalPropertySpecFactory.newInstance().stringPropertySpec(name);
         when(deviceProtocol.getPropertySpecs()).thenReturn(Arrays.<PropertySpec>asList(stringPropertySpec));
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties", MRID);
         device.setProperty(name, value);
         try {
             device.save();
@@ -183,7 +185,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         String name = "MyProperty";
         String value = "MyValueOfTheProperty";
         setupStringPropertyWithName(name);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties", MRID);
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -199,7 +201,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
     public void addPropertyThatDoesntExistOnDeviceProtocolTest() {
         String name = "MyProperty";
         String value = "MyValueOfTheProperty";
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties", MRID);
         device.setProperty(name, value);
         try {
             device.save();

@@ -51,7 +51,7 @@ import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
-import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
+import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.offline.DeviceOffline;
 import com.energyict.mdc.device.data.impl.offline.OfflineDeviceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
@@ -89,7 +89,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_EXTERNAL_KEY + "}")
+@UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_MRID + "}")
 public class DeviceImpl implements Device, PersistenceAware {
 
     private final DataModel dataModel;
@@ -106,12 +106,13 @@ public class DeviceImpl implements Device, PersistenceAware {
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private String name;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.MRID_REQUIRED_KEY + "}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.MRID_REQUIRED_KEY + "}")
+    private String mRID;
 
     private String serialNumber;
-
     private String timeZoneId;
     private TimeZone timeZone;
-    private String externalName;
     private Date modificationDate;
     private Date yearOfCertification;
 
@@ -279,9 +280,10 @@ public class DeviceImpl implements Device, PersistenceAware {
         }
     }
 
-    DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name) {
+    DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
         this.deviceConfiguration.set(deviceConfiguration);
         setName(name);
+        this.mRID = mRID;
         createLoadProfiles();
         createLogBooks();
         return this;
@@ -758,11 +760,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         Meter meter;
         if (!holder.isPresent()) {
             // create meter
-            if (getExternalName() != null) {
-                meter = amrSystem.get().newMeter(String.valueOf(getId()), getExternalName());
-            } else {
-                meter = amrSystem.get().newMeter(String.valueOf(getId()));
-            }
+            meter = amrSystem.get().newMeter(String.valueOf(getId()), getmRID());
             meter.save();
         } else {
             meter = holder.get();
@@ -815,13 +813,8 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     @Override
-    public String getExternalName() {
-        return externalName;
-    }
-
-    @Override
-    public void setExternalName(String externalName) {
-        this.externalName = externalName;
+    public String getmRID() {
+        return mRID;
     }
 
     @Override

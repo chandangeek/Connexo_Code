@@ -103,6 +103,7 @@ public class DeviceImplDoSomethingWithEventsTest {
     private static final String DEVICE_CONFIGURATION_NAME = DeviceImplDoSomethingWithEventsTest.class.getName() + "Config";
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
     private static final String DEVICENAME = "deviceName";
+    private static final String MRID = "MyUniquemRID";
 
     private DeviceType deviceType;
     private DeviceConfiguration deviceConfiguration;
@@ -151,7 +152,7 @@ public class DeviceImplDoSomethingWithEventsTest {
     }
 
     private Device createSimpleDeviceWithName(String name) {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, MRID);
         device.save();
         return device;
     }
@@ -176,7 +177,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         EventInMemoryPersistence.SpyEventService eventService = (EventInMemoryPersistence.SpyEventService) inMemoryPersistence.getEventService();
         Device simpleDevice = createSimpleDevice();
         Device reloadedDevice = getReloadedDevice(simpleDevice);
-        reloadedDevice.setExternalName("MyTestExternalName");
+        reloadedDevice.setName("MyOtherName");
         reloadedDevice.save();
 
         verify(eventService.getSpyEventService(), times(1)).postEvent(CreateEventType.DEVICE.topic(), simpleDevice);

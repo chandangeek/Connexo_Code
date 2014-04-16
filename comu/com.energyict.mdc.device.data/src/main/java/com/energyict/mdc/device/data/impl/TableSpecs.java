@@ -41,7 +41,7 @@ public enum TableSpecs {
             // TODO rename the column to serialNumber
             table.column("DEVICENAME").varChar(80).map("serialNumber").add();
             table.column("TIMEZONE").varChar(32).map("timeZoneId").add();
-            Column externid = table.column("EXTERNID").varChar(255).map("externalName").add();
+            Column externid = table.column("EXTERNID").varChar(255).map("mRID").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CERTIF_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("yearOfCertification").add();
             Column deviceConfigId = table.column("DEVICECONFIGID").number().add();

@@ -217,9 +217,10 @@ public interface DeviceDataService {
      *
      * @param deviceConfiguration the deviceConfiguration which models the device
      * @param name                the name which should be used for the device
+     * @param mRID
      * @return the newly created Device
      */
-    public Device newDevice(DeviceConfiguration deviceConfiguration, String name);
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID);
 
     public Device getPrototypeDeviceFor(DeviceConfiguration deviceConfiguration);
 
@@ -234,10 +235,10 @@ public interface DeviceDataService {
     /**
      * Finds the Device based on his unique External name
      *
-     * @param externalName the external name of the device
+     * @param mrId the unique Identifier of the device
      * @return the requested Device or null if none was found
      */
-    public Device findDeviceByExternalName(String externalName);
+    public Device findByUniqueMrid(String mrId);
 
     /**
      * Finds the devices which are physically connected to the given Device

@@ -14,27 +14,27 @@ import javax.validation.ConstraintValidatorContext;
  * Date: 10/03/14
  * Time: 16:13
  */
-public class DeviceExternalNameValidator implements ConstraintValidator<UniqueName, Device> {
+public class DeviceMridValidator implements ConstraintValidator<UniqueMrid, Device> {
 
     private final DeviceDataService deviceDataService;
     private String message;
 
     @Inject
-    public DeviceExternalNameValidator(DeviceDataService deviceDataService) {
+    public DeviceMridValidator(DeviceDataService deviceDataService) {
         this.deviceDataService = deviceDataService;
     }
 
     @Override
-    public void initialize(UniqueName uniqueName) {
+    public void initialize(UniqueMrid uniqueName) {
         message = uniqueName.message();
     }
 
     @Override
     public boolean isValid(Device device, ConstraintValidatorContext constraintValidatorContext) {
-        Device other = this.deviceDataService.findDeviceByExternalName(device.getExternalName());
+        Device other = this.deviceDataService.findByUniqueMrid(device.getmRID());
         if (other != null && other.getId() != device.getId()) {
             constraintValidatorContext.disableDefaultConstraintViolation();
-            constraintValidatorContext.buildConstraintViolationWithTemplate(message).addPropertyNode("externalName").addConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate(message).addPropertyNode("mRID").addConstraintViolation();
             return false;
         }
         return true;
