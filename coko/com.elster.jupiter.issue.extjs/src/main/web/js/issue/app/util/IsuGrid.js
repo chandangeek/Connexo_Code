@@ -130,21 +130,23 @@ Ext.define('Isu.util.IsuGrid', {
      */
     loadGridItemDetail: function (grid, record) {
         var itemPanel = this.getItemPanel(),
+            form = itemPanel.down('issue-form'),
             preloader = Ext.create('Ext.LoadMask', {
                 msg: "Loading...",
                 target: itemPanel
             });
+
         if (this.displayedItemId != record.id) {
             grid.clearHighlight();
             preloader.show();
         }
         this.displayedItemId = record.id;
         this.gridItemModel.load(record.data.id, {
-            success: function (rec) {
-                itemPanel.fireEvent('change', itemPanel, rec);
-                preloader.destroy();
+            success: function (record) {
+                form.loadRecord(record);
+                itemPanel.setTitle(record.get('title'))
             },
-            failure: function(rec) {
+            callback: function() {
                 preloader.destroy();
             }
         });

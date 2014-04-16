@@ -21,7 +21,7 @@ Ext.define('Isu.view.workspace.issues.List', {
             {
                 header: 'Title',
                 xtype: 'templatecolumn',
-                tpl: '<a href="#/workspace/datacollection/issues/{id}">{reason.name}<tpl if="device"> to {device.name} {device.serialNumber}</tpl></a>',
+                tpl: '<a href="#/workspace/datacollection/issues/{id}">{title}</a>',
                 flex: 2
             },
             {
@@ -33,14 +33,13 @@ Ext.define('Isu.view.workspace.issues.List', {
             },
             {
                 header: 'Status',
-                xtype: 'templatecolumn',
-                tpl: '<tpl if="status">{status.name}</tpl>',
+                dataIndex: 'status_name',
                 width: 100
             },
             {
                 header: 'Assignee',
                 xtype: 'templatecolumn',
-                tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type} isu-assignee-type-icon"></span></tpl> {assignee.name}',
+                tpl: '<tpl if="assignee_type"><span class="isu-icon-{assignee_type} isu-assignee-type-icon"></span></tpl> {assignee_name}',
                 flex: 1
             },
             {
