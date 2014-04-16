@@ -4,7 +4,7 @@ Ext.define('Isu.view.workspace.issues.Filter', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Ext.form.Label',
-        'Skyline.panel.Header'
+        'Skyline.panel.FilterToolbar'
     ],
     alias: "widget.issues-filter",
     store: 'Isu.store.Issues',

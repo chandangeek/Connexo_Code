@@ -4,6 +4,7 @@ Ext.define('Isu.view.workspace.issues.CommentsList', {
         'Isu.view.ext.button.Action'
     ],
     alias: 'widget.issue-comments',
+    title: 'Comments',
     mixins: {
         bindable: 'Ext.util.Bindable'
     },

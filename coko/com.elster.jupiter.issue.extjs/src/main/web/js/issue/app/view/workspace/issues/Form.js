@@ -68,10 +68,5 @@ Ext.define('Isu.view.workspace.issues.Form', {
                 }
             ]
         }
-    ],
-    // todo: animate button
-    buttons: [{
-        text: 'View details',
-        action: 'view'
-    }]
+    ]
 });

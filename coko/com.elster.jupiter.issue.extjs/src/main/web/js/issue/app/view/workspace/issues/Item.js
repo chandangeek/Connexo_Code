@@ -19,7 +19,12 @@ Ext.define('Isu.view.workspace.issues.Item', {
         }
     ],
     items: {
-        xtype: 'issue-form'
+        xtype: 'issue-form',
+        // todo: animate button
+        buttons: [{
+            text: 'View details',
+            action: 'view'
+        }]
     },
     // todo: set empty text
     emptyText: '<h3>No issue selected</h3><p>Select an issue to view its detail.</p>'
