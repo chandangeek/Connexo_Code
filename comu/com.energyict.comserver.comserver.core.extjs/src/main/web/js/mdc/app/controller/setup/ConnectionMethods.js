@@ -14,8 +14,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         'setup.connectionmethod.ConnectionMethodSetup',
         'setup.connectionmethod.ConnectionMethodsGrid',
         'setup.connectionmethod.ConnectionMethodPreview',
-        'setup.connectionmethod.ConnectionMethodEdit',
-        'setup.connectionmethod.ConnectionMethodDetail'
+        'setup.connectionmethod.ConnectionMethodEdit'
     ],
 
     stores: [
@@ -115,30 +114,37 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
     showConnectionMethodCreateView:function(deviceTypeId,deviceConfigId){
         var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes');
+        var comPortPoolStore = Ext.StoreManager.get('ComPortPools');
         var me=this;
         this.deviceTypeId=deviceTypeId;
         this.deviceConfigurationId=deviceConfigId;
         var widget = Ext.widget('connectionMethodEdit', {
             edit: false,
             returnLink: '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+this.deviceConfigurationId+'/connectionmethods',
-            connectionTypes: connectionTypesStore
+            connectionTypes: connectionTypesStore,
+            comPortPools: comPortPoolStore
         });
 
         me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
-                        debugger;
-                        connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('communicationProtocolId'));
-                        connectionTypesStore.load({
+                        comPortPoolStore.filter('direction', 'outbound');
+                        comPortPoolStore.load({
                             callback: function(){
-                                var deviceTypeName = deviceType.get('name');
-                                var deviceConfigName = deviceConfig.get('name');
-                                widget.down('#connectionMethodEditAddTitle').update('<H2>' + Uni.I18n.translate('connectionmethod.addConnectionMethod', 'MDC', 'Add connection method') + '</H2>');
-                                me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName);
+                                connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('communicationProtocolId'));
+                                connectionTypesStore.load({
+                                    callback: function(){
+                                        var deviceTypeName = deviceType.get('name');
+                                        var deviceConfigName = deviceConfig.get('name');
+                                        widget.down('#connectionMethodEditAddTitle').update('<H2>' + Uni.I18n.translate('connectionmethod.addConnectionMethod', 'MDC', 'Add connection method') + '</H2>');
+                                        me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName);
+                                    }
+                                });
                             }
                         });
                     }
@@ -171,8 +177,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     showConnectionTypeProperties: function(combobox,objList){
-        debugger;
-        this.getPropertiesController().showProperties(objList[0],this.getConnectionMethodEditView());
+        this.getPropertiesController().showProperties(objList[0],this.getConnectionMethodEditView(),false);
     },
 
     getPropertiesController: function () {
