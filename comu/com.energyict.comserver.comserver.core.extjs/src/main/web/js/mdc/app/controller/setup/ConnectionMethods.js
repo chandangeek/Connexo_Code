@@ -5,7 +5,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     requires: [
         'Mdc.store.ConnectionMethodsOfDeviceConfiguration',
         'Uni.model.BreadcrumbItem',
-        'Mdc.controller.setup.Properties'
+        'Mdc.controller.setup.Properties',
+        'Mdc.controller.setup.PropertiesView'
     ],
 
     views: [
@@ -29,7 +30,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         {ref: 'connectionMethodPreviewTitle', selector: '#connectionMethodPreviewTitle'},
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'connectionMethodPreviewForm', selector: '#connectionMethodPreviewForm'},
-        {ref: 'connectionMethodEditView',selector: '#connectionMethodEdit'}
+        {ref: 'connectionMethodEditView',selector: '#connectionMethodEdit'},
+        {ref: 'connectionMethodEditForm',selector: '#connectionMethodEditForm'}
     ],
 
     init: function () {
@@ -37,7 +39,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 '#connectionmethodsgrid': {
                     selectionchange: this.previewConnectionMethod
                 },
-                '#connectionmethodsgrid button[action = createConnectionMethod]': {
+                '#connectionmethodsgrid button[action = createOutboundConnectionMethod]': {
                     click: this.addConnectionMethodHistory
                 },
                 '#connectionmethodsgrid actioncolumn': {
@@ -49,6 +51,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 },
                 '#connectionTypeComboBox': {
                     select: this.showConnectionTypeProperties
+                },
+                '#addEditButton[action=createConnectionMethod]':{
+                    click: this.addConnectionMethod
                 }
         });
     },
@@ -64,6 +69,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
+                        debugger;
                         var deviceTypeName = deviceType.get('name');
                         var deviceConfigName = deviceConfig.get('name');
                         //widget.down('#registerConfigTitle').html = '<h1>' + deviceConfigName + ' > ' + Uni.I18n.translate('registerConfig.registerConfigurations', 'MDC', 'Register configurations') + '</h1>';
@@ -84,10 +90,16 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             this.getConnectionMethodPreview().getLayout().setActiveItem(1);
             this.getConnectionMethodPreviewTitle().update('<h4>' + connectionMethodName + '</h4>');
             this.getConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
+            this.getPropertiesViewController().showProperties(connectionMethod[0], this.getConnectionMethodPreview());
         } else {
             this.getConnectionMethodPreview().getLayout().setActiveItem(0);
         }
     },
+
+    getPropertiesViewController: function () {
+        return this.getController('Mdc.controller.setup.PropertiesView');
+    },
+
 
     addConnectionMethodHistory: function(){
         location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ this.deviceConfigurationId + '/connectionmethods/add';
@@ -133,6 +145,29 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 });
             }
         });
+    },
+
+    addConnectionMethod: function(){
+        var me = this;
+        var record = Ext.create(Mdc.model.ConnectionMethod),
+            values = this.getConnectionMethodEditForm().getValues();
+
+        if (record) {
+            record.set(values);
+            record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
+            record.save({
+                success: function (record) {
+                    location.href = '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/connectionmethods';
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        me.getConnectionMethodEditForm().getForm().markInvalid(json.errors);
+                    }
+                }
+            });
+
+        }
     },
 
     showConnectionTypeProperties: function(combobox,objList){
