@@ -23,6 +23,10 @@ Ext.define('Isu.controller.IssueCreationRules', {
         {
             ref: 'itemPanel',
             selector: 'issue-creation-rules-overview issue-creation-rules-item'
+        },
+        {
+            ref: 'rulesGridPagingToolbarTop',
+            selector: 'issue-creation-rules-overview issues-creation-rules-list pagingtoolbartop'
         }
     ],
 
@@ -109,8 +113,9 @@ Ext.define('Isu.controller.IssueCreationRules', {
                                 },
                                 callback: function (model, operation) {
                                     confirmMessage.close();
-                                    store.loadPage(1);
                                     if (operation.response.status == 204) {
+                                        self.getRulesGridPagingToolbarTop().totalCount = 0;
+                                        store.loadPage(1);
                                         self.getApplication().fireEvent('isushowmsg', {
                                             type: 'notify',
                                             msgBody: [
