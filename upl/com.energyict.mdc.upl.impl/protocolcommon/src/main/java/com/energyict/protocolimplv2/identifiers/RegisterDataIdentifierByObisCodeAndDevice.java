@@ -8,6 +8,9 @@ import com.energyict.mdw.amr.RegisterFactory;
 import com.energyict.mdw.core.RegisterFactoryProvider;
 import com.energyict.obis.ObisCode;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 /**
@@ -20,12 +23,21 @@ import java.util.List;
  * Date: 13/05/13
  * Time: 13:24
  */
+@XmlRootElement
 public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdentifier {
 
     private final ObisCode registerObisCode;
     private final DeviceIdentifier deviceIdentifier;
 
     private Register register;
+
+    /**
+     * Constructor only to be used by JSON (de)marshalling
+     */
+    public RegisterDataIdentifierByObisCodeAndDevice() {
+        this.registerObisCode = null;
+        this.deviceIdentifier = null;
+    }
 
     public RegisterDataIdentifierByObisCodeAndDevice(ObisCode registerObisCode, DeviceIdentifier deviceIdentifier) {
         this.registerObisCode = registerObisCode;
@@ -51,12 +63,23 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
         return "deviceIdentifier = " + this.deviceIdentifier + " and ObisCode = " + this.registerObisCode.toString();
     }
 
+    @XmlAttribute
     public ObisCode getRegisterObisCode() {
         return registerObisCode;
     }
 
+    @XmlAttribute
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 
     private RegisterFactory getRegisterFactory() {
