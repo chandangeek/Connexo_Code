@@ -52,6 +52,10 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING(2025, Constants.DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY, "A value is missing for required attribute ''{0}'' of device dialect protocol''{1}''", Level.SEVERE),
     DEVICE_PROTOCOL_DIALECT_DEVICE_REQUIRED(2026, Constants.DEVICE_PROTOCOL_DIALECT_DEVICE_REQUIRED_KEY, "Device protocol dialect properties need to be created against a device", Level.SEVERE),
     CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2027, Constants.CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not delete connection task {0} because it is not owned by device {1}", Level.SEVERE),
+    COM_TASK_IS_OBSOLETE_AND_CAN_NOT_BE_UPDATED(2028, Constants.COM_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not update comtaskexecution {0} for device {1} because it made obsolete", Level.SEVERE),
+    COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE(2029, Constants.COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it has already been made obsolete on {2}", Level.SEVERE),
+    COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE(2030, Constants.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it is currently execution on comserver {2}", Level.SEVERE),
+    COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2031, Constants.COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not delete comtaskexecution {0} because it is not owned by device {1}", Level.SEVERE),
     ;
     private final int number;
     private final String key;
@@ -127,6 +131,16 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY = "DDC.deviceProtocolDialectPropertyXIsNotInSpec";
         public static final String DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY = "DDC.deviceProtocolDialectProperty.value.invalid";
         public static final String DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY = "DDC.deviceProtocolDialectProperty.required";
+        public static final String DEVICE_IS_REQUIRED = "DDC.deviceIsRequired";
+        public static final String COMTASK_IS_REQUIRED = "DDC.comTaskIsRequired";
+        public static final String CONNECTIONTASK_IS_REQUIRED = "DDC.connectionTaskIsRequired";
+        public static final String PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED = "DDC.protocolDialectConfigurationPropertiesAreRequired";
+        public static final String COM_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE = "DDC.comTaskExecutionIsObsoleteAndCanNotBeUpdated";
+        public static final String COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE = "DDC.comTaskExecutionAlreadyObsolete";
+        public static final String COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE = "DDC.comTaskExecutionCannotObsoleteCurrentlyExecuting";
+        public static final String COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE = "DDC.comTaskExecutionCannotDeleteNotFromDevice";
+        public static final String CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT = "DDC.connectionTaskRequiredWhenNotUsingDefault";
+        public static final String PRIORITY_NOT_IN_RANGE = "DDC.priorityNotInRange";
     }
 
 }

@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
@@ -19,8 +18,8 @@ import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.ComTaskExecutionFactory;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.exceptions.LegacyException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
@@ -33,7 +32,6 @@ import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
 import javax.inject.Inject;
@@ -234,20 +232,15 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
      * Updates the next excution timestamps of the dependent ComTaskExecutions.
      */
     private void rescheduleComTaskExecutions() {
-        try {
-            for (ComTaskExecution comTaskExecution : this.getScheduledComTasks()) {
-                if (!comTaskExecution.isOnHold()) {
-                    if (comTaskExecution.isScheduled()) {
-                        comTaskExecution.updateNextExecutionTimestamp();
-                    }
-                    else {
-                        comTaskExecution.schedule(comTaskExecution.getNextExecutionTimestamp());
-                    }
+        for (ComTaskExecution comTaskExecution : this.getScheduledComTasks()) {
+            if (!comTaskExecution.isOnHold()) {
+                if (comTaskExecution.isScheduled()) {
+                    comTaskExecution.updateNextExecutionTimestamp();
+                }
+                else {
+                    comTaskExecution.schedule(comTaskExecution.getNextExecutionTimestamp());
                 }
             }
-        }
-        catch (BusinessException | SQLException e) {
-            throw new LegacyException(this.getThesaurus(), e);
         }
     }
 
@@ -474,15 +467,10 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private void triggerComTasks (Date when) {
-        try {
-            for (ComTaskExecution scheduledComTask : this.getScheduledComTasks()) {
-                if (this.needsTriggering(scheduledComTask)) {
-                    scheduledComTask.schedule(when);
-                }
+        for (ComTaskExecution scheduledComTask : this.getScheduledComTasks()) {
+            if (this.needsTriggering(scheduledComTask)) {
+                scheduledComTask.schedule(when);
             }
-        }
-        catch (BusinessException | SQLException e) {
-            throw new LegacyException(this.getThesaurus(), e);
         }
     }
 

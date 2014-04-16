@@ -328,4 +328,11 @@ public interface DeviceDataService {
      */
     public List<LogBook> findLogBooksByDevice(Device device);
 
+    /**
+     * Finds the ComTaskExecution with the given ID
+     *
+     * @param id the unique ID of the ComTaskExecution
+     * @return the requested ComTaskExecution
+     */
+    ComTaskExecution findComTaskExecution(long id);
 }

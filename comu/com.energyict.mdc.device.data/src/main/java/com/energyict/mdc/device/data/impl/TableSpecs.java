@@ -10,12 +10,15 @@ import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionMethodImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.tasks.TaskService;
 
 import java.util.List;
 
@@ -173,7 +176,6 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             // Common columns
-            // Todo: change to FK and reference once Device (JP-1122) is properly moved to the mdc.device.data bundle
             table.column("RTU").number().conversion(NUMBER2LONG).map("deviceId").add();
             Column connectionMethod = table.column("CONNECTIONMETHOD").number().add();
             table.column("MOD_DATE").type("DATE").map("modificationDate").add();
@@ -226,7 +228,43 @@ public enum TableSpecs {
             table.foreignKey("FK_MDCPRTDIALECTPROPS_PDCP").on(configurationProperties).references(DeviceConfigurationService.COMPONENTNAME, "MDCDIALECTCONFIGPROPERTIES").map("configurationProperties").add();
             table.primaryKey("PK_MDCPRTDIALECTPROPS").on(id).add();
         }
-    };
+    },
+
+    MDCCOMTASKEXEC {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ComTaskExecution> table = dataModel.addTable(name(), ComTaskExecution.class);
+            table.map(ComTaskExecutionImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column deviceId = table.column("RTU").number().notNull().add();
+            Column comtask = table.column("COMTASK").number().notNull().add();
+            table.column("NEXTEXECUTIONSPECS").number().conversion(NUMBER2LONG).map("nextExecutionSpecId").add();
+            table.column("MYNEXTEXECSPEC").number().conversion(NUMBER2BOOLEAN).map("myNextExecutionSpec").add();
+            table.column("LASTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map("lastExecutionTimeStamp").add();
+            table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map("nextExecutionTimeStamp").add();
+            Column comport = table.column("COMPORT").number().add();
+            table.column("MOD_DATE").type("DATE").map("modificationDate").add();
+            table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map("obsoleteDate").add();
+            table.column("PRIORITY").number().conversion(NUMBER2INT).map("priority").add();
+            table.column("USEDEFAULTCONNECTIONTASK").number().conversion(NUMBER2BOOLEAN).map("useDefaultConnectionTask").add();
+            table.column("CURRENTRETRYCOUNT").number().conversion(NUMBER2INT).map("currentRetryCount").add();
+            table.column("PLANNEDNEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map("plannedNextExecutionTimeStamp").add();
+            table.column("EXECUTIONPRIORITY").number().conversion(NUMBER2INT).map("executionPriority").add();
+            table.column("EXECUTIONSTART").number().conversion(NUMBERINUTCSECONDS2DATE).map("executionStart").add();
+            table.column("LASTSUCCESSFULCOMPLETION").number().conversion(NUMBERINUTCSECONDS2DATE).map("lastSuccessfulCompletionTimestamp").add();
+            table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map("lastExecutionFailed").add();
+            Column connectionTask = table.column("CONNECTIONTASK").number().add();
+            Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().notNull().add();
+            table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map("ignoreNextExecutionSpecsForInbound").add();
+            table.foreignKey("FK_MDCCOMTASKEXEC_COMPORT").on(comport).references(EngineModelService.COMPONENT_NAME, "MDCCOMPORT").map("comPort").add();
+            table.foreignKey("FK_MDCCOMTASKEXEC_COMTASK").on(comtask).references(TaskService.COMPONENT_NAME, "MDCCOMTASK").map("comTask").add();
+            table.foreignKey("FK_MDCCOMTASKEXEC_CONNECTTASK").on(connectionTask).references(MDCCONNECTIONTASK.name()).map("connectionTask").add();
+            table.foreignKey("FK_MDCCOMTASKEXEC_DIALECT").on(protocolDialectConfigurationProperties).references(DeviceConfigurationService.COMPONENTNAME, "MDCDIALECTCONFIGPROPERTIES").map("protocolDialectConfigurationProperties").add();
+            table.foreignKey("FK_MDCCOMTASKEXEC_RTU").on(deviceId).references(EISRTU.name()).map("device").reverseMap("comTaskExecutions").composition().add();
+            table.primaryKey("PK_MDCCOMTASKEXEC").on(id).add();
+        }
+    }
+    ;
 
     abstract void addTo(DataModel component);
 

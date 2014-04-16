@@ -601,4 +601,8 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
         return this.dataModel.mapper(LogBook.class).find("device", device);
     }
 
+    @Override
+    public ComTaskExecution findComTaskExecution(long id) {
+        return this.dataModel.mapper(ComTaskExecution.class).getUnique("id", id).orNull();
+    }
 }
