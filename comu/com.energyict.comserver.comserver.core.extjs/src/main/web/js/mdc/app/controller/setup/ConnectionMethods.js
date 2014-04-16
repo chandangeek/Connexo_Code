@@ -19,7 +19,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
     stores: [
         'ConnectionMethodsOfDeviceConfiguration',
-        'ConnectionTypes'
+        'ConnectionTypes',
+        'ConnectionStrategies'
     ],
 
     refs: [
@@ -115,6 +116,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     showConnectionMethodCreateView:function(deviceTypeId,deviceConfigId){
         var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes');
         var comPortPoolStore = Ext.StoreManager.get('ComPortPools');
+        var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
         var me=this;
         this.deviceTypeId=deviceTypeId;
         this.deviceConfigurationId=deviceConfigId;
@@ -122,9 +124,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             edit: false,
             returnLink: '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+this.deviceConfigurationId+'/connectionmethods',
             connectionTypes: connectionTypesStore,
-            comPortPools: comPortPoolStore
+            comPortPools: comPortPoolStore,
+            connectionStrategies: connectionStrategiesStore
         });
-
         me.getApplication().getController('Mdc.controller.Main').showContent(widget);
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
@@ -136,14 +138,19 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                         comPortPoolStore.filter('direction', 'outbound');
                         comPortPoolStore.load({
                             callback: function(){
-                                connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('communicationProtocolId'));
-                                connectionTypesStore.load({
-                                    callback: function(){
-                                        var deviceTypeName = deviceType.get('name');
-                                        var deviceConfigName = deviceConfig.get('name');
-                                        widget.down('#connectionMethodEditAddTitle').update('<H2>' + Uni.I18n.translate('connectionmethod.addConnectionMethod', 'MDC', 'Add connection method') + '</H2>');
-                                        me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName);
-                                    }
+                                connectionStrategiesStore.load({
+                                     callback: function(){
+                                         connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('communicationProtocolId'));
+                                         connectionTypesStore.load({
+                                             callback: function(){
+                                                 debugger;
+                                                 var deviceTypeName = deviceType.get('name');
+                                                 var deviceConfigName = deviceConfig.get('name');
+                                                 widget.down('#connectionMethodEditAddTitle').update('<H2>' + Uni.I18n.translate('connectionmethod.addConnectionMethod', 'MDC', 'Add connection method') + '</H2>');
+                                                 me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName);
+                                             }
+                                         });
+                                     }
                                 });
                             }
                         });
