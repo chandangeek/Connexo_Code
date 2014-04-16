@@ -201,7 +201,7 @@
             @warn '$ui-label is deprecated.  Use $ui instead';
             $ui: $ui-label;
         } @else {
-            @warn "#{error('$ui is required')}";
+            @warn "#{error($ui is required)}";
         }
     }
 

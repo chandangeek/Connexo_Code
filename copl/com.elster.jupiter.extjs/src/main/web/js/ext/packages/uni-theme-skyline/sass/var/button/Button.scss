@@ -4,8 +4,11 @@
 
 // Secondary
 
-$button-default-background-color: #828282 !default;
-$button-default-background-color-over: #a0a0a0 !default;
+$button-default-background-color: #A0A0A0 !default;
+$button-default-background-color-over: #a9a9a9 !default;
+$button-default-background-color-pressed: #909090 !default;
+$button-default-background-color-focused: #a9a9a9 !default;
+
 
 $button-small-border-radius: 5px !default;
 $button-medium-border-radius: $button-small-border-radius !default;

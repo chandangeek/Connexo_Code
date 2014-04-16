@@ -53,3 +53,26 @@
   background-color: $panel-filter-background-color;
   @include border-radius(10px);
 }
+
+// Error message
+
+@include extjs-panel-ui(
+  $ui: 'form-error-framed',
+  $ui-padding: $panel-form-error-msg-padding,
+  $ui-border-color: $form-error-msg-color,
+  $ui-body-color: $form-error-msg-color,
+  $ui-border-width: $panel-form-error-msg-border-width,
+  $ui-border-radius: $panel-form-error-msg-border-radius
+);
+
+@include extjs-panel-ui(
+  $ui: 'form-error',
+  $ui-padding: $panel-form-error-msg-padding,
+  $ui-border-color: $form-error-msg-color,
+  $ui-body-color: $form-error-msg-color
+
+);
+
+.#{$prefix}uni-form-error-msg-icon {
+  background-image: $panel-form-error-msg-icon;
+}

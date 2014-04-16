@@ -29,6 +29,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "ExtThemeNeptune.toolbar.Toolbar": [],
   "Skyline.form.Labelable": [],
   "Skyline.grid.Panel": [],
+  "Skyline.panel.Panel": [],
   "Skyline.view.Table": []
 });
 Ext.ClassManager.addNameAliasMappings({
@@ -50,10 +51,12 @@ Ext.ClassManager.addNameAliasMappings({
   "ExtThemeNeptune.toolbar.Toolbar": [],
   "Skyline.form.Labelable": [],
   "Skyline.grid.Panel": [],
+  "Skyline.panel.Panel": [],
   "Skyline.view.Table": []
 });
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/Component.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/panel/Panel.js");
+Ext.Loader.loadScript("../../overrides/panel/Panel.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/toolbar/Toolbar.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/layout/component/Dock.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/container/ButtonGroup.js");

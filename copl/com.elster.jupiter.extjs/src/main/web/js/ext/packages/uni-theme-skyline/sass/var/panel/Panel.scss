@@ -59,3 +59,8 @@ $panel-filter-header-font-family: $header-font-family !default;
 $panel-filter-header-font-size: 30px !default;
 $panel-filter-header-font-weight: normal !default;
 $panel-filter-background-color: $color-grey-10;
+
+$panel-form-error-msg-padding: 5px !default;
+$panel-form-error-msg-border-radius: 10px !default;
+$panel-form-error-msg-border-width: 1px !default;
+$panel-form-error-msg-icon: url("images/form/ico_warning.png") !default;
