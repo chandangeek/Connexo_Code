@@ -5,36 +5,5 @@
 
 .#{$prefix}form-item-label {
   @include label;
-}
-
-.#{$prefix}label-left-alligned {
-  text-align: left;
-};
-
-.#{$prefix}label-right-alligned {
-  text-align: right;
-};
-
-.#{$prefix}label-bold {
-  @include label;
-  color: #686868;
   font-weight: bold;
-}
-
-.#{$prefix}label-normal {
-  @include label;
-  color: #686868;
-  font-weight: normal;
-}
-
-.#{$prefix}label-italic {
-  @include label;
-  color: #686868;
-  font-style: italic;
-}
-
-.#{$prefix}label-line {
-  @include label;
-  color: #a0a0a0;
-  line-height: 1px;
 }

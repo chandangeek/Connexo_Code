@@ -1,0 +1,24 @@
+.#{$prefix}menu-body {
+  border-radius: $menu-border-radius;
+}
+
+.#{$prefix}menu-item-text {
+  color: $menu-text-color;
+  margin-left: $menu-item-text-margin-left;
+}
+
+.#{$prefix}menu-item-link {
+  margin: 0 10px;
+}
+
+.#{$prefix}menu .#{$prefix}box-item + .#{$prefix}box-item .#{$prefix}menu-item-link {
+  border-top: $menu-separator-background-color $menu-separator-background-style;
+}
+
+.#{$prefix}menu .#{$prefix}box-item:last-child .#{$prefix}menu-item-link {
+  padding-bottom: 5px;
+}
+
+.#{$prefix}menu .#{$prefix}box-item:first-child .#{$prefix}menu-item-link {
+  padding-top: 5px;
+}

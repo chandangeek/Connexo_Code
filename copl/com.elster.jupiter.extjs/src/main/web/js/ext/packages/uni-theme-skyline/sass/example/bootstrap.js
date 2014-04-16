@@ -8,7 +8,8 @@ Ext.Loader.addClassPathMappings({
   "Ext": "../../../../src",
   "Ext.Msg": "../../../../src/window/MessageBox.js",
   "ExtThemeNeptune": "../../../ext-theme-neptune/overrides",
-  "Skyline": "../../overrides"
+  "Skyline": "../../overrides",
+  "Skyline.panel.Header": "../../src/panel/Header.js"
 });
 Ext.ClassManager.addNameAlternateMappings({
   "ExtThemeNeptune.Component": [],
@@ -29,6 +30,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "ExtThemeNeptune.toolbar.Toolbar": [],
   "Skyline.form.Labelable": [],
   "Skyline.grid.Panel": [],
+  "Skyline.panel.Header": [],
   "Skyline.panel.Panel": [],
   "Skyline.view.Table": []
 });
@@ -51,6 +53,9 @@ Ext.ClassManager.addNameAliasMappings({
   "ExtThemeNeptune.toolbar.Toolbar": [],
   "Skyline.form.Labelable": [],
   "Skyline.grid.Panel": [],
+  "Skyline.panel.Header": [
+    "widget.filter-toolbar"
+  ],
   "Skyline.panel.Panel": [],
   "Skyline.view.Table": []
 });
