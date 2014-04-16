@@ -221,13 +221,6 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                     var description = template.get('description'),
                         parameters = template.get('parameters');
 
-                    /*description && templateDetails.add({
-                        xtype: 'component',
-                        html: description,
-                        margin: '5 0 0 155',
-                        cls: 'isu-creation-rule-description'
-                    });*/
-
                     self.addTemplateDescription(combo, description);
 
                     for (var fieldName in parameters) {
