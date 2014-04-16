@@ -254,8 +254,8 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private void deleteComTaskExecutions() {
-        for (ComTaskExecutionImpl comTaskExecution : comTaskExecutions) {
-            comTaskExecution.delete();
+        for (ComTaskExecution comTaskExecution : this.deviceDataService.findAllComTaskExecutionsIncludingObsoleteForDevice(this)) {
+            ((ComTaskExecutionImpl) comTaskExecution).delete();
         }
     }
 

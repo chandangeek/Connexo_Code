@@ -610,5 +610,11 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     @Override
     public List<ComTaskExecution> findComTaskExecutionsByDevice(Device device) {
         Condition condition = where("device").isEqualTo(device).and(where("obsoleteDate").isNull());
-        return this.getDataModel().mapper(ComTaskExecution.class).select(condition);    }
+        return this.getDataModel().mapper(ComTaskExecution.class).select(condition);
+    }
+
+    @Override
+    public List<ComTaskExecution> findAllComTaskExecutionsIncludingObsoleteForDevice(Device device) {
+        return this.getDataModel().mapper(ComTaskExecution.class).find("device", device);
+    }
 }

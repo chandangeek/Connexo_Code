@@ -74,9 +74,9 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     /**
      * ExecutionPriority can be overruled by the Minimize ConnectionTask
      */
-    @Range(min = TaskPriorityConstants.HIGHEST_PRIORITY, max = TaskPriorityConstants.LOWEST_PRIORITY, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.PRIORITY_NOT_IN_RANGE + "}")
+    @Range(min = TaskPriorityConstants.HIGHEST_PRIORITY, max = TaskPriorityConstants.LOWEST_PRIORITY, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.PRIORITY_NOT_IN_RANGE + "}")
     private int executionPriority;
-    @Range(min = TaskPriorityConstants.HIGHEST_PRIORITY, max = TaskPriorityConstants.LOWEST_PRIORITY, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.PRIORITY_NOT_IN_RANGE + "}")
+    @Range(min = TaskPriorityConstants.HIGHEST_PRIORITY, max = TaskPriorityConstants.LOWEST_PRIORITY, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.PRIORITY_NOT_IN_RANGE + "}")
     private int priority;
     private int currentRetryCount;
     private boolean lastExecutionFailed;
@@ -92,8 +92,8 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void postLoad() {
-        if(this.nextExecutionSpecId > 0){
-            if(myNextExecutionSpec){
+        if (this.nextExecutionSpecId > 0) {
+            if (myNextExecutionSpec) {
                 this.nextExecutionSpecHolder = new MyNextExecutionSpecHolder(this.nextExecutionSpecId);
             } else {
                 this.nextExecutionSpecHolder = new MasterNextExecutionSpecHolder(this.nextExecutionSpecId);
@@ -107,16 +107,20 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
      * Serves as a <i>provider</i> for the current NextExecutionSpec.
      * The NextExecutionSpec will either be owned by:
      * <ul>
-     *     <li>We, the ComTaskExecution</li>
-     *     <li>The MasterSchedule</li>
+     * <li>We, the ComTaskExecution</li>
+     * <li>The MasterSchedule</li>
      * </ul>
      * Depending on the ownership we need to take actions in order to save/update/delete the NextExecutionSpec.
      * My responsibility is to provide you with the correct NextExecutionSpec
      */
-    private interface NextExecutionSpecHolder{
+    private interface NextExecutionSpecHolder {
+
         NextExecutionSpecs getNextExecutionSpec();
+
         void updateTemporalExpression(TemporalExpression temporalExpression);
+
         void save();
+
         void delete();
 
         /**
@@ -136,7 +140,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     public ComTaskExecutionImpl initialize(Device device, ComTaskEnablement comTaskEnablement) {
         this.device.set(device);
         this.comTask.set(comTaskEnablement.getComTask());
-        if(comTaskEnablement.getNextExecutionSpecs() != null){
+        if (comTaskEnablement.getNextExecutionSpecs() != null) {
             this.nextExecutionSpecHolder = new MyNextExecutionSpecHolder(comTaskEnablement.getNextExecutionSpecs().getTemporalExpression());
         } else {
             this.nextExecutionSpecHolder = new NoNextExecutionSpecHolder();
@@ -174,7 +178,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return protocolDialectConfigurationProperties.orNull();
     }
 
-    private void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties){
+    private void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
         this.protocolDialectConfigurationProperties.set(protocolDialectConfigurationProperties);
     }
 
@@ -234,7 +238,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     private void setUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
         this.useDefaultConnectionTask = useDefaultConnectionTask;
-        if(this.useDefaultConnectionTask){
+        if (this.useDefaultConnectionTask) {
             this.connectionTask.setNull();
         }
     }
@@ -270,7 +274,14 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             throw new ComTaskExecutionIsAlreadyObsoleteException(this.getThesaurus(), this);
         } else if (this.comPort.isPresent()) {
             throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(this.getThesaurus(), this, this.getExecutingComPort().getComServer());
-        } else if (this.connectionTask.get().getExecutingComServer() != null) {
+        }
+
+        if (this.useDefaultConnectionTask) {
+            ConnectionTask defaultConnectionTaskForDevice = this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice());
+            if (defaultConnectionTaskForDevice != null && defaultConnectionTaskForDevice.getExecutingComServer() != null) {
+                throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(this.getThesaurus(), this, this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice()).getExecutingComServer());
+            }
+        } else if (this.connectionTask.isPresent() && this.connectionTask.get().getExecutingComServer() != null) {
             throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(this.getThesaurus(), this, this.connectionTask.get().getExecutingComServer());
         }
     }
@@ -290,7 +301,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return this.connectionTask.orNull();
     }
 
-    private void setConnectionTask(ConnectionTask<?, ?> connectionTask){
+    private void setConnectionTask(ConnectionTask<?, ?> connectionTask) {
         this.connectionTask.set(connectionTask);
         setUseDefaultConnectionTask(!this.connectionTask.isPresent());
     }
@@ -310,24 +321,24 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return this.nextExecutionSpecHolder.getNextExecutionSpec();
     }
 
-    private void createMyNextExecutionSpecs(TemporalExpression temporalExpression){
+    private void createMyNextExecutionSpecs(TemporalExpression temporalExpression) {
         this.nextExecutionSpecHolder = new MyNextExecutionSpecHolder(temporalExpression);
     }
 
-    private void createOrUpdateMyNextExecutionSpecs(TemporalExpression temporalExpression){
-        if(this.nextExecutionSpecHolder.myNextExecutionSpec()){
+    private void createOrUpdateMyNextExecutionSpecs(TemporalExpression temporalExpression) {
+        if (this.nextExecutionSpecHolder.myNextExecutionSpec()) {
             this.nextExecutionSpecHolder.updateTemporalExpression(temporalExpression);
         } else {
             this.nextExecutionSpecHolder = new MyNextExecutionSpecHolder(temporalExpression);
         }
     }
 
-    private void removeNextExecutionSpec(){
+    private void removeNextExecutionSpec() {
         this.nextExecutionSpecHolder.delete();
         this.nextExecutionSpecHolder = new NoNextExecutionSpecHolder();
     }
 
-    private void setMasterScheduleNextExecutionSpec(NextExecutionSpecs nextExecutionSpec){
+    private void setMasterScheduleNextExecutionSpec(NextExecutionSpecs nextExecutionSpec) {
         this.nextExecutionSpecHolder = new MasterNextExecutionSpecHolder(nextExecutionSpec);
     }
 
@@ -336,7 +347,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return this.ignoreNextExecutionSpecsForInbound;
     }
 
-    private void setIgnoreNextExecutionSpecsForInbound(boolean ignoreNextExecutionSpecsForInbound){
+    private void setIgnoreNextExecutionSpecsForInbound(boolean ignoreNextExecutionSpecsForInbound) {
         this.ignoreNextExecutionSpecsForInbound = ignoreNextExecutionSpecsForInbound;
     }
 
@@ -448,7 +459,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     protected void doDelete() {
-
+        this.dataModel.remove(this);
     }
 
     @Override
@@ -510,6 +521,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
      */
     public void delete() {
         this.nextExecutionSpecHolder.delete();
+        super.delete();
     }
 
     protected Date now() {
@@ -566,12 +578,12 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         private long nextExecutionSpecId;
         private NextExecutionSpecs nextExecutionSpecs;
 
-        private MyNextExecutionSpecHolder(long id){
+        private MyNextExecutionSpecHolder(long id) {
             this.nextExecutionSpecId = id;
             this.nextExecutionSpecs = ComTaskExecutionImpl.this.deviceConfigurationService.findNextExecutionSpecs(this.nextExecutionSpecId);
         }
 
-        private MyNextExecutionSpecHolder(TemporalExpression temporalExpression){
+        private MyNextExecutionSpecHolder(TemporalExpression temporalExpression) {
             this.nextExecutionSpecs = ComTaskExecutionImpl.this.deviceConfigurationService.newNextExecutionSpecs(temporalExpression);
         }
 
@@ -642,25 +654,25 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        public ComTaskExecutionBuilder setUseDefaultConnectionTask(boolean useDefaultConnectionTask){
+        public ComTaskExecutionBuilder setUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
             this.comTaskExecution.setUseDefaultConnectionTask(useDefaultConnectionTask);
             return this;
         }
 
         @Override
-        public ComTaskExecutionBuilder setConnectionTask(ConnectionTask<?, ?> connectionTask){
+        public ComTaskExecutionBuilder setConnectionTask(ConnectionTask<?, ?> connectionTask) {
             this.comTaskExecution.setConnectionTask(connectionTask);
             return this;
         }
 
         @Override
-        public ComTaskExecutionBuilder setPriority(int executionPriority){
+        public ComTaskExecutionBuilder setPriority(int executionPriority) {
             this.comTaskExecution.setExecutingPriority(executionPriority);
             return this;
         }
 
         @Override
-        public ComTaskExecutionBuilder createNextExecutionSpec(TemporalExpression temporalExpression){
+        public ComTaskExecutionBuilder createNextExecutionSpec(TemporalExpression temporalExpression) {
             this.comTaskExecution.createMyNextExecutionSpecs(temporalExpression);
             return this;
         }
@@ -672,13 +684,13 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        public ComTaskExecutionBuilder setIgnoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound){
+        public ComTaskExecutionBuilder setIgnoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound) {
             this.comTaskExecution.setIgnoreNextExecutionSpecsForInbound(ignoreNextExecutionSpecsForInbound);
             return this;
         }
 
         @Override
-        public ComTaskExecutionBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties){
+        public ComTaskExecutionBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
             this.comTaskExecution.setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
             return this;
         }
@@ -699,32 +711,32 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        public ComTaskExecutionUpdater setUseDefaultConnectionTask(boolean useDefaultConnectionTask){
+        public ComTaskExecutionUpdater setUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
             this.comTaskExecution.setUseDefaultConnectionTask(useDefaultConnectionTask);
             return this;
         }
 
         @Override
-        public ComTaskExecutionUpdater setConnectionTask(ConnectionTask<?, ?> connectionTask){
+        public ComTaskExecutionUpdater setConnectionTask(ConnectionTask<?, ?> connectionTask) {
             this.comTaskExecution.setConnectionTask(connectionTask);
             return this;
         }
 
         @Override
-        public ComTaskExecutionUpdater setPriority(int executionPriority){
+        public ComTaskExecutionUpdater setPriority(int executionPriority) {
             this.comTaskExecution.setExecutingPriority(executionPriority);
             return this;
         }
 
         @Override
-        public ComTaskExecutionUpdater createOrUpdateNextExecutionSpec(TemporalExpression temporalExpression){
+        public ComTaskExecutionUpdater createOrUpdateNextExecutionSpec(TemporalExpression temporalExpression) {
             this.comTaskExecution.createOrUpdateMyNextExecutionSpecs(temporalExpression);
             return this;
         }
 
         @Override
         public ComTaskExecution.ComTaskExecutionUpdater removeNextExecutionSpec() {
-              this.comTaskExecution.removeNextExecutionSpec();
+            this.comTaskExecution.removeNextExecutionSpec();
             return this;
         }
 
@@ -735,13 +747,13 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        public ComTaskExecutionUpdater setIgnoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound){
+        public ComTaskExecutionUpdater setIgnoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound) {
             this.comTaskExecution.setIgnoreNextExecutionSpecsForInbound(ignoreNextExecutionSpecsForInbound);
             return this;
         }
 
         @Override
-        public ComTaskExecutionUpdater setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties){
+        public ComTaskExecutionUpdater setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
             this.comTaskExecution.setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
             return this;
         }

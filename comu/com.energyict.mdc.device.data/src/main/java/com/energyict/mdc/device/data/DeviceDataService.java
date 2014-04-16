@@ -345,4 +345,12 @@ public interface DeviceDataService {
      * @return the currently active ComTaskExecutions for this device
      */
     List<ComTaskExecution> findComTaskExecutionsByDevice(Device device);
+
+    /**
+     * Finds all the ComTaskExecutions for the given Device, including the ones that have been made obsolete
+     *
+     * @param device the device
+     * @return all ComTaskExecutions which have ever been created for this Device
+     */
+    List<ComTaskExecution> findAllComTaskExecutionsIncludingObsoleteForDevice(Device device);
 }

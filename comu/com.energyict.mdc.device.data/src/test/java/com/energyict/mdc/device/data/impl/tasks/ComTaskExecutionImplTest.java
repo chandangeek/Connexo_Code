@@ -13,16 +13,23 @@ import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhichIsNotFromThisDevice;
+import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsAlreadyObsoleteException;
+import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
+import com.energyict.mdc.device.data.impl.InMemoryIntegrationPersistence;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -287,8 +294,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
 
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         long nextExecutionSpecId = reloadedComTaskExecution.getNextExecutionSpecs().getId();
-        device.removeComTaskExecution(reloadedComTaskExecution);
-        device.save();
+        ((ComTaskExecutionImpl) reloadedComTaskExecution).delete();
 
         assertThat(inMemoryPersistence.getDeviceConfigurationService().findNextExecutionSpecs(nextExecutionSpecId)).isNull();
     }
@@ -535,7 +541,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.PRIORITY_NOT_IN_RANGE + "}")
     public void setPriorityOutOfRangeTest() {
-        int myPriority = TaskPriorityConstants.LOWEST_PRIORITY+1;
+        int myPriority = TaskPriorityConstants.LOWEST_PRIORITY + 1;
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithValidationError");
         ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
@@ -582,7 +588,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.PRIORITY_NOT_IN_RANGE + "}")
     public void updatePriorityOutOfRangeTest() {
-        int myPriority = TaskPriorityConstants.LOWEST_PRIORITY+1;
+        int myPriority = TaskPriorityConstants.LOWEST_PRIORITY + 1;
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithValidationError");
         ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
@@ -661,4 +667,121 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.getProtocolDialectConfigurationProperties().getId()).isEqualTo(otherDialect.getId());
     }
+
+    @Test
+    @Transactional
+    public void removeNextExecutionSpecInUpdaterTest() {
+        TemporalExpression myTemporalExpression = new TemporalExpression(TimeDuration.hours(3));
+        ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithMyNextExecSpec");
+        ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
+        comTaskExecutionBuilder.createNextExecutionSpec(myTemporalExpression);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+
+        ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.removeNextExecutionSpec();
+        comTaskExecutionUpdater.update();
+
+        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
+        assertThat(reloadedComTaskExecution.getNextExecutionSpecs()).isNull();
+    }
+
+    @Test
+    @Transactional
+    public void makeSuccessfulObsoleteTest() {
+        ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithMyNextExecSpec");
+        ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+
+        comTaskExecution.makeObsolete();
+        Device reloadedDevice = getReloadedDevice(device);
+        assertThat(reloadedDevice.getComTaskExecutions()).isEmpty();
+    }
+
+    @Test(expected = ComTaskExecutionIsAlreadyObsoleteException.class)
+    @Transactional
+    public void makeObsoleteTwiceTest() {
+        ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "ObsoleteTest");
+        ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+
+        comTaskExecution.makeObsolete();
+        comTaskExecution.makeObsolete();
+    }
+
+    private OutboundComPort createOutboundComPort() {
+        OnlineComServer onlineComServer = inMemoryPersistence.getEngineModelService().newOnlineComServerInstance();
+        onlineComServer.setName("ComServer");
+        onlineComServer.setStoreTaskQueueSize(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setChangesInterPollDelay(TimeDuration.minutes(5));
+        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.setSchedulingInterPollDelay(TimeDuration.minutes(1));
+        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.setNumberOfStoreTaskThreads(2);
+        OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = onlineComServer.newOutboundComPort("ComPort", 1);
+        outboundComPortBuilder.comPortType(ComPortType.TCP);
+        OutboundComPort outboundComPort = outboundComPortBuilder.add();
+        onlineComServer.save();
+        return outboundComPort;
+    }
+
+    @Test(expected = ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException.class)
+    @Transactional
+    public void makeObsoleteWhenComPortIsFilledInTest() {
+        OutboundComPort outboundComPort = createOutboundComPort();
+
+        ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "ObsoleteTest");
+        ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+
+        InMemoryIntegrationPersistence.update("update MDCCOMTASKEXEC set comport = " + outboundComPort.getId() + " where id = " + comTaskExecution.getId());
+
+        comTaskExecution.makeObsolete();
+    }
+
+    @Test(expected = ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException.class)
+    @Transactional
+    public void makeObsoleteWhenConnectionTaskHasComServerFilledInTest() {
+        OutboundComPort outboundComPort = createOutboundComPort();
+        ComServer comServer = outboundComPort.getComServer();
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "ObsoleteTest");
+        ScheduledConnectionTaskImpl connectionTask = createConnectionStandardTask(device);
+        ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
+        ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
+        comTaskExecutionBuilder.setConnectionTask(connectionTask);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+
+        InMemoryIntegrationPersistence.update("update mdcconnectiontask set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+
+        comTaskExecution.makeObsolete();
+    }
+
+    @Test(expected = ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException.class)
+    @Transactional
+    public void makeObsoleteWhenDefaultConnectionTaskHasComServerFilledInTest() {
+        OutboundComPort outboundComPort = createOutboundComPort();
+        ComServer comServer = outboundComPort.getComServer();
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "ObsoleteTest");
+        ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
+        ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
+        comTaskExecutionBuilder.setUseDefaultConnectionTask(true);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+        ScheduledConnectionTaskImpl connectionTask = createConnectionStandardTask(device);
+        inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
+
+        System.out.println(InMemoryIntegrationPersistence.update("update mdcconnectiontask set comserver = " + comServer.getId() + " where id = " + connectionTask.getId()));
+
+        comTaskExecution.makeObsolete();
+    }
+
 }
