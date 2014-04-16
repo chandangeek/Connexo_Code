@@ -348,6 +348,13 @@ span[class^=isu-assignee-] {
     font-size: 11px;
 }
 
+.isu-creation-rule-template-description {
+    position: absolute;
+    color: #007DC3;
+    font-size: 20px;
+    cursor: pointer;
+}
+
 /* Message Window */
 
 /* Window */

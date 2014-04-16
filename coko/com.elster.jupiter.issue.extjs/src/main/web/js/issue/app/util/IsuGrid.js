@@ -34,12 +34,6 @@ Ext.define('Isu.util.IsuGrid', {
                     }
                 });
 
-                icon.on('mouseenter', function () {
-                    icon.tooltip.show();
-                });
-                icon.on('mouseleave', function () {
-                    icon.tooltip.hide();
-                });
                 grid.on('destroy', function () {
                     icon.tooltip.destroy();
                 });
@@ -72,12 +66,6 @@ Ext.define('Isu.util.IsuGrid', {
                 }
             });
 
-            cell.on('mouseenter', function () {
-                cell.tooltip.show();
-            });
-            cell.on('mouseleave', function () {
-                cell.tooltip.hide();
-            });
             grid.on('destroy', function () {
                 cell.tooltip.destroy();
             });

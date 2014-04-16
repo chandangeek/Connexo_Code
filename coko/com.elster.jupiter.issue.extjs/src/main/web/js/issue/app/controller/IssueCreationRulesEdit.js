@@ -52,7 +52,11 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 change: this.setRuleTemplateCombobox
             },
             'issues-creation-rules-edit form [name=template]': {
-                change: this.setRuleTemplate
+                change: this.setRuleTemplate,
+                resize: this.comboTemplateResize
+            },
+            'issues-creation-rules-edit': {
+                beforedestroy: this.removeTemplateDescription
             },
             'issues-creation-rules-edit button[action=create]': {
                 click: this.ruleSave
@@ -217,12 +221,14 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                     var description = template.get('description'),
                         parameters = template.get('parameters');
 
-                    description && templateDetails.add({
+                    /*description && templateDetails.add({
                         xtype: 'component',
                         html: description,
                         margin: '5 0 0 155',
                         cls: 'isu-creation-rule-description'
-                    });
+                    });*/
+
+                    self.addTemplateDescription(combo, description);
 
                     for (var fieldName in parameters) {
                         switch (parameters[fieldName].type) {
@@ -234,6 +240,50 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                     }
                 }
             });
+        }
+    },
+
+    addTemplateDescription: function (combo, descriptionText) {
+        if (descriptionText) {
+            var comboEl = combo.getEl();
+
+            combo.templateDescriptionIcon = Ext.DomHelper.append(Ext.getBody(), {
+                tag: 'div',
+                cls: 'isu-icon-help-circled isu-creation-rule-template-description'
+            }, true);
+
+            this.comboTemplateResize(combo);
+
+            combo.templateDescriptionIcon.on('click', function () {
+                Ext.Msg.show({
+                    title:'Template description',
+                    msg: descriptionText,
+                    buttons: Ext.MessageBox.CANCEL,
+                    buttonText: {cancel: 'Close'},
+                    modal: false,
+                    animateTarget: combo.templateDescriptionIcon
+                });
+            });
+        } else {
+            this.removeTemplateDescription();
+        }
+    },
+
+    comboTemplateResize: function (combo) {
+        var comboEl = combo.getEl();
+
+        combo.templateDescriptionIcon && combo.templateDescriptionIcon.setStyle({
+            top: comboEl.getY() + 'px',
+            left: comboEl.getX() + comboEl.getWidth(false) + 'px'
+        });
+    },
+
+    removeTemplateDescription: function () {
+        var combo = Ext.ComponentQuery.query('issues-creation-rules-edit form [name=template]')[0];
+
+        if (combo && combo.templateDescriptionIcon) {
+            combo.templateDescriptionIcon.destroy();
+            delete combo.templateDescriptionIcon;
         }
     },
 
@@ -255,7 +305,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         return formItem;
     },
 
-    ruleSave: function (type) {
+    ruleSave: function (button) {
         var self = this,
             form = self.getRuleForm().getForm(),
             rule = self.formToModel(self.ruleModel),
@@ -263,11 +313,14 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             store = self.getStore('Isu.store.CreationRule');
 
         if (form.isValid()) {
+            button.setDisabled(true);
             formErrorsPanel.hide();
             rule.save({
                 callback: function (model, operation, success) {
                     var messageText,
                         json;
+
+                    button.setDisabled(false);
 
                     if (success) {
                         switch (operation.action) {
