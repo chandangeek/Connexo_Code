@@ -139,7 +139,7 @@ Ext.define('Isu.controller.IssueCreationRules', {
 
         confirmMessage.show({
             title: 'Delete issue creation rule',
-            msg: '<p><b>Delete rule "' + rule.data.name + '"?</b></p><p>This issue creation rule disappears from the list.<br>Issues will not be created automatically by this rule.</p>',
+            msg: '<p><b>Delete rule "' + rule.data.name + '"?</b></p><p>This issue creation rule will disappear from the list.<br>Issues will not be created automatically by this rule.</p>',
             icon: Ext.MessageBox.WARNING,
             cls: 'isu-delete-message'
         });
