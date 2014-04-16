@@ -79,6 +79,9 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
                 {
                     xtype: 'pagingtoolbartop',
                     store: 'Isu.store.CreationRule',
+                    displayMsg: '{0} - {1} of {2} rules',
+                    displayMoreMsg: '{0} - {1} of more than {2} rules',
+                    emptyMsg: '0 rules',
                     border: false,
                     flex: 1
                 },
@@ -124,15 +127,12 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
 
     showEmptyText: function () {
         var grid = this.down('grid'),
-            emtyText = this.down('panel[name=empty-text]'),
-            pagingtoolbartop = this.down('pagingtoolbartop');
+            emtyText = this.down('panel[name=empty-text]');
 
         if (grid && emtyText) {
             grid.hide();
             emtyText.show();
         }
-
-        pagingtoolbartop && pagingtoolbartop.child('#displayItem').update('0 rules');
     },
 
     hideEmptyText: function () {

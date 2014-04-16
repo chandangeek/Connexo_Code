@@ -64,6 +64,9 @@ Ext.define('Isu.view.workspace.issues.List', {
                         {
                             xtype: 'pagingtoolbartop',
                             store: 'Isu.store.Issues',
+                            displayMsg: '{0} - {1} of {2} issues',
+                            displayMoreMsg: '{0} - {1} of more than {2} issues',
+                            emptyMsg: '0 issues',
                             dock: 'top',
                             border: false
                         }
