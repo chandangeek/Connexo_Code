@@ -30,8 +30,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ABBA1500(2, "com.energyict.protocolimpl.iec1107.abba1500.ABBA1500"),
     EIWEB(3, "com.energyict.rtuprotocol.EIWeb", FamilyRule.EICT_RTU_EMS),
     EK88(4, "com.elster.protocolimpl.lis100.EK88"),
-    INSTROMET444(5, "com.energyict.protocolimpl.instromet.v555.Instromet444"),
-    INSTROMET555(6, "com.energyict.protocolimpl.instromet.v444.Instromet444"),
+    INSTROMET444(5, "com.energyict.protocolimpl.instromet.v444.Instromet444"),
+    INSTROMET555(6, "com.energyict.protocolimpl.instromet.v555.Instromet555"),
     MEDO(7, "com.energyict.protocolimpl.kenda.medo.Medo"),
     MK10(8, "com.energyict.protocolimpl.edmi.mk10.MK10", FamilyRule.EDMI),
     QUANTUM1000_ITRON(9, "com.energyict.protocolimpl.itron.quantum1000.Quantum1000"),
@@ -186,10 +186,10 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     // SmartMeterProtocols
     MX372(157, "com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.MbusDevice", FamilyRule.ISKRA_PRE_NTA),
     DSMR23_MBUS_EICT(158, "com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice", FamilyRule.EICT_NTA),
-    DSMR23_MBUS_ISKRA(159, "com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.MbusDevice", FamilyRule.ISKRA_NTA),
+    DSMR23_MBUS_ISKRA(159, "com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.MbusDevice", FamilyRule.EICT_NTA),
     DSMR40_MBUS_XEMEX(160, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.MbusDevice", FamilyRule.XEMEX),
     DSMR40_MBUS_LANDISGYR(161, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice", FamilyRule.DSMR_NTA),
-    DSMR40_MBUS_ELSTER(162, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster.MBusDevice", FamilyRule.DSMR),
+    DSMR40_MBUS_ELSTER(162, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster.MBusDevice", FamilyRule.DSMR_NTA),
     DSMR40_MBUS_IBM(163, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm.MBusDevice", FamilyRule.DSMR_NTA),
     WEB_RTU_Z3_SLAVE(164, "com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter", FamilyRule.EICT_Z3),
     WEB_RTU_Z3_MBUS(165, "com.energyict.smartmeterprotocolimpl.eict.webrtuz3.MbusDevice", FamilyRule.EICT_Z3),
@@ -199,7 +199,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ISKRA_MX372(169, "com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372", FamilyRule.ISKRA_PRE_NTA),
     UKHUB_ZIGBEE_GAS(170, "com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas", FamilyRule.ELSTER_SSWG_IC),
     WEB_RTU_Z3(171, "com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3", FamilyRule.EICT_Z3),
-    MX382(172, "com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.Mx382", FamilyRule.ISKRA_NTA),
+    MX382(172, "com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.Mx382", FamilyRule.EICT_NTA),
     E350(173, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350", FamilyRule.DSMR_NTA),
     KAIFA(174, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm.Kaifa", FamilyRule.DSMR_NTA),
     REMI(175, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.REMIDatalogger", FamilyRule.XEMEX),
@@ -223,17 +223,28 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ACE4000_MBUS(192, "com.energyict.protocolimplv2.ace4000.ACE4000MBus", FamilyRule.ACTARIS),
     SDK_DEVICE_PROTOCOL(193, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocol", FamilyRule.TEST),
     RTU_PLUS_IDIS(194, "com.energyict.protocolimplv2.eict.rtuplusserver.idis.RtuPlusServer", FamilyRule.IDIS_GATEWAY),
-    AS220_GAS(195, "com.energyict.protocolimpl.dlms.as220.GasDevice", FamilyRule.ELSTER_PLC),
+    AS220_GAS(195, "com.energyict.protocolimpl.dlms.as220.GasDevice", FamilyRule.ELSTER_MULTI_FREQ),
 
     // Rtu+ Server
-    RtuServer(196, "com.energyict.rtuprotocol.RtuServer", FamilyRule.EICT_RTU_EMS, FamilyRule.ELSTER_PLC, FamilyRule.IDIS_P1),
+    RtuServer(196, "com.energyict.rtuprotocol.RtuServer", FamilyRule.EICT_RTU_EMS, FamilyRule.ELSTER_MULTI_FREQ, FamilyRule.IDIS_P1),
 
     EIWEB_DEVICE_PROTOCOL(197, "com.energyict.protocolimplv2.eict.eiweb.EIWeb", FamilyRule.EICT_RTU_EMS),
     EIMETER_FLEX_SLAVE_MODULE(198, "com.energyict.protocolimpl.modbus.energyict.EIMeterFlexSlaveModule"),
 
     WEB_RTU_KP_V2(199, "com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP", FamilyRule.EICT_NTA),
-    CX20009(200, "com.energyict.protocolimplv2.edp.CX20009", FamilyRule.EDP_DLMS),
-    JANZ_B280(201, "com.energyict.protocolimplv2.edp.JanzB280", FamilyRule.EDP_DLMS),
+    CX20009_V2(200, "com.energyict.protocolimplv2.edp.CX20009", FamilyRule.EDP_DLMS),
+    JANZ_B280_V2(201, "com.energyict.protocolimplv2.edp.JanzB280", FamilyRule.EDP_DLMS),
+    GENERIC_MODBUS(202, "com.energyict.protocolimpl.modbus.generic.Generic", FamilyRule.EICT_RTU_EMS),
+    DSMR23_MBUS_EICT_V2(203, "com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice", FamilyRule.EICT_NTA),
+    ISKRA_MT880(205, "com.energyict.smartmeterprotocolimpl.iskra.mt880.IskraMT880"),
+    ITRON_FULCRUM(206, "com.energyict.protocolimpl.itron.fulcrum.Fulcrum"),
+    JANZ_B280(207, "com.energyict.protocolimpl.dlms.edp.JanzB280", FamilyRule.EDP_DLMS),
+    CX20009(208, "com.energyict.protocolimpl.dlms.edp.CX20009", FamilyRule.EDP_DLMS),
+    SIEMENS_7ED62_VDEW(209, "com.energyict.protocolimpl.iec1107.siemens7ED62.Siemens7ED62"),
+    WATCHTALK(210, "com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.WatchTalk", FamilyRule.EICT_NTA),
+    WATCHTALK_MBUS(211, "com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.MbusDevice", FamilyRule.EICT_NTA),
+    EK280_DLMS(212, "com.elster.protocolimpl.dlms.EK280"),
+    CUBE350(213, "com.energyict.protocolimpl.modbus.northerndesign.cube350.Cube350", FamilyRule.EICT_RTU_EMS),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
@@ -245,7 +256,13 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     EICT_Z3(10009, "com.energyict.protocolimpl.dlms.eictz3.EictZ3"),
     DLMSZMD(10010, "com.energyict.protocolimpl.dlms.DLMSZMD"),
     DLMSZMD_EXT(10011, "com.energyict.protocolimpl.dlms.DLMSZMD_EXT"),
-    GATE_WAY_Z3(10012, "com.energyict.protocolimplv2.eict.gatewayz3.GateWayZ3", FamilyRule.EICT_Z3);
+    GATE_WAY_Z3(10012, "com.energyict.protocolimplv2.eict.gatewayz3.GateWayZ3", FamilyRule.EICT_Z3),
+    CORONIS_WAVECELL(10013, "com.energyict.genericprotocolimpl.coronis.wavecell.WaveCellGateway", FamilyRule.CORONIS),
+    ELSTER_A1_THEMISPLUS(10014, "com.elster.genericprotocolimpl.dlms.a1.A1"),
+    ELSTER_EK155(10015, "com.energyict.genericprotocolimpl.elster.ek155.EK155"),
+    ELSTER_EK280(10016, "com.elster.genericprotocolimpl.dlms.ek280.EK280"),
+    IDIS_RTUPLUSSERVER(10017, "com.energyict.genericprotocolimpl.rtuplusserver.idis.RtuPlusServer", FamilyRule.IDIS_GATEWAY)
+    ;
 
     private int code;
     private String className;
