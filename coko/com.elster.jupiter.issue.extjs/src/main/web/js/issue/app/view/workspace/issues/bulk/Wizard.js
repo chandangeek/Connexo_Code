@@ -189,10 +189,10 @@ Ext.define('Isu.view.workspace.issues.bulk.Wizard', {
                         {
                             xtype: 'button',
                             text: 'Cancel',
+                            ui: 'link',
                             itemId: 'cancel',
                             action: 'cancelWizard',
                             scope: this,
-                            cls: 'isu-btn-link',
                             handler: this.onCancelButtonClick
                         }
                     ]

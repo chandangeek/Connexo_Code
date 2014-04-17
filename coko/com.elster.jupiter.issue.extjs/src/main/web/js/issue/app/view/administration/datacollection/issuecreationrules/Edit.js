@@ -24,11 +24,10 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                     },
                     items: [
                         {
-                           // xtype: 'component',
+                            xtype: 'uni-form-error-message',
                             name: 'form-errors',
-                            html: 'There are errors on this page that require your attention.',
                             hidden: true,
-                            margin: '0 0 20 155'
+                            margin: '0 0 20 50'
                         },
                         {
                             xtype: 'textfield',
