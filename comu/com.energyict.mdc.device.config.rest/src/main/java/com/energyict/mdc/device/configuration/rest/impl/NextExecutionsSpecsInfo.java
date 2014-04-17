@@ -14,10 +14,7 @@ public class NextExecutionsSpecsInfo {
         this.temporalExpression.lastDay=temporalExpression.isLastDay();
     }
 
-    public class TemporalExpressionInfo {
-        public TimeDurationInfo every;
-        public TimeDurationInfo offset;
-        public boolean lastDay;
+    public NextExecutionsSpecsInfo() {
     }
 
     public NextExecutionsSpecsInfo(TemporalExpressionInfo temporalExpression) {
@@ -39,4 +36,11 @@ public class NextExecutionsSpecsInfo {
             return temporalExpression;
         }
     }
+
+    public class TemporalExpressionInfo {
+        public TimeDurationInfo every;
+        public TimeDurationInfo offset;
+        public boolean lastDay;
+    }
+
 }
