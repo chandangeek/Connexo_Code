@@ -74,6 +74,12 @@ Ext.define('Isu.model.Issues', {
             model: 'Isu.model.Assignee',
             associationKey: 'assignee',
             name: 'assignee'
+        },
+        {
+            type: 'hasMany',
+            model: 'Isu.model.IssueComments',
+            associationKey: 'comments',
+            name: 'comments'
         }
     ],
     proxy: {
