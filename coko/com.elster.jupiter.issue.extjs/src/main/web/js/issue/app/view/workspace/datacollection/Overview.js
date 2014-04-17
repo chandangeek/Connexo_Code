@@ -15,8 +15,8 @@ Ext.define('Isu.view.workspace.datacollection.Overview', {
 
     content: [
         {
-            xtype: 'panel',
-            html: '<h1>Data collection</h1>',
+            ui: 'large',
+            title: 'Data collection',
             flex: 1
         }
     ],
