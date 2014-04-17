@@ -138,7 +138,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'portPool',
+                                    name: 'comPortPool',
                                     fieldLabel: Uni.I18n.translate('connectionmethod.portPool', 'MDC', 'Port pool')
                                 }
                             ]

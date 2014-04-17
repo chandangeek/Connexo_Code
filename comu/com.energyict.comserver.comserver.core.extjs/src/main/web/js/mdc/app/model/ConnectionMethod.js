@@ -6,15 +6,13 @@ Ext.define('Mdc.model.ConnectionMethod', {
         {name: 'direction', type: 'string', useNull: true},
         {name: 'allowSimultaneousConnections', type: 'string', useNull: true},
         {name: 'isDefault', type: 'string', useNull: true},
-        {name: 'portPool', type: 'string', useNull: true},
-        {name: 'connectionType', type: 'string', useNull: true},
-        {name: 'host', type: 'string', useNull: true},
-        {name: 'portNumber', type: 'string', useNull: true},
-        {name: 'connectionTimeout', type: 'string', useNull: true},
         {name: 'comPortPool', type: 'string', useNull: true},
-        {name: 'connectionStrategy', type: 'string', useNull: true}
+        {name: 'connectionType', type: 'string', useNull: true},
+        {name: 'connectionStrategy', type: 'string', useNull: true},
+        'rescheduleDelay'
     ],
     associations: [
+        {name: 'rescheduleDelay',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'rescheduleDelay'},
         {name: 'propertyInfos', type: 'hasMany', model: 'Mdc.model.Property', associationKey: 'propertyInfos', foreignKey: 'propertyInfos',
             getTypeDiscriminator: function (node) {
                 return 'Mdc.model.Property';

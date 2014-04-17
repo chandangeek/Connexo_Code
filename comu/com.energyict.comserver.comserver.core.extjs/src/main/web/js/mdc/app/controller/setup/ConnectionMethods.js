@@ -40,7 +40,10 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                     selectionchange: this.previewConnectionMethod
                 },
                 '#connectionmethodsgrid button[action = createOutboundConnectionMethod]': {
-                    click: this.addConnectionMethodHistory
+                    click: this.addOutboundConnectionMethodHistory
+                },
+                '#connectionmethodsgrid button[action = createInboundConnectionMethod]': {
+                    click: this.addInboundConnectionMethodHistory
                 },
                 '#connectionmethodsgrid actioncolumn': {
                     editItem: this.editConnectionMethodHistory
@@ -52,8 +55,11 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 '#connectionTypeComboBox': {
                     select: this.showConnectionTypeProperties
                 },
-                '#addEditButton[action=createConnectionMethod]':{
-                    click: this.addConnectionMethod
+                '#addEditButton[action=addOutboundConnectionMethod]':{
+                    click: this.addOutboundConnectionMethod
+                },
+                '#addEditButton[action=addInboundConnectionMethod]':{
+                    click: this.addInboundConnectionMethod
                 }
         });
     },
@@ -101,8 +107,12 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
 
-    addConnectionMethodHistory: function(){
-        location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ this.deviceConfigurationId + '/connectionmethods/add';
+    addOutboundConnectionMethodHistory: function(){
+        location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ this.deviceConfigurationId + '/connectionmethods/addoutbound';
+    },
+
+    addInboundConnectionMethodHistory: function(){
+        location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ this.deviceConfigurationId + '/connectionmethods/addinbound';
     },
 
     editConnectionMethodHistory: function(record){
@@ -113,7 +123,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         this.editConnectionMethodHistory(this.getConnectionMethodPreviewForm().getRecord());
     },
 
-    showConnectionMethodCreateView:function(deviceTypeId,deviceConfigId){
+    showAddConnectionMethodView:function(deviceTypeId,deviceConfigId,direction){
         var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes');
         var comPortPoolStore = Ext.StoreManager.get('ComPortPools');
         var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
@@ -125,7 +135,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             returnLink: '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+this.deviceConfigurationId+'/connectionmethods',
             connectionTypes: connectionTypesStore,
             comPortPools: comPortPoolStore,
-            connectionStrategies: connectionStrategiesStore
+            connectionStrategies: connectionStrategiesStore,
+            direction: direction
         });
         me.getApplication().getController('Mdc.controller.Main').showContent(widget);
 
@@ -135,7 +146,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
-                        comPortPoolStore.filter('direction', 'outbound');
+                        comPortPoolStore.filter('direction', direction);
                         comPortPoolStore.load({
                             callback: function(){
                                 connectionStrategiesStore.load({
@@ -160,17 +171,29 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         });
     },
 
-    addConnectionMethod: function(){
-        var me = this;
-        var record = Ext.create(Mdc.model.ConnectionMethod),
-            values = this.getConnectionMethodEditForm().getValues();
+    addOutboundConnectionMethod: function(){
+        var values = this.getConnectionMethodEditForm().getValues();
+        values.direction = 'Outbound'
+        this.addConnectionMethod(values);
 
+    },
+
+    addInboundConnectionMethod: function(){
+        var values = this.getConnectionMethodEditForm().getValues();
+        values.direction = 'Inbound'
+        this.addConnectionMethod(values);
+    },
+
+    addConnectionMethod: function(values){
+        var me = this;
+        var record = Ext.create(Mdc.model.ConnectionMethod);
         if (record) {
             record.set(values);
+            record.propertyInfosStore = this.getPropertiesController().updateProperties();
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             record.save({
                 success: function (record) {
-                    location.href = '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/connectionmethods';
+                    location.href = '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/connectionmethods';
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);

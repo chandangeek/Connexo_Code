@@ -97,7 +97,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                             },
                                             {
                                                 xtype: 'combobox',
-                                                name: 'portPool',
+                                                name: 'comPortPool',
                                                 fieldLabel: Uni.I18n.translate('connectionmethod.comPortPool', 'MDC', 'Communication port pool'),
                                                 itemId: 'communicationPortPoolComboBox',
                                                 store: this.comPortPools,
@@ -124,6 +124,18 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                                 forceSelection: true,
                                                 typeAhead: true,
                                                 msgTarget: 'under'
+                                            },
+                                            {
+                                                xtype: 'timeInfoField',
+                                                name: 'rescheduleDelay',
+                                                fieldLabel: 'rescheduleDelay'
+                                            },
+                                            {
+                                                xtype: 'checkbox',
+                                                inputValue: true,
+                                                uncheckedValue: 'false',
+                                                name: 'isDefault',
+                                                fieldLabel: 'isDefault'
                                             },
                                             {
                                                 xtype: 'fieldcontainer',
@@ -173,7 +185,12 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
             this.down('#addEditButton').action = 'editConnectionMethod';
         } else {
             this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
-            this.down('#addEditButton').action = 'createConnectionMethod';
+            debugger;
+            if(this.direction === 'outbound'){
+                this.down('#addEditButton').action = 'addOutboundConnectionMethod';
+            } else if (this.direction === 'inbound'){
+                this.down('#addEditButton').action = 'addInboundConnectionMethod';
+            }
         }
         this.down('#cancelLink').autoEl.href=this.returnLink;
 
