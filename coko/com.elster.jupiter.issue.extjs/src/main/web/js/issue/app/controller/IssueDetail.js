@@ -21,7 +21,7 @@ Ext.define('Isu.controller.IssueDetail', {
         },
         {
             ref: 'commentsPanel',
-            selector: 'issue-detail-overview issue-comments'
+            selector: 'issue-detail-overview issue-comments dataview'
         },
         {
             ref: 'commentForm',
@@ -57,22 +57,27 @@ Ext.define('Isu.controller.IssueDetail', {
         });
     },
 
-    showOverview: function (issueId, showCommentForm) {
+    showOverview: function (id, showCommentForm) {
         var self = this,
             widget = Ext.widget('issue-detail-overview'),
             issueDetailModel = self.getModel('Isu.model.Issues'),
             form = widget.down('issue-form');
 
-        self.commentsAPI = '/api/isu/issue/' + issueId + '/comments';
-
         showCommentForm && self.showCommentForm();
 
-        issueDetailModel.load(issueId, {
+        issueDetailModel.load(id, {
             success: function (record) {
                 form.loadRecord(record);
                 form.setTitle(record.get('title'));
 
-                self.loadComments();
+                var store = record.comments();
+
+                // todo: this is dirty solution, rewrite in to the more solid one
+                store.getProxy().url = store.getProxy().url.replace('{issue_id}', record.getId());
+                store.clearFilter();
+                self.getCommentsPanel().bindStore(record.comments());
+                store.load();
+
                 self.getApplication().fireEvent('changecontentevent', widget);
             }
         });
@@ -124,14 +129,6 @@ Ext.define('Isu.controller.IssueDetail', {
         } else {
             sendBtn.setDisabled(true);
         }
-    },
-
-    loadComments: function () {
-        var self = this,
-            commentsPanel = self.getCommentsPanel();
-
-        commentsPanel.store.proxy.url = self.commentsAPI;
-        commentsPanel.store.load();
     },
 
     addComment: function () {

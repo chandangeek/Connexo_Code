@@ -7,6 +7,8 @@ Ext.define('Isu.view.workspace.issues.Form', {
         layout: 'form',
         columnWidth: 0.5
     },
+    ui: 'medium',
+
     items: [
         {
             items: [
