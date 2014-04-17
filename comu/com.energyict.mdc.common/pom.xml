@@ -46,6 +46,11 @@
     </dependency>
     <dependency>
       <groupId>com.elster.jupiter</groupId>
+      <artifactId>metering</artifactId>
+      <version>${jupiter.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
       <artifactId>rest.util</artifactId>
       <version>${jupiter.version}</version>
     </dependency>

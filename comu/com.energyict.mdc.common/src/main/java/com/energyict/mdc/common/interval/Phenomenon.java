@@ -1,9 +1,3 @@
-/*
- * Phenomen.java
- *
- * Created on 12 mei 2003, 15:05
- */
-
 package com.energyict.mdc.common.interval;
 
 import com.energyict.mdc.common.Unit;
@@ -18,6 +12,13 @@ import com.energyict.mdc.common.Unit;
  * @author Karel
  */
 public interface Phenomenon {
+
+    /**
+     * Tests if the receiver represents the undefined Phenomenon.
+     *
+     * @return true if the receiver represents an undefined Phenomenon.
+     */
+    public boolean isUndefined();
 
     /**
      * Returns the object's unique id
@@ -42,6 +43,16 @@ public interface Phenomenon {
      */
     public Unit getUnit();
 
+    public void setUnit(Unit unit);
+
+    /**
+     * Tests if the receiver represents a phenomenon without unit
+     * Equivalent to getUnit().isUndefined()
+     *
+     * @return true if the receiver represents an undefined Unit.
+     */
+    public boolean isUnitless();
+
     /**
      * Returns a description of the receiver.
      *
@@ -56,6 +67,8 @@ public interface Phenomenon {
      */
     public String getMeasurementCode();
 
+    public void setMeasurementCode(String measurementCode);
+
     /**
      * Returns a code to represent the receiver in an
      * Electronic Data Interchange context.
@@ -64,31 +77,10 @@ public interface Phenomenon {
      */
     public String getEdiCode();
 
-    /**
-     * Tests if the receiver represents the undefined Phenomenon.
-     *
-     * @return true if the receiver represents an undefined Phenomenon.
-     */
-    public boolean isUndefined();
-
-    /**
-     * Tests if the receiver represents a phenomenon without unit
-     * Equivalent to getUnit().isUndefined()
-     *
-     * @return true if the receiver represents an undefined Phenomenon.
-     */
-    public boolean isUnitless();
-
-    boolean isInUse();
+    public void setEdiCode(String ediCode);
 
     public void save();
 
     public void delete();
 
-    void setUnit(Unit unit);
-
-    void setMeasurementCode(String measurementCode);
-
-    void setEdiCode(String ediCode);
 }
-
