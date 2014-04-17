@@ -159,7 +159,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         },
                                         items: [
                                             {
-                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo', 8, 'MDC', 'The maximum overflow value is 1000000000 with 8 number of digits', ['1000000000', '8']) + '</i></span>',
+                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo','MDC', 'The maximum overflow value is {0}.', ['1000000000']) + '</i></span>',
                                                 xtype: 'component',
                                                 itemId: 'overflowValueInfo'
                                             }

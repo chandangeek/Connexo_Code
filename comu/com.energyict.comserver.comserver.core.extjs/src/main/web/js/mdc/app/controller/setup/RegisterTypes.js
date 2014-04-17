@@ -166,7 +166,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var me = this;
         Ext.MessageBox.show({
             msg: Uni.I18n.translate('registerType.deleteRegisterType', 'MDC', 'The register type will no longer be available.'),
-            title: Uni.I18n.translate('general.delete', 'MDC', 'Remove') + ' ' + registerTypeToDelete.get('name'),
+            title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + registerTypeToDelete.get('name') + '?',
             config: {
                 registerTypeToDelete: registerTypeToDelete
             },
@@ -199,7 +199,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var registerTypeToDelete = this.getRegisterTypeDetailForm().getRecord();
         Ext.MessageBox.show({
             msg: Uni.I18n.translate('registerType.deleteRegisterType', 'MDC', 'The register type will no longer be available.'),
-            title: Uni.I18n.translate('general.delete', 'MDC', 'Remove') + ' ' + registerTypeToDelete.get('name'),
+            title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + registerTypeToDelete.get('name') + '?',
             config: {
                 registerTypeToDelete: registerTypeToDelete
             },
