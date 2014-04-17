@@ -59,7 +59,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.ConnectionTypePluggableClassImpl;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
@@ -400,7 +399,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Override
-        public Optional<ConnectionTypePluggableClassImpl> findConnectionTypePluggableClassByName(String name) {
+        public ConnectionTypePluggableClass findConnectionTypePluggableClassByName(String name) {
             return protocolPluggableService.findConnectionTypePluggableClassByName(name);
         }
 

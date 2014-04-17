@@ -507,8 +507,8 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
 
     @Override
-    public Device newDevice(DeviceConfiguration deviceConfiguration, String name) {
-        return dataModel.getInstance(DeviceImpl.class).initialize(deviceConfiguration, name);
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID) {
+        return dataModel.getInstance(DeviceImpl.class).initialize(deviceConfiguration, name, mRID);
     }
 
     @Override
@@ -517,8 +517,8 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
 
     @Override
-    public Device findDeviceByExternalName(String externalName) {
-        return dataModel.mapper(Device.class).getUnique("externalName", externalName).orNull();
+    public Device findByUniqueMrid(String mrId) {
+        return dataModel.mapper(Device.class).getUnique("mRID", mrId).orNull();
     }
 
     @Override
