@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableList;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -46,6 +47,7 @@ public class TableImpl<T> implements Table<T> {
 	private final Reference<DataModelImpl> dataModel = ValueReference.absent();
 	private final List<ColumnImpl> columns = new ArrayList<>();
 	private final List<TableConstraintImpl> constraints = new ArrayList<>();
+	private final List<IndexImpl> indexes = new ArrayList<>();
 	
 	// mapping
 	private DataMapperType<T> mapperType;
@@ -768,6 +770,24 @@ public class TableImpl<T> implements Table<T> {
 		}
 		return false;
 	}
+	
+	@Override
+	public IndexImpl.BuilderImpl index(String name) {
+		checkActiveBuilder();
+		activeBuilder = true;
+		return new IndexImpl.BuilderImpl(this,name);		
+	}
+	
+	IndexImpl add(IndexImpl index) {
+		activeBuilder = false;
+		this.indexes.add(index);
+		return index;
+	}
+	
+	List<IndexImpl> getIndexes() {
+		return Collections.unmodifiableList(indexes);
+	}
+	
 }
 	
 

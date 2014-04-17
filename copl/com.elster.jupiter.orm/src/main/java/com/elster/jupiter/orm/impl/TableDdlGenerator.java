@@ -22,6 +22,9 @@ class TableDdlGenerator {
 				ddl.add(getConstraintIndexDdl(constraint));
 			}
 		}		
+		for (IndexImpl index : table.getIndexes()) {
+			ddl.add(getIndexDdl(index));
+		}
 		for (ColumnImpl column : table.getColumns()) {
 			if (column.isAutoIncrement()) {
 				ddl.add(getSequenceDdl(column));
@@ -89,6 +92,20 @@ class TableDdlGenerator {
 		builder.append(" ON ");
 		builder.append(table.getQualifiedName());
 		appendColumns(builder,constraint.getColumns(), false);
+		return builder.toString();		
+	}
+	
+	private String getIndexDdl(IndexImpl index) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("CREATE INDEX ");
+		builder.append(index.getName());
+		builder.append(" ON ");
+		builder.append(table.getQualifiedName());
+		appendColumns(builder,index.getColumns(), false);
+		if (index.getCompress() > 0) {
+			builder.append(" COMPRESS ");
+			builder.append(index.getCompress());
+		}
 		return builder.toString();		
 	}
 	

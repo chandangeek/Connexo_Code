@@ -14,6 +14,7 @@ public interface Table<T> {
     PrimaryKeyConstraint.Builder primaryKey(String name);
     UniqueConstraint.Builder unique(String name);
     ForeignKeyConstraint.Builder foreignKey(String name);
+    Index.Builder index(String name);
     Column addVersionCountColumn(String name , String dbType , String fieldName );
 	Column addDiscriminatorColumn(String name, String dbType);
 	Column addCreateTimeColumn(String name, String fieldName);
