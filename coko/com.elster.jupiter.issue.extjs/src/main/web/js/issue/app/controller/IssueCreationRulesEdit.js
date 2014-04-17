@@ -133,6 +133,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             issueTypeField = form.down('[name=issueType]'),
             templateField = form.down('[name=template]'),
             reasonField = form.down('[name=reason]'),
+            dueDateTrigger = form.down('[name=dueDateTrigger]'),
             dueInNumberField = form.down('[name=dueIn.number]'),
             dueInTypeField = form.down('[name=dueIn.type]'),
             commentField = form.down('[name=comment]');
@@ -147,8 +148,13 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         reasonField.getStore().load(function () {
             reasonField.setValue(data.reason.id);
         });
-        dueInNumberField.setValue(data.dueIn.number || null);
-        dueInTypeField.setValue(data.dueIn.type || dueInTypeField.getStore().getAt(0).get('name'));
+        if (data.dueIn.number) {
+            dueDateTrigger.setValue({dueDate: true});
+            dueInNumberField.setValue(data.dueIn.number);
+            dueInTypeField.setValue(data.dueIn.type || dueInTypeField.getStore().getAt(0).get('name'));
+        } else {
+            dueDateTrigger.setValue({dueDate: false});
+        }
         commentField.setValue(data.comment);
     },
 
@@ -248,8 +254,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             this.comboTemplateResize(combo);
 
             combo.templateDescriptionIcon.on('click', function () {
-                Ext.Msg.show({
-                    title:'Template description',
+                combo.templateDescriptionWindow = Ext.Msg.show({
+                    title: 'Template description',
                     msg: descriptionText,
                     buttons: Ext.MessageBox.CANCEL,
                     buttonText: {cancel: 'Close'},
@@ -273,6 +279,11 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
 
     removeTemplateDescription: function () {
         var combo = Ext.ComponentQuery.query('issues-creation-rules-edit form [name=template]')[0];
+
+        if (combo && combo.templateDescriptionWindow) {
+            combo.templateDescriptionWindow.destroy();
+            delete combo.templateDescriptionWindow;
+        }
 
         if (combo && combo.templateDescriptionIcon) {
             combo.templateDescriptionIcon.destroy();

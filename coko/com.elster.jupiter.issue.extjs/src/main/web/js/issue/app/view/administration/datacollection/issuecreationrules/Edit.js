@@ -98,27 +98,75 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             items: [
                                 {
                                     xtype: 'component',
-                                    html: '<b>Due in</b>',
+                                    html: '<b>Due date</b>',
                                     width: 150,
                                     style: 'margin-right: 5px',
                                     cls: 'x-form-item-label uni-form-item-bold x-form-item-label-right'
                                 },
                                 {
-                                    xtype: 'numberfield',
-                                    name: 'dueIn.number',
-                                    minValue: 1,
-                                    width: 60,
-                                    margin: '0 10 0 0'
-                                },
-                                {
-                                    xtype: 'combobox',
-                                    name: 'dueIn.type',
-                                    store: 'Isu.store.DueinType',
-                                    queryMode: 'local',
-                                    displayField: 'displayValue',
-                                    valueField: 'name',
-                                    editable: false,
-                                    width: 100
+                                    xtype: 'container',
+                                    layout: {
+                                        type: 'hbox'
+                                    },
+                                    items: [
+                                        {
+                                            xtype: 'radiogroup',
+                                            name: 'dueDateTrigger',
+                                            formBind: false,
+                                            columns: 1,
+                                            vertical: true,
+                                            width: 100,
+                                            defaults: {
+                                                name: 'dueDate',
+                                                formBind: false,
+                                                submitValue: false
+                                            },
+                                            items: [
+                                                {
+                                                    boxLabel: 'No due date',
+                                                    inputValue: false
+                                                },
+                                                {
+                                                    boxLabel: 'Due in',
+                                                    inputValue: true
+                                                }
+                                            ],
+                                            listeners: {
+                                                change: {
+                                                    fn: function (radioGroup, newValue, oldValue) {
+                                                       this.up('issues-creation-rules-edit').dueDateTrigger(radioGroup, newValue, oldValue);
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            xtype: 'container',
+                                            name: 'dueDateValues',
+                                            layout: {
+                                                type: 'hbox'
+                                            },
+                                            margin: '26 0 0 -30',
+                                            items: [
+                                                {
+                                                    xtype: 'numberfield',
+                                                    name: 'dueIn.number',
+                                                    minValue: 1,
+                                                    width: 60,
+                                                    margin: '0 10 0 0'
+                                                },
+                                                {
+                                                    xtype: 'combobox',
+                                                    name: 'dueIn.type',
+                                                    store: 'Isu.store.DueinType',
+                                                    queryMode: 'local',
+                                                    displayField: 'displayValue',
+                                                    valueField: 'name',
+                                                    editable: false,
+                                                    width: 100
+                                                }
+                                            ]
+                                        }
+                                    ]
                                 }
                             ]
                         },
@@ -181,5 +229,19 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                 }
             ]
         }
-    ]
+    ],
+
+    dueDateTrigger: function (radioGroup, newValue) {
+        var dueDateValues = this.down('form [name=dueDateValues]'),
+            dueInNumberField = this.down('form [name=dueIn.number]'),
+            dueInTypeField = this.down('form [name=dueIn.type]');
+
+        if (!newValue.dueDate) {
+            dueInNumberField.reset();
+            dueInTypeField.setValue(dueInTypeField.getStore().getAt(0).get('name'));
+            dueDateValues.setDisabled(true);
+        } else {
+            dueDateValues.setDisabled(false);
+        }
+    }
 });
