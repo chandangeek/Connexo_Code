@@ -8,6 +8,8 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.ReadingTypeComparator;
+import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.common.base.Optional;

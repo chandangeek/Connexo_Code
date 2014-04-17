@@ -3,23 +3,33 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
 public class RegisterConfigurationResource {
 
-    private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
 
     @Inject
-    public RegisterConfigurationResource(DeviceConfigurationService deviceConfigurationService, ResourceHelper resourceHelper) {
-        this.deviceConfigurationService = deviceConfigurationService;
+    public RegisterConfigurationResource(ResourceHelper resourceHelper) {
+        super();
         this.resourceHelper = resourceHelper;
     }
 
@@ -78,7 +88,7 @@ public class RegisterConfigurationResource {
     }
 
     private RegisterMapping findRegisterMappingOrThrowException(long registerTypeId) {
-        RegisterMapping registerMapping = deviceConfigurationService.findRegisterMapping(registerTypeId);
+        RegisterMapping registerMapping = resourceHelper.findRegisterMappingByIdOrThrowException(registerTypeId);
         if (registerMapping==null) {
             throw new WebApplicationException("No register type with id " + registerTypeId, Response.status(Response.Status.NOT_FOUND).entity("No register type with id " + registerTypeId).build());
         }

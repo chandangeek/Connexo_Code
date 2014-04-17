@@ -2,7 +2,8 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.common.rest.UnitAdapter;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import org.codehaus.jackson.annotate.JsonProperty;

@@ -1,7 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -36,11 +37,11 @@ public class DeviceTypeInfo {
         DeviceTypeInfo deviceTypeInfo = from(deviceType);
         deviceTypeInfo.registerMappings = new ArrayList<>();
         for (RegisterMapping registerMapping : registerMappings) {
-            deviceTypeInfo.registerMappings.add(new RegisterMappingInfo(registerMapping));
+            deviceTypeInfo.registerMappings.add(new RegisterMappingInfo(registerMapping, true));
         }
         return deviceTypeInfo;
     }
-    
+
     public static DeviceTypeInfo from(DeviceType deviceType) {
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.id=deviceType.getId();

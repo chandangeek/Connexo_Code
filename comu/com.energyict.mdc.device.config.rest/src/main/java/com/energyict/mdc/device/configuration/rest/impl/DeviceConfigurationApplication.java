@@ -15,22 +15,25 @@ import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableSet;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.ws.rs.core.Application;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component(name = "com.energyict.dtc.rest", service = Application.class, immediate = true, property = {"alias=/dtc"})
 public class DeviceConfigurationApplication extends Application {
 
     public static final String COMPONENT_NAME = "DCR";
 
+    private volatile MasterDataService masterDataService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile TransactionService transactionService;
@@ -47,7 +50,6 @@ public class DeviceConfigurationApplication extends Application {
                 TransactionWrapper.class,
                 ExceptionLogger.class,
                 DeviceTypeResource.class,
-                RegisterTypeResource.class,
                 DeviceConfigFieldResource.class,
                 DeviceConfigurationResource.class,
                 RegisterConfigurationResource.class,
@@ -66,6 +68,11 @@ public class DeviceConfigurationApplication extends Application {
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
         return Collections.unmodifiableSet(hashSet);
+    }
+
+    @Reference
+    public void setMasterDataService(MasterDataService masterDataService) {
+        this.masterDataService = masterDataService;
     }
 
     @Reference
@@ -113,6 +120,7 @@ public class DeviceConfigurationApplication extends Application {
 
         @Override
         protected void configure() {
+            bind(masterDataService).to(MasterDataService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(transactionService).to(TransactionService.class);

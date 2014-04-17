@@ -11,8 +11,11 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
+import com.energyict.mdc.masterdata.rest.impl.LoadProfileTypeInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
@@ -40,14 +43,16 @@ import javax.ws.rs.core.Response;
 @Path("/devicetypes")
 public class DeviceTypeResource {
     private final ResourceHelper resourceHelper;
+    private final MasterDataService masterDataService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider;
     private final ProtocolPluggableService protocolPluggableService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceTypeResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider, ProtocolPluggableService protocolPluggableService, Thesaurus thesaurus) {
+    public DeviceTypeResource(ResourceHelper resourceHelper, MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider, ProtocolPluggableService protocolPluggableService, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
+        this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceConfigurationResourceProvider = deviceConfigurationResourceProvider;
         this.protocolPluggableService = protocolPluggableService;
@@ -154,7 +159,7 @@ public class DeviceTypeResource {
 
     private void findAllAvailableRegisterMappingsForDeviceType(QueryParameters queryParameters, DeviceType deviceType, List<RegisterMapping> registerMappings) {
         Set<Long> deviceTypeRegisterMappingIds = asIds(deviceType.getRegisterMappings());
-        for (RegisterMapping registerMapping : this.deviceConfigurationService.findAllRegisterMappings().from(queryParameters).find()) {
+        for (RegisterMapping registerMapping : this.masterDataService.findAllRegisterMappings().from(queryParameters).find()) {
             if (!deviceTypeRegisterMappingIds.contains(registerMapping.getId())) {
                 registerMappings.add(registerMapping);
             }
@@ -230,13 +235,13 @@ public class DeviceTypeResource {
     }
 
     private void linkRegisterMappingToDeviceType(DeviceType deviceType, long registerMappingId) {
-        RegisterMapping registerMapping = this.deviceConfigurationService.findRegisterMapping(registerMappingId);
-        if (registerMapping==null) {
+        Optional<RegisterMapping> registerMapping = this.masterDataService.findRegisterMapping(registerMappingId);
+        if (!registerMapping.isPresent()) {
             throw new WebApplicationException("No register mapping with id " + registerMappingId,
                     Response.status(Response.Status.BAD_REQUEST).build());
 
         }
-        deviceType.addRegisterMapping(registerMapping);
+        deviceType.addRegisterMapping(registerMapping.get());
     }
 
     private RegisterMapping getRegisterMappingById(List<RegisterMapping> registerMappingShadows, long id) {
@@ -267,9 +272,10 @@ public class DeviceTypeResource {
     private List<RegisterMappingInfo> asInfoList(DeviceType deviceType, List<RegisterMapping> registerMappings) {
         List<RegisterMappingInfo> registerMappingInfos = new ArrayList<>();
         for (RegisterMapping registerMapping : registerMappings) {
+            boolean isLinkedByDeviceType = !deviceConfigurationService.findDeviceTypesUsingRegisterMapping(registerMapping).isEmpty();
             boolean isLinkedByActiveRegisterSpec = !deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterMapping(deviceType, registerMapping).isEmpty();
             boolean isLinkedByInactiveRegisterSpec = !deviceConfigurationService.findInactiveRegisterSpecsByDeviceTypeAndRegisterMapping(deviceType, registerMapping).isEmpty();
-            registerMappingInfos.add(new RegisterMappingInfo(registerMapping, isLinkedByActiveRegisterSpec, isLinkedByInactiveRegisterSpec));
+            registerMappingInfos.add(new RegisterMappingInfo(registerMapping, isLinkedByDeviceType, isLinkedByActiveRegisterSpec, isLinkedByInactiveRegisterSpec));
         }
         return registerMappingInfos;
     }

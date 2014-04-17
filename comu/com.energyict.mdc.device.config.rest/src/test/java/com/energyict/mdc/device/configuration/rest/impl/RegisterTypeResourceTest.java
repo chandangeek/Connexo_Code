@@ -19,13 +19,16 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.Application;
+
+import com.google.common.base.Optional;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -46,11 +49,13 @@ import static org.mockito.Mockito.when;
 
 public class RegisterTypeResourceTest extends JerseyTest {
 
+    private static MasterDataService masterDataService;
     private static DeviceConfigurationService deviceConfigurationService;
     private static MeteringService meteringService;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+        masterDataService = mock(MasterDataService.class);
         deviceConfigurationService = mock(DeviceConfigurationService.class);
         meteringService = mock(MeteringService.class);
     }
@@ -59,7 +64,7 @@ public class RegisterTypeResourceTest extends JerseyTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        reset(deviceConfigurationService, meteringService);
+        reset(masterDataService, deviceConfigurationService, meteringService);
     }
 
     @Override
@@ -71,6 +76,8 @@ public class RegisterTypeResourceTest extends JerseyTest {
         resourceConfig.register(new AbstractBinder() {
             @Override
             protected void configure() {
+                bind(ResourceHelper.class).to(ResourceHelper.class);
+                bind(masterDataService).to(MasterDataService.class);
                 bind(deviceConfigurationService).to(DeviceConfigurationService.class);
                 bind(meteringService).to(MeteringService.class);
             }
@@ -88,20 +95,20 @@ public class RegisterTypeResourceTest extends JerseyTest {
     @Test
     public void testGetEmptyRegisterTypeList() throws Exception {
         Finder<RegisterMapping> finder = mockFinder(Collections.<RegisterMapping>emptyList());
-        when(deviceConfigurationService.findAllRegisterMappings()).thenReturn(finder);
+        when(masterDataService.findAllRegisterMappings()).thenReturn(finder);
 
         Map<String, Object> map = target("/registertypes/").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(0);
         assertThat((List)map.get("registerTypes")).isEmpty();
     }
-    
+
     @Test
     public void testRegisterTypeInfoJavaScriptMappings() throws Exception {
         RegisterMapping registerMapping = mock(RegisterMapping.class);
         when(registerMapping.getId()).thenReturn(13L);
         when(registerMapping.getName()).thenReturn("register type");
         when(registerMapping.getObisCode()).thenReturn(new ObisCode(1,2,3,4,5,6));
-        when(registerMapping.isLinkedByDeviceType()).thenReturn(true);
+        when(deviceConfigurationService.isRegisterMappingUsedByDeviceType(registerMapping)).thenReturn(true);
         when(registerMapping.getUnit()).thenReturn(Unit.get("kWh"));
         ReadingType readingType = mock(ReadingType.class);
         when(registerMapping.getReadingType()).thenReturn(readingType);
@@ -125,7 +132,7 @@ public class RegisterTypeResourceTest extends JerseyTest {
 
         List<RegisterSpec> registerSpecs = mock(List.class);
         when(registerSpecs.size()).thenReturn(1);
-        when(deviceConfigurationService.findRegisterMapping(13)).thenReturn(registerMapping);
+        when(masterDataService.findRegisterMapping(13)).thenReturn(Optional.of(registerMapping));
         when(deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterMapping(any(DeviceType.class), any(RegisterMapping.class))).thenReturn(registerSpecs);
 
         Map<String, Object> map = target("/registertypes/13").request().get(Map.class);
@@ -158,9 +165,9 @@ public class RegisterTypeResourceTest extends JerseyTest {
         .containsKey("powerOfTenMultiplier")
         .containsKey("unitOfMeasure")
         .containsKey("currency");
-        
+
     }
-    
+
 
     private <T> Finder<T> mockFinder(List<T> list) {
         Finder<T> finder = mock(Finder.class);

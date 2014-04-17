@@ -2,14 +2,16 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.FieldResource;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import java.util.ArrayList;
-import java.util.List;
+import com.energyict.mdc.common.rest.UnitAdapter;
+import com.energyict.mdc.masterdata.MasterDataService;
+
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Why the wrapped return value? JavaScript people didn't want to see a naked JSON list, had to be
@@ -19,11 +21,12 @@ import javax.ws.rs.core.Response;
 @Path("/field")
 public class DeviceConfigFieldResource extends FieldResource{
 
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final MasterDataService masterDataService;
 
     @Inject
-    public DeviceConfigFieldResource(DeviceConfigurationService deviceConfigurationService) {
-        this.deviceConfigurationService = deviceConfigurationService;
+    public DeviceConfigFieldResource(MasterDataService masterDataService) {
+        super();
+        this.masterDataService = masterDataService;
     }
 
     @GET
@@ -31,7 +34,7 @@ public class DeviceConfigFieldResource extends FieldResource{
     public Object getUnitValues() {
         List<String> allUnitsWithPhenomena = new ArrayList<>();
         UnitAdapter unitAdapter = new UnitAdapter();
-        for (Phenomenon phenomenon : deviceConfigurationService.findAllPhenomena()) {
+        for (Phenomenon phenomenon : this.masterDataService.findAllPhenomena()) {
             try {
                 allUnitsWithPhenomena.add(unitAdapter.marshal(phenomenon.getUnit()));
             } catch (Exception e) {

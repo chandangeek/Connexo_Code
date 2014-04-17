@@ -15,6 +15,19 @@ import com.elster.jupiter.metering.ReadingType;
 import java.util.Currency;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.energyict.mdc.common.rest.AccumulationAdapter;
+import com.energyict.mdc.common.rest.AggregateAdapter;
+import com.energyict.mdc.common.rest.CommodityAdapter;
+import com.energyict.mdc.common.rest.CurrencyAdapter;
+import com.energyict.mdc.common.rest.FlowDirectionAdapter;
+import com.energyict.mdc.common.rest.MacroPeriodAdapter;
+import com.energyict.mdc.common.rest.MeasurementKindAdapter;
+import com.energyict.mdc.common.rest.MetricMultiplierAdapter;
+import com.energyict.mdc.common.rest.PhaseAdapter;
+import com.energyict.mdc.common.rest.RationalNumberAdapter;
+import com.energyict.mdc.common.rest.ReadingTypeUnitAdapter;
+import com.energyict.mdc.common.rest.TimeAttributeAdapter;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 @XmlRootElement

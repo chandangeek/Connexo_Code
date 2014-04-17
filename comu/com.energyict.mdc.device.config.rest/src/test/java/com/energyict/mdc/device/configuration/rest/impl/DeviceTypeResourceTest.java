@@ -31,11 +31,13 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.StringFactory;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -82,6 +84,7 @@ import static org.mockito.Mockito.when;
 
 public class DeviceTypeResourceTest extends JerseyTest {
 
+    private static MasterDataService masterDataService;
     private static DeviceConfigurationService deviceConfigurationService;
     private static ProtocolPluggableService protocolPluggableService;
     private static NlsService nlsService;
@@ -90,6 +93,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+        masterDataService = mock(MasterDataService.class);
         deviceConfigurationService = mock(DeviceConfigurationService.class);
         protocolPluggableService = mock(ProtocolPluggableService.class);
         engineModelService = mock(EngineModelService.class);
@@ -101,7 +105,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        reset(deviceConfigurationService, protocolPluggableService, engineModelService);
+        reset(masterDataService, protocolPluggableService, engineModelService);
     }
 
     @Override
@@ -120,6 +124,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         resourceConfig.register(new AbstractBinder() {
             @Override
             protected void configure() {
+                bind(masterDataService).to(MasterDataService.class);
                 bind(deviceConfigurationService).to(DeviceConfigurationService.class);
                 bind(protocolPluggableService).to(ProtocolPluggableService.class);
                 bind(engineModelService).to(EngineModelService.class);
@@ -432,7 +437,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
         Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
-        when(deviceConfigurationService.findRegisterMapping(RM_ID_1)).thenReturn(registerMapping101);
+        when(masterDataService.findRegisterMapping(RM_ID_1)).thenReturn(Optional.of(registerMapping101));
 
         Response response = target("/devicetypes/31/registertypes/102").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -495,8 +500,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(registerMapping102.getId()).thenReturn(RM_ID_2);
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101));
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
-        when(deviceConfigurationService.findRegisterMapping(RM_ID_1)).thenReturn(registerMapping101);
-        when(deviceConfigurationService.findRegisterMapping(RM_ID_2)).thenReturn(registerMapping102);
+        when(masterDataService.findRegisterMapping(RM_ID_1)).thenReturn(Optional.of(registerMapping101));
+        when(masterDataService.findRegisterMapping(RM_ID_2)).thenReturn(Optional.of(registerMapping102));
         Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
 
@@ -671,8 +676,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(registerMapping101.getId()).thenReturn(RM_ID_1);
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101));
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
-        when(deviceConfigurationService.findRegisterMapping(RM_ID_1)).thenReturn(registerMapping101);
-        when(deviceConfigurationService.findRegisterMapping(RM_ID_2)).thenReturn(null);
+        when(masterDataService.findRegisterMapping(RM_ID_1)).thenReturn(Optional.of(registerMapping101));
+        when(masterDataService.findRegisterMapping(RM_ID_2)).thenReturn(Optional.<RegisterMapping>absent());
         Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
 
@@ -704,8 +709,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
-        when(deviceConfigurationService.findRegisterMapping(RM_ID_1)).thenReturn(registerMapping101);
-        when(deviceConfigurationService.findRegisterMapping(RM_ID_2)).thenReturn(registerMapping102);
+        when(masterDataService.findRegisterMapping(RM_ID_1)).thenReturn(Optional.of(registerMapping101));
+        when(masterDataService.findRegisterMapping(RM_ID_2)).thenReturn(Optional.of(registerMapping102));
 
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.registerMappings=Arrays.asList(registerMappingInfo1);
@@ -768,7 +773,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101));
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
         Finder<RegisterMapping> registerMappingFinder = mockFinder(Arrays.asList(registerMapping101, registerMapping102, registerMapping103));
-        when(deviceConfigurationService.findAllRegisterMappings()).thenReturn(registerMappingFinder);
+        when(masterDataService.findAllRegisterMappings()).thenReturn(registerMappingFinder);
 
         Map response = target("/devicetypes/31/registertypes").queryParam("filter", ExtjsFilter.filter().property("available","true").create()).request().get(Map.class);
         assertThat(response).hasSize(2);
@@ -801,7 +806,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
 
         Finder<RegisterMapping> registerMappingFinder = mockFinder(Arrays.asList(registerMapping101, registerMapping102, registerMapping103));
-        when(deviceConfigurationService.findAllRegisterMappings()).thenReturn(registerMappingFinder);
+        when(masterDataService.findAllRegisterMappings()).thenReturn(registerMappingFinder);
 
         Map response = target("/devicetypes/31/registertypes").queryParam("filter", ExtjsFilter.filter().property("available","true").property("deviceconfigurationid","41").create()).request().get(Map.class);
         assertThat(response).hasSize(2);
@@ -901,7 +906,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         RegisterMapping registerMapping = mock(RegisterMapping.class);
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
-        when(deviceConfigurationService.findRegisterMapping(registerMapping_id)).thenReturn(registerMapping);
+        when(masterDataService.findRegisterMapping(registerMapping_id)).thenReturn(Optional.of(registerMapping));
         ReadingType readingType = mockReadingType();
         when(registerMapping.getReadingType()).thenReturn(readingType);
         RegisterSpec registerConfig = mock(RegisterSpec.class);
@@ -944,7 +949,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         RegisterMapping registerMapping = mock(RegisterMapping.class);
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
-        when(deviceConfigurationService.findRegisterMapping(registerMapping_id)).thenReturn(registerMapping);
+        when(masterDataService.findRegisterMapping(registerMapping_id)).thenReturn(Optional.of(registerMapping));
         ReadingType readingType = mockReadingType();
         when(registerMapping.getReadingType()).thenReturn(readingType);
         RegisterSpec registerConfig = mock(RegisterSpec.class);
@@ -1073,8 +1078,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
-        when(deviceConfigurationService.findRegisterMapping(RM_ID_1)).thenReturn(registerMapping101);
-        when(deviceConfigurationService.findRegisterMapping(RM_ID_2)).thenReturn(registerMapping102);
+        when(masterDataService.findRegisterMapping(RM_ID_1)).thenReturn(Optional.of(registerMapping101));
+        when(masterDataService.findRegisterMapping(RM_ID_2)).thenReturn(Optional.of(registerMapping102));
 
         Thesaurus thesaurus = mock(Thesaurus.class);
         NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);

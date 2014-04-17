@@ -3,18 +3,33 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterMapping;
+import com.google.common.base.Optional;
+
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 public class ResourceHelper {
 
+    private final MasterDataService masterDataService;
     private final DeviceConfigurationService deviceConfigurationService;
 
     @Inject
-    public ResourceHelper(DeviceConfigurationService deviceConfigurationService) {
+    public ResourceHelper(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService) {
+        super();
+        this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
     }
+
+    public RegisterMapping findRegisterMappingByIdOrThrowException(long id) {
+        Optional<RegisterMapping> registerMapping = masterDataService.findRegisterMapping(id);
+        if (!registerMapping.isPresent()) {
+            throw new WebApplicationException("No register type with id " + id, Response.Status.NOT_FOUND);
+        }
+        return registerMapping.get();
+     }
 
     public DeviceType findDeviceTypeByIdOrThrowException(long id) {
         DeviceType deviceType = deviceConfigurationService.findDeviceType(id);

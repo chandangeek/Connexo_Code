@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import java.util.Comparator;
 
 public class RegisterTypeComparator implements Comparator<RegisterMapping> {
