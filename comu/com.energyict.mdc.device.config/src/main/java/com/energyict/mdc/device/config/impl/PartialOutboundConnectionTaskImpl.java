@@ -7,15 +7,15 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.rest.MinTimeDuration;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import javax.inject.Inject;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 /**
  *  Provides an implementation for an {@link com.energyict.mdc.device.config.PartialOutboundConnectionTask}
@@ -23,14 +23,16 @@ import javax.validation.ConstraintValidatorContext;
  * @author sva
  * @since 22/01/13 - 11:52
  */
-@CheckMinimumRescheduleDelay(groups = {Save.Create.class, Save.Update.class}, minimumRescheduleDelayInSeconds = 60)
 public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectionTaskImpl implements PartialOutboundConnectionTask {
 
+    @Valid
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
 
     /**
      * Defines the delay to wait before retrying when this connectionTask failed
      */
+    @NotNull(groups = {Save.Create.class, Save.Update.class})
+    @MinTimeDuration(value = 60, groups = {Save.Create.class, Save.Update.class})
     private TimeDuration rescheduleRetryDelay;
 
     PartialOutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
@@ -45,6 +47,19 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
     @Override
     public NextExecutionSpecs getNextExecutionSpecs() {
         return this.nextExecutionSpecs.orNull();
+    }
+
+    @Override
+    public TemporalExpression getTemporalExpression() {
+        return this.nextExecutionSpecs.get().getTemporalExpression();
+    }
+
+    @Override
+    public void setTemporalExpression(TemporalExpression temporalExpression) {
+        if (!this.nextExecutionSpecs.isPresent()) {
+            this.nextExecutionSpecs.set(dataModel.getInstance(NextExecutionSpecsImpl.class));
+        }
+        this.nextExecutionSpecs.get().setTemporalExpression(temporalExpression);
     }
 
     @Override
@@ -69,6 +84,9 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
 
     @Override
     public void setNextExecutionSpecs(NextExecutionSpecs nextExecutionSpec) {
+        if (nextExecutionSpec==null) {
+            this.nextExecutionSpecs=ValueReference.absent();
+        }
         nextExecutionSpecs.set(nextExecutionSpec);
     }
 
@@ -77,23 +95,4 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
         this.rescheduleRetryDelay = rescheduleRetryDelay;
     }
 
-    public static class MinimumRescheduleDelayValidator implements ConstraintValidator<CheckMinimumRescheduleDelay, PartialOutboundConnectionTaskImpl> {
-
-        private int minimalDelayInSeconds;
-
-        @Inject
-        public MinimumRescheduleDelayValidator() {
-        }
-
-        @Override
-        public void initialize(CheckMinimumRescheduleDelay constraintAnnotation) {
-            minimalDelayInSeconds = constraintAnnotation.minimumRescheduleDelayInSeconds();
-        }
-
-        @Override
-        public boolean isValid(PartialOutboundConnectionTaskImpl value, ConstraintValidatorContext context) {
-            TimeDuration rescheduleDelay = value.getRescheduleDelay();
-            return rescheduleDelay!= null && rescheduleDelay.getSeconds() >= minimalDelayInSeconds;
-        }
-    }
 }

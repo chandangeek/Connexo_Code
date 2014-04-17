@@ -40,4 +40,8 @@ public interface PartialOutboundConnectionTask extends PartialConnectionTask {
     void setComportPool(OutboundComPortPool comPortPool);
 
     void setRescheduleRetryDelay(TimeDuration rescheduleRetryDelay);
+
+    void setTemporalExpression(TemporalExpression temporalExpression);
+
+    TemporalExpression getTemporalExpression();
 }
