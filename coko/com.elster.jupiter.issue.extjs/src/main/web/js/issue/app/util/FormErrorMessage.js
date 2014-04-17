@@ -30,7 +30,6 @@ Ext.define('Isu.util.FormErrorMessage', {
                 html: me.text
             }
         ]);
-
         this.callParent(arguments)
     }
 

@@ -18,9 +18,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                         margin: '0 0 20 0',
                         validateOnChange: false,
                         validateOnBlur: false,
-                        anchor: '100%',
-                        labelAlign: 'right',
-                        msgTarget: 'under'
+                        anchor: '100%'
                     },
                     items: [
                         {
@@ -104,7 +102,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                     name: 'dueIn.number',
                                     minValue: 1,
                                     width: 60,
-                                    margin: '0 10 0 0'
+                                    margin: '0 10 0 10'
                                 },
                                 {
                                     xtype: 'combobox',
