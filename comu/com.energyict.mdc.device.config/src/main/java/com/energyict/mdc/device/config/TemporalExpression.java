@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.TimeDuration;
-import org.joda.time.DateTimeConstants;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
+import org.joda.time.DateTimeConstants;
 
 /**
  * TemporalExpression represent a recurring time.
@@ -24,6 +23,7 @@ public final class TemporalExpression {
 
     private TimeDuration offset = new TimeDuration();
     private TimeDuration every = new TimeDuration();
+    private boolean lastDay;
 
     /**
      * Creates a new instance of TemporalExpression.
@@ -161,5 +161,13 @@ public final class TemporalExpression {
     @Override
     public int hashCode() {
         return Objects.hash(every, offset);
+    }
+
+    public boolean isLastDay() {
+        return lastDay;
+    }
+
+    public void setLastDay(boolean lastDay) {
+        this.lastDay = lastDay;
     }
 }
