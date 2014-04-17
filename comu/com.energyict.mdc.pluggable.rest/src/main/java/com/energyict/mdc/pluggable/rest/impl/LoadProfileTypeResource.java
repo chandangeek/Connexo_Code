@@ -1,7 +1,8 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.LoadProfileType;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.MasterDataService;
+
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -13,22 +14,22 @@ import javax.ws.rs.core.UriInfo;
 @Path("/loadprofiletypes")
 public class LoadProfileTypeResource {
 
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final MasterDataService masterDataService;
 
     @Inject
-    public LoadProfileTypeResource(DeviceConfigurationService deviceConfigurationService) {
-        this.deviceConfigurationService = deviceConfigurationService;
+    public LoadProfileTypeResource(MasterDataService masterDataService) {
+        super();
+        this.masterDataService = masterDataService;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public LoadProfileTypeInfos getLoadProfileTypePropertyContext(@Context UriInfo uriInfo) {
         LoadProfileTypeInfos loadProfileTypeInfos = new LoadProfileTypeInfos();
-        for (LoadProfileType loadProfileType : this.deviceConfigurationService.findAllLoadProfileTypes()) {
+        for (LoadProfileType loadProfileType : this.masterDataService.findAllLoadProfileTypes()) {
             loadProfileTypeInfos.loadProfileTypeInfos.add(new LoadProfileTypeInfo(loadProfileType));
         }
         return loadProfileTypeInfos;
     }
-
 
 }

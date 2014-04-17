@@ -5,8 +5,8 @@ import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.pluggable.rest.impl.CodeTableInfo;
 import com.energyict.mdc.pluggable.rest.impl.CodeTableResource;
 import com.energyict.mdc.pluggable.rest.impl.LoadProfileTypeInfo;
@@ -17,8 +17,9 @@ import com.energyict.mdc.pluggable.rest.impl.UserFileReferenceResource;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdw.core.TimeZoneInUse;
-import java.net.URI;
+
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 
 /**
  * Provides functionality for property 'Reference' objects

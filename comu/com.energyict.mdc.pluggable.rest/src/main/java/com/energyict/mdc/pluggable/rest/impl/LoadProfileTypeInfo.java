@@ -1,8 +1,9 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.energyict.mdc.device.config.LoadProfileType;
-import java.util.Map;
+import com.energyict.mdc.masterdata.LoadProfileType;
+
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Map;
 
 @XmlRootElement
 public class LoadProfileTypeInfo  {
