@@ -8,6 +8,8 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.Clock;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -26,6 +28,7 @@ import com.energyict.mdc.device.data.impl.PersistentIdObject;
 import com.energyict.mdc.device.data.impl.UpdateEventType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.tasks.ComTask;
@@ -35,6 +38,7 @@ import javax.inject.Inject;
 
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -63,11 +67,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     private Reference<ComPort> comPort = ValueReference.absent();
 
-    private Date nextExecutionTimeStamp;
-    private Date lastExecutionTimeStamp;
+    private Date nextExecutionTimestamp;
+    private Date lastExecutionTimestamp;
     private Date executionStart;
     private Date lastSuccessfulCompletionTimestamp;
-    private Date plannedNextExecutionTimeStamp;
+    private Date plannedNextExecutionTimestamp;
     private Date obsoleteDate;
     private Date modificationDate;
 
@@ -209,12 +213,12 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public boolean isOnHold() {
-        return this.nextExecutionTimeStamp == null;
+        return this.nextExecutionTimestamp == null;
     }
 
     @Override
     public Date getNextExecutionTimestamp() {
-        return this.nextExecutionTimeStamp;
+        return this.nextExecutionTimestamp;
     }
 
     @Override
@@ -239,7 +243,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private void setUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
         this.useDefaultConnectionTask = useDefaultConnectionTask;
         if (this.useDefaultConnectionTask) {
-            this.connectionTask.setNull();
+            this.connectionTask.set(this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice()));
         }
     }
 
@@ -250,7 +254,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void makeObsolete() {
-        reloadMyselfForObsoletion();
+        reloadMyselfForObsoleting();
         validateMakeObsolete();
         this.obsoleteDate = this.now();
         this.post();
@@ -260,7 +264,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
      * We need to check if this task is currently running or someone else made it obsolete.
      * We are already in a Transaction so we don't wrap it again.
      */
-    private void reloadMyselfForObsoletion() {
+    private void reloadMyselfForObsoleting() {
         ComTaskExecution updatedVersionOfMyself = this.deviceDataService.findComTaskExecution(this.getId());
         if (updatedVersionOfMyself != null) {
             this.comPort.set(updatedVersionOfMyself.getExecutingComPort());
@@ -277,7 +281,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         if (this.useDefaultConnectionTask) {
-            ConnectionTask defaultConnectionTaskForDevice = this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice());
+            ConnectionTask<?,?> defaultConnectionTaskForDevice = this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice());
             if (defaultConnectionTaskForDevice != null && defaultConnectionTaskForDevice.getExecutingComServer() != null) {
                 throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(this.getThesaurus(), this, this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice()).getExecutingComServer());
             }
@@ -303,12 +307,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     private void setConnectionTask(ConnectionTask<?, ?> connectionTask) {
         this.connectionTask.set(connectionTask);
-        setUseDefaultConnectionTask(!this.connectionTask.isPresent());
     }
 
     @Override
     public Date getLastExecutionStartTimestamp() {
-        return this.lastExecutionTimeStamp;
+        return this.lastExecutionTimestamp;
     }
 
     @Override
@@ -353,7 +356,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public Date getPlannedNextExecutionTimestamp() {
-        return this.plannedNextExecutionTimeStamp;
+        return this.plannedNextExecutionTimestamp;
     }
 
     @Override
@@ -363,7 +366,132 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void updateNextExecutionTimestamp() {
-        //TODO JP-1125
+        Date plannedNextExecutionTimestamp = this.calculateNextExecutionTimestamp(this.clock.now());
+        this.schedule(plannedNextExecutionTimestamp, plannedNextExecutionTimestamp);
+    }
+
+    protected Date calculateNextExecutionTimestamp(Date now) {
+        return this.calculateNextExecutionTimestampFromBaseline(now);
+    }
+
+    private Date calculateNextExecutionTimestampFromBaseline(Date baseLine) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(baseLine);
+        NextExecutionSpecs nextExecutionSpecs = this.getNextExecutionSpecs();
+        if (nextExecutionSpecs != null) {
+            return nextExecutionSpecs.getNextTimestamp(calendar);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Provide my two dates and I'll update this object according to it's settings.
+     *
+     * @param nextExecutionTimestamp        the time you think this object should schedule
+     * @param plannedNextExecutionTimestamp the time this object is planned to schedule
+     */
+    private void schedule(Date nextExecutionTimestamp, Date plannedNextExecutionTimestamp) {
+        resetCurrentRetryCount();
+        doReschedule(nextExecutionTimestamp, plannedNextExecutionTimestamp);
+    }
+
+    private void resetCurrentRetryCount() {
+        this.currentRetryCount = 0;
+    }
+
+    /**
+     * Every xxSchedule attempt should go through this object.
+     * I'll won't touch the plannedNextExecutionTimeStamp, but I might update
+     * the nextExecutionTimeStamp according to the specs of this object
+     * or the specs of my ConnectionTask.
+     * <p/>
+     * <b>Note:</b> I'll do the {@link #post()} so there is no need to repeat it in every method!
+     *
+     * @param nextExecutionTimestamp        the time you think this object should schedule
+     * @param plannedNextExecutionTimestamp the time this object is planned to schedule
+     */
+    private void doReschedule(Date nextExecutionTimestamp, Date plannedNextExecutionTimestamp) {
+        this.setExecutingComPort(null);
+        this.setExecutionStartedTimestamp(null);
+        if (nextExecutionTimestamp != null) {// nextExecutionTimestamp is null when putting on hold
+            nextExecutionTimestamp = defineNextExecutionTimeStamp(nextExecutionTimestamp);
+        }
+        this.setPlannedNextExecutionTimestamp(plannedNextExecutionTimestamp);
+        this.setNextExecutionTimestamp(nextExecutionTimestamp);
+        /* This will be handled by the post of this object */
+//        SqlBuilder sqlBuilder = this.rescheduleSqlBuilder();
+//        try (PreparedStatement preparedStatement = this.prepareStatement(sqlBuilder)) {
+//            preparedStatement.executeUpdate();
+//        }
+        /* ConnectionTask can be null when the default is used but
+         * no default has been set or created yet. */
+        ConnectionTask<?, ?> connectionTask = this.getConnectionTask();
+        if (connectionTask != null) {
+            connectionTask.scheduledComTaskRescheduled(this);
+        }
+        post();
+    }
+
+    private void setExecutingComPort(ComPort comPort) {
+        this.comPort.set(comPort);
+    }
+
+    private void setExecutionStartedTimestamp(Date executionStartedTimestamp) {
+        this.executionStart = executionStartedTimestamp;
+    }
+
+    private void setPlannedNextExecutionTimestamp(Date plannedNextExecutionTimestamp) {
+        this.plannedNextExecutionTimestamp = plannedNextExecutionTimestamp;
+    }
+
+    private void setNextExecutionTimestamp(Date nextExecutionTimestamp) {
+        this.nextExecutionTimestamp = nextExecutionTimestamp;
+    }
+
+    /**
+     * Just for clarity's sake.<br/>
+     * If the current ConnectionTask is either INBOUND or OUTBOUND with an ASAP strategy,
+     * then we adjust the given nextExecutionTimestamp according to the defined ComWindow.
+     * If the current ConnectionTask is OUTBOUND with a Minimize strategy,
+     * then we set the nextExecutionTimestamp to the next nextExecutionTimestamp of the
+     * connectionTask, starting for the given nextExecutionTimestamp. This means future dates will be updated to
+     * future nextExecutionTimeStamps of the current ConnectionTask.
+     *
+     * @param nextExecutionTimestamp the nextExecutionTimestamp to adjust if necessary
+     * @return the adjusted nextExecutionTimestamp
+     */
+    private Date defineNextExecutionTimeStamp(Date nextExecutionTimestamp) {
+        if (!this.isScheduledConnectionTask(getConnectionTask()) || ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(getScheduledConnectionTask().getConnectionStrategy())) {
+            return this.applyComWindowIfOutboundAndAny(nextExecutionTimestamp);
+        } else { // in case of outbound MINIMIZE
+            Date nextActualConnectionTime = getScheduledConnectionTask().getNextExecutionTimestamp();
+            // nextActualConnectionTime can be off regular schedule due to retries. If a retry time would fit our needs, we'll hitch along.
+            if (nextActualConnectionTime != null && !nextExecutionTimestamp.after(nextActualConnectionTime)) {
+                return nextActualConnectionTime;
+            } else {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(nextExecutionTimestamp);
+                calendar.add(Calendar.MILLISECOND, -1); // hack getNextTimeStamp to be inclusive
+                return getScheduledConnectionTask().getNextExecutionSpecs().getNextTimestamp(calendar);
+            }
+        }
+    }
+
+    private Date applyComWindowIfOutboundAndAny(Date preliminaryNextExecutionTimestamp) {
+        if (isScheduledConnectionTask(getConnectionTask())) {
+            return getScheduledConnectionTask().applyComWindowIfAny(preliminaryNextExecutionTimestamp);
+        } else {
+            return preliminaryNextExecutionTimestamp;
+        }
+    }
+
+    private boolean isScheduledConnectionTask(ConnectionTask<?, ?> connectionTask) {
+        return connectionTask instanceof ScheduledConnectionTask;
+    }
+
+    private ScheduledConnectionTask getScheduledConnectionTask() {
+        return (ScheduledConnectionTask) connectionTask;
     }
 
     @Override
@@ -378,7 +506,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void schedule(Date when) {
-
+        this.schedule(when, this.getPlannedNextExecutionTimestamp());
     }
 
     @Override
@@ -394,12 +522,98 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void executionCompleted() {
-        //TODO JP-1125
+        this.markSuccessfullyCompleted();
+        this.doReschedule(calculateNextExecutionTimestamp(this.clock.now()));
+    }
+
+    /**
+     * Marks this ComTaskExecution as successfully completed.
+     */
+    private void markSuccessfullyCompleted() {
+        this.lastSuccessfulCompletionTimestamp = this.clock.now();
+        this.resetCurrentRetryCount();
+    }
+
+    private void doReschedule(Date nextExecutionTimestamp) {
+        this.doReschedule(nextExecutionTimestamp, nextExecutionTimestamp);
     }
 
     @Override
     public void executionFailed() {
-        //TODO JP-1125
+        this.currentRetryCount++;    // increment the current number of retries
+        if (this.currentRetryCount < getMaxNumberOfTries()) {
+            this.doExecutionAttemptFailed();
+        } else {
+            this.doExecutionFailed();
+        }
+        // don't do a post, the reschedules will handle that
+    }
+
+    protected void doExecutionAttemptFailed() {
+        this.lastExecutionFailed = true;
+        this.doReschedule(calculateNextExecutionTimestampAfterFailure());
+    }
+
+    private Date calculateNextExecutionTimestampAfterFailure() {
+        Date failureDate = this.clock.now();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(failureDate);
+        TimeDuration baseRetryDelay = this.getRescheduleRetryDelay();
+        TimeDuration failureRetryDelay = new TimeDuration(baseRetryDelay.getCount() * getCurrentRetryCount(), baseRetryDelay.getTimeUnitCode());
+        failureRetryDelay.addTo(calendar);
+        final Date calculatedNextExecutionTimeStamp = this.calculateNextExecutionTimestamp(failureDate);
+        if (calculatedNextExecutionTimeStamp != null) {
+            return this.minimum(calendar.getTime(), calculatedNextExecutionTimeStamp);
+        } else {
+            return calendar.getTime();
+        }
+    }
+
+    private Date minimum(Date date1, Date date2) {
+        return date1.before(date2) ? date1 : date2;
+    }
+
+    /**
+     * The rescheduleDelay is determined as follow:
+     * <ul>
+     * <li>First we check if the configured {@link ComTask} has a proper {@link #getConnectionTask().getRescheduleDelay()}</li>
+     * <li>Then we return the default {@link ComTaskExecution#DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS} in seconds</li>
+     * </ul>
+     *
+     * @return the configured rescheduleRetryDelay
+     */
+    private TimeDuration getRescheduleRetryDelay() {
+        TimeDuration comTaskDefinedRescheduleDelay = this.comTaskRescheduleDelay();
+        if (comTaskDefinedRescheduleDelay == null) {
+            return this.defaultRescheduleDelay();
+        } else {
+            return comTaskDefinedRescheduleDelay;
+        }
+    }
+
+    private TimeDuration defaultRescheduleDelay() {
+        return new TimeDuration(ComTaskExecution.DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS, TimeDuration.SECONDS);
+    }
+
+    private TimeDuration comTaskRescheduleDelay() {
+        TimeDuration comTaskDefinedRescheduleDelay;
+        if (this.isScheduledConnectionTask(getConnectionTask())) {
+            ScheduledConnectionTask outboundConnectionTask = getScheduledConnectionTask();
+            comTaskDefinedRescheduleDelay = outboundConnectionTask.getRescheduleDelay();
+        } else {
+            comTaskDefinedRescheduleDelay = null;
+        }
+        return comTaskDefinedRescheduleDelay;
+    }
+
+    protected void doExecutionFailed() {
+        this.lastExecutionFailed = true;
+        this.resetCurrentRetryCount();
+        if (isAdhoc()) {
+            this.doReschedule(null, null);
+        } else {
+            this.doReschedule(calculateNextExecutionTimestamp(this.clock.now()));
+        }
     }
 
     @Override
@@ -409,37 +623,62 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void executionStarted(ComPort comPort) {
-        //TODO JP-1125
+        this.doExecutionStarted(comPort);
+        this.post();    // update myself!
+    }
+
+    protected void doExecutionStarted(ComPort comPort) {
+        this.setExecutingComPort(comPort);
+        Date now = this.clock.now();
+        this.setExecutionStartedTimestamp(now);
+        this.lastExecutionTimestamp = this.clock.now();
+        this.lastExecutionFailed = false;
+        this.setNextExecutionTimestamp(this.calculateNextExecutionTimestamp(this.getExecutionStartedTimestamp()));
     }
 
     @Override
     public void connectionTaskCreated(Device device, ConnectionTask<?, ?> connectionTask) {
-        //TODO JP-1125
+        this.assignConnectionTask(connectionTask);
+        this.post();
+    }
 
+    /**
+     * This will update the object with the given ConnectionTask,
+     * <i>OR</i> the connectionTask will be cleared and configured to use the default ConnectionTask
+     *
+     * @param connectionTask the connectionTask to set or <code>null</code> to clear the connectionTask
+     */
+    protected void assignConnectionTask(ConnectionTask<?,?> connectionTask) {
+        this.setConnectionTask(connectionTask);
+        if (!this.connectionTask.isPresent()) {
+            this.setUseDefaultConnectionTask(true);
+        }
     }
 
     @Override
     public void connectionTaskRemoved() {
-        //TODO JP-1125
-
+        this.setConnectionTask(null);
+        this.post();
     }
 
     @Override
     public void updateConnectionTask(ConnectionTask<?, ?> connectionTask) {
-        //TODO JP-1125
-
+        this.assignConnectionTask(connectionTask);
+        this.setUseDefaultConnectionTask(false);
+        this.post();
     }
 
     @Override
     public void updateToUseDefaultConnectionTask(ConnectionTask<?, ?> connectionTask) {
-        //TODO JP-1125
-
+        this.assignConnectionTask(connectionTask);
+        this.setUseDefaultConnectionTask(true);
+        this.post();
     }
 
     @Override
     public void updateToUseNonExistingDefaultConnectionTask() {
-        //TODO JP-1125
-
+        this.assignConnectionTask(null); // default flag will be set
+        this.post();
     }
 
     @Override
@@ -719,6 +958,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         public ComTaskExecutionUpdater setConnectionTask(ConnectionTask<?, ?> connectionTask) {
             this.comTaskExecution.setConnectionTask(connectionTask);
+            this.comTaskExecution.setUseDefaultConnectionTask(false);
             return this;
         }
 

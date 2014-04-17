@@ -68,6 +68,10 @@ import java.util.Date;
  * @since 2012-09-21 (15:14)
  */
 public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
+    /**
+     * The Default amount of seconds a ComTask should wait before retrying
+     */
+    public static final int DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS = 300;
 
     /**
      * Tests if this ComTaskExecution is scheduled,
@@ -346,6 +350,17 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
 
         ComTaskExecutionBuilder setUseDefaultConnectionTask(boolean useDefaultConnectionTask);
 
+        /**
+         * Explicitly setting a ConnectionTask will result in NOT using the default connectionTask.
+         * This may be the default connectionTask, but if the default flag changes, then this ComTaskExecution
+         * will still be marked to use the ConnectionTask from this setter.<br/>
+         * Setting an Empty value will result in using the default ConnectionTask
+         * <p/>
+         * <i>If you want to use the default ConnectionTask, just set {@link #setUseDefaultConnectionTask(boolean)} to true</i>
+         *
+         * @param connectionTask the ConnectionTask to set
+         * @return the current updater
+         */
         ComTaskExecutionBuilder setConnectionTask(ConnectionTask<?, ?> connectionTask);
 
         ComTaskExecutionBuilder setPriority(int executionPriority);
@@ -373,6 +388,17 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
 
         ComTaskExecutionUpdater setUseDefaultConnectionTask(boolean useDefaultConnectionTask);
 
+        /**
+         * Explicitly setting a ConnectionTask will result in NOT using the default connectionTask.
+         * This may be the default connectionTask, but if the default flag changes, then this ComTaskExecution
+         * will still be marked to use the ConnectionTask from this setter.<br/>
+         * Setting an Empty value will result in using the default ConnectionTask
+         * <p/>
+         * <i>If you want to use the default ConnectionTask, just set {@link #setUseDefaultConnectionTask(boolean)} to true</i>
+         *
+         * @param connectionTask the ConnectionTask to set
+         * @return the current updater
+         */
         ComTaskExecutionUpdater setConnectionTask(ConnectionTask<?, ?> connectionTask);
 
         ComTaskExecutionUpdater setPriority(int executionPriority);

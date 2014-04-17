@@ -240,15 +240,15 @@ public enum TableSpecs {
             Column comtask = table.column("COMTASK").number().notNull().add();
             table.column("NEXTEXECUTIONSPECS").number().conversion(NUMBER2LONG).map("nextExecutionSpecId").add();
             table.column("MYNEXTEXECSPEC").number().conversion(NUMBER2BOOLEAN).map("myNextExecutionSpec").add();
-            table.column("LASTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map("lastExecutionTimeStamp").add();
-            table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map("nextExecutionTimeStamp").add();
+            table.column("LASTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map("lastExecutionTimestamp").add();
+            table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map("nextExecutionTimestamp").add();
             Column comport = table.column("COMPORT").number().add();
             table.column("MOD_DATE").type("DATE").map("modificationDate").add();
             table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map("obsoleteDate").add();
             table.column("PRIORITY").number().conversion(NUMBER2INT).map("priority").add();
             table.column("USEDEFAULTCONNECTIONTASK").number().conversion(NUMBER2BOOLEAN).map("useDefaultConnectionTask").add();
             table.column("CURRENTRETRYCOUNT").number().conversion(NUMBER2INT).map("currentRetryCount").add();
-            table.column("PLANNEDNEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map("plannedNextExecutionTimeStamp").add();
+            table.column("PLANNEDNEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map("plannedNextExecutionTimestamp").add();
             table.column("EXECUTIONPRIORITY").number().conversion(NUMBER2INT).map("executionPriority").add();
             table.column("EXECUTIONSTART").number().conversion(NUMBERINUTCSECONDS2DATE).map("executionStart").add();
             table.column("LASTSUCCESSFULCOMPLETION").number().conversion(NUMBERINUTCSECONDS2DATE).map("lastSuccessfulCompletionTimestamp").add();
