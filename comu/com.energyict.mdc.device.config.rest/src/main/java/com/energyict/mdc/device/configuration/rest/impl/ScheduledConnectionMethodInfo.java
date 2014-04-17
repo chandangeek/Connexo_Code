@@ -22,10 +22,13 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         super(partialConnectionTask, uriInfo);
         this.connectionStrategy=partialConnectionTask.getConnectionStrategy();
         this.allowSimultaneousConnections=partialConnectionTask.isSimultaneousConnectionsAllowed();
-        this.rescheduleRetryDelay = new TimeDurationInfo(partialConnectionTask.getRescheduleDelay());
-        this.comWindowStart=partialConnectionTask.getCommunicationWindow().getStart().getMillis()/1000;
-        this.comWindowEnd=partialConnectionTask.getCommunicationWindow().getEnd().getMillis()/1000;
-        this.nextExecutionSpecs=new NextExecutionsSpecsInfo(partialConnectionTask.getNextExecutionSpecs().getTemporalExpression());
+        this.rescheduleRetryDelay = partialConnectionTask.getRescheduleDelay()!=null?new TimeDurationInfo(partialConnectionTask.getRescheduleDelay()):null;
+        if (partialConnectionTask.getCommunicationWindow()!=null) {
+            this.comWindowStart=partialConnectionTask.getCommunicationWindow().getStart().getMillis()/1000;
+            this.comWindowEnd=partialConnectionTask.getCommunicationWindow().getEnd().getMillis()/1000;
+        }
+        this.nextExecutionSpecs=partialConnectionTask.getNextExecutionSpecs()!=null?
+                new NextExecutionsSpecsInfo(partialConnectionTask.getNextExecutionSpecs().getTemporalExpression()):null;
     }
 
     @Override
@@ -36,7 +39,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         partialConnectionTask.setComWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
         partialConnectionTask.setConnectionStrategy(this.connectionStrategy);
         partialConnectionTask.setComportPool(Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace() ? null : (OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool));
-        partialConnectionTask.setRescheduleRetryDelay(this.rescheduleRetryDelay.asTimeDuration());
+        partialConnectionTask.setRescheduleRetryDelay(this.rescheduleRetryDelay!=null?this.rescheduleRetryDelay.asTimeDuration():null);
         if (nextExecutionSpecs!=null) {
             partialConnectionTask.setTemporalExpression(nextExecutionSpecs.asTemporalExpression());
         } else {

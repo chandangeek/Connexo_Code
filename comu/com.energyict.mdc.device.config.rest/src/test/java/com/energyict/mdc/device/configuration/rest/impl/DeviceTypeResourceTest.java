@@ -1003,6 +1003,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(partialConnectionTask.getTypedProperties()).thenReturn(typedProperties);
         when(connectionType.getPropertySpecs()).thenReturn(Arrays.<PropertySpec>asList(propertySpec1));
         when(partialConnectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass);
+        when(partialConnectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass);
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
         Map<String, Object> response = target("/devicetypes/41/deviceconfigurations/51/connectionmethods").request().get(Map.class);
         assertThat(response).hasSize(2);
@@ -1010,7 +1011,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         List<Map<String, Object>> connectionMethods = (List<Map<String, Object>>) response.get("connectionMethods");
         assertThat(connectionMethods).hasSize(1);
         Map<String, Object> connectionMethod = connectionMethods.get(0);
-        assertThat(connectionMethod).hasSize(12)
+        assertThat(connectionMethod).hasSize(13)
                 .containsKey("id")
                 .containsKey("name")
                 .containsKey("direction")
@@ -1019,10 +1020,11 @@ public class DeviceTypeResourceTest extends JerseyTest {
                 .containsKey("comWindowEnd")
                 .containsKey("isDefault")
                 .containsKey("allowSimultaneousConnections")
-                .containsKey("rescheduleDelay")
+                .containsKey("rescheduleRetryDelay")
                 .containsKey("connectionStrategy")
-                .containsKey("propertyInfos");
-        List<Map<String, Object>> propertyInfos = (List<Map<String, Object>>) connectionMethod.get("propertyInfos");
+                .containsKey("properties")
+                .containsKey("nextExecutionSpecs");
+        List<Map<String, Object>> propertyInfos = (List<Map<String, Object>>) connectionMethod.get("properties");
         assertThat(propertyInfos).isNotNull().hasSize(1);
         Map<String, Object> macAddressProperty = propertyInfos.get(0);
         assertThat(macAddressProperty).hasSize(4)
