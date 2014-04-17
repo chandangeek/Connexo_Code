@@ -152,23 +152,42 @@ public class DataModelImpl implements DataModel {
     }
 
     @Override
-    public void upgradeTo(DataModel to) {
-        DataModelImpl toDataModel = (DataModelImpl) to;
+    public void install(boolean executeDdl, boolean store) {
+        if (executeDdl) {
+            ormService.getUpgradeDataModel(this).upgradeTo(this);
+        }
+        if (store) {
+            if (ormService.isInstalled(this)) {
+                ormService.getDataModel(OrmService.COMPONENTNAME).get().remove(this);
+            }
+            ormService.getDataModel(OrmService.COMPONENTNAME).get().persist(this);
+        }
+
+    }
+
+
+    private void upgradeTo(DataModelImpl toDataModel) {
         try (Connection connection = getConnection(false);
              Statement statement = connection.createStatement()) {
             for (TableImpl<?> toTable : toDataModel.getTables()) {
-                TableImpl fromTable = (TableImpl) getTable(toTable.getName());
+                TableImpl<?> fromTable = (TableImpl) getTable(toTable.getName());
                 if (fromTable != null) {
                     List<String> upgradeDdl = fromTable.upgradeDdl(toTable);
-                    executeSqlStatements(statement, upgradeDdl);
-                }
-                for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
-                    long sequenceValue = getLastSequenceValue(statement, sequenceColumn.getQualifiedSequenceName());
-                    long maxColumnValue = maxColumnValue(sequenceColumn, statement);
-                    if (maxColumnValue > sequenceValue) {
-                        executeSqlStatements(statement, toTable.upgradeSequenceDdl(sequenceColumn, maxColumnValue + 1));
+                    for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
+                        if (sequenceColumn.getQualifiedSequenceName() != null) {
+                            long sequenceValue = getLastSequenceValue(statement, sequenceColumn.getQualifiedSequenceName());
+                            long maxColumnValue = maxColumnValue(sequenceColumn, statement);
+                            if (maxColumnValue > sequenceValue) {
+                                upgradeDdl.addAll(toTable.upgradeSequenceDdl(sequenceColumn, maxColumnValue + 1));
+                            }
+                        }
                     }
+                    executeSqlStatements(statement, upgradeDdl);
+                } else {
+                    List<String> ddl = toTable.getDdl();
+                    executeSqlStatements(statement, ddl);
                 }
+
             }
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
@@ -191,40 +210,6 @@ public class DataModelImpl implements DataModel {
             return resultSet.getLong(1);
         } else {
             return 0;
-        }
-    }
-
-    @Override
-    public void install(boolean executeDdl, boolean store) {
-        if (executeDdl) {
-            executeDdl();
-        }
-        if (store) {
-            ormService.getDataModel(OrmService.COMPONENTNAME).get().persist(this);
-        }
-
-    }
-
-    private void executeDdl() {
-        try {
-            doExecuteDdl();
-        } catch (SQLException ex) {
-            throw new UnderlyingSQLFailedException(ex);
-        }
-    }
-
-    private void doExecuteDdl() throws SQLException {
-        try (
-                Connection connection = getConnection(false);
-                Statement statement = connection.createStatement()
-        ) {
-            doExecuteDdl(statement);
-        }
-    }
-
-    private void doExecuteDdl(Statement statement) throws SQLException {
-        for (TableImpl<?> table : tables) {
-            executeSqlStatements(statement, table.getDdl());
         }
     }
 

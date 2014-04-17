@@ -67,6 +67,4 @@ public interface DataModel {
     @Deprecated
     <T> DataMapper<T> getDataMapper(Class<T> api, String tableName);
 
-
-    void upgradeTo(DataModel newDataModel);
 }

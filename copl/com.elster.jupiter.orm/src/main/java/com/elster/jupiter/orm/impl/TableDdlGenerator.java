@@ -41,7 +41,7 @@ class TableDdlGenerator {
         StringBuilder sb = new StringBuilder("create table ");
         sb.append(table.getQualifiedName());
         sb.append("(");
-        doAppendColumns(sb, table.getColumns(), true);
+        doAppendColumns(sb, table.getColumns(), true, true);
         for (TableConstraintImpl constraint : table.getConstraints()) {
             sb.append(", ");
             sb.append(getConstraintFragment(constraint));
@@ -57,7 +57,7 @@ class TableDdlGenerator {
         StringBuilder sb = new StringBuilder("create table ");
         sb.append(table.getQualifiedName(table.getJournalTableName()));
         sb.append(" (");
-        doAppendColumns(sb, table.getColumns(), true);
+        doAppendColumns(sb, table.getColumns(), true, true);
         String separator = ", ";
         sb.append(separator);
         sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
@@ -76,7 +76,7 @@ class TableDdlGenerator {
         sb.append(constraint.getName()).append("_JRNL");
         sb.append(" PRIMARY KEY ");
         sb.append("(");
-        doAppendColumns(sb, constraint.getColumns(), false);
+        doAppendColumns(sb, constraint.getColumns(), false, false);
         sb.append(", ");
         sb.append(table.getExtraJournalPrimaryKeyColumnName());
         sb.append(")");
@@ -94,7 +94,7 @@ class TableDdlGenerator {
         builder.append(constraint.getName());
         builder.append(" ON ");
         builder.append(table.getQualifiedName());
-        appendColumns(builder, constraint.getColumns(), false);
+        appendColumns(builder, constraint.getColumns(), false, false);
         return builder.toString();
     }
 
@@ -115,27 +115,27 @@ class TableDdlGenerator {
         return "drop sequence " + column.getQualifiedSequenceName();
     }
 
-    private void appendColumns(StringBuilder builder, List<ColumnImpl> columns, boolean addType) {
+    private void appendColumns(StringBuilder builder, List<ColumnImpl> columns, boolean addType, boolean addNullable) {
         builder.append(" (");
-        doAppendColumns(builder, columns, addType);
+        doAppendColumns(builder, columns, addType, addNullable);
         builder.append(") ");
     }
 
-    private void doAppendColumns(StringBuilder builder, List<ColumnImpl> columns, boolean addType) {
+    private void doAppendColumns(StringBuilder builder, List<ColumnImpl> columns, boolean addType, boolean addNullable) {
         String separator = "";
         for (ColumnImpl column : columns) {
             builder.append(separator);
-            appendDdl(column, builder, addType);
+            appendDdl(column, builder, addType, addNullable);
             separator = ", ";
         }
     }
 
-    private void appendDdl(ColumnImpl column, StringBuilder builder, boolean addType) {
+    private void appendDdl(ColumnImpl column, StringBuilder builder, boolean addType, boolean addNullable) {
         builder.append(column.getName());
         if (addType) {
             builder.append(" ");
             builder.append(column.getDbType());
-            if (column.isNotNull()) {
+            if (addNullable && column.isNotNull()) {
                 builder.append(" NOT NULL");
             }
         }
@@ -243,7 +243,7 @@ class TableDdlGenerator {
         StringBuilder builder = new StringBuilder("alter table ");
         builder.append(table.getName());
         builder.append(" add ");
-        appendDdl(toColumn, builder, true);
+        appendDdl(toColumn, builder, true, true);
         return builder.toString();
     }
 
@@ -251,7 +251,7 @@ class TableDdlGenerator {
         StringBuilder builder = new StringBuilder("alter table ");
         builder.append(column.getTable().getName());
         builder.append(" modify ");
-        appendDdl(column, builder, false);
+        appendDdl(column, builder, false, false);
         builder.append(" NULL ");
         return builder.toString();
     }
@@ -263,7 +263,7 @@ class TableDdlGenerator {
             StringBuilder builder = new StringBuilder("alter table ");
             builder.append(table.getName());
             builder.append(" modify ");
-            appendDdl(toColumn, builder, true);
+            appendDdl(toColumn, builder, true, fromColumn.isNotNull() != toColumn.isNotNull());
             return Optional.of(builder.toString());
         }
         return Optional.absent();
