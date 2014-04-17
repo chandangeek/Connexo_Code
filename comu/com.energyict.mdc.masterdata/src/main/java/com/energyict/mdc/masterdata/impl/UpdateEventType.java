@@ -8,6 +8,10 @@ package com.energyict.mdc.masterdata.impl;
  */
 public enum UpdateEventType {
 
+    LOADPROFILETYPE(EventType.LOADPROFILETYPE_UPDATED),
+    REGISTERMAPPING(EventType.REGISTERMAPPING_UPDATED),
+    REGISTERGROUP(EventType.REGISTERGROUP_UPDATED),
+    PHENOMENON(EventType.PHENOMENON_UPDATED),
     LOGBOOKTYPE(EventType.LOGBOOKTYPE_UPDATED);
 
     private EventType eventType;

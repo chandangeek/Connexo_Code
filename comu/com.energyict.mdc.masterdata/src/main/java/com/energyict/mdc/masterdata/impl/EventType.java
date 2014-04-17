@@ -14,6 +14,49 @@ import com.energyict.mdc.masterdata.MasterDataService;
  */
 public enum EventType {
 
+    LOADPROFILETYPE_CREATED("loadprofiletype/CREATED"),
+    LOADPROFILETYPE_UPDATED("loadprofiletype/UPDATED") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder etb) {
+            EventTypeBuilder eventTypeBuilder = super.addCustomProperties(etb);
+            eventTypeBuilder.withProperty("oldObisCode", ValueType.STRING, "oldObisCode");
+            eventTypeBuilder.withProperty("oldIntervalSeconds", ValueType.LONG, "oldIntervalSeconds");
+            return eventTypeBuilder;
+        }
+    },
+    LOADPROFILETYPE_DELETED("loadprofiletype/DELETED"),
+    LOADPROFILETYPE_VALIDATEDELETE("loadprofiletype/VALIDATEDELETE"),
+    REGISTERMAPPING_LOADPROFILETYPE_VALIDATEDELETE("registermappinginloadprofiletype/VALIDATEDELETE") {
+        @Override
+        void install(EventService eventService) {
+            EventTypeBuilder builder = eventService.buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(MasterDataService.COMPONENTNAME)
+                    .category("Crud")
+                    .scope("System")
+                    .shouldPublish();
+            this.addCustomProperties(builder).create().save();
+        }
+    },
+    REGISTERMAPPING_CREATED("registermapping/CREATED"),
+    REGISTERMAPPING_UPDATED("registermapping/UPDATED") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder etb) {
+            EventTypeBuilder eventTypeBuilder = super.addCustomProperties(etb);
+            eventTypeBuilder.withProperty("oldObisCode", ValueType.STRING, "oldObisCode");
+            eventTypeBuilder.withProperty("oldPhenomenon", ValueType.LONG, "oldPhenomenon");
+            return eventTypeBuilder;
+        }
+    },
+    REGISTERMAPPING_DELETED("registermapping/DELETED"),
+    REGISTERMAPPING_VALIDATEDELETE("registermapping/VALIDATEDELETE"),
+    REGISTERGROUP_CREATED("registergroup/CREATED"),
+    REGISTERGROUP_UPDATED("registergroup/UPDATED"),
+    REGISTERGROUP_DELETED("registergroup/DELETED"),
+    PHENOMENON_CREATED("phenomenon/CREATED"),
+    PHENOMENON_UPDATED("phenomenon/UPDATED"),
+    PHENOMENON_DELETED("phenomenon/DELETED"),
+    PHENOMENON_VALIDATEDELETE("phenomenon/VALIDATEDELETE"),
     LOGBOOKTYPE_CREATED("logbooktype/CREATED"),
     LOGBOOKTYPE_UPDATED("logbooktype/UPDATED"),
     LOGBOOKTYPE_VALIDATEDELETE("logbooktype/VALIDATEDELETE") {

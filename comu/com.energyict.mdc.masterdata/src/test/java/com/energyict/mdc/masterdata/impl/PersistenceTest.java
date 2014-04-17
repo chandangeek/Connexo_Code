@@ -29,7 +29,7 @@ public abstract class PersistenceTest {
     @BeforeClass
     public static void initialize() {
         inMemoryPersistence = new InMemoryPersistence();
-        inMemoryPersistence.initializeDatabase("PersistenceTest.mdc.masterdata", false);
+        inMemoryPersistence.initializeDatabase("PersistenceTest.mdc.masterdata", false, true);
     }
 
     @AfterClass

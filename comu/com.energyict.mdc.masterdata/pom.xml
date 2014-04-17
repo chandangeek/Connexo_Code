@@ -26,12 +26,22 @@
     </dependency>
     <dependency>
       <groupId>com.elster.jupiter</groupId>
+      <artifactId>metering</artifactId>
+      <version>${jupiter.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
       <artifactId>events</artifactId>
       <version>${jupiter.version}</version>
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.metering</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

@@ -32,7 +32,7 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
     }
 
 
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED_KEY + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED + "}")
     private String obisCode;
     private ObisCode obisCodeCached;
     private String oldObisCode;

@@ -8,6 +8,10 @@ package com.energyict.mdc.masterdata.impl;
  */
 public enum DeleteEventType {
 
+    LOADPROFILETYPE(EventType.LOADPROFILETYPE_DELETED),
+    REGISTERMAPPING(EventType.REGISTERMAPPING_DELETED),
+    REGISTERGROUP(EventType.REGISTERGROUP_DELETED),
+    PHENOMENON(EventType.PHENOMENON_DELETED),
     LOGBOOKTYPE(EventType.LOGBOOKTYPE_DELETED);
 
     private EventType eventType;

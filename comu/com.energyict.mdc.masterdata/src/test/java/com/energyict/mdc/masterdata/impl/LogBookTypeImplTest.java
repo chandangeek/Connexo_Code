@@ -5,6 +5,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+import com.google.common.base.Optional;
 import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,15 +48,15 @@ public class LogBookTypeImplTest extends PersistenceTest {
         logBookType.save();
 
         // Business method
-        LogBookType logBookType2 = PersistenceTest.inMemoryPersistence.getMasterDataService().findLogBookTypeByName(logBookTypeName);
+        Optional<LogBookType> logBookType2 = PersistenceTest.inMemoryPersistence.getMasterDataService().findLogBookTypeByName(logBookTypeName);
 
         // Asserts
-        assertThat(logBookType2).isNotNull();
+        assertThat(logBookType2.isPresent()).isTrue();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     public void testLogBookTypeCreationWithoutName() {
         LogBookType logBookType = PersistenceTest.inMemoryPersistence.getMasterDataService().newLogBookType(null, OBIS_CODE);
 
@@ -67,7 +68,7 @@ public class LogBookTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     public void testLogBookTypeCreationWithEmptyName() {
         LogBookType logBookType = PersistenceTest.inMemoryPersistence.getMasterDataService().newLogBookType("", OBIS_CODE);
 
@@ -79,7 +80,7 @@ public class LogBookTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_UNIQUE_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_UNIQUE + "}")
     public void testDuplicateLogBookType() {
         String logBookTypeName = "testDuplicateLogBookType";
         LogBookType logBookType;
@@ -98,7 +99,7 @@ public class LogBookTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED + "}")
     public void testLogBookTypeCreationWithoutObisCode() {
         String logBookTypeName = "testDuplicateLogBookType";
         LogBookType logBookType = PersistenceTest.inMemoryPersistence.getMasterDataService().newLogBookType(logBookTypeName, null);
@@ -138,9 +139,9 @@ public class LogBookTypeImplTest extends PersistenceTest {
         logBookType.delete();
 
         // Asserts
-        LogBookType expectedNull = PersistenceTest.inMemoryPersistence.getMasterDataService().findLogBookTypeByName(logBookTypeName);
+        Optional<LogBookType> expectedNull = PersistenceTest.inMemoryPersistence.getMasterDataService().findLogBookTypeByName(logBookTypeName);
 
-        assertThat(expectedNull).isNull();
+        assertThat(expectedNull.isPresent()).isFalse();
     }
 
 }
