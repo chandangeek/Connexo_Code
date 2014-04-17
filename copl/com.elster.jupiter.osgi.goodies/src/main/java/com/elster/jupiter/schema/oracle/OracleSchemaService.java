@@ -1,12 +1,13 @@
 package com.elster.jupiter.schema.oracle;
 
-import java.util.List;
-
+import com.elster.jupiter.orm.schema.ExistingTable;
 import com.google.common.base.Optional;
+
+import java.util.List;
 
 public interface OracleSchemaService {
 
-	List<UserTable> getTableNames();
-	Optional<UserTable> getTable(String tableName);
+    List<ExistingTable> getTableNames();
 
+    Optional<ExistingTable> getTable(String tableName);
 }
