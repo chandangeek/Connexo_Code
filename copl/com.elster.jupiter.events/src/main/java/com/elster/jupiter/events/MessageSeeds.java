@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
     CORRUPT_ACCESSPATH(1001, "accesspath.corrupt", "Access path corrupt.", Level.SEVERE),
-    INVALID_PROPERTY_TYPE(1002, "property.type.invalid", "Access path \"{0}\" on bean \"{1}\" was of type {2} while type {3} was expected.", Level.SEVERE),
+    INVALID_PROPERTY_TYPE(1002, "property.type.invalid", "Access path \"{1}\" on bean \"{0}\" was of type {3} while type {2} was expected.", Level.SEVERE),
     NO_SUCH_TOPIC(1003, "topic.doesnotexist", "Topic {0} does not exist.", Level.SEVERE);
 
     private final int number;
