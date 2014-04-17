@@ -11,6 +11,7 @@ import com.energyict.mdc.common.rest.MinTimeDuration;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -31,8 +32,8 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
     /**
      * Defines the delay to wait before retrying when this connectionTask failed
      */
-    @NotNull(groups = {Save.Create.class, Save.Update.class})
-    @MinTimeDuration(value = 60, groups = {Save.Create.class, Save.Update.class})
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Constants.UNDER_MINIMUM_RESCHEDULE_DELAY_KEY + '}')
+    @MinTimeDuration(value = 60, groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Constants.UNDER_MINIMUM_RESCHEDULE_DELAY_KEY + '}')
     private TimeDuration rescheduleRetryDelay;
 
     PartialOutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
