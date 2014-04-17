@@ -30,9 +30,9 @@ Ext.define('Isu.store.Issues', {
 
     listeners: {
         "beforeLoad": function() {
-            /*if (!this.proxyFilter || !this.proxySort) {
+            if (!this.proxyFilter || !this.proxySort) {
                 this.loadDefaults();
-            }*/
+            }
             var extraParams = this.proxy.extraParams;
 
             // replace filter extra params with new ones
