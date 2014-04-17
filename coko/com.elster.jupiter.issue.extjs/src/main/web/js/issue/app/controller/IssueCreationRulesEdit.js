@@ -244,8 +244,6 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
 
     addTemplateDescription: function (combo, descriptionText) {
         if (descriptionText) {
-            var comboEl = combo.getEl();
-
             combo.templateDescriptionIcon = Ext.DomHelper.append(Ext.getBody(), {
                 tag: 'div',
                 cls: 'isu-icon-help-circled isu-creation-rule-template-description'
@@ -314,7 +312,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             form = self.getRuleForm().getForm(),
             rule = self.formToModel(self.ruleModel),
             formErrorsPanel = self.getRuleForm().down('[name=form-errors]'),
-            store = self.getStore('Isu.store.CreationRule');
+            store = self.getStore('Isu.store.CreationRule'),
+            templateCombo = self.getRuleForm().down('combobox[name=template]');
 
         if (form.isValid()) {
             button.setDisabled(true);
@@ -352,12 +351,14 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                         if (json && json.errors) {
                             form.markInvalid(json.errors);
                             formErrorsPanel.show();
+                            self.comboTemplateResize(templateCombo);
                         }
                     }
                 }
             });
         } else {
             formErrorsPanel.show();
+            self.comboTemplateResize(templateCombo);
         }
     }
 });
