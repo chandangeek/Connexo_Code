@@ -1,13 +1,11 @@
 package com.energyict.mdc.device.config;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.google.common.base.Optional;
@@ -15,9 +13,7 @@ import com.google.common.base.Optional;
 import java.util.List;
 
 /**
- * Provides services that relate to {@link DeviceType}s, {@link DeviceConfiguration}s
- * and the related master data such as {@link LogBookType}, {@link LoadProfileType} and
- * {@link RegisterMapping}
+ * Provides services that relate to {@link DeviceType}s, {@link DeviceConfiguration}s?
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:34)
@@ -45,79 +41,6 @@ public interface DeviceConfigurationService {
      * @return the DeviceType or <code>null</code> if there is no such DeviceType
      */
     public DeviceType findDeviceTypeByName(String name);
-
-    /**
-     * Finds the {@link RegisterGroup} that is uniquely identified by the specified number.
-     *
-     * @param id The unique identifier
-     * @return The RegisterGroup or <code>null</code> if there is no such RegisterGroup
-     */
-    public RegisterGroup findRegisterGroup(long id);
-
-    public List<RegisterGroup> findAllRegisterGroups();
-
-    /**
-     * Creates a new {@link RegisterGroup} with the specified name.
-     * Note that the RegisterGroup is only saved in the database
-     * after a call to the "save" method.
-     *
-     * @param name The name of the RegisterGroup
-     * @return The new RegisterGroup
-     * @see RegisterGroup#save()
-     */
-    public RegisterGroup newRegisterGroup(String name);
-
-    public Finder<RegisterMapping> findAllRegisterMappings();
-
-    /**
-     * Finds the {@link RegisterMapping} that is uniquely identified by the specified number.
-     *
-     * @param id The unique identifier
-     * @return The RegisterMapping or <code>null</code> if there is no such RegisterMapping
-     */
-    public RegisterMapping findRegisterMapping(long id);
-
-    /**
-     * Finds the {@link RegisterMapping} that is uniquely identified by the name.
-     *
-     * @param name The name
-     * @return The RegisterMapping or <code>null</code> if there is no such RegisterMapping
-     */
-    public RegisterMapping findRegisterMappingByName(String name);
-
-    public RegisterMapping findRegisterMappingByReadingType(ReadingType readingType);
-
-    /**
-     * Creates a new {@link RegisterMapping} with the specified required properties.
-     * Note that {@link ObisCode} uniquely identifies the RegisterMapping,
-     * i.e. there can only be 1 RegisterMapping for every ObisCode.
-     *
-     * @param name        The RegisterMapping name
-     * @param obisCode    The ObisCode
-     * @param unit        The unit
-     * @param readingType The reading type
-     * @param timeOfUse   Customer specif timeOfUse id
-     * @return The new RegisterMapping
-     * @see RegisterMapping#save()
-     */
-    public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse);
-
-    /**
-     * Finds all the {@link LoadProfileType LoadProfileTypes} in the systesm
-     *
-     * @return all LoadProfileTypes
-     */
-    public List<LoadProfileType> findAllLoadProfileTypes();
-
-    /**
-     * Creates a new LoadProfileType based on the given parameters
-     *
-     * @param name     the Name of the LoadProfileType
-     * @param obisCode the ObisCode of the LoadProfileType
-     * @param interval the interval of the LoadProfileType
-     * @return the newly created LoadProfileType
-     */
-    public LoadProfileType newLoadProfileType(String name, ObisCode obisCode, TimeDuration interval);
 
     /**
      * Finds a {@link DeviceConfiguration} which is uniquely identified by the given ID
@@ -164,12 +87,12 @@ public interface DeviceConfigurationService {
     public List<RegisterSpec> findInactiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping);
 
     /**
-     * Finds a list of {@link RegisterSpec RegisterSpecs} which are modeled by the given RegisterMapping
+     * Finds a list of {@link RegisterSpec}s which are modeled by the given RegisterMapping.
      *
-     * @param registerMappingId the ID of the RegisterMapping
+     * @param registerMapping the RegisterMapping
      * @return the list of RegisterSpecs
      */
-    public List<RegisterSpec> findRegisterSpecsByRegisterMapping(long registerMappingId);
+    public List<RegisterSpec> findRegisterSpecsByRegisterMapping(RegisterMapping registerMapping);
 
     /**
      * Finds a list of {@link ChannelSpec ChannelSpecs} which are linked to the given {@link LoadProfileSpec}
@@ -178,14 +101,6 @@ public interface DeviceConfigurationService {
      * @return the list of ChannelSpecs
      */
     public List<ChannelSpec> findChannelSpecsForLoadProfileSpec(LoadProfileSpec loadProfileSpec);
-
-    /**
-     * Find the {@link LoadProfileType} with the given ID
-     *
-     * @param loadProfileTypeId the ID of the {@link LoadProfileType}
-     * @return the LoadProfileType or <code>null</code> if there is no such LoadProfileType
-     */
-    public LoadProfileType findLoadProfileType(long loadProfileTypeId);
 
     /**
      * Find the {@link LoadProfileSpec} with the given ID
@@ -205,6 +120,8 @@ public interface DeviceConfigurationService {
      */
     public LoadProfileSpec findLoadProfileSpecsByDeviceConfigAndLoadProfileType(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType);
 
+    public List<LoadProfileSpec> findLoadProfileSpecsByLoadProfileType(LoadProfileType loadProfileType);
+
     /**
      * Find a {@link LogBookSpec} with the given ID
      *
@@ -213,27 +130,19 @@ public interface DeviceConfigurationService {
      */
     public LogBookSpec findLogBookSpec(long id);
 
-    /**
-     * Checks whether or not the given Phenomenon is in use
-     *
-     * @param phenomenon the Phenomenon to check
-     * @return true if some object uses this Phenomenon, false otherwise
-     */
-    public boolean isPhenomenonInUse(Phenomenon phenomenon);
-
-    public Phenomenon findPhenomenon(int phenomenonId);
-
-    public Phenomenon newPhenomenon(String name, Unit unit);
-
-    public Phenomenon findPhenomenonByNameAndUnit(String name, String unit);
-
     public ChannelSpec findChannelSpecForLoadProfileSpecAndRegisterMapping(LoadProfileSpec loadProfileSpec, RegisterMapping registerMapping);
 
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLoadProfileType(LoadProfileType loadProfileType);
 
+    public List<ChannelSpec> findChannelSpecsForRegisterMapping (RegisterMapping registerMapping);
+
     public List<ChannelSpec> findChannelSpecsForRegisterMappingInLoadProfileType (RegisterMapping registerMapping, LoadProfileType loadProfileType);
 
+    public List<DeviceType> findDeviceTypesUsingLoadProfileType(LoadProfileType loadProfileType);
+
     public List<DeviceType> findDeviceTypesUsingLogBookType(LogBookType logBookType);
+
+    public List<DeviceType> findDeviceTypesUsingRegisterMapping(RegisterMapping registerMapping);
 
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLogBookType(LogBookType logBookType);
 
@@ -242,10 +151,6 @@ public interface DeviceConfigurationService {
     public boolean isRegisterMappingUsedByDeviceType(RegisterMapping registerMapping);
 
     public List<DeviceType> findDeviceTypesWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
-
-    public List<LoadProfileType> findLoadProfileTypesByName(String name);
-
-    public List<Phenomenon> findAllPhenomena();
 
     public Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType);
 
@@ -265,9 +170,12 @@ public interface DeviceConfigurationService {
 
     public Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(long id);
 
-    List<PartialConnectionTask> findByComPortPool(ComPortPool comPortPool);
+    public List<PartialConnectionTask> findByComPortPool(ComPortPool comPortPool);
 
-    Optional<SecurityPropertySet> findSecurityPropertySet(long id);
+    public Optional<SecurityPropertySet> findSecurityPropertySet(long id);
 
-    List<SecurityPropertySet> findAllSecurityPropertySets();
+    public List<SecurityPropertySet> findAllSecurityPropertySets();
+
+    public boolean isPhenomenonInUse(Phenomenon phenomenon);
+
 }

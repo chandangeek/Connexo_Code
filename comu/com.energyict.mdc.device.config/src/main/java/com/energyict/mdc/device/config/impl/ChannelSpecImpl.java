@@ -15,7 +15,7 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLoadProfileSpecOfChannelSpec;
 import com.energyict.mdc.device.config.exceptions.CannotChangeRegisterMappingOfChannelSpecException;
 import com.energyict.mdc.device.config.exceptions.DuplicateRegisterMappingException;

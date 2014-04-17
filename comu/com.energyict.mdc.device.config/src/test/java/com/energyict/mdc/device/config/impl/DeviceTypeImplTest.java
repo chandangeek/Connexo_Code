@@ -17,9 +17,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
@@ -27,22 +24,25 @@ import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDevice
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingAlreadyInDeviceTypeException;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
+import com.google.common.base.Optional;
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -918,9 +918,9 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     }
 
     private void setupLoadProfileTypesInExistingTransaction(String loadProfileTypeBaseName) {
-        this.loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(loadProfileTypeBaseName + "-1", ObisCode.fromString("1.0.99.1.0.255"), INTERVAL_15_MINUTES);
+        this.loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(loadProfileTypeBaseName + "-1", ObisCode.fromString("1.0.99.1.0.255"), INTERVAL_15_MINUTES);
         this.loadProfileType.save();
-        this.loadProfileType2 = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(loadProfileTypeBaseName + "-2", ObisCode.fromString("1.0.99.2.0.255"), INTERVAL_15_MINUTES);
+        this.loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType(loadProfileTypeBaseName + "-2", ObisCode.fromString("1.0.99.2.0.255"), INTERVAL_15_MINUTES);
         this.loadProfileType2.save();
     }
 
@@ -928,12 +928,37 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         this.setupProductSpecsInExistingTransaction();
         String registerMappingTypeBaseName = DeviceTypeImplTest.class.getSimpleName();
         Unit unit = Unit.get("kWh");
-        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("baseUnit", unit);
-        this.phenomenon.save();
-        this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingTypeBaseName + "-1", ObisCode.fromString("1.0.99.1.0.255"), unit, readingType1, readingType1.getTou());
+        this.phenomenon = this.createPhenomenonIfMissing(unit);
+        this.registerMapping =
+                inMemoryPersistence.getMasterDataService().
+                        newRegisterMapping(
+                                registerMappingTypeBaseName + "-1",
+                                ObisCode.fromString("1.0.99.1.0.255"),
+                                unit,
+                                readingType1,
+                                readingType1.getTou());
         this.registerMapping.save();
-        this.registerMapping2 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingTypeBaseName + "-2", ObisCode.fromString("1.0.99.2.0.255"), unit, readingType2, readingType2.getTou());
+        this.registerMapping2 =
+                inMemoryPersistence.getMasterDataService().
+                        newRegisterMapping(
+                                registerMappingTypeBaseName + "-2",
+                                ObisCode.fromString("1.0.99.2.0.255"),
+                                unit,
+                                readingType2,
+                                readingType2.getTou());
         this.registerMapping2.save();
+    }
+
+    private Phenomenon createPhenomenonIfMissing(Unit unit) {
+        Optional<Phenomenon> phenomenonByUnit = inMemoryPersistence.getMasterDataService().findPhenomenonByUnit(unit);
+        if (!phenomenonByUnit.isPresent()) {
+            Phenomenon phenomenon = inMemoryPersistence.getMasterDataService().newPhenomenon(DeviceTypeImplTest.class.getSimpleName(), unit);
+            phenomenon.save();
+            return phenomenon;
+        }
+        else {
+            return phenomenonByUnit.get();
+        }
     }
 
     private void setupProductSpecsInExistingTransaction() {

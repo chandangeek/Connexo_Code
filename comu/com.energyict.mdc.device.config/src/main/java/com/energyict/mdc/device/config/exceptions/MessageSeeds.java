@@ -19,37 +19,18 @@ public enum MessageSeeds implements MessageSeed {
     NAME_IS_REQUIRED(1000, Constants.NAME_REQUIRED_KEY, "The name of {0} is required", SEVERE),
     NAME_IS_UNIQUE(1001, Constants.NAME_UNIQUE_KEY, "The name must be unique", SEVERE),
     REGISTER_GROUP_NAME_IS_REQUIRED(1501, "registerGroup.name.required", "The name of a register group is required", SEVERE),
-    REGISTER_GROUP_STILL_IN_USE(1503, "registerGroup.XstillInUseByY", "The register group with name \"{0}\" cannot be deleted because it is still in use by the following register mappings: {1}", SEVERE),
-    READING_TYPE_IS_REQUIRED(2001, Constants.READING_TYPE_IS_REQUIRED_KEY, "The reading type of a product spec is required", SEVERE),
     READING_TYPE_ALREADY_EXISTS(2002, Constants.READING_TYPE_ALREADY_EXISTS_KEY, "The product spec with the reading type {0} already exists", SEVERE),
     DEFAULT_PRODUCT_SPEC_CANNOT_BE_DELETED(2003, "productSpec.cannotDeleteDefault", "The default product spec cannot be deleted", SEVERE),
     PRODUCT_SPEC_STILL_IN_USE(2004, "productSpec.XstillInUseByY", "The product spec with reading type {0} cannot be deleted because it is still in use by the following register mappings: {1}", SEVERE),
-    REGISTER_MAPPING_NAME_IS_REQUIRED(3001, "registerMapping.name.required", "The name of a register mapping is required", SEVERE),
-    REGISTER_MAPPING_OBIS_CODE_TOU_PEHNOMENON_ALREADY_EXISTS(3003, "registerMapping.duplicateObisCodeX", "A register mapping with obis code \"{0}\", unit \"{1}\" and time of use \"{2}\" already exists", SEVERE),
-    REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED(3004, Constants.REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY, "The obis code of a register mapping is required", SEVERE),
-    PRODUCT_SPEC_IS_REQUIRED(3005, Constants.PRODUCT_SPEC_IS_REQUIRED_KEY, "The product spec of a register mapping is required", SEVERE),
     REGISTER_MAPPING_OBIS_CODE_CANNOT_BE_UPDATED(3006, "registerMapping.cannotUpdateObisCode", "The obis code of the register mapping \"{0}\" cannot be updated because it is in use", SEVERE),
     REGISTER_MAPPING_PHENOMENON_CANNOT_BE_UPDATED(3007, "registerMapping.cannotUpdatePhenomenon", "The phenomenon of the register mapping \"{0}\" cannot be updated because it is in use", SEVERE),
     REGISTER_MAPPING_STILL_USED_BY_REGISTER_SPEC(3008, "registerMapping.usedBy.registerSpec", "The register mapping {0} cannot be deleted because it is still in use by the following register spec(s): {1}", SEVERE),
     REGISTER_MAPPING_STILL_USED_BY_CHANNEL_SPEC(3009, "registerMapping.usedBy.channelSpec", "The register mapping {0} cannot be deleted because it is still in use by the following channel spec(s): {1}", SEVERE),
-    REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE(3010, "registerMapping.usedBy.loadProfileType", "The register mapping {0} cannot be deleted because it is still in use by the following load profile type(s): {1}", SEVERE),
     REGISTER_MAPPING_STILL_USED_BY_DEVICE_TYPE(3011, "registerMapping.usedBy.deviceType", "The register mapping {0} cannot be deleted because it is still in use by the following device type(s): {1}", SEVERE),
-    UNIT_IS_REQUIRED(3013, Constants.UNIT_IS_REQUIRED_KEY, "The unit of a register mapping is required", SEVERE),
-    TOME_OF_USE_TOO_SMALL(3014, Constants.TIMEOFUSE_TOO_SMALL, "The time of use must be a positive number", SEVERE),
-    REGISTER_MAPPING_READING_TYPE_ALREADY_USED(3015, Constants.REGISTER_MAPPING_DUPLICATE_READING_TYPE, "Reading type is already used by a register type", SEVERE),
-    LOAD_PROFILE_TYPE_NAME_IS_REQUIRED(4001, "loadProfileType.name.required", "The name of a load profile type is required", SEVERE),
-    LOAD_PROFILE_TYPE_INTERVAL_IN_WEEKS_IS_NOT_SUPPORTED(4003, "loadProfileType.interval.notsupported.weeks", "The interval of a load profile type cannot be expressed in number of weeks", SEVERE),
-    INTERVAL_IN_DAYS_MUST_BE_ONE(4004, "loadProfileType.interval.notsupported.multipledays", "The number of days of the interval of a load profile type cannot be greater than 1 but got {0}", SEVERE),
-    INTERVAL_IN_MONTHS_MUST_BE_ONE(4005, "loadProfileType.interval.notsupported.multiplemonths", "The number of months of the interval of a load profile type cannot be greater than 1 but got {0}", SEVERE),
-    INTERVAL_IN_YEARS_MUST_BE_ONE(4006, "loadProfileType.interval.notsupported.multipleyears", "The number of years of the interval of a load profile type cannot be greater than 1 but got {0}", SEVERE),
-    INTERVAL_MUST_BE_STRICTLY_POSITIVE(4007, "loadProfileType.interval.notsupported.negative", "The value of the interval of a load profile type must be a strictly positive number and not {0}", SEVERE),
-    DUPLICATE_REGISTER_MAPPING_IN_LOAD_PROFILE_TYPE(4008, "loadProfileType.registerMapping.duplicate", "The register mapping {0} was already added to the load profile type {1}", SEVERE),
     LOAD_PROFILE_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(4009, "loadProfileType.cannotUpdateObisCode", "The obis code of the load profile type \"{0}\" cannot be updated because it is in use", SEVERE),
     LOAD_PROFILE_TYPE_INTERVAL_CANNOT_BE_UPDATED(4010, "loadProfileType.cannotUpdateInterval", "The interval of the load profile type \"{0}\" cannot be updated because it is in use", SEVERE),
     LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS(4011, "loadProfileType.XstillInUseByLoadProfileSpecsY", "The product spec with reading type {0} cannot be deleted because it is still in use by the following load profile spec(s): {1}", SEVERE),
     LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(4012, "loadProfileType.XstillInUseByDeviceTypesY", "The product spec with reading type {0} cannot be deleted because it is still in use by the following device type(s): {1}", SEVERE),
-    LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED(4013, Constants.LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED_KEY, "The obis code of a load profile type is required", SEVERE),
-    LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED(4014, "loadProfileType.interval.required", "The interval of a load profile type is required", SEVERE),
     LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(5000, "DTC.logBookType.cannotUpdateObisCode", "The obis code of the log book type \"{0}\" cannot be updated because it is in use", SEVERE),
     LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(5001, "logBookType.XstillInUseByLogBookSpecsY", "The log book type {0} cannot be deleted because it is still in use by the following log book spec(s): {1}", SEVERE),
     REGISTER_SPEC_NUMBER_OF_DIGITS_LARGER_THAN_ONE(6001, Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS, "Invalid number of digits. At least 1 digit is required", SEVERE),
@@ -86,8 +67,7 @@ public enum MessageSeeds implements MessageSeed {
     LOGBOOK_SPEC_CANNOT_CHANGE_LOGBOOK_TYPE(9005, "logBookSpec.change.logbookType", "You can not change the logbook type of an existing logbook specification", SEVERE),
     LOGBOOK_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG(9006, "logBookSpec.cannot.delete.active.config", "You can not delete a logbook specification \"{0}\" from an active device configuration \"{1}\"", SEVERE),
     LOGBOOK_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(9007, "logBookSpec.cannot.add.active.config", "You can not add a logbook spec to an active device configuration", SEVERE),
-    PHENOMENON_NAME_IS_REQUIRED(10001, "phenomenon.name.required", "The name of a phenomenon is required", SEVERE),
-    PHENOMENON_STILL_IN_USE(10002, "phenomenon.stillInUse", "You can not delete a phenomenon when it is still in use", SEVERE),
+    PHENOMENON_STILL_IN_USE(10000, "phenomenon.stillInUse", "You can not delete a phenomenon when it is still in use by channel specifications", SEVERE),
     CHANNEL_SPEC_NAME_IS_REQUIRED(11001, "channelSpec.name.required", "The name of the channel specification is required", SEVERE),
     CHANNEL_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(11003, "channelSpec.active.configuration", "You can not add a channel spec to an active device configuration", SEVERE),
     CHANNEL_SPEC_LOAD_PROFILE_SPEC_IS_NOT_ON_DEVICE_CONFIGURATION(11004, "channelSpec.cannotAddChannelSpecOfTypeXBecauseDeviceConfigYDoesNotContainIt", "The channel specification is linked to a load profile specification \"{0}\" which is not configuration on the device type", SEVERE),
@@ -119,7 +99,6 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_REGISTER_SPEC(12008, "deviceConfig.duplicate.obisCode.registerSpec", "The device configuration \"{0}\" already contains a register specification this obis code \"{1}\"", SEVERE),
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC_IN_LOAD_PROFILE_SPEC(12009, "deviceConfig.duplicate.obisCode.channelSpec.loadProfileSpec", "Load profile specification \"{0}\" in device configuration \"{1}\" already contains a channel specification this obis code \"{2}\"", SEVERE),
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC(12010, "deviceConfig.duplicate.obisCode.channelSpec", "The device configuration \"{0}\" already contains a channel specification this obis code \"{1}\"", SEVERE),
-    UNIT_DOES_NOT_MATCH_PHENOMENON(12011, "registerMapping.unit.noMatchingPhenomenon" , "The unit {0} could not be associated with an existing phenomenon", SEVERE),
     DEVICE_CONFIGURATION_CAN_NOT_BE_GATEWAY(12012, Constants.DEVICE_CONFIG_GATEWAY_NOT_ALLOWED, "The device configuration can not be gateway as the device protocol does not allow it", SEVERE),
     DEVICE_CONFIGURATION_CAN_NOT_BE_DIRECTLY_ADDRESSED(12013, Constants.DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED, "The device configuration can not be directly addressable as the device protocol does not allow it", SEVERE),
     NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED(13000, Constants.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY, "The temporal expression of a NextExecutionSpec is required", SEVERE),
@@ -200,10 +179,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS_KEY = "DTC.deviceType.XstillHasActiveConfigurations";
         public static final String DEVICE_PROTOCOL_IS_REQUIRED_KEY = "DTC.deviceType.protocol.required";
         public static final String DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS_KEY = "DTC.deviceType.protocol.noupdate";
-        public static final String REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY = "DTC.registerMapping.obisCode.required";
-        public static final String PRODUCT_SPEC_IS_REQUIRED_KEY = "DTC.registerMapping.productSpec.required";
-        public static final String UNIT_IS_REQUIRED_KEY = "DTC.registerMapping.unit.required";
-        public static final String LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED_KEY = "DTC.loadProfileType.obisCode.required";
         public static final String LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED_KEY = "DTC.logBookSpec.logbookType.required";
         public static final String LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED_KEY = "DTC.loadProfileSpec.loadProfileType.required";
         public static final String CHANNEL_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY = "DTC.channelSpec.registerMapping.required";
@@ -213,9 +188,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED_KEY = "DTC.channelSpec.valueCalculationMethod.required";
         public static final String CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED_KEY = "DTC.channelSpec.multiplierMode.required";
         public static final String REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY = "DTC.registerSpec.registerMapping.required";
-        public static final String READING_TYPE_IS_REQUIRED_KEY = "DTC.productSpec.readingType.required";
         public static final String READING_TYPE_ALREADY_EXISTS_KEY = "DTC.productSpec.duplicateReadingTypeX";
-        public static final String TIMEOFUSE_TOO_SMALL = "DTC.timeOfUse.tooSmall";
         public static final String NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY = "DTC.nextExecutionSpecs.temporalExpression.required";
         public static final String TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED_KEY = "DTC.temporalExpression.every.required";
         public static final String TEMPORAL_EXPRESSION_UNKNOWN_UNIT_KEY = "DTC.temporalExpression.unknown.unit";
@@ -238,7 +211,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY = "DTC.partialOutboundConnectionTask.executionSpecInvalidForComWindow";
         public static final String NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY_KEY = "DTC.nextExecutionSpecs.offsetGreaterThanFrequency";
         public static final String UNDER_MINIMUM_RESCHEDULE_DELAY_KEY = "DTC.partialScheduledConnectionTask.underMinimumRescheduleDelay";
-        public static final String REGISTER_MAPPING_DUPLICATE_READING_TYPE = "DTC.registerMapping.duplicateReadingType";
         public static final String REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "DTC.registerSpec.invalidNumberOfFractionDigits";
         public static final String UNSUPPORTED_SECURITY_LEVEL_KEY = "DTC.securityPropertySet.unsupportedSecurityLevel";
     }

@@ -6,7 +6,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterMapping;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made

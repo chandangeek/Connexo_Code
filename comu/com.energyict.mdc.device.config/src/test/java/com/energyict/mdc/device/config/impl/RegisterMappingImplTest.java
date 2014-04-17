@@ -7,7 +7,6 @@ import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
@@ -17,27 +16,27 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenRegisterMappingIsInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdatePhenomenonWhenRegisterMappingIsInUseException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
+import com.google.common.base.Optional;
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the peristence aspects of the {@link RegisterMappingImpl} component
- * as provided by the {@link DeviceConfigurationServiceImpl}.
+ * Tests the peristence aspects of the {@link RegisterMapping} component
+ * that impact the {@link DeviceConfigurationServiceImpl}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-02-17 (16:35)
@@ -60,219 +59,15 @@ public class RegisterMappingImplTest extends PersistenceTest {
     private Unit unit1;
     private Unit unit2;
 
-    @Test
-    @Transactional
-    public void testCreateWithoutViolations() {
-        String registerMappingName = "testCreateWithoutViolations";
-        RegisterMapping registerMapping;
-        this.setupProductSpecsInExistingTransaction();
-
-        // Business method
-        registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, unit1, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
-
-        // Asserts
-        assertThat(registerMapping).isNotNull();
-        assertThat(registerMapping.getId()).isGreaterThan(0);
-        assertThat(registerMapping.getName()).isEqualTo(registerMappingName);
-        assertThat(registerMapping.getDescription()).isNotEmpty();
-        assertThat(registerMapping.getReadingType()).isEqualTo(this.readingType1);
-        assertThat(registerMapping.getObisCode()).isEqualTo(obisCode1);
+    @Before
+    public void registerEventHandlers () {
+        inMemoryPersistence.registerEventHandlers();
     }
 
-    @Test
-    @Transactional
-    public void testFindAfterCreation() {
-        String registerMappingName = "testFindAfterCreation";
-        this.setupProductSpecsInExistingTransaction();
-
-        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, unit1, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
-
-        // Business method
-        RegisterMapping registerMapping2 = inMemoryPersistence.getDeviceConfigurationService().findRegisterMappingByName(registerMappingName);
-
-        // Asserts
-        assertThat(registerMapping2).isNotNull();
-        assertThat(registerMapping2.getName()).isEqualTo(registerMappingName);
-        assertThat(registerMapping2.getDescription()).isNotEmpty();
-        assertThat(registerMapping2.getReadingType()).isEqualTo(this.readingType1);
-        assertThat(registerMapping2.getObisCode()).isEqualTo(obisCode1);
+    @After
+    public void unregisterEventHandlers () {
+        inMemoryPersistence.unregisterEventHandlers();
     }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
-    public void testCreateWithoutName() {
-        this.setupProductSpecsInExistingTransaction();
-
-        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(null, obisCode1,  unit1, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-
-        // Business method
-        registerMapping.save();
-
-        // Asserts: see ExpectedConstraintViolation rule
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
-    public void testCreateWithEmptyName() {
-        this.setupProductSpecsInExistingTransaction();
-
-        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("", obisCode1,  unit1, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-
-        // Business method
-        registerMapping.save();
-
-        // Asserts: see ExpectedConstraintViolation rule
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REGISTER_MAPPING_DUPLICATE_READING_TYPE + "}")
-    public void testCreateWithDuplicateReadingType() {
-        this.setupProductSpecsInExistingTransaction();
-
-        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("hello world", obisCode1,  unit1, readingType1, 1);
-        registerMapping.save();
-        RegisterMapping registerMapping2 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("hello again", obisCode1,  unit1, readingType1, 2);
-        registerMapping2.save();
-
-        // Asserts: see ExpectedConstraintViolation rule
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED_KEY + "}")
-    public void testCreateWithoutObisCode() {
-        String registerMappingName = "testCreateWithoutObisCode";
-        this.setupProductSpecsInExistingTransaction();
-
-        // Business method
-        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, null,  unit1, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
-
-        // Asserts: see ExpectedConstraintViolation rule
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.UNIT_IS_REQUIRED_KEY + "}")
-    public void testCreateWithoutUnit() {
-        setupProductSpecsInExistingTransaction();
-        String registerMappingName = "testCreateWithoutProductSpec";
-        RegisterMapping registerMapping;
-        // Business method
-        registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, null, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
-
-        // Asserts: see ExpectedConstraintViolation rule
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.READING_TYPE_IS_REQUIRED_KEY + "}")
-    public void testCreateWithoutReadingType() {
-        setupProductSpecsInExistingTransaction();
-        String registerMappingName = "testCreateWithoutProductSpec";
-        RegisterMapping registerMapping;
-        // Business method
-        registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, unit1, null, 1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
-
-        // Asserts: see ExpectedConstraintViolation rule
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.TIMEOFUSE_TOO_SMALL + "}")
-    public void testCreateWithInvalidTimeOfUse() {
-        setupProductSpecsInExistingTransaction();
-        String registerMappingName = "testCreateWithoutProductSpec";
-        RegisterMapping registerMapping;
-        // Business method
-        registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1, unit1, readingType1, -1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
-
-        // Asserts: see ExpectedConstraintViolation rule
-    }
-
-    @Test
-    @Transactional
-    public void testUpdateName() {
-        String registerMappingName = "testUpdateObisCode";
-        RegisterMapping registerMapping;
-        this.setupProductSpecsInExistingTransaction();
-
-        registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1,  unit1, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
-
-        // Business method
-        String updatedName = registerMappingName + "-Updated";
-        registerMapping.setName(updatedName);
-        registerMapping.save();
-
-        // Asserts
-        assertThat(registerMapping.getName()).isEqualTo(updatedName);
-    }
-
-    @Test
-    @Transactional
-    public void testUpdateObisCodeAndUnit() {
-        String registerMappingName = "testUpdateObisCode";
-        RegisterMapping registerMapping;
-        this.setupProductSpecsInExistingTransaction();
-
-        registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1,  unit1, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
-
-        // Business method
-        registerMapping.setObisCode(obisCode2);
-        registerMapping.setUnit(unit2);
-        registerMapping.save();
-
-        // Asserts
-        assertThat(registerMapping.getObisCode()).isEqualTo(obisCode2);
-        assertThat(registerMapping.getName()).isEqualTo(registerMappingName);
-        assertThat(registerMapping.getDescription()).isNotEmpty();
-        assertThat(((RegisterMappingImpl)registerMapping).getPhenomenon()).isEqualToComparingOnlyGivenFields(this.phenomenon2, "name", "unit");
-    }
-
-//    @Test(expected = DuplicateObisCodeException.class)
-//    @Transactional
-//    public void testUpdateObisCodeWithDuplicate() {
-//        String registerMappingName = "testUpdateObisCodeWithDuplicate";
-//        RegisterMapping updateCandidate;
-//        this.setupProductSpecsInExistingTransaction();
-//
-//        updateCandidate = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1,  unit1, readingType1, 1);
-//        updateCandidate.setDescription("For testing purposes only");
-//        updateCandidate.save();
-//
-//        RegisterMapping other = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("other", obisCode2,  unit1, readingType2, 1);
-//        other.save();
-//
-//        try {
-//            // Business method
-//            updateCandidate.setObisCode(obisCode2);
-//            updateCandidate.save();
-//        } catch (DuplicateObisCodeException e) {
-//            // Asserts
-//            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_OBIS_CODE_TOU_PEHNOMENON_ALREADY_EXISTS);
-//            throw e;
-//        }
-//    }
 
     @Test(expected = CannotUpdateObisCodeWhenRegisterMappingIsInUseException.class)
     @Transactional
@@ -282,9 +77,20 @@ public class RegisterMappingImplTest extends PersistenceTest {
         this.setupProductSpecsInExistingTransaction();
 
         // Create the RegisterMapping
-        registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1,  unit1, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
+        Optional<RegisterMapping> xRegisterMapping =
+                inMemoryPersistence.getMasterDataService().
+                        findRegisterMappingByObisCodeAndUnitAndTimeOfUse(
+                                obisCode1,
+                                unit1,
+                                readingType1.getTou());
+        if (xRegisterMapping.isPresent()) {
+            registerMapping = xRegisterMapping.get();
+        }
+        else {
+            registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping(registerMappingName, obisCode1, unit1, readingType1, 1);
+            registerMapping.setDescription("For testing purposes only");
+            registerMapping.save();
+        }
 
         // Use it in a DeviceType and DeviceConfiguration
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerMappingName, this.deviceProtocolPluggableClass);
@@ -298,7 +104,7 @@ public class RegisterMappingImplTest extends PersistenceTest {
         deviceType.save();
 
         // Business method
-        registerMapping.setObisCode(obisCode2);
+        registerMapping.setObisCode(ObisCode.fromString("1.0.3.9.0.255"));
         registerMapping.save();
 
         // Asserts: expected CannotUpdateObisCodeWhenRegisterMappingIsInUseException
@@ -312,9 +118,20 @@ public class RegisterMappingImplTest extends PersistenceTest {
         this.setupProductSpecsInExistingTransaction();
 
         // Create the RegisterMapping
-        registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1,  unit1, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
+        Optional<RegisterMapping> xRegisterMapping =
+                inMemoryPersistence.getMasterDataService().
+                        findRegisterMappingByObisCodeAndUnitAndTimeOfUse(
+                                obisCode1,
+                                unit1,
+                                readingType1.getTou());
+        if (xRegisterMapping.isPresent()) {
+            registerMapping = xRegisterMapping.get();
+        }
+        else {
+            registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping(registerMappingName, obisCode1, unit1, readingType1, 1);
+            registerMapping.setDescription("For testing purposes only");
+            registerMapping.save();
+        }
 
         this.setupLoadProfileTypesInExistingTransaction();
 
@@ -332,7 +149,7 @@ public class RegisterMappingImplTest extends PersistenceTest {
         deviceType.save();
 
         // Business method
-        registerMapping.setObisCode(obisCode2);
+        registerMapping.setObisCode(ObisCode.fromString("1.0.3.9.0.255"));
         registerMapping.save();
 
         // Asserts: expected CannotUpdateObisCodeWhenRegisterMappingIsInUseException
@@ -340,15 +157,26 @@ public class RegisterMappingImplTest extends PersistenceTest {
 
     @Test(expected = CannotUpdatePhenomenonWhenRegisterMappingIsInUseException.class)
     @Transactional
-    public void testCannotUpdateProductSpecWhenUsedByRegisterSpec() {
-        String registerMappingName = "testCannotUpdateProductSpecWhenUsedByRegisterSpec";
+    public void testCannotUpdateUnitWhenUsedByRegisterSpec() {
+        String registerMappingName = "testCannotUpdateUnitWhenUsedByRegisterSpec";
         RegisterMapping registerMapping;
         this.setupProductSpecsInExistingTransaction();
 
         // Create the RegisterMapping
-        registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1,  unit1, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
+        Optional<RegisterMapping> xRegisterMapping =
+                inMemoryPersistence.getMasterDataService().
+                        findRegisterMappingByObisCodeAndUnitAndTimeOfUse(
+                                obisCode1,
+                                unit1,
+                                readingType1.getTou());
+        if (xRegisterMapping.isPresent()) {
+            registerMapping = xRegisterMapping.get();
+        }
+        else {
+            registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping(registerMappingName, obisCode1, unit1, readingType1, 1);
+            registerMapping.setDescription("For testing purposes only");
+            registerMapping.save();
+        }
 
         // Use it in a DeviceType and DeviceConfiguration
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerMappingName, this.deviceProtocolPluggableClass);
@@ -376,9 +204,20 @@ public class RegisterMappingImplTest extends PersistenceTest {
         this.setupProductSpecsInExistingTransaction();
 
         // Create the RegisterMapping
-        registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1,  unit1, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
+        Optional<RegisterMapping> xRegisterMapping =
+                inMemoryPersistence.getMasterDataService().
+                        findRegisterMappingByObisCodeAndUnitAndTimeOfUse(
+                                obisCode1,
+                                unit1,
+                                readingType1.getTou());
+        if (xRegisterMapping.isPresent()) {
+            registerMapping = xRegisterMapping.get();
+        }
+        else {
+            registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping(registerMappingName, obisCode1, unit1, readingType1, 1);
+            registerMapping.setDescription("For testing purposes only");
+            registerMapping.save();
+        }
 
         this.setupLoadProfileTypesInExistingTransaction();
 
@@ -402,26 +241,6 @@ public class RegisterMappingImplTest extends PersistenceTest {
         // Asserts: expected CannotUpdateProductSpecWhenRegisterMappingIsInUseException
     }
 
-    @Test
-    @Transactional
-    public void testDelete() {
-        String registerMappingName = "testDelete";
-        RegisterMapping registerMapping;
-        this.setupProductSpecsInExistingTransaction();
-
-        // Business method
-        registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1,  unit1, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
-
-        long id = registerMapping.getId();
-        registerMapping.delete();
-
-        // Asserts
-        RegisterMapping expectedNull = inMemoryPersistence.getDeviceConfigurationService().findRegisterMapping(id);
-        assertThat(expectedNull).isNull();
-    }
-
     @Test(expected = CannotDeleteBecauseStillInUseException.class)
     @Transactional
     public void testCannotDeleteWhenUsedByRegisterSpecs() {
@@ -430,9 +249,20 @@ public class RegisterMappingImplTest extends PersistenceTest {
         this.setupProductSpecsInExistingTransaction();
 
         // Create the RegisterMapping
-        registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1,  unit1, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
+        Optional<RegisterMapping> xRegisterMapping =
+                inMemoryPersistence.getMasterDataService().
+                        findRegisterMappingByObisCodeAndUnitAndTimeOfUse(
+                                obisCode1,
+                                unit1,
+                                readingType1.getTou());
+        if (xRegisterMapping.isPresent()) {
+            registerMapping = xRegisterMapping.get();
+        }
+        else {
+            registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping(registerMappingName, obisCode1, unit1, readingType1, 1);
+            registerMapping.setDescription("For testing purposes only");
+            registerMapping.save();
+        }
 
         // Use it in a DeviceType and DeviceConfiguration
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerMappingName, this.deviceProtocolPluggableClass);
@@ -456,52 +286,26 @@ public class RegisterMappingImplTest extends PersistenceTest {
 
     @Test(expected = CannotDeleteBecauseStillInUseException.class)
     @Transactional
-    public void testCannotDeleteWhenUsedByChannelSpecs() {
-        String registerMappingName = "testCannotDeleteWhenUsedByChannelSpecs";
-        RegisterMapping registerMapping;
-        this.setupProductSpecsInExistingTransaction();
-
-        // Create the RegisterMapping
-        registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1,  unit1, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
-
-
-        this.setupLoadProfileTypesInExistingTransaction();
-
-        this.loadProfileType.addRegisterMapping(registerMapping);
-        this.loadProfileType.save();
-
-        // Use it in a DeviceType and DeviceConfiguration
-        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerMappingName, this.deviceProtocolPluggableClass);
-        deviceType.addLoadProfileType(this.loadProfileType);
-        deviceType.addRegisterMapping(registerMapping);
-        DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(this.loadProfileType);
-        configurationBuilder.newChannelSpec(registerMapping, this.phenomenon1, loadProfileSpecBuilder).setReadingMethod(ReadingMethod.BASIC_DATA).setMultiplierMode(MultiplierMode.NONE).setValueCalculationMethod(ValueCalculationMethod.AUTOMATIC);
-        configurationBuilder.add();
-        deviceType.save();
-
-        try {
-            registerMapping.delete();
-        } catch (CannotDeleteBecauseStillInUseException e) {
-            // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_CHANNEL_SPEC);
-            throw e;
-        }
-    }
-
-    @Test(expected = CannotDeleteBecauseStillInUseException.class)
-    @Transactional
     public void testCannotDeleteWhenUsedByDeviceType() {
         String registerMappingName = "testCannotDeleteWhenUsedByDeviceType";
         RegisterMapping registerMapping;
         this.setupProductSpecsInExistingTransaction();
 
         // Create the RegisterMapping
-        registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1,  unit1, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
+        Optional<RegisterMapping> xRegisterMapping =
+                inMemoryPersistence.getMasterDataService().
+                        findRegisterMappingByObisCodeAndUnitAndTimeOfUse(
+                                obisCode1,
+                                unit1,
+                                readingType1.getTou());
+        if (xRegisterMapping.isPresent()) {
+            registerMapping = xRegisterMapping.get();
+        }
+        else {
+            registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping(registerMappingName, obisCode1, unit1, readingType1, 1);
+            registerMapping.setDescription("For testing purposes only");
+            registerMapping.save();
+        }
 
         // Use it in a DeviceType and DeviceConfiguration
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerMappingName, this.deviceProtocolPluggableClass);
@@ -513,31 +317,6 @@ public class RegisterMappingImplTest extends PersistenceTest {
         } catch (CannotDeleteBecauseStillInUseException e) {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_DEVICE_TYPE);
-            throw e;
-        }
-    }
-
-    @Test(expected = CannotDeleteBecauseStillInUseException.class)
-    @Transactional
-    public void testCannotDeleteWhenUsedByLoadProfileType() {
-        String registerMappingName = "testCannotDeleteWhenUsedByLoadProfileType";
-        RegisterMapping registerMapping;
-        this.setupProductSpecsInExistingTransaction();
-
-        // Create the RegisterMapping
-        registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1,  unit1, readingType1, 1);
-        registerMapping.setDescription("For testing purposes only");
-        registerMapping.save();
-
-        // Use it in a LoadProfileType
-        this.setupLoadProfileTypesInExistingTransaction(registerMapping);
-
-
-        try {
-            registerMapping.delete();
-        } catch (CannotDeleteBecauseStillInUseException e) {
-            // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE);
             throw e;
         }
     }
@@ -567,22 +346,27 @@ public class RegisterMappingImplTest extends PersistenceTest {
     }
 
     private void setupLoadProfileTypesInExistingTransaction() {
-        this.loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(RegisterMappingImplTest.class.getSimpleName(), ObisCode.fromString("1.0.99.1.0.255"), INTERVAL_15_MINUTES);
+        this.loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(RegisterMappingImplTest.class.getSimpleName(), ObisCode.fromString("1.0.99.1.0.255"), INTERVAL_15_MINUTES);
         this.loadProfileType.save();
-    }
-
-    private void setupLoadProfileTypesInExistingTransaction(RegisterMapping registerMapping) {
-        this.setupLoadProfileTypesInExistingTransaction();
-        this.loadProfileType.addRegisterMapping(registerMapping);
     }
 
     private void setupPhenomenaInExistingTransaction() {
         this.unit1 = Unit.get("kWh");
-        this.phenomenon1 = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(DeviceTypeImplTest.class.getSimpleName()+"1", unit1);
-        this.phenomenon1.save();
+        this.phenomenon1 = createPhenomenonIfMissing(this.unit1, RegisterMappingImplTest.class.getSimpleName() + "1");
         this.unit2 = Unit.get("MWh");
-        this.phenomenon2 = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(DeviceTypeImplTest.class.getSimpleName()+"2", unit2);
-        this.phenomenon2.save();
+        this.phenomenon2 = createPhenomenonIfMissing(this.unit2, RegisterMappingImplTest.class.getSimpleName() + "2");
+    }
+
+    private Phenomenon createPhenomenonIfMissing(Unit unit, String name) {
+        Optional<Phenomenon> phenomenonByUnit = inMemoryPersistence.getMasterDataService().findPhenomenonByUnit(unit);
+        if (!phenomenonByUnit.isPresent()) {
+            Phenomenon phenomenon = inMemoryPersistence.getMasterDataService().newPhenomenon(name, unit);
+            phenomenon.save();
+            return phenomenon;
+        }
+        else {
+            return phenomenonByUnit.get();
+        }
     }
 
 }

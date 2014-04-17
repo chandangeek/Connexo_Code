@@ -5,12 +5,12 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterMapping;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
  * to create an entity while there already exists an entity with that specific
- * {@link com.energyict.mdc.device.config.RegisterMapping}
+ * {@link RegisterMapping}
  * <p/>
  * Copyrights EnergyICT
  * Date: 07/02/14

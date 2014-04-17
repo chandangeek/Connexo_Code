@@ -15,8 +15,8 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateRegisterMappingException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException;
@@ -25,6 +25,7 @@ import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfigured
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
+import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -74,14 +75,24 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     }
 
     private void initializeDeviceTypeWithRegisterMappingAndLoadProfileTypeAndDeviceConfiguration() {
-        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("BasicPhenomenon", phenomenonUnit);
-        this.phenomenon.save();
+        this.phenomenon = this.createPhenomenonIfMissing(phenomenonUnit);
 
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
         ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME, registerMappingObisCode, phenomenonUnit, readingType, readingType.getTou());
-        this.registerMapping.save();
-        loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval);
+        Optional<RegisterMapping> xRegisterMapping =
+                inMemoryPersistence.getMasterDataService()
+                    .findRegisterMappingByObisCodeAndUnitAndTimeOfUse(
+                            registerMappingObisCode,
+                            phenomenonUnit,
+                            readingType.getTou());
+        if (xRegisterMapping.isPresent()) {
+            this.registerMapping = xRegisterMapping.get();
+        }
+        else {
+            this.registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping(REGISTER_MAPPING_NAME, registerMappingObisCode, phenomenonUnit, readingType, readingType.getTou());
+            this.registerMapping.save();
+        }
+        loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval);
         loadProfileType.addRegisterMapping(registerMapping);
         loadProfileType.save();
 
@@ -117,7 +128,6 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(channelSpec.getDeviceObisCode()).isEqualTo(registerMappingObisCode);
         assertThat(channelSpec.getInterval()).isEqualTo(interval);
         assertThat(channelSpec.getLoadProfileSpec()).isEqualTo(loadProfileSpec);
-        assertThat(channelSpec.getName()).isEqualTo(REGISTER_MAPPING_NAME);
         assertThat(channelSpec.getRegisterMapping()).isEqualTo(this.registerMapping);
         assertThat(channelSpec.getPhenomenon()).isEqualTo(this.phenomenon);
     }
@@ -417,7 +427,8 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
         ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
 
-        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME + "Other", overruledChannelSpecObisCode, phenomenonUnit, readingType, readingType.getTou());
+        RegisterMapping registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping(REGISTER_MAPPING_NAME + "Other", overruledChannelSpecObisCode, phenomenonUnit, readingType, readingType
+                .getTou());
         registerMapping.save();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.add();
@@ -430,7 +441,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
         ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
 
-        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME + "Other", overruledChannelSpecObisCode, phenomenonUnit, readingType, readingType.getTou());
+        RegisterMapping registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping(REGISTER_MAPPING_NAME + "Other", overruledChannelSpecObisCode, phenomenonUnit, readingType, readingType.getTou());
         registerMapping.save();
         this.deviceType.addRegisterMapping(registerMapping);
         this.deviceType.save();
@@ -511,4 +522,17 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         this.deviceConfiguration.activate();
         this.deviceConfiguration.deleteChannelSpec(channelSpec);
     }
+
+    private Phenomenon createPhenomenonIfMissing(Unit unit) {
+        Optional<Phenomenon> phenomenonByUnit = inMemoryPersistence.getMasterDataService().findPhenomenonByUnit(unit);
+        if (!phenomenonByUnit.isPresent()) {
+            Phenomenon phenomenon = inMemoryPersistence.getMasterDataService().newPhenomenon(ChannelSpecImplTest.class.getSimpleName(), unit);
+            phenomenon.save();
+            return phenomenon;
+        }
+        else {
+            return phenomenonByUnit.get();
+        }
+    }
+
 }

@@ -2,10 +2,11 @@ package com.energyict.mdc.device.config.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.masterdata.LoadProfileType;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
- * to change the {@link com.energyict.mdc.device.config.LoadProfileType}
+ * to change the {@link LoadProfileType}
  * of an existing {@link com.energyict.mdc.device.config.LoadProfileSpec}
  * <p/>
  *

@@ -6,7 +6,7 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LoadProfileType;
+import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
@@ -44,7 +44,7 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
     }
 
     private void initializeDeviceTypeWithLogBookTypeAndDeviceConfiguration() {
-        loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval);
+        loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval);
         loadProfileType.save();
 
         // Business method
@@ -94,7 +94,7 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
     @Test(expected = LoadProfileTypeIsNotConfiguredOnDeviceTypeException.class)
     @Transactional
     public void createWithIncorrectLoadProfileTypeTest() {
-        LoadProfileType loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "Incorrect", loadProfileTypeObisCode, interval);
+        LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "Incorrect", loadProfileTypeObisCode, interval);
         loadProfileType.save();
 
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
@@ -112,7 +112,7 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
     @Test(expected = DuplicateObisCodeException.class)
     @Transactional
     public void addTwoSpecsWithDiffTypeButSameObisCodeTest() {
-        LoadProfileType loadProfileType2 = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", loadProfileTypeObisCode, interval);
+        LoadProfileType loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", loadProfileTypeObisCode, interval);
         loadProfileType2.save();
         this.deviceType.addLoadProfileType(loadProfileType2);
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
@@ -124,7 +124,7 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
     @Test(expected = DuplicateObisCodeException.class)
     @Transactional
     public void addTwoSpecsWithDiffObisCodeButOverruledAsSameTest() {
-        LoadProfileType loadProfileType2 = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", ObisCode.fromString("1.0.99.98.0.255"), interval);
+        LoadProfileType loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", ObisCode.fromString("1.0.99.98.0.255"), interval);
         loadProfileType2.save();
         this.deviceType.addLoadProfileType(loadProfileType2);
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
@@ -137,7 +137,7 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
     @Test(expected = DuplicateObisCodeException.class)
     @Transactional
     public void addTwoSpecsWithDiffObisCodeButSameAfterUpdateTest() {
-        LoadProfileType loadProfileType2 = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", ObisCode.fromString("1.0.99.98.0.255"), interval);
+        LoadProfileType loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", ObisCode.fromString("1.0.99.98.0.255"), interval);
         loadProfileType2.save();
         this.deviceType.addLoadProfileType(loadProfileType2);
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);

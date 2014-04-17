@@ -31,23 +31,17 @@ public class Installer {
     private final DataModel dataModel;
     private final EventService eventService;
     private final Thesaurus thesaurus;
-    private final MeteringService meteringService;
-    private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
-    private final DeviceConfigurationService deviceConfigurationService;
     private final UserService userService;
 
-    public Installer(DataModel dataModel, EventService eventService, Thesaurus thesaurus, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, DeviceConfigurationService deviceConfigurationService, UserService userService) {
+    public Installer(DataModel dataModel, EventService eventService, Thesaurus thesaurus, UserService userService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
-        this.meteringService = meteringService;
-        this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
-        this.deviceConfigurationService = deviceConfigurationService;
         this.userService = userService;
     }
 
-    public void install(boolean executeDdl, boolean updateOrm, boolean createMasterData) {
+    public void install(boolean executeDdl, boolean updateOrm) {
         try {
             this.dataModel.install(executeDdl, updateOrm);
         } catch (Exception e) {
@@ -55,9 +49,6 @@ public class Installer {
         }
         createEventTypes();
         createTranslations();
-        if (createMasterData) {
-            this.createMasterData();
-        }
         createPrivileges();
     }
 
@@ -83,19 +74,6 @@ public class Installer {
 
     private Translation toTranslation(SimpleNlsKey nlsKey, Locale locale, String translation) {
         return new SimpleTranslation(nlsKey, locale, translation);
-    }
-
-    private void createMasterData() {
-        createPhenomena();
-        createRegisterMappings();
-    }
-
-    private void createRegisterMappings() {
-        MasterDataGenerator.generateRegisterMappings(meteringService, mdcReadingTypeUtilService, deviceConfigurationService);
-    }
-
-    private void createPhenomena() {
-        MasterDataGenerator.generatePhenomena(meteringService, mdcReadingTypeUtilService, deviceConfigurationService);
     }
 
     private void createEventTypes() {

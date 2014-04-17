@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.masterdata.RegisterMapping;
 
 /**
  * Models the exceptional case where an attempt is made to link two different components,
@@ -25,7 +26,7 @@ public class IncompatibleUnitsException extends LocalizedException {
      * exceptional situation that occurs when an attempt is made to create
      * a {@link com.energyict.mdc.device.config.ChannelSpec} without with a
      * {@link Phenomenon} which is not compatible with the {@link Unit}
-     * of the defined {@link com.energyict.mdc.device.config.RegisterMapping}
+     * of the defined {@link RegisterMapping}
      *
      * @param thesaurus           The Thesaurus
      * @param phenomenon          The defined Phenomenon

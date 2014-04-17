@@ -3,8 +3,14 @@ package com.energyict.mdc.device.config.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.RegisterMapping;
 
 import java.util.List;
 
@@ -17,18 +23,6 @@ import java.util.List;
  * @since 2014-01-29 (16:31)
  */
 public class CannotDeleteBecauseStillInUseException extends LocalizedException {
-
-    /**
-     * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
-     * situation that occurs when an attempt is made to delete a {@link RegisterGroup}
-     * while it is still used by the specified {@link RegisterMapping}s.
-     *
-     * @param thesaurus The Thesaurus
-     * @return The CannotDeleteBecauseStillInUseException
-     */
-    public static CannotDeleteBecauseStillInUseException registerGroupIsStillInUse(Thesaurus thesaurus, RegisterGroup registerGroup, List<RegisterMapping> registerMappings) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_GROUP_STILL_IN_USE, registerGroup.getName(), namesToStringListForRegisterMappings(registerMappings));
-    }
 
     /**
      * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
@@ -52,18 +46,6 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      */
     public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUseByChannelSpecs(Thesaurus thesaurus, RegisterMapping registerMapping, List<ChannelSpec> channelSpecs) {
         return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_CHANNEL_SPEC, registerMapping.getName(), namesToStringListForChannelSpecs(channelSpecs));
-    }
-
-    /**
-     * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
-     * situation that occurs when an attempt is made to delete a {@link RegisterMapping}
-     * while it is still used by the specified {@link LoadProfileType}s.
-     *
-     * @param thesaurus The Thesaurus
-     * @return The CannotDeleteBecauseStillInUseException
-     */
-    public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUseByLoadprofileTypes(Thesaurus thesaurus, RegisterMapping registerMapping, List<LoadProfileType> loadProfileTypes) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE, registerMapping.getName(), namesToStringListForLoadProfileTypes(loadProfileTypes));
     }
 
     /**

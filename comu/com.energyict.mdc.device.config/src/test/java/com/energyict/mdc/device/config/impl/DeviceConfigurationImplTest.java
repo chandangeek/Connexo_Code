@@ -16,9 +16,9 @@ import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LoadProfileType;
+import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
@@ -26,6 +26,7 @@ import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.google.common.base.Optional;
 import org.junit.*;
 import org.junit.rules.*;
 
@@ -150,7 +151,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
 
     private LoadProfileType createDefaultLoadProfileType() {
-        LoadProfileType loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType("LPTName", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1));
+        LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType("LPTName", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1));
         loadProfileType.save();
         this.deviceType.addLoadProfileType(loadProfileType);
         return loadProfileType;
@@ -262,13 +263,37 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     private RegisterMapping createDefaultRegisterMapping() {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
         Unit unit = Unit.get("kWh");
-        this.phenomenon = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon("baseUnit", unit);
-        this.phenomenon.save();
+        this.phenomenon = this.createPhenomenonIfMissing(unit);
         ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        RegisterMapping registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RMName", ObisCode.fromString("1.0.1.8.0.255"), unit, readingType, readingType.getTou());
-        registerMapping.save();
+        ObisCode obisCode = ObisCode.fromString("1.0.1.8.0.255");
+        Optional<RegisterMapping> xRegisterMapping =
+                inMemoryPersistence.getMasterDataService().
+                        findRegisterMappingByObisCodeAndUnitAndTimeOfUse(
+                                obisCode,
+                                unit,
+                                readingType.getTou());
+        RegisterMapping registerMapping;
+        if (xRegisterMapping.isPresent()) {
+            registerMapping = xRegisterMapping.get();
+        }
+        else {
+            registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping("RMName", obisCode, unit, readingType, readingType.getTou());
+            registerMapping.save();
+        }
         this.deviceType.addRegisterMapping(registerMapping);
         return registerMapping;
+    }
+
+    private Phenomenon createPhenomenonIfMissing(Unit unit) {
+        Optional<Phenomenon> phenomenonByUnit = inMemoryPersistence.getMasterDataService().findPhenomenonByUnit(unit);
+        if (!phenomenonByUnit.isPresent()) {
+            Phenomenon phenomenon = inMemoryPersistence.getMasterDataService().newPhenomenon(DeviceConfigurationImplTest.class.getSimpleName(), unit);
+            phenomenon.save();
+            return phenomenon;
+        }
+        else {
+            return phenomenonByUnit.get();
+        }
     }
 
     @Test(expected = CannotAddToActiveDeviceConfigurationException.class)

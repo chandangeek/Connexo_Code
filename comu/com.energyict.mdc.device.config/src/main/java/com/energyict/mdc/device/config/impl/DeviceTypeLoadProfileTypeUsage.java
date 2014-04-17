@@ -3,7 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileType;
+import com.energyict.mdc.masterdata.LoadProfileType;
 
 /**
  * Models the fact that a {@link DeviceType} uses a {@link LoadProfileType}.

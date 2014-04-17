@@ -12,7 +12,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
@@ -22,6 +22,7 @@ import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumbe
 import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
+import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -67,17 +68,23 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     }
 
     private void initializeDeviceTypeWithRegisterSpecAndDeviceConfiguration() {
-        this.phenomenon1 = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(RegisterSpecImplTest.class.getSimpleName(), unit1);
-        this.phenomenon1.save();
-        this.phenomenon2 = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(RegisterSpecImplTest.class.getSimpleName()+"2", unit2);
-        this.phenomenon2.save();
+        this.phenomenon1 = this.createPhenomenonIfMissing(this.unit1);
+        this.phenomenon2 = this.createPhenomenonIfMissing(this.unit2);
 
         String code2 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
         this.readingType2 = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
         String code1 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
         this.readingType1 = inMemoryPersistence.getMeteringService().getReadingType(code1).get();
-        this.registerMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME, registerMappingObisCode, unit1, readingType1, readingType1.getTou());
-        this.registerMapping.save();
+        Optional<RegisterMapping> registerMappingByObisCodeAndUnitAndTimeOfUse =
+                inMemoryPersistence.getMasterDataService()
+                    .findRegisterMappingByObisCodeAndUnitAndTimeOfUse(registerMappingObisCode, unit1, readingType1.getTou());
+        if (!registerMappingByObisCodeAndUnitAndTimeOfUse.isPresent()) {
+            this.registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping(REGISTER_MAPPING_NAME, registerMappingObisCode, unit1, readingType1, readingType1.getTou());
+            this.registerMapping.save();
+        }
+        else {
+            this.registerMapping = registerMappingByObisCodeAndUnitAndTimeOfUse.get();
+        }
 
         // Business method
         this.deviceType.setDescription("For registerSpec Test purposes only");
@@ -85,6 +92,18 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         this.deviceConfiguration = deviceConfigurationBuilder.add();
         this.deviceType.save();
+    }
+
+    private Phenomenon createPhenomenonIfMissing(Unit unit) {
+        Optional<Phenomenon> xPhenomenon = inMemoryPersistence.getMasterDataService().findPhenomenonByUnit(unit);
+        if (!xPhenomenon.isPresent()) {
+            Phenomenon phenomenon = inMemoryPersistence.getMasterDataService().newPhenomenon(RegisterSpecImplTest.class.getSimpleName(), unit);
+            phenomenon.save();
+            return phenomenon;
+        }
+        else {
+            return xPhenomenon.get();
+        }
     }
 
     private RegisterSpec createDefaultRegisterSpec() {
@@ -317,7 +336,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void updateWithSameObisCodeTest() {
         RegisterSpec registerSpec1 = createDefaultRegisterSpec();
         RegisterSpec registerSpec2;
-        RegisterMapping otherMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("OtherMapping", ObisCode.fromString("1.2.3.1.5.6"), unit2, readingType2, readingType2.getTou());
+        RegisterMapping otherMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping("OtherMapping", ObisCode.fromString("1.2.3.1.5.6"), unit2, readingType2, readingType2.getTou());
         otherMapping.save();
         this.deviceType.addRegisterMapping(otherMapping);
         this.deviceType.save();
@@ -348,7 +367,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void addSpecForMappingWhichIsNotOnDeviceTypeTest() {
         RegisterSpec registerSpec;
-        RegisterMapping otherMapping = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("OtherMapping", ObisCode.fromString("32.12.32.5.12.32"), unit2, readingType2, readingType2.getTou());
+        RegisterMapping otherMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping("OtherMapping", ObisCode.fromString("32.12.32.5.12.32"), unit2, readingType2, readingType2.getTou());
         otherMapping.save();
         RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(otherMapping);
         setRegisterSpecDefaultFields(registerSpecBuilder);
@@ -470,7 +489,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
         deviceConfiguration.activate();
         deviceConfiguration.save();
-        RegisterMapping registerMapping2 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(REGISTER_MAPPING_NAME + "2", registerMappingObisCode, unit2, readingType2, readingType2.getTou());
+        RegisterMapping registerMapping2 = inMemoryPersistence.getMasterDataService().newRegisterMapping(REGISTER_MAPPING_NAME + "2", registerMappingObisCode, unit2, readingType2, readingType2.getTou());
         registerMapping2.save();
 
         registerSpec.setRegisterMapping(registerMapping2); // updated

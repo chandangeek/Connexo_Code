@@ -91,6 +91,11 @@ public class InMemoryPersistence {
     private ProtocolPluggableService protocolPluggableService;
     private LogBookTypeUpdateEventHandler logBookTypeUpdateEventHandler;
     private LogBookTypeDeletionEventHandler logBookTypeDeletionEventHandler;
+    private LoadProfileTypeUpdateEventHandler loadProfileTypeUpdateEventHandler;
+    private LoadProfileTypeDeletionEventHandler loadProfileTypeDeletionEventHandler;
+    private RegisterMappingUpdateEventHandler registerMappingUpdateEventHandler;
+    private RegisterMappingDeletionEventHandler registerMappingDeletionEventHandler;
+    private RegisterMappingDeleteFromLoadProfileTypeEventHandler registerMappingDeleteFromLoadProfileTypeEventHandler;
 
     public void initializeDatabase(String testName, boolean showSqlLogging, boolean createMasterData) {
         this.initializeMocks(testName);
@@ -139,7 +144,7 @@ public class InMemoryPersistence {
     }
 
     private DataModel createNewDeviceConfigurationService(boolean createMasterData) {
-        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.protocolPluggableService, this.readingTypeUtilService, engineModelService, createMasterData, userService);
+        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.readingTypeUtilService, this.protocolPluggableService, userService, engineModelService, masterDataService, createMasterData);
         return this.deviceConfigurationService.getDataModel();
     }
 
@@ -232,6 +237,11 @@ public class InMemoryPersistence {
     public void registerEventHandlers() {
         this.logBookTypeDeletionEventHandler = this.registerSubscriber(new LogBookTypeDeletionEventHandler(this.deviceConfigurationService));
         this.logBookTypeUpdateEventHandler = this.registerSubscriber(new LogBookTypeUpdateEventHandler(this.deviceConfigurationService));
+        this.loadProfileTypeDeletionEventHandler = this.registerSubscriber(new LoadProfileTypeDeletionEventHandler(this.deviceConfigurationService));
+        this.loadProfileTypeUpdateEventHandler = this.registerSubscriber(new LoadProfileTypeUpdateEventHandler(this.deviceConfigurationService));
+        this.registerMappingDeletionEventHandler = this.registerSubscriber(new RegisterMappingDeletionEventHandler(this.deviceConfigurationService));
+        this.registerMappingUpdateEventHandler = this.registerSubscriber(new RegisterMappingUpdateEventHandler(this.deviceConfigurationService));
+        this.registerMappingDeleteFromLoadProfileTypeEventHandler = this.registerSubscriber(new RegisterMappingDeleteFromLoadProfileTypeEventHandler(this.deviceConfigurationService));
     }
 
     private <T extends Subscriber> T registerSubscriber(T subscriber) {
@@ -242,6 +252,11 @@ public class InMemoryPersistence {
     public void unregisterEventHandlers() {
         this.unregisterSubscriber(this.logBookTypeDeletionEventHandler);
         this.unregisterSubscriber(this.logBookTypeUpdateEventHandler);
+        this.unregisterSubscriber(this.loadProfileTypeDeletionEventHandler);
+        this.unregisterSubscriber(this.loadProfileTypeUpdateEventHandler);
+        this.unregisterSubscriber(this.registerMappingDeletionEventHandler);
+        this.unregisterSubscriber(this.registerMappingUpdateEventHandler);
+        this.unregisterSubscriber(this.registerMappingDeleteFromLoadProfileTypeEventHandler);
     }
 
     private void unregisterSubscriber(Subscriber subscriber) {

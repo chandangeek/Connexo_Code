@@ -3,12 +3,10 @@ package com.energyict.mdc.device.config.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 
 /**
@@ -23,15 +21,6 @@ public class DuplicateObisCodeException extends LocalizedException {
 
     private DuplicateObisCodeException(Thesaurus thesaurus, MessageSeeds messageSeed, Object... args) {
         super(thesaurus, messageSeed, args);
-    }
-
-    public static DuplicateObisCodeException forRegisterMapping(Thesaurus thesaurus, ObisCode obisCode, Phenomenon phenomenon, int timeOfUse, RegisterMapping registerMapping) {
-        DuplicateObisCodeException duplicateObisCodeException = new DuplicateObisCodeException(thesaurus, MessageSeeds.REGISTER_MAPPING_OBIS_CODE_TOU_PEHNOMENON_ALREADY_EXISTS, obisCode, registerMapping);
-        duplicateObisCodeException.set("obisCode", obisCode.toString());
-        duplicateObisCodeException.set("unit", phenomenon.getUnit().toString());
-        duplicateObisCodeException.set("timeOfUse", timeOfUse);
-        duplicateObisCodeException.set("registerMapping", registerMapping.getName());
-        return duplicateObisCodeException;
     }
 
     public static DuplicateObisCodeException forLoadProfileSpec(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration, ObisCode obisCode, LoadProfileSpec loadProfileSpec) {
