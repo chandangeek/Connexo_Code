@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -12,14 +12,15 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyInfo;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import java.util.ArrayList;
-import java.util.List;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This Info element represents the PartialConnectionTask in the domain model
@@ -40,8 +41,7 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
     public ConnectionStrategy connectionStrategy;
     public List<PropertyInfo> propertyInfos;
     public boolean allowSimultaneousConnections;
-    @XmlJavaTypeAdapter(TimeDurationAdapter.class)
-    public TimeDuration rescheduleDelay;
+    public TimeDurationInfo rescheduleDelay;
 
     public ConnectionMethodInfo() {
     }

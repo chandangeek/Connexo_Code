@@ -2,6 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -21,7 +22,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         super(partialConnectionTask, uriInfo);
         this.connectionStrategy=partialConnectionTask.getConnectionStrategy();
         this.allowSimultaneousConnections=partialConnectionTask.isSimultaneousConnectionsAllowed();
-        this.rescheduleDelay=partialConnectionTask.getRescheduleDelay();
+        this.rescheduleDelay= new TimeDurationInfo(partialConnectionTask.getRescheduleDelay());
         this.comWindowStart=partialConnectionTask.getCommunicationWindow().getStart().getMillis()/1000;
         this.comWindowEnd=partialConnectionTask.getCommunicationWindow().getEnd().getMillis()/1000;
     }
@@ -34,7 +35,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         partialConnectionTask.setComWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
         partialConnectionTask.setConnectionStrategy(this.connectionStrategy);
         partialConnectionTask.setComportPool(Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace() ? null : (OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool));
-        partialConnectionTask.setRescheduleRetryDelay(this.rescheduleDelay);
+        partialConnectionTask.setRescheduleRetryDelay(this.rescheduleDelay.asTimeDuration());
     }
 
     @Override
@@ -47,7 +48,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
             .comWindow(new ComWindow(this.comWindowStart, this.comWindowEnd))
             .asDefault(this.isDefault)
             .connectionStrategy(this.connectionStrategy)
-            .rescheduleDelay(this.rescheduleDelay)
+            .rescheduleDelay(this.rescheduleDelay==null?null:this.rescheduleDelay.asTimeDuration())
             .allowSimultaneousConnections(this.allowSimultaneousConnections);
 
         addPropertiesToPartialConnectionTask(scheduledConnectionTaskBuilder, connectionTypePluggableClass);
