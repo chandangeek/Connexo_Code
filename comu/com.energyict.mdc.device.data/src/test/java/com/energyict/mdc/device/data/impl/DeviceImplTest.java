@@ -21,11 +21,12 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
@@ -38,6 +39,7 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.google.common.base.Optional;
 import org.fest.assertions.core.Condition;
 import org.junit.After;
 import org.junit.Before;
@@ -140,11 +142,21 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     private void setupPhenomena() {
         this.unit1 = Unit.get("kWh");
-        this.phenomenon1 = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(DeviceImplTest.class.getSimpleName() + "1", unit1);
-        this.phenomenon1.save();
+        this.phenomenon1 = this.createPhenomenonIfMissing(this.unit1, DeviceImplTest.class.getSimpleName() + "1");
         this.unit2 = Unit.get("MWh");
-        this.phenomenon2 = inMemoryPersistence.getDeviceConfigurationService().newPhenomenon(DeviceImplTest.class.getSimpleName() + "2", unit2);
-        this.phenomenon2.save();
+        this.phenomenon2 = this.createPhenomenonIfMissing(this.unit2, DeviceImplTest.class.getSimpleName() + "2");
+    }
+
+    private Phenomenon createPhenomenonIfMissing(Unit unit, String name) {
+        Optional<Phenomenon> phenomenonByUnit = inMemoryPersistence.getMasterDataService().findPhenomenonByUnit(unit);
+        if (!phenomenonByUnit.isPresent()) {
+            Phenomenon phenomenon = inMemoryPersistence.getMasterDataService().newPhenomenon(name, unit);
+            phenomenon.save();
+            return phenomenon;
+        }
+        else {
+            return phenomenonByUnit.get();
+        }
     }
 
     @Test
@@ -392,25 +404,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Device simpleDevice = createSimpleDevice();
 
         assertThat(simpleDevice.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"))).isNull();
-    }
-
-    private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {
-        RegisterMapping registerMapping1 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RegisterMapping1", obisCode1, unit1, readingType1, 0);
-        registerMapping1.save();
-        RegisterMapping registerMapping2 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RegisterMapping2", obisCode2, unit2, readingType2, 0);
-        registerMapping2.save();
-        deviceType.addRegisterMapping(registerMapping1);
-        deviceType.addRegisterMapping(registerMapping2);
-        DeviceType.DeviceConfigurationBuilder configurationWithRegisterMappings = deviceType.newConfiguration("ConfigurationWithRegisterMappings");
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder1 = configurationWithRegisterMappings.newRegisterSpec(registerMapping1);
-        registerSpecBuilder1.setNumberOfDigits(9);
-        registerSpecBuilder1.setNumberOfFractionDigits(0);
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder2 = configurationWithRegisterMappings.newRegisterSpec(registerMapping2);
-        registerSpecBuilder2.setNumberOfDigits(9);
-        registerSpecBuilder2.setNumberOfFractionDigits(0);
-        DeviceConfiguration deviceConfiguration = configurationWithRegisterMappings.add();
-        deviceType.save();
-        return deviceConfiguration;
     }
 
     @Test
@@ -944,11 +937,19 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void getChannelWithExistingNameTest() {
         DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs();
+        List<ChannelSpec> channelSpecs = deviceConfigurationWithTwoChannelSpecs.getChannelSpecs();
+        String channelSpecName = "RegisterMapping1";
+        for (ChannelSpec channelSpec : channelSpecs) {
+            if (channelSpec.getRegisterMapping().getReadingType().getName().equals(readingType1.getName())) {
+                channelSpecName = channelSpec.getName();
+            }
+        }
+
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels");
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
 
-        BaseChannel channel = reloadedDevice.getChannel("RegisterMapping1");
+        BaseChannel channel = reloadedDevice.getChannel(channelSpecName);
         assertThat(channel).isNotNull();
         assertThat(channel.getRegisterTypeObisCode()).isEqualTo(obisCode1);
     }
@@ -965,12 +966,39 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         assertThat(channel).isNull();
     }
 
+    @Test
+    @Transactional
+    public void deviceNotifiesDependentPartiesWhenDeletingTest() {
+        DeviceDependant deviceDependant = mock(DeviceDependant.class);
+        when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceDependant.class)).thenReturn(Arrays.asList(deviceDependant));
+        Device simpleDevice = createSimpleDevice();
+        simpleDevice.delete();
+
+        verify(deviceDependant).notifyDeviceDelete(simpleDevice);
+    }
+
+    private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {
+        RegisterMapping registerMapping1 = this.createRegisterMappingIfMissing("RegisterMapping1", obisCode1, unit1, readingType1, 0);
+        RegisterMapping registerMapping2 = this.createRegisterMappingIfMissing("RegisterMapping2", obisCode2, unit2, readingType2, 0);
+        deviceType.addRegisterMapping(registerMapping1);
+        deviceType.addRegisterMapping(registerMapping2);
+        DeviceType.DeviceConfigurationBuilder configurationWithRegisterMappings = deviceType.newConfiguration("ConfigurationWithRegisterMappings");
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder1 = configurationWithRegisterMappings.newRegisterSpec(registerMapping1);
+        registerSpecBuilder1.setNumberOfDigits(9);
+        registerSpecBuilder1.setNumberOfFractionDigits(0);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder2 = configurationWithRegisterMappings.newRegisterSpec(registerMapping2);
+        registerSpecBuilder2.setNumberOfDigits(9);
+        registerSpecBuilder2.setNumberOfFractionDigits(0);
+        DeviceConfiguration deviceConfiguration = configurationWithRegisterMappings.add();
+        deviceType.save();
+        return deviceConfiguration;
+    }
+
     private DeviceConfiguration createDeviceConfigurationWithTwoChannelSpecs() {
-        RegisterMapping registerMapping1 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RegisterMapping1", obisCode1, unit1, readingType1, 0);
-        registerMapping1.save();
-        RegisterMapping registerMapping2 = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("RegisterMapping2", obisCode2, unit2, readingType2, 0);
+        RegisterMapping registerMapping1 = this.createRegisterMappingIfMissing("RegisterMapping1", obisCode1, unit1, readingType1, 0);
+        RegisterMapping registerMapping2 = this.createRegisterMappingIfMissing("RegisterMapping2", obisCode2, unit2, readingType2, 0);
         registerMapping2.save();
-        loadProfileType = inMemoryPersistence.getDeviceConfigurationService().newLoadProfileType("LoadProfileType", loadProfileObisCode, interval);
+        loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType("LoadProfileType", loadProfileObisCode, interval);
         loadProfileType.addRegisterMapping(registerMapping1);
         loadProfileType.addRegisterMapping(registerMapping2);
         loadProfileType.save();
@@ -984,15 +1012,17 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         return deviceConfiguration;
     }
 
-    @Test
-    @Transactional
-    public void deviceNotifiesDependentPartiesWhenDeletingTest() {
-        DeviceDependant deviceDependant = mock(DeviceDependant.class);
-        when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceDependant.class)).thenReturn(Arrays.asList(deviceDependant));
-        Device simpleDevice = createSimpleDevice();
-        simpleDevice.delete();
-
-        verify(deviceDependant).notifyDeviceDelete(simpleDevice);
+    private RegisterMapping createRegisterMappingIfMissing(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse) {
+        Optional<RegisterMapping> xRegisterMapping = inMemoryPersistence.getMasterDataService().findRegisterMappingByReadingType(readingType);
+        RegisterMapping registerMapping;
+        if (xRegisterMapping.isPresent()) {
+            registerMapping = xRegisterMapping.get();
+        }
+        else {
+            registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping(name, obisCode, unit, readingType, timeOfUse);
+            registerMapping.save();
+        }
+        return registerMapping;
     }
 
 }

@@ -103,6 +103,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private OrmService ormService;
     private EventService eventService;
     private NlsService nlsService;
+    private MasterDataService masterDataService;
     private DeviceConfigurationService deviceConfigurationService;
     private MeteringService meteringService;
     private DataModel dataModel;
@@ -161,7 +162,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
-            injector.getInstance(MasterDataService.class);
+            this.masterDataService = injector.getInstance(MasterDataService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.dataModel = this.createNewDeviceDataService(injector);
             ctx.commit();
@@ -214,6 +215,10 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
     public MeteringService getMeteringService() {
         return meteringService;
+    }
+
+    public MasterDataService getMasterDataService() {
+        return masterDataService;
     }
 
     public DeviceConfigurationService getDeviceConfigurationService() {

@@ -21,6 +21,7 @@ import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OnlineComServer;
@@ -31,16 +32,15 @@ import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -232,17 +232,23 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
             Environment.DEFAULT.get().execute(new Transaction<Object>() {
                 @Override
                 public Object doExecute() {
-                    outboundTcpipComPortPool.delete();
-                    outboundTcpipComPortPool2.delete();
-                    inboundTcpipComPortPool.delete();
-                    inboundTcpipComPortPool2.delete();
-                    outboundModemComPortPool.delete();
+                    deleteComPortPool(outboundTcpipComPortPool);
+                    deleteComPortPool(outboundTcpipComPortPool2);
+                    deleteComPortPool(inboundTcpipComPortPool);
+                    deleteComPortPool(inboundTcpipComPortPool2);
+                    deleteComPortPool(outboundModemComPortPool);
                     return null;
                 }
             });
         }
         catch (BusinessException | SQLException e) {
             // Not thrown by the transaction
+        }
+    }
+
+    private static void deleteComPortPool(ComPortPool comPortPool) {
+        if (comPortPool != null) {
+            comPortPool.delete();
         }
     }
 
