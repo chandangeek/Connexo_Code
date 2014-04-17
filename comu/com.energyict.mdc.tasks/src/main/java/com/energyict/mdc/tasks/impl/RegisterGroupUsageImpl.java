@@ -2,7 +2,7 @@ package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.config.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.tasks.RegistersTask;
 
 /**

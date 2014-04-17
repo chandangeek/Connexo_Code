@@ -4,7 +4,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
@@ -41,7 +41,6 @@ public enum TableSpecs {
         }
     },
     MDCPROTOCOLTASK {
-
         @Override
         void addTo(DataModel dataModel) {
             Table<ProtocolTask> table = dataModel.addTable(name(), ProtocolTask.class);
@@ -112,11 +111,10 @@ public enum TableSpecs {
                     reverseMap(RegistersTaskImpl.Fields.REGISTER_GROUP_USAGES.fieldName()).
                     composition().
                     add();
-            table.foreignKey("FK_REGISTERGROUP").on(registerGroupId).references(DeviceConfigurationService.COMPONENTNAME, "EISRTUREGISTERGROUP").map(RegisterGroupUsageImpl.Fields.REGISTERS_GROUP_REFERENCE.fieldName()).add();
+            table.foreignKey("FK_REGISTERGROUP").on(registerGroupId).references(MasterDataService.COMPONENTNAME, "EISRTUREGISTERGROUP").map(RegisterGroupUsageImpl.Fields.REGISTERS_GROUP_REFERENCE.fieldName()).add();
             table.primaryKey("PK_REGISTERGROUPUSAGE").on(registerTaskId, registerGroupId).add();
         }
     };
-
 
     abstract void addTo(DataModel component);
 

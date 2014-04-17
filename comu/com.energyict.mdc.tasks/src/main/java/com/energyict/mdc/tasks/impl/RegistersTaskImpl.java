@@ -2,7 +2,7 @@ package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.device.config.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.RegistersTask;
 import java.util.ArrayList;

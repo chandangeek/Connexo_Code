@@ -3,7 +3,7 @@ package com.energyict.mdc.tasks.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.device.config.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategoryPrimaryKey;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -197,7 +197,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         taskByType.setMinimumClockDifference(TimeDuration.hours(1));
         taskByType.setMaximumClockShift(TimeDuration.minutes(1));
         taskByType.save();
-        
+
         ComTask rereloadedComTask = getTaskService().findComTask(comTask.getId());
         ClockTask reloadedTaskByType = getTaskByType(rereloadedComTask.getProtocolTasks(), ClockTask.class);
         assertThat(rereloadedComTask.getProtocolTasks()).hasSize(1);
@@ -318,7 +318,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
         ComTask rereloadedComTask = getTaskService().findComTask(comTask.getId());
         LoadProfilesTask reloadedTaskByType = getTaskByType(rereloadedComTask.getProtocolTasks(), LoadProfilesTask.class);
-        
+
         assertThat(reloadedTaskByType).isNotNull();
         assertThat(reloadedTaskByType.getComTask().getId()).isEqualTo(comTask.getId());
         assertThat(reloadedTaskByType.createMeterEventsFromStatusFlags()).isFalse();
@@ -580,7 +580,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
     public void testCreateRegistersTaskWithRegisterGroup() throws Exception {
         ComTask comTask = createSimpleComTask();
 
-        RegisterGroup registerGroup = getDeviceConfigurationService().newRegisterGroup("group1");
+        RegisterGroup registerGroup = getMasterDataService().newRegisterGroup("group1");
         registerGroup.save();
         comTask.createRegistersTask().registerGroups(Arrays.asList(registerGroup)).add();
         comTask.save();
@@ -596,14 +596,14 @@ public class ProtocolTaskImplTest extends PersistenceTest {
     public void testCreateRegistersTaskAdd1RegisterGroup() throws Exception {
         ComTask comTask = createSimpleComTask();
 
-        RegisterGroup registerGroup = getDeviceConfigurationService().newRegisterGroup("group1");
+        RegisterGroup registerGroup = getMasterDataService().newRegisterGroup("group1");
         registerGroup.save();
         comTask.createRegistersTask().registerGroups(Arrays.asList(registerGroup)).add();
         comTask.save();
 
         ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
         RegistersTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), RegistersTask.class);
-        RegisterGroup registerGroup2 = getDeviceConfigurationService().newRegisterGroup("group2");
+        RegisterGroup registerGroup2 = getMasterDataService().newRegisterGroup("group2");
         registerGroup2.save();
         taskByType.setRegisterGroups(Arrays.asList(registerGroup, registerGroup2));
         taskByType.save();
@@ -620,9 +620,9 @@ public class ProtocolTaskImplTest extends PersistenceTest {
     public void testCreateRegistersTaskRemove1RegisterGroup() throws Exception {
         ComTask comTask = createSimpleComTask();
 
-        RegisterGroup registerGroup = getDeviceConfigurationService().newRegisterGroup("group1");
+        RegisterGroup registerGroup = getMasterDataService().newRegisterGroup("group1");
         registerGroup.save();
-        RegisterGroup registerGroup2 = getDeviceConfigurationService().newRegisterGroup("group2");
+        RegisterGroup registerGroup2 = getMasterDataService().newRegisterGroup("group2");
         registerGroup2.save();
         comTask.createRegistersTask().registerGroups(Arrays.asList(registerGroup, registerGroup2)).add();
         comTask.save();
@@ -644,16 +644,16 @@ public class ProtocolTaskImplTest extends PersistenceTest {
     public void testCreateRegistersTaskAdd1Remove1RegisterGroup() throws Exception {
         ComTask comTask = createSimpleComTask();
 
-        RegisterGroup registerGroup = getDeviceConfigurationService().newRegisterGroup("group1");
+        RegisterGroup registerGroup = getMasterDataService().newRegisterGroup("group1");
         registerGroup.save();
-        RegisterGroup registerGroup2 = getDeviceConfigurationService().newRegisterGroup("group2");
+        RegisterGroup registerGroup2 = getMasterDataService().newRegisterGroup("group2");
         registerGroup2.save();
         comTask.createRegistersTask().registerGroups(Arrays.asList(registerGroup, registerGroup2)).add();
         comTask.save();
 
         ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
         RegistersTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), RegistersTask.class);
-        RegisterGroup registerGroup3 = getDeviceConfigurationService().newRegisterGroup("group3");
+        RegisterGroup registerGroup3 = getMasterDataService().newRegisterGroup("group3");
         registerGroup3.save();
         taskByType.setRegisterGroups(Arrays.asList(registerGroup2, registerGroup3));
         taskByType.save();
@@ -723,4 +723,5 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
         assertThat(actual).isNull();
     }
+
 }

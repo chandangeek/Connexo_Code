@@ -2,7 +2,7 @@ package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.device.config.LoadProfileType;
+import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import java.util.Collections;

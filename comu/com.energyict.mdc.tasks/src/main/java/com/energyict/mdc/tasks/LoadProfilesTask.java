@@ -1,14 +1,14 @@
 package com.energyict.mdc.tasks;
 
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.device.config.LoadProfileType;
+import com.energyict.mdc.masterdata.LoadProfileType;
 import java.util.List;
 
 /**
  * Models the {@link com.energyict.mdc.tasks.ProtocolTask} which can read one or multiple LoadProfile
  * from a Device.
  * <p>
- * The task can contain an optional list of {@link com.energyict.mdc.device.config.LoadProfileType loadProfileTypes},
+ * The task can contain an optional list of {@link LoadProfileType loadProfileTypes},
  * which means only these types should be fetched from the device. If no list is provided, then <b>all</b>
  * loadProfiles should be fetched.
  * </p><p>

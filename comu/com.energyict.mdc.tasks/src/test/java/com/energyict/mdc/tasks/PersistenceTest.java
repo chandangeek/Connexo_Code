@@ -62,7 +62,7 @@ public class PersistenceTest {
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     @BeforeClass
-    public static void staticSetUp() throws SQLException {
+    public static void staticSetUp() {
         BundleContext bundleContext = mock(BundleContext.class);
 
         injector = Guice.createInjector(
@@ -89,7 +89,7 @@ public class PersistenceTest {
                 new DeviceConfigurationModule(),
 //                new EventsModule(), // Mocked by Spy
                 new PluggableModule(),
-                new TransactionModule(true),
+                new TransactionModule(false),
                 new TasksModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
         	injector.getInstance(EnvironmentImpl.class); // fake call to make sure component is initialized
@@ -106,7 +106,7 @@ public class PersistenceTest {
     }
 
     @AfterClass
-    public static void staticTearDown() throws SQLException {
+    public static void staticTearDown() {
     	inMemoryBootstrapModule.deactivate();
     }
 
@@ -116,6 +116,10 @@ public class PersistenceTest {
 
     public final TaskService getTaskService() {
         return injector.getInstance(TaskService.class);
+    }
+
+    public final MasterDataService getMasterDataService() {
+        return injector.getInstance(MasterDataService.class);
     }
 
     public final DeviceConfigurationService getDeviceConfigurationService() {
