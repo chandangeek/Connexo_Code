@@ -22,9 +22,10 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         super(partialConnectionTask, uriInfo);
         this.connectionStrategy=partialConnectionTask.getConnectionStrategy();
         this.allowSimultaneousConnections=partialConnectionTask.isSimultaneousConnectionsAllowed();
-        this.rescheduleDelay= new TimeDurationInfo(partialConnectionTask.getRescheduleDelay());
+        this.rescheduleRetryDelay = new TimeDurationInfo(partialConnectionTask.getRescheduleDelay());
         this.comWindowStart=partialConnectionTask.getCommunicationWindow().getStart().getMillis()/1000;
         this.comWindowEnd=partialConnectionTask.getCommunicationWindow().getEnd().getMillis()/1000;
+        this.nextExecutionSpecs=new NextExecutionsSpecsInfo(partialConnectionTask.getNextExecutionSpecs().getTemporalExpression());
     }
 
     @Override
@@ -35,7 +36,12 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         partialConnectionTask.setComWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
         partialConnectionTask.setConnectionStrategy(this.connectionStrategy);
         partialConnectionTask.setComportPool(Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace() ? null : (OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool));
-        partialConnectionTask.setRescheduleRetryDelay(this.rescheduleDelay.asTimeDuration());
+        partialConnectionTask.setRescheduleRetryDelay(this.rescheduleRetryDelay.asTimeDuration());
+        if (nextExecutionSpecs!=null) {
+            partialConnectionTask.setTemporalExpression(nextExecutionSpecs.asTemporalExpression());
+        } else {
+            partialConnectionTask.setNextExecutionSpecs(null);
+        }
     }
 
     @Override
@@ -48,8 +54,21 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
             .comWindow(new ComWindow(this.comWindowStart, this.comWindowEnd))
             .asDefault(this.isDefault)
             .connectionStrategy(this.connectionStrategy)
-            .rescheduleDelay(this.rescheduleDelay==null?null:this.rescheduleDelay.asTimeDuration())
+            .rescheduleDelay(this.rescheduleRetryDelay == null ? null : this.rescheduleRetryDelay.asTimeDuration())
             .allowSimultaneousConnections(this.allowSimultaneousConnections);
+        if (this.nextExecutionSpecs!=null) {
+            if (this.nextExecutionSpecs.temporalExpression.offset==null) {
+                scheduledConnectionTaskBuilder
+                        .nextExecutionSpec()
+                        .temporalExpression(this.nextExecutionSpecs.temporalExpression.every.asTimeDuration())
+                        .set();
+            } else {
+                scheduledConnectionTaskBuilder
+                        .nextExecutionSpec()
+                        .temporalExpression(this.nextExecutionSpecs.temporalExpression.every.asTimeDuration(), this.nextExecutionSpecs.temporalExpression.offset.asTimeDuration())
+                        .set();
+            }
+        }
 
         addPropertiesToPartialConnectionTask(scheduledConnectionTaskBuilder, connectionTypePluggableClass);
         return scheduledConnectionTaskBuilder.build();
