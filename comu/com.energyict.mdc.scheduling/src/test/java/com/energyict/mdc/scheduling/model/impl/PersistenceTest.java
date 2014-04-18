@@ -34,7 +34,7 @@ public abstract class PersistenceTest {
     @BeforeClass
     public static void initialize() {
         inMemoryPersistence = new InMemoryPersistence();
-        inMemoryPersistence.initializeDatabase("PersistenceTest.mdc.scheduling", false, false);
+        inMemoryPersistence.initializeDatabase("PersistenceTest.mdc.scheduling", false);
     }
 
     @AfterClass

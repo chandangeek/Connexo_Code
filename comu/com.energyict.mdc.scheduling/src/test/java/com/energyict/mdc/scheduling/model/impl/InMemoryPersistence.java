@@ -28,6 +28,7 @@ import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -64,18 +65,12 @@ public class InMemoryPersistence {
     private Principal principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
-    private OrmService ormService;
-    private EventService eventService;
-    private Publisher publisher;
-    private NlsService nlsService;
-    private MeteringService meteringService;
-    private UserService userService;
     private DataModel dataModel;
     private Injector injector;
 
     private ApplicationContext applicationContext;
 
-    public void initializeDatabase(String testName, boolean showSqlLogging, boolean createMasterData) {
+    public void initializeDatabase(String testName, boolean showSqlLogging) {
         this.initializeMocks(testName);
         InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
@@ -95,15 +90,16 @@ public class InMemoryPersistence {
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
-                new MdcCommonModule());
+                new MdcCommonModule(),
+                new SchedulingModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
-            this.ormService = injector.getInstance(OrmService.class);
-            userService = injector.getInstance(UserService.class);
-            this.eventService = injector.getInstance(EventService.class);
-            this.publisher = injector.getInstance(Publisher.class);
-            this.nlsService = injector.getInstance(NlsService.class);
-            this.meteringService = injector.getInstance(MeteringService.class);
+            OrmService ormService = injector.getInstance(OrmService.class);
+            UserService userService = injector.getInstance(UserService.class);
+            EventService eventService = injector.getInstance(EventService.class);
+            Publisher publisher = injector.getInstance(Publisher.class);
+            NlsService nlsService = injector.getInstance(NlsService.class);
+            MeteringService meteringService = injector.getInstance(MeteringService.class);
             ctx.commit();
         }
         Environment environment = injector.getInstance(Environment.class);
@@ -112,15 +108,6 @@ public class InMemoryPersistence {
     }
 
 
-//    public void run(DataModelInitializer... dataModelInitializers) {
-//        try (TransactionContext ctx = this.transactionService.getContext()) {
-//            for (DataModelInitializer initializer : dataModelInitializers) {
-//                initializer.initializeDataModel(this.dataModel);
-//            }
-//            ctx.commit();
-//        }
-//    }
-//
     private void initializeMocks(String testName) {
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
@@ -148,10 +135,6 @@ public class InMemoryPersistence {
             InMemoryBootstrapModule inMemoryBootstrapModule = (InMemoryBootstrapModule) bootstrapModule;
             inMemoryBootstrapModule.deactivate();
         }
-    }
-
-    public MeteringService getMeteringService() {
-        return meteringService;
     }
 
     public TransactionService getTransactionService() {
