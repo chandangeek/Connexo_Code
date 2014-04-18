@@ -81,6 +81,7 @@ mvn:com.elster.jupiter/security.thread/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/bootstrap/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/bootstrap.oracle/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/orm/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/orm.schema.oracle/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/domain.util/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/users/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/messaging/1.0.0-SNAPSHOT
