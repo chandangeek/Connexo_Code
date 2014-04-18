@@ -20,6 +20,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.tasks</artifactId>
+            <version>${jupiter.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>util</artifactId>
             <version>${jupiter.version}</version>
