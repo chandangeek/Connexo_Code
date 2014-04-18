@@ -37,7 +37,6 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.AfterClass;
