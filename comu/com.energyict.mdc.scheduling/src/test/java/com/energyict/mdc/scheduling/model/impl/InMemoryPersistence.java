@@ -28,8 +28,6 @@ import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.pluggable.PluggableService;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -97,8 +95,7 @@ public class InMemoryPersistence {
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
-                new MdcCommonModule(),
-                new PluggableModule());
+                new MdcCommonModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.ormService = injector.getInstance(OrmService.class);
@@ -107,7 +104,6 @@ public class InMemoryPersistence {
             this.publisher = injector.getInstance(Publisher.class);
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
-            injector.getInstance(PluggableService.class);
             ctx.commit();
         }
         Environment environment = injector.getInstance(Environment.class);
