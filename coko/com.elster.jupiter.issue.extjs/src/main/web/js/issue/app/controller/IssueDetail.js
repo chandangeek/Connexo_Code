@@ -25,11 +25,11 @@ Ext.define('Isu.controller.IssueDetail', {
         },
         {
             ref: 'commentForm',
-            selector: 'issue-detail-overview form'
+            selector: 'issue-detail-overview issue-comments comment-add-form'
         },
         {
             ref: 'addCommentButton',
-            selector: 'issue-detail-overview button[action=addcomment]'
+            selector: 'issue-detail-overview issue-comments button[action=add]'
         },
         {
             ref: 'sendCommentButton',
@@ -42,7 +42,7 @@ Ext.define('Isu.controller.IssueDetail', {
             'issue-detail-overview breadcrumbTrail': {
                 afterrender: this.setBreadcrumb
             },
-            'issue-detail-overview button[action=addcomment]': {
+            'issue-detail-overview issue-comments button[action=add]': {
                 click: this.showCommentForm
             },
             'issue-detail-overview form button[action=cancel]': {
@@ -104,12 +104,9 @@ Ext.define('Isu.controller.IssueDetail', {
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
-    showCommentForm: function () {
-        var form = this.getCommentForm(),
-            button = this.getAddCommentButton();
-
-        button.hide();
-        form.show();
+    showCommentForm: function (btn) {
+        this.getCommentForm().show();
+        btn.hide();
     },
 
     hideCommentForm: function () {
@@ -123,31 +120,18 @@ Ext.define('Isu.controller.IssueDetail', {
 
     validateCommentForm: function (form, newValue) {
         var sendBtn = this.getSendCommentButton();
-
-        if (newValue.replace(/\s*/g, '')) {
-            sendBtn.setDisabled(false);
-        } else {
-            sendBtn.setDisabled(true);
-        }
+        sendBtn.setDisabled(!newValue.trim().length);
     },
 
     addComment: function () {
         var self = this,
             commentsPanel = self.getCommentsPanel(),
-            commentsStore = commentsPanel.getStore(),
-            formPanel = self.getCommentForm(),
-            form = formPanel.getForm();
+            commentsStore = commentsPanel.getStore()
+        ;
 
-        Ext.Ajax.request({
-            url: self.commentsAPI,
-            method: 'POST',
-            jsonData: form.getValues(),
-            success: function (response) {
-                var data = Ext.JSON.decode(response.responseText).data;
-
-                commentsStore.add(data);
-            }
-        });
+        var store = commentsPanel.getStore();
+        store.add(self.getCommentForm().getValues());
+        store.sync();
 
         self.hideCommentForm();
     }

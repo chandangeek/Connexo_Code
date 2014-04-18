@@ -1,8 +1,9 @@
-Ext.define('Isu.view.workspace.issues.CommentsList', {
+Ext.define('Isu.view.workspace.issues.comment.List', {
     extend: 'Ext.panel.Panel',
     requires: [
         'Isu.view.ext.button.Action',
-        'Isu.store.IssueComments'
+        'Isu.store.IssueComments',
+        'Isu.view.workspace.issues.comment.AddForm'
     ],
 
     alias: 'widget.issue-comments',
@@ -18,7 +19,7 @@ Ext.define('Isu.view.workspace.issues.CommentsList', {
             itemSelector: 'div.thumb-wrap',
             tpl: new Ext.XTemplate(
                 '<tpl for=".">',
-                '<p><span class="isu-icon-USER"></span><b>{comment}</b> added a comment - {[values.creationDate ? this.formatCreationDate(values.creationDate) : ""]}</p>',
+                '<p><span class="isu-icon-USER"></span><b>{author.name}</b> added a comment - {[values.creationDate ? this.formatCreationDate(values.creationDate) : ""]}</p>',
                 '<p>{comment}</p>',
                 '</tpl>',
                 {
@@ -32,24 +33,8 @@ Ext.define('Isu.view.workspace.issues.CommentsList', {
             dataIndex: 'name'
         },
         {
-            hidden: true,
-            title: 'Comment',
-            layout: 'fit',
-            items: {
-                xtype: 'textareafield',
-                name: 'comment'
-            },
-            buttons: [
-                {
-                    text: 'Add',
-                    action: 'send',
-                    disabled: true
-                },
-                {
-                    text: 'Cancel',
-                    action: 'cancel'
-                }
-            ]
+            xtype: 'comment-add-form',
+            hidden: true
         }
     ],
 

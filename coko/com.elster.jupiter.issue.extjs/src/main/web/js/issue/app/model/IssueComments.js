@@ -6,10 +6,6 @@ Ext.define('Isu.model.IssueComments', {
 
     fields: [
         {
-            name: 'id',
-            type: 'int'
-        },
-        {
             name: 'author',
             type: 'auto'
         },
