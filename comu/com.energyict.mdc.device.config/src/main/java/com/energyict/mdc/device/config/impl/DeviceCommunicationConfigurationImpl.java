@@ -26,6 +26,7 @@ import com.energyict.mdc.device.config.ServerDeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.exceptions.PartialConnectionTaskDoesNotExist;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.scheduling.SchedulingService;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +43,7 @@ import javax.validation.Valid;
  */
 public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<DeviceCommunicationConfiguration> implements ServerDeviceCommunicationConfiguration {
 
+    private final SchedulingService schedulingService;
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private List<SecurityPropertySet> securityPropertySets = new ArrayList<>();
 //    private List<ComTaskEnablement> comTaskEnablements;
@@ -55,8 +57,9 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     private List<ProtocolDialectConfigurationProperties> configurationPropertiesList = new ArrayList<>();
 
     @Inject
-    DeviceCommunicationConfigurationImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    DeviceCommunicationConfigurationImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, SchedulingService schedulingService) {
         super(DeviceCommunicationConfiguration.class, dataModel, eventService, thesaurus);
+        this.schedulingService = schedulingService;
     }
 
     static DeviceCommunicationConfigurationImpl from(DataModel dataModel, DeviceConfiguration deviceConfiguration) {
@@ -651,7 +654,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public PartialScheduledConnectionTaskBuilder createPartialScheduledConnectionTask() {
-        return new PartialScheduledConnectionTaskBuilderImpl(dataModel, this);
+        return new PartialScheduledConnectionTaskBuilderImpl(dataModel, this, schedulingService);
     }
 
     @Override
@@ -661,7 +664,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public PartialConnectionInitiationTaskBuilder createPartialConnectionInitiationTask() {
-        return new PartialConnectionInitiationTaskBuilderImpl(dataModel, this);
+        return new PartialConnectionInitiationTaskBuilderImpl(dataModel, this, schedulingService);
     }
 
     @Override

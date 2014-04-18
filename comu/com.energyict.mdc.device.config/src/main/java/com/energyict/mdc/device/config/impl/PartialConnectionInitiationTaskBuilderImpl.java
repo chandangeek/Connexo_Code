@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
+import com.energyict.mdc.scheduling.SchedulingService;
 
 /**
  * Copyrights EnergyICT
@@ -11,8 +12,8 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
  */
 public class PartialConnectionInitiationTaskBuilderImpl extends AbstractScheduledPartialConnectionTaskBuilder<PartialConnectionInitiationTaskBuilder, PartialConnectionInitiationTaskImpl> implements PartialConnectionInitiationTaskBuilder {
 
-    PartialConnectionInitiationTaskBuilderImpl(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
-        super(PartialConnectionInitiationTaskBuilder.class, dataModel, configuration);
+    PartialConnectionInitiationTaskBuilderImpl(DataModel dataModel, DeviceCommunicationConfiguration configuration, SchedulingService schedulingService) {
+        super(PartialConnectionInitiationTaskBuilder.class, dataModel, configuration, schedulingService);
     }
 
     @Override

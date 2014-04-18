@@ -14,16 +14,15 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import org.joda.time.DateTimeConstants;
-
+import com.energyict.mdc.scheduling.TemporalExpression;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.NotNull;
+import org.joda.time.DateTimeConstants;
 
 
 /**

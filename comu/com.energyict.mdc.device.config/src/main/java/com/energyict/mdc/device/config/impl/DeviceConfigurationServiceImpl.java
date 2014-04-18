@@ -23,12 +23,10 @@ import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -42,14 +40,13 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -289,16 +286,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public DeviceCommunicationConfiguration newDeviceCommunicationConfiguration(DeviceConfiguration deviceConfiguration) {
         return DeviceCommunicationConfigurationImpl.from(dataModel, deviceConfiguration);
-    }
-
-    @Override
-    public NextExecutionSpecs newNextExecutionSpecs(TemporalExpression temporalExpression) {
-        return new NextExecutionSpecsImpl(this.dataModel, this.eventService, this.thesaurus).initialize(temporalExpression);
-    }
-
-    @Override
-    public NextExecutionSpecs findNextExecutionSpecs(long id) {
-        return this.dataModel.mapper(NextExecutionSpecs.class).getUnique("id", id).orNull();
     }
 
     @Override

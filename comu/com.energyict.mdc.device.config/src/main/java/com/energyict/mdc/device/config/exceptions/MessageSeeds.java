@@ -101,11 +101,6 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC(12010, "deviceConfig.duplicate.obisCode.channelSpec", "The device configuration \"{0}\" already contains a channel specification this obis code \"{1}\"", SEVERE),
     DEVICE_CONFIGURATION_CAN_NOT_BE_GATEWAY(12012, Constants.DEVICE_CONFIG_GATEWAY_NOT_ALLOWED, "The device configuration can not be gateway as the device protocol does not allow it", SEVERE),
     DEVICE_CONFIGURATION_CAN_NOT_BE_DIRECTLY_ADDRESSED(12013, Constants.DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED, "The device configuration can not be directly addressable as the device protocol does not allow it", SEVERE),
-    NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED(13000, Constants.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY, "The temporal expression of a NextExecutionSpec is required", SEVERE),
-    TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED(13001, Constants.TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED_KEY, "The frequency of a temporal expression is required", SEVERE),
-    TEMPORAL_EXPRESSION_UNKNOWN_UNIT(13002, Constants.TEMPORAL_EXPRESSION_UNKNOWN_UNIT_KEY, "The unit {0} is unknown or unsupported for temporal expressions", SEVERE),
-    TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE(13003, Constants.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY, "The frequency value of a temporal expression must be a strictly positive number", SEVERE),
-    TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE(13004, Constants.TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY, "The offset value of a temporal expression must be a positive number", SEVERE),
     PROTOCOL_DIALECT_REQUIRED(13006, Constants.PROTOCOLDIALECT_REQUIRED_KEY, "The protocol dialect name is required for a protocolDialectConfigurationProperties", SEVERE),
     PROTOCOL_DIALECT_HAS_NO_SUCH_PROPERTY(13007, "protocolDialectConfigurationProperties.noSuchProperty", "The protocol dialect {0} does not have a configuration property with name {1}", SEVERE),
     PROTOCOL_DIALECT_DUPLICATE(13008, Constants.PROTOCOLDIALECT_CONF_PROPS_DUPLICATE_KEY, "A dialect configuration properties having device configuration  \"{0}\" and device protocol dialect \"{1}\" already exists.", SEVERE),
@@ -119,7 +114,6 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_STRATEGY_REQUIRED(13020, Constants.CONNECTION_STRATEGY_REQUIRED_KEY, "Connection Strategy is required", SEVERE),
     NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS(13021, Constants.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS_KEY, "Next Execution Spec is required for OutboundConnectionTasks that minimize connections.", SEVERE),
     NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY(13022, Constants.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY, "Next Execution Spec is invalid for Communication Window.", SEVERE),
-    NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY(13023, Constants.NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY_KEY, "Next Execution Spec's offset is greater than its frequency.", SEVERE),
     UNDER_MINIMUM_RESCHEDULE_DELAY(13024, Constants.UNDER_MINIMUM_RESCHEDULE_DELAY_KEY, "Reschedule delay is below minimum.", SEVERE),
     VETO_CONNECTIONTYPE_PLUGGABLECLASS_DELETION(13025, "connectionTypePluggableClass.XstillInUseByY", "ConnectionType Pluggable Class {0} is still in use by {1}", SEVERE),
     VETO_COMPORTPOOL_DELETION(13026, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by {1}", SEVERE),
@@ -189,11 +183,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED_KEY = "DTC.channelSpec.multiplierMode.required";
         public static final String REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY = "DTC.registerSpec.registerMapping.required";
         public static final String READING_TYPE_ALREADY_EXISTS_KEY = "DTC.productSpec.duplicateReadingTypeX";
-        public static final String NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY = "DTC.nextExecutionSpecs.temporalExpression.required";
-        public static final String TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED_KEY = "DTC.temporalExpression.every.required";
-        public static final String TEMPORAL_EXPRESSION_UNKNOWN_UNIT_KEY = "DTC.temporalExpression.unknown.unit";
-        public static final String TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY = "DTC.temporalExpression.every.count.positive";
-        public static final String TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY = "DTC.temporalExpression.offset.count.positive";
         public static final String DEVICE_CONFIG_GATEWAY_NOT_ALLOWED = "DTC.deviceConfig.gateway.notAllowed";
         public static final String DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED = "DTC.deviceConfig.directAddress.notAllowed";
         public static final String REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS = "DTC.registerSpec.invalidNumberOfDigits";

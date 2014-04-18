@@ -8,13 +8,14 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.MinTimeDuration;
-import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.impl.NextExecutionSpecsImpl;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 

@@ -5,6 +5,7 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.scheduling.SchedulingService;
 
 /**
  * Copyrights EnergyICT
@@ -19,8 +20,8 @@ public class PartialScheduledConnectionTaskBuilderImpl extends AbstractScheduled
     private PartialConnectionInitiationTaskImpl partialConnectionInitiationTask;
 
 
-    PartialScheduledConnectionTaskBuilderImpl(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
-        super(PartialScheduledConnectionTaskBuilder.class, dataModel, configuration);
+    PartialScheduledConnectionTaskBuilderImpl(DataModel dataModel, DeviceCommunicationConfiguration configuration, SchedulingService schedulingService) {
+        super(PartialScheduledConnectionTaskBuilder.class, dataModel, configuration, schedulingService);
     }
 
     @Override
