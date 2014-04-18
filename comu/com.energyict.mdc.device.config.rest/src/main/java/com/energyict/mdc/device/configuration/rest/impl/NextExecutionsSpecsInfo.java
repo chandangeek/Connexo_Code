@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.device.config.TemporalExpression;
+import com.energyict.mdc.scheduling.TemporalExpression;
 
 public class NextExecutionsSpecsInfo {
 
