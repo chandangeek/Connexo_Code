@@ -344,6 +344,7 @@
                 <module>../com.elster.jupiter.metering.cim</module>
                 <module>../com.elster.jupiter.nls.rest</module>
                 <module>../com.elster.jupiter.orm</module>
+                <module>../com.elster.jupiter.orm.schema.oracle</module>
                 <module>../com.elster.jupiter.osgi.goodies</module>
                 <module>../com.elster.jupiter.parties</module>
                 <module>../com.elster.jupiter.parties.rest</module>
