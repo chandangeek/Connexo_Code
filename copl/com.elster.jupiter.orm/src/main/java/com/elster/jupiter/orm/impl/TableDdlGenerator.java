@@ -266,6 +266,7 @@ class TableDdlGenerator {
         if (fromIndex.matches(toIndex)) {
             return Collections.emptyList();
         }
+        // for the moment quite naive: drop index and recreate
         return Arrays.asList(getDropIndex(fromIndex), getIndexDdl(toIndex));
     }
 
