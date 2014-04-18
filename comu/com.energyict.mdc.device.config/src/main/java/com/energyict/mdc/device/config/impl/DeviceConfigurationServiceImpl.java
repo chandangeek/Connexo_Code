@@ -37,6 +37,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -68,6 +69,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
     private volatile EngineModelService engineModelService;
     private volatile MasterDataService masterDataService;
+    private volatile SchedulingService schedulingService;
     private volatile UserService userService;
 
     private final Map<DeviceSecurityUserAction, Privilege> privileges = new EnumMap<>(DeviceSecurityUserAction.class);
@@ -77,11 +79,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, MasterDataService masterDataService) {
-        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, protocolPluggableService, userService, engineModelService, masterDataService, false);
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, MasterDataService masterDataService, SchedulingService schedulingService) {
+        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, protocolPluggableService, userService, engineModelService, masterDataService, false, schedulingService);
     }
 
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, ProtocolPluggableService protocolPluggableService, UserService userService, EngineModelService engineModelService, MasterDataService masterDataService, boolean createMasterData) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, ProtocolPluggableService protocolPluggableService, UserService userService, EngineModelService engineModelService, MasterDataService masterDataService, boolean createMasterData, SchedulingService schedulingService) {
         this();
         this.setOrmService(ormService);
         this.setUserService(userService);
@@ -92,6 +94,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setReadingTypeUtilService(mdcReadingTypeUtilService);
         this.setEngineModelService(engineModelService);
         this.setMasterDataService(this.masterDataService);
+        this.setSchedulingService(schedulingService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install(true);
@@ -361,6 +364,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         initPrivileges();
     }
 
+    @Reference
+    public void setSchedulingService(SchedulingService schedulingService) {
+        this.schedulingService = schedulingService;
+    }
+
     private void initPrivileges() {
         privileges.clear();
         for (Privilege privilege : userService.getPrivileges()) {
@@ -390,6 +398,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(EngineModelService.class).toInstance(engineModelService);
                 bind(UserService.class).toInstance(userService);
+                bind(SchedulingService.class).toInstance(schedulingService);
             }
         };
     }

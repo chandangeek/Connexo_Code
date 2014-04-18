@@ -74,8 +74,6 @@ public class InMemoryPersistence {
     private Principal principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
-    private OrmService ormService;
-    private EventService eventService;
     private Publisher publisher;
     private NlsService nlsService;
     private MasterDataService masterDataService;
@@ -126,9 +124,9 @@ public class InMemoryPersistence {
                 new SchedulingModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
-            this.ormService = injector.getInstance(OrmService.class);
+            OrmService ormService = injector.getInstance(OrmService.class);
             userService = injector.getInstance(UserService.class);
-            this.eventService = injector.getInstance(EventService.class);
+            EventService eventService = injector.getInstance(EventService.class);
             this.publisher = injector.getInstance(Publisher.class);
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
@@ -145,7 +143,7 @@ public class InMemoryPersistence {
     }
 
     private DataModel createNewDeviceConfigurationService(boolean createMasterData) {
-        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.readingTypeUtilService, this.protocolPluggableService, userService, engineModelService, masterDataService, createMasterData);
+        this.deviceConfigurationService = injector.getInstance(DeviceConfigurationServiceImpl.class);
         return this.deviceConfigurationService.getDataModel();
     }
 
