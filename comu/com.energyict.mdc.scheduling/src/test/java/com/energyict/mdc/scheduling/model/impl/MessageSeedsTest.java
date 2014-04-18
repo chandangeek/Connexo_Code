@@ -1,7 +1,6 @@
-package com.energyict.scheduling.model.impl;
+package com.energyict.mdc.scheduling.model.impl;
 
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.impl.MessageSeeds;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Test;
