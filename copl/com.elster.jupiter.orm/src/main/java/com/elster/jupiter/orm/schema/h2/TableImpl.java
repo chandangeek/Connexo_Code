@@ -3,6 +3,7 @@ package com.elster.jupiter.orm.schema.h2;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.schema.ExistingColumn;
+import com.elster.jupiter.orm.schema.ExistingIndex;
 import com.elster.jupiter.orm.schema.ExistingTable;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -16,6 +17,7 @@ public class TableImpl implements ExistingTable {
     private String name;
     private List<ColumnImpl> columns = new ArrayList<>();
     private List<ConstraintImpl> constraints = new ArrayList<>();
+
 
     @Override
     public String getName() {
@@ -65,6 +67,11 @@ public class TableImpl implements ExistingTable {
                 return constraint.getColumns();
             }
         }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<? extends ExistingIndex> getIndexes() {
         return Collections.emptyList();
     }
 }
