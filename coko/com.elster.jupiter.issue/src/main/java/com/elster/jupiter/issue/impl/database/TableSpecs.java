@@ -1,6 +1,14 @@
 package com.elster.jupiter.issue.impl.database;
 
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.AssigneeRole;
+import com.elster.jupiter.issue.share.entity.AssigneeTeam;
+import com.elster.jupiter.issue.share.entity.BaseIssue;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.Rule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
@@ -95,7 +103,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<HistoricalIssue> table = dataModel.addTable(name(), HistoricalIssue.class);
             table.map(HistoricalIssue.class);
-            Column idColumn = table.column(DatabaseConst.ISSUE_HIST_COLUMN_ID).map("id").type("number").conversion(NUMBER2LONG).add();
+            Column idColumn = table.column(DatabaseConst.ISSUE_HIST_COLUMN_ID).notNull().map("id").type("number").conversion(NUMBER2LONG).add();
 
             TableBuilder.buildIssueTable(table, idColumn, DatabaseConst.ISSUE_HIST_PK_NAME,
                     // Foreign keys
