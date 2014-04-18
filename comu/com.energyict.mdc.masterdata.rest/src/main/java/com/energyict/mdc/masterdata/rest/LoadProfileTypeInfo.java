@@ -1,4 +1,4 @@
-package com.energyict.mdc.masterdata.rest.impl;
+package com.energyict.mdc.masterdata.rest;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
