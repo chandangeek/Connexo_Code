@@ -152,7 +152,15 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                                     name: 'dueIn.number',
                                                     minValue: 1,
                                                     width: 60,
-                                                    margin: '0 10 0 0'
+                                                    margin: '0 10 0 0',
+                                                    listeners: {
+                                                        focus: {
+                                                            fn: function (field) {
+                                                                var radioButton = Ext.ComponentQuery.query('issues-creation-rules-edit [boxLabel=Due in]')[0];
+                                                                radioButton.setValue(true);
+                                                            }
+                                                        }
+                                                    }
                                                 },
                                                 {
                                                     xtype: 'combobox',
@@ -162,7 +170,15 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                                     displayField: 'displayValue',
                                                     valueField: 'name',
                                                     editable: false,
-                                                    width: 100
+                                                    width: 100,
+                                                    listeners: {
+                                                        focus: {
+                                                            fn: function (field) {
+                                                                var radioButton = Ext.ComponentQuery.query('issues-creation-rules-edit [boxLabel=Due in]')[0];
+                                                                radioButton.setValue(true);
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             ]
                                         }
@@ -239,9 +255,6 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
         if (!newValue.dueDate) {
             dueInNumberField.reset();
             dueInTypeField.setValue(dueInTypeField.getStore().getAt(0).get('name'));
-            dueDateValues.setDisabled(true);
-        } else {
-            dueDateValues.setDisabled(false);
         }
     }
 });
