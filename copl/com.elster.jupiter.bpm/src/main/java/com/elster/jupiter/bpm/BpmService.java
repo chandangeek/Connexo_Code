@@ -5,12 +5,11 @@ import java.util.Map;
 
 public interface BpmService {
     String COMPONENTNAME = "BPM";
-    String BPM_QUEUE_DEST = "BpmQueueDest";
-    String BPM_QUEUE_SUBSC = "BpmQueueSubsc";
+    String BPM_QUEUE = "BPMQueue";
 
     List<String> getProcesses();
 
     Map<String, Object> getProcessParameters(String processId);
 
-    boolean startProcess(String deploymentId, String processId, Map<String, Object> parameters);
+    boolean startProcess(String processId, Map<String, Object> parameters);
 }
