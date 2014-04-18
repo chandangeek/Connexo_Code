@@ -118,7 +118,7 @@ Ext.define('Isu.controller.AssignIssues', {
                                 Ext.Array.each(item.issues, function (issue) {
                                     var header = {},
                                         bodyItem = {};
-                                    header.text = 'Failed to assign issue ' + assignPanel.record.data.reason + (assignPanel.record.data.device ? ' to ' + assignPanel.record.data.device.name + ' ' + assignPanel.record.data.device.serialNumber : '') + ' to ' + activeCombo.rawValue;
+                                    header.text = 'Failed to assign issue ' + assignPanel.record.data.reason.name + (assignPanel.record.data.device ? ' to ' + assignPanel.record.data.device.name + ' ' + assignPanel.record.data.device.serialNumber : '') + ' to ' + activeCombo.rawValue;
                                     header.style = 'msgHeaderStyle';
                                     msges.push(header);
                                     bodyItem.text = item.reason;

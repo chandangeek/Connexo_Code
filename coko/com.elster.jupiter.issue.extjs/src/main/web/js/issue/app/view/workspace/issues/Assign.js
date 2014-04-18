@@ -22,14 +22,14 @@ Ext.define('Isu.view.workspace.issues.Assign', {
             minHeight: 305,
             border: false,
             header: false,
-            recordTitle: self.record.data.reason + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : ''),
+            recordTitle: self.record.data.reason.name + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : ''),
             bodyPadding: 10,
             defaults: {
                 border: false
             },
             items: [
                 {
-                    html: '<h3 class="isu-assign-text"><span>Assign issue </span><span>' + self.record.data.reason + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '') + '</span></h3>',
+                    html: '<h3 class="isu-assign-text"><span>Assign issue </span><span>' + self.record.data.reason.name + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '') + '</span></h3>',
                     margin: '0 0 20 0'
                 },
                 {

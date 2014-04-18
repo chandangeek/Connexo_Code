@@ -419,7 +419,7 @@ Ext.define('Isu.controller.Issues', {
     },
 
     getIssuesForGroup: function (grid, record) {
-        var iString = '<h3>Issues for ' + this.group + ': ' + record.data.reason + '</h3>',
+        var iString = '<h3>Issues for ' + this.group + ': ' + record.data.reason.name + '</h3>',
             issuesFor = Ext.ComponentQuery.query('panel[name=issuesforlabel]')[0],
             lineLabel = Ext.ComponentQuery.query('label[name=forissuesline]')[0]
             ;

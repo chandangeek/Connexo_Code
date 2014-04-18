@@ -20,7 +20,7 @@ Ext.define('Isu.view.workspace.issues.Close', {
             minHeight: 305,
             border: false,
             header: false,
-            recordTitle: self.record.data.reason + ' ' + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : ''),
+            recordTitle: self.record.data.reason.name + ' ' + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : ''),
             bodyPadding: 10,
             defaults: {
                 border: false
