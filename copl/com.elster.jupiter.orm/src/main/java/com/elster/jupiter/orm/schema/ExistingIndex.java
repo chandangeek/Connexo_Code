@@ -6,4 +6,5 @@ package com.elster.jupiter.orm.schema;
  * Time: 14:02
  */
 public interface ExistingIndex {
+    String getName();
 }

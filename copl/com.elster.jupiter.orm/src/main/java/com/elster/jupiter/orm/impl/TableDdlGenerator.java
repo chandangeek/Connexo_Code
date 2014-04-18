@@ -4,100 +4,102 @@ import com.google.common.base.Optional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 class TableDdlGenerator {
-	private final TableImpl<?> table;
-	private List<String> ddl;
-	
-	TableDdlGenerator(TableImpl<?> table) {
-		this.table = table;				
-	}
-	
-	List<String> getDdl() {
-		ddl = new ArrayList<>();
-		ddl.add(getTableDdl());
-		if (table.hasJournal() ) {
-			ddl.add(getJournalTableDdl());
-		}
-		for (TableConstraintImpl constraint : table.getConstraints()) {
-			if (constraint.needsIndex()) {
-				ddl.add(getConstraintIndexDdl(constraint));
-			}
-		}
+    private final TableImpl<?> table;
+    private List<String> ddl;
+
+    TableDdlGenerator(TableImpl<?> table) {
+        this.table = table;
+    }
+
+    List<String> getDdl() {
+        ddl = new ArrayList<>();
+        ddl.add(getTableDdl());
+        if (table.hasJournal()) {
+            ddl.add(getJournalTableDdl(table));
+        }
+        for (TableConstraintImpl constraint : table.getConstraints()) {
+            if (constraint.needsIndex()) {
+                ddl.add(getConstraintIndexDdl(constraint));
+            }
+        }
         for (IndexImpl index : table.getIndexes()) {
             ddl.add(getIndexDdl(index));
         }
-		for (ColumnImpl column : table.getColumns()) {
-			if (column.isAutoIncrement()) {
-				ddl.add(getSequenceDdl(column));
-			}
-		}
-		
-		return ddl;		
-	}
-	
-	private String getTableDdl() {
-		StringBuilder sb = new StringBuilder("create table ");
-		sb.append(table.getQualifiedName());
-		sb.append("(");
-		doAppendColumns(sb, table.getColumns(), true);
-		for (TableConstraintImpl constraint : table.getConstraints()) {
-			sb.append(", ");
-			sb.append(getConstraintFragment(constraint));			
-		}
-		sb.append(")");
-		if (table.isIndexOrganized()) {
-			sb.append(" index organized ");
-		}
-		return sb.toString();
-	}
-	
-	private String getJournalTableDdl() {
-		StringBuilder sb = new StringBuilder("create table ");
-		sb.append(table.getQualifiedName(table.getJournalTableName()));
-		sb.append(" (");
-		doAppendColumns(sb, table.getColumns(), true);
-		String separator = ", ";
-		sb.append(separator);
-		sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
-		sb.append(" NUMBER NOT NULL");		
-		TableConstraintImpl constraint = table.getPrimaryKeyConstraint();
-		if (constraint != null) {
-			sb.append(separator);
-			sb.append(getJournalConstraint(constraint));
-			}
-		sb.append(")");
-		return sb.toString();		
-	}
-	
-	private String getJournalConstraint(TableConstraintImpl constraint) {
-		StringBuilder sb = new StringBuilder("constraint ");
-		sb.append(constraint.getName() + "_JRNL");
-		sb.append(" PRIMARY KEY ");
-		sb.append("(");
-		doAppendColumns(sb, constraint.getColumns(), false);		
-		sb.append(", ");
-		sb.append(table.getExtraJournalPrimaryKeyColumnName());
-		sb.append(")");	
-		return sb.toString();
-	}
-	
-	private String getConstraintFragment(TableConstraintImpl constraint) {
-		return constraint.getDdl();
-	}
-	
-	
-	private String getConstraintIndexDdl(TableConstraintImpl constraint) {
-		StringBuilder builder = new StringBuilder();
-		builder.append("CREATE INDEX ");
-		builder.append(constraint.getName());
-		builder.append(" ON ");
-		builder.append(table.getQualifiedName());
-		appendColumns(builder,constraint.getColumns(), false);
-		return builder.toString();		
-	}
+        for (ColumnImpl column : table.getColumns()) {
+            if (column.isAutoIncrement()) {
+                ddl.add(getSequenceDdl(column));
+            }
+        }
+
+        return ddl;
+    }
+
+    private String getTableDdl() {
+        StringBuilder sb = new StringBuilder("create table ");
+        sb.append(table.getQualifiedName());
+        sb.append("(");
+        doAppendColumns(sb, table.getColumns(), true, true);
+        for (TableConstraintImpl constraint : table.getConstraints()) {
+            sb.append(", ");
+            sb.append(getConstraintFragment(constraint));
+        }
+        sb.append(")");
+        if (table.isIndexOrganized()) {
+            sb.append(" index organized ");
+        }
+        return sb.toString();
+    }
+
+    private String getJournalTableDdl(TableImpl<?> table) {
+        StringBuilder sb = new StringBuilder("create table ");
+        sb.append(table.getQualifiedName(table.getJournalTableName()));
+        sb.append(" (");
+        doAppendColumns(sb, table.getColumns(), true, true);
+        String separator = ", ";
+        sb.append(separator);
+        sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
+        sb.append(" NUMBER NOT NULL");
+        TableConstraintImpl constraint = table.getPrimaryKeyConstraint();
+        if (constraint != null) {
+            sb.append(separator);
+            sb.append(getJournalConstraint(constraint));
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+
+    private String getJournalConstraint(TableConstraintImpl constraint) {
+        StringBuilder sb = new StringBuilder("constraint ");
+        sb.append(constraint.getName() + "_JRNL");
+        sb.append(" PRIMARY KEY ");
+        sb.append("(");
+        doAppendColumns(sb, constraint.getColumns(), false, false);
+        sb.append(", ");
+        sb.append(table.getExtraJournalPrimaryKeyColumnName());
+        sb.append(")");
+        return sb.toString();
+    }
+
+    private String getConstraintFragment(TableConstraintImpl constraint) {
+        return constraint.getDdl();
+    }
+
+
+    private String getConstraintIndexDdl(TableConstraintImpl constraint) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("CREATE INDEX ");
+        builder.append(constraint.getName());
+        builder.append(" ON ");
+        builder.append(table.getQualifiedName());
+        appendColumns(builder, constraint.getColumns(), false, false);
+        return builder.toString();
+    }
 
     private String getIndexDdl(IndexImpl index) {
         StringBuilder builder = new StringBuilder();
@@ -105,7 +107,7 @@ class TableDdlGenerator {
         builder.append(index.getName());
         builder.append(" ON ");
         builder.append(table.getQualifiedName());
-        appendColumns(builder,index.getColumns(), false);
+        appendColumns(builder, index.getColumns(), false, false);
         if (index.getCompress() > 0) {
             builder.append(" COMPRESS ");
             builder.append(index.getCompress());
@@ -185,6 +187,14 @@ class TableDdlGenerator {
                 result.add(getSetNullColumnDdl(column));
             }
         }
+        for (IndexImpl index : toTable.getIndexes()) {
+            IndexImpl fromIndex = table.getIndex(index.getName());
+            if (fromIndex == null) {
+                result.add(getIndexDdl(index));
+            } else {
+                result.addAll(getUpgradeDdl(fromIndex, index));
+            }
+        }
         //Constraints
         Set<TableConstraintImpl> unmatched = new HashSet<>();
         for (TableConstraintImpl constraint : table.getConstraints()) {
@@ -218,7 +228,6 @@ class TableDdlGenerator {
         return result;
     }
 
-
     private String getRenameConstraintDdl(TableConstraintImpl fromConstraint, TableConstraintImpl toConstraint) {
         return "alter table " + fromConstraint.getTable().getName() + " rename constraint " + fromConstraint.getName() + " to " + toConstraint.getName();
     }
@@ -251,6 +260,17 @@ class TableDdlGenerator {
 
 
         return result;
+    }
+
+    private List<String> getUpgradeDdl(IndexImpl fromIndex, IndexImpl toIndex) {
+        if (fromIndex.matches(toIndex)) {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(getDropIndex(fromIndex), getIndexDdl(toIndex));
+    }
+
+    private String getDropIndex(IndexImpl fromIndex) {
+        return "DROP INDEX " + fromIndex.getName();
     }
 
 

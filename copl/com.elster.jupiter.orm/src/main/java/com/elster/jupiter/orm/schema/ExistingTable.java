@@ -12,6 +12,8 @@ public interface ExistingTable {
 
     List<? extends ExistingConstraint> getConstraints();
 
+    List<? extends ExistingIndex> getIndexes();
+
     void addTo(DataModel existingDataModel, Optional<String> journalTableName);
 
 }
