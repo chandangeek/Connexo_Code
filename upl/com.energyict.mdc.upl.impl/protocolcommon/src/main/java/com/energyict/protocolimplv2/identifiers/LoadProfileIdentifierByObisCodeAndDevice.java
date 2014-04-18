@@ -8,6 +8,9 @@ import com.energyict.mdw.core.LoadProfileFactory;
 import com.energyict.mdw.core.LoadProfileFactoryProvider;
 import com.energyict.obis.ObisCode;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 /**
@@ -20,12 +23,21 @@ import java.util.List;
  * Date: 13/05/13
  * Time: 13:30
  */
+@XmlRootElement
 public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIdentifier {
 
     private final ObisCode loadProfileObisCode;
     private final DeviceIdentifier deviceIdentifier;
 
     private LoadProfile loadProfile;
+
+    /**
+     * Constructor only to be used by JSON (de)marshalling
+     */
+    public LoadProfileIdentifierByObisCodeAndDevice() {
+        this.loadProfileObisCode = null;
+        this.deviceIdentifier = null;
+    }
 
     public LoadProfileIdentifierByObisCodeAndDevice(ObisCode loadProfileObisCode, DeviceIdentifier deviceIdentifier) {
         super();
@@ -48,6 +60,25 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
             throw new NotFoundException("LoadProfile with ObisCode " + loadProfileObisCode + " for device with " + deviceIdentifier.toString() + " not found");
         }
         return loadProfile;
+    }
+
+    @XmlAttribute
+    public ObisCode getLoadProfileObisCode() {
+        return loadProfileObisCode;
+    }
+
+    @XmlAttribute
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 
     @Override

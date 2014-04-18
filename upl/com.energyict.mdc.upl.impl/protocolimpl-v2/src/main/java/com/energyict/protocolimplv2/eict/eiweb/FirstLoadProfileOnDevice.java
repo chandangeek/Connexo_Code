@@ -6,6 +6,9 @@ import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.LoadProfile;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 /**
@@ -16,9 +19,16 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-07-02 (11:52)
  */
+@XmlRootElement
 public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
 
     private DeviceIdentifier deviceIdentifier;
+
+    /**
+     * Constructor only to be used by JSON (de)marshalling
+     */
+    public FirstLoadProfileOnDevice() {
+    }
 
     public FirstLoadProfileOnDevice (DeviceIdentifier deviceIdentifier) {
         super();
@@ -35,6 +45,20 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
         else {
             return loadProfiles.get(0);
         }
+    }
+
+    @XmlAttribute
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 
     @Override
