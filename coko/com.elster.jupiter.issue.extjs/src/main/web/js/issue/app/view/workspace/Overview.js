@@ -15,8 +15,8 @@ Ext.define('Isu.view.workspace.Overview', {
 
     content: [
         {
-            xtype: 'panel',
-            html: '<h1>Workspace</h1>',
+            ui: 'large',
+            title: 'Workspace',
             flex: 1
         }
     ],
