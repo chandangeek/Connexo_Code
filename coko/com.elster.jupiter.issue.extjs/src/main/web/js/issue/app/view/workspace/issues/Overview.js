@@ -15,10 +15,20 @@ Ext.define('Isu.view.workspace.issues.Overview', {
         xtype: 'panel',
         ui: 'medium',
         title: "Navigation",
+        layout: {
+            type: 'vbox',
+            align: 'stretch'
+        },
         items: [
             {
-                xtype: 'navigationSubMenu',
-                itemId: 'sideMenu'
+                xtype: 'menu',
+                title: 'Overview',
+                ui: 'side-menu',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                floating: false
             },
             {
                 xtype: 'issues-side-filter'
@@ -35,15 +45,20 @@ Ext.define('Isu.view.workspace.issues.Overview', {
         var me = this,
             menu = this.getSideMenuCmp();
 
-        menu.add({
-            text: 'Issues',
-            pressed: true,
-            href: '#/workspace/datacollection/issues',
-            hrefTarget: '_self'
-        });
+        menu.add([
+            {
+                text: 'Issues',
+                activated: true
+            },
+            {
+                text: 'sub',
+                href: '#/workspace/datacollection/issues/sub',
+                hrefTarget: '_self'
+            }
+        ]);
     },
 
     getSideMenuCmp: function () {
-        return this.down('#sideMenu');
+        return this.down('menu');
     }
 });
