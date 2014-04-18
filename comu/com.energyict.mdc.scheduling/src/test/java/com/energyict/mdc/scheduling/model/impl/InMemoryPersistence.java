@@ -28,8 +28,11 @@ import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -91,15 +94,18 @@ public class InMemoryPersistence {
                 new EventsModule(),
                 new OrmModule(),
                 new MdcCommonModule(),
+                new MasterDataModule(),
+                new TasksModule(),
                 new SchedulingModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
-            OrmService ormService = injector.getInstance(OrmService.class);
-            UserService userService = injector.getInstance(UserService.class);
-            EventService eventService = injector.getInstance(EventService.class);
-            Publisher publisher = injector.getInstance(Publisher.class);
-            NlsService nlsService = injector.getInstance(NlsService.class);
-            MeteringService meteringService = injector.getInstance(MeteringService.class);
+            injector.getInstance(OrmService.class);
+            injector.getInstance(UserService.class);
+            injector.getInstance(EventService.class);
+            injector.getInstance(Publisher.class);
+            injector.getInstance(NlsService.class);
+            injector.getInstance(MeteringService.class);
+            injector.getInstance(TaskService.class);
             ctx.commit();
         }
         Environment environment = injector.getInstance(Environment.class);

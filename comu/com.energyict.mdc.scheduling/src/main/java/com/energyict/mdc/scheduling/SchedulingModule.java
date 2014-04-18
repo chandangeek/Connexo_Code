@@ -1,7 +1,7 @@
 package com.energyict.mdc.scheduling;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.scheduling.model.impl.SchedulingServiceImpl;
 import com.google.inject.AbstractModule;
@@ -19,7 +19,7 @@ public class SchedulingModule extends AbstractModule {
     protected void configure() {
         requireBinding(OrmService.class);
         requireBinding(EventService.class);
-        requireBinding(MeteringService.class);
+        requireBinding(NlsService.class);
 
         bind(SchedulingService.class).to(SchedulingServiceImpl.class).in(Scopes.SINGLETON);
     }
