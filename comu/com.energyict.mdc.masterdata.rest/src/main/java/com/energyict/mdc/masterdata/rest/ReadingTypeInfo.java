@@ -1,4 +1,4 @@
-package com.energyict.mdc.masterdata.rest.impl;
+package com.energyict.mdc.masterdata.rest;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
@@ -24,11 +24,10 @@ import com.energyict.mdc.common.rest.PhaseAdapter;
 import com.energyict.mdc.common.rest.RationalNumberAdapter;
 import com.energyict.mdc.common.rest.ReadingTypeUnitAdapter;
 import com.energyict.mdc.common.rest.TimeAttributeAdapter;
-import org.codehaus.jackson.annotate.JsonProperty;
-
+import java.util.Currency;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.Currency;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 @XmlRootElement
 public class ReadingTypeInfo {

@@ -6,8 +6,6 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.masterdata.RegisterMapping;
-import com.energyict.mdc.masterdata.rest.impl.ReadingTypeInfo;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
