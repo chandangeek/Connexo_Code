@@ -10,6 +10,7 @@ import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import javax.inject.Inject;
 import java.util.Date;
 
 class RecurrentTaskImpl implements RecurrentTask {
@@ -29,6 +30,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     private final DataModel dataModel;
 
     @SuppressWarnings("unused")
+    @Inject
 	RecurrentTaskImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, MessageService messageService, Clock clock) {
         this.dataModel = dataModel;
         this.cronExpressionParser = cronExpressionParser;
