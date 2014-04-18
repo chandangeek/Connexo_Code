@@ -4,10 +4,12 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.Clock;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -16,6 +18,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.ComTaskEnablement;
+import com.energyict.mdc.device.data.ComTaskExecutionDependant;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteComTaskExecutionException;
@@ -26,12 +29,23 @@ import com.energyict.mdc.device.data.impl.CreateEventType;
 import com.energyict.mdc.device.data.impl.DeleteEventType;
 import com.energyict.mdc.device.data.impl.PersistentIdObject;
 import com.energyict.mdc.device.data.impl.UpdateEventType;
+import com.energyict.mdc.device.data.impl.constraintvalidators.ConnectionTaskIsRequiredWhenNotUsingDefault;
+import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskExecutionPerDevice;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.tasks.BasicCheckTask;
+import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.tasks.TopologyTask;
 import org.hibernate.validator.constraints.Range;
 
 import javax.inject.Inject;
@@ -40,6 +54,7 @@ import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -50,20 +65,21 @@ import java.util.Date;
  * TODO validation
  */
 @ConnectionTaskIsRequiredWhenNotUsingDefault
+@UniqueComTaskExecutionPerDevice
 public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> implements ServerComTaskExecution, PersistenceAware {
 
     private final Clock clock;
     private final DeviceDataService deviceDataService;
     private final DeviceConfigurationService deviceConfigurationService;
 
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_IS_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_IS_REQUIRED + "}")
     private Reference<Device> device = ValueReference.absent();
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.COMTASK_IS_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.COMTASK_IS_REQUIRED + "}")
     private Reference<ComTask> comTask = ValueReference.absent();
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTIONTASK_IS_REQUIRED + "}")
-    private Reference<ConnectionTask<?, ?>> connectionTask = ValueReference.absent();
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
     private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
+
+    private Reference<ConnectionTask<?, ?>> connectionTask = ValueReference.absent();
 
     private Reference<ComPort> comPort = ValueReference.absent();
 
@@ -339,6 +355,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private void removeNextExecutionSpec() {
         this.nextExecutionSpecHolder.delete();
         this.nextExecutionSpecHolder = new NoNextExecutionSpecHolder();
+        this.updateNextExecutionTimestamp();
     }
 
     private void setMasterScheduleNextExecutionSpec(NextExecutionSpecs nextExecutionSpec) {
@@ -375,10 +392,10 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     private Date calculateNextExecutionTimestampFromBaseline(Date baseLine) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(baseLine);
         NextExecutionSpecs nextExecutionSpecs = this.getNextExecutionSpecs();
         if (nextExecutionSpecs != null) {
+            Calendar calendar = Calendar.getInstance(this.clock.getTimeZone());
+            calendar.setTime(baseLine);
             return nextExecutionSpecs.getNextTimestamp(calendar);
         } else {
             return null;
@@ -405,8 +422,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
      * I'll won't touch the plannedNextExecutionTimeStamp, but I might update
      * the nextExecutionTimeStamp according to the specs of this object
      * or the specs of my ConnectionTask.
-     * <p/>
-     * <b>Note:</b> I'll do the {@link #post()} so there is no need to repeat it in every method!
      *
      * @param nextExecutionTimestamp        the time you think this object should schedule
      * @param plannedNextExecutionTimestamp the time this object is planned to schedule
@@ -419,18 +434,13 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
         this.setPlannedNextExecutionTimestamp(plannedNextExecutionTimestamp);
         this.setNextExecutionTimestamp(nextExecutionTimestamp);
-        /* This will be handled by the post of this object */
-//        SqlBuilder sqlBuilder = this.rescheduleSqlBuilder();
-//        try (PreparedStatement preparedStatement = this.prepareStatement(sqlBuilder)) {
-//            preparedStatement.executeUpdate();
-//        }
+
         /* ConnectionTask can be null when the default is used but
          * no default has been set or created yet. */
         ConnectionTask<?, ?> connectionTask = this.getConnectionTask();
         if (connectionTask != null) {
             connectionTask.scheduledComTaskRescheduled(this);
         }
-        post();
     }
 
     private void setExecutingComPort(ComPort comPort) {
@@ -470,7 +480,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             if (nextActualConnectionTime != null && !nextExecutionTimestamp.after(nextActualConnectionTime)) {
                 return nextActualConnectionTime;
             } else {
-                Calendar calendar = Calendar.getInstance();
+                Calendar calendar = Calendar.getInstance(this.clock.getTimeZone());
                 calendar.setTime(nextExecutionTimestamp);
                 calendar.add(Calendar.MILLISECOND, -1); // hack getNextTimeStamp to be inclusive
                 return getScheduledConnectionTask().getNextExecutionSpecs().getNextTimestamp(calendar);
@@ -491,12 +501,13 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     private ScheduledConnectionTask getScheduledConnectionTask() {
-        return (ScheduledConnectionTask) connectionTask;
+        return (ScheduledConnectionTask) connectionTask.get();
     }
 
     @Override
     public void putOnHold() {
         this.schedule(null);
+        this.save();
     }
 
     @Override
@@ -510,14 +521,9 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
-    public boolean attemptLock(ComPort comPort) {
-        //TODO JP-1125
-        return false;
-    }
-
-    @Override
-    public void unlock() {
-        //TODO JP-1125
+    public void setLockedComPort(ComPort comPort) {
+        setExecutingComPort(comPort);
+        post();
     }
 
     @Override
@@ -556,7 +562,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     private Date calculateNextExecutionTimestampAfterFailure() {
         Date failureDate = this.clock.now();
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(this.clock.getTimeZone());
         calendar.setTime(failureDate);
         TimeDuration baseRetryDelay = this.getRescheduleRetryDelay();
         TimeDuration failureRetryDelay = new TimeDuration(baseRetryDelay.getCount() * getCurrentRetryCount(), baseRetryDelay.getTimeUnitCode());
@@ -658,6 +664,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     @Override
     public void connectionTaskRemoved() {
         this.setConnectionTask(null);
+        this.setUseDefaultConnectionTask(true);
         this.post();
     }
 
@@ -703,46 +710,55 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     protected void validateDelete() {
-
+        // TODO still required?
     }
 
     @Override
     public boolean isConfiguredToCollectRegisterData() {
-        return false;
+        return isConfiguredToCollectDataOfClass(RegistersTask.class);
     }
 
     @Override
     public boolean isConfiguredToCollectLoadProfileData() {
-        return false;
+        return isConfiguredToCollectDataOfClass(LoadProfilesTask.class);
     }
 
     @Override
     public boolean isConfiguredToRunBasicChecks() {
-        return false;
+        return isConfiguredToCollectDataOfClass(BasicCheckTask.class);
     }
 
     @Override
     public boolean isConfiguredToCheckClock() {
-        return false;
+        return isConfiguredToCollectDataOfClass(ClockTask.class);
     }
 
     @Override
     public boolean isConfiguredToCollectEvents() {
-        return false;
+        return isConfiguredToCollectDataOfClass(LogBooksTask.class);
     }
 
     @Override
     public boolean isConfiguredToSendMessages() {
-        return false;
+        return isConfiguredToCollectDataOfClass(MessagesTask.class);
     }
 
     @Override
     public boolean isConfiguredToReadStatusInformation() {
-        return false;
+        return isConfiguredToCollectDataOfClass(StatusInformationTask.class);
     }
 
     @Override
     public boolean isConfiguredToUpdateTopology() {
+        return isConfiguredToCollectDataOfClass(TopologyTask.class);
+    }
+
+    private <T extends ProtocolTask> boolean isConfiguredToCollectDataOfClass (Class<T> protocolTaskClass) {
+        for (ProtocolTask protocolTask : getComTask().getProtocolTasks()) {
+            if (protocolTaskClass.isAssignableFrom(protocolTask.getClass())) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -752,6 +768,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     public void prepareForSaving() {
         this.nextExecutionSpecHolder.save();
         this.modificationDate = this.now();
+        this.updateNextExecutionTimestamp();
         validateNotObsolete();
     }
 
@@ -760,7 +777,15 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
      */
     public void delete() {
         this.nextExecutionSpecHolder.delete();
+        this.deleteComTaskSessions();
         super.delete();
+    }
+
+    private void deleteComTaskSessions() {
+        List<ComTaskExecutionDependant> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionDependant.class);
+        for (ComTaskExecutionDependant comTaskExecutionDependant : modulesImplementing) {
+            comTaskExecutionDependant.comTaskExecutionDeleted(this);
+        }
     }
 
     protected Date now() {
@@ -901,6 +926,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         public ComTaskExecutionBuilder setConnectionTask(ConnectionTask<?, ?> connectionTask) {
             this.comTaskExecution.setConnectionTask(connectionTask);
+            this.comTaskExecution.setUseDefaultConnectionTask(false);
             return this;
         }
 

@@ -141,6 +141,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE = "DDC.comTaskExecutionCannotDeleteNotFromDevice";
         public static final String CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT = "DDC.connectionTaskRequiredWhenNotUsingDefault";
         public static final String PRIORITY_NOT_IN_RANGE = "DDC.priorityNotInRange";
+        public static final String UNIQUE_COMTASKS_PER_DEVICE = "DDC.uniqueComTasksPerDevice";
     }
 
 }

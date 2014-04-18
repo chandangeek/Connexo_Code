@@ -1,12 +1,14 @@
-package com.energyict.mdc.device.data.impl.tasks;
+package com.energyict.mdc.device.data.impl.constraintvalidators;
 
+import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 /**
- * Validates the {@link ConnectionTaskIsRequiredWhenNotUsingDefault} constraint against a ComTaskExecutionImpl.
+ * Validates the {@link com.energyict.mdc.device.data.impl.constraintvalidators.ConnectionTaskIsRequiredWhenNotUsingDefault} constraint against a ComTaskExecutionImpl.
  * <p/>
  * Copyrights EnergyICT
  * Date: 16/04/14
@@ -24,8 +26,8 @@ public class ConnectionTaskIsRequiredWhenNotUsingDefaultValidator implements Con
         if (comTaskExecution.getConnectionTask() == null && !comTaskExecution.useDefaultConnectionTask()) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT + "}")
-                    .addPropertyNode("connectionTask")
-                    .addPropertyNode("useDefaultConnectionTask").addConstraintViolation();
+                    .addPropertyNode(ComTaskExecutionFields.CONNECTIONTASK.fieldName())
+                    .addPropertyNode(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).addConstraintViolation();
             return false;
         }
         return true;

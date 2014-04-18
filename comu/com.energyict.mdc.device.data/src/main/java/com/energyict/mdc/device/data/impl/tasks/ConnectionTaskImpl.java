@@ -57,6 +57,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -334,12 +335,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             dependents.addAll(factory.findComTaskExecutionsByConnectionTask(this));
         }
         return dependents;
-    }
-
-    // Keep as reference for ConnectionTaskExecutionAspects implementation in the mdc.engine bundle
-    public void unlock() {
-        this.setExecutingComServer(null);
-        this.post();
     }
 
     // Keep as reference for ConnectionTaskExecutionAspects implementation in the mdc.engine bundle
@@ -641,4 +636,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return this.modificationDate;
     }
 
+
+    protected TimeZone getClocksTimeZone(){
+        return this.clock.getTimeZone();
+    }
 }

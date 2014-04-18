@@ -298,7 +298,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private Date doUpdateNextExecutionTimestamp(PostingMode postingMode) {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
         calendar.setTime(this.now());
         this.plannedNextExecutionTimestamp = this.applyComWindowIfAny(this.getNextExecutionSpecs().getNextTimestamp(calendar));
         return this.schedule(this.plannedNextExecutionTimestamp, postingMode);
@@ -354,7 +354,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     public Date applyComWindowIfAny (Date calculatedNextExecutionTimestamp) {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
         calendar.setTime(calculatedNextExecutionTimestamp);
         this.applyComWindowIfAny(calendar);
         return calendar.getTime();
@@ -401,7 +401,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private Date calculateNextRetryExecutionTimestamp () {
         Date failureDate = this.now();
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
         calendar.setTime(failureDate);
         TimeDuration baseRetryDelay = this.getRescheduleRetryDelay();
         TimeDuration failureRetryDelay = new TimeDuration(baseRetryDelay.getCount() * getCurrentRetryCount(), baseRetryDelay.getTimeUnitCode());
@@ -424,7 +424,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private Date calculateNextExecutionTimestampFromBaseline (Date baseLine, NextExecutionSpecs nextExecutionSpecs) {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
         calendar.setTime(baseLine);
         if (nextExecutionSpecs != null) {
             return nextExecutionSpecs.getNextTimestamp(calendar);

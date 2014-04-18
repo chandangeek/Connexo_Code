@@ -15,21 +15,10 @@ import com.energyict.mdc.engine.model.ComPort;
 public interface ServerComTaskExecution extends ComTaskExecution {
 
     /**
-     * Attempts to lock this ComTaskExecution that is about
-     * to be executed on the specified ComPort
-     * and returns <code>true</code> when the lock succeeds
-     * and <code>false</code> when the lock fails.
-     * Note that this MUST run in an existing transactional context.
-     *
-     * @return <code>true</code> iff the lock succeeds
+     * Sets the given Comport as 'lock'
+     * @param comPort the comPort that is about to execute the ComTaskExecution
      */
-    public boolean attemptLock (ComPort comPort);
-
-    /**
-     * Unlocks this ComTaskExecution, basically undoing the effect
-     * of the attemptLock method providing that that was successful.
-     */
-    public void unlock ();
+    public void setLockedComPort(ComPort comPort);
 
     /**
      * Notifies this ComTaskExecution that the execution has completed without errors.

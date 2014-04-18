@@ -61,7 +61,6 @@ import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -116,7 +115,7 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     private String timeZoneId;
     private TimeZone timeZone;
-    private String externalName;
+    private String mRID;
     private Date modificationDate;
     @Valid
     private TemporalReference<CommunicationGatewayReference> communicationGatewayReferenceDevice = Temporals.absent();
@@ -840,12 +839,12 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     @Override
     public String getExternalName() {
-        return externalName;
+        return mRID;
     }
 
     @Override
     public void setExternalName(String externalName) {
-        this.externalName = externalName;
+        this.mRID = externalName;
     }
 
     @Override

@@ -27,6 +27,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ComTaskExecutionFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
@@ -40,6 +41,7 @@ import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
 import com.energyict.mdc.device.data.impl.tasks.TimedOutTasksSqlBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -49,6 +51,7 @@ import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -56,6 +59,7 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -519,7 +523,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     @Override
     public Device findDeviceByExternalName(String externalName) {
-        return dataModel.mapper(Device.class).getUnique("externalName", externalName).orNull();
+        return dataModel.mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), externalName).orNull();
     }
 
     @Override
@@ -616,5 +620,28 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     @Override
     public List<ComTaskExecution> findAllComTaskExecutionsIncludingObsoleteForDevice(Device device) {
         return this.getDataModel().mapper(ComTaskExecution.class).find("device", device);
+    }
+
+    @Override
+    public ComTaskExecution attemptLockComTaskExecution(ComTaskExecution comTaskExecution, ComPort comPort) {
+        Optional<ComTaskExecution> lockResult = this.getDataModel().mapper(ComTaskExecution.class).lockNoWait(comTaskExecution.getId());
+        if (lockResult.isPresent()) {
+            ComTaskExecution lockedComTaskExecution = lockResult.get();
+            if (lockedComTaskExecution.getExecutingComPort() == null) {
+                ((ServerComTaskExecution) lockedComTaskExecution).setLockedComPort(comPort);
+                return lockedComTaskExecution;
+            } else {
+                // No database lock but business lock is already set
+                return null;
+            }
+        } else {
+            // ComTaskExecution no longer exists, attempt to lock fails
+            return null;
+        }
+    }
+
+    @Override
+    public void unlockComTaskExecution(ComTaskExecution comTaskExecution) {
+        ((ComTaskExecutionImpl) comTaskExecution).setLockedComPort(null);
     }
 }

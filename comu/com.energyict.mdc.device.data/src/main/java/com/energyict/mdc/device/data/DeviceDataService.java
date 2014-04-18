@@ -7,17 +7,15 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
-import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.InfoType;
-import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
@@ -353,4 +351,24 @@ public interface DeviceDataService {
      * @return all ComTaskExecutions which have ever been created for this Device
      */
     List<ComTaskExecution> findAllComTaskExecutionsIncludingObsoleteForDevice(Device device);
+
+    /**
+     * Attempts to lock the ComTaskExecution that is about to be executed
+     * by the specified ComPort and returns the locked ComTaskExecution
+     * when the lock succeeds and <code>null</code> when the lock fails.
+     * Note that this MUST run in an existing transactional context.
+     *
+     * @param comTaskExecution The ComTaskExecution
+     * @param comPort The ComPort that is about to execute the ComTaskExecution
+     * @return <code>true</code> iff the lock succeeds
+     */
+    ComTaskExecution attemptLockComTaskExecution(ComTaskExecution comTaskExecution, ComPort comPort);
+
+    /**
+     * Removes the business lock on the specified ComTaskExecution,
+     * making it available for other ComPorts to execute the ComTaskExecution.
+     *
+     * @param comTaskExecution The ComTaskExecution
+     */
+    void unlockComTaskExecution(ComTaskExecution comTaskExecution);
 }
