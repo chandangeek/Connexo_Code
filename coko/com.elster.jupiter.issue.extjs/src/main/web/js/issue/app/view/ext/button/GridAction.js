@@ -3,4 +3,5 @@ Ext.define('Isu.view.ext.button.GridAction', {
     alias: 'widget.grid-action',
     cls: 'isu-grid-action-btn',
     menuAlign: 'tl-bl'
+
 });

@@ -77,6 +77,7 @@ Ext.define('Isu.view.workspace.issues.Filter', {
             tools: [
                 {
                     xtype: 'button',
+
                     action: 'addSort',
                     text: 'Add sort',
                     menu: {

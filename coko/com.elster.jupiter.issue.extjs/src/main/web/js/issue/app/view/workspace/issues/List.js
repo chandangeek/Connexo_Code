@@ -45,7 +45,7 @@ Ext.define('Isu.view.workspace.issues.List', {
             {
                 header: 'Actions',
                 xtype: 'actioncolumn',
-                iconCls: 'isu-action-icon',
+                iconCls: 'x-uni-action-icon',
                 width: 70,
                 align: 'left'
             }
