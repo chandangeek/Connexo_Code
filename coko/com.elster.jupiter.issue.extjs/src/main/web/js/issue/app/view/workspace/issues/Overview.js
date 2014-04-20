@@ -28,37 +28,40 @@ Ext.define('Isu.view.workspace.issues.Overview', {
                     type: 'vbox',
                     align: 'stretch'
                 },
-                floating: false
+                floating: false,
+                plain: true,
+                items: [
+                    {
+                        text: 'Issues',
+                        cls: 'current'
+                    },
+                    {
+                        text: 'sub',
+                        href: '#/workspace/datacollection/issues/sub',
+                        hrefTarget: '_self'
+                    }
+                ]
             },
             {
                 xtype: 'issues-side-filter'
             }
         ]
-    },
-
-    initComponent: function () {
-        this.callParent(this);
-        this.initMenu();
-    },
-
-    initMenu: function () {
-        var me = this,
-            menu = this.getSideMenuCmp();
-
-        menu.add([
-            {
-                text: 'Issues',
-                activated: true
-            },
-            {
-                text: 'sub',
-                href: '#/workspace/datacollection/issues/sub',
-                hrefTarget: '_self'
-            }
-        ]);
-    },
-
-    getSideMenuCmp: function () {
-        return this.down('menu');
     }
+//
+//    initComponent: function () {
+//        this.callParent(this);
+//        this.initMenu();
+//    },
+//
+//
+//    initMenu: function () {
+//        var me = this,
+//            menu = this.getSideMenuCmp();
+//
+//        menu.setActiveItem(0);
+//    },
+//
+//    getSideMenuCmp: function () {
+//        return this.down('menu');
+//    }
 });
