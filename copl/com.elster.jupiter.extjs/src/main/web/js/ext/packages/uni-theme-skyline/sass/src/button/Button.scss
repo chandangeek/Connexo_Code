@@ -1,5 +1,9 @@
-.#{$prefix}uni-action-icon  {
+.#{$prefix}uni-action-iconA  {
   background-image: $button-action-iconA;
+}
+
+.#{$prefix}uni-action-icon  {
+  background-image: $button-action-icon;
 }
 
 @import "DeleteButton";
@@ -9,3 +13,5 @@
 @import "MenuItemButton";
 
 @import "ActionButton";
+
+@import "TagButton";

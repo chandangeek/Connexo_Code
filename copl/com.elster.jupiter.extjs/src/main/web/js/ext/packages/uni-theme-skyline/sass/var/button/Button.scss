@@ -31,8 +31,8 @@ $button-medium-font-family: $button-small-font-family !default;
 $button-large-font-family: $button-small-font-family !default;
 
 // Icons for buttons
+$button-small-icon-size: 17px !default;
 $button-action-iconA: url("images/button/ico_actionsA.png") !default;
-$button-action-icon: url("images/button/ico_actions.png") !default;
 
 // Toolbar Button
 @import "Toolbarbutton";
@@ -49,4 +49,7 @@ $button-action-icon: url("images/button/ico_actions.png") !default;
 
 //MenuItem Button
 @import "MenuItemButton";
+
+//Tag Button
+@import "TagButton";
 
