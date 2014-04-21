@@ -4,7 +4,7 @@ Ext.define('Isu.view.ext.button.TagButton', {
     width: 150,
     split: true,
     menu: {},
-    ui: 'tag',
+//    ui: 'tag',
     arrowCls: null,
     afterRender: function () {
         var me = this,
@@ -15,7 +15,7 @@ Ext.define('Isu.view.ext.button.TagButton', {
                 cls: 'x-btn-tag-right'
             }),
             icon = baseSpan.getById(closeIcon.id);
-        icon.on('click', function(e){
+        icon.on('click', function(){
             me.destroy();
         });
         this.callParent(arguments)

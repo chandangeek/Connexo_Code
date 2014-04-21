@@ -242,14 +242,14 @@ Ext.define('Isu.controller.Issues', {
         sortModel.fields.each(function (field) {
             if (sortModel.get(field.name)) {
                 var cls = sortModel.get(field.name) == Isu.model.IssueSort.ASC
-                    ? 'isu-icon-up-big'
-                    : 'isu-icon-down-big';
+                    ? 'x-btn-sort-item-asc'
+                    : 'x-btn-sort-item-desc';
 
                 var sortItem = {
                     xtype: 'sort-item-btn',
                     sortValue: field.name,
                     text: field.displayValue,
-                    iconCls: 'isu-icon-white ' + cls
+                    iconCls: cls
                 };
 
                 filterElm.add(sortItem);
