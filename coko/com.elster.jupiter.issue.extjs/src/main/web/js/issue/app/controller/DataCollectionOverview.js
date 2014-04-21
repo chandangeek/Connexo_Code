@@ -1,4 +1,4 @@
-Ext.define('Isu.controller.DataCollection', {
+Ext.define('Isu.controller.DataCollectionOverview', {
     extend: 'Ext.app.Controller',
 
     requires: [
@@ -6,19 +6,19 @@ Ext.define('Isu.controller.DataCollection', {
     ],
 
     views: [
-        'workspace.datacollection.DataCollection'
+        'workspace.datacollection.Overview'
     ],
 
     init: function () {
         this.control({
-            'datacollection-view breadcrumbTrail': {
+            'datacollection-overview breadcrumbTrail': {
                 afterrender: this.setBreadcrumb
             }
         });
     },
 
     showOverview: function () {
-        var widget = Ext.widget('datacollection-view');
+        var widget = Ext.widget('datacollection-overview');
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
@@ -30,8 +30,12 @@ Ext.define('Isu.controller.DataCollection', {
             breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
                 text: 'Data collection',
                 href: 'datacollection'
+            }),
+            breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
+                text: 'Overview',
+                href: 'overview'
             });
-        breadcrumbParent.setChild(breadcrumbChild1);
+        breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2);
 
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     }

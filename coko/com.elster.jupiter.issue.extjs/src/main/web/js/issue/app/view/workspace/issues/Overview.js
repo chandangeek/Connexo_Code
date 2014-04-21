@@ -34,6 +34,11 @@ Ext.define('Isu.view.workspace.issues.Overview', {
     initMenu: function () {
         var me = this,
             menu = this.getSideMenuCmp();
+        menu.add({
+            text: 'Overview',
+            href: '#/workspace/datacollection/overview',
+            hrefTarget: '_self'
+        });
 
         menu.add({
             text: 'Issues',

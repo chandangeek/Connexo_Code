@@ -1,6 +1,6 @@
-Ext.define('Isu.view.workspace.datacollection.Overview', {
+Ext.define('Isu.view.workspace.datacollection.DataCollection', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.datacollection-overview',
+    alias: 'widget.datacollection-view',
 
     requires: [
         'Uni.view.navigation.SubMenu'
@@ -16,7 +16,7 @@ Ext.define('Isu.view.workspace.datacollection.Overview', {
     content: [
         {
             xtype: 'panel',
-            html: '<h1>Overview</h1>',
+            html: '<h1>Data collection</h1>',
             flex: 1
         }
     ],
@@ -32,18 +32,29 @@ Ext.define('Isu.view.workspace.datacollection.Overview', {
             menu = this.getSideMenuCmp();
 
         menu.add({
-            text: 'Overview',
+            text: 'Data collection',
             pressed: true,
-            href: '#/workspace/datacollection/overview',
+            href: '#/workspace/datacollection',
             hrefTarget: '_self'
         });
 
         menu.add({
-            text: 'Issues',
+            text: 'Data exchange',
             href: '#/workspace/datacollection/issues',
             hrefTarget: '_self'
         });
 
+        menu.add({
+            text: 'Data operation',
+            href: '#/workspace/datacollection/issues',
+            hrefTarget: '_self'
+        });
+
+        menu.add({
+            text: 'Data validation',
+            href: '#/workspace/datacollection/issues',
+            hrefTarget: '_self'
+        });
     },
 
     getSideMenuCmp: function () {

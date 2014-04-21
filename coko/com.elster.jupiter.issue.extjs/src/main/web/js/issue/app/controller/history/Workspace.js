@@ -18,6 +18,11 @@ Ext.define('Isu.controller.history.Workspace', {
         crossroads.addRoute('workspace/datacollection',function(){
             me.getController('Isu.controller.DataCollection').showOverview();
         });
+
+        crossroads.addRoute('workspace/datacollection/overview',function(){
+            me.getController('Isu.controller.DataCollectionOverview').showOverview();
+        });
+
         crossroads.addRoute('workspace/datacollection/issues',function(){
             me.getController('Isu.controller.Issues').showOverview();
         });
