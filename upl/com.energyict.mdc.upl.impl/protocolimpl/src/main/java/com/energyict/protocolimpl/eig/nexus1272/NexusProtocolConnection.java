@@ -203,7 +203,8 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 					}
 				}break; // HANDLE_WRITE_RESPONSE
 				case CHECK_COMPLETE: {
-					throw new IOException("Response is longer than expected, revieved " + ProtocolUtils.outputHexString(kar) + " when expecting nothing");
+					logger.warning("Response is longer than expected, revieved " + ProtocolUtils.outputHexString(kar) + " when expecting nothing");
+					delayAndFlush(500);
 				} // CHECK_COMPLETE
 				}
 				
