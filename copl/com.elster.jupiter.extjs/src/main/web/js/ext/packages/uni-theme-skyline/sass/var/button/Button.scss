@@ -8,6 +8,7 @@ $button-default-background-color-over: #a9a9a9 !default;
 $button-default-background-color-pressed: #909090 !default;
 $button-default-background-color-focus: #a9a9a9 !default;
 
+
 $button-small-border-radius: 5px !default;
 $button-medium-border-radius: $button-small-border-radius !default;
 $button-large-border-radius: $button-small-border-radius !default;
@@ -26,9 +27,14 @@ $button-default-background-color-disabled: #D2D2D2 !default;
 $button-default-color-disabled: #FFFFFF !default;
 $button-opacity-disabled: 1 !default;
 
+//Default button font
 $button-small-font-family: 'Lato', helvetica, arial, verdana, sans-serif !default;
 $button-medium-font-family: $button-small-font-family !default;
 $button-large-font-family: $button-small-font-family !default;
+
+$button-small-font-weight: 'normal';
+$button-small-font-size: 13px;
+
 
 // Icons for buttons
 $button-small-icon-size: 17px !default;
@@ -54,4 +60,7 @@ $button-action-icon: url("images/button/ico_actions.png") !default;
 
 //Tag Button
 @import "TagButton";
+
+// Sort Item Button
+@import "SortItemButton";
 

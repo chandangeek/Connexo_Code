@@ -60,18 +60,18 @@
 }
 
 .#{$prefix}btn-tag-right {
-  background-image: url("images/button/tag-small-s-arrow.png");
+  background-image: $button-tag-close-icon-default;
   background-position: right center;
   background-repeat: no-repeat;
-  height: 16px;
+  height: $button-tag-close-icon-size;
   position: absolute !important;
-  right: 0;
-  top: 0;
-  width: 16px;
+  top: $button-tag-close-icon-top;
+  right: $button-tag-close-icon-right;
+  width: $button-tag-close-icon-size;
 }
 
 .#{$prefix}btn-tag-right:hover {
-  background-image: url("images/button/tag-small-s-arrow-hover.png");
+  background-image: $button-tag-close-icon-over;
 }
 
 /*.#{$prefix}btn-tag-right:active {
