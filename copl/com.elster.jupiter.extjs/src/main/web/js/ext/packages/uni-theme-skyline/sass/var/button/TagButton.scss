@@ -8,4 +8,12 @@ $button-tag-close-icon-over: url("images/button/tag-small-s-arrow-hover.png");
 
 $button-tag-close-icon-size: 16px;
 $button-tag-close-icon-right: 10px;
+$button-tag-close-icon-left: 10px;
 $button-tag-close-icon-top: 1px;
+
+$btn-tag-icon-hpadding: 10px;
+$btn-tag-icon-vpadding: 0;
+
+$btn-tag-text-left-padding: $button-small-icon-size + $btn-tag-icon-hpadding * 2;
+$btn-tag-text-right-padding: $button-tag-close-icon-size + $btn-tag-icon-hpadding * 2;
+$button-tag-text-padding: 0 $btn-tag-text-right-padding 0 $btn-tag-text-left-padding;

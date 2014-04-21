@@ -1,6 +1,7 @@
 .#{$prefix}btn-sort-item-asc {
   background-image: $sort-item-button-asc;
   margin: $sort-item-button-icon-margin;
+  width: 60px;
 }
 
 .#{$prefix}btn-sort-item-desc {

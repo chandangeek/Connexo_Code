@@ -74,7 +74,13 @@
   background-image: $button-tag-close-icon-over;
 }
 
-/*.#{$prefix}btn-tag-right:active {
-  background-image: url("images/button/tag-small-s-arrow-hover.png");
-}*/
+.#{$prefix}btn-tag-text {
+  text-align: left;
+
+  padding: $button-tag-text-padding !important;
+}
+
+
+
+
 
