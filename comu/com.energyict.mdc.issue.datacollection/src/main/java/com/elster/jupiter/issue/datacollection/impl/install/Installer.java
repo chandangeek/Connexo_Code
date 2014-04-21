@@ -3,6 +3,7 @@ package com.elster.jupiter.issue.datacollection.impl.install;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.datacollection.impl.ModuleConstants;
 import com.elster.jupiter.issue.share.entity.IssueEventType;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 
@@ -19,22 +20,26 @@ public class Installer {
     }
 
     public void install() {
-        setSupportedIssueType();
-        setDataCollectionReasons();
+        IssueType issueType = setSupportedIssueType();
+        setDataCollectionReasons(issueType);
         setAQSubscriber();
         setEventTopics();
     }
 
-    private void setSupportedIssueType(){
-        issueService.createIssueType(ModuleConstants.ISSUE_TYPE_UUID, ModuleConstants.ISSUE_TYPE);
+    private IssueType setSupportedIssueType(){
+        return issueService.createIssueType(ModuleConstants.ISSUE_TYPE_UUID, ModuleConstants.ISSUE_TYPE);
     }
 
     private void setAQSubscriber() {
         messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get().subscribe(ModuleConstants.AQ_SUBSCRIBER_NAME);
     }
 
-    private void setDataCollectionReasons() {
-        // TODO set correct reasons
+    private void setDataCollectionReasons(IssueType issueType) {
+        issueService.createReason("Unknown inbound device", issueType);
+        issueService.createReason("Unknown outbound device", issueType);
+        issueService.createReason("Failed to communicate", issueType);
+        issueService.createReason("Connection setup failed", issueType);
+        issueService.createReason("Connection failed", issueType);
     }
 
     // TODO remove it when MDC will register topics

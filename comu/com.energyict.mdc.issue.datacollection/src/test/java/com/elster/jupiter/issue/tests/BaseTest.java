@@ -6,6 +6,10 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.datacollection.impl.IssueDataCollectionModule;
 import com.elster.jupiter.issue.datacollection.impl.install.InstallServiceImpl;
+import com.elster.jupiter.issue.impl.module.IssueModule;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueMappingService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -13,6 +17,9 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.RecurrentTaskBuilder;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -31,6 +38,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Ignore("Base functionality for all tests")
 public class BaseTest {
@@ -46,6 +54,14 @@ public class BaseTest {
             bind(KieResources.class).toInstance(mock(KieResources.class));
             bind(KnowledgeBaseFactoryService.class).toInstance(mock(KnowledgeBaseFactoryService.class));
             bind(KnowledgeBuilderFactoryService.class).toInstance(mock(KnowledgeBuilderFactoryService.class));
+
+            //TODO think about including this lines into IssueModule class
+            TaskService taskService = mock(TaskService.class);
+            bind(TaskService.class).toInstance(taskService);
+
+            RecurrentTaskBuilder builder = mock(RecurrentTaskBuilder.class);
+            when(taskService.newBuilder()).thenReturn(builder);
+            when(builder.build()).thenReturn(mock(RecurrentTask.class));
         }
     }
 
@@ -67,10 +83,13 @@ public class BaseTest {
                 new TransactionModule(),
                 new NlsModule(),
                 new UserModule(),
+                new IssueModule(),
                 new IssueDataCollectionModule()
         );
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            // initialize Issue tables
+            injector.getInstance(com.elster.jupiter.issue.impl.service.InstallServiceImpl.class);
             injector.getInstance(InstallServiceImpl.class);
             ctx.commit();
         }
@@ -86,5 +105,15 @@ public class BaseTest {
     }
     protected TransactionContext getContext(){
         return getTransactionService().getContext();
+    }
+
+    protected IssueService getIssueService() {
+        return injector.getInstance(IssueService.class);
+    }
+    protected IssueMappingService getIssueMappingService(){
+        return injector.getInstance(IssueMappingService.class);
+    }
+    protected IssueCreationService getIssueCreationService(){
+        return injector.getInstance(IssueCreationService.class);
     }
 }
