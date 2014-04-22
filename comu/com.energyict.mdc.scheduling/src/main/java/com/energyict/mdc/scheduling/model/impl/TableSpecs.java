@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.TaskService;
 
@@ -38,7 +39,22 @@ public enum TableSpecs {
                 table.foreignKey("FK_COMTASK").on(comTaskId).references(TaskService.COMPONENT_NAME, "MDCCOMTASK").map(ComTaskInComScheduleImpl.Fields.COM_TASK_REFERENCE.fieldName()).add();
                 table.primaryKey("PK_REGISTERGROUPUSAGE").on(comTaskId, comScheduleId).add();
             }
-        };
+        },
+    MDCNEXTEXECUTIONSPEC {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<NextExecutionSpecs> table = dataModel.addTable(name(), NextExecutionSpecs.class);
+            table.map(NextExecutionSpecsImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.column("FREQUENCYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.every.count").add();
+            table.column("FREQUENCYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.every.timeUnitCode").add();
+            table.column("OFFSETVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.offset.count").add();
+            table.column("OFFSETUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.offset.timeUnitCode").add();
+            table.primaryKey("PK_MDCNEXTEXEC_SPEC").on(id).add();
+        }
+    };
+
+
 
     abstract void addTo(DataModel component);
 
