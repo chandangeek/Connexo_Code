@@ -237,11 +237,8 @@ public class PartialConnectionInitiationTaskCrudIT {
 
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
 
-            connectionInitiationTask = deviceConfiguration.createPartialConnectionInitiationTask()
-                    .name("MyInitiation")
+            connectionInitiationTask = deviceConfiguration.newPartialConnectionInitiationTask("MyInitiation", connectionTypePluggableClass, TimeDuration.seconds(60))
                     .comPortPool(outboundComPortPool)
-                    .pluggableClass(connectionTypePluggableClass)
-                    .rescheduleDelay(TimeDuration.seconds(60))
                     .build();
             deviceConfiguration.save();
 
@@ -278,11 +275,8 @@ public class PartialConnectionInitiationTaskCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            connectionInitiationTask = deviceConfiguration.createPartialConnectionInitiationTask()
-                    .name("MyInitiation")
+            connectionInitiationTask = deviceConfiguration.newPartialConnectionInitiationTask("MyInitiation", connectionTypePluggableClass, TimeDuration.seconds(60))
                     .comPortPool(outboundComPortPool)
-                    .pluggableClass(connectionTypePluggableClass)
-                    .rescheduleDelay(TimeDuration.seconds(60))
                     .build();
             deviceConfiguration.save();
 
@@ -328,11 +322,8 @@ public class PartialConnectionInitiationTaskCrudIT {
             deviceConfiguration.save();
 
 
-            connectionInitiationTask = deviceConfiguration.createPartialConnectionInitiationTask()
-                    .name("MyOutbound")
+            connectionInitiationTask = deviceConfiguration.newPartialConnectionInitiationTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(60))
                     .comPortPool(outboundComPortPool)
-                    .pluggableClass(connectionTypePluggableClass)
-                    .rescheduleDelay(TimeDuration.seconds(60))
                     .build();
             deviceConfiguration.save();
 

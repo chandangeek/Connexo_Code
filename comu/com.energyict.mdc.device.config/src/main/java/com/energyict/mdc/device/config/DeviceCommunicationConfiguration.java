@@ -1,8 +1,11 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
 import java.util.List;
 
 /**
@@ -21,11 +24,11 @@ public interface DeviceCommunicationConfiguration extends HasId {
 
     void addSecurityPropertySet(SecurityPropertySet securityPropertySet);
 
-    PartialScheduledConnectionTaskBuilder createPartialScheduledConnectionTask();
+    PartialScheduledConnectionTaskBuilder newPartialScheduledConnectionTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ConnectionStrategy connectionStrategy);
 
-    PartialInboundConnectionTaskBuilder createPartialInboundConnectionTask();
+    PartialInboundConnectionTaskBuilder newPartialInboundConnectionTask(String name, ConnectionTypePluggableClass connectionType);
 
-    PartialConnectionInitiationTaskBuilder createPartialConnectionInitiationTask();
+    PartialConnectionInitiationTaskBuilder newPartialConnectionInitiationTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay);
 
     List<PartialConnectionTask> getPartialConnectionTasks();
 
@@ -34,8 +37,6 @@ public interface DeviceCommunicationConfiguration extends HasId {
     List<PartialScheduledConnectionTaskImpl> getPartialOutboundConnectionTasks();
 
     List<PartialConnectionInitiationTask> getPartialConnectionInitiationTasks();
-
-    void addPartialConnectionTask(PartialConnectionTask partialConnectionTask);
 
     void save();
 

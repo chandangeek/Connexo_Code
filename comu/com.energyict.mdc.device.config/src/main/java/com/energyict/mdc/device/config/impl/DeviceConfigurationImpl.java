@@ -8,17 +8,17 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -26,7 +26,6 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
@@ -37,7 +36,15 @@ import com.energyict.mdc.device.config.exceptions.DeviceTypeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,9 +55,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
 
 /**
  *     //TODO the creation of the CommunicationConfiguration is currently skipped ...
@@ -726,21 +730,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public PartialScheduledConnectionTaskBuilder createPartialScheduledConnectionTask() {
-        return getCommunicationConfiguration().createPartialScheduledConnectionTask();
-    }
-
-    @Override
-    public PartialInboundConnectionTaskBuilder createPartialInboundConnectionTask() {
-        return getCommunicationConfiguration().createPartialInboundConnectionTask();
-    }
-
-    @Override
-    public PartialConnectionInitiationTaskBuilder createPartialConnectionInitiationTask() {
-        return getCommunicationConfiguration().createPartialConnectionInitiationTask();
-    }
-
-    @Override
     public List<PartialConnectionTask> getPartialConnectionTasks() {
         return getCommunicationConfiguration().getPartialConnectionTasks();
     }
@@ -758,11 +747,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public List<PartialConnectionInitiationTask> getPartialConnectionInitiationTasks() {
         return getCommunicationConfiguration().getPartialConnectionInitiationTasks();
-    }
-
-    @Override
-    public void addPartialConnectionTask(PartialConnectionTask partialConnectionTask) {
-        getCommunicationConfiguration().addPartialConnectionTask(partialConnectionTask);
     }
 
     @Override
@@ -788,5 +772,20 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public void removeSecurityPropertySet(SecurityPropertySet propertySet) {
         getCommunicationConfiguration().removeSecurityPropertySet(propertySet);
+    }
+
+    @Override
+    public PartialScheduledConnectionTaskBuilder newPartialScheduledConnectionTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ConnectionStrategy connectionStrategy) {
+        return getCommunicationConfiguration().newPartialScheduledConnectionTask(name, connectionType, rescheduleRetryDelay, connectionStrategy);
+    }
+
+    @Override
+    public PartialInboundConnectionTaskBuilder newPartialInboundConnectionTask(String name, ConnectionTypePluggableClass connectionType) {
+        return getCommunicationConfiguration().newPartialInboundConnectionTask(name, connectionType);
+    }
+
+    @Override
+    public PartialConnectionInitiationTaskBuilder newPartialConnectionInitiationTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay) {
+        return getCommunicationConfiguration().newPartialConnectionInitiationTask(name, connectionType, rescheduleRetryDelay);
     }
 }

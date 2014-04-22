@@ -7,6 +7,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -26,13 +28,16 @@ import com.energyict.mdc.device.config.ServerDeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.exceptions.PartialConnectionTaskDoesNotExist;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.inject.Inject;
-import javax.validation.Valid;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.device.config.DeviceCommunicationConfiguration} interface.
@@ -186,7 +191,13 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
         throws
             BusinessException,
             SQLException {
-        this.getPartialConnectionTask(id).delete();
+        for (Iterator<PartialConnectionTask> iterator = partialConnectionTasks.iterator(); iterator.hasNext(); ) {
+            PartialConnectionTask next = iterator.next();
+            if (next.getId() == id) {
+                iterator.remove();
+                return;
+            }
+        }
     }
 
 
@@ -401,12 +412,6 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 //            comTaskEnablement.delete();
 //        }
 //    }
-
-    private void deletePartialConnectionTasks() throws SQLException, BusinessException {
-        for (PartialConnectionTask partialConnectionTask : this.getPartialConnectionTasks()) {
-            partialConnectionTask.delete();
-        }
-    }
 
     private void deleteConfigurationProperties() throws SQLException, BusinessException {
         for (ProtocolDialectConfigurationProperties configurationProperty : configurationPropertiesList) {
@@ -650,21 +655,28 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     }
 
     @Override
-    public PartialScheduledConnectionTaskBuilder createPartialScheduledConnectionTask() {
-        return new PartialScheduledConnectionTaskBuilderImpl(dataModel, this);
+    public PartialScheduledConnectionTaskBuilder newPartialScheduledConnectionTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ConnectionStrategy connectionStrategy) {
+        return new PartialScheduledConnectionTaskBuilderImpl(dataModel, this).name(name)
+                .pluggableClass(connectionType)
+                .rescheduleDelay(rescheduleRetryDelay)
+                .connectionStrategy(connectionStrategy);
     }
 
     @Override
-    public PartialInboundConnectionTaskBuilder createPartialInboundConnectionTask() {
-        return new PartialInboundConnectionTaskBuilderImpl(dataModel, this);
+    public PartialInboundConnectionTaskBuilder newPartialInboundConnectionTask(String name, ConnectionTypePluggableClass connectionType) {
+        return new PartialInboundConnectionTaskBuilderImpl(dataModel, this)
+                .name(name)
+                .pluggableClass(connectionType);
     }
 
     @Override
-    public PartialConnectionInitiationTaskBuilder createPartialConnectionInitiationTask() {
-        return new PartialConnectionInitiationTaskBuilderImpl(dataModel, this);
+    public PartialConnectionInitiationTaskBuilder newPartialConnectionInitiationTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay) {
+        return new PartialConnectionInitiationTaskBuilderImpl(dataModel, this)
+                .name(name)
+                .pluggableClass(connectionType)
+                .rescheduleDelay(rescheduleRetryDelay);
     }
 
-    @Override
     public void addPartialConnectionTask(PartialConnectionTask partialConnectionTask) {
         Save.CREATE.validate(dataModel, partialConnectionTask);
         partialConnectionTasks.add(partialConnectionTask);
