@@ -1,5 +1,30 @@
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.TransactionRequiredException;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.associations.RefAny;
+import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.orm.internal.TableSpecs;
+import com.elster.jupiter.orm.schema.ExistingTable;
+import com.elster.jupiter.orm.schema.SchemaInfoProvider;
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
+import com.google.inject.AbstractModule;
+import com.google.inject.Module;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import javax.sql.DataSource;
+import javax.validation.ValidationProviderResolver;
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -8,30 +33,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.inject.Inject;
-import javax.sql.DataSource;
-import javax.validation.ValidationProviderResolver;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.TransactionRequiredException;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.associations.RefAny;
-import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.orm.internal.TableSpecs;
-import com.elster.jupiter.pubsub.Publisher;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
-import com.google.inject.AbstractModule;
-import com.google.inject.Module;
 
 @Component(name = "com.elster.jupiter.orm", immediate = true, service = {OrmService.class, InstallService.class}, property = "name=" + OrmService.COMPONENTNAME)
 public class OrmServiceImpl implements OrmService, InstallService {
@@ -43,6 +44,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
     private volatile JsonService jsonService;
     private volatile ValidationProviderResolver validationProviderResolver;
     private final Map<String, DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<String, DataModelImpl>());
+    private volatile SchemaInfoProvider schemaInfoProvider;
 
     public OrmServiceImpl() {
     }
@@ -86,6 +88,10 @@ public class OrmServiceImpl implements OrmService, InstallService {
 
     private DataModel getOrmDataModel() {
         return dataModels.get(COMPONENTNAME);
+    }
+
+    private DataModel getExistingTablesDataModel() {
+        return dataModels.get(EXISTING_TABLES_DATA_MODEL);
     }
 
     @Override
@@ -135,6 +141,11 @@ public class OrmServiceImpl implements OrmService, InstallService {
         return jsonService;
     }
 
+    @Reference
+    public void setSchemaInfoProvider(SchemaInfoProvider schemaInfoProvider) {
+        this.schemaInfoProvider = schemaInfoProvider;
+    }
+
     private DataModel createDataModel(boolean register) {
         DataModelImpl result = newDataModel(OrmService.COMPONENTNAME, "Object Relational Mapper");
         for (TableSpecs spec : TableSpecs.values()) {
@@ -149,6 +160,17 @@ public class OrmServiceImpl implements OrmService, InstallService {
     @Activate
     public void activate() {
         createDataModel(true);
+        createExistingTableDataModel();
+    }
+
+    private void createExistingTableDataModel() {
+        if (this.schemaInfoProvider != null) {
+            DataModel dataModel = newDataModel(EXISTING_TABLES_DATA_MODEL, "Oracle schema");
+            for (SchemaInfoProvider.TableSpec each : schemaInfoProvider.getSchemaInfoTableSpec()) {
+                each.addTo(dataModel);
+            }
+            dataModel.register();
+        }
     }
 
     public TableImpl<?> getTable(String componentName, String tableName) {
@@ -208,20 +230,40 @@ public class OrmServiceImpl implements OrmService, InstallService {
             return false;
         }
     }
-    
+
     @Override
     public RefAny createRefAny(String component, String table, Object... key) {
-    	return new RefAnyImpl(this, jsonService).init(component, table,key);
+        return new RefAnyImpl(this, jsonService).init(component, table, key);
     }
-    
+
     <T> Optional<DataMapperImpl<T>> optionalMapper(Class<T> iface) {
-    	for (DataModelImpl model : getDataModels()) {
-    		Optional<DataMapperImpl<T>> candidate = model.optionalMapper(iface);
-    		if (candidate.isPresent()) {
-    			return candidate;
-    		}
-    	}
-    	return Optional.absent();
+        for (DataModelImpl model : getDataModels()) {
+            Optional<DataMapperImpl<T>> candidate = model.optionalMapper(iface);
+            if (candidate.isPresent()) {
+                return candidate;
+            }
+        }
+        return Optional.absent();
     }
-    
+
+    public DataModelImpl getUpgradeDataModel(DataModel model) {
+        DataModelImpl existingDataModel = newDataModel("UPG", "Upgrade  of " + model.getName());
+        DataModel existingTablesDataModel = getExistingTablesDataModel();
+        if (existingTablesDataModel != null) {
+            for (Table<?> table : model.getTables()) {
+                Optional<ExistingTable> existingTable = existingTablesDataModel.mapper(ExistingTable.class).getEager(table.getName());
+                if (existingTable.isPresent()) {
+                    ExistingTable userTable = existingTable.get();
+
+                    Optional<ExistingTable> existingJournalTable = Optional.absent();
+                    if (table.hasJournal()) {
+                        existingJournalTable = existingTablesDataModel.mapper(ExistingTable.class).getEager(table.getJournalTableName());
+                    }
+                    userTable.addTo(existingDataModel, Optional.fromNullable(existingJournalTable.isPresent() ? existingJournalTable.get().getName() : null));
+                }
+            }
+        }
+        return existingDataModel;
+    }
+
 }

@@ -18,19 +18,23 @@ import java.util.List;
  *
  */
 public interface OrmService {
-	public static final String COMPONENTNAME = "ORM";
+    public static final String COMPONENTNAME = "ORM";
 
-	DataModel newDataModel(String name, String description);
-	RefAny createRefAny(String componentName, String tableName, Object... key);
+    public static final String EXISTING_TABLES_DATA_MODEL = "ORA";
 
-	/*
-	 * Only for applications that need to document the data model 
-	 */
-	List<? extends DataModel> getDataModels();
-	Optional<? extends DataModel> getDataModel(String name);
+    DataModel newDataModel(String name, String description);
 
-	/*
-	 *  
-	 */
+    RefAny createRefAny(String componentName, String tableName, Object... key);
+
+    /*
+     * Only for applications that need to document the data model
+     */
+    List<? extends DataModel> getDataModels();
+
+    Optional<? extends DataModel> getDataModel(String name);
+
+    /*
+     *
+     */
     void invalidateCache(String componentName, String tableName);
 }

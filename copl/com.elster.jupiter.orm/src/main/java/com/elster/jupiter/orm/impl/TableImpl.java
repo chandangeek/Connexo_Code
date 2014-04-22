@@ -64,76 +64,76 @@ public class TableImpl<T> implements Table<T> {
 		
 	TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api) {
         assert !is(name).emptyOrOnlyWhiteSpace();
-		if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
-			throw new IllegalArgumentException("Name " + name + " too long" );
-		}
-		this.dataModel.set(Objects.requireNonNull(dataModel));
-		this.schema = schema;
-		this.name = Objects.requireNonNull(name);
-		this.api = Objects.requireNonNull(api);
-		return this;
-	}
-	
-	static <T> TableImpl<T> from(DataModelImpl dataModel,String schema,String name, Class<T> api) {
-		return new TableImpl<T>().init(dataModel,schema,name,api);
-	}
-	
-	@Override 
-	public String getSchema() {
-		return schema;
-	}
-	
-	@Override
-	public String getName() {
-		return name;
-	}
-	
-	@Override
-	public String getQualifiedName() {
-		return getQualifiedName(name);
-	}
-	
-	String getQualifiedName(String value) {
-		return is(schema).emptyOrOnlyWhiteSpace() ? value : schema + "." + value;
-	}
-	
-	@Override
-	public List<ColumnImpl> getColumns() {
-		return ImmutableList.copyOf(columns);
-	}
-	
-	@Override
-	public List<TableConstraintImpl> getConstraints() {
-		return ImmutableList.copyOf(constraints);
-	}
-	
-	@Override
-	public String toString() {
-		return "Table " + name;
-	}
+        if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
+            throw new IllegalArgumentException("Name " + name + " too long");
+        }
+        this.dataModel.set(Objects.requireNonNull(dataModel));
+        this.schema = schema;
+        this.name = Objects.requireNonNull(name);
+        this.api = Objects.requireNonNull(api);
+        return this;
+    }
 
-	@Override
-	public DataModelImpl getDataModel() {
-		return dataModel.get();
-	}
+    static <T> TableImpl<T> from(DataModelImpl dataModel, String schema, String name, Class<T> api) {
+        return new TableImpl<T>().init(dataModel, schema, name, api);
+    }
 
-	@Override
-	public String getComponentName() {		
-		return getDataModel().getName();
-	}
-	
-	@Override
-	public boolean isCached() {
-		return cached;
-	}
+    @Override
+    public String getSchema() {
+        return schema;
+    }
 
-	@Override
-	public void cache() {
-		this.cached = true;
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	Column add(ColumnImpl column) {
-		activeBuilder = false;
+    @Override
+    public String getQualifiedName() {
+        return getQualifiedName(name);
+    }
+
+    String getQualifiedName(String value) {
+        return is(schema).emptyOrOnlyWhiteSpace() ? value : schema + "." + value;
+    }
+
+    @Override
+    public List<ColumnImpl> getColumns() {
+        return ImmutableList.copyOf(columns);
+    }
+
+    @Override
+    public List<TableConstraintImpl> getConstraints() {
+        return ImmutableList.copyOf(constraints);
+    }
+
+    @Override
+    public String toString() {
+        return "Table " + name;
+    }
+
+    @Override
+    public DataModelImpl getDataModel() {
+        return dataModel.get();
+    }
+
+    @Override
+    public String getComponentName() {
+        return getDataModel().getName();
+    }
+
+    @Override
+    public boolean isCached() {
+        return cached;
+    }
+
+    @Override
+    public void cache() {
+        this.cached = true;
+    }
+
+    Column add(ColumnImpl column) {
+        activeBuilder = false;
         if (column.getFieldName() != null) {
             for (ColumnImpl existing : columns) {
                 if (is(existing.getFieldName()).equalTo(column.getFieldName())) {
@@ -142,327 +142,337 @@ public class TableImpl<T> implements Table<T> {
             }
         }
         columns.add(column);
-		return column;
-	}
+        return column;
+    }
 
-	public ColumnImpl getColumn(String name) {
-		for (ColumnImpl column : columns) {
-			if (column.getName().equalsIgnoreCase(name)) {
-				return column;
-			}
-		}
-		return null;
-	}
+    public ColumnImpl getColumn(String name) {
+        for (ColumnImpl column : columns) {
+            if (column.getName().equalsIgnoreCase(name)) {
+                return column;
+            }
+        }
+        return null;
+    }
 
-	@Override 
-	public PrimaryKeyConstraintImpl getPrimaryKeyConstraint() {
-		for (TableConstraintImpl each : constraints) {
-			if (each.isPrimaryKey()) {	
-				return (PrimaryKeyConstraintImpl) each;
-			}				
-		}
-		return null;
-	}
-	
-	@Override
-	public List<ForeignKeyConstraintImpl> getForeignKeyConstraints() {
+    @Override
+    public PrimaryKeyConstraintImpl getPrimaryKeyConstraint() {
+        for (TableConstraintImpl each : constraints) {
+            if (each.isPrimaryKey()) {
+                return (PrimaryKeyConstraintImpl) each;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<ForeignKeyConstraintImpl> getForeignKeyConstraints() {
         ImmutableList.Builder<ForeignKeyConstraintImpl> builder = ImmutableList.builder();
-		for (TableConstraintImpl each : constraints) {
-			if (each.isForeignKey()) {
-				builder.add((ForeignKeyConstraintImpl) each);
-			}				
-		}
-		return builder.build();
-	}
-	
-	public ForeignKeyConstraintImpl getConstraintForField(String fieldName) {
-		for (ForeignKeyConstraintImpl each : getForeignKeyConstraints()) {
-			if (fieldName.equals(each.getFieldName()))  {
-				return each;
-			}
-		}
-		return null;
-	}
-	
-	@Override
-	public List<ColumnImpl> getPrimaryKeyColumns() {
-		TableConstraintImpl primaryKeyConstraint = getPrimaryKeyConstraint();
-		return primaryKeyConstraint == null ? null : primaryKeyConstraint.getColumns();				
-	}
-	
-	boolean isPrimaryKeyColumn(Column column) {
-		TableConstraint primaryKeyConstraint = getPrimaryKeyConstraint();
-		return primaryKeyConstraint != null && primaryKeyConstraint.getColumns().contains(column);
-	}
-	
-	ColumnImpl[] getVersionColumns() {
-		List<Column> result = new ArrayList<>();
-		for (ColumnImpl column : columns) {
-			if (column.isVersion()) {
-				result.add(column);
-			}
-		}		
-		return result.toArray(new ColumnImpl[result.size()]);		
-	}
+        for (TableConstraintImpl each : constraints) {
+            if (each.isForeignKey()) {
+                builder.add((ForeignKeyConstraintImpl) each);
+            }
+        }
+        return builder.build();
+    }
 
-	List<ColumnImpl> getInsertValueColumns() {
-		List<ColumnImpl> result = new ArrayList<>();
-		for (ColumnImpl column : columns) {
-			if (column.hasInsertValue()) {
-				result.add(column);
-			}
-		}		
-		return result;		
-	}
-	
-	List<ColumnImpl> getUpdateValueColumns() {
-		List<ColumnImpl> result = new ArrayList<>();
-		for (ColumnImpl column : columns) {
-			if (column.hasUpdateValue()) {
-				result.add(column);
-			}
-		}		
-		return result;		
-	}
-	
-	List<ColumnImpl> getStandardColumns() {
-		List<ColumnImpl> result = new ArrayList<>();
-		for (ColumnImpl column : columns) {
-			if (column.isStandard()) {
-				result.add(column);
-			}
-		}		
-		return result;		
-	}		
-		
-	List<ColumnImpl> getAutoUpdateColumns() {
-		List<ColumnImpl> result = new ArrayList<>();
-		for (ColumnImpl column : columns) {
-			if (column.hasAutoValue(true)) {
-				result.add(column);
-			}
-		}		
-		return result;
-	}
-	
-	@Override
+    public ForeignKeyConstraintImpl getConstraintForField(String fieldName) {
+        for (ForeignKeyConstraintImpl each : getForeignKeyConstraints()) {
+            if (fieldName.equals(each.getFieldName())) {
+                return each;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<ColumnImpl> getPrimaryKeyColumns() {
+        TableConstraintImpl primaryKeyConstraint = getPrimaryKeyConstraint();
+        return primaryKeyConstraint == null ? null : primaryKeyConstraint.getColumns();
+    }
+
+    boolean isPrimaryKeyColumn(Column column) {
+        TableConstraint primaryKeyConstraint = getPrimaryKeyConstraint();
+        return primaryKeyConstraint != null && primaryKeyConstraint.getColumns().contains(column);
+    }
+
+    ColumnImpl[] getVersionColumns() {
+        List<Column> result = new ArrayList<>();
+        for (ColumnImpl column : columns) {
+            if (column.isVersion()) {
+                result.add(column);
+            }
+        }
+        return result.toArray(new ColumnImpl[result.size()]);
+    }
+
+    List<ColumnImpl> getInsertValueColumns() {
+        List<ColumnImpl> result = new ArrayList<>();
+        for (ColumnImpl column : columns) {
+            if (column.hasInsertValue()) {
+                result.add(column);
+            }
+        }
+        return result;
+    }
+
+    List<ColumnImpl> getUpdateValueColumns() {
+        List<ColumnImpl> result = new ArrayList<>();
+        for (ColumnImpl column : columns) {
+            if (column.hasUpdateValue()) {
+                result.add(column);
+            }
+        }
+        return result;
+    }
+
+    List<ColumnImpl> getStandardColumns() {
+        List<ColumnImpl> result = new ArrayList<>();
+        for (ColumnImpl column : columns) {
+            if (column.isStandard()) {
+                result.add(column);
+            }
+        }
+        return result;
+    }
+
+    List<ColumnImpl> getAutoUpdateColumns() {
+        List<ColumnImpl> result = new ArrayList<>();
+        for (ColumnImpl column : columns) {
+            if (column.hasAutoValue(true)) {
+                result.add(column);
+            }
+        }
+        return result;
+    }
+
+    @Override
     public List<String> getDdl() {
-		return new TableDdlGenerator(this).getDdl();
-	}
-	
-	
-	String getExtraJournalPrimaryKeyColumnName() {		
-		Column[] versionColumns = getVersionColumns();
-		return versionColumns.length > 0 ? versionColumns[0].getName() : JOURNALTIMECOLUMNNAME;			
-	}
-	
-	@Override
-	public Column addVersionCountColumn(String name, String dbType , String fieldName) {
-		return column(name).type(dbType).notNull().version().conversion(NUMBER2LONG).map(fieldName).add();
-	}
+        return new TableDdlGenerator(this).getDdl();
+    }
 
-	@Override
-	public Column addDiscriminatorColumn(String name, String dbType) {
-		return column(name).type(dbType).notNull().map(Column.TYPEFIELDNAME).add();
-	}
+    public List<String> upgradeDdl(TableImpl<?> toTable) {
+        return new TableDdlGenerator(this).upgradeDdl(toTable);
+    }
 
-	@Override
-	public Column addCreateTimeColumn(String name , String fieldName) {
-		return column(name).number().notNull().conversion(NUMBER2NOW).skipOnUpdate().map(fieldName).add();
-	}
-	
-	@Override
-	public Column addModTimeColumn(String name , String fieldName) {
-		return column(name).number().notNull().conversion(NUMBER2NOW).map(fieldName).add();
-	}
-	
-	@Override
-	public Column addUserNameColumn(String name , String fieldName) {
-		return column(name).varChar(80).notNull().conversion(CHAR2PRINCIPAL).map(fieldName).add();
-	}
-	
-	@Override
-	public List<Column> addAuditColumns() {
+    public List<String> upgradeSequenceDdl(ColumnImpl column, long startValue) {
+        return new TableDdlGenerator(this).upgradeSequenceDdl(column, startValue);
+    }
+
+
+    String getExtraJournalPrimaryKeyColumnName() {
+        Column[] versionColumns = getVersionColumns();
+        return versionColumns.length > 0 ? versionColumns[0].getName() : JOURNALTIMECOLUMNNAME;
+    }
+
+    @Override
+    public Column addVersionCountColumn(String name, String dbType, String fieldName) {
+        return column(name).type(dbType).notNull().version().conversion(NUMBER2LONG).map(fieldName).add();
+    }
+
+    @Override
+    public Column addDiscriminatorColumn(String name, String dbType) {
+        return column(name).type(dbType).notNull().map(Column.TYPEFIELDNAME).add();
+    }
+
+    @Override
+    public Column addCreateTimeColumn(String name, String fieldName) {
+        return column(name).number().notNull().conversion(NUMBER2NOW).skipOnUpdate().map(fieldName).add();
+    }
+
+    @Override
+    public Column addModTimeColumn(String name, String fieldName) {
+        return column(name).number().notNull().conversion(NUMBER2NOW).map(fieldName).add();
+    }
+
+    @Override
+    public Column addUserNameColumn(String name, String fieldName) {
+        return column(name).varChar(80).notNull().conversion(CHAR2PRINCIPAL).map(fieldName).add();
+    }
+
+    @Override
+    public List<Column> addAuditColumns() {
         ImmutableList.Builder<Column> builder = ImmutableList.builder();
-		builder.add(addVersionCountColumn("VERSIONCOUNT", "number" , "version"));
+        builder.add(addVersionCountColumn("VERSIONCOUNT", "number", "version"));
         builder.add(addCreateTimeColumn("CREATETIME", "createTime"));
         builder.add(addModTimeColumn("MODTIME", "modTime"));
         builder.add(addUserNameColumn("USERNAME", "userName"));
-		return builder.build();
-	}
-	
-	TableConstraint add(TableConstraintImpl constraint) {
-		activeBuilder = false;
-		constraints.add(constraint);
-		return constraint;
-	}
-	
-	public DataMapperImpl<T> getDataMapper() {
-		return getDataMapper(api);
-	}
-	
-	Class<?> getApi() {
-		return api;
-	}
-	
-	@SuppressWarnings("unchecked")
-	<S> DataMapperImpl<S> getDataMapper(Class<S> api) {
-		if (getMapperType().getInjector() == null) {
-			throw new IllegalStateException("Datamodel not registered");
-		}
-		if (maps(api)) {
-			return new DataMapperImpl<S>(api, (TableImpl<? super S>) this);
-		} else {
-			throw new IllegalArgumentException("Table " + getName() + " does not map " + api);
-		}
-	}
-	
-	public <S extends T> QueryExecutorImpl<S> getQuery(Class <S> type) {
-		List<TableImpl<?>> related = new ArrayList<>();
-		addAllRelated(related);
-		related.remove(0);
-		List<DataMapperImpl<?>> mappers = new ArrayList<>(related.size());
-		for (TableImpl<?> each : related) {
-			mappers.add(each.getDataMapper());
-		}
-		return getDataMapper(type).with(mappers.toArray(new DataMapperImpl<?>[mappers.size()]));
-	}
-	public QueryExecutorImpl<T> getQuery() {
-		return getQuery(api);
-	}
+        return builder.build();
+    }
 
-	private void addAllRelated(List<TableImpl<?>> related) {
-		related.add(this);
-		for (ForeignKeyConstraintImpl each : this.getForeignKeyConstraints()) {
-			TableImpl<?> table = each.getReferencedTable();
-			if (!related.contains(table)) {
-				table.addAllRelated(related);
-			}
-		}
-		for (ForeignKeyConstraintImpl each : this.getReverseMappedConstraints()) {
-			TableImpl<?> table = each.getTable();
-			if (!related.contains(table)) {
-				table.addAllRelated(related);
-			}
-		}
-	}
-	
-	public ColumnImpl getColumnForField(String name) {
-		for (ColumnImpl column : columns) {
-			if (name.equals(column.getFieldName())) {
-				return column;
-			}
-		}
-		return null;
-	}
+    TableConstraint add(TableConstraintImpl constraint) {
+        activeBuilder = false;
+        constraints.add(constraint);
+        return constraint;
+    }
 
-	@Override
-	public String getJournalTableName() {
-		return journalTableName;
-	}
+    public DataMapperImpl<T> getDataMapper() {
+        return getDataMapper(api);
+    }
 
-	@Override
-	public void setJournalTableName(String journalTableName) {
-		if (hasAutoChange()) {
-			throw new IllegalStateException(" A table with foreign key using cascading or set null delete rule cannot have a journal table ");
-		}
-		this.journalTableName = journalTableName;
-	}
-	
-	@Override
-	public boolean hasJournal() {
-		return journalTableName != null;
-	}
+    Class<?> getApi() {
+        return api;
+    }
 
-	@Override
-	public Column addAutoIdColumn() {
-		String sequence = name + "ID";
-		if (sequence.length() > ColumnConversion.CATALOGNAMELIMIT) {
-			throw new IllegalStateException("Name " + sequence + " too long");
-		}
-		return column("ID").number().notNull().conversion(ColumnConversion.NUMBER2LONG).sequence(name + "ID").skipOnUpdate().map("id").add();
-	}
-	
-	@Override
-	public Column addPositionColumn() {
-		return column("POSITION").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("position").add();
-	}
+    @SuppressWarnings("unchecked")
+    <S> DataMapperImpl<S> getDataMapper(Class<S> api) {
+        if (getMapperType().getInjector() == null) {
+            throw new IllegalStateException("Datamodel not registered");
+        }
+        if (maps(api)) {
+            return new DataMapperImpl<S>(api, (TableImpl<? super S>) this);
+        } else {
+            throw new IllegalArgumentException("Table " + getName() + " does not map " + api);
+        }
+    }
 
-	@Override
-	public List<Column> addIntervalColumns(String fieldName) {
+    public <S extends T> QueryExecutorImpl<S> getQuery(Class<S> type) {
+        List<TableImpl<?>> related = new ArrayList<>();
+        addAllRelated(related);
+        related.remove(0);
+        List<DataMapperImpl<?>> mappers = new ArrayList<>(related.size());
+        for (TableImpl<?> each : related) {
+            mappers.add(each.getDataMapper());
+        }
+        return getDataMapper(type).with(mappers.toArray(new DataMapperImpl<?>[mappers.size()]));
+    }
+
+    public QueryExecutorImpl<T> getQuery() {
+        return getQuery(api);
+    }
+
+    private void addAllRelated(List<TableImpl<?>> related) {
+        related.add(this);
+        for (ForeignKeyConstraintImpl each : this.getForeignKeyConstraints()) {
+            TableImpl<?> table = each.getReferencedTable();
+            if (!related.contains(table)) {
+                table.addAllRelated(related);
+            }
+        }
+        for (ForeignKeyConstraintImpl each : this.getReverseMappedConstraints()) {
+            TableImpl<?> table = each.getTable();
+            if (!related.contains(table)) {
+                table.addAllRelated(related);
+            }
+        }
+    }
+
+    public ColumnImpl getColumnForField(String name) {
+        for (ColumnImpl column : columns) {
+            if (name.equals(column.getFieldName())) {
+                return column;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String getJournalTableName() {
+        return journalTableName;
+    }
+
+    @Override
+    public void setJournalTableName(String journalTableName) {
+        if (hasAutoChange()) {
+            throw new IllegalStateException(" A table with foreign key using cascading or set null delete rule cannot have a journal table ");
+        }
+        this.journalTableName = journalTableName;
+    }
+
+    @Override
+    public boolean hasJournal() {
+        return journalTableName != null;
+    }
+
+    @Override
+    public Column addAutoIdColumn() {
+        String sequence = name + "ID";
+        if (sequence.length() > ColumnConversion.CATALOGNAMELIMIT) {
+            throw new IllegalStateException("Name " + sequence + " too long");
+        }
+        return column("ID").number().notNull().conversion(ColumnConversion.NUMBER2LONG).sequence(name + "ID").skipOnUpdate().map("id").add();
+    }
+
+    @Override
+    public Column addPositionColumn() {
+        return column("POSITION").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("position").add();
+    }
+
+    @Override
+    public List<Column> addIntervalColumns(String fieldName) {
         ImmutableList.Builder<Column> builder = ImmutableList.builder();
-		builder.add(column("STARTTIME").number().notNull().conversion(NUMBER2LONG).map(fieldName + ".start").add());
-		builder.add(column("ENDTIME").number().notNull().conversion(NUMBER2LONG).map(fieldName + ".end").add());
-		return builder.build();
-	}
-	
-	@Override
-	public List<Column> addQuantityColumns(String name , boolean notNull , String fieldName) {
+        builder.add(column("STARTTIME").number().notNull().conversion(NUMBER2LONG).map(fieldName + ".start").add());
+        builder.add(column("ENDTIME").number().notNull().conversion(NUMBER2LONG).map(fieldName + ".end").add());
+        return builder.build();
+    }
+
+    @Override
+    public List<Column> addQuantityColumns(String name, boolean notNull, String fieldName) {
         ImmutableList.Builder<Column> builder = ImmutableList.builder();
-		builder.add(column(name + "VALUE").number().notNull(notNull).map(fieldName + ".value").add());
-		builder.add(column(name + "MULTIPLIER").number().notNull(notNull).conversion(NUMBER2INTWRAPPER).map(fieldName + ".multiplier").add());
-		builder.add(column(name + "UNIT").varChar(8).notNull(notNull).conversion(CHAR2UNIT).map(fieldName + ".unit").add());
-		return builder.build();
-	}
-	
-	@Override
-	public ImmutableList<Column> addMoneyColumns(String name , boolean notNull , String fieldName) {
+        builder.add(column(name + "VALUE").number().notNull(notNull).map(fieldName + ".value").add());
+        builder.add(column(name + "MULTIPLIER").number().notNull(notNull).conversion(NUMBER2INTWRAPPER).map(fieldName + ".multiplier").add());
+        builder.add(column(name + "UNIT").varChar(8).notNull(notNull).conversion(CHAR2UNIT).map(fieldName + ".unit").add());
+        return builder.build();
+    }
+
+    @Override
+    public ImmutableList<Column> addMoneyColumns(String name, boolean notNull, String fieldName) {
         ImmutableList.Builder<Column> builder = ImmutableList.builder();
-		builder.add(column(name + "VALUE").number().notNull(notNull).map(fieldName + ".value").add());
-		builder.add(column(name + "CURRENCY").number(). notNull(notNull).conversion(CHAR2CURRENCY).map(fieldName + ".currency").add());
-		return builder.build();
-	}
+        builder.add(column(name + "VALUE").number().notNull(notNull).map(fieldName + ".value").add());
+        builder.add(column(name + "CURRENCY").number().notNull(notNull).conversion(CHAR2CURRENCY).map(fieldName + ".currency").add());
+        return builder.build();
+    }
 
 
-	@Override
-	public List<Column> addRefAnyColumns(String name , boolean notNull , String fieldName) {
+    @Override
+    public List<Column> addRefAnyColumns(String name, boolean notNull, String fieldName) {
         ImmutableList.Builder<Column> builder = ImmutableList.builder();
-		builder.add(column(name + "CMP").varChar(23).notNull(notNull).map(fieldName + ".component").add());
-		builder.add(column(name + "TABLE").varChar(28).notNull(notNull).map(fieldName + ".table").add());
-		builder.add(column(name + "KEY").varChar(255).notNull(notNull).map(fieldName + ".key").add());
-		builder.add(column(name + "ID").number().notNull(notNull).conversion(NUMBER2LONGNULLZERO).map(fieldName + ".id").add());
-		return builder.build();
-	}
-	void checkActiveBuilder() {
-		if (activeBuilder) {
-			throw new IllegalTableMappingException("Builder in progress for table " + getName() + ", invoke add() first.");
-		}
-	}
-	
-	@Override
-	public Column.Builder column(String name) {
-		checkActiveBuilder();
+        builder.add(column(name + "CMP").varChar(23).notNull(notNull).map(fieldName + ".component").add());
+        builder.add(column(name + "TABLE").varChar(28).notNull(notNull).map(fieldName + ".table").add());
+        builder.add(column(name + "KEY").varChar(255).notNull(notNull).map(fieldName + ".key").add());
+        builder.add(column(name + "ID").number().notNull(notNull).conversion(NUMBER2LONGNULLZERO).map(fieldName + ".id").add());
+        return builder.build();
+    }
+
+    void checkActiveBuilder() {
+        if (activeBuilder) {
+            throw new IllegalTableMappingException("Builder in progress for table " + getName() + ", invoke add() first.");
+        }
+    }
+
+    @Override
+    public Column.Builder column(String name) {
+        checkActiveBuilder();
         if (name == null) {
             throw new IllegalTableMappingException("Table " + getName() + " : column names cannot be null.");
         }
-		if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
-			throw new IllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name.length() + ".");
-		}
-		activeBuilder = true;
-		return new ColumnImpl.BuilderImpl(ColumnImpl.from(this,name));
-	}
-	
-	@Override
-	public PrimaryKeyConstraintImpl.BuilderImpl primaryKey(String name) {
-		checkActiveBuilder();
-		activeBuilder = true;
-		return new PrimaryKeyConstraintImpl.BuilderImpl(this,name);		
-	}
-	
-	@Override
-	public UniqueConstraintImpl.BuilderImpl unique(String name) {
-		checkActiveBuilder();
-		activeBuilder = true;
-		return new UniqueConstraintImpl.BuilderImpl(this,name);		
-	}
-	
-	@Override
-	public ForeignKeyConstraintImpl.BuilderImpl foreignKey(String name) {
-		checkActiveBuilder();
-		activeBuilder = true;
-		return new ForeignKeyConstraintImpl.BuilderImpl(this,name);		
-	}
-	
+        if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
+            throw new IllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name.length() + ".");
+        }
+        activeBuilder = true;
+        return new ColumnImpl.BuilderImpl(ColumnImpl.from(this, name));
+    }
+
+    @Override
+    public PrimaryKeyConstraintImpl.BuilderImpl primaryKey(String name) {
+        checkActiveBuilder();
+        activeBuilder = true;
+        return new PrimaryKeyConstraintImpl.BuilderImpl(this, name);
+    }
+
+    @Override
+    public UniqueConstraintImpl.BuilderImpl unique(String name) {
+        checkActiveBuilder();
+        activeBuilder = true;
+        return new UniqueConstraintImpl.BuilderImpl(this, name);
+    }
+
+    @Override
+    public ForeignKeyConstraintImpl.BuilderImpl foreignKey(String name) {
+        checkActiveBuilder();
+        activeBuilder = true;
+        return new ForeignKeyConstraintImpl.BuilderImpl(this, name);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -475,149 +485,140 @@ public class TableImpl<T> implements Table<T> {
         return name.equals(table.name) && this.getDataModel().equals(table.getDataModel());
     }
 
-  	@Override
-	public int hashCode() {
-		return name.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 
-	public KeyValue getPrimaryKey(Object value) {
-		TableConstraintImpl primaryKeyConstraint = getPrimaryKeyConstraint();
-		if (primaryKeyConstraint == null) {
-			throw new IllegalStateException("Table has no primary key");
-		}
-		return primaryKeyConstraint.getColumnValues(value);				
-	}
-	
-	public FieldType getFieldType(String fieldName) {
-		if (fieldName == null) {
-			return null;
-		}
-		for (Column each : columns) {
-			if (fieldName.equals(each.getFieldName())) {
-				return FieldType.SIMPLE;
-			}
-			if (each.getFieldName().startsWith(fieldName + ".")) {
-				return FieldType.COMPLEX;
-			}
-		}
-		for (ForeignKeyConstraintImpl each : getForeignKeyConstraints()) {
-			if (fieldName.equals(each.getFieldName())) {
-				return FieldType.ASSOCIATION;
-			}
-		}
-		for (TableImpl<?> table : getDataModel().getTables()) {
-			if (!table.equals(this)) {
-				for (ForeignKeyConstraintImpl each : table.getForeignKeyConstraints()) {
-					if (fieldName.equals(each.getReverseFieldName())) {
-						return FieldType.REVERSEASSOCIATION;
-					} 
-					if (fieldName.equals(each.getReverseCurrentFieldName())) {
-						return FieldType.CURRENTASSOCIATION;
-					}
-				}
-			}
-		}
-		return null;
-	}
-	
-	List<ForeignKeyConstraintImpl> getReferenceConstraints() {
-		return referenceConstraints;
-	}
-	
-	List<ForeignKeyConstraintImpl> getReverseMappedConstraints() {
-		return reverseMappedConstraints;
-	}
-	
-	public FieldMapping getFieldMapping(String fieldName) {
-		if (fieldName == null) {
-			return null;
-		}
-		for (ColumnImpl each : columns) {
-			if (each.getFieldName() != null) {
-				if (fieldName.equals(each.getFieldName())) {
-					return new ColumnMapping(each);
-				}
-				if (each.getFieldName().startsWith(fieldName + ".")) {
-					return new MultiColumnMapping(fieldName, getColumns());
-				}
-			}
-		}
-		for (ForeignKeyConstraintImpl each : getForeignKeyConstraints()) {
-			if (fieldName.equals(each.getFieldName())) {
-				return new ForwardConstraintMapping(each);
-			}
-		}
-		for (TableImpl<?> table : getDataModel().getTables()) {
-			if (!table.equals(this)) {
-				for (ForeignKeyConstraintImpl each : table.getForeignKeyConstraints()) {
-					if (fieldName.equals(each.getFieldName())) {
-						return new ReverseConstraintMapping(each);
-					}
-				}
-			}
-		}
-		for (ColumnImpl each : columns) {
-			if (each.getFieldName() == null) {
-				if (fieldName.equals(each.getName())) {
-					return new ColumnMapping(each);
-				}
-			}
-		}
-		return null;
-	}
+    public KeyValue getPrimaryKey(Object value) {
+        TableConstraintImpl primaryKeyConstraint = getPrimaryKeyConstraint();
+        if (primaryKeyConstraint == null) {
+            throw new IllegalStateException("Table has no primary key");
+        }
+        return primaryKeyConstraint.getColumnValues(value);
+    }
 
-	@Override
-	public void makeIndexOrganized() {
-		indexOrganized = true;
-		
-	}
+    public FieldType getFieldType(String fieldName) {
+        if (fieldName == null) {
+            return null;
+        }
+        for (Column each : columns) {
+            if (fieldName.equals(each.getFieldName())) {
+                return FieldType.SIMPLE;
+            }
+            if (each.getFieldName().startsWith(fieldName + ".")) {
+                return FieldType.COMPLEX;
+            }
+        }
+        for (ForeignKeyConstraintImpl each : getForeignKeyConstraints()) {
+            if (fieldName.equals(each.getFieldName())) {
+                return FieldType.ASSOCIATION;
+            }
+        }
+        for (TableImpl<?> table : getDataModel().getTables()) {
+            if (!table.equals(this)) {
+                for (ForeignKeyConstraintImpl each : table.getForeignKeyConstraints()) {
+                    if (fieldName.equals(each.getReverseFieldName())) {
+                        return FieldType.REVERSEASSOCIATION;
+                    }
+                    if (fieldName.equals(each.getReverseCurrentFieldName())) {
+                        return FieldType.CURRENTASSOCIATION;
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
-	@Override
-	public boolean isIndexOrganized() {
-		return indexOrganized;
-	}
+    List<ForeignKeyConstraintImpl> getReferenceConstraints() {
+        return referenceConstraints;
+    }
 
-	public Optional<?> getOptional(Object... primaryKeyValues) {
-		return getDataMapper(api).getOptional(primaryKeyValues);
-	}
+    List<ForeignKeyConstraintImpl> getReverseMappedConstraints() {
+        return reverseMappedConstraints;
+    }
 
-	@Override
-	public TableImpl<T> map(Class<? extends T> implementation) {
-		if (this.mapperType != null) {
-			throw new IllegalTableMappingException("Table : " + getName() + " : Implementer(s) already specified");
-		}
-		if (!api.isAssignableFrom(implementation)) {
-			throw new IllegalTableMappingException("Table : " + getName() + " : " + implementation + " does not implement " + api);
-		}
-		this.mapperType = new SingleDataMapperType<T>(this,implementation);
-		return this;
-	}
+    public FieldMapping getFieldMapping(String fieldName) {
+        if (fieldName == null) {
+            return null;
+        }
+        for (ColumnImpl each : columns) {
+            if (each.getFieldName() != null) {
+                if (fieldName.equals(each.getFieldName())) {
+                    return new ColumnMapping(each);
+                }
+                if (each.getFieldName().startsWith(fieldName + ".")) {
+                    return new MultiColumnMapping(fieldName, getColumns());
+                }
+            }
+        }
+        for (ForeignKeyConstraintImpl each : getForeignKeyConstraints()) {
+            if (fieldName.equals(each.getFieldName())) {
+                return new ForwardConstraintMapping(each);
+            }
+        }
+        for (TableImpl<?> table : getDataModel().getTables()) {
+            if (!table.equals(this)) {
+                for (ForeignKeyConstraintImpl each : table.getForeignKeyConstraints()) {
+                    if (fieldName.equals(each.getFieldName())) {
+                        return new ReverseConstraintMapping(each);
+                    }
+                }
+            }
+        }
+        for (ColumnImpl each : columns) {
+            if (each.getFieldName() == null) {
+                if (fieldName.equals(each.getName())) {
+                    return new ColumnMapping(each);
+                }
+            }
+        }
+        return null;
+    }
 
-	@Override
-	public TableImpl<T> map(Map<String, Class<? extends T>> implementations) {
+    @Override
+    public void makeIndexOrganized() {
+        indexOrganized = true;
+
+    }
+
+    @Override
+    public boolean isIndexOrganized() {
+        return indexOrganized;
+    }
+
+    public Optional<?> getOptional(Object... primaryKeyValues) {
+        return getDataMapper(api).getOptional(primaryKeyValues);
+    }
+
+    @Override
+    public TableImpl<T> map(Class<? extends T> implementation) {
         if (this.mapperType != null) {
             throw new IllegalTableMappingException("Table : " + getName() + " : Implementer(s) already specified");
         }
-		if (Objects.requireNonNull(implementations).isEmpty()) {
-			throw new IllegalArgumentException("Table : " + getName() + " : Empty map of implementors");
-		}
-		for (Class<?> implementation : implementations.values()) {
-			if (!api.isAssignableFrom(implementation)) {
-				throw new IllegalArgumentException("" + implementation + " does not implement " + api);
-			}
-		}
-		this.mapperType = new InheritanceDataMapperType<>(this,implementations);
-		return this;
-	}
+        if (!api.isAssignableFrom(implementation)) {
+            throw new IllegalTableMappingException("Table : " + getName() + " : " + implementation + " does not implement " + api);
+        }
+        this.mapperType = new SingleDataMapperType<T>(this, implementation);
+        return this;
+    }
 
-	@Override
-	public boolean maps(Class<?> clazz) {
-		return api.isAssignableFrom(clazz);
-	}
-	
-	public DomainMapper getDomainMapper() {
-		return getMapperType().getDomainMapper();
-	}
+    @Override
+    public TableImpl<T> map(Map<String, Class<? extends T>> implementations) {
+        if (this.mapperType != null) {
+            throw new IllegalTableMappingException("Table : " + getName() + " : Implementer(s) already specified");
+        }
+        if (Objects.requireNonNull(implementations).isEmpty()) {
+            throw new IllegalArgumentException("Table : " + getName() + " : Empty map of implementors");
+        }
+        for (Class<?> implementation : implementations.values()) {
+            if (!api.isAssignableFrom(implementation)) {
+                throw new IllegalArgumentException("" + implementation + " does not implement " + api);
+            }
+        }
+        this.mapperType = new InheritanceDataMapperType<>(this, implementations);
+        return this;
+    }
 
 	void prepare() {
 		checkActiveBuilder();
@@ -687,65 +688,74 @@ public class TableImpl<T> implements Table<T> {
 		}
 		return builder.build();
 	}
+	
+    @Override
+    public boolean maps(Class<?> clazz) {
+        return api.isAssignableFrom(clazz);
+    }
 
-	private void buildReverseMappedConstraints() {
-		ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
-		for (ForeignKeyConstraintImpl each : getReverseConstraints()) {
-			if (each.getReferencedTable().equals(this) && each.getReverseFieldName() != null) {
-				builder.add(each);
-			}
-		}
-		this.reverseMappedConstraints = builder.build();	
-	}
-	
-	boolean hasChildren() {
-		for (ForeignKeyConstraintImpl constraint : reverseMappedConstraints) {
-			if (constraint.isComposition()) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	boolean isChild() {
-		for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
-			if (constraint.isComposition()) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	boolean hasAutoIncrementColumns() {
-		for (Column column : getColumns()) {
-			if (column.isAutoIncrement()) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	TableCache<T> getCache() {
-		return cache;
-	}
-	
-	public Field getField(String fieldName) {
-		return getMapperType().getField(fieldName);
-	}
-	
-	void renewCache() {
-		getCache().renew();
-	}
-	
-	boolean isAutoId() {
-		List<ColumnImpl> columns = getPrimaryKeyColumns();
-		return (columns.size() == 1 && columns.get(0).isAutoIncrement());
-	}
-	
-	DataMapperType<T> getMapperType() {
+    public DomainMapper getDomainMapper() {
+        return getMapperType().getDomainMapper();
+    }
+
+    private void buildReverseMappedConstraints() {
+        ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
+        for (ForeignKeyConstraintImpl each : getReverseConstraints()) {
+            if (each.getReferencedTable().equals(this) && each.getReverseFieldName() != null) {
+                builder.add(each);
+            }
+        }
+        this.reverseMappedConstraints = builder.build();
+    }
+
+    boolean hasChildren() {
+        for (ForeignKeyConstraintImpl constraint : reverseMappedConstraints) {
+            if (constraint.isComposition()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boolean isChild() {
+        for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
+            if (constraint.isComposition()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boolean hasAutoIncrementColumns() {
+        for (Column column : getColumns()) {
+            if (column.isAutoIncrement()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    TableCache<T> getCache() {
+        return cache;
+    }
+
+    public Field getField(String fieldName) {
+        return getMapperType().getField(fieldName);
+    }
+
+    void renewCache() {
+        getCache().renew();
+    }
+
+    boolean isAutoId() {
+        List<ColumnImpl> columns = getPrimaryKeyColumns();
+        return (columns.size() == 1 && columns.get(0).isAutoIncrement());
+    }
+
+    DataMapperType<T> getMapperType() {
         checkMapperTypeIsSet();
         return mapperType;
-	}
+    }
 
     private void checkMapperTypeIsSet() {
         if (mapperType == null) {
@@ -796,6 +806,34 @@ public class TableImpl<T> implements Table<T> {
 	public List<ColumnImpl> getRealColumns() {
 		return realColumns;
 	}
+
+    IndexImpl getIndex(String name) {
+        for (IndexImpl index : indexes) {
+            if (index.getName().equals(name)) {
+                return index;
+            }
+        }
+        return null;
+    }
+
+    TableConstraintImpl getConstraint(String name) {
+        for (TableConstraintImpl tableConstraint : getConstraints()) {
+            if (tableConstraint.getName().equals(name)) {
+                return tableConstraint;
+            }
+        }
+        return null;
+    }
+
+    TableConstraintImpl findMatchingConstraint(TableConstraintImpl other) {
+        for (TableConstraintImpl tableConstraint : getConstraints()) {
+            if (tableConstraint.matches(other)) {
+                return tableConstraint;
+            }
+        }
+        return null;
+    }
+
 }
-	
+
 
