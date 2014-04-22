@@ -17,6 +17,7 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -44,8 +45,8 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     private Reference<PartialConnectionInitiationTask> initiator = ValueReference.absent();
 
     @Inject
-    PartialScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
-        super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService);
+    PartialScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
+        super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService, schedulingService);
     }
 
     static PartialScheduledConnectionTaskImpl from(DataModel dataModel, DeviceCommunicationConfiguration configuration) {

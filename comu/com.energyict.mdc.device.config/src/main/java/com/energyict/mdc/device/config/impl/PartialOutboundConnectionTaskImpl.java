@@ -14,8 +14,8 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
-import com.energyict.mdc.scheduling.model.impl.NextExecutionSpecsImpl;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -27,6 +27,7 @@ import javax.validation.constraints.NotNull;
  */
 public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectionTaskImpl implements PartialOutboundConnectionTask {
 
+    private final SchedulingService schedulingService;
     @Valid
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
 
@@ -37,8 +38,9 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
     @MinTimeDuration(value = 60, groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Constants.UNDER_MINIMUM_RESCHEDULE_DELAY_KEY + '}')
     private TimeDuration rescheduleRetryDelay;
 
-    PartialOutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
+    PartialOutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
         super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService);
+        this.schedulingService = schedulingService;
     }
 
     @Override
@@ -59,9 +61,10 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
     @Override
     public void setTemporalExpression(TemporalExpression temporalExpression) {
         if (!this.nextExecutionSpecs.isPresent()) {
-            this.nextExecutionSpecs.set(dataModel.getInstance(NextExecutionSpecsImpl.class));
+            this.nextExecutionSpecs.set(schedulingService.newNextExecutionSpecs(temporalExpression));
+        } else  {
+            this.nextExecutionSpecs.get().setTemporalExpression(temporalExpression);
         }
-        this.nextExecutionSpecs.get().setTemporalExpression(temporalExpression);
     }
 
     @Override
