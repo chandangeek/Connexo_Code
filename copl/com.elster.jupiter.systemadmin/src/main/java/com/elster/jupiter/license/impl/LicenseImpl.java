@@ -4,6 +4,10 @@ import com.elster.jupiter.license.InvalidLicenseException;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Days;
+import org.joda.time.LocalDate;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -146,7 +150,12 @@ public class LicenseImpl implements License {
 
     @Override
     public int getGracePeriodInDays() {
-        return getInt(LICENSE_GRACE_PERIOD_KEY, getProperties());
+        int gracePeriod = getInt(LICENSE_GRACE_PERIOD_KEY, getProperties());
+        if (Status.EXPIRED.equals(getStatus())) {
+            DateTime endOfGracePeriod = new DateTime(getExpiration().getTime(), DateTimeZone.UTC).plusDays(gracePeriod);
+            gracePeriod = Math.max(0, Days.daysBetween(LocalDate.now(), endOfGracePeriod.toLocalDate()).getDays());
+        }
+        return gracePeriod;
     }
 
     @Override
@@ -157,7 +166,9 @@ public class LicenseImpl implements License {
     @Override
     public Properties getLicensedValues() {
         Properties props = new Properties();
-        props.putAll(getProperties());
+        if (!Status.EXPIRED.equals(getStatus()) || (0 != getGracePeriodInDays())) {
+            props.putAll(getProperties());
+        }
         return filterStandardProperties(props);
     }
 

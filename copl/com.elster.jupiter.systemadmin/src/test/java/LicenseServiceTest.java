@@ -39,6 +39,7 @@ import java.util.Set;
 
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -200,6 +201,19 @@ public class LicenseServiceTest {
         mtrLicensedValues = getLicenseService().getLicensedValuesForApplication("MTR");
         assertThat(mtrLicensedValues.isPresent()).isTrue();
         assertThat(mtrLicensedValues.get()).containsEntry("key2", "1");
+    }
+
+    @Test
+    @Transactional
+    public void testExpiredLicense() throws Exception {
+        Set<String> licenseKey = getLicenseService().addLicense(getResource("expiredlicense.lic"));
+
+        assertThat(licenseKey).hasSize(1);
+        Optional<License> licenseForApplication = getLicenseService().getLicenseForApplication(licenseKey.iterator().next());
+        assertTrue(licenseForApplication.isPresent());
+        assertThat(licenseForApplication.get().getStatus()).isEqualTo(License.Status.EXPIRED);
+        assertThat(licenseForApplication.get().getGracePeriodInDays()).isEqualTo(0);
+        assertThat(licenseForApplication.get().getLicensedValues()).isEmpty();
     }
 
 
