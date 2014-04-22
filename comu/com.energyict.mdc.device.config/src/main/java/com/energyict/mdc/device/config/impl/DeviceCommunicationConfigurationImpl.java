@@ -490,7 +490,9 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public void remove(PartialConnectionTask partialConnectionTask) {
-        partialConnectionTasks.remove(partialConnectionTask);
+        if (partialConnectionTasks.remove(partialConnectionTask) && getId() > 0) {
+            eventService.postEvent(((PersistentIdObject) partialConnectionTask).deleteEventType().topic(), partialConnectionTask);
+        }
     }
 
     private List<PartialConnectionTask> findAllPartialConnectionTasks() {
@@ -697,6 +699,15 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     @Override
     public void removeSecurityPropertySet(SecurityPropertySet propertySet) {
         securityPropertySets.remove(propertySet);
+    }
+
+    @Override
+    public void save() {
+        boolean created = getId() == 0;
+        super.save();
+        for (PartialConnectionTask partialConnectionTask : partialConnectionTasks) {
+            eventService.postEvent(((PersistentIdObject) partialConnectionTask).createEventType().topic(), partialConnectionTask);
+        }
     }
 
     private class InternalSecurityPropertySetBuilder implements SecurityPropertySetBuilder {

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.NextExecutionSpecBuilder;
@@ -20,7 +21,7 @@ public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends
     private TimeDuration retryDelay;
 
     AbstractScheduledPartialConnectionTaskBuilder(Class<?> selfType, DataModel dataModel, DeviceCommunicationConfigurationImpl configuration) {
-        super(selfType, dataModel, configuration);
+        super(dataModel.getInstance(EventService.class), selfType, dataModel, configuration);
     }
 
     @Override
