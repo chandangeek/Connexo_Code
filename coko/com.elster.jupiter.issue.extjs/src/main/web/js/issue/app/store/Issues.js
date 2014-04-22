@@ -4,7 +4,8 @@ Ext.define('Isu.store.Issues', {
         'Ext.data.proxy.Rest',
         'Uni.component.filter.store.Filterable',
         'Uni.component.sort.store.Sortable',
-        'Isu.model.IssueFilter'
+        'Isu.model.IssueFilter',
+        'Uni.util.Hydrator'
     ],
 
     mixins: [

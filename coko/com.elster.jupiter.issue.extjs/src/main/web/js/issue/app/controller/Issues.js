@@ -149,8 +149,10 @@ Ext.define('Isu.controller.Issues', {
 //            clearFilterBtn = this.getFilter().down('button[action="clearFilter"]'),
             buttons = [];
 
+        var btnClass = 'Isu.view.ext.button.TagButton';
+
         if (filter.get('assignee')) {
-            var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
+            var button = Ext.create(btnClass, {
                 text: 'Assignee: ' + filter.get('assignee').get('name'),
                 target: 'assignee'
             });
@@ -159,7 +161,7 @@ Ext.define('Isu.controller.Issues', {
         }
 
         if (filter.get('reason')) {
-            var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
+            var button = Ext.create(btnClass, {
                 text: 'Reason: ' + filter.get('reason').get('name'),
                 target: 'reason'
             });
@@ -168,7 +170,7 @@ Ext.define('Isu.controller.Issues', {
         }
 
         if (filter.get('department')) {
-            var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
+            var button = Ext.create(btnClass, {
                 text: 'Department: ' + filter.get('department').get('name'),
                 target: 'department'
             });
@@ -177,7 +179,7 @@ Ext.define('Isu.controller.Issues', {
         }
 
         if (filter.get('meter')) {
-            var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
+            var button = Ext.create(btnClass, {
                 text: 'Meter: ' + filter.get('meter').get('name'),
                 target: 'meter'
             });
@@ -187,7 +189,7 @@ Ext.define('Isu.controller.Issues', {
 
         if (filter.status().count()) {
             filter.status().each(function (status) {
-                var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
+                var button = Ext.create(btnClass, {
                     text: 'Status: ' + status.get('name'),
                     target: 'status',
                     targetId: status.getId()

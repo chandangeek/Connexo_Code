@@ -74,16 +74,15 @@ Ext.define('Isu.view.workspace.issues.Filter', {
             title: 'Sort',
             name: 'sortitemspanel',
             emptyText: 'None',
-            tools: [
+            dockedItems: [
                 {
                     xtype: 'button',
-
                     action: 'addSort',
                     text: 'Add sort',
                     menu: {
                         name: 'addsortitemmenu'
-                    },
-                    dock: 'left'
+                    }
+//                    dock: 'right'
                 }
             ]
         }
