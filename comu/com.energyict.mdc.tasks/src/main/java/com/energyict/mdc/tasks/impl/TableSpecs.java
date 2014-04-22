@@ -8,10 +8,21 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
-import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.*;
-import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.*;
-import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.*;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.MAXIMUM_CLOCK_DIFFERENCE;
+import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.VERIFY_CLOCK_DIFFERENCE;
+import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.VERIFY_SERIAL_NUMBER;
+import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.CLOCK_TASK_TYPE;
+import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF;
+import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.MAXIMUM_CLOCK_SHIFT;
+import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF;
+import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.CREATE_METER_EVENTS_FROM_STATUS_FLAGS;
+import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.FAIL_IF_CONFIGURATION_MISMATCH;
+import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.MARK_INTERVALS_AS_BAD_TIME;
+import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME;
 import static com.energyict.mdc.tasks.impl.MessagesTaskImpl.Fields.ALL_CATEGORIES;
 import static com.energyict.mdc.tasks.impl.TopologyTaskImpl.Fields.TOPOLOGY_ACTION;
 
@@ -91,8 +102,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<RegisterGroupUsage> table = dataModel.addTable(name(), RegisterGroupUsage.class);
             table.map(RegisterGroupUsageImpl.class);
-            Column registerTaskId = table.column("REGISTERSTASK").number().conversion(NUMBER2INT).add(); // DO NOT MAP
-            Column registerGroupId = table.column("REGISTERGROUP").number().conversion(NUMBER2LONG).add(); // DO NOT MAP
+            Column registerTaskId = table.column("REGISTERSTASK").number().conversion(NUMBER2INT).notNull().add(); // DO NOT MAP
+            Column registerGroupId = table.column("REGISTERGROUP").number().conversion(NUMBER2LONG).notNull().add(); // DO NOT MAP
 
             table.foreignKey("FK_PROTOCOLTASK").
                     on(registerTaskId).references(MDCPROTOCOLTASK.name()).
