@@ -23,6 +23,14 @@ public class ComTaskInComScheduleImpl implements ComTaskInComSchedule {
     private Reference<ComSchedule> comScheduleReference = ValueReference.absent();
     private Reference<ComTask> comTaskReference = ValueReference.absent();
 
+    public ComTaskInComScheduleImpl() {
+    }
+
+    public ComTaskInComScheduleImpl(ComSchedule comSchedule, ComTask comTask) {
+        this.comScheduleReference.set(comSchedule);
+        this.comTaskReference.set(comTask);
+    }
+
     @Override
     public ComSchedule getComSchedule() {
         return comScheduleReference.get();
