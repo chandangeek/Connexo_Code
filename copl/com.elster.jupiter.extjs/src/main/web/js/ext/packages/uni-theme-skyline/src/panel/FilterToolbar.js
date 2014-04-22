@@ -2,7 +2,10 @@ Ext.define('Skyline.panel.FilterToolbar', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.filter-toolbar',
     titlePosition: 'left',
-    layout: 'hbox',
+    layout: {
+        type: 'hbox',
+        align: 'stretch'
+    },
     header: false,
     ui: 'filter-toolbar',
 
@@ -18,31 +21,25 @@ Ext.define('Skyline.panel.FilterToolbar', {
             action: 'clear',
             disabled: true,
             dock: 'right'
+        },
+        {
+            xtype: 'panel',
+            layout: {
+                type: 'hbox',
+                align: 'stretch'
+            },
+            dock: 'left'
         }
     ],
 
-//    constructor: function (config) {
-//        config.dockedItems = config.dockedItems || [];
-//        config.dockedItems.push();
-//        Ext.apply(this, config);
-//
-//        this.callSuper([config]);
-//    }
+    constructor: function (config) {
+        var dockedItems = config.dockedItems;
+        config.dockedItems = [];
 
-    initComponent: function() {
-        this.dockedItems[0].title = this.title;
-        this.callParent();
+        this.dockedItems[0].title = config.title;
+        this.dockedItems[2].items = dockedItems;
+        Ext.apply(config, this);
+
+        this.callSuper(arguments);
     }
-
-//    panelToolbarConfig: {
-//        headerPosition: 'left'
-//    },
-//
-//    constructor: function(config) {
-//        if ('toolbar' == config.ui) {
-//            Ext.applyIf(config, this.panelToolbarConfig);
-//            Ext.apply(this, config);
-//        }
-//        this.callSuper([config]);
-//    }
 });
