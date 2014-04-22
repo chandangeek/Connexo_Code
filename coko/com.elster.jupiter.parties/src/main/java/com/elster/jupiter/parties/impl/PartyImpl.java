@@ -12,6 +12,7 @@ import java.util.Objects;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
@@ -41,7 +42,9 @@ abstract class PartyImpl implements Party {
     private long id;
     @NotNull(groups = Organization.class)
     private String mRID;
+    @Size(max=80)
     private String name;
+    @Size(max=80)
     private String aliasName;
     private String description;
     @Valid

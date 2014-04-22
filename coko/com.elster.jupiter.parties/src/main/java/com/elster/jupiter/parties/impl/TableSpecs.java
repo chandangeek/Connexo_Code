@@ -22,8 +22,8 @@ public enum TableSpecs {
 			Column idColumn = table.addAutoIdColumn();
 			table.addDiscriminatorColumn("PARTYTYPE", "char(1)");
 			Column mRIDColumn = table.column("MRID").type("varchar2(80)").map("mRID").add();
-			table.column("NAME").type("varchar2(80)").map("name").add();
-			table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
+			Column nameColumn = table.column("NAME").varChar().map("name").add();
+			table.column("ALIASNAME").varChar().map("aliasName").add();
 			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
 			table.column("EAEMAIL1").type("varchar2(80)").map("electronicAddress.email1").add();
 			table.column("EAEMAIL2").type("varchar2(80)").map("electronicAddress.email2").add();
@@ -57,7 +57,7 @@ public enum TableSpecs {
 			table.column("SASTREETADDRESSGENERAL").type("varchar2(80)").map("streetAddress.streetDetail.addressGeneral").add();
 			table.column("SASTREETBUILDINGNAME").type("varchar2(80)").map("streetAddress.streetDetail.buildingName").add();
 			table.column("SASTREETCODE").type("varchar2(80)").map("streetAddress.streetDetail.code").add();
-			table.column("SASTREETNAME").type("varchar2(80)").map("streetAddress.streetDetail.name").add();
+			table.column("SASTREETNAME").type("varchar2(80 CHAR)").map("streetAddress.streetDetail.name").add();
 			table.column("SASTREETNUMBER").type("varchar2(80)").map("streetAddress.streetDetail.number").add();
 			table.column("SASTREETPREFIX").type("varchar2(80)").map("streetAddress.streetDetail.prefix").add();
 			table.column("SASTREETSUFFIX").type("varchar2(80)").map("streetAddress.streetDetail.suffix").add();
@@ -85,9 +85,11 @@ public enum TableSpecs {
 			table.column("PREFIX").type("varchar2(80)").map("prefix").add();
 			table.column("SUFFIX").type("varchar2(80)").map("suffix").add();
 			table.column("SPECIALNEED").type("varchar2(80)").map("specialNeed").add();
+			table.column("UPPERNAME").type("varchar2").as("UPPER(NAME)").alias("upperName").add();
 			table.addAuditColumns();
 			table.primaryKey("PTR_PK_PARTY").on(idColumn).add();
 			table.unique("PTR_U_PARTY").on(mRIDColumn).add();
+			table.index("PTR_IX_PARTY_NAME").on(nameColumn).add();
 		}
 	},
 	PRT_PARTYREP {
@@ -126,6 +128,7 @@ public enum TableSpecs {
 			Column roleMRIDColumn = table.column("PARTYROLEMRID").type("varchar2(80)").notNull().add();
 			List<Column> intervalColumns = table.addIntervalColumns("interval");
 			table.addAuditColumns();
+			table.column("UPPERROLEMRID").type("VARCHAR2").as("upper(PARTYROLEMRID)").alias("upperPartyRoleMRID").add();
 			table.primaryKey("PTR_PK_PARTYINROLE").on(idColumn).add();
 			table.unique("PTR_U_PARTYINROLE").on(partyIdColumn , roleMRIDColumn , intervalColumns.get(0)).add();
 			table.foreignKey("PRT_FKPARTYINROLEPARTY").on(partyIdColumn).references(PRT_PARTY.name()).onDelete(DeleteRule.CASCADE).

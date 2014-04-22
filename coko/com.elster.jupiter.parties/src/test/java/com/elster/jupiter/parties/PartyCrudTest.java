@@ -99,6 +99,7 @@ public class PartyCrudTest {
         	PartyService partyService = getPartyService();
          	Organization organization = partyService.newOrganization("EICT");
         	organization.save();
+        	organization.setName("Elster");
         	organization.setAliasName("EnergyICT");
         	organization.setDescription("Delivering tomorrow's energy solutions today");
         	StreetAddress address = new StreetAddress();
@@ -133,6 +134,7 @@ public class PartyCrudTest {
         	party = query.select(Condition.TRUE).get(0);
         	assertThat(party.getCurrentDelegates().get(0).getDelegate()).isEqualTo(user);
         	assertThat(role.getParties()).isNotEmpty();
+        	assertThat(query.select(Where.where("upperName").isEqualTo("ELSTER"))).hasSize(1);
         	context.commit();
         }
         try (TransactionContext context = getTransactionService().getContext()) {
