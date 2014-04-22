@@ -291,7 +291,7 @@ public class DataMapperWriter<T> {
 	}
 
 	private List<ColumnImpl> getColumns() {
-		return getTable().getColumns();
+		return getTable().getRealColumns();
 	}
 	
 	private int bindPrimaryKey(PreparedStatement statement, int index, Object target) throws SQLException {

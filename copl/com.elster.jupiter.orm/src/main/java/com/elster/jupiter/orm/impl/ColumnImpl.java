@@ -32,6 +32,7 @@ public class ColumnImpl implements Column  {
 	private String insertValue;
 	private String updateValue;
 	private boolean skipOnUpdate;
+	private String formula;
 	
 	// associations
 	private final Reference<TableImpl<?>> table = ValueReference.absent();
@@ -54,10 +55,12 @@ public class ColumnImpl implements Column  {
 			throw new IllegalArgumentException("table must be present");
 		}
 		Objects.requireNonNull(name);
-		if (dbType == null) {
-            throw new IllegalTableMappingException("Table " + getTable().getName() + " : column " + getName() + " was not assigned a DB type.");
-        }
-		Objects.requireNonNull(conversion);
+		if (!isVirtual()) {
+			if (dbType == null) {
+				throw new IllegalTableMappingException("Table " + getTable().getName() + " : column " + getName() + " was not assigned a DB type.");
+			}
+			Objects.requireNonNull(conversion);
+		}
 		if (skipOnUpdate && updateValue != null) {
 			throw new IllegalTableMappingException("Table " + getTable().getName() + " : field " + getName() + " : updateValue must be null if skipOnUpdate");
 		}
@@ -209,7 +212,8 @@ public class ColumnImpl implements Column  {
 			!hasInsertValue() &&
 			!skipOnUpdate() &&
 			!hasAutoValue(true) &&
-			!isDiscriminator();
+			!isDiscriminator() &&
+			!isVirtual();
 	}
 	
 	boolean hasAutoValue(boolean update) {
@@ -311,6 +315,16 @@ public class ColumnImpl implements Column  {
 	void setObject(PreparedStatement statement, int index, Object target ) throws SQLException  { 
 		statement.setObject(index, convertToDb(domainValue(target)));
 	}
+	
+	String getFormula() {
+		return formula;
+	}
+	
+	@Override
+	public boolean isVirtual() {
+		return formula != null;
+	}
+
 	
 	static class BuilderImpl implements Column.Builder {
 		private final ColumnImpl column;
@@ -422,6 +436,12 @@ public class ColumnImpl implements Column  {
 		}
 		
 		@Override
+		public VirtualBuilder as(String formula) {
+			column.formula = Objects.requireNonNull(formula);
+			return new VirtualBuilderImpl(this);
+		}
+		
+		@Override
 		public Column add() {
 			if (setType) {
 				setType();
@@ -429,7 +449,26 @@ public class ColumnImpl implements Column  {
 			column.validate();
 			return column.getTable().add(column);
 		}
+	}
+
+	static class VirtualBuilderImpl implements Column.VirtualBuilder {
 		
+		private final BuilderImpl base;
+		
+		private VirtualBuilderImpl(BuilderImpl base) {
+			this.base = base;
+		}
+
+		@Override
+		public VirtualBuilder alias(String name) {
+			base.map(name);
+			return this;
+		}
+
+		@Override
+		public Column add() {
+			return base.add();
+		}
 	}
 }
 

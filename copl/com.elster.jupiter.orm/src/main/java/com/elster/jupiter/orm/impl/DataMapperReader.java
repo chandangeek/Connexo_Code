@@ -215,7 +215,7 @@ public class DataMapperReader<T> {
 	T construct(ResultSet rs, int startIndex) throws SQLException {		
 		T result = getMapperType().hasMultiple() ? newInstance(rs,startIndex) : dataMapper.cast(getMapperType().newInstance());
 		List<Pair<ColumnImpl, Object>> columnValues = new ArrayList<>();
-		for (ColumnImpl column : getTable().getColumns()) {
+		for (ColumnImpl column : getTable().getRealColumns()) {
 			Object value = column.convertFromDb(rs, startIndex++);
 			if (column.isForeignKeyPart()) {
 				columnValues.add(Pair.of(column,rs.wasNull() ? null : value));
@@ -264,7 +264,7 @@ public class DataMapperReader<T> {
 	}
 	
 	private List<ColumnImpl> getColumns() {
-		return getTable().getColumns();
+		return getTable().getRealColumns();
 	}
 	
 	private List<ColumnImpl> getPrimaryKeyColumns() {

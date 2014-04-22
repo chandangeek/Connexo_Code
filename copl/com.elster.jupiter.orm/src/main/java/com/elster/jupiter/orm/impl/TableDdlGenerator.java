@@ -130,7 +130,12 @@ class TableDdlGenerator {
 			builder.append(column.getName());
 			if (addType) {
 				builder.append(" ");
-				builder.append(column.getDbType());
+				builder.append(column.getDbType() == null ? "" : column.getDbType());
+				if (column.isVirtual()) {
+					builder.append(" AS (");
+					builder.append(column.getFormula());
+					builder.append(")");
+				} 
 				if (column.isNotNull()) {
 					builder.append(" NOT NULL");
 				}

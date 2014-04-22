@@ -29,6 +29,7 @@ public interface Column {
 	boolean isEnum();
 	boolean isNotNull();
 	boolean isDiscriminator();
+	boolean isVirtual();
 	
 	interface Builder {
 		Builder type(String type);
@@ -42,9 +43,15 @@ public interface Column {
 		Builder version();
 		Builder skipOnUpdate();
 		Builder bool();
-		Column add();
 		Builder number();
 		Builder varChar(int length);
 		Builder varChar();
+		VirtualBuilder as(String formula);
+		Column add();
+	}
+	
+	interface VirtualBuilder {
+		VirtualBuilder alias(String name);
+		Column add();
 	}
 }

@@ -92,7 +92,7 @@ public abstract class JoinDataMapper<T> {
 	}
 
 	final String appendColumns(SqlBuilder builder , String separator) {
-		for (Column each : getTable().getColumns()) {
+		for (Column each : getTable().getRealColumns()) {
 			builder.append(separator);
 			builder.append(each.getName(alias));
 			builder.space();

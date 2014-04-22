@@ -149,7 +149,7 @@ final class JoinTreeNode<T>  {
 			return index;
 		}
 		target = target == null  ? null : value.set(target,rs,index);
-		index += value.getTable().getColumns().size();
+		index += value.getTable().getRealColumns().size();
 		for (JoinTreeNode<?> each : children) {
 			index = each.set(target, rs, index);
 		}

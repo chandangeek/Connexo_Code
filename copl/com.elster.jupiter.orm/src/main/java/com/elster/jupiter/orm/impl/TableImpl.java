@@ -60,6 +60,7 @@ public class TableImpl<T> implements Table<T> {
 	// cached fields , initialized when the table's datamodel is registered with the orm service.
 	private List<ForeignKeyConstraintImpl> referenceConstraints;
 	private List<ForeignKeyConstraintImpl> reverseMappedConstraints;
+	private List<ColumnImpl> realColumns;
 		
 	TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api) {
         assert !is(name).emptyOrOnlyWhiteSpace();
@@ -633,8 +634,12 @@ public class TableImpl<T> implements Table<T> {
 		}
 		buildReferenceConstraints();
 		buildReverseMappedConstraints();
-		for (Column column : getColumns()) {
-			checkMapped(column);
+		realColumns = new ArrayList<>();
+		for (ColumnImpl column : getColumns()) {
+			if (!column.isVirtual()) {
+				checkMapped(column);
+				realColumns.add(column);
+			}
 		}
 		cache = isCached() ? new TableCache.TupleCache<T>(this) : new TableCache.NoCache<T>();
 	}
@@ -788,6 +793,9 @@ public class TableImpl<T> implements Table<T> {
 		return Collections.unmodifiableList(indexes);
 	}
 	
+	public List<ColumnImpl> getRealColumns() {
+		return realColumns;
+	}
 }
 	
 

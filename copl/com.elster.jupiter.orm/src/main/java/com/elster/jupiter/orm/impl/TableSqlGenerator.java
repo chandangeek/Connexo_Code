@@ -11,7 +11,7 @@ public class TableSqlGenerator {
 	}
 	
 	void appendColumns(StringBuilder sb , String separator , String alias) {
-		appendColumns(sb,separator,alias,table.getColumns());		
+		appendColumns(sb,separator,alias,table.getRealColumns());		
 	}
 	
 	void appendColumns(StringBuilder sb, String separator , String alias , List<? extends Column> columns) {
@@ -44,11 +44,11 @@ public class TableSqlGenerator {
     }
 
     String getSelectFromClause(String alias) {
-		return getSelectFromClause(table.getColumns(),alias);
+		return getSelectFromClause(table.getRealColumns(),alias);
 	}
 
     String getSelectFromJournalClause(String alias) {
-        return getSelectFromJournalClause(table.getColumns(),alias);
+        return getSelectFromJournalClause(table.getRealColumns(),alias);
     }
 
     String getSelectFromClause(List<? extends Column> columns , String alias) {
@@ -90,14 +90,14 @@ public class TableSqlGenerator {
 		sb.append(table.getQualifiedName());
 		sb.append(" (");
 		String separator = "";
-		for (Column each : table.getColumns()) {
+		for (Column each : table.getRealColumns()) {
 			sb.append(separator);
 			sb.append(each.getName());
 			separator = ", ";
 		}
 		sb.append(") values(");
 		separator = "";
-		for (Column each : table.getColumns()) {		
+		for (Column each : table.getRealColumns()) {		
 			sb.append(separator);
 			if (useNextVal && each.isAutoIncrement()) {
 				sb.append(each.getQualifiedSequenceName());
@@ -128,7 +128,7 @@ public class TableSqlGenerator {
 		sb.append(table.getQualifiedName(table.getJournalTableName()));
 		sb.append(" (");
 		String separator = "";
-		for (Column each : table.getColumns()) {
+		for (Column each : table.getRealColumns()) {
 			sb.append(separator);
 			sb.append(each.getName());
 			separator = ", ";
@@ -137,7 +137,7 @@ public class TableSqlGenerator {
 		sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
 		sb.append(") ( select ");
 		separator = "";
-		for (Column each : table.getColumns()) {
+		for (Column each : table.getRealColumns()) {
 			sb.append(separator);
 			sb.append(each.getName());
 			separator = ", ";
