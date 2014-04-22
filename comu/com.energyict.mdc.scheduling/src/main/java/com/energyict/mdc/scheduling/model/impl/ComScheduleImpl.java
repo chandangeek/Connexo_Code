@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.tasks.ComTask;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ public class ComScheduleImpl implements ComSchedule {
         NAME("name"),
         MOD_DATE("mod_date"),
         NEXT_EXECUTION_SPEC("nextExecutionSpec"),
+        STATUS("schedulingStatus"),
         COM_TASK_IN_COM_SCHEDULE("comTaskUsages");
         private final String javaFieldName;
 
@@ -29,7 +31,7 @@ public class ComScheduleImpl implements ComSchedule {
     private String name;
     private List<ComTaskInComSchedule> comTaskUsages = new ArrayList<>();
     private Reference<NextExecutionSpecs> nextExecutionSpec = ValueReference.absent();
-
+    private SchedulingStatus schedulingStatus;
 
     @Override
     public long getId() {
@@ -67,5 +69,9 @@ public class ComScheduleImpl implements ComSchedule {
     public void addComTask(ComTask comTask) {
         // TODO  verify that all devices that are already linked to the ComSchedule have that ComTask enabled.
         comTaskUsages.add(new ComTaskInComScheduleImpl(this, comTask));
+    }
+
+    public SchedulingStatus getSchedulingStatus() {
+        return schedulingStatus;
     }
 }
