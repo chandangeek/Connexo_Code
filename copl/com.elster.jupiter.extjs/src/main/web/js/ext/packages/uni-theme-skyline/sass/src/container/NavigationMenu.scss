@@ -1,4 +1,4 @@
-@import "Container";
+/*@import "Container";
 
 @mixin uni-container-navigationmenu() {
   border-right: $color-blue 1px solid;
@@ -19,10 +19,10 @@
   $transition-length: 400ms;
   transition: width $transition-length;
   -moz-transition: width $transition-length; /* Firefox 4 */
-  -webkit-transition: width $transition-length; /* Safari and Chrome */
-  -o-transition: width $transition-length; /* Opera */
+  //-webkit-transition: width $transition-length; /* Safari and Chrome */
+  //-o-transition: width $transition-length; /* Opera */
 
-  &:hover {
+  /*&:hover {
     width: $menu-width-expanded !important;
   }
 
@@ -50,5 +50,5 @@
 
 }
 
-  @include container('navigationmenu');
-  @include uni-container-navigationmenu();
+@include container('navigationmenu');
+@include uni-container-navigationmenu();      */
