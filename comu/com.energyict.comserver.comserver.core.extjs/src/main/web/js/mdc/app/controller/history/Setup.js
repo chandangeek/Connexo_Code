@@ -93,6 +93,20 @@ Ext.define('Mdc.controller.history.Setup', {
             me.getApplication().getController('Mdc.controller.setup.RegisterTypes').showRegisterTypeEditView(id);
         });
 
+        //RegisterGroup routes
+        crossroads.addRoute('setup/registergroups',function(){
+            me.getApplication().getController('Mdc.controller.setup.RegisterGroups').showRegisterGroups();
+        });
+        crossroads.addRoute('setup/registergroups/create',function(){
+            me.getApplication().getController('Mdc.controller.setup.RegisterGroups').showRegisterGroupCreateView(null);
+        });
+        crossroads.addRoute('setup/registergroups/{id}',function(id){
+            me.getApplication().getController('Mdc.controller.setup.RegisterGroups').showRegisterGroupDetailsView(id);
+        });
+        crossroads.addRoute('setup/registergroups/{id}/edit',function(id){
+            me.getApplication().getController('Mdc.controller.setup.RegisterGroups').showRegisterGroupEditView(id);
+        });
+
 
         //RegisterMapping routes
         crossroads.addRoute('setup/devicetypes/{id}/registertypes',function(id){
