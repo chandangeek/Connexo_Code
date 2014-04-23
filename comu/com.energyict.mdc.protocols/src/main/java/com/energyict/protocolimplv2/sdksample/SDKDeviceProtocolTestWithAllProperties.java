@@ -143,8 +143,8 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKCodeTableProperty", this.findFactory(FactoryIds.CODE)));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKUserFileReferenceProperty", this.findFactory(FactoryIds.USERFILE)));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKLookupProperty", this.findFactory(FactoryIds.LOOKUP)));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKLoadProfileTypeProperty", this.findFactory(FactoryIds.LOADPROFILE_TYPE)));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKLoadProfileProperty", this.findFactory(FactoryIds.LOADPROFILE)));
+//        optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKLoadProfileTypeProperty", this.findFactory(FactoryIds.LOADPROFILE_TYPE)));
+//        optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKLoadProfileProperty", this.findFactory(FactoryIds.LOADPROFILE)));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().ean13PropertySpec("SDKEan13Property"));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().ean18PropertySpec("SDKEan18Property"));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().encryptedStringPropertySpec("SDKEncryptedStringProperty"));
