@@ -4,6 +4,7 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -37,12 +38,14 @@ public class ConnectionMethodResource {
     private final ResourceHelper resourceHelper;
     private final ProtocolPluggableService protocolPluggableService;
     private final EngineModelService engineModelService;
+    private final DeviceConfigurationService deviceConfigurationService;
 
     @Inject
-    public ConnectionMethodResource(ResourceHelper resourceHelper, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService) {
+    public ConnectionMethodResource(ResourceHelper resourceHelper, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService) {
         this.resourceHelper = resourceHelper;
         this.protocolPluggableService = protocolPluggableService;
         this.engineModelService = engineModelService;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @GET
@@ -115,7 +118,8 @@ public class ConnectionMethodResource {
         connectionMethodInfo.writeTo(partialConnectionTask, engineModelService);
         updateProperties(connectionMethodInfo, partialConnectionTask);
         partialConnectionTask.save();
-        return ConnectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo);
+
+        return ConnectionMethodInfoFactory.asInfo(deviceConfigurationService.getPartialConnectionTask(partialConnectionTask.getId()).get(), uriInfo);
     }
 
     /**
