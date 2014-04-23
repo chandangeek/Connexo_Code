@@ -109,8 +109,8 @@ Ext.define('Mdc.controller.setup.Properties', {
         var propertiesForm = view.down('#propertiesform');
         propertiesForm.removeAll();
 
-        var properties = objectWithProperties.propertyInfosStore.data.items;
-        me.propertiesStore = objectWithProperties.propertyInfosStore;
+        var properties = objectWithProperties.propertiesStore.data.items;
+        me.propertiesStore = objectWithProperties.propertiesStore;
 
         properties.forEach(function (entry) {
                 var property = entry;

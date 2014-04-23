@@ -37,7 +37,7 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
         var column1View = view.down('#propertyColumn1');
         column1View.removeAll();
 
-        var properties = objectWithProperties.propertyInfosStore.data.items;
+        var properties = objectWithProperties.propertiesStore.data.items;
         var propertyNumber = 0;
 
         properties.forEach(function (entry) {

@@ -85,7 +85,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                                     items: [
                                         {
                                             xtype: 'container',
-                                            columnWidth: 0.5,
+                                            columnWidth: 0.49,
                                             layout: {
                                                 type: 'vbox',
                                                 align: 'stretch'
@@ -103,7 +103,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                                                 },
                                                 {
                                                     xtype: 'fieldcontainer',
-                                                    columnWidth: 0.5,
+                                                    columnWidth: 0.49,
                                                     fieldLabel: Uni.I18n.translate('registerType.readingType', 'MDC', 'Reading type'),
                                                     labelAlign: 'right',
                                                     labelWidth: 150,
@@ -147,7 +147,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                                         },
                                         {
                                             xtype: 'container',
-                                            columnWidth: 0.5,
+                                            columnWidth: 0.49,
                                             layout: {
                                                 type: 'vbox',
                                                 align: 'stretch'

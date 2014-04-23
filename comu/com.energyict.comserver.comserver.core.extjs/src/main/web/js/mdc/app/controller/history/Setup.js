@@ -57,9 +57,6 @@ Ext.define('Mdc.controller.history.Setup', {
         crossroads.addRoute('setup/devicecommunicationprotocols/{id}/edit',function(id){
             me.getApplication().getController('Mdc.controller.setup.DeviceCommunicationProtocols').showDeviceCommunicationProtocolEditView(id);
         });
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/protocols',function(deviceTypeId,deviceConfigurationId){
-            me.getApplication().getController('Mdc.controller.setup.ProtocolDialects').showProtocolDialectsView(deviceTypeId,deviceConfigurationId);
-        });
 
         //Licensed protocol routes
         crossroads.addRoute('setup/licensedprotocols',function(){
@@ -125,6 +122,14 @@ Ext.define('Mdc.controller.history.Setup', {
         });
         crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods/{connectionMethodId}/edit',function(deviceTypeId,deviceConfigurationId,connectionMethodId){
             me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showConnectionMethodEditView(deviceTypeId,deviceConfigurationId,connectionMethodId);
+        });
+
+         //protocol dialects routes
+        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/protocols',function(deviceTypeId,deviceConfigurationId){
+            me.getApplication().getController('Mdc.controller.setup.ProtocolDialects').showProtocolDialectsView(deviceTypeId,deviceConfigurationId);
+        });
+        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/protocols/{protocolDialectId}/edit',function(deviceTypeId,deviceConfigurationId,protocolDialectId){
+            me.getApplication().getController('Mdc.controller.setup.ProtocolDialects').showProtocolDialectsEditView(deviceTypeId,deviceConfigurationId,protocolDialectId);
         });
 
         this.callParent(arguments);

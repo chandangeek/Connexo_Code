@@ -78,7 +78,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                         items: [
                             {
                                 xtype: 'container',
-                                columnWidth: 0.50,
+                                columnWidth: 0.49,
                                 layout: {
                                     type: 'vbox'
                                 },
@@ -94,7 +94,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                             },
                             {
                                 xtype: 'container',
-                                columnWidth: 0.50,
+                                columnWidth: 0.49,
                                 layout: {
                                     type: 'vbox'
                                 },

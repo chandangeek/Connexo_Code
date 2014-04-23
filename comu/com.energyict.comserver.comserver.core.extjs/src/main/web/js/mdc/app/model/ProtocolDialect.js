@@ -1,9 +1,10 @@
-Ext.define('Mdc.model.DeviceCommunicationProtocol', {
+Ext.define('Mdc.model.ProtocolDialect', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'id', type: 'int', useNull: true},
-        'name',
-        'deviceProtocolVersion'
+        {name: 'name', type: 'string', useNull: true},
+        {name: 'availableForUse', type: 'boolean', useNull: true}
+
     ],
     associations: [
         {name: 'properties', type: 'hasMany', model: 'Mdc.model.Property', associationKey: 'properties', foreignKey: 'properties',
@@ -12,12 +13,8 @@ Ext.define('Mdc.model.DeviceCommunicationProtocol', {
             }
         }
     ],
-    idProperty: 'id',
     proxy: {
         type: 'rest',
-        url: '../../api/plr/devicecommunicationprotocols',
-        reader: {
-            type: 'json'
-        }
+        url: '../../api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/protocoldialects'
     }
 });

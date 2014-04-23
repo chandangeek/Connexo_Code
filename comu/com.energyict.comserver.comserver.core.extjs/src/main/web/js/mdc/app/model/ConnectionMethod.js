@@ -13,7 +13,7 @@ Ext.define('Mdc.model.ConnectionMethod', {
     ],
     associations: [
         {name: 'rescheduleDelay',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'rescheduleDelay'},
-        {name: 'propertyInfos', type: 'hasMany', model: 'Mdc.model.Property', associationKey: 'propertyInfos', foreignKey: 'propertyInfos',
+        {name: 'properties', type: 'hasMany', model: 'Mdc.model.Property', associationKey: 'properties', foreignKey: 'properties',
             getTypeDiscriminator: function (node) {
                 return 'Mdc.model.Property';
             }

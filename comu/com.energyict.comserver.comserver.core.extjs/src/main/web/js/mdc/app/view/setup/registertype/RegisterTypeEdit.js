@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                     },
                     {
                         xtype: 'container',
-                        columnWidth: 0.5,
+                        columnWidth: 0.49,
                         items: [
                             {
                                 xtype: 'form',
