@@ -1,0 +1,9 @@
+@import "TransparentButton";
+
+
+@mixin uni-view-navigation-logo() {
+    $ui: 'navigationlogo'
+}
+
+@include transparent-button();
+@include uni-view-navigation-logo();
