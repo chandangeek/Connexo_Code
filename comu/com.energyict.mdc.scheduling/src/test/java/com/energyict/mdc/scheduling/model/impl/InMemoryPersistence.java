@@ -28,7 +28,9 @@ import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -90,11 +92,12 @@ public class InMemoryPersistence {
                 new UserModule(),
                 new IdsModule(),
                 new MeteringModule(),
+                new MdcReadingTypeUtilServiceModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
-                new MdcCommonModule(),
                 new MasterDataModule(),
+                new MdcCommonModule(),
                 new TasksModule(),
                 new SchedulingModule());
         this.transactionService = injector.getInstance(TransactionService.class);
@@ -105,6 +108,7 @@ public class InMemoryPersistence {
             injector.getInstance(Publisher.class);
             injector.getInstance(NlsService.class);
             injector.getInstance(MeteringService.class);
+            injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
             ctx.commit();
         }

@@ -39,6 +39,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
         setEventService(eventService);
         setNlsService(nlsService);
         setTasksService(tasksService);
+        activate();
         if (!this.dataModel.isInstalled()) {
             this.install(true);
         }
@@ -111,6 +112,11 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
     @Override
     public Finder<ComSchedule> findAllSchedules() {
         return DefaultFinder.of(ComSchedule.class, this.dataModel).defaultSortColumn("name");
+    }
+
+    @Override
+    public ComSchedule findSchedule(long id) {
+        return dataModel.mapper(ComSchedule.class).getUnique("id", id).orNull();
     }
 
     @Override

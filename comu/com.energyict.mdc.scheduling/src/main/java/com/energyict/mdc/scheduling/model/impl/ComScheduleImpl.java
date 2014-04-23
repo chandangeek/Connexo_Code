@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
 
+@UniqueName
 public class ComScheduleImpl implements ComSchedule {
 
     private final SchedulingService schedulingService;

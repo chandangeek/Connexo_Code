@@ -11,7 +11,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_URL(4, Constants.INVALID_URL, "{value} is not a valid URL", Level.SEVERE),
     INVALID_CHARS(5, Constants.INVALID_CHARS, "This field contains invalid chars, should obey {regex}", Level.SEVERE),
     REQUIRED_FOR_HTTPS(6, Constants.CAN_NOT_BE_EMPTY_IF_HTTPS, "This field is mandatory in case https is chosen", Level.SEVERE),
-    NOT_UNIQUE(7, Constants.NOT_UNIQUE, "the element is not unique", Level.SEVERE),
+    NOT_UNIQUE(7, Constants.NOT_UNIQUE, "field should be unique", Level.SEVERE),
     NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY(8, Constants.NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY_KEY, "Next Execution Spec's offset is greater than its frequency.", Level.SEVERE),
     NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED(9, Constants.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY, "The temporal expression of a NextExecutionSpec is required", Level.SEVERE),
     TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED(10, Constants.TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED_KEY, "The frequency of a temporal expression is required", Level.SEVERE),
