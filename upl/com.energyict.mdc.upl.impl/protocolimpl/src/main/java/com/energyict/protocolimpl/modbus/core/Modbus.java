@@ -144,7 +144,6 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
         result.add("PhysicalLayer");
         result.add("RegisterOrderFixedPoint");
         result.add("RegisterOrderFloatingPoint");
-        result.add("VirtualLoadProfile");
 
         List optionalKeys = doTheGetOptionalKeys();
         if (optionalKeys != null) {
