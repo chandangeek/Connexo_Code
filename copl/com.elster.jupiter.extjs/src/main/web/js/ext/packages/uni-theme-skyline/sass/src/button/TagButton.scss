@@ -76,8 +76,12 @@
 
 .#{$prefix}btn-tag-text {
   text-align: left;
+  padding: $btn-tag-text-padding !important;
+}
 
-  padding: $button-tag-text-padding !important;
+.#{$prefix}btn-tag-text-noicon {
+  text-align: left;
+  padding: $btn-tag-noicon-text-padding !important;
 }
 
 

@@ -9,6 +9,7 @@ Ext.Loader.addClassPathMappings({
   "Ext.Msg": "../../../../src/window/MessageBox.js",
   "ExtThemeNeptune": "../../../ext-theme-neptune/overrides",
   "Skyline": "../../overrides",
+  "Skyline.button": "../../src/button",
   "Skyline.panel.FilterToolbar": "../../src/panel/FilterToolbar.js"
 });
 Ext.ClassManager.addNameAlternateMappings({
@@ -28,6 +29,8 @@ Ext.ClassManager.addNameAlternateMappings({
   "ExtThemeNeptune.tab.Tab": [],
   "ExtThemeNeptune.toolbar.Paging": [],
   "ExtThemeNeptune.toolbar.Toolbar": [],
+  "Skyline.button.TagButton": [],
+  "Skyline.form.Label": [],
   "Skyline.form.Labelable": [],
   "Skyline.form.field.Base": [],
   "Skyline.form.field.Text": [],
@@ -53,6 +56,10 @@ Ext.ClassManager.addNameAliasMappings({
   "ExtThemeNeptune.tab.Tab": [],
   "ExtThemeNeptune.toolbar.Paging": [],
   "ExtThemeNeptune.toolbar.Toolbar": [],
+  "Skyline.button.TagButton": [
+    "widget.tag-button"
+  ],
+  "Skyline.form.Label": [],
   "Skyline.form.Labelable": [],
   "Skyline.form.field.Base": [],
   "Skyline.form.field.Text": [],
@@ -72,6 +79,7 @@ Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/container/ButtonGrou
 Ext.Loader.loadScript("../../overrides/form/Labelable.js");
 Ext.Loader.loadScript("../../overrides/form/field/Text.js");
 Ext.Loader.loadScript("../../overrides/form/field/Base.js");
+Ext.Loader.loadScript("../../overrides/form/Label.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/toolbar/Paging.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/picker/Month.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/form/field/HtmlEditor.js");
