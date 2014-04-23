@@ -13,6 +13,7 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -97,7 +98,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
 
     @Override
     public NextExecutionSpecs findNextExecutionSpecs(long id) {
-        return null;
+        return dataModel.mapper(NextExecutionSpecs.class).getUnique("id", id).orNull();
     }
 
     @Override
@@ -117,6 +118,8 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
         ComScheduleImpl instance = dataModel.getInstance(ComScheduleImpl.class);
         instance.setName(name);
         instance.setTemporalExpression(temporalExpression);
-        return null;
+        instance.setSchedulingStatus(SchedulingStatus.ACTIVE);
+        instance.save();
+        return instance;
     }
 }

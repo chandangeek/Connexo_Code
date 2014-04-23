@@ -78,7 +78,9 @@ public class ComScheduleImpl implements ComSchedule {
     @Override
     public void setTemporalExpression(TemporalExpression temporalExpression) {
         if (!this.nextExecutionSpecs.isPresent()) {
-            this.nextExecutionSpecs.set(schedulingService.newNextExecutionSpecs(temporalExpression));
+            NextExecutionSpecs nextExecutionSpecs = schedulingService.newNextExecutionSpecs(temporalExpression);
+            nextExecutionSpecs.save();
+            this.nextExecutionSpecs.set(nextExecutionSpecs);
         } else  {
             this.nextExecutionSpecs.get().setTemporalExpression(temporalExpression);
         }
@@ -108,5 +110,9 @@ public class ComScheduleImpl implements ComSchedule {
     @Override
     public SchedulingStatus getSchedulingStatus() {
         return schedulingStatus;
+    }
+
+    public void setSchedulingStatus(SchedulingStatus schedulingStatus) {
+        this.schedulingStatus = schedulingStatus;
     }
 }
