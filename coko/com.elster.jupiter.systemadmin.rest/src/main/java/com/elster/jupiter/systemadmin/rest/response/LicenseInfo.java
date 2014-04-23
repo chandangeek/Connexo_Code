@@ -11,8 +11,8 @@ public class LicenseInfo extends LicenseShortInfo {
 
     private long validfrom;
     private int graceperiod;
-    protected String type;
-    protected String description;
+    private String type;
+    private String description;
     private Set<Map.Entry<Object, Object>> content;
 
     public LicenseInfo() {

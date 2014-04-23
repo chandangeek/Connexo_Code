@@ -17,11 +17,11 @@ public class LicenseShortInfo {
 
     public LicenseShortInfo() {}
 
-    public LicenseShortInfo(NlsService nlsService, License lic) {
-        this.applicationkey = lic.getApplicationKey();
+    public LicenseShortInfo(NlsService nlsService, License license) {
+        this.applicationkey = license.getApplicationKey();
         this.applicationname = nlsService.getThesaurus(this.applicationkey, Layer.REST).getString(this.applicationkey, this.applicationkey);
-        this.status = lic.getStatus().name().toLowerCase();
-        this.expires = lic.getExpiration().getTime();
+        this.status = license.getStatus().name().toLowerCase();
+        this.expires = license.getExpiration().getTime();
     }
 
     public String getStatus() {

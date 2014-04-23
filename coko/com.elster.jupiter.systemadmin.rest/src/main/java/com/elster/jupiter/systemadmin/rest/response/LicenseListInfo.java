@@ -9,20 +9,19 @@ import java.util.List;
 import java.util.Properties;
 
 public class LicenseListInfo {
-    List<LicenseShortInfo> data;
+    private List<LicenseShortInfo> data = new ArrayList<>();
     private long total;
 
     public LicenseListInfo() {
-        data = new ArrayList<>();
     }
 
-    public LicenseListInfo(NlsService nlsService, List<License> lics) {
+    public LicenseListInfo(NlsService nlsService, List<License> licenses) {
         this();
-        for (License lic : lics) {
-            LicenseShortInfo info = new LicenseShortInfo(nlsService, lic);
+        for (License license : licenses) {
+            LicenseShortInfo info = new LicenseShortInfo(nlsService, license);
             data.add(info);
         }
-        total = lics.size();
+        total = licenses.size();
 
     }
 

@@ -3,8 +3,7 @@ package com.elster.jupiter.systemadmin.rest;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.rest.util.BinderProvider;
-import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.systemadmin.rest.resource.LicenseResource;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -21,7 +20,7 @@ import javax.ws.rs.core.Application;
 import java.util.Set;
 
 @Component(name = "com.elster.jupiter.systemadmin.rest", service = Application.class, immediate = true, property = {"alias=/lic"})
-public class LicensingApplication  extends Application implements BinderProvider {
+public class LicensingApplication extends Application implements BinderProvider {
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
     private volatile UserService userService;
@@ -43,7 +42,10 @@ public class LicensingApplication  extends Application implements BinderProvider
     }
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(LicenseResource.class, MultiPartFeature.class);
+        return ImmutableSet.<Class<?>>of(LicenseResource.class,
+                MultiPartFeature.class,
+                ConstraintViolationExceptionMapper.class,
+                LocalizedExceptionMapper.class);
     }
 
     @Activate
