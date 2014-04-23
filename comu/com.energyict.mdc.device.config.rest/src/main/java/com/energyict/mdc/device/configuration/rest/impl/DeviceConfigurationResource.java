@@ -8,16 +8,7 @@ import com.energyict.mdc.device.config.DeviceType;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -28,13 +19,15 @@ public class DeviceConfigurationResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final Provider<RegisterConfigurationResource> registerConfigurationResourceProvider;
     private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
+    private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
 
     @Inject
-    public DeviceConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, Provider<RegisterConfigurationResource> registerConfigurationResourceProvider, Provider<ConnectionMethodResource> connectionMethodResourceProvider) {
+    public DeviceConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, Provider<RegisterConfigurationResource> registerConfigurationResourceProvider, Provider<ConnectionMethodResource> connectionMethodResourceProvider, Provider<ProtocolDialectResource> protocolDialectResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.registerConfigurationResourceProvider = registerConfigurationResourceProvider;
         this.connectionMethodResourceProvider = connectionMethodResourceProvider;
+        this.protocolDialectResourceProvider = protocolDialectResourceProvider;
     }
 
     @GET
@@ -115,5 +108,10 @@ public class DeviceConfigurationResource {
     public ConnectionMethodResource getConnectionMethodResource() {
         return connectionMethodResourceProvider.get();
     }
+
+    @Path("/{deviceConfigurationId}/protocoldialects")
+       public ProtocolDialectResource getProtocolDialectsResource() {
+           return protocolDialectResourceProvider.get();
+       }
 
 }
