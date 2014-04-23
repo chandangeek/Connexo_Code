@@ -1,0 +1,19 @@
+@mixin link(
+$ui,
+$background-color: $link-default-background-color,
+$color: $link-default-color
+) {
+  .#{$prefix}container-#{$ui} {
+    background-color: $background-color;
+    color: $color;
+    a {
+      color: $color;
+    }
+  }
+}
+
+@include link(
+    'link',
+  $background-color: $link-default-background-color,
+  $color: $link-default-color
+);
