@@ -114,101 +114,6 @@ h4 {
     background-color: transparent !important;
 }
 
-// Header
-
-$navigation-color: $elster-blue-75;
-
-.nav-header {
-    border-bottom: $navigation-color solid 1px;
-    background-color: $ocean-blue;
-    padding: {
-        right: 10px;
-        left: 10px;
-    }
-
-    .nav-appswitcher,
-    .nav-toggler,
-    .nav-logo,
-    .notifications-anchor,
-    .nav-help,
-    .user-menu {
-        @include transparent-button;
-
-        &:hover {
-            @include highlight-header-background;
-        }
-    }
-
-    .x-menu-active {
-        @include highlight-header-background;
-    }
-
-    .nav-toggler {
-        @include hidden-arrow-button;
-
-        .x-btn-button .x-btn-glyph {
-            opacity: 0.5;
-        }
-
-        &:hover .x-btn-button .x-btn-glyph {
-            opacity: 1.0;
-        }
-    }
-
-    .x-pressed .x-btn-button .x-btn-glyph {
-        opacity: 1.0;
-    }
-
-    .nav-toggler .x-pressed {
-        .x-btn-button {
-            .x-btn-glyph {
-                opacity: 1.0;
-            }
-        }
-    }
-
-    .nav-appswitcher, .notifications-anchor {
-        @include hidden-arrow-button;
-    }
-
-    .search-field {
-        $field-width: 240px;
-        width: $field-width;
-
-        .x-form-item-body {
-            float: right;
-
-            input {
-                $field-radius: 10px;
-                border-radius: $field-radius;
-                -moz-border-radius: $field-radius;
-                -webkit-border-radius: $field-radius;
-                $transition: all 1s ease;
-                transition: $transition;
-                -moz-transition: $transition;
-                -webkit-transition: $transition;
-                -o-transition: $transition;
-                -ms-transition: $transition;
-                width: $field-width * 0.50;
-                height: 24px;
-
-                &:focus, &:hover {
-                    width: $field-width;
-                }
-            }
-        }
-    }
-
-    .search-button {
-        @include transparent-button;
-        margin-left: 5px;
-
-        &:hover {
-            @include highlight-header-background;
-        }
-    }
-}
-
 // App switcher
 
 .nav-appswitcher-menu {
@@ -243,6 +148,7 @@ $navigation-color: $elster-blue-75;
 
 $menu-width-expanded: 200px;
 $menu-width-collapsed: 55px;
+$navigation-color: $elster-blue-75;
 
 .nav-wrapper {
     padding-right: $menu-width-collapsed;
@@ -429,10 +335,10 @@ $menu-width-collapsed: 55px;
             color: $ocean-blue;
             font-size: 16px;
         }
-//
-//        .x-panel-body {
-//            padding: 5px;
-//        }
+        //
+        //        .x-panel-body {
+        //            padding: 5px;
+        //        }
 
         .x-toolbar {
             padding: 6px;
@@ -674,8 +580,8 @@ a.x-form-display-field {
     color: blue;
 }
 
-.uni-centered-icon{
-  display: block;
-  margin: 0 auto;
+.uni-centered-icon {
+    display: block;
+    margin: 0 auto;
 }
 

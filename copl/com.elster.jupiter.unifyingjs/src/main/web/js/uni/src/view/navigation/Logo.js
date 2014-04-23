@@ -7,9 +7,7 @@ Ext.define('Uni.view.navigation.Logo', {
 
     text: 'Connexo Collect',
     action: 'home',
-    glyph: 'xe002@icomoon',
     scale: 'medium',
-    iconAlign: 'left',
     href: '#',
     hrefTarget: '_self',
     cls: 'nav-logo',
