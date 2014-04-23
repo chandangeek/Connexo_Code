@@ -63,14 +63,12 @@ public class RegisterGroupResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterGroupInfo createRegisterGroup(RegisterGroupInfo registerGroupInfo) {
-        //TODO: add transactional context here - it wasn't for RegisterTypes?
         RegisterGroup newGroup = this.masterDataService.newRegisterGroup(registerGroupInfo.name);
         for(RegisterMappingInfo mapping : registerGroupInfo.registerTypes){
             newGroup.addRegisterMapping(resourceHelper.findRegisterMappingByIdOrThrowException(mapping.id));
         }
         newGroup.save();
-
-        return null;
+        return new RegisterGroupInfo(newGroup);
     }
 
     @PUT
@@ -78,13 +76,8 @@ public class RegisterGroupResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterGroupInfo updateRegisterGroup(@PathParam("id") long id, RegisterGroupInfo registerGroupInfo) {
-        /*RegisterMapping registerMapping = this.resourceHelper.findRegisterMappingByIdOrThrowException(id);
-        registerMappingInfo.writeTo(registerMapping, findReadingType(registerMappingInfo));
-        registerMapping.save();
-        return new RegisterMappingInfo(registerMapping, this.deviceConfigurationService.isRegisterMappingUsedByDeviceType(registerMapping));*/
         RegisterGroup group = resourceHelper.findRegisterGroupByIdOrThrowException(id);
         group.setName(registerGroupInfo.name);
-        //TODO: remove all register mappings here
         group.removeRegisterMappings();
 
         for(RegisterMappingInfo mapping : registerGroupInfo.registerTypes){
