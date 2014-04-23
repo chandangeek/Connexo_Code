@@ -139,6 +139,10 @@ public class SubscriberSpecImpl implements SubscriberSpec {
             options.setConsumerName(name);
             options.setNavigation(AQDequeueOptions.NavigationOption.FIRST_MESSAGE);
         }
+        if (getDestination().isBuffered()) {
+        	options.setVisibility(AQDequeueOptions.VisibilityOption.IMMEDIATE);
+        	options.setDeliveryFilter(AQDequeueOptions.DeliveryFilter.BUFFERED);
+        }
         return options;
     }
 

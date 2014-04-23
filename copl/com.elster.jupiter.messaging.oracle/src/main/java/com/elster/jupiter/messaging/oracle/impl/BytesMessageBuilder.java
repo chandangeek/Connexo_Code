@@ -77,6 +77,11 @@ class BytesMessageBuilder implements MessageBuilder {
 
     private void trySend(byte[] bytes) throws SQLException {
         AQMessage message = aqFacade.create(getMessageProperties());
+        AQEnqueueOptions options = new AQEnqueueOptions();
+        if (destinationSpec.isBuffered()) {
+        	options.setVisibility(AQEnqueueOptions.VisibilityOption.IMMEDIATE);
+        	options.setDeliveryMode(AQEnqueueOptions.DeliveryMode.BUFFERED);
+        }
         message.setPayload(bytes);
         try (Connection connection = dataModel.getConnection(false)) {
             OracleConnection oraConnection= connection.unwrap(OracleConnection.class);

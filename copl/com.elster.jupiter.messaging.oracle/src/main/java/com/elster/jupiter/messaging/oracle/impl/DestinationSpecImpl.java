@@ -40,6 +40,7 @@ class DestinationSpecImpl implements DestinationSpec {
     private String queueTableName;
     private boolean active;
     private int retryDelay;
+    private boolean buffered;
 
     @SuppressWarnings("unused")
     private long version;
@@ -155,11 +156,12 @@ class DestinationSpecImpl implements DestinationSpec {
         return result;
     }
 
-    DestinationSpecImpl init(QueueTableSpec queueTableSpec, String name, int retryDelay) {
+    DestinationSpecImpl init(QueueTableSpec queueTableSpec, String name, int retryDelay,boolean buffered) {
         this.name = name;
         this.queueTableSpec = queueTableSpec;
         this.queueTableName = queueTableSpec.getName();
         this.retryDelay = retryDelay;
+        this.buffered = buffered;
         this.fromDB = false;
         return this;
     }
@@ -183,8 +185,8 @@ class DestinationSpecImpl implements DestinationSpec {
 
     }
 
-    static DestinationSpecImpl from(DataModel dataModel, QueueTableSpec queueTableSpec, String name, int retryDelay) {
-        return dataModel.getInstance(DestinationSpecImpl.class).init(queueTableSpec, name, retryDelay);
+    static DestinationSpecImpl from(DataModel dataModel, QueueTableSpec queueTableSpec, String name, int retryDelay, boolean buffered) {
+        return dataModel.getInstance(DestinationSpecImpl.class).init(queueTableSpec, name, retryDelay,buffered);
     }
 
     private void doActivateAq() {
@@ -257,4 +259,9 @@ class DestinationSpecImpl implements DestinationSpec {
                 "name='" + name + '\'' +
                 '}';
     }
+
+	@Override
+	public boolean isBuffered() {
+		return buffered;
+	}
 }

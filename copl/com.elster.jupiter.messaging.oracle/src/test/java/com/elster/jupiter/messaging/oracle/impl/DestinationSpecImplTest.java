@@ -99,7 +99,7 @@ public class DestinationSpecImplTest {
         when(aqFacade.createQueueConnection(connection)).thenReturn(queueConnection);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
 
-        destinationSpec = DestinationSpecImpl.from(dataModel, queueTableSpec, NAME, RETRY_DELAY);
+        destinationSpec = DestinationSpecImpl.from(dataModel, queueTableSpec, NAME, RETRY_DELAY,false);
     }
 
     @After

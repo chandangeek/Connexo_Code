@@ -186,12 +186,20 @@ public class QueueTableSpecImpl implements QueueTableSpec {
 
     @Override
     public DestinationSpec createDestinationSpec(String name, int retryDelay) {
-        DestinationSpecImpl spec = DestinationSpecImpl.from(dataModel, this, name, retryDelay);
-        spec.save();
-//        spec.activate();
-        return spec;
+    	return createDestinationSpec(name,retryDelay,false);
     }
 
+    @Override
+    public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay) {
+    	return createDestinationSpec(name,retryDelay,true);
+    }
+    
+    private DestinationSpec createDestinationSpec(String name , int retryDelay, boolean buffered)  {
+    	DestinationSpecImpl spec = DestinationSpecImpl.from(dataModel, this, name, retryDelay, buffered);
+        spec.save();
+        return spec;
+    }
+    
     @Override
     public boolean isJms() {
         return payloadType.toUpperCase().startsWith("SYS.AQ$_JMS_");
