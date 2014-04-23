@@ -86,12 +86,7 @@ Ext.define('Isu.view.workspace.issues.GroupingToolbar', {
                 {
                     xtype: 'component',
                     name: 'informationtext',
-                    margin: '20 0',
-                    html: '<h3>Issues for reason: Failed to communicate</h3>'
-                },
-                {
-                    xtype: 'component',
-                    html: '<hr/>'
+                    margin: '20 0 0'
                 }
             ]
         }

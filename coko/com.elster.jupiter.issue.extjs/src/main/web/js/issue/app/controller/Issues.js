@@ -241,6 +241,7 @@ Ext.define('Isu.controller.Issues', {
             groupingTollbar = this.getGroupingToolbar(),
             groupingCombo = groupingTollbar.down('[name=groupingcombo]'),
             groupingGrid = groupingTollbar.down('[name=groupinggrid]'),
+            groupingInformation = groupingTollbar.down('[name=groupinginformation]'),
             selectionModel = groupingGrid.getSelectionModel(),
             groupingField;
 
@@ -253,6 +254,8 @@ Ext.define('Isu.controller.Issues', {
             groupingField = this.extraParamsModel.get('filter').get(grouping);
             if (groupingField) {
                 selectionModel.select(groupingField);
+                groupingInformation.down('[name=informationtext]').update('<h3>Issues for reason: ' + groupingField.get('name') + '</h3>');
+                groupingInformation.show();
             } else {
                 this.getIssuesList().hide();
                 this.getNoIssues().update('<h3>No group selected</h3><p>Select a group of issues.</p>');
@@ -413,7 +416,8 @@ Ext.define('Isu.controller.Issues', {
                 emptyText = '<h3>No issue found</h3><p>No data collection issues have been created yet.</p>';
             }
 
-            this.getIssuesList().hide();this.getNoIssues().update(emptyText);
+            this.getIssuesList().hide();
+            this.getNoIssues().update(emptyText);
             this.getNoIssues().show();
             this.getItemPanel().fireEvent('clear');
         }
