@@ -31,13 +31,14 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
-import java.util.List;
 import org.fest.assertions.core.Condition;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -135,13 +136,9 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
     }
 
     private void addPartialOutboundConnectionTaskFor(DeviceCommunicationConfiguration communicationConfiguration, ConnectionTypePluggableClass connectionTypePluggableClass) {
-        PartialScheduledConnectionTaskBuilder partialScheduledConnectionTaskBuilder = communicationConfiguration.createPartialScheduledConnectionTask()
-                .name("MyOutbound")
+        PartialScheduledConnectionTaskBuilder partialScheduledConnectionTaskBuilder = communicationConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(60), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .comPortPool(outboundComPortPool)
-                .pluggableClass(connectionTypePluggableClass)
                 .comWindow(COM_WINDOW)
-                .rescheduleDelay(TimeDuration.seconds(60))
-                .connectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .asDefault(true);
         NextExecutionSpecBuilder<PartialScheduledConnectionTaskBuilder> nextExecutionSpecBuilder = partialScheduledConnectionTaskBuilder.nextExecutionSpec();
         nextExecutionSpecBuilder.temporalExpression(frequency);
@@ -159,21 +156,16 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
     }
 
     private void addPartialInboundConnectionTaskFor(DeviceCommunicationConfiguration communicationConfiguration, ConnectionTypePluggableClass connectionTypePluggableClass) {
-        PartialInboundConnectionTaskBuilder partialInboundConnectionTaskBuilder = communicationConfiguration.createPartialInboundConnectionTask()
-                .name("MyInboundConnectionTask")
+        PartialInboundConnectionTaskBuilder partialInboundConnectionTaskBuilder = communicationConfiguration.newPartialInboundConnectionTask("MyInboundConnectionTask", connectionTypePluggableClass)
                 .comPortPool(inboundComPortPool)
-                .pluggableClass(connectionTypePluggableClass)
                 .asDefault(false);
         partialInboundConnectionTask = partialInboundConnectionTaskBuilder.build();
         communicationConfiguration.save();
     }
 
     private void addPartialConnectionInitiationConnectionTask(DeviceCommunicationConfiguration communicationConfiguration) {
-        PartialConnectionInitiationTaskBuilder partialConnectionInitiationTaskBuilder = communicationConfiguration.createPartialConnectionInitiationTask()
-                .name("MyConnectionInitiationTask")
-                .comPortPool(outboundComPortPool)
-                .pluggableClass(connectionTypePluggableClass)
-                .rescheduleDelay(TimeDuration.seconds(60));
+        PartialConnectionInitiationTaskBuilder partialConnectionInitiationTaskBuilder = communicationConfiguration.newPartialConnectionInitiationTask("MyConnectionInitiationTask", connectionTypePluggableClass, TimeDuration.seconds(60))
+                .comPortPool(outboundComPortPool);
         partialConnectionInitiationTask = partialConnectionInitiationTaskBuilder.build();
         communicationConfiguration.save();
     }

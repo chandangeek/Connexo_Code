@@ -374,42 +374,24 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
         deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
 
-        partialInboundConnectionTask = deviceCommunicationConfiguration.createPartialInboundConnectionTask().
-                name("Inbound (1)").
-                pluggableClass(noParamsConnectionTypePluggableClass).
+        partialInboundConnectionTask = deviceCommunicationConfiguration.newPartialInboundConnectionTask("Inbound (1)", noParamsConnectionTypePluggableClass).
                 build();
 
-        partialInboundConnectionTask2 = deviceCommunicationConfiguration.createPartialInboundConnectionTask().
-                name("Inbound (2)").
-                pluggableClass(noParamsConnectionTypePluggableClass).
+        partialInboundConnectionTask2 = deviceCommunicationConfiguration.newPartialInboundConnectionTask("Inbound (2)", noParamsConnectionTypePluggableClass).
                 build();
 
-        partialScheduledConnectionTask = deviceCommunicationConfiguration.createPartialScheduledConnectionTask().
-                name("Outbound (1)").
+        partialScheduledConnectionTask = deviceCommunicationConfiguration.newPartialScheduledConnectionTask("Outbound (1)", noParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                 comWindow(new ComWindow(0, 7200)).
-                rescheduleDelay(TimeDuration.minutes(5)).
-                connectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
-                pluggableClass(noParamsConnectionTypePluggableClass).
                 build();
 
-        partialScheduledConnectionTask2 = deviceCommunicationConfiguration.createPartialScheduledConnectionTask().
-                name("Outbound (2)").
+        partialScheduledConnectionTask2 = deviceCommunicationConfiguration.newPartialScheduledConnectionTask("Outbound (2)", noParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                 comWindow(new ComWindow(0, 7200)).
-                rescheduleDelay(TimeDuration.minutes(5)).
-                connectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
-                pluggableClass(noParamsConnectionTypePluggableClass).
                 build();
 
-        partialConnectionInitiationTask = deviceCommunicationConfiguration.createPartialConnectionInitiationTask().
-                name("Initiation (1)").
-                rescheduleDelay(TimeDuration.minutes(5)).
-                pluggableClass(ipConnectionTypePluggableClass).
+        partialConnectionInitiationTask = deviceCommunicationConfiguration.newPartialConnectionInitiationTask("Initiation (1)", ipConnectionTypePluggableClass, TimeDuration.minutes(5)).
                 build();
 
-        partialConnectionInitiationTask2 = deviceCommunicationConfiguration.createPartialConnectionInitiationTask().
-                name("Initiation (2)").
-                rescheduleDelay(TimeDuration.minutes(5)).
-                pluggableClass(ipConnectionTypePluggableClass).
+        partialConnectionInitiationTask2 = deviceCommunicationConfiguration.newPartialConnectionInitiationTask("Initiation (2)", ipConnectionTypePluggableClass, TimeDuration.minutes(5)).
                 build();
 
         deviceCommunicationConfiguration.save();
@@ -428,6 +410,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected ScheduledConnectionTask createOutboundWithIpPropertiesWithoutViolations(String name, ConnectionStrategy connectionStrategy) {
+        partialConnectionInitiationTask.setName(name);
         partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTask connectionTask;
