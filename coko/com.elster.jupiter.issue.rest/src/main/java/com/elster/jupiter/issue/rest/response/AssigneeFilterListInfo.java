@@ -2,50 +2,53 @@ package com.elster.jupiter.issue.rest.response;
 
 import com.elster.jupiter.issue.share.entity.AssigneeRole;
 import com.elster.jupiter.issue.share.entity.AssigneeTeam;
-import com.elster.jupiter.issue.share.entity.IssueAssigneeType;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AssigneeFilterListInfo {
-    private static final String UNASSIGNED_TITLE = "Unassigned";
-    private static final String ME_TITLE = "Me";
+import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.*;
 
-    private List<IssueAssigneeInfo> data;
+public class AssigneeFilterListInfo {
+    private List<IssueAssigneeInfo> data = new ArrayList<>();
 
     public AssigneeFilterListInfo() {
-        data = new ArrayList<>();
     }
 
     public AssigneeFilterListInfo(List<AssigneeTeam> teamList, List<AssigneeRole> roleList, List<User> userList) {
-        this();
-        for (AssigneeTeam team : teamList) {
-            data.add(new IssueAssigneeInfo(IssueAssigneeType.TEAM.getType(), team.getId(), team.getName()));
-        }
-        for (AssigneeRole role : roleList) {
-            data.add(new IssueAssigneeInfo(IssueAssigneeType.ROLE.getType(), role.getId(), role.getName()));
-        }
+        addAll(teamList);
+        addAll(roleList);
         for (User user : userList) {
-            data.add(new IssueAssigneeInfo(IssueAssigneeType.USER.getType(), user.getId(), user.getName()));
+            data.add(new IssueAssigneeInfo(IssueAssignee.Types.USER, user.getId(), user.getName()));
         }
     }
+
+    private final void addAll(List<? extends IssueAssignee> list){
+        for (IssueAssignee assignee : list) {
+            data.add(new IssueAssigneeInfo(assignee.getType(), assignee.getId(), assignee.getName()));
+        }
+    }
+
     public List<IssueAssigneeInfo> getData() {
         return data;
     }
 
-    public void setData(List<IssueAssigneeInfo> assignees) {
-        this.data = assignees;
+    public long getTotal() {
+        return data.size();
     }
 
 
-    public static AssigneeFilterListInfo defaults(User currentUser) {
+    public static AssigneeFilterListInfo defaults(User currentUser, Thesaurus thesaurus) {
         AssigneeFilterListInfo info = new AssigneeFilterListInfo();
         // Adding 'Unassigned'
-        info.data.add(new IssueAssigneeInfo("UnexistingType", -1L, UNASSIGNED_TITLE));
+        String unassignedText = getString(ISSUE_ASSIGNEE_UNASSIGNED, thesaurus);
+        info.data.add(new IssueAssigneeInfo("UnexistingType", -1L, unassignedText));
         if (currentUser != null) {
             // Adding 'Me'
-            info.data.add(new IssueAssigneeInfo(IssueAssigneeType.USER.getType(), currentUser.getId(), ME_TITLE));
+            String meText = getString(ISSUE_ASSIGNEE_ME, thesaurus);
+            info.data.add(new IssueAssigneeInfo(IssueAssignee.Types.USER, currentUser.getId(), meText));
         }
         return info;
     }

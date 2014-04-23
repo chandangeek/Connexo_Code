@@ -4,10 +4,12 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
-import com.elster.jupiter.issue.rest.response.*;
+import com.elster.jupiter.issue.rest.response.ActionInfo;
+import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
+import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
+import com.elster.jupiter.issue.rest.response.RootEntity;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
-import com.elster.jupiter.issue.rest.response.issue.IssueListInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.rest.transactions.CloseIssuesTransaction;
 import com.elster.jupiter.issue.rest.transactions.CreateCommentTransaction;
@@ -27,70 +29,119 @@ import javax.ws.rs.core.SecurityContext;
 import java.util.Collections;
 import java.util.List;
 
+import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
+import static com.elster.jupiter.issue.rest.response.ResponseHelper.ok;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/issue")
 public class IssueResource extends BaseResource {
 
-    public IssueResource() {
-        super();
-    }
-
+    /**
+     * <b>API link</b>: <a href="http://confluence.eict.vpdc/display/JUPU/REST+API#RESTAPI-Getthelistofissues">Get the list of issues</a><br />
+     * <b>Pagination</b>: true<br />
+     * <b>Mandatory parameters</b>:
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#START}',
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#LIMIT}',
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#ISSUE_TYPE}'
+     * <br />
+     * <b>Optional parameters</b>:
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#SORT}',
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#REASON}',
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#ASSIGNEE_ID}'
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#ASSIGNEE_TYPE}'
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#STATUS}'
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#METER}'
+     * <br />
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllIssues(@BeanParam StandardParametersBean params) {
+        validateMandatory(params, ISSUE_TYPE, START, LIMIT);
         Class<? extends BaseIssue> apiClass = getQueryApiClass(params);
 
         Query<? extends BaseIssue> query = getIssueService().query(apiClass, EndDevice.class, User.class, IssueReason.class,
-                IssueStatus.class, AssigneeRole.class, AssigneeTeam.class);
+                IssueStatus.class, AssigneeRole.class, AssigneeTeam.class, IssueType.class);
         Condition condition = getQueryCondition(params);
         List<? extends BaseIssue> list = query.select(condition, params.getFrom(), params.getTo(), params.getOrder());
-        IssueListInfo resultList = new IssueListInfo(list, params.getStart(), params.getLimit());
-        return Response.ok().entity(resultList).build();
+        return ok(list, IssueInfo.class, params.getStart(), params.getLimit()).build();
+//        IssueListInfo resultList = new IssueListInfo(list, params.getStart(), params.getLimit());
+//        return Response.ok().entity(resultList).build();
     }
 
+    /**
+     * <b>API link</b>: <a href="http://confluence.eict.vpdc/display/JUPU/REST+API#RESTAPI-Getgroups">Get groups</a><br />
+     * <b>Pagination</b>: true<br />
+     * <b>Mandatory parameters</b>:
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#START}',
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#LIMIT}',
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#ISSUE_TYPE}'
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#FIELD}'
+     * <br />
+     * <b>Optional parameters</b>:
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#ID}',
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#ASSIGNEE_ID}'
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#ASSIGNEE_TYPE}'
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#METER}'
+     * <br />
+     */
     @GET
     @Path("/groupedlist")
     @Produces(MediaType.APPLICATION_JSON)
-    public IssueGroupListInfo getGroupedList(@BeanParam StandardParametersBean params) {
+    public Response getGroupedList(@BeanParam StandardParametersBean params) {
+        validateMandatory(params, ISSUE_TYPE, START, LIMIT, FIELD);
         List<GroupByReasonEntity> resultList = Collections.<GroupByReasonEntity>emptyList();
-        if (params.get("field") != null) {
-            try (TransactionContext context = getTransactionService().getContext()) {
-                List<Long> ids = parseLongParams(params.get("id"));
-                long id = ids.size() > 0 ? ids.get(0) : 0;
-                GroupQueryBuilder builder = new GroupQueryBuilder();
-                builder.setId(id).setFrom(params.getFrom()).setTo(params.getTo()).setStatuses(params.get("status"))
-                        .setSourceClass(getQueryApiClass(params)).setGroupColumn(params.get("field").get(0));
-                resultList = getIssueService().getIssueGroupList(builder);
-                context.commit();
-            }
+        try (TransactionContext context = getTransactionService().getContext()) {
+            GroupQueryBuilder builder = new GroupQueryBuilder();
+            builder.setId(params.getFirstLong(ID)) // Reason id
+                    .setFrom(params.getFrom()).setTo(params.getTo()) // Pagination
+                    .setSourceClass(getQueryApiClass(params)) // Issues, Historical Issues or Both
+                    .setGroupColumn(params.getFirst(FIELD)) // Main grouping column
+                    .setIssueType(params.getFirst(ISSUE_TYPE)) // Reasons only with specific issue type
+                    .setStatuses(params.get(STATUS)) // All selected statuses
+                    .setAssigneeType(params.getFirst(ASSIGNEE_TYPE)) // User, Group ot Role type of assignee
+                    .setAssigneeId(params.getFirstLong(ASSIGNEE_ID)) // Id of selected assignee
+                    .setMeterId(params.getFirstLong(METER)); // Filter by meter MRID
+            resultList = getIssueService().getIssueGroupList(builder);
+            context.commit();
         }
-        return new IssueGroupListInfo(resultList, params.getStart(), params.getLimit());
+        return ok(resultList, IssueGroupInfo.class, params.getStart(), params.getLimit()).build();
     }
 
+    /**
+     * <b>API link</b>: <a href="http://confluence.eict.vpdc/display/JUPU/REST+API#RESTAPI-Getissuedetails">Get issue details</a><br />
+     * <b>Pagination</b>: false<br />
+     * <b>Mandatory parameters</b>: '{@value com.elster.jupiter.issue.rest.request.RequestHelper#ID}'<br />
+     * <b>Optional parameters</b>: none<br />
+     */
     @GET
-    @Path("/{id}")
+    @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
-    public RootEntity getIssueById(@PathParam("id") long id) {
+    public Response getIssueById(@PathParam(ID) long id) {
         Optional<Issue> issue = getIssueService().findIssue(id, true);
         if (!issue.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        return new RootEntity<IssueInfo>(new IssueInfo<DeviceInfo>(issue.get(), DeviceInfo.class));
+        return ok(new IssueInfo<DeviceInfo>(issue.get(), DeviceInfo.class)).build();
     }
 
+    /**
+     * <b>API link</b>: <a href="http://confluence.eict.vpdc/display/JUPU/REST+API#RESTAPI-Viewcommentsfortheissue">View comments for the issue</a><br />
+     * <b>Pagination</b>: false<br />
+     * <b>Mandatory parameters</b>: '{@value com.elster.jupiter.issue.rest.request.RequestHelper#ID}'<br />
+     * <b>Optional parameters</b>: none<br />
+     */
     @GET
-    @Path("/{id}/comments")
+    @Path("/{" + ID + "}/comments")
     @Produces(MediaType.APPLICATION_JSON)
-    public IssueCommentListInfo getComments(@PathParam("id") long id, @BeanParam StandardParametersBean params) {
+    public Response getComments(@PathParam(ID) long id, @BeanParam StandardParametersBean params) {
         Condition condition = where("issueId").isEqualTo(id);
         Query<IssueComment> query = getIssueService().query(IssueComment.class, User.class);
-        List<IssueComment> commentsList = query.select(condition, params.getStart(), 0, params.getOrder());
-        return new IssueCommentListInfo(commentsList);
+        List<IssueComment> commentsList = query.select(condition);
+        return ok(commentsList, IssueCommentInfo.class).build();
     }
 
     @POST
-    @Path("/{id}/comments")
+    @Path("/{" + ID + "}/comments")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response postComment(@PathParam("id") long id, CreateCommentRequest request, @Context SecurityContext securityContext) {
@@ -108,7 +159,7 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RootEntity closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext){
         User author = (User)securityContext.getUserPrincipal();
-        ActionInfo info = getTransactionService().execute(new CloseIssuesTransaction(request, getIssueService(), author));
+        ActionInfo info = getTransactionService().execute(new CloseIssuesTransaction(request, getIssueService(), author, getThesaurus()));
         return new RootEntity<ActionInfo>(info);
     }
 
@@ -118,8 +169,15 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RootEntity assignIssues(AssignIssueRequest request, @Context SecurityContext securityContext){
         User author = (User)securityContext.getUserPrincipal();
-        ActionInfo info = getTransactionService().execute(new AssignIssueTransaction(request, getIssueService(), author));
+        ActionInfo info = getTransactionService().execute(new AssignIssueTransaction(request, getIssueService(), author, getThesaurus()));
         return new RootEntity<ActionInfo>(info);
+    }
+
+
+    private void checkParamIssueType(StandardParametersBean params) {
+        if (params.getFirst("issueType") == null){
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
     }
 
     private Class<? extends BaseIssue> getQueryApiClass(StandardParametersBean params){
@@ -127,7 +185,7 @@ public class IssueResource extends BaseResource {
         boolean isActual = false;
 
         Query<IssueStatus> statusQuery = getIssueService().query(IssueStatus.class);
-        for(Long status : parseLongParams(params.get("status"))) {
+        for(Long status : params.getLong("status")) {
             Optional<IssueStatus> issueStatusRef = statusQuery.get(status);
             if (issueStatusRef.isPresent()) {
                 if ( issueStatusRef.get().isFinal()) {
@@ -141,7 +199,7 @@ public class IssueResource extends BaseResource {
         Class<? extends BaseIssue> apiClass = BaseIssue.class;
         if (isActual && !isHistorical) {
             apiClass = Issue.class;
-        } else if (isHistorical){
+        } else if (isHistorical && !isActual){
             apiClass = HistoricalIssue.class;
         }
         return apiClass;
@@ -153,21 +211,22 @@ public class IssueResource extends BaseResource {
             condition = condition.and(addAssigneeQueryCondition(params));
             condition = condition.and(addReasonQueryCondition(params));
             condition = condition.and(addStatusQueryCondition(params));
+            condition = condition.and(addMeterQueryCondition(params));
         }
         return condition;
     }
 
     private Condition addAssigneeQueryCondition(StandardParametersBean params) {
         Condition conditionAssignee = Condition.TRUE;
-        if (params.get("assigneeId") != null) {
-            Long assigneeId = Long.parseLong(params.get("assigneeId").get(0));
+        if (params.get(ASSIGNEE_ID) != null) {
+            Long assigneeId = params.getFirstLong(ASSIGNEE_ID);
             if (assigneeId > 0) {
-                if (params.get("assigneeType") != null) {
-                    IssueAssigneeType assigneeType = IssueAssigneeType.fromString(params.get("assigneeType").get(0));
-                    conditionAssignee = where(assigneeType.name().toLowerCase() + ".id").isEqualTo(assigneeId);
+                String assigneeType = params.getFirst(ASSIGNEE_TYPE);
+                if (getIssueService().checkIssueAssigneeType(assigneeType)) {
+                    conditionAssignee = where(params.getFirst(ASSIGNEE_TYPE).toLowerCase() + ".id").isEqualTo(assigneeId);
                 }
             } else {
-                conditionAssignee = where("type").isNull();
+                conditionAssignee = where("assigneeType").isNull();
             }
         }
         return conditionAssignee;
@@ -175,19 +234,30 @@ public class IssueResource extends BaseResource {
 
     private Condition addReasonQueryCondition(StandardParametersBean params) {
         Condition conditionReason = Condition.FALSE;
-        for(Long reason : parseLongParams(params.get("reason"))) {
+        for(Long reason : params.getLong(REASON)) {
             conditionReason = conditionReason.or(where("reason.id").isEqualTo(reason));
         }
         conditionReason = conditionReason == Condition.FALSE ? Condition.TRUE : conditionReason;
+        IssueType issueType = getIssueService().findIssueType(params.getFirst(ISSUE_TYPE)).orNull();
+        conditionReason = conditionReason.and(where("reason.issueType").isEqualTo(issueType));
         return conditionReason;
     }
 
     private Condition addStatusQueryCondition(StandardParametersBean params) {
         Condition conditionStatus = Condition.FALSE;
-            for(Long status : parseLongParams(params.get("status"))) {
+            for(Long status : params.getLong(STATUS)) {
                 conditionStatus = conditionStatus.or(where("status.id").isEqualTo(status));
             }
         conditionStatus = conditionStatus == Condition.FALSE ? Condition.TRUE : conditionStatus;
         return  conditionStatus;
+    }
+
+    private Condition addMeterQueryCondition(StandardParametersBean params) {
+        Condition conditionMeter = Condition.FALSE;
+        for(Long meter : params.getLong(METER)) {
+            conditionMeter = conditionMeter.or(where("device.id").isEqualTo(meter));
+        }
+        conditionMeter = conditionMeter == Condition.FALSE ? Condition.TRUE : conditionMeter;
+        return conditionMeter;
     }
 }

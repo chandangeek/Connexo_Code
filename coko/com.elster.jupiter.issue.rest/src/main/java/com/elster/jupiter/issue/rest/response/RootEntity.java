@@ -1,8 +1,8 @@
 package com.elster.jupiter.issue.rest.response;
 
-
+@Deprecated
 public class RootEntity <E> {
-    E data;
+    private E data;
 
     public E getData() {
         return data;

@@ -27,15 +27,7 @@ public class DeviceInfo {
             Meter meter = Meter.class.cast(endDevice);
             Optional<MeterActivation> meterActivation = meter.getCurrentMeterActivation();
             if (meterActivation.isPresent()) {
-                Optional<UsagePoint> usagePointRef = meterActivation.get().getUsagePoint();
-                if (usagePointRef.isPresent()) {
-                    UsagePoint usagePoint = usagePointRef.get();
-                    ServiceLocation location = usagePoint.getServiceLocation();
-                    ServiceCategory category = usagePoint.getServiceCategory();
-                    this.setUsagePoint(usagePoint);
-                    this.setServiceLocation(location);
-                    this.setServiceCategory(category);
-                }
+                setUsagePoint(meterActivation.get().getUsagePoint().orNull());
             }
         }
     }
@@ -93,6 +85,10 @@ public class DeviceInfo {
     }
 
     public void setUsagePoint(UsagePoint usagePoint) {
-        this.usagePoint = new UsagePointInfo(usagePoint);
+        if (usagePoint != null) {
+            this.usagePoint = new UsagePointInfo(usagePoint);
+            this.setServiceLocation(usagePoint.getServiceLocation());
+            this.setServiceCategory(usagePoint.getServiceCategory());
+        }
     }
 }

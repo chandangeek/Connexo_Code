@@ -40,8 +40,9 @@ public class IssueCommentInfo {
     }
 
     private static class UserInfo {
-        long id;
-        String name;
+        private long id;
+        private String name;
+
         UserInfo(User user) {
             this.id = user.getId();
             this.name = user.getName();

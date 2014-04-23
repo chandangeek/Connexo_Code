@@ -6,22 +6,26 @@ import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.*;
+
 public class CloseIssuesTransaction implements Transaction<ActionInfo> {
     private final IssueService issueService;
     private final CloseIssueRequest request;
     private final User author;
+    private final Thesaurus thesaurus;
 
-
-    public CloseIssuesTransaction(CloseIssueRequest request, IssueService issueService, User author) {
+    public CloseIssuesTransaction(CloseIssueRequest request, IssueService issueService, User author, Thesaurus thesaurus) {
         this.request = request;
         this.issueService = issueService;
         this.author = author;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -32,9 +36,9 @@ public class CloseIssuesTransaction implements Transaction<ActionInfo> {
             for (EntityReference issueRef : request.getIssues()) {
                 Issue issue = issueService.findIssue(issueRef.getId()).orNull();
                 if (issue == null) {
-                    response.addFail("Issue doesn't exist", issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
+                    response.addFail(getString(ISSUE_DOES_NOT_EXIST, thesaurus), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
                 } else if (issueRef.getVersion() != issue.getVersion()){
-                    response.addFail("Issue has been already changed", issueRef.getId(), issue.getTitle());
+                    response.addFail(getString(ISSUE_WAS_ALREADY_CHANGED, thesaurus), issueRef.getId(), issue.getTitle());
                 } else {
                     issue.addComment(request.getComment(), author);
                     issue.close(status);

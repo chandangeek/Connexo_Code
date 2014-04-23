@@ -1,7 +1,7 @@
-package com.elster.jupiter.issue.rest.response.rules;
+package com.elster.jupiter.issue.rest.response;
 
-import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
-import com.elster.jupiter.issue.share.entity.Rule;
+import com.elster.jupiter.issue.share.entity.AssignmentRule;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
 
 public class AssignmentRuleInfo {
     private long id;
@@ -10,12 +10,16 @@ public class AssignmentRuleInfo {
     private IssueAssigneeInfo assignee;
     private long version;
 
-    public AssignmentRuleInfo(Rule rule) {
+    public AssignmentRuleInfo(AssignmentRule rule) {
         if (rule != null) {
-            setId(rule.getId());
-            setName(rule.getTitle());
-            setDescription(rule.getDescription());
-            setVersion(rule.getVersion());
+            this.id = rule.getId();
+            this.name = rule.getTitle();
+            this.description = rule.getDescription();
+            this.version = rule.getVersion();
+            IssueAssignee issueAssignee = rule.getAssignee();
+            if (issueAssignee != null) {
+                this.assignee = new IssueAssigneeInfo(issueAssignee);
+            }
         }
     }
 

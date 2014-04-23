@@ -9,18 +9,9 @@ public class IssueAssigneeInfo {
 
     public IssueAssigneeInfo(IssueAssignee assignee){
         if (assignee != null && assignee.getType() != null) {
-            this.setType(assignee.getType().getType());
-            switch (assignee.getType()){
-                case USER:
-                    this.setName(assignee.getUser() != null ? assignee.getUser().getName() : "");
-                    break;
-                case TEAM:
-                    this.setName(assignee.getTeam() != null ? assignee.getTeam().getName() : "");
-                    break;
-                case ROLE:
-                    this.setName(assignee.getRole() != null ? assignee.getRole().getName() : "");
-                    break;
-            }
+            this.type = assignee.getType();
+            this.id = assignee.getId();
+            this.name = assignee.getName();
         }
     }
 

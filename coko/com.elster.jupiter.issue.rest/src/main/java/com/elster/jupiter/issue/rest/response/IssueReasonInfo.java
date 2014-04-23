@@ -2,8 +2,9 @@ package com.elster.jupiter.issue.rest.response;
 
 
 import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class IssueReasonInfo {
     private long id;
     private String name;
@@ -13,10 +14,7 @@ public class IssueReasonInfo {
         this.name = reason.getName();
     }
 
-    public IssueReasonInfo(IssueStatus status) {
-        this.id = status.getId();
-        this.name = status.getName();
-    }
+    public IssueReasonInfo() {}
 
     public String getName() {
         return name;
@@ -33,6 +31,4 @@ public class IssueReasonInfo {
     public void setId(long id) {
         this.id = id;
     }
-
-
 }

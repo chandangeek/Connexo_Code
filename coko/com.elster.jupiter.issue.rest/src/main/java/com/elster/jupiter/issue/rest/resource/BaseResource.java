@@ -1,7 +1,10 @@
 package com.elster.jupiter.issue.rest.resource;
 
+import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueHelpService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -9,16 +12,18 @@ import com.elster.jupiter.users.UserService;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class BaseResource {
     private RestQueryService queryService;
     private TransactionService transactionService;
 
     private IssueService issueService;
+    private IssueCreationService issueCreationService;
     private IssueHelpService issueHelpService; // TODO remove parameter when events will be defined by MDC
     private UserService userService;
+    private MeteringService meteringService;
+
+    private Thesaurus thesaurus;
 
     public BaseResource(){
     }
@@ -62,17 +67,38 @@ public abstract class BaseResource {
         return userService;
     }
 
-    protected List<Long> parseLongParams(List<String> list) {
-        List<Long> resultList = new ArrayList<>();
-        if (list != null) {
-            for (String param : list){
-                try {
-                    resultList.add(Long.parseLong(param));
-                } catch (NumberFormatException ex) {
+    @Inject
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+    protected MeteringService getMeteringService() {
+        return meteringService;
+    }
+
+    @Inject
+    public void setIssueCreationService(IssueCreationService issueCreationService) {
+        this.issueCreationService = issueCreationService;
+    }
+    protected IssueCreationService getIssueCreationService() {
+        return issueCreationService;
+    }
+
+    @Inject
+    public void setThesaurus(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
+    protected Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
+    protected void validateMandatory(StandardParametersBean params, String... mandatoryParameters){
+        if (mandatoryParameters != null) {
+            for (String mandatoryParameter : mandatoryParameters) {
+                String value = params.getFirst(mandatoryParameter);
+                if (value == null) {
                     throw new WebApplicationException(Response.Status.BAD_REQUEST);
                 }
             }
         }
-        return resultList;
     }
 }
