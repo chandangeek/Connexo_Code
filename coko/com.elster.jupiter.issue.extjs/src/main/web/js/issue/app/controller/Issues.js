@@ -352,8 +352,8 @@ Ext.define('Isu.controller.Issues', {
 
     setGroup: function (view, newValue) {
         var grid = Ext.ComponentQuery.query('grid[name=groupgrid]')[0],
-            issuesFor = Ext.ComponentQuery.query('panel[name=issuesforlabel]')[0],
-            lineLabel = Ext.ComponentQuery.query('label[name=forissuesline]')[0],
+//            issuesFor = Ext.ComponentQuery.query('panel[name=issuesforlabel]')[0],
+//            lineLabel = Ext.ComponentQuery.query('label[name=forissuesline]')[0],
             groupItemsShown = grid.down('panel[name=groupitemsshown]'),
             issueNoGroup = this.getIssueNoGroup(),
             issuesList = this.getIssuesList(),
@@ -377,8 +377,8 @@ Ext.define('Isu.controller.Issues', {
                 }
             };
 
-        issuesFor.hide();
-        lineLabel.hide();
+//        issuesFor.hide();
+//        lineLabel.hide();
         this.getIssueNoGroup().show();
         fullList.getSelectionModel().deselectAll();
         fullList.hide();
