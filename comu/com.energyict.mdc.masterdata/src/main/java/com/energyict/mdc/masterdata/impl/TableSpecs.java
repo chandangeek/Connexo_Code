@@ -6,13 +6,11 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LoadProfileTypeRegisterMappingUsage;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.*;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 /**
  * Models the database tables that hold the data of the
@@ -81,15 +79,30 @@ public enum TableSpecs {
             Column readingType = table.column("READINGTYPE").varChar(100).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CUMULATIVE").number().conversion(NUMBER2BOOLEAN).notNull().map("cumulative").add();
-            Column registerGroup = table.column("REGISTERGROUPID").number().add();
+            //Column registerGroup = table.column("REGISTERGROUPID").number().add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
             table.column("TIMEOFUSE").number().map("timeOfUse").conversion(ColumnConversion.NUMBER2INT).add();
-            table.foreignKey("FK_EISREGMAP_REGGROUP").on(registerGroup).references(EISRTUREGISTERGROUP.name()).map("registerGroup").add();
+            //table.foreignKey("FK_EISREGMAP_REGGROUP").on(registerGroup).references(EISRTUREGISTERGROUP.name()).map("registerGroup").add();
             table.foreignKey("FK_EISREGMAP_PHENOMENON").on(phenomenon).references(EISPHENOMENON.name()).map("phenomenon").add();
             table.foreignKey("FK_EISREGMAP_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
             table.unique("UK_RTUREGMAPPINGNAME").on(name).add();
             table.unique("UK_RTUREGMREADINGTYPE").on(readingType).add();
             table.primaryKey("PK_RTUREGISTERMAPPING").on(id).add();
+        }
+    },
+
+    EISRTUREGISTERMAPPINGINGROUP {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<RegisterMappingInGroup> table = dataModel.addTable(this.name(), RegisterMappingInGroup.class);
+            table.map(RegisterMappingInGroupImpl.class);
+            Column mappingIdColumn = table.column("REGISTERMAPPINGID").number().notNull().conversion(NUMBER2LONG).map("registerMappingId").add();
+            Column groupIdColumn = table.column("REGISTERGROUPID").number().notNull().conversion(NUMBER2LONG).map("registerGroupId").add();
+            table.addCreateTimeColumn("CREATETIME", "createTime");
+            table.primaryKey("USR_PK_REGISTERMAPPINGINGROUP").on(mappingIdColumn , groupIdColumn).add();
+            table.foreignKey("FK_REGMAPPINGINGROUP2MAPPING").references(EISRTUREGISTERMAPPING.name()).onDelete(CASCADE).map("registerMapping").on(mappingIdColumn).add();
+            table.foreignKey("FK_REGMAPPINGINGROUP2GROUP").references(EISRTUREGISTERGROUP.name()).onDelete(CASCADE).map("registerGroup").reverseMap("mappingsInGroup").on(groupIdColumn).add();
+
         }
     },
 

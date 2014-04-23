@@ -2,6 +2,8 @@ package com.energyict.mdc.masterdata;
 
 import com.energyict.mdc.common.HasId;
 
+import java.util.List;
+
 /**
  * Represents a group of registers.
  *
@@ -29,4 +31,11 @@ public interface RegisterGroup extends HasId {
 
     public void delete();
 
+    public List<RegisterMapping> getRegisterMappings();
+
+    public void addRegisterMapping (RegisterMapping registerMapping);
+
+    public void removeRegisterMapping (RegisterMapping registerMapping);
+
+    void removeRegisterMappings();
 }

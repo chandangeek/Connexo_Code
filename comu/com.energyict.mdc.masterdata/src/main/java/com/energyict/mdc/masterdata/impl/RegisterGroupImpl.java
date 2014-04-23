@@ -6,15 +6,18 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterMappingInGroup;
 import com.energyict.mdc.masterdata.exceptions.CannotDeleteBecauseStillInUseException;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> implements RegisterGroup {
 
     private Date modificationDate;
+    private List<RegisterMappingInGroup> mappingsInGroup;
 
     private final Clock clock;
 
@@ -65,10 +68,41 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     }
 
     protected void validateDelete() {
-        List<RegisterMapping> registerMappings = this.mapper(RegisterMapping.class).find("registerGroup", this.getId());
-        if (!registerMappings.isEmpty()) {
+        if (!mappingsInGroup.isEmpty()) {
+            List<RegisterMapping> registerMappings = new ArrayList<>();
+            for(RegisterMappingInGroup mappingInGroup : mappingsInGroup){
+                registerMappings.add(mappingInGroup.getRegisterMapping());
+            }
+
             throw CannotDeleteBecauseStillInUseException.registerGroupIsStillInUse(this.getThesaurus(), this, registerMappings);
         }
     }
 
+    @Override
+    public List<RegisterMapping> getRegisterMappings() {
+        List<RegisterMapping> registerMappings = new ArrayList<>();
+        for(RegisterMappingInGroup mappingInGroup : mappingsInGroup){
+            registerMappings.add(mappingInGroup.getRegisterMapping());
+        }
+
+        return registerMappings;
+    }
+
+    @Override
+    public void addRegisterMapping(RegisterMapping registerMapping) {
+        mappingsInGroup.add(new RegisterMappingInGroupImpl(dataModel).init(this, registerMapping));
+    }
+
+    @Override
+    public void removeRegisterMapping(RegisterMapping registerMapping) {
+        RegisterMappingInGroup mappingInGroup = new RegisterMappingInGroupImpl(dataModel).init(this, registerMapping);
+        if(mappingsInGroup.contains(mappingInGroup)){
+            mappingsInGroup.remove(mappingInGroup);
+        }
+    }
+
+    @Override
+    public void removeRegisterMappings(){
+        mappingsInGroup.clear();
+    }
 }
