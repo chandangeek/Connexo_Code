@@ -8,22 +8,26 @@ Ext.define('Skyline.panel.FilterToolbar', {
     },
     header: false,
     ui: 'filter-toolbar',
+    showClearButton: true,
 
-    dockedItems: [
+    items: [
         {
-            xtype: 'header',
-            title: this.title,
-            dock: 'left'
+            xtype: 'container',
+            itemId: 'itemsContainer',
+            layout: {
+                type: 'hbox',
+                align: 'stretch'
+            },
+            items: []
         },
         {
-            xtype: 'button',
-            text: 'Clear all',
-            action: 'clear',
-            disabled: true,
-            dock: 'right'
+            xtype: 'label',
+            itemId: 'emptyLabel',
+            hidden: true
         },
         {
-            xtype: 'panel',
+            xtype: 'container',
+            itemId: 'toolsContainer',
             layout: {
                 type: 'hbox',
                 align: 'stretch'
@@ -32,14 +36,60 @@ Ext.define('Skyline.panel.FilterToolbar', {
         }
     ],
 
+    dockedItems: [
+        {
+            xtype: 'header',
+            dock: 'left'
+        },
+        {
+            xtype: 'button',
+            text: 'Clear all',
+            action: 'clear',
+            disabled: true,
+            dock: 'right'
+        }
+    ],
+
+    updateContainer: function(container) {
+        var count = container.items.getCount();
+
+        !count
+            ? this.getEmptyLabel().show()
+            : this.getEmptyLabel().hide()
+        ;
+        this.getClearButton().setDisabled(!count);
+    },
+
     constructor: function (config) {
-        var dockedItems = config.dockedItems;
-        config.dockedItems = [];
+        var items = config.content;
+        var tools = config.tools;
 
         this.dockedItems[0].title = config.title;
-        this.dockedItems[2].items = dockedItems;
-        Ext.apply(config, this);
+
+        this.items[0].items = items;
+        this.items[1].text = config.emptyText;
+        this.items[2].items = tools;
 
         this.callSuper(arguments);
+        if (!this.showClearButton) {
+            this.getClearButton().hide();
+        }
+        this.getContainer().on('afterlayout', 'updateContainer', this);
+    },
+
+    getContainer: function() {
+       return this.down('#itemsContainer')
+    },
+
+    getTools: function() {
+        return this.down('#toolsContainer')
+    },
+
+    getClearButton: function() {
+        return this.down('button[action="clear"]')
+    },
+
+    getEmptyLabel: function() {
+        return this.down('#emptyLabel')
     }
 });
