@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.orm.internal.TableSpecs;
+import com.elster.jupiter.orm.schema.ExistingConstraint;
 import com.elster.jupiter.orm.schema.ExistingTable;
 import com.elster.jupiter.orm.schema.SchemaInfoProvider;
 import com.elster.jupiter.pubsub.Publisher;
@@ -251,19 +252,31 @@ public class OrmServiceImpl implements OrmService, InstallService {
         DataModel existingTablesDataModel = getExistingTablesDataModel();
         if (existingTablesDataModel != null) {
             for (Table<?> table : model.getTables()) {
-                Optional<ExistingTable> existingTable = existingTablesDataModel.mapper(ExistingTable.class).getEager(table.getName());
-                if (existingTable.isPresent()) {
-                    ExistingTable userTable = existingTable.get();
-
-                    Optional<ExistingTable> existingJournalTable = Optional.absent();
-                    if (table.hasJournal()) {
-                        existingJournalTable = existingTablesDataModel.mapper(ExistingTable.class).getEager(table.getJournalTableName());
-                    }
-                    userTable.addTo(existingDataModel, Optional.fromNullable(existingJournalTable.isPresent() ? existingJournalTable.get().getName() : null));
+                Optional<ExistingTable> existingJournalTable = Optional.absent();
+                if (table.hasJournal()) {
+                    existingJournalTable = existingTablesDataModel.mapper(ExistingTable.class).getEager(table.getJournalTableName());
                 }
+                addTableToExistingModel(existingDataModel, existingTablesDataModel, table.getName(), (existingJournalTable.isPresent() ? existingJournalTable.get().getName() : null));
             }
         }
         return existingDataModel;
+    }
+
+    private void addTableToExistingModel(DataModelImpl existingModel, DataModel databaseTablesModel, String tableName, String journalTableName) {
+        Optional<ExistingTable> existingTable = databaseTablesModel.mapper(ExistingTable.class).getEager(tableName);
+        if (existingTable.isPresent()) {
+            ExistingTable userTable = existingTable.get();
+
+            for (ExistingConstraint existingConstraint : userTable.getConstraints()) {
+                if (existingConstraint.isForeignKey()) {
+                    String referencedTableName = existingConstraint.getReferencedTableName();
+                    if (existingModel.getTable(referencedTableName) == null) {
+                        addTableToExistingModel(existingModel, databaseTablesModel, referencedTableName, null);
+                    }
+                }
+            }
+            userTable.addTo(existingModel, Optional.fromNullable(journalTableName));
+        }
     }
 
 }
