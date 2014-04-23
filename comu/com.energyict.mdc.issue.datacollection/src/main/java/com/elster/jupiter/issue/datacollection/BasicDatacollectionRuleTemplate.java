@@ -8,16 +8,13 @@ import org.osgi.service.component.annotations.Component;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * This class is an example of implementation for CreationRuleTemplate Parameter interface.
- */
-@Component(name = "com.elster.jupiter.issue.datacollection.BasicRuleTemplate", property = {"uuid=" + BasicRuleTemplate.BASIC_TEMPLATE_UUID}, service = CreationRuleTemplate.class, immediate = true)
-public class BasicRuleTemplate implements CreationRuleTemplate {
+@Component(name = "com.elster.jupiter.issue.datacollection.BasicDatacollectionRuleTemplate", property = {"uuid=" + BasicDatacollectionRuleTemplate.BASIC_TEMPLATE_UUID}, service = CreationRuleTemplate.class, immediate = true)
+public class BasicDatacollectionRuleTemplate implements CreationRuleTemplate {
     public static final String BASIC_TEMPLATE_UUID = "e29b-41d4-a716";
 
     @Override
     public String getUUID() {
-        return BasicRuleTemplate.BASIC_TEMPLATE_UUID;
+        return BasicDatacollectionRuleTemplate.BASIC_TEMPLATE_UUID;
     }
 
     @Override

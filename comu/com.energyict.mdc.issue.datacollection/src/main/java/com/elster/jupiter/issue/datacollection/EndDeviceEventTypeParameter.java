@@ -2,10 +2,10 @@ package com.elster.jupiter.issue.datacollection;
 
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplateParameter;
 
-public class IssueEventTopicParameter implements CreationRuleTemplateParameter {
+public class EndDeviceEventTypeParameter implements CreationRuleTemplateParameter {
     @Override
     public String getName() {
-        return "eventTopic";
+        return "endDeviceEventType";
     }
 
     @Override
@@ -15,7 +15,7 @@ public class IssueEventTopicParameter implements CreationRuleTemplateParameter {
 
     @Override
     public String getLabel() {
-        return "Event topic";
+        return "End device event type";
     }
 
     @Override

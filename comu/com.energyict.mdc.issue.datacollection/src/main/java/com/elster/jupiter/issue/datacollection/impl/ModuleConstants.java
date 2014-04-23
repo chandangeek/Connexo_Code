@@ -10,6 +10,7 @@ public final class ModuleConstants {
     public static final String AQ_SUBSCRIBER_NAME = "ISSUECREATOR";
 
     public static final String DEVICE_IDENTIFIER = "deviceIdentifier";
+    public static final String EVENT_IDENTIFIER = "eventIdentifier";
     public static final long MDC_AMR_SYSTEM_ID = 1L;
 
 }

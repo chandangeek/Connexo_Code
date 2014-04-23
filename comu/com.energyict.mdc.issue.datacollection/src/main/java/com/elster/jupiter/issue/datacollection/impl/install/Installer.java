@@ -40,6 +40,8 @@ public class Installer {
         issueService.createReason("Failed to communicate", issueType);
         issueService.createReason("Connection setup failed", issueType);
         issueService.createReason("Connection failed", issueType);
+        issueService.createReason("Power outage", issueType);
+        issueService.createReason("Time sync failed", issueType);
     }
 
     // TODO remove it when MDC will register topics

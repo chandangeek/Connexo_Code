@@ -1,8 +1,6 @@
 package com.elster.jupiter.issue.datacollection.impl.event;
 
 import com.elster.jupiter.issue.datacollection.DataCollectionEvent;
-import com.elster.jupiter.issue.datacollection.MeterIssueEvent;
-import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.IssueEventType;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -14,14 +12,14 @@ import org.osgi.service.event.EventConstants;
 
 import java.util.Map;
 
-public class DataCollectionEventHandler implements MessageHandler {
+public class MeterEventHandler implements MessageHandler {
 
     private final JsonService jsonService;
     private final IssueCreationService issueCreationService;
     private final IssueService issueService;
     private final MeteringService meteringService;
 
-    public DataCollectionEventHandler(JsonService jsonService, IssueService issueService, IssueCreationService issueCreationService, MeteringService meteringService) {
+    public MeterEventHandler(JsonService jsonService, IssueService issueService, IssueCreationService issueCreationService, MeteringService meteringService) {
         this.jsonService = jsonService;
         this.issueCreationService = issueCreationService;
         this.issueService = issueService;
@@ -34,18 +32,11 @@ public class DataCollectionEventHandler implements MessageHandler {
 
         String topic = String.class.cast(map.get(EventConstants.EVENT_TOPIC));
         IssueEventType eventType = IssueEventType.getEventTypeByTopic(topic);
-        IssueEvent event = getEvent(map, eventType);
-
-        issueCreationService.dispatchCreationEvent(event);
-    }
-
-    private IssueEvent getEvent(Map<?, ?> map, IssueEventType eventType) {
-        IssueEvent event = null;
-        if (IssueEventType.DEVICE_EVENT.equals(eventType)){
-            event = new MeterIssueEvent(issueService, meteringService, map);
-        } else{
-            event = new DataCollectionEvent(issueService, meteringService, map);
+        if (!IssueEventType.DEVICE_EVENT.equals(eventType)){
+            return;
         }
-        return event;
+
+        DataCollectionEvent event = new DataCollectionEvent(issueService, meteringService, map);
+        issueCreationService.dispatchCreationEvent(event);
     }
 }
