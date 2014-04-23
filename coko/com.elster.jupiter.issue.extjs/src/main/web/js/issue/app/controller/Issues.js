@@ -176,6 +176,18 @@ Ext.define('Isu.controller.Issues', {
             form = self.getIssueFilter().down('filter-form'),
             filterCheckboxGroup = form.down('filter-checkboxgroup');
 
+        if (filterModel.get('assignee')) {
+            form.down('combobox[name=assignee]').getStore().add(filterModel.get('assignee'));
+        }
+
+        if (filterModel.get('reason')) {
+            form.down('combobox[name=reason]').getStore().add(filterModel.get('reason'));
+        }
+
+        if (filterModel.get('meter')) {
+            form.down('combobox[name=meter]').getStore().add(filterModel.get('meter'));
+        }
+
         if (!filterCheckboxGroup.store.getCount()) {
             filterCheckboxGroup.store.load(function () {
                 form.loadRecord(filterModel);
