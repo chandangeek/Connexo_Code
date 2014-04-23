@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class StandardParametersBean {
-    private static final Logger LOG = Logger.getLogger(StandardParametersBean.class.getName());
-
     @QueryParam("sort")
     private List<String> sort;
 

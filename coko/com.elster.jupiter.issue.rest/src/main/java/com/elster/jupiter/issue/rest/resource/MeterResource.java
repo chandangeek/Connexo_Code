@@ -30,15 +30,13 @@ public class MeterResource extends BaseResource {
     public Response getMeters(@BeanParam StandardParametersBean params) {
         // We shouldn't return anything if the 'like' parameter is absent or it is an empty string.
         String searchText = params.getFirst(LIKE);
-        if (searchText != null) {
-            if (!searchText.isEmpty()){
-                String dbSearchText = "%" + searchText + "%";
-                Condition condition = where("serialNumber").likeIgnoreCase(dbSearchText);
+        if (searchText != null && !searchText.isEmpty()){
+            String dbSearchText = "%" + searchText + "%";
+            Condition condition = where("serialNumber").likeIgnoreCase(dbSearchText);
 
-                Query<Meter> meterQuery = getMeteringService().getMeterQuery();
-                List<Meter> listMeters = meterQuery.select(condition, Order.ascending("serialNumber"));
-                return ok(listMeters, MeterShortInfo.class).build();
-            }
+            Query<Meter> meterQuery = getMeteringService().getMeterQuery();
+            List<Meter> listMeters = meterQuery.select(condition, Order.ascending("serialNumber"));
+            return ok(listMeters, MeterShortInfo.class).build();
         }
         return ok("").build();
     }

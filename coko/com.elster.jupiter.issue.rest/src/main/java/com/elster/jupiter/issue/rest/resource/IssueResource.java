@@ -173,13 +173,6 @@ public class IssueResource extends BaseResource {
         return new RootEntity<ActionInfo>(info);
     }
 
-
-    private void checkParamIssueType(StandardParametersBean params) {
-        if (params.getFirst("issueType") == null){
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
-        }
-    }
-
     private Class<? extends BaseIssue> getQueryApiClass(StandardParametersBean params){
         boolean isHistorical = false;
         boolean isActual = false;

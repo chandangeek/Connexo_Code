@@ -11,7 +11,7 @@ import java.util.Locale;
 import java.util.logging.Logger;
 
 public class TranslationInstaller {
-    private final static Logger LOG = Logger.getLogger(TranslationInstaller.class.getName());
+    private static final Logger LOG = Logger.getLogger(TranslationInstaller.class.getName());
 
     private Thesaurus thesaurus;
 

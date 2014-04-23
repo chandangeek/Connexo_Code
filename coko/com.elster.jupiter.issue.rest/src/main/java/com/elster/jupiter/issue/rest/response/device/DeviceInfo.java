@@ -14,10 +14,10 @@ public class DeviceInfo {
 
     public DeviceInfo(EndDevice endDevice){
         if (endDevice != null) {
-            this.setId(endDevice.getId());
-            this.setName(endDevice.getName());
-            this.setSerialNumber(endDevice.getSerialNumber());
-            this.setVersion(endDevice.getVersion());
+            this.id = endDevice.getId();
+            this.name = endDevice.getName();
+            this.serialNumber = endDevice.getSerialNumber();
+            this.version = endDevice.getVersion();
             fetchDetails(endDevice);
         }
     }

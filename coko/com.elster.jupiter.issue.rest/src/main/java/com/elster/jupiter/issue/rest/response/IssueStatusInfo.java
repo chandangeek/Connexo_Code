@@ -9,9 +9,9 @@ public class IssueStatusInfo {
 
     public IssueStatusInfo(IssueStatus status) {
         if (status != null) {
-            setId(status.getId());
-            setName(status.getName());
-            setAllowForClosing(status.isFinal());
+            this.id = status.getId();
+            this.name = status.getName();
+            this.allowForClosing = status.isFinal();
         }
     }
 

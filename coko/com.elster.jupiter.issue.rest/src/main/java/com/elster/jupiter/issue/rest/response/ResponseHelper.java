@@ -27,7 +27,7 @@ public abstract class ResponseHelper extends javax.ws.rs.core.Response {
         return b;
     }
 
-    private static class SingleResponse<T>{
+    private static final class SingleResponse<T>{
         private T data;
 
         public T getData() {
@@ -39,7 +39,7 @@ public abstract class ResponseHelper extends javax.ws.rs.core.Response {
         }
     }
 
-    private static class ListResponse<T> {
+    private static final class ListResponse<T> {
         private static final Logger LOG = Logger.getLogger(ListResponse.class.getName());
 
         private List<T> data = new ArrayList<>();
