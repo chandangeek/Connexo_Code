@@ -11,9 +11,11 @@ public class ComScheduleInfo {
     public ComScheduleInfo() {
     }
 
-    public ComScheduleInfo(ComSchedule comSchedule) {
-        this.id = comSchedule.getId();
-        this.name = comSchedule.getName();
-        this.nextExecutionSpecs = new NextExecutionsSpecsInfo(comSchedule.getTemporalExpression());
+    public static ComScheduleInfo from(ComSchedule comSchedule) {
+        ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
+        comScheduleInfo.id = comSchedule.getId();
+        comScheduleInfo.name = comSchedule.getName();
+        comScheduleInfo.nextExecutionSpecs = new NextExecutionsSpecsInfo(comSchedule.getTemporalExpression());
+        return comScheduleInfo;
     }
 }
