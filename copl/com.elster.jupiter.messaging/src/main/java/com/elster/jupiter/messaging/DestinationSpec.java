@@ -72,4 +72,6 @@ public interface DestinationSpec extends HasName {
     SubscriberSpec subscribe(String name);
 
     void save();
+    
+    boolean isBuffered();
 }
