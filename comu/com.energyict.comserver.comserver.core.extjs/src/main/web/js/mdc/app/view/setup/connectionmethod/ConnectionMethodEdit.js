@@ -2,7 +2,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.connectionMethodEdit',
     itemId: 'connectionMethodEdit',
-    autoScroll: true,
     cls: 'content-container',
     edit: false,
     requires: [

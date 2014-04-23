@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.comport.ComPortEdit', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.comPortEdit',
-    autoScroll: true,
     layout: {
         type: 'vbox',
         align: 'stretch'
