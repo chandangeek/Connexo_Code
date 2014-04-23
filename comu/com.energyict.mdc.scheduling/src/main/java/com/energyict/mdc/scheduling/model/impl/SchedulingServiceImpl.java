@@ -33,10 +33,11 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
     }
 
     @Inject
-    public SchedulingServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService) {
+    public SchedulingServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, TaskService tasksService) {
         setOrmService(ormService);
         setEventService(eventService);
         setNlsService(nlsService);
+        setTasksService(tasksService);
         if (!this.dataModel.isInstalled()) {
             this.install(true);
         }
@@ -62,13 +63,18 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
     }
 
     @Reference
-    public void setTasksService(TaskService tasksService) {
+    public void setTasksService(TaskService tasksService) { // Added this to solve issues with FK to MDCTASKS table
         this.tasksService = tasksService;
     }
 
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
+    }
+
+    @Override
+    public void install() {
+        new Installer(dataModel, eventService, thesaurus).install(true, true);
     }
 
     private void install(boolean exeuteDdl) {
@@ -83,6 +89,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
             bind(EventService.class).toInstance(eventService);
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(TaskService.class).toInstance(tasksService);
+            bind(SchedulingService.class).toInstance(SchedulingServiceImpl.this);
             }
         };
     }
@@ -95,7 +102,9 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
 
     @Override
     public NextExecutionSpecs newNextExecutionSpecs(TemporalExpression temporalExpression) {
-        return null;
+        NextExecutionSpecsImpl instance = dataModel.getInstance(NextExecutionSpecsImpl.class);
+        instance.setTemporalExpression(temporalExpression);
+        return instance;
     }
 
     @Override
@@ -104,7 +113,10 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
     }
 
     @Override
-    public void install() {
-        new Installer(dataModel, eventService, thesaurus).install(true, true);
+    public ComSchedule newComSchedule(String name, TemporalExpression temporalExpression) {
+        ComScheduleImpl instance = dataModel.getInstance(ComScheduleImpl.class);
+        instance.setName(name);
+        instance.setTemporalExpression(temporalExpression);
+        return null;
     }
 }

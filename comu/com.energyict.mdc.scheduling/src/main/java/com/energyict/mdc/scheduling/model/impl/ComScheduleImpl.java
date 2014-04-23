@@ -1,21 +1,29 @@
 package com.energyict.mdc.scheduling.model.impl;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.tasks.ComTask;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.inject.Inject;
 
 public class ComScheduleImpl implements ComSchedule {
+
+    private final SchedulingService schedulingService;
+    private final DataModel dataModel;
 
     enum Fields {
         NAME("name"),
         MOD_DATE("mod_date"),
-        NEXT_EXECUTION_SPEC("nextExecutionSpec"),
+        NEXT_EXECUTION_SPEC("nextExecutionSpecs"),
         STATUS("schedulingStatus"),
         COM_TASK_IN_COM_SCHEDULE("comTaskUsages");
         private final String javaFieldName;
@@ -28,10 +36,17 @@ public class ComScheduleImpl implements ComSchedule {
             return javaFieldName;
         }
     }
+
+    @Inject
+    public ComScheduleImpl(SchedulingService schedulingService, DataModel dataModel) {
+        this.schedulingService = schedulingService;
+        this.dataModel = dataModel;
+    }
+
     private long id;
     private String name;
     private List<ComTaskInComSchedule> comTaskUsages = new ArrayList<>();
-    private Reference<NextExecutionSpecs> nextExecutionSpec = ValueReference.absent();
+    private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
     private SchedulingStatus schedulingStatus;
     private Date mod_date;
 
@@ -50,16 +65,32 @@ public class ComScheduleImpl implements ComSchedule {
         this.name = name;
     }
 
-    @Override
-    public NextExecutionSpecs getNextExecutionSpec() {
-        return nextExecutionSpec.get();
+    // Intentionally not on interface
+    public NextExecutionSpecs getNextExecutionSpecs() {
+        return nextExecutionSpecs.get();
     }
 
     @Override
-    public void setNextExecutionSpec(NextExecutionSpecs nextExecutionSpec) {
-        this.nextExecutionSpec.set(nextExecutionSpec);
+    public TemporalExpression getTemporalExpression() {
+        return this.nextExecutionSpecs.get().getTemporalExpression();
     }
 
+    @Override
+    public void setTemporalExpression(TemporalExpression temporalExpression) {
+        if (!this.nextExecutionSpecs.isPresent()) {
+            this.nextExecutionSpecs.set(schedulingService.newNextExecutionSpecs(temporalExpression));
+        } else  {
+            this.nextExecutionSpecs.get().setTemporalExpression(temporalExpression);
+        }
+    }
+
+    @Override
+    public void save() {
+        Save.action(this.getId()).save(dataModel, this);
+    }
+
+
+    @Override
     public List<ComTask> getComTasks() {
         List<ComTask> comTasks = new ArrayList<>();
         for (ComTaskInComSchedule comTaskUsage : comTaskUsages) {
@@ -68,11 +99,13 @@ public class ComScheduleImpl implements ComSchedule {
         return comTasks;
     }
 
+    @Override
     public void addComTask(ComTask comTask) {
         // TODO  verify that all devices that are already linked to the ComSchedule have that ComTask enabled.
         comTaskUsages.add(new ComTaskInComScheduleImpl(this, comTask));
     }
 
+    @Override
     public SchedulingStatus getSchedulingStatus() {
         return schedulingStatus;
     }

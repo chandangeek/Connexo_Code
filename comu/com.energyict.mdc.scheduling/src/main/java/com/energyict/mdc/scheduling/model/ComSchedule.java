@@ -1,6 +1,8 @@
 package com.energyict.mdc.scheduling.model;
 
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.tasks.ComTask;
+import java.util.List;
 
 public interface ComSchedule {
 
@@ -8,6 +10,16 @@ public interface ComSchedule {
 
     public String getName();
     public void setName(String name);
-    public NextExecutionSpecs getNextExecutionSpec();
-    public void setNextExecutionSpec(NextExecutionSpecs nextExecutionSpec);
+
+    public SchedulingStatus getSchedulingStatus();
+
+    public void addComTask(ComTask comTask);
+
+    public List<ComTask> getComTasks();
+
+    public TemporalExpression getTemporalExpression();
+
+    public void setTemporalExpression(TemporalExpression temporalExpression);
+
+    public void save();
 }

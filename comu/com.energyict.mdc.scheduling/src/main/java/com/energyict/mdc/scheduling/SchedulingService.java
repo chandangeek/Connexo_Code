@@ -10,4 +10,6 @@ public interface SchedulingService {
     public NextExecutionSpecs newNextExecutionSpecs(TemporalExpression temporalExpression);
 
     public Finder<ComSchedule> findAllSchedules();
+
+    ComSchedule newComSchedule(String name, TemporalExpression temporalExpression);
 }
