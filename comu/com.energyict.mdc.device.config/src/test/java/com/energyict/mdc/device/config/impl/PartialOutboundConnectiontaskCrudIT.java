@@ -5,7 +5,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -67,6 +66,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+import com.google.inject.Scopes;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -86,8 +86,7 @@ import java.sql.SQLException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartialOutboundConnectiontaskCrudIT {
@@ -114,7 +113,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
     private OrmService ormService;
-    private EventService eventService;
+    private SpyEventService eventService;
     private NlsService nlsService;
     private DeviceConfigurationServiceImpl deviceConfigurationService;
     private MeteringService meteringService;
@@ -143,6 +142,7 @@ public class PartialOutboundConnectiontaskCrudIT {
                     return dataModel;
                 }
             });
+            bind(EventService.class).to(SpyEventService.class).in(Scopes.SINGLETON);
         }
 
     }
@@ -153,7 +153,6 @@ public class PartialOutboundConnectiontaskCrudIT {
                 new MockModule(),
                 bootstrapModule,
                 new ThreadSecurityModule(principal),
-                new EventsModule(),
                 new PubSubModule(),
                 new TransactionModule(showSqlLogging),
                 new UtilModule(),
@@ -164,7 +163,6 @@ public class PartialOutboundConnectiontaskCrudIT {
                 new IdsModule(),
                 new MeteringModule(),
                 new InMemoryMessagingModule(),
-                new EventsModule(),
                 new OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
@@ -179,7 +177,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             ormService = injector.getInstance(OrmService.class);
-            eventService = injector.getInstance(EventService.class);
+            eventService = (SpyEventService) injector.getInstance(EventService.class);
             nlsService = injector.getInstance(NlsService.class);
             meteringService = injector.getInstance(MeteringService.class);
             readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
@@ -284,6 +282,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         assertThat(partialOutboundConnectionTask.getRescheduleDelay()).isEqualTo(TimeDuration.seconds(60));
         assertThat(partialOutboundConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
 
+        verify(eventService.getSpy()).postEvent(EventType.PARTIAL_OUTBOUND_CONNECTION_TASK_CREATED.topic(), outboundConnectionTask);
     }
 
     //            partialInboundConnectionTask.setName("Changed");
@@ -309,14 +308,15 @@ public class PartialOutboundConnectiontaskCrudIT {
         }
 
         ComWindow newComWindow = new ComWindow(7200, 10800);
+        PartialScheduledConnectionTaskImpl task;
         try (TransactionContext context = transactionService.getContext()) {
-            PartialScheduledConnectionTaskImpl partialOutboundConnectionTask = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
-            partialOutboundConnectionTask.setDefault(false);
-            partialOutboundConnectionTask.setComportPool(outboundComPortPool1);
-            partialOutboundConnectionTask.setConnectionTypePluggableClass(connectionTypePluggableClass2);
-            partialOutboundConnectionTask.setComWindow(newComWindow);
-            partialOutboundConnectionTask.setName("Changed");
-            partialOutboundConnectionTask.save();
+            task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
+            task.setDefault(false);
+            task.setComportPool(outboundComPortPool1);
+            task.setConnectionTypePluggableClass(connectionTypePluggableClass2);
+            task.setComWindow(newComWindow);
+            task.setName("Changed");
+            task.save();
 
             context.commit();
         }
@@ -336,6 +336,8 @@ public class PartialOutboundConnectiontaskCrudIT {
         assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
         assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(newComWindow);
         assertThat(partialOutboundConnectionTask.getName()).isEqualTo("Changed");
+
+        verify(eventService.getSpy()).postEvent(EventType.PARTIAL_OUTBOUND_CONNECTION_TASK_UPDATED.topic(), task);
 
     }
 
@@ -359,8 +361,9 @@ public class PartialOutboundConnectiontaskCrudIT {
             context.commit();
         }
 
+        PartialScheduledConnectionTaskImpl partialOutboundConnectionTask;
         try (TransactionContext context = transactionService.getContext()) {
-            PartialScheduledConnectionTaskImpl partialOutboundConnectionTask = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
+            partialOutboundConnectionTask = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
             deviceConfiguration.remove(partialOutboundConnectionTask);
             deviceConfiguration.save();
 
@@ -369,6 +372,8 @@ public class PartialOutboundConnectiontaskCrudIT {
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found).isAbsent();
+
+        verify(eventService.getSpy()).postEvent(EventType.PARTIAL_OUTBOUND_CONNECTION_TASK_DELETED.topic(), partialOutboundConnectionTask);
 
     }
 
