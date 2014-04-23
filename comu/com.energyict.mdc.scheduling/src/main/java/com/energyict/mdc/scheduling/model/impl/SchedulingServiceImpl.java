@@ -13,6 +13,7 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import javax.inject.Inject;
@@ -26,6 +27,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
+    private volatile TaskService tasksService;
 
     public SchedulingServiceImpl() {
     }
@@ -59,6 +61,11 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
         this.thesaurus = nlsService.getThesaurus(SchedulingService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
+    @Reference
+    public void setTasksService(TaskService tasksService) {
+        this.tasksService = tasksService;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
@@ -75,6 +82,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
             bind(DataModel.class).toInstance(dataModel);
             bind(EventService.class).toInstance(eventService);
             bind(Thesaurus.class).toInstance(thesaurus);
+            bind(TaskService.class).toInstance(tasksService);
             }
         };
     }
