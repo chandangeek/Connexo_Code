@@ -252,7 +252,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.column("NAME").varChar(255).notNull().map("name").add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
-            Column devicecomconfig = table.column("DEVICECOMCONFIG").number().add();
+            Column deviceComConfig = table.column("DEVICECOMCONFIG").number().add();
             Column connectionType = table.column("CONNECTIONTYPE").number().conversion(NUMBER2LONG).map("pluggableClassId").add();
             Column initiator = table.column("INITIATOR").number().add();
             table.column("COMWINDOWSTART").number().conversion(NUMBER2INT).map("comWindowStart").add();
@@ -268,7 +268,7 @@ public enum TableSpecs {
             table.primaryKey("PK_MDCPARTIALCONNTASK").on(id).add();
             table.foreignKey("FK_MDCPARTIALCT_PLUGGABLE").on(connectionType).references(PluggableService.COMPONENTNAME, "EISPLUGGABLECLASS").map("pluggableClass").add();
             table.foreignKey("FK_MDCPARTIALCT_COMPORTPOOL").on(comportpool).references(EngineModelService.COMPONENT_NAME, "MDCCOMPORTPOOL").map("comPortPool").add();
-            table.foreignKey("FK_MDCPARTCONTASK_DCOMCONFIG").on(devicecomconfig).references(MDCDEVICECOMMCONFIG.name()).map("configuration").reverseMap("partialConnectionTasks").onDelete(CASCADE).composition().add();
+            table.foreignKey("FK_MDCPARTCONTASK_DCOMCONFIG").on(deviceComConfig).references(MDCDEVICECOMMCONFIG.name()).map("configuration").reverseMap("partialConnectionTasks").onDelete(CASCADE).composition().add();
             table.foreignKey("FK_MDCPARTIALCONNTASK_NEXTEX").on(nextexecutionspecs).references(MDCNEXTEXECUTIONSPEC.name()).onDelete(CASCADE).map("nextExecutionSpecs").add();
             table.foreignKey("FK_MDCPARTIALCONNTASK_INIT").on(initiator).references(MDCPARTIALCONNECTIONTASK.name()).map("initiator").add();
         }

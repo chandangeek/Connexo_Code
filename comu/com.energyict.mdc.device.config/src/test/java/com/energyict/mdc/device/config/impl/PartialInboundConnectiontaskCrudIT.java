@@ -257,10 +257,8 @@ public class PartialInboundConnectiontaskCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            inboundConnectionTask = deviceConfiguration.createPartialInboundConnectionTask()
-                    .name("MyInbound")
+            inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
-                    .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true).build();
             deviceConfiguration.save();
 
@@ -296,10 +294,8 @@ public class PartialInboundConnectiontaskCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            inboundConnectionTask = deviceConfiguration.createPartialInboundConnectionTask()
-                    .name("MyInbound")
+            inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
-                    .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true).build();
             deviceConfiguration.save();
 
@@ -345,10 +341,8 @@ public class PartialInboundConnectiontaskCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            inboundConnectionTask = deviceConfiguration.createPartialInboundConnectionTask()
-                    .name("MyInbound")
+            inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
-                    .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true).build();
             deviceConfiguration.save();
 
@@ -384,10 +378,8 @@ public class PartialInboundConnectiontaskCrudIT {
             communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
             communicationConfiguration.save();
 
-            inboundConnectionTask = communicationConfiguration.createPartialInboundConnectionTask()
-                    .name("MyInbound")
+            inboundConnectionTask = communicationConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
-                    .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true)
                     .addProperty("unspecced", true)
                     .build();
@@ -409,17 +401,13 @@ public class PartialInboundConnectiontaskCrudIT {
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            inboundConnectionTask = deviceConfiguration.createPartialInboundConnectionTask()
-                    .name("MyInbound")
+            inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
-                    .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true).build();
             deviceConfiguration.save();
 
-            inboundConnectionTask = deviceConfiguration.createPartialInboundConnectionTask()
-                    .name("MyInbound")
+            inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
-                    .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true).build();
             deviceConfiguration.save();
 

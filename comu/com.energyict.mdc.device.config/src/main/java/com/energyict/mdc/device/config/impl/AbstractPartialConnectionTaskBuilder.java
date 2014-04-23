@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTaskBuilder;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -18,15 +18,17 @@ public abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortP
 
     final S myself;
     final DataModel dataModel;
-    final DeviceCommunicationConfiguration configuration;
+    final DeviceCommunicationConfigurationImpl configuration;
     String name;
     T comPortPool;
     ConnectionTypePluggableClass connectionTypePluggableClass;
     boolean asDefault;
     Map<String, Object> properties = new HashMap<>();
+    private final EventService eventService;
 
     @SuppressWarnings("unchecked")
-    AbstractPartialConnectionTaskBuilder(Class<?> selfType, DataModel dataModel, DeviceCommunicationConfiguration configuration) {
+    AbstractPartialConnectionTaskBuilder(EventService eventService, Class<?> selfType, DataModel dataModel, DeviceCommunicationConfigurationImpl configuration) {
+        this.eventService = eventService;
         this.dataModel = dataModel;
         this.configuration = configuration;
         myself = (S) selfType.cast(this);
@@ -68,6 +70,9 @@ public abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortP
         populate(instance);
 
         configuration.addPartialConnectionTask(instance);
+        if (configuration.getId() > 0) {
+            eventService.postEvent(((PersistentIdObject) instance).createEventType().topic(), instance);
+        }
 
         return instance;
     }

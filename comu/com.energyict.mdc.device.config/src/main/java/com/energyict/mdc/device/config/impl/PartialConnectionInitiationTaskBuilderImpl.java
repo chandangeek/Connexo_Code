@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
 
 /**
@@ -11,7 +10,7 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
  */
 public class PartialConnectionInitiationTaskBuilderImpl extends AbstractScheduledPartialConnectionTaskBuilder<PartialConnectionInitiationTaskBuilder, PartialConnectionInitiationTaskImpl> implements PartialConnectionInitiationTaskBuilder {
 
-    PartialConnectionInitiationTaskBuilderImpl(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
+    PartialConnectionInitiationTaskBuilderImpl(DataModel dataModel, DeviceCommunicationConfigurationImpl configuration) {
         super(PartialConnectionInitiationTaskBuilder.class, dataModel, configuration);
     }
 
