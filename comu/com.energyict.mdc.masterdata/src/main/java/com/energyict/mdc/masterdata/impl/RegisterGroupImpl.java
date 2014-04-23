@@ -17,7 +17,7 @@ import java.util.List;
 public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> implements RegisterGroup {
 
     private Date modificationDate;
-    private List<RegisterMappingInGroup> mappingsInGroup;
+    private List<RegisterMappingInGroup> mappingsInGroup = new ArrayList<>();
 
     private final Clock clock;
 
@@ -90,7 +90,10 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
 
     @Override
     public void addRegisterMapping(RegisterMapping registerMapping) {
-        mappingsInGroup.add(new RegisterMappingInGroupImpl(dataModel).init(this, registerMapping));
+        RegisterMappingInGroupImpl mappingInGroup = new RegisterMappingInGroupImpl(dataModel).init(this, registerMapping);
+        if(!mappingsInGroup.contains(mappingInGroup)){
+            mappingsInGroup.add(mappingInGroup);
+        }
     }
 
     @Override
