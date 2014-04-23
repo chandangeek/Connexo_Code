@@ -47,7 +47,7 @@ public class BasicRuleTemplate implements CreationRuleTemplate {
 
     @Override
     public String getIssueType() {
-        return ModuleConstants.ISSUE_TYPE;
+        return ModuleConstants.ISSUE_TYPE_UUID;
     }
 
     @Override
