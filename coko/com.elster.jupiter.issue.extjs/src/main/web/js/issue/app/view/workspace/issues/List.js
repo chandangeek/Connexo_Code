@@ -11,8 +11,8 @@ Ext.define('Isu.view.workspace.issues.List', {
     alias: 'widget.issues-list',
     store: 'Isu.store.Issues',
     enableColumnHide: false,
+    emptyText: '<h3>No issue found</h3><p>No data collection issues have been created yet.</p>',
     height: 395,
- //   emptyText: '<h3>No issue found</h3><p>No data collection issues have been created yet.</p>',
     columns: {
         defaults: {
             sortable: false,
@@ -22,7 +22,7 @@ Ext.define('Isu.view.workspace.issues.List', {
             {
                 header: 'Title',
                 xtype: 'templatecolumn',
-                tpl: '<a href="#/workspace/datacollection/issues/{id}">{reason}<tpl if="device"> to {device.name} {device.serialNumber}</tpl></a>',
+                tpl: '<a href="#/workspace/datacollection/issues/{id}">{reason.name}<tpl if="device"> to {device.name} {device.serialNumber}</tpl></a>',
                 flex: 2
             },
             {
@@ -65,6 +65,9 @@ Ext.define('Isu.view.workspace.issues.List', {
                         {
                             xtype: 'pagingtoolbartop',
                             store: 'Isu.store.Issues',
+                            displayMsg: '{0} - {1} of {2} issues',
+                            displayMoreMsg: '{0} - {1} of more than {2} issues',
+                            emptyMsg: '0 issues',
                             dock: 'top',
                             border: false
                         }

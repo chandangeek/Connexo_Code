@@ -74,7 +74,13 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     showOverview: function () {
-        var widget = Ext.widget('bulk-browse');
+        var issuesStore = this.getStore('Isu.store.Issues'),
+            widget;
+
+        delete issuesStore.proxyFilter;
+        delete issuesStore.proxySort;
+
+        widget = Ext.widget('bulk-browse');
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 

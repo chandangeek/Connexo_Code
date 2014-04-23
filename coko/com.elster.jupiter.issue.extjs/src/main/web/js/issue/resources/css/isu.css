@@ -188,6 +188,7 @@ span[class^=isu-assignee-] {
     border-radius: 10px;
     color: #CF4C35;
     padding: 10px;
+    display: inline-block;
 }
 
 .isu-item-data-table {
@@ -330,6 +331,32 @@ span[class^=isu-assignee-] {
     background-color: #fff;
     border: 1px solid #C0C0C0;
     color: gray;
+    z-index: 1;
+}
+
+.isu-apply-filter {
+    cursor: pointer;
+}
+
+.isu-creation-rule-description {
+    color: grey;
+    font-style: italic;
+}
+
+.isu-combo-limit-notification {
+    color: gray;
+    font-size: 11px;
+}
+
+.isu-creation-rule-template-description {
+    position: absolute;
+    color: #007DC3;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.isu-toolbar-label {
+    font-weight: bold;
 }
 
 /* Message Window */
@@ -502,3 +529,8 @@ span[class^=isu-assignee-] {
 .isu-issues-list-selected-no-highlighted .x-grid-cell {
     background-color: inherit !important;
 }
+
+.isu-delete-message .x-message-box-warning {
+    margin: 40px 0px 0px 0px !important;
+}
+

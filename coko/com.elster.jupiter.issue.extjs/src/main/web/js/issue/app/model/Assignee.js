@@ -10,8 +10,8 @@ Ext.define('Isu.model.Assignee', {
             name: 'idx',
             displayValue: 'IDX',
             type: 'string',
-            convert: function(value, record) {
-                return [record.get('id'),record.get('type')].join(':');
+            convert: function (value, record) {
+                return [record.get('id'), record.get('type')].join(':');
             }
         },
         {
@@ -35,6 +35,17 @@ Ext.define('Isu.model.Assignee', {
         reader: {
             type: 'json',
             root: 'data'
+        },
+        buildUrl: function(request) {
+            var idx = request.params.id,
+                params;
+
+            if (idx) {
+                params = idx.split(':');
+                return this.url + '/' + params[0] + '?assigneeType=' + params[1];
+            } else {
+                return this.url
+            }
         }
     }
 });

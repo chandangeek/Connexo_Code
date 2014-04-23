@@ -1,5 +1,6 @@
 Ext.define('Isu.Application', {
     name: 'Isu',
+    appProperty: 'Current',
 
     extend: 'Ext.app.Application',
 
@@ -16,10 +17,7 @@ Ext.define('Isu.Application', {
         'Isu.controller.IssueAssignmentRules',
         'Isu.controller.IssueCreationRules',
         'Isu.controller.IssueCreationRulesEdit',
-        'Isu.controller.Licensing',
-        'Isu.controller.AddLicense',
         'Isu.controller.history.Workspace',
-        'Isu.controller.IssueFilter',
         'Isu.controller.IssueDetail',
         'Isu.controller.history.Administration',
         'Isu.controller.Administration',

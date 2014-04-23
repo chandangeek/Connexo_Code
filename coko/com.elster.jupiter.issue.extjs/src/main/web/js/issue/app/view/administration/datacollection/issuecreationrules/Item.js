@@ -5,7 +5,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
         'Isu.view.administration.datacollection.issuecreationrules.ActionMenu'
     ],
     alias: 'widget.issue-creation-rules-item',
-    height: 150,
+    height: 230,
 
     initComponent: function () {
         var self = this;
@@ -13,6 +13,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
         self.callParent();
         self.addEvents('change');
         self.on('change', self.onChange, self);
+        self.on('clear', self.onClear, self);
     },
 
     onChange: function (panel, record) {
@@ -55,21 +56,43 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
                     tpl: new Ext.XTemplate(
                         '<table class="isu-item-data-table">',
                         '<tr>',
-                        '<td><b>Rule template:</b></td>',
-                        '<td><tpl if="template">{template}</tpl></td>',
-                        '<td><b>Due in:</b></td>',
-                        '<td><tpl if="duein">{duein.number} {duein.type}</tpl></td>',
+                        '<td><b>Name</b></td>',
+                        '<td><tpl if="name">{name}</tpl></td>',
+                        '<td><b>Created</b></td>',
+                        '<td>{[values.creationDate ? this.formatRuleDate(values.creationDate) : ""]}</td>',
                         '</tr>',
                         '<tr>',
-                        '<td><b>Issue reason:</b></td>',
-                        '<td><tpl if="reason">{reason}</tpl></td>',
-                        '<td><b>Assignee:</b></td>',
-                        '<td><tpl if="assignee"><tpl if="assignee.type"><span class="isu-icon-{assignee.type} isu-assignee-type-icon"></span></tpl> {assignee.name}<tpl else>Automatic</tpl></td>',
+                        '<td><b>Rule template</b></td>',
+                        '<td><tpl if="template">{template.name}</tpl></td>',
+                        '<td><b>Last modified</b></td>',
+                        '<td>{[values.modificationDate ? this.formatRuleDate(values.modificationDate) : ""]}</td>',
                         '</tr>',
-                        '</table>'
+                        '<tr>',
+                        '<td><b>Issue type</b></td>',
+                        '<td colspan="3"><tpl if="issueType">{issueType.name}</tpl></td>',
+                        '</tr>',
+                        '<tr>',
+                        '<td><b>Issue reason</b></td>',
+                        '<td colspan="3"><tpl if="reason">{reason.name}</tpl></td>',
+                        '</tr>',
+                        '<tr>',
+                        '<td><b>Due in</b></td>',
+                        '<td colspan="3"><tpl if="dueIn && dueIn.number">{dueIn.number} {dueIn.type}</tpl></td>',
+                        '</tr>',
+                        '</table>',
+                        {
+                            formatRuleDate: function (date) {
+                                date = Ext.isDate(date) ? date : new Date(date);
+                                return Ext.Date.format(date, 'M d, Y H:i');
+                            }
+                        }
                     )
                 }
             ]
         };
+    },
+
+    onClear: function (text) {
+        this.removeAll();
     }
 });

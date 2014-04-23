@@ -16,7 +16,7 @@ Ext.define('Isu.view.workspace.datacollection.Overview', {
     content: [
         {
             xtype: 'panel',
-            html: '<h1>Data collection</h1>',
+            html: '<h1>Overview</h1>',
             flex: 1
         }
     ],
@@ -32,9 +32,9 @@ Ext.define('Isu.view.workspace.datacollection.Overview', {
             menu = this.getSideMenuCmp();
 
         menu.add({
-            text: 'Data collection',
+            text: 'Overview',
             pressed: true,
-            href: '#/workspace/datacollection',
+            href: '#/workspace/datacollection/overview',
             hrefTarget: '_self'
         });
 
@@ -43,6 +43,7 @@ Ext.define('Isu.view.workspace.datacollection.Overview', {
             href: '#/workspace/datacollection/issues',
             hrefTarget: '_self'
         });
+
     },
 
     getSideMenuCmp: function () {

@@ -1,6 +1,6 @@
-Ext.define('Isu.store.IssueReason', {
+Ext.define('Isu.store.CreationRuleTemplate', {
     extend: 'Ext.data.Store',
-    model: 'Isu.model.IssueReason',
+    model: 'Isu.model.CreationRuleTemplate',
     autoLoad: false,
 
     listeners: {

@@ -1,6 +1,6 @@
-Ext.define('Isu.view.administration.Overview', {
+Ext.define('Isu.view.workspace.datacollection.DataCollection', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.administration-overview',
+    alias: 'widget.datacollection-view',
 
     requires: [
         'Uni.view.navigation.SubMenu'
@@ -16,7 +16,7 @@ Ext.define('Isu.view.administration.Overview', {
     content: [
         {
             xtype: 'panel',
-            html: '<h1>Administration</h1>',
+            html: '<h1>Data collection</h1>',
             flex: 1
         }
     ],
@@ -32,27 +32,27 @@ Ext.define('Isu.view.administration.Overview', {
             menu = this.getSideMenuCmp();
 
         menu.add({
-            text: 'Administration',
-            pressed: true,
-            href: '#/issue-administration',
-            hrefTarget: '_self'
-        });
-
-        menu.add({
             text: 'Data collection',
-            href: '#/issue-administration/datacollection',
+            pressed: true,
+            href: '#/workspace/datacollection',
             hrefTarget: '_self'
         });
 
         menu.add({
-            text: 'Issue assignment rules',
-            href: '#/issue-administration/datacollection/issueassignmentrules',
+            text: 'Data exchange',
+            href: '#/workspace/datacollection/issues',
             hrefTarget: '_self'
         });
 
         menu.add({
-            text: 'Issue creation rules',
-            href: '#/issue-administration/issuecreationrules',
+            text: 'Data operation',
+            href: '#/workspace/datacollection/issues',
+            hrefTarget: '_self'
+        });
+
+        menu.add({
+            text: 'Data validation',
+            href: '#/workspace/datacollection/issues',
             hrefTarget: '_self'
         });
     },

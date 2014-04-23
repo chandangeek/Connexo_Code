@@ -9,27 +9,19 @@ Ext.define('Isu.util.IsuComboTooltip', {
      * Combobox must has 'tooltipText' property otherwise it sets default text.
      */
     setComboTooltip: function (combo) {
-        var comboEl = Ext.get(combo.getEl());
-
         combo.tooltip = Ext.DomHelper.append(Ext.getBody(), {
             tag: 'div',
             html: combo.tooltipText || 'Start typing',
             cls: 'isu-combo-tooltip'
         }, true);
 
-        combo.tooltip.setStyle({
-            width: comboEl.getWidth(false) + 'px',
-            top: comboEl.getY() + comboEl.getHeight(false) + 'px',
-            left: comboEl.getX() + 'px'
-        });
-
         combo.tooltip.hide();
 
         combo.on('destroy', function () {
             combo.tooltip.destroy();
         });
-
-        return combo.tooltip;
+        combo.on('focus', this.onFocusComboTooltip, this);
+        combo.on('blur', this.onBlurComboTooltip, this);
     },
 
     /**
@@ -37,11 +29,20 @@ Ext.define('Isu.util.IsuComboTooltip', {
      * If value of combobox is null shows tooltip.
      */
     onFocusComboTooltip: function (combo) {
-        var tooltip = combo.tooltip || this.setComboTooltip(combo);
+        var tooltip = combo.tooltip,
+            comboEl = Ext.get(combo.getEl());
+
+        tooltip.setStyle({
+            width: comboEl.getWidth(false) + 'px',
+            top: comboEl.getY() + comboEl.getHeight(false) + 'px',
+            left: comboEl.getX() + 'px'
+        });
 
         if (!combo.getValue()) {
             tooltip.show();
         }
+
+        combo.on('change', this.clearComboTooltip, this);
     },
 
     /**
@@ -52,6 +53,8 @@ Ext.define('Isu.util.IsuComboTooltip', {
         var tooltip = combo.tooltip;
 
         tooltip && tooltip.hide();
+
+        combo.un('change', this.clearComboTooltip, this);
     },
 
     /**
@@ -69,7 +72,34 @@ Ext.define('Isu.util.IsuComboTooltip', {
             tooltip && tooltip.show();
         } else {
             tooltip && tooltip.hide();
-            listValues && listValues.show();
+            if (listValues) {
+                listValues.show();
+                Ext.get(listValues.getEl()).setStyle({
+                    visibility: 'visible'
+                });
+            }
+        }
+    },
+
+    limitNotification: function (combo) {
+        var picker = combo.getPicker();
+
+        if (picker) {
+            picker.un('refresh', this.triggerLimitNotification, this);
+            picker.on('refresh', this.triggerLimitNotification, this);
+        }
+    },
+
+    triggerLimitNotification: function (view) {
+        var store = view.getStore(),
+            el = view.getEl().down('.' + Ext.baseCSSPrefix + 'list-plain');
+
+        if (store.getTotalCount() > store.getCount()) {
+            el.appendChild({
+                tag: 'li',
+                html: 'Keep typing to narrow down',
+                cls: Ext.baseCSSPrefix + 'boundlist-item isu-combo-limit-notification'
+            });
         }
     }
 });
