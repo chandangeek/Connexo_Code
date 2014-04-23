@@ -90,6 +90,7 @@ mvn:com.elster.jupiter/events/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/ids/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/issue/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/issue.rest/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/issue.datacollection/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/issue.extjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/parties/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/cbo/1.0.0-SNAPSHOT
