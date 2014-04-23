@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
@@ -21,10 +19,6 @@ public class MessageConverterTools {
      * The name and value of this attribute are both returned as empty Strings (<code>""</code>).
      */
     public static final OfflineDeviceMessageAttribute emptyOfflineDeviceMessageAttribute = new OfflineDeviceMessageAttribute() {
-        @Override
-        public PropertySpec getPropertySpec() {
-            return null;
-        }
 
         @Override
         public String getName() {
@@ -37,8 +31,17 @@ public class MessageConverterTools {
         }
 
         @Override
-        public DeviceMessage getDeviceMessage() {
-            return null;
+        public int getDeviceMessageId() {
+            return 0;
+        }
+
+        @Override
+        public String getXmlType() {
+            return this.getClass().getName();
+        }
+
+        @Override
+        public void setXmlType(String ignore) {
         }
     };
 
@@ -51,7 +54,7 @@ public class MessageConverterTools {
      * @return the deviceMessageSpec
      */
     public static DeviceMessageSpec getDeviceMessageSpecForOfflineDeviceMessage(OfflineDeviceMessage offlineDeviceMessage) {
-        return MdcInterfaceProvider.instance.get().getMdcInterface().getManager().getDeviceMessageSpecFactory().fromPrimaryKey(offlineDeviceMessage.getDeviceMessageSpecPrimaryKey().getValue());
+        return MdcInterfaceProvider.instance.get().getMdcInterface().getManager().getDeviceMessageSpecFactory().fromPrimaryKey(offlineDeviceMessage.getDeviceMessageSpecPrimaryKey());
     }
 
     /**

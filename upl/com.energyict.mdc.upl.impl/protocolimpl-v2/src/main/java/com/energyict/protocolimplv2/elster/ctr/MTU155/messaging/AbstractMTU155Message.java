@@ -1,14 +1,10 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
-import com.energyict.cpo.Environment;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
-import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -35,10 +31,6 @@ public abstract class AbstractMTU155Message {
      * The name and value of this attribute are both returned as empty Strings (<code>""</code>).
      */
     private static final OfflineDeviceMessageAttribute emptyOfflineDeviceMessageAttribute = new OfflineDeviceMessageAttribute() {
-        @Override
-        public PropertySpec getPropertySpec() {
-            return null;
-        }
 
         @Override
         public String getName() {
@@ -51,8 +43,17 @@ public abstract class AbstractMTU155Message {
         }
 
         @Override
-        public DeviceMessage getDeviceMessage() {
-            return null;
+        public int getDeviceMessageId() {
+            return 0;
+        }
+
+        @Override
+        public String getXmlType() {
+            return this.getClass().getName();
+        }
+
+        @Override
+        public void setXmlType(String ignore) {
         }
     };
 

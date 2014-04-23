@@ -1,13 +1,9 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.Environment;
-import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
-import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ReferenceDate;
@@ -39,8 +35,8 @@ public class TariffUploadPassiveMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().getValue().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND.getPrimaryKey().getValue()) ||
-                message.getDeviceMessageSpecPrimaryKey().getValue().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE.getPrimaryKey().getValue());
+        return message.getDeviceMessageSpecPrimaryKey().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND.getPrimaryKey().getValue()) ||
+                message.getDeviceMessageSpecPrimaryKey().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE.getPrimaryKey().getValue());
     }
 
     @Override

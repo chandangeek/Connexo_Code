@@ -1,12 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
-import com.energyict.cpo.Environment;
-import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
-import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.MeterType;
@@ -35,7 +31,7 @@ public class WriteMeterMasterDataMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().getValue().equals(ConfigurationChangeDeviceMessage.ConfigureGasMeterMasterData.getPrimaryKey().getValue());
+        return message.getDeviceMessageSpecPrimaryKey().equals(ConfigurationChangeDeviceMessage.ConfigureGasMeterMasterData.getPrimaryKey().getValue());
     }
 
     @Override

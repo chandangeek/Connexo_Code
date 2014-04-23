@@ -1,12 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
-import com.energyict.cpo.Environment;
-import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
-import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.SealStatusBit;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -28,7 +23,7 @@ public class ChangeSealStatusMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().getValue().equals(SecurityMessage.BREAK_OR_RESTORE_SEALS.getPrimaryKey().getValue());
+        return message.getDeviceMessageSpecPrimaryKey().equals(SecurityMessage.BREAK_OR_RESTORE_SEALS.getPrimaryKey().getValue());
     }
 
     @Override

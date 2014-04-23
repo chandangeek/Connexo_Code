@@ -58,7 +58,7 @@ public class ABBA1140MessageConverterTest {
         final ABBA1140MessageConverter messageConverter = new ABBA1140MessageConverter();
         messageConverter.setMessagingProtocol(meterProtocol);
         OfflineDeviceMessage contactorOpen = mock(OfflineDeviceMessage.class);
-        when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(DeviceActionMessage.BILLING_RESET.getPrimaryKey());
+        when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(DeviceActionMessage.BILLING_RESET.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = messageConverter.toMessageEntry(contactorOpen);

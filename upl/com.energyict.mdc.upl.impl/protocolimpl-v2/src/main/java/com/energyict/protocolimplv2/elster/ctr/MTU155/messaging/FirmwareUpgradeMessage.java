@@ -53,7 +53,7 @@ public class FirmwareUpgradeMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().getValue().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE.getPrimaryKey().getValue());
+        return message.getDeviceMessageSpecPrimaryKey().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE.getPrimaryKey().getValue());
     }
 
     @Override

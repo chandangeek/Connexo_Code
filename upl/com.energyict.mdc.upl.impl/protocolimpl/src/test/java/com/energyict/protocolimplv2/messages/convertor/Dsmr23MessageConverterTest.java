@@ -1,12 +1,22 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.Password;
+import com.energyict.cbo.TimeDuration;
+import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.Manager;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecFactory;
 import com.energyict.mdw.amr.RegisterMapping;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.Code;
+import com.energyict.mdw.core.DataVaultProvider;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.LoadProfile;
+import com.energyict.mdw.core.LoadProfileSpec;
+import com.energyict.mdw.core.Lookup;
+import com.energyict.mdw.core.RandomProvider;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
 import com.energyict.mdw.crypto.SecureRandomProvider;
 import com.energyict.mdw.interfacing.mdc.MdcInterface;
@@ -16,7 +26,16 @@ import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
 import org.junit.Before;
 import org.junit.Test;
@@ -496,7 +515,7 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage contactorOpen = mock(OfflineDeviceMessage.class);
-        when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CONTACTOR_OPEN.getPrimaryKey());
+        when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CONTACTOR_OPEN.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(contactorOpen);
@@ -517,7 +536,7 @@ public class Dsmr23MessageConverterTest {
         when(offlineDeviceMessageAttribute.getName()).thenReturn(contactorActivationDateAttributeName);
         when(offlineDeviceMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(millis));
         when(contactorOpen.getDeviceMessageAttributes()).thenReturn(Arrays.asList(offlineDeviceMessageAttribute));
-        when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.getPrimaryKey());
+        when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(contactorOpen);
@@ -533,7 +552,7 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage contactorOpen = mock(OfflineDeviceMessage.class);
-        when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CONTACTOR_CLOSE.getPrimaryKey());
+        when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CONTACTOR_CLOSE.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(contactorOpen);
@@ -554,7 +573,7 @@ public class Dsmr23MessageConverterTest {
         when(offlineDeviceMessageAttribute.getName()).thenReturn(contactorActivationDateAttributeName);
         when(offlineDeviceMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(millis));
         when(contactorOpen.getDeviceMessageAttributes()).thenReturn(Arrays.asList(offlineDeviceMessageAttribute));
-        when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE.getPrimaryKey());
+        when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(contactorOpen);
@@ -575,7 +594,7 @@ public class Dsmr23MessageConverterTest {
         when(offlineDeviceMessageAttribute.getName()).thenReturn(contactorModeAttributeName);
         when(offlineDeviceMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(mode.toString());
         when(contactorOpen.getDeviceMessageAttributes()).thenReturn(Arrays.asList(offlineDeviceMessageAttribute));
-        when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE.getPrimaryKey());
+        when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(contactorOpen);
@@ -598,7 +617,7 @@ public class Dsmr23MessageConverterTest {
         when(offlineDeviceMessageAttribute.getName()).thenReturn(firmwareUpdateUserFileAttributeName);
         when(offlineDeviceMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(userFileId));
         when(firmwareUpgrade.getDeviceMessageAttributes()).thenReturn(Arrays.asList(offlineDeviceMessageAttribute));
-        when(firmwareUpgrade.getDeviceMessageSpecPrimaryKey()).thenReturn(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE.getPrimaryKey());
+        when(firmwareUpgrade.getDeviceMessageSpecPrimaryKey()).thenReturn(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(firmwareUpgrade);
@@ -625,7 +644,7 @@ public class Dsmr23MessageConverterTest {
         when(activationDateMessageAttribute.getName()).thenReturn(firmwareUpdateActivationDateAttributeName);
         when(activationDateMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(millis));
         when(firmwareUpgrade.getDeviceMessageAttributes()).thenReturn(Arrays.asList(userFileMessageAttribute, activationDateMessageAttribute));
-        when(firmwareUpgrade.getDeviceMessageSpecPrimaryKey()).thenReturn(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE.getPrimaryKey());
+        when(firmwareUpgrade.getDeviceMessageSpecPrimaryKey()).thenReturn(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(firmwareUpgrade);
@@ -652,7 +671,7 @@ public class Dsmr23MessageConverterTest {
         when(activityCalendarNameMessageAttribute.getName()).thenReturn(activityCalendarNameAttributeName);
         when(activityCalendarNameMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(calendarName);
         when(activityCalendarConfiguration.getDeviceMessageAttributes()).thenReturn(Arrays.asList(activityCalendarNameMessageAttribute, codeTableMessageAttribute));
-        when(activityCalendarConfiguration.getDeviceMessageSpecPrimaryKey()).thenReturn(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND.getPrimaryKey());
+        when(activityCalendarConfiguration.getDeviceMessageSpecPrimaryKey()).thenReturn(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(activityCalendarConfiguration);
@@ -683,7 +702,7 @@ public class Dsmr23MessageConverterTest {
         when(activationDateAttribute.getName()).thenReturn(activityCalendarActivationDateAttributeName);
         when(activationDateAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(millis));
         when(activityCalendarConfiguration.getDeviceMessageAttributes()).thenReturn(Arrays.asList(activityCalendarNameMessageAttribute, codeTableMessageAttribute, activationDateAttribute));
-        when(activityCalendarConfiguration.getDeviceMessageSpecPrimaryKey()).thenReturn(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME.getPrimaryKey());
+        when(activityCalendarConfiguration.getDeviceMessageSpecPrimaryKey()).thenReturn(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(activityCalendarConfiguration);
@@ -707,7 +726,7 @@ public class Dsmr23MessageConverterTest {
         when(codeTableMessageAttribute.getName()).thenReturn(specialDaysCodeTableAttributeName);
         when(codeTableMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(codeTableId));
         when(activityCalendarConfiguration.getDeviceMessageAttributes()).thenReturn(Arrays.asList(codeTableMessageAttribute));
-        when(activityCalendarConfiguration.getDeviceMessageSpecPrimaryKey()).thenReturn(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND.getPrimaryKey());
+        when(activityCalendarConfiguration.getDeviceMessageSpecPrimaryKey()).thenReturn(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(activityCalendarConfiguration);
@@ -728,7 +747,7 @@ public class Dsmr23MessageConverterTest {
         when(encryptionLevelAttribute.getName()).thenReturn(encryptionLevelAttributeName);
         when(encryptionLevelAttribute.getDeviceMessageAttributeValue()).thenReturn(encryptionLevel);
         when(activateEncryptionLevelMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(encryptionLevelAttribute));
-        when(activateEncryptionLevelMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION.getPrimaryKey());
+        when(activateEncryptionLevelMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(activateEncryptionLevelMessage);
@@ -749,7 +768,7 @@ public class Dsmr23MessageConverterTest {
         when(authenticationLevelAttribute.getName()).thenReturn(authenticationLevelAttributeName);
         when(authenticationLevelAttribute.getDeviceMessageAttributeValue()).thenReturn(authenticationLevel);
         when(changeAuthenticationLevel.getDeviceMessageAttributes()).thenReturn(Arrays.asList(authenticationLevelAttribute));
-        when(changeAuthenticationLevel.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL.getPrimaryKey());
+        when(changeAuthenticationLevel.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(changeAuthenticationLevel);
@@ -765,7 +784,7 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage changeDataTransportEncryptionKey = mock(OfflineDeviceMessage.class);
-        when(changeDataTransportEncryptionKey.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_ENCRYPTION_KEY.getPrimaryKey());
+        when(changeDataTransportEncryptionKey.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_ENCRYPTION_KEY.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(changeDataTransportEncryptionKey);
@@ -781,7 +800,7 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage changeDataTransportAuthenticationKey = mock(OfflineDeviceMessage.class);
-        when(changeDataTransportAuthenticationKey.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_AUTHENTICATION_KEY.getPrimaryKey());
+        when(changeDataTransportAuthenticationKey.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_AUTHENTICATION_KEY.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(changeDataTransportAuthenticationKey);
@@ -797,7 +816,7 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage changeHlsSecret = mock(OfflineDeviceMessage.class);
-        when(changeHlsSecret.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_PASSWORD.getPrimaryKey());
+        when(changeHlsSecret.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_PASSWORD.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(changeHlsSecret);
@@ -813,7 +832,7 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage activateSmsWakeUp = mock(OfflineDeviceMessage.class);
-        when(activateSmsWakeUp.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM.getPrimaryKey());
+        when(activateSmsWakeUp.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(activateSmsWakeUp);
@@ -829,7 +848,7 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage deActivateSmsWakeUp = mock(OfflineDeviceMessage.class);
-        when(deActivateSmsWakeUp.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP.getPrimaryKey());
+        when(deActivateSmsWakeUp.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(deActivateSmsWakeUp);
@@ -855,7 +874,7 @@ public class Dsmr23MessageConverterTest {
         when(passwordAttribute.getName()).thenReturn(passwordAttributeName);
         when(passwordAttribute.getDeviceMessageAttributeValue()).thenReturn(myPassword);
         when(gprsUserCredentials.getDeviceMessageAttributes()).thenReturn(Arrays.asList(userNameAttribute, passwordAttribute));
-        when(gprsUserCredentials.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS.getPrimaryKey());
+        when(gprsUserCredentials.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(gprsUserCredentials);
@@ -885,7 +904,7 @@ public class Dsmr23MessageConverterTest {
         when(apnAttribute.getName()).thenReturn(apnAttributeName);
         when(apnAttribute.getDeviceMessageAttributeValue()).thenReturn(myApn);
         when(gprsApnCredentials.getDeviceMessageAttributes()).thenReturn(Arrays.asList(userNameAttribute, passwordAttribute, apnAttribute));
-        when(gprsApnCredentials.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.getPrimaryKey());
+        when(gprsApnCredentials.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(gprsApnCredentials);
@@ -907,7 +926,7 @@ public class Dsmr23MessageConverterTest {
         when(whiteListPhoneNumbersAttribute.getName()).thenReturn(whiteListPhoneNumbersAttributeName);
         when(whiteListPhoneNumbersAttribute.getDeviceMessageAttributeValue()).thenReturn(allPhoneNumbers);
         when(whiteListPhoneNumbersDeviceMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(whiteListPhoneNumbersAttribute));
-        when(whiteListPhoneNumbersDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST.getPrimaryKey());
+        when(whiteListPhoneNumbersDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(whiteListPhoneNumbersDeviceMessage);
@@ -929,7 +948,7 @@ public class Dsmr23MessageConverterTest {
         when(p1CodeAttribute.getName()).thenReturn(p1InformationAttributeName);
         when(p1CodeAttribute.getDeviceMessageAttributeValue()).thenReturn(p1CodeInformation);
         when(p1CodeDeviceMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(p1CodeAttribute));
-        when(p1CodeDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(DisplayDeviceMessage.CONSUMER_MESSAGE_CODE_TO_PORT_P1.getPrimaryKey());
+        when(p1CodeDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(DisplayDeviceMessage.CONSUMER_MESSAGE_CODE_TO_PORT_P1.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(p1CodeDeviceMessage);
@@ -951,7 +970,7 @@ public class Dsmr23MessageConverterTest {
         when(p1TextAttribute.getName()).thenReturn(p1InformationAttributeName);
         when(p1TextAttribute.getDeviceMessageAttributeValue()).thenReturn(p1TextInformation);
         when(p1TextDeviceMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(p1TextAttribute));
-        when(p1TextDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(DisplayDeviceMessage.CONSUMER_MESSAGE_TEXT_TO_PORT_P1.getPrimaryKey());
+        when(p1TextDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(DisplayDeviceMessage.CONSUMER_MESSAGE_TEXT_TO_PORT_P1.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(p1TextDeviceMessage);
@@ -967,7 +986,7 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage globalMeterResetDeviceMessage = mock(OfflineDeviceMessage.class);
-        when(globalMeterResetDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(DeviceActionMessage.GLOBAL_METER_RESET.getPrimaryKey());
+        when(globalMeterResetDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(DeviceActionMessage.GLOBAL_METER_RESET.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(globalMeterResetDeviceMessage);
@@ -1018,7 +1037,7 @@ public class Dsmr23MessageConverterTest {
         when(configureLoadLimitingParametersMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(normalThresholdAttribute, emergencyThresholdAttribute,
                 overThresholdDurationAttribute, emergencyProfileIdAttribute, emergencyProfileDurationAttribute, emergencyProfileActivationDateAttribute));
 
-        when(configureLoadLimitingParametersMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS.getPrimaryKey());
+        when(configureLoadLimitingParametersMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(configureLoadLimitingParametersMessage);
@@ -1043,7 +1062,7 @@ public class Dsmr23MessageConverterTest {
         when(lookupTableAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(lookupId));
 
         when(setEmergencyProfileIdsMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(lookupTableAttribute));
-        when(setEmergencyProfileIdsMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS.getPrimaryKey());
+        when(setEmergencyProfileIdsMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(setEmergencyProfileIdsMessage);
@@ -1059,7 +1078,7 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage clearLoadLimitConfigurationDeviceMessage = mock(OfflineDeviceMessage.class);
-        when(clearLoadLimitConfigurationDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION.getPrimaryKey());
+        when(clearLoadLimitConfigurationDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION.getPrimaryKey().getValue());
 
         // business method
         final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(clearLoadLimitConfigurationDeviceMessage);
@@ -1077,7 +1096,7 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage xmlConfigDeviceMessage = mock(OfflineDeviceMessage.class);
-        when(xmlConfigDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(AdvancedTestMessage.XML_CONFIG.getPrimaryKey());
+        when(xmlConfigDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(AdvancedTestMessage.XML_CONFIG.getPrimaryKey().getValue());
         OfflineDeviceMessageAttribute xmlConfigAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(xmlConfigAttribute.getName()).thenReturn(xmlConfigAttributeName);
         when(xmlConfigAttribute.getDeviceMessageAttributeValue()).thenReturn(xmlString);
@@ -1100,7 +1119,7 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage partialLoadProfileDeviceMessage = mock(OfflineDeviceMessage.class);
-        when(partialLoadProfileDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST.getPrimaryKey());
+        when(partialLoadProfileDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST.getPrimaryKey().getValue());
         OfflineDeviceMessageAttribute loadProfileAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(loadProfileAttribute.getName()).thenReturn(loadProfileAttributeName);
         when(loadProfileAttribute.getDeviceMessageAttributeValue()).thenReturn(loadProfileAttributeValue);
@@ -1130,7 +1149,7 @@ public class Dsmr23MessageConverterTest {
         dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
 
         OfflineDeviceMessage registerRequestDeviceMessage = mock(OfflineDeviceMessage.class);
-        when(registerRequestDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST.getPrimaryKey());
+        when(registerRequestDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST.getPrimaryKey().getValue());
         OfflineDeviceMessageAttribute loadProfileAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(loadProfileAttribute.getName()).thenReturn(loadProfileAttributeName);
         when(loadProfileAttribute.getDeviceMessageAttributeValue()).thenReturn(loadProfileAttributeValue);

@@ -1,17 +1,12 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
-import com.energyict.comserver.logging.DescriptionBuilder;
-import com.energyict.comserver.logging.DescriptionBuilderImpl;
-import com.energyict.cpo.Environment;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.LoadProfileMessage;
@@ -37,7 +32,7 @@ public class ReadPartialProfileDataMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().getValue().equals(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST.getPrimaryKey().getValue());
+        return message.getDeviceMessageSpecPrimaryKey().equals(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST.getPrimaryKey().getValue());
     }
 
     @Override

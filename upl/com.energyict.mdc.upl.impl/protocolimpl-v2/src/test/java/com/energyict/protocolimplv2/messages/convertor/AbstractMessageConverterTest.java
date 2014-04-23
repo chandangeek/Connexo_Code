@@ -38,6 +38,8 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractMessageConverterTest {
 
+    protected static final Integer MESSAGE_ID = 1;
+
     protected final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
     protected final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     protected final SimpleDateFormat dateTimeFormatWithTimeZone = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
@@ -71,18 +73,20 @@ public abstract class AbstractMessageConverterTest {
      */
     protected OfflineDeviceMessage createMessage(DeviceMessageSpec messageSpec) {
         when(deviceMessageSpecFactory.fromPrimaryKey(messageSpec.getPrimaryKey().getValue())).thenReturn(messageSpec);
-        OfflineDeviceMessage message = getEmptyMessageMock();
+        DeviceMessage message = mock(DeviceMessage.class);
+        when(message.getId()).thenReturn(MESSAGE_ID);
+        OfflineDeviceMessage offlineMessage = getEmptyMessageMock();
         List<OfflineDeviceMessageAttribute> attributes = new ArrayList<>();
 
         for (PropertySpec propertySpec : messageSpec.getPropertySpecs()) {
             TypedProperties propertyStorage = TypedProperties.empty();
             propertyStorage.setProperty(propertySpec.getName(), getPropertySpecValue(propertySpec));
-            attributes.add(new TestOfflineDeviceMessageAttribute(new DeviceMessageAttributeImpl(propertySpec, null, propertyStorage), getMessageConverter()));
+            attributes.add(new TestOfflineDeviceMessageAttribute(new DeviceMessageAttributeImpl(propertySpec, message, propertyStorage), getMessageConverter()));
         }
-        when(message.getDeviceMessageAttributes()).thenReturn(attributes);
-        when(message.getSpecification()).thenReturn(messageSpec);
-        when(message.getDeviceMessageSpecPrimaryKey()).thenReturn(messageSpec.getPrimaryKey());
-        return message;
+        when(offlineMessage.getDeviceMessageAttributes()).thenReturn(attributes);
+        when(offlineMessage.getSpecification()).thenReturn(messageSpec);
+        when(offlineMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(messageSpec.getPrimaryKey().getValue());
+        return offlineMessage;
     }
 
     private OfflineDeviceMessage getEmptyMessageMock() {
@@ -124,7 +128,7 @@ public abstract class AbstractMessageConverterTest {
         private PropertySpec propertySpec;
         private String name;
         private String deviceMessageAttributeValue;
-        private DeviceMessage deviceMessage;
+        private int deviceMessageId;
 
         public TestOfflineDeviceMessageAttribute(DeviceMessageAttribute deviceMessageAttribute, LegacyMessageConverter messageConverter) {
             this.deviceMessageAttribute = deviceMessageAttribute;
@@ -136,12 +140,7 @@ public abstract class AbstractMessageConverterTest {
             this.propertySpec = this.deviceMessageAttribute.getSpecification();
             this.name = this.deviceMessageAttribute.getName();
             this.deviceMessageAttributeValue = messageConverter.format(propertySpec, this.deviceMessageAttribute.getValue());
-            this.deviceMessage = this.deviceMessageAttribute.getMessage();
-        }
-
-        @Override
-        public PropertySpec getPropertySpec() {
-            return propertySpec;
+            this.deviceMessageId = this.deviceMessageAttribute.getMessage().getId();
         }
 
         @Override
@@ -155,8 +154,17 @@ public abstract class AbstractMessageConverterTest {
         }
 
         @Override
-        public DeviceMessage getDeviceMessage() {
-            return deviceMessage;
+        public int getDeviceMessageId() {
+            return deviceMessageId;
+        }
+
+        @Override
+        public String getXmlType() {
+            return this.getClass().getName();
+        }
+
+        @Override
+        public void setXmlType(String ignore) {
         }
     }
 }

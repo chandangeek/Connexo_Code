@@ -113,15 +113,15 @@ public class Messaging implements DeviceMessageSupport {
     }
 
     private boolean isWriteExchangeStatus(OfflineDeviceMessage pendingMessage) {
-        return pendingMessage.getDeviceMessageSpecPrimaryKey().getValue().equals(ConfigurationChangeDeviceMessage.WriteExchangeStatus.getPrimaryKey().getValue());
+        return pendingMessage.getDeviceMessageSpecPrimaryKey().equals(ConfigurationChangeDeviceMessage.WriteExchangeStatus.getPrimaryKey().getValue());
     }
 
     private boolean isWriteRadioAcknowledge(OfflineDeviceMessage pendingMessage) {
-        return pendingMessage.getDeviceMessageSpecPrimaryKey().getValue().equals(ConfigurationChangeDeviceMessage.WriteRadioAcknowledge.getPrimaryKey().getValue());
+        return pendingMessage.getDeviceMessageSpecPrimaryKey().equals(ConfigurationChangeDeviceMessage.WriteRadioAcknowledge.getPrimaryKey().getValue());
     }
 
     private boolean isWriteRadioUserTimeout(OfflineDeviceMessage pendingMessage) {
-        return pendingMessage.getDeviceMessageSpecPrimaryKey().getValue().equals(ConfigurationChangeDeviceMessage.WriteRadioUserTimeout.getPrimaryKey().getValue());
+        return pendingMessage.getDeviceMessageSpecPrimaryKey().equals(ConfigurationChangeDeviceMessage.WriteRadioUserTimeout.getPrimaryKey().getValue());
     }
 
     @Override
