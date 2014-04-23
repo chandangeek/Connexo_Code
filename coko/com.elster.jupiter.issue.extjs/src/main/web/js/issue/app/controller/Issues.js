@@ -22,7 +22,7 @@ Ext.define('Isu.controller.Issues', {
         'workspace.issues.IssueNoGroup',
         'ext.button.GridAction',
         'ext.button.SortItemButton',
-        'workspace.issues.component.TagButton'
+        'Skyline.button.TagButton'
     ],
 
     mixins: [
@@ -147,7 +147,7 @@ Ext.define('Isu.controller.Issues', {
         var filterElm = this.getFilter().down('[name="filter"]'),
             buttons = [];
 
-        var btnClass = 'Isu.view.ext.button.TagButton';
+        var btnClass = 'Skyline.button.TagButton';
 
         if (filter.get('assignee')) {
             var button = Ext.create(btnClass, {
