@@ -5,9 +5,10 @@ import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyInfo;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
+import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.UriInfo;
 
 /**
  * Copyrights EnergyICT
@@ -17,7 +18,7 @@ import javax.ws.rs.core.UriInfo;
 public class ConnectionTypeInfo {
     public long id;
     public String name;
-    public List<PropertyInfo> propertyInfos;
+    public List<PropertyInfo> properties;
 
     public ConnectionTypeInfo() {
     }
@@ -33,10 +34,10 @@ public class ConnectionTypeInfo {
         ConnectionTypeInfo connectionTypeInfo = new ConnectionTypeInfo();
         connectionTypeInfo.id = connectionTypePluggableClass.getId();
         connectionTypeInfo.name = connectionTypePluggableClass.getName();
-        connectionTypeInfo.propertyInfos= new ArrayList<>();
+        connectionTypeInfo.properties = new ArrayList<>();
         List<PropertySpec> propertySpecs = connectionTypePluggableClass.getPropertySpecs();
         TypedProperties typedProperties = connectionTypePluggableClass.getProperties(propertySpecs);
-        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, connectionTypeInfo.propertyInfos);
+        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, connectionTypeInfo.properties);
         return connectionTypeInfo;
     }
 }

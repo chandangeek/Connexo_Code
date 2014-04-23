@@ -7,11 +7,12 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
+
+import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Copyrights EnergyICT
@@ -25,7 +26,7 @@ public class DeviceCommunicationProtocolInfo {
     public String name;
     public LicensedProtocolInfo licensedProtocol;
     public String deviceProtocolVersion;
-    public PropertyInfo[] propertyInfos;
+    public PropertyInfo[] properties;
 
     public DeviceCommunicationProtocolInfo() {
     }
@@ -45,7 +46,7 @@ public class DeviceCommunicationProtocolInfo {
         }
         if (embedProperties) {
             List<PropertyInfo> propertyInfoList = createPropertyInfoList(uriInfo, propertySpecService, deviceProtocolPluggableClass);
-            this.propertyInfos = propertyInfoList.toArray(new PropertyInfo[propertyInfoList.size()]);
+            this.properties = propertyInfoList.toArray(new PropertyInfo[propertyInfoList.size()]);
         }
     }
 
@@ -60,7 +61,7 @@ public class DeviceCommunicationProtocolInfo {
     public void copyProperties(DeviceProtocolPluggableClass deviceProtocolPluggableClass) throws ParseException {
         List<PropertySpec> propertySpecs = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs();
         for (PropertySpec propertySpec : propertySpecs) {
-            Object value = MdcPropertyUtils.findPropertyValue(propertySpec, this.propertyInfos);
+            Object value = MdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
             if (value == null || value.equals("")) {
                 deviceProtocolPluggableClass.removeProperty(propertySpec);
             } else {
