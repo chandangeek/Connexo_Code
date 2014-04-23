@@ -18,6 +18,14 @@ Ext.define('Isu.util.FormErrorMessage', {
         if (!me.errorIcon) {
             me.errorIcon = me.defaultErrorIcon
         }
+        me.renew()
+        console.log(me.msgPanel);
+        me.callParent(arguments)
+    },
+
+    renew: function () {
+        var me = this;
+        me.removeAll(true);
         me.add([
             {
                 xtype: 'box',
@@ -27,10 +35,16 @@ Ext.define('Isu.util.FormErrorMessage', {
             },
             {
                 ui: 'form-error',
+                name: 'errormsgpanel',
                 html: me.text
             }
         ]);
-        this.callParent(arguments)
+    },
+
+    setText: function (text) {
+        var me = this;
+        me.text = text;
+        me.renew();
     }
 
 });

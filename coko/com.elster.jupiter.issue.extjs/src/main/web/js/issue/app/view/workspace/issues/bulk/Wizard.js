@@ -158,7 +158,6 @@ Ext.define('Isu.view.workspace.issues.bulk.Wizard', {
                     name: 'wizar-toolbar',
                     dock: 'bottom',
                     border: false,
-                    padding: '0 15 20 15',
                     items: [
                         {
                             xtype: 'button',
