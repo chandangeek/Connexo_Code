@@ -82,8 +82,7 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
         return partialConnectionTask.get();
     }
 
-    @Override
-    public void setValue(Object value) {
+    void setValue(Object value) {
         objectValue = value;
         this.value = asStringValue(value);
     }
