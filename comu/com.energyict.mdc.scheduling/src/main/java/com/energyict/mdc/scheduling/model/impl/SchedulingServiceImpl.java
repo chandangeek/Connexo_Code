@@ -6,9 +6,13 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.energyict.mdc.common.services.DefaultFinder;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import javax.inject.Inject;
@@ -16,8 +20,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.mdc.scheduling", service = SchedulingService.class, immediate = true)
-public class SchedulingServiceImpl implements SchedulingService {
+@Component(name = "com.energyict.mdc.scheduling", service = { SchedulingService.class, InstallService.class }, immediate = true, property = "name=" + SchedulingService.COMPONENT_NAME)
+public class SchedulingServiceImpl implements SchedulingService, InstallService {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -84,5 +88,15 @@ public class SchedulingServiceImpl implements SchedulingService {
     @Override
     public NextExecutionSpecs newNextExecutionSpecs(TemporalExpression temporalExpression) {
         return null;
+    }
+
+    @Override
+    public Finder<ComSchedule> findAllSchedules() {
+        return DefaultFinder.of(ComSchedule.class, this.dataModel).defaultSortColumn("name");
+    }
+
+    @Override
+    public void install() {
+        new Installer(dataModel, eventService, thesaurus).install(true, true);
     }
 }

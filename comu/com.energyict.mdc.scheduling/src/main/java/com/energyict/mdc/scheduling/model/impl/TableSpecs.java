@@ -11,6 +11,19 @@ import com.energyict.mdc.tasks.TaskService;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 
 public enum TableSpecs {
+    MDCNEXTEXECUTIONSPEC {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<NextExecutionSpecs> table = dataModel.addTable(name(), NextExecutionSpecs.class);
+            table.map(NextExecutionSpecsImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.column("FREQUENCYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.every.count").add();
+            table.column("FREQUENCYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.every.timeUnitCode").add();
+            table.column("OFFSETVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.offset.count").add();
+            table.column("OFFSETUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.offset.timeUnitCode").add();
+            table.primaryKey("PK_MDCNEXTEXEC_SPEC").on(id).add();
+        }
+    },
     MDCCOMSCHEDULE {
         @Override
         void addTo(DataModel dataModel) {
@@ -31,8 +44,8 @@ public enum TableSpecs {
             void addTo(DataModel dataModel) {
                 Table<ComTaskInComSchedule> table = dataModel.addTable(name(), ComTaskInComSchedule.class);
                 table.map(ComTaskInComScheduleImpl.class);
-                Column comTaskId = table.column("COMTASK").number().conversion(NUMBER2LONG).add(); // DO NOT MAP
-                Column comScheduleId = table.column("COMSCHEDULE").number().conversion(NUMBER2LONG).add(); // DO NOT MAP
+                Column comTaskId = table.column("COMTASK").number().conversion(NUMBER2LONG).notNull().add(); // DO NOT MAP
+                Column comScheduleId = table.column("COMSCHEDULE").number().conversion(NUMBER2LONG).notNull().add(); // DO NOT MAP
 
                 table.foreignKey("FK_COMSCHEDULE").
                         on(comScheduleId).references(MDCCOMSCHEDULE.name()).
@@ -43,20 +56,7 @@ public enum TableSpecs {
                 table.foreignKey("FK_COMTASK").on(comTaskId).references(TaskService.COMPONENT_NAME, "MDCCOMTASK").map(ComTaskInComScheduleImpl.Fields.COM_TASK_REFERENCE.fieldName()).add();
                 table.primaryKey("PK_REGISTERGROUPUSAGE").on(comTaskId, comScheduleId).add();
             }
-        },
-    MDCNEXTEXECUTIONSPEC {
-        @Override
-        public void addTo(DataModel dataModel) {
-            Table<NextExecutionSpecs> table = dataModel.addTable(name(), NextExecutionSpecs.class);
-            table.map(NextExecutionSpecsImpl.class);
-            Column id = table.addAutoIdColumn();
-            table.column("FREQUENCYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.every.count").add();
-            table.column("FREQUENCYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.every.timeUnitCode").add();
-            table.column("OFFSETVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.offset.count").add();
-            table.column("OFFSETUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.offset.timeUnitCode").add();
-            table.primaryKey("PK_MDCNEXTEXEC_SPEC").on(id).add();
-        }
-    };
+        };
 
 
 

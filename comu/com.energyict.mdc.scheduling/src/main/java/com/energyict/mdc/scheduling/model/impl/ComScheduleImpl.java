@@ -7,6 +7,7 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.tasks.ComTask;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ComScheduleImpl implements ComSchedule {
@@ -32,6 +33,7 @@ public class ComScheduleImpl implements ComSchedule {
     private List<ComTaskInComSchedule> comTaskUsages = new ArrayList<>();
     private Reference<NextExecutionSpecs> nextExecutionSpec = ValueReference.absent();
     private SchedulingStatus schedulingStatus;
+    private Date mod_date;
 
     @Override
     public long getId() {
