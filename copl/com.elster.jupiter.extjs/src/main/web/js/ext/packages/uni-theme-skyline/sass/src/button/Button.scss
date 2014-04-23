@@ -1,9 +1,9 @@
-.#{$prefix}uni-action-iconA  {
-  background-image: $button-action-iconA;
+.#{$prefix}uni-action-iconA {
+    background-image: $button-action-iconA;
 }
 
-.#{$prefix}uni-action-icon  {
-  background-image: $button-action-icon;
+.#{$prefix}uni-action-icon {
+    background-image: $button-action-icon;
 }
 
 @import "DeleteButton";
@@ -17,3 +17,5 @@
 @import "TagButton";
 
 @import "SortItemButton";
+
+@import "NavigationLogoButton";

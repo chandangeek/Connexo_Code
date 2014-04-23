@@ -1,0 +1,161 @@
+@mixin transparent-button {
+    background: none;
+    border: none;
+    border-radius: 0;
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
+    padding: 0;
+
+    .x-btn-button {
+        padding: {
+            right: 10px;
+            left: 10px;
+        }
+
+        .x-btn-inner {
+            color: white;
+        }
+
+        .x-btn-glyph {
+            opacity: 1;
+            height: auto;
+            line-height: 36px;
+            margin: {
+                top: 3px;
+                left: 10px;
+            }
+        }
+    }
+}
+
+@mixin highlight-header-background {
+    background-color: #00ccff;
+}
+
+@mixin hidden-arrow-button {
+    .x-btn-arrow {
+        background-image: none;
+    }
+
+    .x-btn-arrow-right {
+        padding-right: inherit;
+    }
+
+    .x-btn-arrow-bottom {
+        padding-bottom: inherit;
+    }
+}
+
+.#{$prefix}container-navigationheader {
+    background-color: $header-default-background-color;
+    color: $header-default-color;
+
+    padding: {
+        right: 10px;
+    }
+
+    background: -webkit-linear-gradient(left, $header-default-bg-gradient-start-color, $header-default-bg-gradient-end-color); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(right, $header-default-bg-gradient-start-color, $header-default-bg-gradient-end-color); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(right, $header-default-bg-gradient-start-color, $header-default-bg-gradient-end-color); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(to right, $header-default-bg-gradient-start-color, $header-default-bg-gradient-end-color); /* Standard syntax */
+
+    // TODO Border bottom gradient.
+
+    .nav-appswitcher,
+    .nav-toggler,
+    .nav-logo,
+    .notifications-anchor,
+    .nav-help,
+    .user-menu {
+        @include transparent-button;
+
+        &:hover {
+            @include highlight-header-background;
+        }
+    }
+
+    .x-menu-active {
+        @include highlight-header-background;
+    }
+
+    .nav-toggler {
+        @include hidden-arrow-button;
+
+        .x-btn-button .x-btn-glyph {
+            opacity: 0.5;
+        }
+
+        &:hover .x-btn-button .x-btn-glyph {
+            opacity: 1.0;
+        }
+    }
+
+    .x-pressed .x-btn-button .x-btn-glyph {
+        opacity: 1.0;
+    }
+
+    .nav-toggler .x-pressed {
+        .x-btn-button {
+            .x-btn-glyph {
+                opacity: 1.0;
+            }
+        }
+    }
+
+    .nav-appswitcher, .notifications-anchor {
+        @include hidden-arrow-button;
+    }
+
+    .search-field {
+        $field-width: 240px;
+        width: $field-width;
+
+        .x-form-item-body {
+            float: right;
+
+            input {
+                $field-radius: 10px;
+                border-radius: $field-radius;
+                -moz-border-radius: $field-radius;
+                -webkit-border-radius: $field-radius;
+                $transition: all 1s ease;
+                transition: $transition;
+                -moz-transition: $transition;
+                -webkit-transition: $transition;
+                -o-transition: $transition;
+                -ms-transition: $transition;
+                width: $field-width * 0.50;
+                height: 24px;
+
+                &:focus, &:hover {
+                    width: $field-width;
+                }
+            }
+        }
+    }
+
+    .search-button {
+        @include transparent-button;
+        margin-left: 5px;
+
+        &:hover {
+            @include highlight-header-background;
+        }
+    }
+
+    .nav-logo {
+        background-image: url('images/container/Connexo-logo.png');
+        background-repeat: no-repeat;
+        background-size: auto 30px;
+        background-position-y: center;
+        background-position-x: 14px;
+        padding-left: 52px;
+
+        .x-btn-button {
+            .x-btn-inner {
+                font-size: 26px;
+                font-weight: normal;
+            }
+        }
+    }
+}
