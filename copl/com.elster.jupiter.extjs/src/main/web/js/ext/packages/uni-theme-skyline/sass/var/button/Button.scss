@@ -2,21 +2,23 @@
  * @class Ext.button.Button
  */
 
-// Default button
+// Default button colors
 $button-default-background-color: #A0A0A0 !default;
 $button-default-background-color-over: #a9a9a9 !default;
 $button-default-background-color-pressed: #909090 !default;
 $button-default-background-color-focus: #a9a9a9 !default;
 
-
+// Default border radiuses
 $button-small-border-radius: 5px !default;
 $button-medium-border-radius: $button-small-border-radius !default;
 $button-large-border-radius: $button-small-border-radius !default;
 
+//default border width
 $button-small-border-width: 0 !default;
 $button-medium-border-width: $button-small-border-width !default;
 $button-large-border-width: $button-small-border-width !default;
 
+// deafult background gradient
 $button-default-background-gradient: 'none' !default;
 $button-default-background-gradient-disabled: $button-default-background-gradient !default;
 $button-default-background-gradient-over: $button-default-background-gradient !default;
@@ -33,10 +35,13 @@ $button-medium-font-family: $button-small-font-family !default;
 $button-large-font-family: $button-small-font-family !default;
 
 $button-small-font-weight: 'normal';
+$button-medium-font-weight: $button-small-font-weight;
+$button-large-font-weight: $button-small-font-weight;
+
 $button-small-font-size: 13px;
 
 
-// Icons for buttons
+// Action Icon
 $button-small-icon-size: 17px !default;
 $button-action-iconA: url("images/button/ico_actionsA.png") !default;
 $button-action-icon: url("images/button/ico_actions.png") !default;
@@ -51,7 +56,6 @@ $button-action-icon: url("images/button/ico_actions.png") !default;
 @import "LinkButton";
 
 // Action Button
-
 @import "ActionButton";
 
 //MenuItem Button
