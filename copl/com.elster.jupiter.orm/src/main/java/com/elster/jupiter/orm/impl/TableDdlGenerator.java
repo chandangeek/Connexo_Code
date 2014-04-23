@@ -1,7 +1,5 @@
 package com.elster.jupiter.orm.impl;
 
-import com.google.common.base.Optional;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,8 +8,8 @@ import java.util.List;
 import java.util.Set;
 
 class TableDdlGenerator {
-	
-	private final TableImpl<?> table;
+
+    private final TableImpl<?> table;
     private List<String> ddl;
 
     TableDdlGenerator(TableImpl<?> table) {
@@ -148,20 +146,20 @@ class TableDdlGenerator {
         }
     }
 
-    
+
     private void appendDdl(ColumnImpl column, StringBuilder builder, boolean addType, boolean addNullable) {
         builder.append(column.getName());
-        if (addType) {            
+        if (addType) {
             builder.append(" ");
-			builder.append(column.getDbType() == null ? "" : column.getDbType());
-			if (column.isVirtual()) {
-				builder.append(" AS (");
-				builder.append(column.getFormula());
-				builder.append(")");
-			} 
+            builder.append(column.getDbType() == null ? "" : column.getDbType());
+            if (column.isVirtual()) {
+                builder.append(" AS (");
+                builder.append(column.getFormula());
+                builder.append(")");
+            }
             if (addNullable && column.isNotNull()) {
                 builder.append(" NOT NULL");
-            } 
+            }
         }
     }
 
@@ -174,8 +172,8 @@ class TableDdlGenerator {
             ColumnImpl fromColumn = table.getColumn(toColumn.getName());
             if (fromColumn != null) {
                 notMatched.remove(fromColumn);
-                Optional<String> upgradeDdl = getUpgradeDdl(fromColumn, toColumn);
-                result.addAll(upgradeDdl.asSet());
+                List<String> upgradeDdl = getUpgradeDdl(fromColumn, toColumn);
+                result.addAll(upgradeDdl);
                 if (toColumn.isAutoIncrement()) {
                     if (!fromColumn.isAutoIncrement()) {
                         result.add(getSequenceDdl(toColumn));
@@ -199,7 +197,13 @@ class TableDdlGenerator {
             if (fromIndex == null) {
                 result.add(getIndexDdl(index));
             } else {
-                result.addAll(getUpgradeDdl(fromIndex, index));
+                // a bit strange construct, but indexes on virtual columns that need change are already dropped
+                // by the columns upgrade
+                for (String upgradeStatement : getUpgradeDdl(fromIndex, index)) {
+                    if (!result.contains(upgradeStatement)) {
+                        result.add(upgradeStatement);
+                    }
+                }
             }
         }
         //Constraints
@@ -300,16 +304,46 @@ class TableDdlGenerator {
     }
 
 
-    private Optional<String> getUpgradeDdl(ColumnImpl fromColumn, ColumnImpl toColumn) {
-        if (!fromColumn.getDbType().equalsIgnoreCase(toColumn.getDbType())
-                || (fromColumn.isNotNull() != toColumn.isNotNull())) {
-            StringBuilder builder = new StringBuilder("alter table ");
-            builder.append(table.getName());
-            builder.append(" modify ");
-            appendDdl(toColumn, builder, true, fromColumn.isNotNull() != toColumn.isNotNull());
-            return Optional.of(builder.toString());
+    private List<String> getUpgradeDdl(ColumnImpl fromColumn, ColumnImpl toColumn) {
+
+        if (fromColumn.isVirtual() && toColumn.isVirtual()) {
+            if (!fromColumn.getFormula().equalsIgnoreCase(toColumn.getFormula())) {
+                List<String> results = new ArrayList<>();
+                List<IndexImpl> fromColumnIndexes = getIndexesFor(fromColumn);
+                for (IndexImpl fromColumnIndex : fromColumnIndexes) {
+                    results.add(getDropIndex(fromColumnIndex));
+                }
+                results.add("alter table " + table.getName() + " drop column " + fromColumn.getName());
+                results.add(getAddDdl(toColumn));
+                return results;
+            }
+        } else if (fromColumn.isVirtual()) {
+            throw new IllegalArgumentException("Cannot migrate existing virtual column '" + fromColumn.getName() + "' to non-virtual column on table " + fromColumn.getTable().getName());
+        } else if (toColumn.isVirtual()) {
+            throw new IllegalArgumentException("Cannot migrate existing column '" + fromColumn.getName() + "' to a virtual column on table " + fromColumn.getTable().getName());
+        } else {
+            if (!fromColumn.getDbType().equalsIgnoreCase(toColumn.getDbType())
+                    || (fromColumn.isNotNull() != toColumn.isNotNull())) {
+                StringBuilder builder = new StringBuilder("alter table ");
+                builder.append(table.getName());
+                builder.append(" modify ");
+                appendDdl(toColumn, builder, true, fromColumn.isNotNull() != toColumn.isNotNull());
+                return Arrays.asList(builder.toString());
+            }
         }
-        return Optional.absent();
+        return Collections.emptyList();
+    }
+
+    private List<IndexImpl> getIndexesFor(ColumnImpl fromColumn) {
+        List<IndexImpl> result = new ArrayList<>();
+        for (IndexImpl index : table.getIndexes()) {
+            for (ColumnImpl column : index.getColumns()) {
+                if (column.getName().equalsIgnoreCase(fromColumn.getName())) {
+                    result.add(index);
+                }
+            }
+        }
+        return result;
     }
 
     public List<String> upgradeSequenceDdl(ColumnImpl column, long startValue) {

@@ -55,7 +55,7 @@ public class IndexImpl implements Index {
             return false;
         }
         for (int i = 0; i < getColumns().size(); i++) {
-            if (!getColumns().get(i).getName().equalsIgnoreCase(toIndex.getColumns().get(i).getName())) {
+            if (!getColumns().get(i).matchesForIndex(toIndex.getColumns().get(i))) {
                 return false;
             }
         }
