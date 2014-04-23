@@ -15,10 +15,12 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     ],
 
     stores: [
-        'RegisterGroups'
+        'RegisterGroups',
+        'RegisterTypes'
     ],
 
     refs: [
+        {ref: 'registerTypeGrid', selector: '#registertypegrid'},
         {ref: 'registerGroupGrid', selector: '#registergroupgrid'},
         {ref: 'registerGroupPreviewForm', selector: '#registerGroupPreviewForm'},
         {ref: 'registerGroupPreview', selector: '#registerGroupPreview'},
@@ -26,15 +28,22 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         {ref: 'registerGroupEditView', selector: '#registerGroupEdit'},
         {ref: 'registerGroupEditForm', selector: '#registerGroupEditForm'},
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
-        {ref: 'registerGroupEditForm', selector: '#registerGroupEditForm'},
         {ref: 'registerGroupPreviewGrid', selector: '#registerGroupPreviewGrid'},
-        {ref: 'registerGroupPreviewDetails', selector: '#registerGroupPreviewDetails'}
+        {ref: 'registerGroupPreviewDetails', selector: '#registerGroupPreviewDetails'},
+        {ref: 'registerTypePreviewForm', selector: '#registerTypePreviewForm'},
+        {ref: 'registerTypePreview', selector: '#registerTypePreview'},
+        {ref: 'registerTypePreviewTitle', selector: '#registerTypePreviewTitle'},
+        {ref: 'previewMrId', selector: '#preview_mrid'}
     ],
 
     init: function () {
-        this.getRegisterGroupsStore().on('load', this.onStoreLoad, this);
-
         this.control({
+            'checkcolumn': {
+                checkchange: this.checkboxChanged
+            },
+            '#registertypegrid': {
+                selectionchange: this.previewRegisterType
+            },
             '#registergroupgrid': {
                 selectionchange: this.previewRegisterGroup
             },
@@ -51,36 +60,12 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 click: this.editRegisterGroupHistoryFromPreview
             },
             '#createEditButton[action=createRegisterGroup]': {
-                click: this.createRegisterGroup
+                click: this.saveRegisterGroup
             },
-            '#createEditButton[action=editRegisterGroup]': {
-                click: this.editRegisterGroup
+            '#createEditButton[action=saveRegisterGroup]': {
+                click: this.saveRegisterGroup
             }
         });
-    },
-
-    onStoreLoad: function () {
-        /*var widget = this.getRegisterTypeEditForm();
-        var me = this;
-        if (me.getReadingTypesStore().getCount() === 1) {
-            if (widget.down('#editMrIdField').getValue() != '') {
-                if (me.getReadingTypesStore().first().get('mrid') !== widget.down('#editMrIdField').getValue()) {
-                    Ext.MessageBox.show({
-                        msg: Uni.I18n.translate('registerType.changeReadingType', 'MDC', 'Do you want to change the readingtype with this new readingtype {0}?', [me.getReadingTypesStore().first().get('mrid')]),
-                        title: Uni.I18n.translate('general.changeReadingType', 'MDC', 'Change readingtype') + ' ' + widget.down('#editMrIdField').getValue(),
-                        config: {
-                            widget: widget,
-                            newReadingType: me.getReadingTypesStore().first().get('mrid')
-                        },
-                        buttons: Ext.MessageBox.YESNO,
-                        fn: me.changeReadingType,
-                        icon: Ext.MessageBox.QUESTION
-                    });
-                }
-            } else {
-                widget.down('#editMrIdField').setValue(me.getReadingTypesStore().first().get('mrid'));
-            }
-        }*/
     },
 
     showRegisterGroups: function (grid, record) {
@@ -90,7 +75,6 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 callback: function () {
                     var widget = Ext.widget('registerGroupSetup');
                     me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-                    //me.overviewBreadCrumb(me.getBreadCrumbs);
                 }
             });
     },
@@ -101,8 +85,22 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             this.getRegisterGroupPreviewForm().loadRecord(registerGroups[0]);
             this.getRegisterGroupPreview().getLayout().setActiveItem(1);
             this.getRegisterGroupPreviewTitle().update('<h4>' + registerGroups[0].get('name') + '</h4>');
+
+            this.getRegisterTypePreview().getLayout().setActiveItem(0);
         } else {
             this.getRegisterGroupPreview().getLayout().setActiveItem(0);
+        }
+    },
+
+    previewRegisterType: function (grid, record) {
+        var registerTypes = this.getRegisterTypeGrid().getSelectionModel().getSelection();
+        if (registerTypes.length == 1) {
+            this.getRegisterTypePreviewForm().loadRecord(registerTypes[0]);
+            this.getRegisterTypePreview().getLayout().setActiveItem(1);
+            this.getRegisterTypePreviewTitle().update('<h4>' + registerTypes[0].get('name') + '</h4>');
+            this.getPreviewMrId().setValue(registerTypes[0].getReadingType().get('mrid'));
+        } else {
+            this.getRegisterTypePreview().getLayout().setActiveItem(0);
         }
     },
 
@@ -118,142 +116,103 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         location.href = '#setup/registergroups/' + this.getRegisterGroupGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
     },
 
-    showRegisterGroupEditView: function (registerMapping) {
-        /*var timeOfUseStore = Ext.create('Mdc.store.TimeOfUses');
-        var unitOfMeasureStore = Ext.create('Mdc.store.UnitOfMeasures');
-        var widget = Ext.widget('registerTypeEdit', {
-            edit: true,
-            unitOfMeasure: unitOfMeasureStore,
-            timeOfUse: timeOfUseStore
+    showRegisterGroupEditView: function (registerGroupId) {
+        var widget = Ext.widget('registerGroupEdit', {
+            edit: true
         });
         this.getApplication().getController('Mdc.controller.Main').showContent(widget);
         widget.setLoading(true);
         var me = this;
-        Ext.ModelManager.getModel('Mdc.model.RegisterType').load(registerMapping, {
-            success: function (registerType) {
-                me.editBreadCrumb(registerType.get('name'), registerMapping)
-                timeOfUseStore.load({
-                    callback: function (store) {
-                        unitOfMeasureStore.load({
-                            callback: function (store) {
-                                widget.down('form').loadRecord(registerType);
-                                widget.down('#registerTypeEditCreateTitle').update('<H2>' + registerType.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerType.registerType', 'MDC', 'Register type') + '</H2>');
-                                widget.down('#editMrIdField').setValue(registerType.getReadingType().get('mrid'));
-                                if (registerType.get('isLinkedByDeviceType') === true) {
-                                    widget.down('#editObisCodeField').setDisabled(true);
-                                    widget.down('#editObisCodeField').setReadOnly(true);
-                                    widget.down('#measurementUnitComboBox').setDisabled(true);
-                                    widget.down('#measurementUnitComboBox').setReadOnly(true);
-                                    widget.down('#timeOfUseComboBox').setDisabled(true);
-                                    widget.down('#timeOfUseComboBox').setReadOnly(true);
-                                    widget.down('#editMrIdField').setDisabled(true);
-                                    widget.down('#editMrIdField').setReadOnly(true);
-                                    widget.down('#editRegisterTypeNameField').setDisabled(false);
-                                    widget.down('#editRegisterTypeNameField').setReadOnly(false);
-                                    widget.down('#registerTypeEditCreateInformation').update(Uni.I18n.translate('registertype.warningLinkedTodeviceType', 'MDC', 'The register type has been added to a device type.  Only the name is editable.'));
-                                } else {
-                                    widget.down('#editMrIdField').setDisabled(false);
-                                    widget.down('#editMrIdField').setReadOnly(false);
-                                }
-                                widget.setLoading(false);
+        Ext.ModelManager.getModel('Mdc.model.RegisterGroup').load(registerGroupId, {
+            success: function (registerGroup) {
+                me.getStore('Mdc.store.RegisterTypes').load({
+                    callback: function (registerTypes) {
+                        me.editBreadCrumb(registerGroup.get('name'));
+                        widget.down('form').loadRecord(registerGroup);
+                        widget.down('#registerGroupEditCreateTitle').update('<H2>' + registerGroup.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerGroup.registerGroup', 'MDC', 'Register group') + '</H2>');
+                        var selectedRegisterTypes = registerGroup.registerTypes().data.items;
+                        for (var i = 0; i < selectedRegisterTypes.length; i++) {
+                            var result = registerTypes.getById(selectedRegisterTypes[i].id);
+                            if(result){
+                                result.data.selected = true;
                             }
-                        })
-                    }
-                })
-            }
-        });*/
-    },
-
-    showRegisterGroupCreateView: function () {
-        /*var timeOfUseStore = Ext.create('Mdc.store.TimeOfUses');
-        var unitOfMeasureStore = Ext.create('Mdc.store.UnitOfMeasures');
-        var widget = Ext.widget('registerTypeEdit', {
-            edit: false,
-            returnLink: '#setup/registertypes/',
-            unitOfMeasure: unitOfMeasureStore,
-            timeOfUse: timeOfUseStore
-        });
-        var me = this;
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
-        widget.setLoading(true);
-
-        timeOfUseStore.load({
-            callback: function (store) {
-                unitOfMeasureStore.load({
-                    callback: function (store) {
-                        widget.down('#registerTypeEditCreateTitle').update('<H2>' + Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Create register type') + '</H2>');
-                        me.createBreadCrumb();
+                        }
+                        widget.down('#editRegisterGroupSelectedField').setValue(Ext.String.format(Uni.I18n.translate('registerGroup.registerTypes', 'MDC', '{0} register types selected'), selectedRegisterTypes.length));
+                        widget.down('#editRegisterGroupGridField').store.add(registerTypes);
+                        widget.checked = selectedRegisterTypes.length;
                         widget.setLoading(false);
                     }
                 });
-
             }
-        });*/
+        });
     },
 
-    createRegisterGroup: function () {
-        /*var record = Ext.create(Mdc.model.RegisterGroup),
-            values = this.getRegisterGroupEditForm().getValues();
-        var widget = this.getRegisterGroupEditForm();
-        var mrId = widget.down('#editMrIdField').getValue();
+    showRegisterGroupCreateView: function () {
+        var widget = Ext.widget('registerGroupEdit', {
+            edit: false
+        });
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        widget.setLoading(true);
         var me = this;
-
-        //delete values.mrid;
-        var readingType = Ext.create(Mdc.model.RegisterGroup);
-
-        readingType.data.mrid = mrId;
-        if (record) {
-            record.set(values);
-            record.setReadingType(readingType);
-
-            record.save({
-                success: function (record) {
-                    location.href = '#setup/registertypes/';
-                },
-                failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText);
-                    if (json && json.errors) {
-                        me.getRegisterTypeEditForm().getForm().markInvalid(json.errors);
-                    }
-                }
-
-            });
-
-        }*/
+        me.getStore('Mdc.store.RegisterTypes').load({
+            callback: function (registerTypes) {
+                me.createBreadCrumb();
+                var registerGroup = Ext.create(Ext.ModelManager.getModel('Mdc.model.RegisterGroup'));
+                widget.down('form').loadRecord(registerGroup);
+                widget.down('#registerGroupEditCreateTitle').update('<H2>' + Uni.I18n.translate('registerGroup.create', 'MDC', 'Create register group') + '</H2>');
+                widget.down('#editRegisterGroupSelectedField').setValue(Ext.String.format(Uni.I18n.translate('registerGroup.registerTypes', 'MDC', '{0} register types selected'), 0));
+                widget.down('#editRegisterGroupGridField').store.add(registerTypes);
+                widget.setLoading(false);
+            }
+        });
     },
 
-    editRegisterGroup: function () {
-        /*var record = this.getRegisterTypeEditForm().getRecord(),
-            values = this.getRegisterTypeEditForm().getValues(),
-            me = this;
+    checkboxChanged: function (grid, rowIndex, checked) {
+        var groupEditForm = grid.up('#registerGroupEdit');
+        if(checked){
+            groupEditForm.checked++;
+        }
+        else{
+            groupEditForm.checked--;
+        }
+        groupEditForm.down('#editRegisterGroupSelectedField').setValue(Ext.String.format(Uni.I18n.translate('registerGroup.registerTypes', 'MDC', '{0} register types selected'), groupEditForm.checked));
+    },
 
-        var widget = this.getRegisterTypeEditForm();
-        var mrId = widget.down('#editMrIdField').getValue();
+    saveRegisterGroup: function () {
+        var form = this.getRegisterGroupEditForm(),
+            record = form.getRecord(),
+            values = form.getValues(),
+            //name = form.down('#editRegisterGroupNameField').getValue(),
+            registerTypes = form.down('#editRegisterGroupGridField').store.data.items;
 
-        var readingType = Ext.create(Mdc.model.ReadingType);
+        var selected = [];
+        for (var i = 0; i < registerTypes.length; i++) {
+            if(registerTypes[i].data.selected){
+                selected.push(registerTypes[i]);
+            }
+        }
 
-        readingType.data.mrid = mrId;
+        record.set(values);
+        record.registerTypes().removeAll();
+        record.registerTypes().add(selected);
 
-        if (record) {
-            record.set(values);
-            record.setReadingType(readingType);
-            record.save({
-                success: function (record) {
-                    location.href = '#setup/registertypes/';
-                },
-                failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText);
-                    if (json && json.errors) {
-                        me.getRegisterTypeEditForm().getForm().markInvalid(json.errors);
-                    }
+        var me=this;
+        record.save({
+            success: function (record) {
+                location.href = form.down('#cancelLink').autoEl.href
+            },
+            failure: function(record,operation){
+                var json = Ext.decode(operation.response.responseText);
+                if (json && json.errors) {
+                    form.markInvalid(json.errors);
                 }
-            });
-        }*/
+            }
+        });
     },
 
     overviewBreadCrumb: function (breadcrumbs) {
         var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registergroup.registerGroups', 'MDC', 'Register groups'),
+            text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),
             href: 'registergroups'
         });
 
@@ -271,56 +230,31 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             href: '#setup'
         });
         var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registergroup.registerGroups', 'MDC', 'Register groups'),
-            href: 'registertypes'
+            text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),
+            href: 'registergroups'
         });
         var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registergroup.create', 'MDC', 'Create register group'),
+            text: Uni.I18n.translate('registerGroup.create', 'MDC', 'Create register group'),
             href: 'create'
         });
         breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3);
         this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
     },
 
-    editBreadCrumb: function (registerGroupName, registerGroupId) {
+    editBreadCrumb: function (registerGroupName) {
         var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
             href: '#setup'
         });
         var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registergroup.registerGroups', 'MDC', 'Register groups'),
-            href: 'registertypes'
+            text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),
+            href: 'registergroups'
         });
         var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registergroup.edit', 'MDC', 'Edit register group'),
+            text: Uni.I18n.translate('registerGroup.edit', 'MDC', 'Edit register group'),
             href: 'edit'
         });
         breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb4);
         this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
     }
-
-    /*detailBreadCrumb: function (registerGroupName, registerGroupId) {
-        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
-        });
-        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registergroup.registerGroups', 'MDC', 'Register groups'),
-            href: 'registertypes'
-        });
-        var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: registerGroupName,
-            href: registerGroupId
-        });
-        var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.overview', 'MDC', 'Overview')
-        });
-        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3).setChild(breadcrumb4);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
-    },
-
-    editRegisterGroupFromDetails: function () {
-        var record = this.getRegisterGroupDetailForm().getRecord();
-        location.href = '#setup/registergroups/' + record.get('id') + '/edit';
-    }*/
 });

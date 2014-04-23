@@ -57,8 +57,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                             items: [
                                 {
                                     text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                    itemId: 'editRegisterGroup',
-                                    action: 'editRegisterGroup'
+                                    itemId: 'saveRegisterGroup',
+                                    action: 'saveRegisterGroup'
                                 }
                                 /*{
                                     xtype: 'menuseparator'
@@ -75,12 +75,12 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                 ],
                 items: [
                     {
-                        xtype: 'registerTypeGrid',
-                        itemId: 'registerGroupPreviewGrid'
+                        xtype: 'registerTypeGrid'
+                        //itemId: 'registerGroupPreviewGrid'
                     },
                     {
-                        xtype: 'registerTypePreview',
-                        itemId: 'registerGroupPreviewDetails'
+                        xtype: 'registerTypePreview'
+                        //itemId: 'registerGroupPreviewDetails'
                     }
                 ]
             }
