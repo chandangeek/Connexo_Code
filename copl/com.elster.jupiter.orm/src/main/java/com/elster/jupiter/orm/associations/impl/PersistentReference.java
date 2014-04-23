@@ -38,6 +38,9 @@ public class PersistentReference<T> implements Reference<T> {
 	public void set(T value) {
 		this.value = Optional.fromNullable(value);
 		primaryKey = dataMapper.getTable().getPrimaryKey(value);
+		if (value != null && !isPresent()) {
+			throw new IllegalArgumentException("Object " + value + " does not have a valid primary key");
+		}
 	}
 
 	@Override
