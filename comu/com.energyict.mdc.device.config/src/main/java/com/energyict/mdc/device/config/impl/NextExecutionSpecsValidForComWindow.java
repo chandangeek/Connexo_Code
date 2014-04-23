@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {PartialScheduledConnectionTaskImpl.NextExecutionSpecVsComWindowValidator.class})
 public @interface NextExecutionSpecsValidForComWindow {
 
-    String message() default '{' + MessageSeeds.Constants.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY + '}';
+    String message() default '{' + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW + '}';
 
     Class<?>[] groups() default {};
 

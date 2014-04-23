@@ -21,7 +21,7 @@ import javax.validation.Payload;
 @Constraint(validatedBy = { ProtocolCannotChangeWithExistingConfigurationsValidator.class })
 public @interface ProtocolCannotChangeWithExistingConfigurations {
 
-    String message() default "{" + MessageSeeds.Constants.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS_KEY + "}";
+    String message() default "{" + MessageSeeds.Keys.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS + "}";
 
     Class<?>[] groups() default { };
 

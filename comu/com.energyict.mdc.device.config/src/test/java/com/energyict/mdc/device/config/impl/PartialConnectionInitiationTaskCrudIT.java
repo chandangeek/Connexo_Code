@@ -53,6 +53,8 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.base.Optional;
@@ -153,6 +155,7 @@ public class PartialConnectionInitiationTaskCrudIT {
                 new EventsModule(),
                 new OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
+                new TasksModule(),
                 new MasterDataModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
@@ -173,6 +176,7 @@ public class PartialConnectionInitiationTaskCrudIT {
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
             injector.getInstance(MasterDataService.class);
+            injector.getInstance(TaskService.class);
             injector.getInstance(PluggableService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();

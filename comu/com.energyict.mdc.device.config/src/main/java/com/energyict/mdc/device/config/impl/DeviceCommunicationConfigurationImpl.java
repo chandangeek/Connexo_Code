@@ -7,6 +7,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -23,28 +25,46 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.ServerDeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.TemporalExpression;
+import com.energyict.mdc.device.config.exceptions.CannotDisableComTaskThatWasNotEnabledException;
 import com.energyict.mdc.device.config.exceptions.PartialConnectionTaskDoesNotExist;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.tasks.ComTask;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.inject.Inject;
-import javax.validation.Valid;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.device.config.DeviceCommunicationConfiguration} interface.
+ * Provides an implementation for the {@link DeviceCommunicationConfiguration} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-02-15 (11:02)
  */
 public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<DeviceCommunicationConfiguration> implements ServerDeviceCommunicationConfiguration {
 
+    enum Fields {
+        COM_TASK_ENABLEMENTS("comTaskEnablements"),
+        SECURITY_PROPERTY_SETS("securityPropertySets");
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private List<SecurityPropertySet> securityPropertySets = new ArrayList<>();
-//    private List<ComTaskEnablement> comTaskEnablements;
+    private List<ComTaskEnablement> comTaskEnablements = new ArrayList<>();
     private boolean supportsAllMessageCategories;
     private long userActions; // temp place holder for the enumset
 //    private EnumSet<DeviceMessageUserAction> userActions = EnumSet.noneOf(DeviceMessageUserAction.class);
@@ -525,7 +545,6 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     @Override
     protected void validateDelete() {
         //TODO automatically generated method body, provide implementation.
-
     }
 
     private DeviceCommunicationConfigurationImpl init(DeviceConfiguration deviceConfiguration) {
@@ -687,6 +706,39 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
         securityPropertySets.remove(propertySet);
     }
 
+    @Override
+    public List<ComTaskEnablement> getComTaskEnablements() {
+        return Collections.unmodifiableList(this.comTaskEnablements);
+    }
+
+    @Override
+    public ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet) {
+        ComTaskEnablementImpl underConstruction = dataModel.getInstance(ComTaskEnablementImpl.class).initialize(DeviceCommunicationConfigurationImpl.this, comTask, securityPropertySet);
+        return new ComTaskEnablementBuilderImpl(underConstruction);
+    }
+
+    @Override
+    public void disableComTask(ComTask comTask) {
+        Iterator<ComTaskEnablement> comTaskEnablementIterator = this.comTaskEnablements.iterator();
+        while (comTaskEnablementIterator.hasNext()) {
+            ComTaskEnablement comTaskEnablement = comTaskEnablementIterator.next();
+            if (comTaskEnablement.getComTask().getId() == comTask.getId()) {
+                ComTaskEnablementImpl each = (ComTaskEnablementImpl) comTaskEnablement;
+                each.validateDelete();
+                comTaskEnablementIterator.remove();
+                return;
+            }
+        }
+        throw new CannotDisableComTaskThatWasNotEnabledException(this.getThesaurus(), this.getDeviceConfiguration(), comTask);
+    }
+
+    private void addComTaskEnblement (ComTaskEnablementImpl comTaskEnablement) {
+        comTaskEnablement.adding();
+        Save.CREATE.validate(this.dataModel, comTaskEnablement);
+        this.comTaskEnablements.add(comTaskEnablement);
+        comTaskEnablement.added();
+    }
+
     private class InternalSecurityPropertySetBuilder implements SecurityPropertySetBuilder {
         private final SecurityPropertySetImpl underConstruction;
 
@@ -718,4 +770,84 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
             return underConstruction;
         }
     }
+
+    private enum ComTaskEnablementBuildingMode {
+        UNDERCONSTRUCTION {
+            @Override
+            protected void verify() {
+                // All calls are fine as long as we are under construction
+            }
+        },
+        COMPLETE {
+            @Override
+            protected void verify() {
+                throw new IllegalStateException("The communication task enablement building process is already complete");
+            }
+        };
+
+        protected abstract void verify();
+    }
+
+    private class ComTaskEnablementBuilderImpl implements ComTaskEnablementBuilder {
+        private ComTaskEnablementBuildingMode mode;
+        private ComTaskEnablementImpl underConstruction;
+
+        private ComTaskEnablementBuilderImpl(ComTaskEnablementImpl underConstruction) {
+            super();
+            this.mode = ComTaskEnablementBuildingMode.UNDERCONSTRUCTION;
+            this.underConstruction = underConstruction;
+        }
+
+        @Override
+        public ComTaskEnablementBuilder setNextExecutionSpecsFrom(TemporalExpression temporalExpression) {
+            this.mode.verify();
+            this.underConstruction.setNextExecutionSpecsFrom(temporalExpression);
+            return this;
+        }
+
+        @Override
+        public ComTaskEnablementBuilder setIgnoreNextExecutionSpecsForInbound(boolean flag) {
+            this.mode.verify();
+            this.underConstruction.setIgnoreNextExecutionSpecsForInbound(flag);
+            return this;
+        }
+
+        @Override
+        public ComTaskEnablementBuilder setPartialConnectionTask(PartialConnectionTask partialConnectionTask) {
+            this.mode.verify();
+            this.underConstruction.setPartialConnectionTask(partialConnectionTask);
+            return this;
+        }
+
+        @Override
+        public ComTaskEnablementBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties) {
+            this.mode.verify();
+            this.underConstruction.setProtocolDialectConfigurationProperties(properties);
+            return this;
+        }
+
+        @Override
+        public ComTaskEnablementBuilder useDefaultConnectionTask(boolean flagValue) {
+            this.mode.verify();
+            this.underConstruction.useDefaultConnectionTask(flagValue);
+            return this;
+        }
+
+        @Override
+        public ComTaskEnablementBuilder setPriority(int priority) {
+            this.mode.verify();
+            this.underConstruction.setPriority(priority);
+            return this;
+        }
+
+        @Override
+        public ComTaskEnablement add() {
+            this.mode.verify();
+            addComTaskEnblement(this.underConstruction);
+            this.mode = ComTaskEnablementBuildingMode.COMPLETE;
+            return this.underConstruction;
+        }
+
+    }
+
 }

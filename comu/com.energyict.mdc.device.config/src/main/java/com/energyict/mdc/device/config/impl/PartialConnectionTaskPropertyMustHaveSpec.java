@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {PartialConnectionTaskImpl.HasSpecValidator.class})
 public @interface PartialConnectionTaskPropertyMustHaveSpec {
 
-    String message() default "{" + MessageSeeds.Constants.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC_KEY + "}";
+    String message() default "{" + MessageSeeds.Keys.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC + "}";
 
     Class<?>[] groups() default {};
 

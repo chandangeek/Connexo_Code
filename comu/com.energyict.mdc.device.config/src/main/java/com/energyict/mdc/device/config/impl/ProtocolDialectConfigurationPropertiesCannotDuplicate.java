@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {ProtocolDialectConfigurationPropertiesImpl.PrimaryKeyValidator .class })
 public @interface ProtocolDialectConfigurationPropertiesCannotDuplicate {
 
-    String message() default "{" + MessageSeeds.Constants.PROTOCOLDIALECT_CONF_PROPS_DUPLICATE_KEY + "}";
+    String message() default "{" + MessageSeeds.Keys.PROTOCOLDIALECT_CONF_PROPS_DUPLICATE + "}";
 
     Class<?>[] groups() default { };
 

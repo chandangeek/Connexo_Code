@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = { NextExecutionSpecsImpl.OffsetVsFrequencyValidator.class })
 public @interface OffsetNotGreaterThanFrequency {
 
-    String message() default "{" + MessageSeeds.Constants.NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY_KEY + "}";
+    String message() default "{" + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY + "}";
 
     Class<?>[] groups() default { };
 

@@ -44,6 +44,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
@@ -132,6 +134,7 @@ public class SecurityPropertySetImplCrudIT {
                 new OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
+                new TasksModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
@@ -148,6 +151,7 @@ public class SecurityPropertySetImplCrudIT {
 //            inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
+            injector.getInstance(TaskService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }
@@ -314,7 +318,7 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     @Test()
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     public void testCreateWithoutName () {
         DeviceCommunicationConfiguration communicationConfiguration;
         SecurityPropertySet propertySet = null;
@@ -337,7 +341,7 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     @Test()
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     public void testCreateWithEmptyName () {
         DeviceCommunicationConfiguration communicationConfiguration;
         SecurityPropertySet propertySet = null;
@@ -360,7 +364,7 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.NAME_UNIQUE_KEY + '}')
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.NAME_UNIQUE + '}')
     public void testCreateWithDuplicateName () {
         DeviceConfiguration deviceConfiguration;
         SecurityPropertySet propertySet = null;
@@ -393,7 +397,7 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.UNSUPPORTED_SECURITY_LEVEL_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testAuthenticationLevelIsRequiredWhenProtocolProvidesAtLeastOneAuthenticationLevel () {
         DeviceConfiguration deviceConfiguration;
         SecurityPropertySet propertySet = null;
@@ -415,7 +419,7 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.UNSUPPORTED_SECURITY_LEVEL_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testAuthenticationLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideAuthenticationLevels () {
         DeviceConfiguration deviceConfiguration;
         SecurityPropertySet propertySet = null;
@@ -439,7 +443,7 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.UNSUPPORTED_SECURITY_LEVEL_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testEncryptionLevelIsRequiredWhenProtocolProvidesAtLeastOneEncryptionLevel () {
         DeviceConfiguration deviceConfiguration;
         SecurityPropertySet propertySet = null;
@@ -461,7 +465,7 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.UNSUPPORTED_SECURITY_LEVEL_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testEncryptionLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideEncryptionLevels () {
         DeviceConfiguration deviceConfiguration;
         SecurityPropertySet propertySet = null;

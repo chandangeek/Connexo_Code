@@ -62,7 +62,9 @@ public class PartialScheduledConnectionTaskBuilderImpl extends AbstractScheduled
     void populate(PartialScheduledConnectionTaskImpl instance) {
         super.populate(instance);
         instance.setDefault(asDefault);
-        instance.setComWindow(comWindow);
+        if (comWindow != null) {
+            instance.setComWindow(comWindow);
+        }
         instance.setConnectionStrategy(connectionStrategy);
         instance.setAllowSimultaneousConnections(allowSimultaneousConnections);
         instance.setInitiationTask(partialConnectionInitiationTask);

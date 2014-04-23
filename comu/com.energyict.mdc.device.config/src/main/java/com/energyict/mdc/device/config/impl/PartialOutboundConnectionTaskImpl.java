@@ -32,8 +32,8 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
     /**
      * Defines the delay to wait before retrying when this connectionTask failed
      */
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Constants.UNDER_MINIMUM_RESCHEDULE_DELAY_KEY + '}')
-    @MinTimeDuration(value = 60, groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Constants.UNDER_MINIMUM_RESCHEDULE_DELAY_KEY + '}')
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.UNDER_MINIMUM_RESCHEDULE_DELAY + '}')
+    @MinTimeDuration(value = 60, groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.UNDER_MINIMUM_RESCHEDULE_DELAY + '}')
     private TimeDuration rescheduleRetryDelay;
 
     PartialOutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {

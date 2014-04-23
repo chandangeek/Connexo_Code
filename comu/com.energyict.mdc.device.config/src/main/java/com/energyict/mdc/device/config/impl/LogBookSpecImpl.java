@@ -27,7 +27,7 @@ import javax.inject.Provider;
 public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements LogBookSpec {
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED_KEY + "}")
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED + "}")
     private final Reference<LogBookType> logBookType = ValueReference.absent();
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;

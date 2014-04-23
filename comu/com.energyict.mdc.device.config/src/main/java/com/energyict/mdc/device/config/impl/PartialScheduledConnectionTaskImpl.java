@@ -39,7 +39,7 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     private ComWindow comWindow;
     private int comWindowStart;
     private int comWindowEnd;
-    @NotNull(message = '{' + MessageSeeds.Constants.CONNECTION_STRATEGY_REQUIRED_KEY + '}', groups = {Save.Create.class, Save.Update.class})
+    @NotNull(message = '{' + MessageSeeds.Keys.CONNECTION_STRATEGY_REQUIRED + '}', groups = {Save.Create.class, Save.Update.class})
     private ConnectionStrategy connectionStrategy;
     private boolean allowSimultaneousConnections;
     private Reference<PartialConnectionInitiationTask> initiator = ValueReference.absent();

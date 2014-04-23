@@ -10,6 +10,8 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -38,6 +40,8 @@ import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeExcept
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.tasks.ComTask;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -789,4 +793,20 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public void removeSecurityPropertySet(SecurityPropertySet propertySet) {
         getCommunicationConfiguration().removeSecurityPropertySet(propertySet);
     }
+
+    @Override
+    public ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet) {
+        return this.getCommunicationConfiguration().enableComTask(comTask, securityPropertySet);
+    }
+
+    @Override
+    public void disableComTask(ComTask comTask) {
+        this.getCommunicationConfiguration().disableComTask(comTask);
+    }
+
+    @Override
+    public List<ComTaskEnablement> getComTaskEnablements() {
+        return this.getCommunicationConfiguration().getComTaskEnablements();
+    }
+
 }

@@ -16,6 +16,7 @@ import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -39,6 +40,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -81,10 +83,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Inject
     public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, MasterDataService masterDataService) {
-        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, protocolPluggableService, userService, engineModelService, masterDataService, false);
-    }
-
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, ProtocolPluggableService protocolPluggableService, UserService userService, EngineModelService engineModelService, MasterDataService masterDataService, boolean createMasterData) {
         this();
         this.setOrmService(ormService);
         this.setUserService(userService);
@@ -94,7 +92,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setProtocolPluggableService(protocolPluggableService);
         this.setReadingTypeUtilService(mdcReadingTypeUtilService);
         this.setEngineModelService(engineModelService);
-        this.setMasterDataService(this.masterDataService);
+        this.setMasterDataService(masterDataService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install(true);
@@ -324,6 +322,20 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public boolean isPhenomenonInUse(Phenomenon phenomenon) {
         return !this.getDataModel().mapper(ChannelSpec.class).find("phenomenon", phenomenon).isEmpty();
+    }
+
+    @Override
+    public Optional<ComTaskEnablement> findComTaskEnablement(long id) {
+        return dataModel.mapper(ComTaskEnablement.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<ComTaskEnablement> findComTaskEnablement(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        return dataModel.
+                mapper(ComTaskEnablement.class).
+                getUnique(
+                        ComTaskEnablementImpl.Fields.COM_TASK.fieldName(), comTask,
+                        ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName(), deviceConfiguration.getCommunicationConfiguration());
     }
 
     @Reference

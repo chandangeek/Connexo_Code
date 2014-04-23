@@ -8,6 +8,7 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -177,5 +178,17 @@ public interface DeviceConfigurationService {
     public List<SecurityPropertySet> findAllSecurityPropertySets();
 
     public boolean isPhenomenonInUse(Phenomenon phenomenon);
+
+    public Optional<ComTaskEnablement> findComTaskEnablement (long id);
+
+    /**
+     * Finds the {@link ComTaskEnablement} that enables the execution
+     * of the {@link ComTask} on devices of the specified {@link DeviceConfiguration}.
+     *
+     * @param comTask The ComTask
+     * @param deviceConfiguration The DeviceConfiguration
+     * @return The ComTaskEnablement
+     */
+    public Optional<ComTaskEnablement> findComTaskEnablement (ComTask comTask, DeviceConfiguration deviceConfiguration);
 
 }

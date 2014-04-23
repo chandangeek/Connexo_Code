@@ -47,7 +47,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterMappingUsage> registerMappingUsages = new ArrayList<>();
     private long deviceProtocolPluggableClassId;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.DEVICE_PROTOCOL_IS_REQUIRED_KEY + "}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.DEVICE_PROTOCOL_IS_REQUIRED + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private boolean deviceProtocolPluggableClassChanged = false;
 

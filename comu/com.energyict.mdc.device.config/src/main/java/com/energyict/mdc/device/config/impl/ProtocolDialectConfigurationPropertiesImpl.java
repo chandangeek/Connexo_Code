@@ -43,7 +43,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     private final DataModel dataModel;
 
     private DeviceProtocolDialect protocolDialect;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.PROTOCOLDIALECT_REQUIRED_KEY + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOLDIALECT_REQUIRED + "}")
     private String protocolDialectName;
     private List<ProtocolDialectConfigurationProperty> propertyList = new ArrayList<>();
 
