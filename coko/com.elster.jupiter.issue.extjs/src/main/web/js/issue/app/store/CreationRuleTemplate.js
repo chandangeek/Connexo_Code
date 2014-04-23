@@ -1,5 +1,11 @@
 Ext.define('Isu.store.CreationRuleTemplate', {
     extend: 'Ext.data.Store',
     model: 'Isu.model.CreationRuleTemplate',
-    autoLoad: false
+    autoLoad: false,
+
+    listeners: {
+        beforeload: function () {
+            this.getProxy().setExtraParam('issueType', 'datacollection');
+        }
+    }
 });

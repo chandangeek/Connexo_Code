@@ -355,6 +355,10 @@ span[class^=isu-assignee-] {
     cursor: pointer;
 }
 
+.isu-toolbar-label {
+    font-weight: bold;
+}
+
 /* Message Window */
 
 /* Window */

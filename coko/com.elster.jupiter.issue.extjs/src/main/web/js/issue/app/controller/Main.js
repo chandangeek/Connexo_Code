@@ -20,7 +20,6 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.IssueAssignmentRules',
         'Isu.controller.IssueCreationRules',
         'Isu.controller.history.Workspace',
-        'Isu.controller.IssueFilter',
         'Isu.controller.IssueDetail',
         'Isu.controller.history.Administration',
         'Isu.controller.Administration',

@@ -3,7 +3,7 @@ Ext.define('Isu.controller.Issues', {
 
     requires: [
         'Uni.model.BreadcrumbItem',
-        'Isu.model.IssueSort'
+        'Isu.model.ExtraParams'
     ],
 
     stores: [
@@ -11,25 +11,27 @@ Ext.define('Isu.controller.Issues', {
         'Isu.store.IssuesGroups',
         'Isu.store.Assignee',
         'Isu.store.IssueStatus',
-        'Isu.store.IssueReason'
+        'Isu.store.IssueReason',
+        'Isu.store.IssueMeter',
+        'Isu.store.UserGroupList',
+        'Isu.store.IssueGrouping'
     ],
 
     views: [
-        'workspace.issues.Overview',
-        'workspace.issues.Filter',
-        'workspace.issues.List',
-        'workspace.issues.Item',
-        'workspace.issues.IssueNoGroup',
-        'ext.button.GridAction',
-        'ext.button.SortItemButton',
-        'workspace.issues.component.TagButton'
+        'Isu.view.workspace.issues.Overview',
+        'Isu.view.ext.button.GridAction'
     ],
 
     mixins: [
-        'Isu.util.IsuGrid'
+        'Isu.util.IsuGrid',
+        'Isu.util.IsuComboTooltip'
     ],
 
     refs: [
+        {
+            ref: 'issuesOverview',
+            selector: 'issues-overview'
+        },
         {
             ref: 'itemPanel',
             selector: 'issues-item'
@@ -39,24 +41,35 @@ Ext.define('Isu.controller.Issues', {
             selector: 'issues-list'
         },
         {
-            ref: 'issueNoGroup',
-            selector: 'issues-browse issue-no-group'
+            ref: 'noIssues',
+            selector: 'issues-overview [name=noIssues]'
         },
         {
-            ref: 'issuesOverview',
-            selector: 'issues-overview'
+            ref: 'filteringToolbar',
+            selector: 'issues-overview filtering-toolbar'
         },
         {
-            ref: 'filter',
-            selector: 'issues-filter'
+            ref: 'sortingToolbar',
+            selector: 'issues-overview sorting-toolbar'
+        },
+        {
+            ref: 'groupingToolbar',
+            selector: 'issues-overview isu-grouping-toolbar'
+        },
+        {
+            ref: 'issueFilter',
+            selector: 'issues-side-filter'
         }
     ],
 
     init: function () {
         this.control({
+            'issues-overview breadcrumbTrail': {
+                afterrender: this.setBreadcrumb
+            },
             'issues-overview issues-list gridview': {
                 itemclick: this.loadGridItemDetail,
-                refresh: this.onIssuesListGridViewRefreshEvent
+                refresh: this.onIssuesGridRefresh
             },
             'issues-overview issues-list actioncolumn': {
                 click: this.showItemAction
@@ -68,209 +81,75 @@ Ext.define('Isu.controller.Issues', {
             'issues-overview issues-item': {
                 afterChange: this.setFilterIconsActions
             },
-            // ====================================  IssueListFilter controls  ====================================
 
-            'button[name=addsortbtn]': {
-                click: this.setAddSortMenu
-            },
-            'menu[name=addsortitemmenu]': {
-                click: this.addSortItem
-            },
-            'combobox[name=groupnames]': {
-                afterrender: this.setGroupFields,
-                change: this.setGroup
-            },
-            'grid[name=groupgrid]': {
-                itemclick: this.getIssuesForGroup
-            },
-            'button[name=clearsortbtn]': {
-                click: this.clearSort
-            },
-            'issues-overview breadcrumbTrail': {
-                afterrender: this.setBreadcrumb
-            },
-            'button[name=sortitembtn]': {
+            'issues-overview sorting-toolbar [name=actions-toolbar] button': {
                 click: this.changeSortDirection,
                 arrowclick: this.removeSortItem
             },
+            'issues-overview sorting-toolbar issue-sort-menu': {
+                click: this.addSortParam
+            },
+            'issues-overview sorting-toolbar button[action=clearSort]': {
+                click: this.clearSortParams
+            },
 
-            // ====================================  END IssueListFilter controls  ================================
-            'issues-filter [name="filter"] button-tag': {
-                arrowclick: this.removeFilter
+            'issues-overview filtering-toolbar [name="filter"] button-tag': {
+                arrowclick: this.removeFilterItem
+            },
+            'issues-overview filtering-toolbar button[action="clearfilter"]': {
+                click: this.resetFilter
+            },
+
+            'issues-side-filter button[action="filter"]': {
+                click: this.applyFilter
+            },
+            'issues-side-filter button[action="reset"]': {
+                click: this.resetFilter
+            },
+            'issues-side-filter filter-form combobox[name=reason]': {
+                render: this.setComboTooltip
+            },
+            'issues-side-filter filter-form combobox[name=meter]': {
+                render: this.setComboTooltip,
+                expand: this.limitNotification
             }
         });
 
-        this.listen({
-            store: {
-                '#Isu.store.Issues': {
-                    load: this.issueStoreLoad,
-                    updateProxyFilter: this.filterUpdate,
-                    updateProxySort: this.sortUpdate
-                }
-            }
-        });
-
-        this.groupStore = this.getStore('Isu.store.IssuesGroups');
-        this.store = this.getStore('Isu.store.Issues');
-        this.sortParams = {};
         this.actionMenuXtype = 'issue-action-menu';
         this.gridItemModel = this.getModel('Isu.model.Issues');
     },
 
-    issueStoreLoad: function (store, records) {
-        var issueNoGroup = this.getIssueNoGroup(),
-            issueList = this.getIssuesList();
-
-        if (records && records.length < 1) {
-
-            issueNoGroup.removeAll();
-            issueNoGroup.add({
-                html: '<h3>No issues found</h3><p>The filter is too narrow</p>',
-                bodyPadding: 10,
-                border: false
-            });
-            issueList.hide();
-            issueNoGroup && issueNoGroup.show();
-        } else {
-            issueList.show();
-            issueNoGroup && issueNoGroup.hide();
-        }
-    },
-
-    /**
-     * After "updateProxyFilter" event from the Issue store, method will redraw button tags on the filter panel
-     *
-     * todo: I18n
-     * @param filter Uni.component.filter.model.Filter
-     */
-    filterUpdate: function (filter) {
-        if (!this.getFilter()) {
-            return;
-        }
-        var filterElm = this.getFilter().down('[name="filter"]'),
-            emptyText = this.getFilter().down('[name="empty-text"]'),
-            clearFilterBtn = this.getFilter().down('button[action="clearfilter"]'),
-            buttons = [];
-
-        if (filter.get('assignee')) {
-            var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
-                text: 'Assignee: ' + filter.get('assignee').get('name'),
-                target: 'assignee'
-            });
-
-            buttons.push(button);
-        }
-
-        if (filter.get('reason')) {
-            var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
-                text: 'Reason: ' + filter.get('reason').get('name'),
-                target: 'reason'
-            });
-
-            buttons.push(button);
-        }
-
-        if (filter.get('meter')) {
-            var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
-                text: 'Meter: ' + filter.get('meter').get('name'),
-                target: 'meter'
-            });
-
-            buttons.push(button);
-        }
-
-        if (filter.status().count()) {
-            filter.status().each(function (status) {
-                var button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
-                    text: 'Status: ' + status.get('name'),
-                    target: 'status',
-                    targetId: status.getId()
-                });
-
-                buttons.push(button);
-            });
-        }
-
-        filterElm.removeAll();
-
-        if (buttons.length) {
-            emptyText.hide();
-            clearFilterBtn.setDisabled(false);
-
-            Ext.Array.each(buttons, function (button) {
-                filterElm.add(button);
-            });
-        } else {
-            emptyText.show();
-            clearFilterBtn.setDisabled(true);
-        }
-    },
-
-    bulkChangeButtonDisable: function (grid) {
-        var bulkBtn = grid.up().down('button[action=bulkchangesissues]');
-        if (grid.store.getCount() < 1) {
-            bulkBtn.setDisabled(true);
-        } else {
-            bulkBtn.setDisabled(false);
-        }
-    },
-
-    onIssuesListGridViewRefreshEvent: function (gridView) {
-        this.setAssigneeTypeIconTooltip(gridView);
-        this.bulkChangeButtonDisable(gridView);
-        this.selectFirstGridRow(gridView);
-    },
-
-    sortUpdate: function (sortModel) {
-        if (!this.getFilter()) {
-            return;
-        }
-        var filterElm = this.getFilter().down('[name="sortitemspanel"]'),
-            isuList = this.getIssuesList();
-
-        if (isuList) {
-            isuList.getSelectionModel().deselectAll()
-        }
-        this.showDefaultItems();
-
-        filterElm.removeAll();
-
-        sortModel.fields.each(function (field) {
-            if (sortModel.get(field.name)) {
-                var cls = sortModel.get(field.name) == Isu.model.IssueSort.ASC
-                    ? 'isu-icon-up-big'
-                    : 'isu-icon-down-big';
-
-                var sortItem = {
-                    xtype: 'sort-item-btn',
-                    sortValue: field.name,
-                    text: field.displayValue,
-                    iconCls: 'isu-icon-white ' + cls
-                };
-
-                filterElm.add(sortItem);
-            }
-        });
-
-        this.getFilter().down('[name="clearsortbtn"]').setDisabled(!filterElm.items.length);
-
-    },
-
-    removeFilter: function (elm) {
-        this.store.getProxyFilter().removeFilterParam(elm.target, elm.targetId);
-        this.store.updateProxyFilter();
-    },
-
     showOverview: function () {
-        var widget,
-            issuesStore = this.getStore('Isu.store.Issues');
+        var self = this,
+            widget,
+            issuesStore = this.getStore('Isu.store.Issues'),
+            extraParamsModel = new Isu.model.ExtraParams(),
+            extraParams = issuesStore.proxy.extraParams;
 
-        delete issuesStore.proxyFilter;
-        delete issuesStore.proxySort;
 
-        widget = Ext.widget('issues-overview');
+        extraParamsModel.setValuesFromQueryString(function (extraParamsModel, data) {
+            if (data) {
+                extraParams = data;
+            } else {
+                extraParams = {};
+            }
 
-        this.getApplication().fireEvent('changecontentevent', widget);
+            if (issuesStore.group) {
+                Ext.merge(extraParams, issuesStore.getGroupParams());
+            }
+            issuesStore.proxy.extraParams = extraParams;
+            self.setParamsForIssueGroups(extraParamsModel.get('filter'), extraParamsModel.get('group').get('value'));
+
+            widget = Ext.widget('issues-overview');
+            self.getApplication().fireEvent('changecontentevent', widget);
+
+            self.extraParamsModel = extraParamsModel;
+
+            self.getFilteringToolbar().addFilterButtons(extraParamsModel.get('filter'));
+            self.setFilterForm();
+            self.getSortingToolbar().addSortButtons(extraParamsModel.get('sort'));
+            self.setGrouping();
+        });
     },
 
     setBreadcrumb: function (breadcrumbs) {
@@ -291,6 +170,152 @@ Ext.define('Isu.controller.Issues', {
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
+    setFilterForm: function () {
+        var self = this,
+            filterModel = this.extraParamsModel.get('filter'),
+            form = self.getIssueFilter().down('filter-form'),
+            filterCheckboxGroup = form.down('filter-checkboxgroup');
+
+        if (!filterCheckboxGroup.store.getCount()) {
+            filterCheckboxGroup.store.load(function () {
+                form.loadRecord(filterModel);
+            });
+        } else {
+            form.loadRecord(filterModel);
+        }
+    },
+
+    removeFilterItem: function (button) {
+        this.extraParamsModel.get('filter').removeFilterParam(button.target, button.targetId);
+        window.location.href = this.extraParamsModel.getQueryStringFromValues();
+    },
+
+    applyFilter: function () {
+        var form = this.getIssueFilter().down('filter-form'),
+            filter = form.getRecord();
+
+        form.updateRecord(filter);
+        this.extraParamsModel.set('filter', filter);
+        window.location.href = this.extraParamsModel.getQueryStringFromValues();
+    },
+
+    resetFilter: function () {
+        var filter = new Isu.model.IssueFilter();
+
+        this.extraParamsModel.set('filter', filter);
+        window.location.href = this.extraParamsModel.getQueryStringFromValues();
+    },
+
+    addSortParam: function (menu, item) {
+        var sorting = this.extraParamsModel.get('sort');
+
+        if (!sorting.data[item.action]) {
+            sorting.addSortParam(item.action);
+            window.location.href = this.extraParamsModel.getQueryStringFromValues();
+        }
+    },
+
+    changeSortDirection: function (button) {
+        var sorting = this.extraParamsModel.get('sort');
+
+        sorting.toggleSortParam(button.sortName);
+        window.location.href = this.extraParamsModel.getQueryStringFromValues();
+    },
+
+    removeSortItem: function (button) {
+        var sorting = this.extraParamsModel.get('sort');
+
+        sorting.removeSortParam(button.sortName);
+        window.location.href = this.extraParamsModel.getQueryStringFromValues();
+    },
+
+    clearSortParams: function () {
+        var sorting = this.extraParamsModel.get('sort');
+
+        sorting.data = {};
+        window.location.href = this.extraParamsModel.getQueryStringFromValues();
+    },
+
+    setGrouping: function () {
+        var grouping = this.extraParamsModel.get('group').get('value'),
+            groupingTollbar = this.getGroupingToolbar(),
+            groupingCombo = groupingTollbar.down('[name=groupingcombo]'),
+            groupingGrid = groupingTollbar.down('[name=groupinggrid]'),
+            selectionModel = groupingGrid.getSelectionModel(),
+            groupingField;
+
+        groupingCombo.setValue(grouping);
+        groupingCombo.on('change', this.changeGrouping, this, {single: true});
+
+        if (grouping == 'none') {
+            groupingGrid.hide();
+        } else {
+            groupingField = this.extraParamsModel.get('filter').get(grouping);
+            if (groupingField) {
+                selectionModel.select(groupingField);
+            } else {
+                this.getIssuesList().hide();
+                this.getNoIssues().update('<h3>No group selected</h3><p>Select a group of issues.</p>');
+                this.getNoIssues().show();
+                this.getItemPanel().fireEvent('clear');
+            }
+            groupingGrid.on('itemclick', this.changeGroup, this, {single: true});
+            groupingGrid.show();
+        }
+    },
+
+    changeGroup: function (grid, record) {
+        var grouping = this.extraParamsModel.get('group').get('value');
+
+        this.extraParamsModel.get('filter').set(grouping, record);
+        window.location.href = this.extraParamsModel.getQueryStringFromValues();
+    },
+
+    changeGrouping: function (combo, newValue) {
+        var store = combo.getStore();
+
+        this.extraParamsModel.set('group', store.getById(newValue));
+        window.location.href = this.extraParamsModel.getQueryStringFromValues();
+    },
+
+    setParamsForIssueGroups: function (filterModel, field) {
+        var groupStore = this.getStore('Isu.store.IssuesGroups'),
+            groupStoreProxy = groupStore.getProxy(),
+            status = filterModel.statusStore,
+            statusValues = [],
+            reason = filterModel.get('reason'),
+            assignee = filterModel.get('assignee'),
+            meter = filterModel.get('meter');
+
+        if (field != 'none') {
+            groupStoreProxy.setExtraParam('field', field);
+        }
+
+        if (status) {
+            status.each(function (item) {
+                statusValues.push(item.get('id'));
+            });
+            groupStoreProxy.setExtraParam('status', statusValues);
+        }
+        if (assignee) {
+            groupStoreProxy.setExtraParam('assigneeId', assignee.get('id'));
+            groupStoreProxy.setExtraParam('assigneeType', assignee.get('type'));
+        } else {
+            groupStoreProxy.setExtraParam('assigneeId', []);
+            groupStoreProxy.setExtraParam('assigneeType', []);
+        }
+        if (reason) {
+            groupStoreProxy.setExtraParam('id', reason.get('id'));
+        } else {
+            groupStoreProxy.setExtraParam('id', []);
+        }
+        if (meter) {
+            groupStoreProxy.setExtraParam('meter', meter.get('id'));
+        } else {
+            groupStoreProxy.setExtraParam('meter', []);
+        }
+    },
+
     chooseIssuesAction: function (menu, item) {
         var action = item.action;
 
@@ -305,141 +330,6 @@ Ext.define('Isu.controller.Issues', {
                 window.location.href = '#/workspace/datacollection/issues/' + menu.issueId + '/addcomment';
                 break;
         }
-    },
-
-    changeSortDirection: function (btn) {
-        this.store.getProxySort().toggleSortParam(btn.sortValue);
-        this.store.updateProxySort();
-    },
-
-    removeSortItem: function (btn) {
-        this.store.getProxySort().removeSortParam(btn.sortValue);
-        this.store.updateProxySort();
-    },
-
-    addSortItem: function (menu, item) {
-        this.store.getProxySort().addSortParam(item.value);
-        this.store.updateProxySort();
-    },
-
-    setAddSortMenu: function (btn) {
-        if (btn.menu.items.getCount() < 1) {
-            this.store.getProxySort().fields.each(function (item) {
-                if (item.displayValue) {
-                    btn.menu.add({
-                        text: item.displayValue,
-                        value: item.name
-                    });
-                }
-            });
-            btn.showMenu();
-        }
-    },
-
-    clearSort: function () {
-        this.store.setProxySort(new Isu.model.IssueSort());
-
-    },
-
-    setGroupFields: function (view) {
-        var model = Ext.ModelManager.getModel('Isu.model.Issues'),
-            reason = model.getFields()[1];
-
-        view.store = Ext.create('Ext.data.Store', {
-            fields: ['value', 'display'],
-            data: [
-                { value: 0, display: 'None'},
-                { value: 'reason', display: reason.displayValue }
-            ]
-        });
-    },
-
-    setGroup: function (view, newValue) {
-        var grid = Ext.ComponentQuery.query('grid[name=groupgrid]')[0],
-            issuesFor = Ext.ComponentQuery.query('panel[name=issuesforlabel]')[0],
-            lineLabel = Ext.ComponentQuery.query('label[name=forissuesline]')[0],
-            groupItemsShown = grid.down('panel[name=groupitemsshown]'),
-            issueNoGroup = this.getIssueNoGroup(),
-            issuesList = this.getIssuesList(),
-            fullList = this.getIssuesList(),
-
-            XtoYof = function (store, records) {
-                if (records.length > 0) {
-                    var X = (store.currentPage - 1) * store.pageSize + 1,
-                        Y = records.length + X - 1,
-                        of = store.getTotalCount()
-                        ;
-                    groupItemsShown.removeAll();
-                    groupItemsShown.add({
-                        html: X + ' - ' + Y + ' of ' + of + ' ' + view.getRawValue() + 's',
-                        border: false,
-                        margin: '5'
-                    });
-                    groupItemsShown.show();
-                } else {
-                    groupItemsShown.hide();
-                }
-            };
-
-        issuesFor.hide();
-        lineLabel.hide();
-        this.getIssueNoGroup().show();
-        fullList.getSelectionModel().deselectAll();
-        fullList.hide();
-
-        this.showDefaultItems();
-
-        // now grouping is active
-        if (newValue) {
-            this.groupStore.proxy.extraParams.field = newValue;
-            this.groupStore.loadPage(1);
-            this.group = newValue;
-            issueNoGroup.removeAll();
-            issueNoGroup.add({
-                html: '<h3>No group selected</h3><p>Select a group of issues.</p>',
-                bodyPadding: 10,
-                border: false
-            });
-            issueNoGroup.show();
-            issuesList.hide();
-            grid.show();
-            this.groupStore.on('load', XtoYof);
-        } else {
-            // remove the grouping
-
-            this.groupStore.removeAll();
-            grid.hide();
-            groupItemsShown.hide();
-            this.groupStore.un('load', XtoYof);
-            this.getIssueNoGroup().hide();
-            fullList.show();
-            this.store.setGroup(undefined);
-            this.store.loadPage(1);
-        }
-    },
-
-    getIssuesForGroup: function (grid, record) {
-        var iString = '<h3>Issues for ' + this.group + ': ' + record.data.reason.name + '</h3>',
-            issuesFor = Ext.ComponentQuery.query('panel[name=issuesforlabel]')[0],
-            lineLabel = Ext.ComponentQuery.query('label[name=forissuesline]')[0]
-            ;
-        issuesFor.removeAll();
-        issuesFor.add({html: iString});
-        issuesFor.show();
-        lineLabel.show();
-        this.getIssuesList().getSelectionModel().deselectAll();
-        this.getIssuesList().show();
-        this.getIssueNoGroup().hide();
-        this.store.setGroup(record);
-        this.store.loadPage(1);
-        this.showDefaultItems();
-    },
-
-
-    showDefaultItems: function () {
-        var issueItemView = this.getItemPanel();
-
-        issueItemView && issueItemView.fireEvent('clear');
     },
 
     setFilterIconsActions: function (itemPanel) {
@@ -481,22 +371,22 @@ Ext.define('Isu.controller.Issues', {
     },
 
     setChecboxFilter: function (filterType, filterValue) {
-        var filterController = this.getController('Isu.controller.IssueFilter'),
-            filterForm = filterController.getIssueFilter().down('filter-form'),
-            allCheckboxes = filterForm.query('checkboxfield');
-            checkbox = filterForm.down('[name='+ filterType +'] checkboxfield[inputValue=' + filterValue + ']');
+        var self = this,
+            filterForm = this.getIssueFilter().down('filter-form'),
+            allCheckboxes = filterForm.query('checkboxfield'),
+            checkbox = filterForm.down('[name=' + filterType + '] checkboxfield[inputValue=' + filterValue + ']');
 
         Ext.Array.each(allCheckboxes, function (item) {
             item.setValue(false);
         });
 
         checkbox.setValue(true);
-        filterController.filter();
+        self.applyFilter();
     },
 
     setComboFilter: function (filterType, filterValue, visualValue) {
-        var filterController = this.getController('Isu.controller.IssueFilter'),
-            filterForm = filterController.getIssueFilter().down('filter-form'),
+        var self = this,
+            filterForm = this.getIssueFilter().down('filter-form'),
             combo = filterForm.down('[name=' + filterType + ']'),
             comboStore = combo.getStore(),
             storeProxy = comboStore.getProxy();
@@ -505,8 +395,33 @@ Ext.define('Isu.controller.Issues', {
 
         comboStore.load(function () {
             combo.setValue(filterValue);
-            filterController.filter();
+            self.applyFilter();
         });
+    },
+
+    onIssuesGridRefresh: function (grid) {
+        var store = grid.getStore(),
+            grouping = this.extraParamsModel.get('group').get('value'),
+            groupingField = this.extraParamsModel.get('filter').get(grouping),
+            extraParams = store.getProxy().extraParams,
+            emptyText;
+
+        if (!store.getCount()) {
+            if (extraParams.status || extraParams.assigneeId || extraParams.reason || extraParams.meter) {
+                emptyText = '<h3>No issues found</h3><p>The filter is too narrow</p>';
+            } else {
+                emptyText = '<h3>No issue found</h3><p>No data collection issues have been created yet.</p>';
+            }
+
+            this.getIssuesList().hide();this.getNoIssues().update(emptyText);
+            this.getNoIssues().show();
+            this.getItemPanel().fireEvent('clear');
+        }
+
+        this.setAssigneeTypeIconTooltip(grid);
+
+        if (!(grouping && grouping != 'none' && !groupingField)) {
+            this.selectFirstGridRow(grid);
+        }
     }
-    // ====================================  END IssueListFilter controls  ====================================
 });

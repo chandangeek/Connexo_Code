@@ -29,50 +29,8 @@ Ext.define('Isu.store.Issues', {
     },
 
     listeners: {
-        "beforeLoad": function() {
-            if (!this.proxyFilter || !this.proxySort) {
-                this.loadDefaults();
-            }
-            var extraParams = this.proxy.extraParams;
-
-            // replace filter extra params with new ones
-            if (this.proxyFilter) {
-                extraParams = _.omit(extraParams, this.proxyFilter.getFields());
-                Ext.merge(extraParams, this.getFilterParams());
-            }
-
-            if (this.proxySort) {
-                extraParams = _.omit(extraParams, this.proxySort.getFields());
-                Ext.merge(extraParams, this.getSortParams());
-            }
-
-            if (this.group) {
-                Ext.merge(extraParams, this.getGroupParams());
-            }
-
-            this.proxy.extraParams = extraParams;
+        beforeload: function () {
+            this.getProxy().setExtraParam('issueType', 'datacollection');
         }
-    },
-
-    loadDefaults: function () {
-        var defaultFilter = new Isu.model.IssueFilter(),
-            store = defaultFilter.status(),
-            me = this;
-
-        // this is status "Open"
-        var model = new Isu.model.IssueStatus({
-            id: 1, name: "Open"
-        });
-        store.add(model); //todo: hardcoded value! remove after proper REST API is implemented.
-        me.proxyFilter = defaultFilter;
-
-        var defaultSort = new Isu.model.IssueSort();
-        defaultSort.addSortParam('dueDate');
-        me.proxySort = defaultSort;
-
-        defaultFilter.isDefault = true;  //todo: not good option
-
-        this.fireEvent('updateProxyFilter', defaultFilter);
-        this.fireEvent('updateProxySort', defaultSort);
     }
 });

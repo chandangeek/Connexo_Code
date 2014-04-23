@@ -18,7 +18,6 @@ Ext.define('Isu.Application', {
         'Isu.controller.IssueCreationRules',
         'Isu.controller.IssueCreationRulesEdit',
         'Isu.controller.history.Workspace',
-        'Isu.controller.IssueFilter',
         'Isu.controller.IssueDetail',
         'Isu.controller.history.Administration',
         'Isu.controller.Administration',
