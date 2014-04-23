@@ -1,14 +1,22 @@
 package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.issue.impl.module.Installer;
+import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
-import com.elster.jupiter.issue.share.service.IssueHelpService;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.RecurrentTaskBuilder;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -19,35 +27,46 @@ import javax.inject.Inject;
 
 @Component(name = "com.elster.jupiter.issue.install", service = InstallService.class, property = "name=" + IssueService.COMPONENT_NAME, immediate = true)
 public class InstallServiceImpl implements InstallService {
+    private static final String ISSUE_OVERDUE_TASK_NAME = "IssueOverdueTask";
+    private static final String ISSUE_OVERDUE_TASK_SCHEDULE = "0 0/1 * 1/1 * ? *";
+    private static final int ISSUE_OVERDUE_TASK_RETRY_DELAY = 60;
+
     private volatile DataModel dataModel;
+    private volatile Thesaurus thesaurus;
     private volatile MessageService messageService;
     private volatile MeteringService meteringService;
     private volatile UserService userService;
+
+    private volatile TaskService taskService;
+
     private volatile IssueService issueService;
     private volatile IssueAssignmentService issueAssignmentService;
-
-    // TODO delete when events will be defined by MDC
-    private volatile IssueHelpService issueHelpService;
+    private volatile IssueCreationService issueCreationService;
 
     public InstallServiceImpl(){}
 
     @Inject
-    // TODO remove parameter when events will be defined by MDC
     public InstallServiceImpl(
             MessageService messageService,
             MeteringService meteringService,
+            TaskService taskService,
             UserService userService,
             IssueService issueService,
             IssueAssignmentService issueAssignmentService,
+            IssueCreationService issueCreationService,
             IssueMappingService issueMappingService,
-            IssueHelpService issueHelpService) {
+            NlsService nlsService) {
 
         setMessageService(messageService);
         setMeteringService(meteringService);
         setUserService(userService);
+        setNlsService(nlsService);
+
+        setTaskService(taskService);
+
         setIssueService(issueService);
         setIssueAssignmentService(issueAssignmentService);
-        setIssueHelpService(issueHelpService);
+        setIssueCreationService(issueCreationService);
         setIssueMappingService(issueMappingService);
 
         activate();
@@ -61,19 +80,40 @@ public class InstallServiceImpl implements InstallService {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
+                bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageService.class).toInstance(messageService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(UserService.class).toInstance(userService);
+
+                bind(TaskService.class).toInstance(taskService);
+
                 bind(IssueService.class).toInstance(issueService);
                 bind(IssueAssignmentService.class).toInstance(issueAssignmentService);
+                bind(IssueCreationService.class).toInstance(issueCreationService);
             }
         });
     }
     @Override
-    public void install() {
-        new Installer(dataModel, issueService, messageService).install(true);
-        // TODO delete when events will be defined by MDC
-        issueHelpService.setEventTopics();
+    public final void install() {
+        new Installer(dataModel, thesaurus, issueService, issueCreationService).install(true);
+        createIssueOverdueTask();
+    }
+
+
+    private void createIssueOverdueTask(){
+        DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get()
+                .createDestinationSpec(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DESTINATION, ISSUE_OVERDUE_TASK_RETRY_DELAY);
+        destination.activate();
+        destination.subscribe(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER);
+
+        RecurrentTaskBuilder taskBuilder = taskService.newBuilder();
+        taskBuilder.setName(ISSUE_OVERDUE_TASK_NAME);
+        taskBuilder.setCronExpression(ISSUE_OVERDUE_TASK_SCHEDULE);
+        taskBuilder.setDestination(destination);
+        taskBuilder.setPayLoad("payload");
+        taskBuilder.scheduleImmediately();
+        RecurrentTask task = taskBuilder.build();
+        task.save();
     }
 
     @Reference
@@ -97,11 +137,19 @@ public class InstallServiceImpl implements InstallService {
         this.issueAssignmentService = issueAssignmentService;
     }
     @Reference
-    public final void setIssueHelpService(IssueHelpService issueHelpService) {
-        this.issueHelpService = issueHelpService;
+    public final void setIssueCreationService(IssueCreationService issueCreationService) {
+        this.issueCreationService = issueCreationService;
     }
     @Reference
     public final void setIssueMappingService(IssueMappingService issueMappingService) {
         dataModel = IssueMappingServiceImpl.class.cast(issueMappingService).getDataModel();
+    }
+    @Reference
+    public final void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+    @Reference
+    public final void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
     }
 }

@@ -1,32 +1,9 @@
 package com.elster.jupiter.issue.share.entity;
 
-import com.elster.jupiter.orm.DataModel;
+public interface AssigneeRole extends IssueAssignee, Entity {
+    void setName(String name);
 
-import javax.inject.Inject;
+    String getDescription();
 
-public class AssigneeRole extends Entity implements AssigneeBaseInformation {
-
-    private String name;
-    private String description;
-
-    @Inject
-    public AssigneeRole(DataModel dataModel) {
-        super(dataModel);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    void setDescription(String description);
 }

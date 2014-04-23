@@ -2,30 +2,27 @@ package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.database.groups.GroupIssuesOperation;
-import com.elster.jupiter.issue.impl.event.EventConst;
+import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
+import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
+import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
+import com.elster.jupiter.issue.impl.records.assignee.AssigneeRoleImpl;
+import com.elster.jupiter.issue.impl.records.assignee.AssigneeTeamImpl;
+import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeTypes;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.GroupQueryBuilder;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.util.time.UtcInstant;
+import com.elster.jupiter.users.UserService;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.issue", service = IssueService.class)
 public class IssueServiceImpl implements IssueService {
@@ -33,18 +30,18 @@ public class IssueServiceImpl implements IssueService {
 
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
-    private volatile MeteringService meteringService;
+    private volatile UserService userService;
 
     public IssueServiceImpl() {
     }
 
     @Inject
-    public IssueServiceImpl(MeteringService meteringService,
-                            QueryService queryService,
+    public IssueServiceImpl(QueryService queryService,
+                            UserService userService,
                             IssueMappingService issueMappingService) {
         setQueryService(queryService);
-        setMeteringService(meteringService);
         setIssueMappingService(issueMappingService);
+        setUserService(userService);
     }
 
     @Reference
@@ -53,13 +50,13 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Reference
-    public final void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
+    public final void setIssueMappingService(IssueMappingService issueMappingService) {
+        dataModel = IssueMappingServiceImpl.class.cast(issueMappingService).getDataModel();
     }
 
     @Reference
-    public final void setIssueMappingService(IssueMappingService issueMappingService) {
-        dataModel = IssueMappingServiceImpl.class.cast(issueMappingService).getDataModel();
+    public final void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Override
@@ -71,7 +68,8 @@ public class IssueServiceImpl implements IssueService {
     public Optional<Issue> findIssue(long id, boolean searchInHistory) {
         Optional<Issue> issue = find(Issue.class, id);
         if (!issue.isPresent() && searchInHistory){
-            issue = Optional.of(Issue.class.cast(find(HistoricalIssue.class, id).orNull()));
+            Issue historicalIssue = Issue.class.cast(find(HistoricalIssue.class, id).orNull());
+            issue = historicalIssue != null ? Optional.<Issue>of(historicalIssue) : Optional.<Issue>absent();
         }
         return issue;
     }
@@ -92,6 +90,25 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
+    public Optional<IssueType> findIssueType(String uuid) {
+        return find(IssueType.class, uuid);
+    }
+
+    @Override
+    public IssueAssignee findIssueAssignee(String type, long id) {
+        AssigneeTypes assigneeType = AssigneeTypes.fromString(type);
+        if (assigneeType != null) {
+            return assigneeType.getAssignee(this, userService, id);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean checkIssueAssigneeType(String type) {
+        return AssigneeTypes.fromString(type) != null;
+    }
+
+    @Override
     public Optional<AssigneeRole> findAssigneeRole(long id) {
         return find(AssigneeRole.class, id);
     }
@@ -102,13 +119,8 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
-    public Issue createIssue() {
-        return dataModel.getInstance(Issue.class);
-    }
-
-    @Override
     public IssueStatus createStatus(String name, boolean isFinal) {
-        IssueStatus status = dataModel.getInstance(IssueStatus.class);
+        IssueStatus status = dataModel.getInstance(IssueStatusImpl.class);
         status.setName(name);
         status.setFinal(isFinal);
         status.save();
@@ -116,22 +128,31 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
-    public IssueReason createReason(String name, String topic) {
-        IssueReason reason = dataModel.getInstance(IssueReason.class);
+    public IssueReason createReason(String name, IssueType type) {
+        IssueReason reason = dataModel.getInstance(IssueReasonImpl.class);
         reason.setName(name);
-        reason.setTopic(topic);
+        reason.setIssueType(type);
         reason.save();
         return reason;
     }
 
     @Override
+    public IssueType createIssueType(String typeUuid, String typeName) {
+        IssueType issueType = dataModel.getInstance(IssueTypeImpl.class);
+        issueType.setUUID(typeUuid);
+        issueType.setName(typeName);
+        issueType.save();
+        return issueType;
+    }
+
+    @Override
     public AssigneeRole createAssigneeRole() {
-        return dataModel.getInstance(AssigneeRole.class);
+        return dataModel.getInstance(AssigneeRoleImpl.class);
     }
 
     @Override
     public AssigneeTeam createAssigneeTeam() {
-        return dataModel.getInstance(AssigneeTeam.class);
+        return dataModel.getInstance(AssigneeTeamImpl.class);
     }
 
     private <T extends Entity> Optional<T> find(Class<T> clazz, Object... key) {
@@ -146,54 +167,8 @@ public class IssueServiceImpl implements IssueService {
         return query;
     }
 
-
     @Override
     public List<GroupByReasonEntity> getIssueGroupList (GroupQueryBuilder builder) {
         return GroupIssuesOperation.init(builder, this.dataModel).execute();
-    }
-
-    @Override
-    public Optional<Issue> createIssue(Map<?, ?> map) {
-        String statusName = "open"; // TODO Hardcoded
-        String reasonTopic = String.class.cast(map.get(EventConst.EVENT_TOPICS));
-
-        IssueStatus status = null;
-        Query<IssueStatus> statusQuery = query(IssueStatus.class);
-        List<IssueStatus> statusList = statusQuery.select(where("name").isEqualToIgnoreCase(statusName));
-        if (statusList.isEmpty()){
-            LOG.severe("Issue creation failed due to unexpected status value value: " + statusName);
-            return Optional.absent();
-        } else {
-            status = statusList.get(0);
-        }
-
-        IssueReason reason = null;
-        Query<IssueReason> reasonQuery = query(IssueReason.class);
-        List<IssueReason> reasonList = reasonQuery.select(where("topic").isEqualToIgnoreCase(reasonTopic));
-        if (reasonList.isEmpty()){
-            LOG.severe("Issue creation failed due to unexpected reason topic value: " + reasonTopic);
-            return Optional.absent();
-        } else {
-            reason = reasonList.get(0);
-        }
-
-        Issue issue = createIssue();
-        issue.setReason(reason);
-        issue.setStatus(status);
-        //TODO specify due date setting rules
-        issue.setDueDate(new UtcInstant(new Date()));
-
-        String amrId = String.class.cast(map.get(EventConst.DEVICE_IDENTIFIER));
-        Optional<AmrSystem> amrSystemRef = meteringService.findAmrSystem(DatabaseConst.MDC_AMR_SYSTEM_ID);
-        if (amrSystemRef.isPresent()) {
-            Optional<Meter> meterRef = amrSystemRef.get().findMeter(amrId);
-            if (meterRef.isPresent()) {
-                issue.setDevice(meterRef.get());
-            }
-        }
-
-        issue.save();
-        issue.autoAssign();
-        return Optional.of(issue);
     }
 }

@@ -1,20 +1,21 @@
 package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.impl.records.CreateIssueEventImpl;
+import com.elster.jupiter.issue.share.entity.IssueEventType;
 import com.elster.jupiter.issue.share.service.IssueHelpService;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
 // TODO delete when events will be defined by MDC
+/**
+ * This class can be used only in test purpose while MDC hasn't correct implementation
+ */
+@Deprecated
 @Component(name = "com.elster.jupiter.issue.help", service = IssueHelpService.class)
 public class IssueHelpServiceImpl implements IssueHelpService {
     private volatile EventService eventService;
@@ -44,41 +45,11 @@ public class IssueHelpServiceImpl implements IssueHelpService {
     }
 
     @Override
-    public void setEventTopics() {
-        for (IssueEventType eventType : IssueEventType.values()) {
-            try {
-                eventType.install(eventService);
-            } catch (Exception e) {
-                System.out.println("Could not create event type : " + eventType.name());
-            }
+    public void postEvent(String topic, String eventIdentifier){
+        IssueEventType type = IssueEventType.getEventTypeByTopic(topic);
+        if (type == null) {
+            type = IssueEventType.DEVICE_CONNECTION_FAILURE;
         }
-    }
-
-    @Override
-    public void getEvent() {
-        eventService.postEvent(IssueEventType.DEVICE_COMMUNICATION_FAILURE.topic(), new CreateIssueEvent());
-    }
-
-    @Override
-    public Optional<Issue> createTestIssue(long statusId, long reasonId, String deviceStr, long dueDate){
-        IssueStatus status = issueService.findStatus(statusId).orNull();
-        IssueReason reason = issueService.findReason(reasonId).orNull();
-
-        Issue issue = issueService.createIssue();
-        issue.setStatus(status);
-        issue.setReason(reason);
-        issue.setDueDate(new UtcInstant(dueDate));
-
-        Optional<AmrSystem> amrSystemRef = meteringService.findAmrSystem(1);
-        if (amrSystemRef.isPresent()) {
-            Optional<Meter> meterRef =  amrSystemRef.get().findMeter(deviceStr);
-            if(meterRef.isPresent()) {
-                issue.setDevice(meterRef.get());
-            }
-        }
-
-        issue.save();
-        issue.autoAssign();
-        return Optional.of(issue);
+        eventService.postEvent(type.topic(), new CreateIssueEventImpl(type.topic(), eventIdentifier));
     }
 }

@@ -1,10 +1,10 @@
 package com.elster.jupiter.issue.share.service;
 
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.google.common.base.Optional;
-
+//TODO delete this class when events will be sent by MDC
+/**
+ * This class can be used only in test purpose while MDC hasn't correct implementation
+ */
+@Deprecated
 public interface IssueHelpService {
-    void setEventTopics();
-    void getEvent();
-    Optional<Issue> createTestIssue(long statusId, long reasonId, String deviceStr, long dueDate);
+    void postEvent(String topic, String eventIdentifier);
 }

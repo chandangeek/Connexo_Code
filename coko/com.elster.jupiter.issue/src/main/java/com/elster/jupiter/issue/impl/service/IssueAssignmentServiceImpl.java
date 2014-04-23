@@ -1,12 +1,17 @@
-package com.elster.jupiter.issue.impl.drools;
+package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.impl.service.IssueMappingServiceImpl;
-import com.elster.jupiter.issue.share.entity.Rule;
+import com.elster.jupiter.issue.impl.module.DroolsValidationException;
+import com.elster.jupiter.issue.impl.records.AssignmentRuleImpl;
+import com.elster.jupiter.issue.share.entity.AssignmentRule;
+import com.elster.jupiter.issue.share.entity.IssueForAssign;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -45,6 +50,7 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
     public static final Logger LOG = Logger.getLogger(IssueAssignmentServiceImpl.class.getName());
 
     private volatile DataModel dataModel;
+    private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
 
     private volatile KnowledgeBase knowledgeBase;
@@ -63,6 +69,7 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
             KnowledgeBuilderFactoryService knowledgeBuilderFactoryService,
             KnowledgeBaseFactoryService knowledgeBaseFactoryService,
             KieResources resourceFactoryService,
+            NlsService nlsService,
             QueryService queryService,
             ThreadPrincipalService threadPrincipalService,
             TransactionService transactionService,
@@ -70,6 +77,7 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
         setKnowledgeBaseFactoryService(knowledgeBaseFactoryService);
         setKnowledgeBuilderFactoryService(knowledgeBuilderFactoryService);
         setResourceFactoryService(resourceFactoryService);
+        setNlsService(nlsService);
         setQueryService(queryService);
         setThreadPrincipalService(threadPrincipalService);
         setTransactionService(transactionService);
@@ -104,19 +112,23 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
     public final void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
     }
+    @Reference
+    public final void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
+    }
 
     private boolean createKnowledgeBase() {
         try {
             KnowledgeBuilderConfiguration kbConf = knowledgeBuilderFactoryService.newKnowledgeBuilderConfiguration(null, getClass().getClassLoader());
 
             KnowledgeBuilder kbuilder = knowledgeBuilderFactoryService.newKnowledgeBuilder(kbConf);
-            List<Rule> allRules = getAssignRules();
-            for (Rule rule : allRules) {
+            List<AssignmentRule> allRules = getAssignRules();
+            for (AssignmentRule rule : allRules) {
                 kbuilder.add(resourceFactoryService.newByteArrayResource(rule.getRuleData()), ResourceType.DRL);
             }
 
             if (kbuilder.hasErrors()) {
-                throw new DroolsValidationException(MessageSeeds.ISSUE_DROOLS_VALIDATION, kbuilder.getErrors().toString());
+                throw new DroolsValidationException(thesaurus, kbuilder.getErrors().toString());
             }
 
             KieBaseConfiguration kbaseConf = knowledgeBaseFactoryService.newKnowledgeBaseConfiguration(null, getClass().getClassLoader(), ProjectClassLoader.class.getClassLoader());
@@ -130,10 +142,10 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
         return true;
     }
 
-    private List<Rule> getAssignRules() {
-        List<Rule> ruleList = null;
+    private List<AssignmentRule> getAssignRules() {
+        List<AssignmentRule> ruleList = null;
         try {
-            ruleList = dataModel.query(Rule.class).select(where("enabled").isEqualTo(Boolean.TRUE));
+            ruleList = dataModel.query(AssignmentRule.class).select(where("enabled").isEqualTo(Boolean.TRUE));
         } catch (UnderlyingSQLFailedException sqlEx) {
             throw new IllegalStateException("Rule store is not available yet");
         }
@@ -141,13 +153,13 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
     }
 
     @Override
-    public Optional<Rule> findAssignmentRule(long id) {
-        return queryService.wrap(dataModel.query(Rule.class)).get(id);
+    public Optional<AssignmentRule> findAssignmentRule(long id) {
+        return queryService.wrap(dataModel.query(AssignmentRule.class)).get(id);
     }
 
     @Override
-    public Query<Rule> getAssignmentRuleQuery(Class<?>... eagers) {
-        return queryService.wrap(dataModel.query(Rule.class, eagers));
+    public Query<AssignmentRule> getAssignmentRuleQuery(Class<?>... eagers) {
+        return queryService.wrap(dataModel.query(AssignmentRule.class, eagers));
     }
 
     @Override
@@ -191,7 +203,7 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
         if (absolutePath != null) {
             try {
                 byte[] source = Files.readAllBytes(Paths.get(absolutePath));
-                Rule rule = dataModel.getInstance(Rule.class);
+                AssignmentRule rule = dataModel.getInstance(AssignmentRuleImpl.class);
                 rule.setTitle(absolutePath);
                 rule.setDescription("Some description");
                 rule.setRuleData(Charset.defaultCharset().decode(ByteBuffer.wrap(source)).toString());

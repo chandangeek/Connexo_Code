@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.impl.database.groups;
 
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
+import com.elster.jupiter.issue.impl.records.GroupByReasonEntityImpl;
 import com.elster.jupiter.issue.share.entity.BaseIssue;
 import com.elster.jupiter.issue.share.entity.GroupByReasonEntity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
@@ -63,7 +64,7 @@ public abstract class GroupIssuesOperation{
             PreparedStatement groupingStatement = buildStatement(conn, sql);
             try (ResultSet rs = groupingStatement.executeQuery()) {
                 while (rs.next()) {
-                    groups.add(new GroupByReasonEntity(rs.getLong(GROUP_ID), rs.getString(GROUP_TITLE), rs.getLong(GROUP_COUNT)));
+                    groups.add(new GroupByReasonEntityImpl(rs.getLong(GROUP_ID), rs.getString(GROUP_TITLE), rs.getLong(GROUP_COUNT)));
                 }
             }
         } catch (SQLException sqlEx){

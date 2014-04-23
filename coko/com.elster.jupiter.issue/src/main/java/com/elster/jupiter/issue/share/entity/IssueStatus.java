@@ -1,32 +1,13 @@
 package com.elster.jupiter.issue.share.entity;
 
 
-import com.elster.jupiter.orm.DataModel;
+public interface IssueStatus extends Entity {
 
-import javax.inject.Inject;
+    String getName();
 
-public class IssueStatus extends Entity {
-    private String name;
-    private boolean isFinal;
+    void setName(String name);
 
-    @Inject
-    public IssueStatus(DataModel dataModel) {
-        super(dataModel);
-    }
+    boolean isFinal();
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isFinal() {
-        return isFinal;
-    }
-
-    public void setFinal(boolean isFinal) {
-        this.isFinal = isFinal;
-    }
+    void setFinal(boolean isFinal);
 }

@@ -1,32 +1,26 @@
-package com.elster.jupiter.issue.impl.drools;
+package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueAssigneeType;
+import com.elster.jupiter.issue.share.entity.IssueForAssign;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.parties.Party;
 import com.google.common.base.Optional;
 
 import java.util.Date;
 
-public class IssueForAssign {
-    public static final byte PROCESSED = 1;
-
+public class IssueForAssignImpl implements IssueForAssign{
     private long id;
     private long version;
 
     // Fields for check
-    private byte status = 0;
+    private boolean isProcessed = false;
     private String outageRegion;
     private String customer;
     private String reason;
 
-    // Fields which will be modified by drools engine
-    private IssueAssigneeType assigneeType;
-    private long assigneeId;
-
     private Issue issue;
 
-    public IssueForAssign(Issue issue) {
+    public IssueForAssignImpl(Issue issue) {
         if (issue == null) {
             throw new IllegalArgumentException("Issue for wrapping can't be null!");
         }
@@ -45,6 +39,7 @@ public class IssueForAssign {
         }
     }
 
+    @Override
     public long getId() {
         return id;
     }
@@ -53,6 +48,7 @@ public class IssueForAssign {
         this.id = id;
     }
 
+    @Override
     public long getVersion() {
         return version;
     }
@@ -61,14 +57,7 @@ public class IssueForAssign {
         this.version = version;
     }
 
-    public byte getStatus() {
-        return status;
-    }
-
-    public void setStatus(byte status) {
-        this.status = status;
-    }
-
+    @Override
     public String getOutageRegion() {
         return outageRegion;
     }
@@ -77,6 +66,7 @@ public class IssueForAssign {
         this.outageRegion = outageRegion;
     }
 
+    @Override
     public String getCustomer() {
         return customer;
     }
@@ -85,6 +75,7 @@ public class IssueForAssign {
         this.customer = customer;
     }
 
+    @Override
     public String getReason() {
         return reason;
     }
@@ -93,25 +84,15 @@ public class IssueForAssign {
         this.reason = reason;
     }
 
-    public IssueAssigneeType getAssigneeType() {
-        return assigneeType;
+    @Override
+    public boolean isProcessed(){
+        return isProcessed;
     }
 
-    public void setAssigneeType(IssueAssigneeType assigneeType) {
-        this.assigneeType = assigneeType;
-    }
-
-    public long getAssigneeId() {
-        return assigneeId;
-    }
-
-    public void setAssigneeId(long assigneeId) {
-        this.assigneeId = assigneeId;
-    }
-
-    public void process(){
-        this.status = PROCESSED;
-        issue.assignTo(getAssigneeType(), getAssigneeId());
+    @Override
+    public void assignTo(String type, long id){
+        isProcessed = true;
+        issue.assignTo(type, id);
         issue.update();
     }
 }

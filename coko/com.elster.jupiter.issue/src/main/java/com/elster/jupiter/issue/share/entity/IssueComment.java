@@ -1,49 +1,18 @@
 package com.elster.jupiter.issue.share.entity;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
 
-import javax.inject.Inject;
+public interface IssueComment extends Entity {
 
-public class IssueComment extends Entity {
-    private String comment;
-    private long issueId;
-    private Reference<User> user = ValueReference.absent();
+    User getUser();
 
-    @Inject
-    public IssueComment(DataModel dataModel) {
-        super(dataModel);
-    }
+    void setUser(User user);
 
-    public void init(long issueId, String comment, User author){
-        setIssueId(issueId);
-        setComment(comment);
-        setUser(author);
-    }
+    long getIssueId();
 
-    public User getUser() {
-        return user.orNull();
-    }
+    void setIssueId(long issueId);
 
-    public void setUser(User user) {
-        this.user.set(user);
-    }
+    String getComment();
 
-    public long getIssueId() {
-        return issueId;
-    }
-
-    public void setIssueId(long issueId) {
-        this.issueId = issueId;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
+    void setComment(String comment);
 }

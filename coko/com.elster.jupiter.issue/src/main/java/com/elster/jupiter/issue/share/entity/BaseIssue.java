@@ -1,112 +1,35 @@
 package com.elster.jupiter.issue.share.entity;
 
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.UtcInstant;
 
-import javax.inject.Inject;
+public interface BaseIssue extends Entity {
 
-public class BaseIssue extends Entity{
-    private UtcInstant dueDate;
-    private Reference<IssueReason> reason = ValueReference.absent();
-    private Reference<IssueStatus> status = ValueReference.absent();
+    String getTitle();
 
-    private IssueAssignee assignee;
-    private String issueType = "C";
+    IssueReason getReason();
 
-    //work around
-    private IssueAssigneeType type;
-    private Reference<User> user = ValueReference.absent();
-    private Reference<AssigneeTeam> team = ValueReference.absent();
-    private Reference<AssigneeRole> role = ValueReference.absent();
+    void setReason(IssueReason reason);
 
-    private Reference<EndDevice> device = ValueReference.absent();
+    IssueStatus getStatus();
 
-    @Inject
-    public BaseIssue(DataModel dataModel) {
-        super(dataModel);
-    }
+    void setStatus(IssueStatus status);
 
-    public String getTitle() {
-        String title = getReason().getName();
-        EndDevice endDevice = getDevice();
-        if (endDevice != null){
-            StringBuilder titleWithDevice = new StringBuilder(title);
-            titleWithDevice.append(" to ");
-            titleWithDevice.append(endDevice.getName()).append(" ");
-            titleWithDevice.append(endDevice.getSerialNumber());
-            title = titleWithDevice.toString();
-        }
-        return title;
-    }
+    UtcInstant getDueDate();
 
-    public IssueReason getReason() {
-        return this.reason.orNull();
-    }
+    void setDueDate(UtcInstant dueDate);
 
-    public void setReason(IssueReason reason) {
-        this.reason.set(reason);
-    }
+    EndDevice getDevice();
 
-    public IssueStatus getStatus() {
-        return this.status.get();
-    }
+    void setDevice(EndDevice device);
 
-    public void setStatus(IssueStatus status) {
-        this.status.set(status);
-    }
+    CreationRule getRule();
 
+    void setRule(CreationRule rule);
 
-    public UtcInstant getDueDate() {
-        return dueDate;
-    }
+    boolean isOverdue();
 
-    public void setDueDate(UtcInstant dueDate) {
-        this.dueDate = dueDate;
-    }
+    void setOverdue(boolean overdue);
 
-
-    public EndDevice getDevice() {
-        return this.device.orNull();
-    }
-
-    public void setDevice(EndDevice device){
-        this.device.set(device);
-    }
-
-    public IssueAssignee getAssignee() {
-        if (assignee == null && type != null){
-            assignee = new IssueAssignee();
-            assignee.setType(type);
-            switch (type){
-                case USER:
-                    assignee.setUser(user.orNull());
-                    break;
-                case TEAM:
-                    assignee.setTeam(team.orNull());
-                    break;
-                case ROLE:
-                    assignee.setRole(role.orNull());
-                    break;
-            }
-        }
-        return assignee;
-    }
-
-    public void setAssignee(IssueAssignee assignee){
-        this.assignee = null;
-        if (assignee != null){
-            type = assignee.getType();
-            user.set(assignee.getUser());
-            role.set(assignee.getRole());
-            team.set(assignee.getTeam());
-        }
-    }
-
-    public String getIssueType() {
-        return issueType;
-    }
+    IssueAssignee getAssignee();
 }

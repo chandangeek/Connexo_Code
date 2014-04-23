@@ -1,31 +1,12 @@
 package com.elster.jupiter.issue.share.entity;
 
-import com.elster.jupiter.orm.DataModel;
+public interface IssueReason extends Entity {
 
-import javax.inject.Inject;
+    String getName();
 
-public class IssueReason extends Entity {
-    private String name;
-    private String topic;
+    void setName(String name);
 
-    @Inject
-    public IssueReason(DataModel dataModel) {
-        super(dataModel);
-    }
+    IssueType getIssueType();
 
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getTopic() {
-        return topic;
-    }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
+    void setIssueType(IssueType type);
 }

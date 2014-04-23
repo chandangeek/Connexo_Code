@@ -1,73 +1,21 @@
 package com.elster.jupiter.issue.share.entity;
 
-import com.elster.jupiter.users.User;
+public interface IssueAssignee {
 
-public class IssueAssignee {
+    long getId();
 
-    private IssueAssigneeType type;
-    private User user;
-    private AssigneeRole role;
-    private AssigneeTeam team;
+    String getType();
 
-    public static IssueAssignee fromUser(User user){
-        if (user != null) {
-            IssueAssignee assignee = new IssueAssignee();
-            assignee.setType(IssueAssigneeType.USER);
-            assignee.setUser(user);
-            return assignee;
-        }
-        return null;
-    }
+    String getName();
 
-    public static IssueAssignee fromRole(AssigneeRole role){
-        if (role != null) {
-            IssueAssignee assignee = new IssueAssignee();
-            assignee.setType(IssueAssigneeType.ROLE);
-            assignee.setRole(role);
-            return assignee;
-        }
-        return null;
-    }
+    long getVersion();
 
-    public static IssueAssignee fromTeam(AssigneeTeam team){
-        if (team != null) {
-            IssueAssignee assignee = new IssueAssignee();
-            assignee.setType(IssueAssigneeType.TEAM);
-            assignee.setTeam(team);
-            return assignee;
-        }
-        return null;
-    }
+    public static class Types {
+        private Types(){}
 
-    public IssueAssigneeType getType() {
-        return type;
-    }
+        public static final String USER = "USER";
+        public static final String GROUP = "GROUP";
+        public static final String ROLE = "ROLE";
 
-    public void setType(IssueAssigneeType type) {
-        this.type = type;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public AssigneeRole getRole() {
-        return role;
-    }
-
-    public void setRole(AssigneeRole role) {
-        this.role = role;
-    }
-
-    public AssigneeTeam getTeam() {
-        return team;
-    }
-
-    public void setTeam(AssigneeTeam team) {
-        this.team = team;
     }
 }
