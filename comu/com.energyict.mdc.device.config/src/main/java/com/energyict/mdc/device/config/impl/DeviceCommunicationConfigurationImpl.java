@@ -537,6 +537,9 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     private DeviceCommunicationConfigurationImpl init(DeviceConfiguration deviceConfiguration) {
         this.deviceConfiguration.set(deviceConfiguration);
+        for (DeviceProtocolDialect deviceProtocolDialect : deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getDeviceProtocolDialects()) {
+            findOrCreateProtocolDialectConfigurationProperties(deviceProtocolDialect);
+        }
         return this;
     }
 
@@ -685,8 +688,13 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     }
 
     @Override
-    public ProtocolDialectConfigurationProperties createProtocolDialectConfigurationProperties(String name, DeviceProtocolDialect protocolDialect) {
-        ProtocolDialectConfigurationProperties props = ProtocolDialectConfigurationPropertiesImpl.from(dataModel, this, name, protocolDialect);
+    public ProtocolDialectConfigurationProperties findOrCreateProtocolDialectConfigurationProperties(DeviceProtocolDialect protocolDialect) {
+        for (ProtocolDialectConfigurationProperties candidate : configurationPropertiesList) {
+            if (candidate.getDeviceProtocolDialect().equals(protocolDialect)) {
+                return candidate;
+            }
+        }
+        ProtocolDialectConfigurationProperties props = ProtocolDialectConfigurationPropertiesImpl.from(dataModel, this, protocolDialect);
         configurationPropertiesList.add(props);
         return props;
     }

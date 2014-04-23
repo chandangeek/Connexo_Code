@@ -209,12 +209,12 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         dataModel.mapper(ProtocolDialectConfigurationProperties.class).remove(this);
     }
 
-    static ProtocolDialectConfigurationProperties from(DataModel dataModel, DeviceCommunicationConfiguration configuration, String name, DeviceProtocolDialect protocolDialect) {
-        return dataModel.getInstance(ProtocolDialectConfigurationPropertiesImpl.class).init(configuration, name, protocolDialect);
+    static ProtocolDialectConfigurationProperties from(DataModel dataModel, DeviceCommunicationConfiguration configuration, DeviceProtocolDialect protocolDialect) {
+        return dataModel.getInstance(ProtocolDialectConfigurationPropertiesImpl.class).init(configuration, protocolDialect);
     }
 
-    ProtocolDialectConfigurationPropertiesImpl init(DeviceCommunicationConfiguration configuration, String name, DeviceProtocolDialect protocolDialect) {
-        this.setName(name);
+    ProtocolDialectConfigurationPropertiesImpl init(DeviceCommunicationConfiguration configuration, DeviceProtocolDialect protocolDialect) {
+        this.setName(protocolDialect.getDeviceProtocolDialectName());
         this.deviceCommunicationConfiguration.set(configuration);
         this.protocolDialect = protocolDialect;
         this.protocolDialectName = protocolDialect.getDeviceProtocolDialectName();

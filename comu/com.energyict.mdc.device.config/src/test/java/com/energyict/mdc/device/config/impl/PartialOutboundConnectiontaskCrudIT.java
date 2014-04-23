@@ -285,7 +285,6 @@ public class PartialOutboundConnectiontaskCrudIT {
         verify(eventService.getSpy()).postEvent(EventType.PARTIAL_OUTBOUND_CONNECTION_TASK_CREATED.topic(), outboundConnectionTask);
     }
 
-    //            partialInboundConnectionTask.setName("Changed");
     @Test
     public void testUpdate() {
 
@@ -338,6 +337,55 @@ public class PartialOutboundConnectiontaskCrudIT {
         assertThat(partialOutboundConnectionTask.getName()).isEqualTo("Changed");
 
         verify(eventService.getSpy()).postEvent(EventType.PARTIAL_OUTBOUND_CONNECTION_TASK_UPDATED.topic(), task);
+
+    }
+
+    @Test
+    public void testUpdateNextExecutionSpecs() {
+
+        PartialScheduledConnectionTaskImpl outboundConnectionTask;
+        DeviceConfiguration deviceConfiguration;
+        try (TransactionContext context = transactionService.getContext()) {
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+            deviceType.save();
+
+            deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration.save();
+
+            outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(60), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                    .comPortPool(outboundComPortPool)
+                    .comWindow(COM_WINDOW)
+                    .nextExecutionSpec().temporalExpression(TimeDuration.minutes(120), TimeDuration.minutes(60)).set()
+                    .asDefault(true).build();
+            deviceConfiguration.save();
+
+            context.commit();
+        }
+
+        deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId());
+
+        PartialScheduledConnectionTaskImpl task;
+        try (TransactionContext context = transactionService.getContext()) {
+            task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
+            NextExecutionSpecsImpl instance = (NextExecutionSpecsImpl) deviceConfigurationService.newNextExecutionSpecs(null);
+            instance.setTemporalExpression(new TemporalExpression(TimeDuration.minutes(60), TimeDuration.minutes(60)));
+            instance.save();
+            task.setNextExecutionSpecs(instance);
+            task.save();
+
+            context.commit();
+        }
+
+        Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
+        assertThat(found).isPresent();
+
+        PartialConnectionTask partialConnectionTask = found.get();
+
+        assertThat(partialConnectionTask).isInstanceOf(PartialScheduledConnectionTaskImpl.class);
+
+        PartialScheduledConnectionTaskImpl partialOutboundConnectionTask = (PartialScheduledConnectionTaskImpl) partialConnectionTask;
+
+        assertThat(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(new TemporalExpression(TimeDuration.minutes(60), TimeDuration.minutes(60)));
 
     }
 
