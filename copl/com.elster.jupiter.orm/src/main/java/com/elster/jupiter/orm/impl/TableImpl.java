@@ -613,7 +613,7 @@ public class TableImpl<T> implements Table<T> {
         }
         for (Class<?> implementation : implementations.values()) {
             if (!api.isAssignableFrom(implementation)) {
-                throw new IllegalArgumentException("" + implementation + " does not implement " + api);
+                throw new IllegalArgumentException("Table : " + getName() + " : " + implementation + " does not implement " + api);
             }
         }
         this.mapperType = new InheritanceDataMapperType<>(this, implementations);
