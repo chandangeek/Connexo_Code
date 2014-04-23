@@ -11,11 +11,11 @@ import java.text.MessageFormat;
 public final class NoSuchPropertyException extends BaseException {
 
     public NoSuchPropertyException(Object bean, String property) {
-        super(MessageSeeds.NO_SUCH_PROPERTY, MessageFormat.format("Bean ''{0}'' has no property named ''{1}''.", bean, property));
+        super(MessageSeeds.NO_SUCH_PROPERTY, bean, property);
     }
 
     public NoSuchPropertyException(Object bean, String property, Throwable e) {
-        super(MessageSeeds.NO_SUCH_PROPERTY, MessageFormat.format("Bean ''{0}'' has no property named ''{1}''.", bean, property), e);
+        super(MessageSeeds.NO_SUCH_PROPERTY, e, bean, property);
     }
 
 }
