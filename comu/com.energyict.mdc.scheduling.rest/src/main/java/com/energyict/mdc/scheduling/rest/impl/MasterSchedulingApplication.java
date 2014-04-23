@@ -23,10 +23,10 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.sch.rest", service = Application.class, immediate = true, property = {"alias=/sch"})
+@Component(name = "com.energyict.sch.rest", service = Application.class, immediate = true, property = {"alias=/scr"})
 public class MasterSchedulingApplication extends Application {
 
-    public static final String COMPONENT_NAME = "SCH";
+    public static final String COMPONENT_NAME = "SCR";
 
     private volatile TransactionService transactionService;
     private volatile MeteringService meteringService;
