@@ -23,135 +23,135 @@ import java.util.Objects;
 import static com.elster.jupiter.util.Checks.is;
 
 public class ForeignKeyConstraintImpl extends TableConstraintImpl implements ForeignKeyConstraint {
-	// persistent fields
-	private DeleteRule deleteRule;
-	private String fieldName;
-	private String reverseFieldName;
-	private String reverseOrderFieldName;
-	private String reverseCurrentFieldName;
-	private boolean composition;
-	
-	private final Reference<TableImpl<?>> referencedTable = ValueReference.absent();
-	
-	// transient field for reverse mapping
-	private AssociationKind associationKind;
-	
-	@Override
-	ForeignKeyConstraintImpl init(TableImpl<?> table, String name) {
+    // persistent fields
+    private DeleteRule deleteRule;
+    private String fieldName;
+    private String reverseFieldName;
+    private String reverseOrderFieldName;
+    private String reverseCurrentFieldName;
+    private boolean composition;
+
+    private final Reference<TableImpl<?>> referencedTable = ValueReference.absent();
+
+    // transient field for reverse mapping
+    private AssociationKind associationKind;
+
+    @Override
+    ForeignKeyConstraintImpl init(TableImpl<?> table, String name) {
         if (is(name).empty()) {
             throw new IllegalTableMappingException("Table " + table.getName() + " : foreign key can not have an empty name.");
         }
-		super.init(table, name);
-		return this;
-	}
-	
-	static ForeignKeyConstraintImpl from(TableImpl<?> table, String name) {
-		return new ForeignKeyConstraintImpl().init(table,name);
-	}
+        super.init(table, name);
+        return this;
+    }
 
-	private void setReferencedTable(TableImpl<?> table) {
-		this.referencedTable.set(table);
-	}
-	
-	@Override
-	public TableImpl<?> getReferencedTable() {
+    static ForeignKeyConstraintImpl from(TableImpl<?> table, String name) {
+        return new ForeignKeyConstraintImpl().init(table, name);
+    }
+
+    private void setReferencedTable(TableImpl<?> table) {
+        this.referencedTable.set(table);
+    }
+
+    @Override
+    public TableImpl<?> getReferencedTable() {
         if (!referencedTable.isPresent()) {
             throw new IllegalTableMappingException("Foreign key " + getName() + " on table " + getTable().getName() + " is missing a referenced table.");
         }
-		return referencedTable.get();
-	}
-	
-	@Override
-	public DeleteRule getDeleteRule() {
-		return deleteRule;
-	}
-	
-	@Override 
-	public String getFieldName() {
-		return fieldName;
-	}
-	
-	@Override 
-	public String getReverseFieldName() {
-		return reverseFieldName;
-	}
-	
-	@Override 
-	public String getReverseCurrentFieldName() {
-		return reverseCurrentFieldName;
-	}
-	
-	@Override
-	public String getReverseOrderFieldName() {
-		return reverseOrderFieldName;
-	}
+        return referencedTable.get();
+    }
 
-	@Override
-	public boolean isComposition() {
-		return composition;
-	}
-	
-	@Override
-	public boolean isForeignKey() {
-		return true;
-	}	
-	
-	boolean needsIndex() {
-		for (TableConstraint constraint : getTable().getConstraints()) {
-			if (constraint.isPrimaryKey() || constraint.isUnique()) {
-				if (this.isSubset(constraint)) {
-					return false;
-				}
- 			}
-		}
-		return true;
-	}
-	
-	private boolean isSubset(TableConstraint other) {
-		if (other.getColumns().size() < this.getColumns().size()) {
-			return false;
-		}
-		for (int i = 0 ; i < getColumns().size() ; i++) {
-			if (!this.getColumns().get(i).equals(other.getColumns().get(i))) {
-				return false;
-			}
-		}
-		return true;
-	}
+    @Override
+    public DeleteRule getDeleteRule() {
+        return deleteRule;
+    }
 
-	@Override
-	String getTypeString() {
-		return "foreign key";
-	}
-	
-	@Override
-	void appendDdlTrailer(StringBuilder sb) {
-		sb.append(" references ");
-		sb.append(getReferencedTable().getQualifiedName());
-		sb.append(" ");
-		sb.append(getDeleteRule().getDdl());
-	}
-	
-	@Override
-	public boolean isOneToOne() {
-		for (TableConstraint constraint : getTable().getConstraints()) {
-			if ((constraint.isUnique() || constraint.isPrimaryKey()) && getColumns().containsAll(constraint.getColumns())) {
-				return true;				
-			}
-		}
-		return false;
-	}
-	
-	@Override
-	void validate() {
-		super.validate();
-		Objects.requireNonNull(getReferencedTable());
-		Objects.requireNonNull(deleteRule);
-		Objects.requireNonNull(fieldName);
-		if (!deleteRule.equals(DeleteRule.RESTRICT) && getTable().hasJournal()) {
-			throw new IllegalTableMappingException("Table : " + getTable().getName() + " : A journalled table cannot have a foreign key with cascade or set null delete rule");
-		}
-	}
+    @Override
+    public String getFieldName() {
+        return fieldName;
+    }
+
+    @Override
+    public String getReverseFieldName() {
+        return reverseFieldName;
+    }
+
+    @Override
+    public String getReverseCurrentFieldName() {
+        return reverseCurrentFieldName;
+    }
+
+    @Override
+    public String getReverseOrderFieldName() {
+        return reverseOrderFieldName;
+    }
+
+    @Override
+    public boolean isComposition() {
+        return composition;
+    }
+
+    @Override
+    public boolean isForeignKey() {
+        return true;
+    }
+
+    boolean needsIndex() {
+        for (TableConstraint constraint : getTable().getConstraints()) {
+            if (constraint.isPrimaryKey() || constraint.isUnique()) {
+                if (this.isSubset(constraint)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean isSubset(TableConstraint other) {
+        if (other.getColumns().size() < this.getColumns().size()) {
+            return false;
+        }
+        for (int i = 0; i < getColumns().size(); i++) {
+            if (!this.getColumns().get(i).equals(other.getColumns().get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    String getTypeString() {
+        return "foreign key";
+    }
+
+    @Override
+    void appendDdlTrailer(StringBuilder sb) {
+        sb.append(" references ");
+        sb.append(getReferencedTable().getQualifiedName());
+        sb.append(" ");
+        sb.append(getDeleteRule().getDdl());
+    }
+
+    @Override
+    public boolean isOneToOne() {
+        for (TableConstraint constraint : getTable().getConstraints()) {
+            if ((constraint.isUnique() || constraint.isPrimaryKey()) && getColumns().containsAll(constraint.getColumns())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    void validate() {
+        super.validate();
+        Objects.requireNonNull(getReferencedTable());
+        Objects.requireNonNull(deleteRule);
+        Objects.requireNonNull(fieldName);
+        if (!deleteRule.equals(DeleteRule.RESTRICT) && getTable().hasJournal()) {
+            throw new IllegalTableMappingException("Table : " + getTable().getName() + " : A journalled table cannot have a foreign key with cascade or set null delete rule");
+        }
+    }
 
     @Override
     public boolean matches(TableConstraintImpl other) {
@@ -168,213 +168,213 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
         return true;
     }
 
-    public Object domainValue(Column column , Object target) {
-		Reference<?> reference = (Reference<?>) getTable().getDomainMapper().get(target, getFieldName());
-		if (reference == null || !reference.isPresent()) {
-			return null;
-		}
-		int index = getColumns().indexOf(column);
-		return extractKey(reference).get(index);
-	}
-	
-	private KeyValue extractKey(Reference<?> reference) {
-		if (reference instanceof PersistentReference<?>) {
-			return ((PersistentReference<?>) reference).getKey();
-		} else {
-			return getReferencedTable().getPrimaryKeyConstraint().getColumnValues(reference.get());
-		}
-	}
-	
-	Optional<Type> getReferenceParameterType() {
-		Field field = getTable().getField(fieldName);
-		if (field == null || field.getType() != Reference.class) {
-			return Optional.absent();
-		} else {
-			return Optional.of(((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]);
-		} 
-	}
-	
-	Optional<Type> getListParameterType() {
-		if (getReverseFieldName() == null) {
-			return Optional.absent();
-		}
-		Field field = getReferencedTable().getField(getReverseFieldName());
-		if (field == null || field.getType() != List.class) {
-			return Optional.absent();
-		} else {
-			return Optional.of(((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]);
-		}
-	}
-	
-	private DomainMapper getDomainMapper() {
-		return getTable().getDomainMapper();
-	}
-	
-	Field referenceField(Class<?> api) {
-		return getDomainMapper().getField(api, getFieldName());
-	}
-	
-	public Field reverseField(Class<?> api) {
-		return getReferencedTable().getDomainMapper().getField(api, getReverseFieldName());
-	}
-	
-	public DataMapperImpl<?> reverseMapper(Field field) {
-		Class<?> clazz = DomainMapper.extractDomainClass(field);
-		return getTable().getDataMapper(clazz);
-	}
-	
-	void prepare() {
-		if (reverseFieldName != null) {
-			associationKind = AssociationKind.from(this);
-		}
-	}
+    public Object domainValue(Column column, Object target) {
+        Reference<?> reference = (Reference<?>) getTable().getDomainMapper().get(target, getFieldName());
+        if (reference == null || !reference.isPresent()) {
+            return null;
+        }
+        int index = getColumns().indexOf(column);
+        return extractKey(reference).get(index);
+    }
 
-	void setField(Object target , KeyValue keyValue) {
-		Field field = referenceField(target.getClass());
-		if (field != null && Reference.class.isAssignableFrom(field.getType())) {
-			Class<?> api = DomainMapper.extractDomainClass(field);
-			DataMapperImpl<?> dataMapper = getReferencedTable().getDataMapper(api);
-			Reference<?> reference = new PersistentReference<>(keyValue, dataMapper);
-			try {
-				field.set(target, reference);
-			} catch (ReflectiveOperationException ex) {
-				throw new MappingException(ex);
-			}
-		}
-	}
-	
-	public void setReverseField(Object target) {
-		doSetReverseField(target,Optional.absent());
-	}
-	
-	public void setReverseField(Object target, Object initialValue) {
-		doSetReverseField(target,Optional.fromNullable(initialValue));
-	}
-	
-	private void doSetReverseField(Object target,Optional<?> initialValue) {
-		Field field = reverseField(target.getClass());
-		if (field == null) {
-			return;
-		}
-		Object value = associationKind.create(this, field, target,initialValue);
-		try {
-			field.set(target, value);
-		} catch (ReflectiveOperationException ex) {
-			throw new MappingException(ex);
-		}
-	}
-	
-	List<?> added(Object target, boolean needsRefresh) {
-		Field field = reverseField(target.getClass());
-		if (field == null) {
-			return Collections.emptyList();
-		} else {
-			try {
-				return associationKind.added(this,field,target,needsRefresh);
-			} catch (ReflectiveOperationException ex) {
-				throw new MappingException(ex);
-			}
-		} 
-	}
-	
-	public boolean isTemporal() {
-		if (reverseFieldName == null) {
-			return false;
-		}
-		Field field = getReferencedTable().getField(reverseFieldName);
-		if (field == null) {
-			return false;
-		} else {
-			return TemporalAspect.class.isAssignableFrom(field.getType());
-		}
-	}
-	
-	public boolean isAutoIndex() {
-		return "position".equals(reverseOrderFieldName);
-	}
-	
-	static class BuilderImpl implements ForeignKeyConstraint.Builder {
-		private final ForeignKeyConstraintImpl constraint;
-		
-		BuilderImpl(TableImpl<?> table, String name) {
-			this.constraint = ForeignKeyConstraintImpl.from(table,name);
-			constraint.deleteRule = DeleteRule.RESTRICT;
-		}
+    private KeyValue extractKey(Reference<?> reference) {
+        if (reference instanceof PersistentReference<?>) {
+            return ((PersistentReference<?>) reference).getKey();
+        } else {
+            return getReferencedTable().getPrimaryKeyConstraint().getColumnValues(reference.get());
+        }
+    }
 
-		@Override
-		public Builder on(Column... columns) {
+    Optional<Type> getReferenceParameterType() {
+        Field field = getTable().getField(fieldName);
+        if (field == null || field.getType() != Reference.class) {
+            return Optional.absent();
+        } else {
+            return Optional.of(((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]);
+        }
+    }
+
+    Optional<Type> getListParameterType() {
+        if (getReverseFieldName() == null) {
+            return Optional.absent();
+        }
+        Field field = getReferencedTable().getField(getReverseFieldName());
+        if (field == null || field.getType() != List.class) {
+            return Optional.absent();
+        } else {
+            return Optional.of(((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]);
+        }
+    }
+
+    private DomainMapper getDomainMapper() {
+        return getTable().getDomainMapper();
+    }
+
+    Field referenceField(Class<?> api) {
+        return getDomainMapper().getField(api, getFieldName());
+    }
+
+    public Field reverseField(Class<?> api) {
+        return getReferencedTable().getDomainMapper().getField(api, getReverseFieldName());
+    }
+
+    public DataMapperImpl<?> reverseMapper(Field field) {
+        Class<?> clazz = DomainMapper.extractDomainClass(field);
+        return getTable().getDataMapper(clazz);
+    }
+
+    void prepare() {
+        if (reverseFieldName != null) {
+            associationKind = AssociationKind.from(this);
+        }
+    }
+
+    void setField(Object target, KeyValue keyValue) {
+        Field field = referenceField(target.getClass());
+        if (field != null && Reference.class.isAssignableFrom(field.getType())) {
+            Class<?> api = DomainMapper.extractDomainClass(field);
+            DataMapperImpl<?> dataMapper = getReferencedTable().getDataMapper(api);
+            Reference<?> reference = new PersistentReference<>(keyValue, dataMapper);
+            try {
+                field.set(target, reference);
+            } catch (ReflectiveOperationException ex) {
+                throw new MappingException(ex);
+            }
+        }
+    }
+
+    public void setReverseField(Object target) {
+        doSetReverseField(target, Optional.absent());
+    }
+
+    public void setReverseField(Object target, Object initialValue) {
+        doSetReverseField(target, Optional.fromNullable(initialValue));
+    }
+
+    private void doSetReverseField(Object target, Optional<?> initialValue) {
+        Field field = reverseField(target.getClass());
+        if (field == null) {
+            return;
+        }
+        Object value = associationKind.create(this, field, target, initialValue);
+        try {
+            field.set(target, value);
+        } catch (ReflectiveOperationException ex) {
+            throw new MappingException(ex);
+        }
+    }
+
+    List<?> added(Object target, boolean needsRefresh) {
+        Field field = reverseField(target.getClass());
+        if (field == null) {
+            return Collections.emptyList();
+        } else {
+            try {
+                return associationKind.added(this, field, target, needsRefresh);
+            } catch (ReflectiveOperationException ex) {
+                throw new MappingException(ex);
+            }
+        }
+    }
+
+    public boolean isTemporal() {
+        if (reverseFieldName == null) {
+            return false;
+        }
+        Field field = getReferencedTable().getField(reverseFieldName);
+        if (field == null) {
+            return false;
+        } else {
+            return TemporalAspect.class.isAssignableFrom(field.getType());
+        }
+    }
+
+    public boolean isAutoIndex() {
+        return "position".equals(reverseOrderFieldName);
+    }
+
+    static class BuilderImpl implements ForeignKeyConstraint.Builder {
+        private final ForeignKeyConstraintImpl constraint;
+
+        BuilderImpl(TableImpl<?> table, String name) {
+            this.constraint = ForeignKeyConstraintImpl.from(table, name);
+            constraint.deleteRule = DeleteRule.RESTRICT;
+        }
+
+        @Override
+        public Builder on(Column... columns) {
             for (Column column : columns) {
                 if (!constraint.getTable().equals(column.getTable())) {
                     throw new IllegalTableMappingException("Table " + constraint.getTable().getName() + " : foreign key can not have columns from another table as key : " + column.getName() + ".");
                 }
             }
-			constraint.add(columns);
-			return this;
-		}
+            constraint.add(columns);
+            return this;
+        }
 
-		@Override
-		public Builder onDelete(DeleteRule deleteRule) {
-			constraint.deleteRule = deleteRule;
-			return this;
-		}
-		
-		@Override
-		public Builder map(String field) {
-			constraint.fieldName = field;
-			return this;
-		}
+        @Override
+        public Builder onDelete(DeleteRule deleteRule) {
+            constraint.deleteRule = deleteRule;
+            return this;
+        }
 
-		@Override
-		public Builder references(String name) {
+        @Override
+        public Builder map(String field) {
+            constraint.fieldName = field;
+            return this;
+        }
+
+        @Override
+        public Builder references(String name) {
             TableImpl<?> referencedTable = constraint.getTable().getDataModel().getTable(name);
             if (referencedTable == null) {
-                throw new IllegalTableMappingException("Foreign key FK_NAME on table " + constraint.getTable().getName() + " the referenced table " + name + " does not exist.");
+                throw new IllegalTableMappingException("Foreign key " + constraint.getName() + " on table " + constraint.getTable().getName() + " the referenced table " + name + " does not exist.");
             }
             constraint.setReferencedTable(referencedTable);
-			return this;
-		}
+            return this;
+        }
 
-		@Override
-		public Builder references(String component, String name) {
-			TableImpl<?> table =  constraint.getTable().getDataModel().getOrmService().getTable(component, name);
-			constraint.setReferencedTable(table);
-			return this;
-		}
-		
-		@Override
-		public Builder reverseMap(String field) {
+        @Override
+        public Builder references(String component, String name) {
+            TableImpl<?> table = constraint.getTable().getDataModel().getOrmService().getTable(component, name);
+            constraint.setReferencedTable(table);
+            return this;
+        }
+
+        @Override
+        public Builder reverseMap(String field) {
             if (constraint.getReferencedTable().getField(field) == null) {
-                throw new IllegalTableMappingException("Foreign key FK_NAME on table " + constraint.getTable().getName() + " the referenced object does not have a field named " + field + ".");
+                throw new IllegalTableMappingException("Foreign key " + constraint.getName() + " on table " + constraint.getTable().getName() + " the referenced object does not have a field named " + field + ".");
             }
             constraint.reverseFieldName = field;
-			return this;
-		}
+            return this;
+        }
 
-		@Override
-		public Builder reverseMapOrder(String field) {
-			constraint.reverseOrderFieldName = field;
-			return this;
-		}
+        @Override
+        public Builder reverseMapOrder(String field) {
+            constraint.reverseOrderFieldName = field;
+            return this;
+        }
 
-		@Override
-		public Builder reverseMapCurrent(String field) {
-			constraint.reverseCurrentFieldName = field;
-			return this;
-		}
-		
-		@Override
-		public Builder composition() {
-			constraint.composition = true;
-			return this;
-		}
-		
-		@Override
-		public ForeignKeyConstraint add() {
-			constraint.validate();
-			constraint.getTable().add(constraint);
-			return constraint;		
-		}
-	}
-	
-	
+        @Override
+        public Builder reverseMapCurrent(String field) {
+            constraint.reverseCurrentFieldName = field;
+            return this;
+        }
+
+        @Override
+        public Builder composition() {
+            constraint.composition = true;
+            return this;
+        }
+
+        @Override
+        public ForeignKeyConstraint add() {
+            constraint.validate();
+            constraint.getTable().add(constraint);
+            return constraint;
+        }
+    }
+
+
 }
