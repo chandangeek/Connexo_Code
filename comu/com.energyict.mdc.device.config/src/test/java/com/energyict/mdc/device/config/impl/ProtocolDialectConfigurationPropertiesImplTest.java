@@ -109,7 +109,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
     private static final String NAME = "name";
     private static final String MY_PROPERTY = "myProperty";
     public static final String PROTOCOL_DIALECT = "protocolDialect";
-    private final SharedData sharedData = new SharedData();
+    private SharedData sharedData;
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
@@ -206,6 +206,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
 
     @Before
     public void setUp() {
+        sharedData = new SharedData();
         when(license.hasAllProtocols()).thenReturn(true);
         when(principal.getName()).thenReturn("test");
 //        when(deviceconfiguration.get)
@@ -230,6 +231,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
     @After
     public void tearDown() {
         bootstrapModule.deactivate();
+        sharedData.invalidate();
     }
 
     @Test
@@ -237,7 +239,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         long id;
 
         try (TransactionContext context = transactionService.getContext()) {
-            ProtocolDialectConfigurationProperties properties = configuration.createProtocolDialectConfigurationProperties(NAME, sharedData.protocolDialect);
+            ProtocolDialectConfigurationProperties properties = configuration.findOrCreateProtocolDialectConfigurationProperties(sharedData.getProtocolDialect());
 
             properties.setProperty(MY_PROPERTY, 15);
 
@@ -250,9 +252,13 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
 
         DeviceCommunicationConfiguration communicationConfiguration = deviceConfigurationService.findDeviceCommunicationConfiguration(configuration.getId());
         assertThat(communicationConfiguration).isNotNull();
-        assertThat(communicationConfiguration.getProtocolDialectConfigurationPropertiesList()).isNotEmpty();
+        List<ProtocolDialectConfigurationProperties> list = communicationConfiguration.getProtocolDialectConfigurationPropertiesList();
+        assertThat(list).isNotEmpty();
 
-        ProtocolDialectConfigurationProperties found = communicationConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+        ProtocolDialectConfigurationProperties found = list.get(0);
+
+        assertThat(found).isNotNull();
+
         assertThat(found.getId()).isEqualTo(id);
 
         assertThat(found.getProperty("myProperty")).isEqualTo(15);
@@ -260,21 +266,67 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
     }
 
     public static class SharedData {
-        private PropertySpec propertySpec;
-        private DeviceProtocolDialect protocolDialect;
-        private ValueFactory valueFactory;
+        private static PropertySpec propertySpec;
+        private static DeviceProtocolDialect protocolDialect;
+        private static ValueFactory valueFactory;
 
-        public SharedData() {
-            propertySpec = mock(PropertySpec.class);
-            protocolDialect = mock(DeviceProtocolDialect.class);
-            valueFactory = mock(ValueFactory.class);
-            when(protocolDialect.getPropertySpec(MY_PROPERTY)).thenReturn(propertySpec);
-            when(propertySpec.getValueFactory()).thenReturn(valueFactory);
-            when(protocolDialect.getDeviceProtocolDialectName()).thenReturn(PROTOCOL_DIALECT);
-            when(valueFactory.fromStringValue("15")).thenReturn(15);
-            when(valueFactory.toStringValue(15)).thenReturn("15");
+        private static interface State {
+            PropertySpec getPropertySpec();
+
+            DeviceProtocolDialect getProtocolDialect();
+
+            ValueFactory getValueFactory();
+
         }
 
+        private static State actual;
+
+
+
+        public SharedData() {
+            if (actual == null) {
+                actual = new State() {
+                    @Override
+                    public PropertySpec getPropertySpec() {
+                        return propertySpec;
+                    }
+
+                    @Override
+                    public DeviceProtocolDialect getProtocolDialect() {
+                        return protocolDialect;
+                    }
+
+                    @Override
+                    public ValueFactory getValueFactory() {
+                        return valueFactory;
+                    }
+                };
+                propertySpec = mock(PropertySpec.class);
+                protocolDialect = mock(DeviceProtocolDialect.class);
+                valueFactory = mock(ValueFactory.class);
+                when(getProtocolDialect().getPropertySpec(MY_PROPERTY)).thenReturn(getPropertySpec());
+                when(getPropertySpec().getValueFactory()).thenReturn(getValueFactory());
+                when(getProtocolDialect().getDeviceProtocolDialectName()).thenReturn(PROTOCOL_DIALECT);
+                when(getValueFactory().fromStringValue("15")).thenReturn(15);
+                when(getValueFactory().toStringValue(15)).thenReturn("15");
+            }
+        }
+
+        PropertySpec getPropertySpec() {
+            return actual.getPropertySpec();
+        }
+
+        DeviceProtocolDialect getProtocolDialect() {
+            return actual.getProtocolDialect();
+        }
+
+        ValueFactory getValueFactory() {
+            return actual.getValueFactory();
+        }
+
+        void invalidate() {
+            actual = null;
+        }
     }
 
     public static class MyDeviceProtocolPluggableClass implements DeviceProtocol {
@@ -431,7 +483,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
 
         @Override
         public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-            return Arrays.asList(sharedData.protocolDialect);
+            return Arrays.asList(sharedData.getProtocolDialect());
         }
 
         @Override
@@ -466,7 +518,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
 
         @Override
         public List<PropertySpec> getPropertySpecs() {
-            return Arrays.asList(sharedData.propertySpec);
+            return Arrays.asList(sharedData.getPropertySpec());
         }
 
         @Override

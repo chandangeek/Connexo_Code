@@ -753,8 +753,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public ProtocolDialectConfigurationProperties createProtocolDialectConfigurationProperties(String name, DeviceProtocolDialect protocolDialect) {
-        return getCommunicationConfiguration().createProtocolDialectConfigurationProperties(name, protocolDialect);
+    public ProtocolDialectConfigurationProperties findOrCreateProtocolDialectConfigurationProperties(DeviceProtocolDialect protocolDialect) {
+        return getCommunicationConfiguration().findOrCreateProtocolDialectConfigurationProperties(protocolDialect);
     }
 
     @Override
