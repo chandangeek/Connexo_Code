@@ -21,11 +21,13 @@ class TransientDestinationSpec implements DestinationSpec {
     private final List<TransientSubscriberSpec> subscribers = new CopyOnWriteArrayList<>();
     private final String name;
     private final Thesaurus thesaurus;
+    private final boolean buffered;
 
-    public TransientDestinationSpec(QueueTableSpec queueTableSpec, Thesaurus thesaurus, String name) {
+    public TransientDestinationSpec(QueueTableSpec queueTableSpec, Thesaurus thesaurus, String name, boolean buffered) {
         this.queueTableSpec = queueTableSpec;
         this.thesaurus = thesaurus;
         this.name = name;
+        this.buffered = buffered;
     }
 
     @Override
@@ -105,6 +107,11 @@ class TransientDestinationSpec implements DestinationSpec {
 
     @Override
     public void save() {
+    }
+    
+    @Override
+    public boolean isBuffered() {
+    	return buffered;
     }
 
     private class TransientMessageBuilder implements MessageBuilder {

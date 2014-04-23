@@ -98,11 +98,19 @@ class TransientQueueTableSpec implements QueueTableSpec {
 
     @Override
     public DestinationSpec createDestinationSpec(String name, int retryDelay) {
-        TransientDestinationSpec destinationSpec = new TransientDestinationSpec(this, thesaurus, name);
-        destinations.add(destinationSpec);
-        return destinationSpec;
+    	return createDestinationSpec(name, retryDelay, false);
     }
 
+    @Override
+    public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay) {
+        return createDestinationSpec(name, retryDelay, true);
+    }
+    
+    private DestinationSpec createDestinationSpec(String name, int retryDelay, boolean buffered) {
+    	 TransientDestinationSpec destinationSpec = new TransientDestinationSpec(this, thesaurus, name,buffered);
+         destinations.add(destinationSpec);
+         return destinationSpec;
+    }
     @Override
     public boolean isJms() {
         return state.isJms();
