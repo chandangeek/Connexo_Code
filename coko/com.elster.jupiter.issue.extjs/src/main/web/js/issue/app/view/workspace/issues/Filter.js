@@ -26,7 +26,8 @@ Ext.define('Isu.view.workspace.issues.Filter', {
             xtype: 'filter-toolbar',
             title: 'Group',
             name: 'group',
-            items: {
+            showClearButton: false,
+            content: {
                 xtype: 'combobox',
                 name: 'groupnames',
                 editable: false,
@@ -74,7 +75,7 @@ Ext.define('Isu.view.workspace.issues.Filter', {
             title: 'Sort',
             name: 'sortitemspanel',
             emptyText: 'None',
-            dockedItems: [
+            tools: [
                 {
                     xtype: 'button',
                     action: 'addSort',
@@ -82,7 +83,6 @@ Ext.define('Isu.view.workspace.issues.Filter', {
                     menu: {
                         name: 'addsortitemmenu'
                     }
-//                    dock: 'right'
                 }
             ]
         }

@@ -120,7 +120,6 @@ Ext.define('Isu.controller.Issues', {
             issueList = this.getIssuesList();
 
         if (records.length < 1) {
-
             issueNoGroup.removeAll();
             issueNoGroup.add({
                 html: '<h3>No issues found</h3><p>The filter is too narrow</p>',
@@ -146,7 +145,6 @@ Ext.define('Isu.controller.Issues', {
             return;
         }
         var filterElm = this.getFilter().down('[name="filter"]'),
-//            clearFilterBtn = this.getFilter().down('button[action="clearFilter"]'),
             buttons = [];
 
         var btnClass = 'Isu.view.ext.button.TagButton';
@@ -199,16 +197,12 @@ Ext.define('Isu.controller.Issues', {
             });
         }
 
-        filterElm.removeAll();
+        filterElm.getContainer().removeAll();
 
         if (buttons.length) {
-//            clearFilterBtn.setDisabled(false);
-
             Ext.Array.each(buttons, function (button) {
-                filterElm.add(button);
+                filterElm.getContainer().add(button);
             });
-        } else {
-//            clearFilterBtn.setDisabled(true);
         }
     },
 
@@ -239,7 +233,7 @@ Ext.define('Isu.controller.Issues', {
         }
         this.showDefaultItems();
 
-        filterElm.removeAll();
+        filterElm.getContainer().removeAll();
 
         sortModel.fields.each(function (field) {
             if (sortModel.get(field.name)) {
@@ -254,11 +248,9 @@ Ext.define('Isu.controller.Issues', {
                     iconCls: cls
                 };
 
-                filterElm.add(sortItem);
+                filterElm.getContainer().add(sortItem);
             }
         });
-
-//        this.getFilter().down('[action="clearSort"]').setDisabled(!filterElm.items.length);
     },
 
     removeFilter: function (elm) {
