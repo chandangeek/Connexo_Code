@@ -34,9 +34,9 @@ Ext.define('Uni.override.RestOverride', {
         //Remove variables embedded into URL
         Ext.Object.each(params, function (key, value) {
             var regex = new RegExp('{' + key + '.*?}');
-            if (regex.test(url)) {
+       /*     if (regex.test(url)) {
                 delete params[key];
-            }
+            }*/
         });
 
         request.url = url;
