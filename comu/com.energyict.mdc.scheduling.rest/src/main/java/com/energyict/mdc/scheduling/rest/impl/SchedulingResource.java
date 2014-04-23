@@ -42,9 +42,7 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createSchedule(ComScheduleInfo comScheduleInfo) {
-
         ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.nextExecutionSpecs.asTemporalExpression());
-
         comSchedule.save();
         return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule)).build();
     }
