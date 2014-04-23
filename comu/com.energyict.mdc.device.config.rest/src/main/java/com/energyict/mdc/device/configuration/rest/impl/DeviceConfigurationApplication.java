@@ -58,7 +58,9 @@ public class DeviceConfigurationApplication extends Application {
                 LocalizedFieldValidationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,
                 LocalizedExceptionMapper.class,
-                ConnectionMethodResource.class
+                ConnectionMethodResource.class,
+                RegisterTypeResource.class,
+                RegisterGroupResource.class
         );
     }
 

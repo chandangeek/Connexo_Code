@@ -4,6 +4,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.google.common.base.Optional;
 
@@ -21,6 +22,14 @@ public class ResourceHelper {
         super();
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    public RegisterGroup findRegisterGroupByIdOrThrowException(long id) {
+        Optional<RegisterGroup> registerGroup = masterDataService.findRegisterGroup(id);
+        if (!registerGroup.isPresent()) {
+            throw new WebApplicationException("No register group with id " + id, Response.Status.NOT_FOUND);
+        }
+        return registerGroup.get();
     }
 
     public RegisterMapping findRegisterMappingByIdOrThrowException(long id) {
