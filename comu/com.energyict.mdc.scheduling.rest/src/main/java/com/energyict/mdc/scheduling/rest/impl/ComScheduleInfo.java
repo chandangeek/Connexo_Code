@@ -6,7 +6,7 @@ public class ComScheduleInfo {
 
     public long id;
     public String name;
-    public NextExecutionsSpecsInfo nextExecutionSpec;
+    public NextExecutionsSpecsInfo nextExecutionSpecs;
 
     public ComScheduleInfo() {
     }
@@ -14,6 +14,6 @@ public class ComScheduleInfo {
     public ComScheduleInfo(ComSchedule comSchedule) {
         this.id = comSchedule.getId();
         this.name = comSchedule.getName();
-        this.nextExecutionSpec = new NextExecutionsSpecsInfo(comSchedule.getNextExecutionSpec().getTemporalExpression());
+        this.nextExecutionSpecs = new NextExecutionsSpecsInfo(comSchedule.getTemporalExpression());
     }
 }
