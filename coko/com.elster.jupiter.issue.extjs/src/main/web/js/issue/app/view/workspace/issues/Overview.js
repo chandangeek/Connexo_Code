@@ -15,6 +15,7 @@ Ext.define('Isu.view.workspace.issues.Overview', {
         xtype: 'panel',
         ui: 'medium',
         title: "Navigation",
+        subtitle: 'subtitle',
         layout: {
             type: 'vbox',
             align: 'stretch'
