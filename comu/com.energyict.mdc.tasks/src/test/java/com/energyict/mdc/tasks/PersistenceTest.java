@@ -23,8 +23,6 @@ import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -86,7 +84,6 @@ public class PersistenceTest {
                 new DomainUtilModule(),
                 new MeteringModule(),
                 new MasterDataModule(),
-                new DeviceConfigurationModule(),
 //                new EventsModule(), // Mocked by Spy
                 new PluggableModule(),
                 new TransactionModule(false),
@@ -96,7 +93,6 @@ public class PersistenceTest {
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
             injector.getInstance(EventService.class); // fake call to make sure component is initialized
             injector.getInstance(MasterDataService.class); // fake call to make sure component is initialized
-            injector.getInstance(DeviceConfigurationService.class); // fake call to make sure component is initialized
             ctx.commit();
         }
         deviceMessageService = mock(DeviceMessageService.class);
@@ -120,10 +116,6 @@ public class PersistenceTest {
 
     public final MasterDataService getMasterDataService() {
         return injector.getInstance(MasterDataService.class);
-    }
-
-    public final DeviceConfigurationService getDeviceConfigurationService() {
-        return injector.getInstance(DeviceConfigurationService.class);
     }
 
     public final DeviceMessageService getDeviceMessageService() {

@@ -7,7 +7,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ComTask;
@@ -40,7 +39,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
     private volatile Thesaurus thesaurus;
 
     public TaskServiceImpl() {
-
+        super();
     }
 
     @Inject
@@ -50,29 +49,22 @@ public class TaskServiceImpl implements TaskService, InstallService {
         this.setEventService(eventService);
         activate();
         createEventTypes();
-        if (!dataModel.isInstalled()) {
-            dataModel.install(true, false);
-        }
+        this.install();
     }
 
     @Override
     public void install() {
-        if(!dataModel.isInstalled()){
+        if (!dataModel.isInstalled()) {
             dataModel.install(true, true);
         }
     }
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        this.dataModel = ormService.newDataModel(TaskService.COMPONENT_NAME, "Connection Task Service");
+        this.dataModel = ormService.newDataModel(TaskService.COMPONENT_NAME, "Communication Task Service");
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel);
         }
-    }
-
-    @Reference
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
-        // dependency reference so datamodel of DeviceConfigurationService is created FIRST
     }
 
     @Reference
@@ -96,14 +88,14 @@ public class TaskServiceImpl implements TaskService, InstallService {
         }
     }
 
-
-
     Module getModule() {
         return new AbstractModule() {
             @Override
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(NlsService.class).toInstance(nlsService);
+                bind(Thesaurus.class).toInstance(thesaurus);
+                bind(EventService.class).toInstance(eventService);
                 bind(TaskService.class).toInstance(TaskServiceImpl.this);
                 bind(ComTask.class).to(ComTaskImpl.class);
                 bind(BasicCheckTask.class).to(BasicCheckTaskImpl.class);
@@ -114,8 +106,6 @@ public class TaskServiceImpl implements TaskService, InstallService {
                 bind(LogBooksTask.class).to(LogBooksTaskImpl.class);
                 bind(TopologyTask.class).to(TopologyTaskImpl.class);
                 bind(MessagesTask.class).to(MessagesTaskImpl.class);
-                bind(Thesaurus.class).toInstance(thesaurus);
-                bind(EventService.class).toInstance(eventService);
             }
         };
     }
@@ -125,10 +115,11 @@ public class TaskServiceImpl implements TaskService, InstallService {
         dataModel.register(getModule());
     }
 
-
     @Override
-    public ComTask createComTask() {
-        return dataModel.getInstance(ComTask.class);
+    public ComTask newComTask(String name) {
+        ComTask comTask = dataModel.getInstance(ComTask.class);
+        comTask.setName(name);
+        return comTask;
     }
 
     @Override
@@ -145,4 +136,5 @@ public class TaskServiceImpl implements TaskService, InstallService {
     public List<ComTask> findAllComTasks() {
         return dataModel.mapper(ComTask.class).find();
     }
+
 }

@@ -30,8 +30,7 @@ public class ComTaskImplTest extends PersistenceTest {
     private static final String COM_TASK_NAME = "UniqueComTaskName";
 
     private ComTask createSimpleComTaskWithStatusInformation() {
-        ComTask comTask = getTaskService().createComTask();
-        comTask.setName(COM_TASK_NAME);
+        ComTask comTask = getTaskService().newComTask(COM_TASK_NAME);
         comTask.setStoreData(STORE_DATA_TRUE);
         comTask.setMaxNrOfTries(1);
         comTask.createStatusInformationTask();
@@ -40,8 +39,7 @@ public class ComTaskImplTest extends PersistenceTest {
     }
 
     private ComTask createComTaskWithBasicCheckAndStatusInformation() {
-        ComTask comTask = getTaskService().createComTask();
-        comTask.setName(COM_TASK_NAME);
+        ComTask comTask = getTaskService().newComTask(COM_TASK_NAME);
         comTask.setStoreData(STORE_DATA_TRUE);
         comTask.setMaxNrOfTries(1);
         comTask.createStatusInformationTask();
@@ -70,7 +68,7 @@ public class ComTaskImplTest extends PersistenceTest {
 
     @Test
     public void testGetTypeDoesNotReturnServerBasedClassName () {
-        ComTask comTask = getTaskService().createComTask();
+        ComTask comTask = getTaskService().newComTask(COM_TASK_NAME);
 
         // Business method
         String type = comTask.getType();
@@ -95,20 +93,8 @@ public class ComTaskImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.CAN_NOT_BE_EMPTY+"}", property = "name")
-    public void createWithoutNameTest()  {
-        ComTask comTask = getTaskService().createComTask();
-        comTask.setStoreData(STORE_DATA_TRUE);
-        comTask.setMaxNrOfTries(1);
-        comTask.createStatusInformationTask();
-        comTask.save();
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.CAN_NOT_BE_EMPTY+"}", property = "name")
     public void createWithWhitespaceNameTest()  {
-        ComTask comTask = getTaskService().createComTask();
-        comTask.setName("           ");
+        ComTask comTask = getTaskService().newComTask("");
         comTask.setStoreData(STORE_DATA_TRUE);
         comTask.setMaxNrOfTries(1);
         comTask.createStatusInformationTask();
@@ -118,8 +104,7 @@ public class ComTaskImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void createWithoutViolationsWithProtocolTasks() {
-        ComTask comTask = getTaskService().createComTask();
-        comTask.setName("name");
+        ComTask comTask = getTaskService().newComTask("name");
         comTask.setStoreData(STORE_DATA_TRUE);
         comTask.setMaxNrOfTries(1);
         comTask.createBasicCheckTask().verifyClockDifference(true).add();
@@ -134,8 +119,7 @@ public class ComTaskImplTest extends PersistenceTest {
     @Transactional
     @Expected(value = TranslatableApplicationException.class, message = "ComTask contains multiple ProtocolTasks of the same type")
     public void createWithSameProtocolTaskTypes() {
-        ComTask comTask = getTaskService().createComTask();
-        comTask.setName(COM_TASK_NAME);
+        ComTask comTask = getTaskService().newComTask(COM_TASK_NAME);
         comTask.setStoreData(STORE_DATA_TRUE);
         comTask.setMaxNrOfTries(1);
         comTask.createStatusInformationTask();
@@ -243,8 +227,7 @@ public class ComTaskImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.COMTASK_WITHOUT_PROTOCOLTASK+"}", property = "protocolTasks")
     public void createWithNoProtocolTasksTest() {
-        ComTask comTask = getTaskService().createComTask();
-        comTask.setName(COM_TASK_NAME);
+        ComTask comTask = getTaskService().newComTask(COM_TASK_NAME);
         comTask.setStoreData(STORE_DATA_TRUE);
         comTask.setMaxNrOfTries(1);
         comTask.save();
@@ -262,8 +245,7 @@ public class ComTaskImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testNameIsTrimmed() throws Exception {
-        ComTask comTask = getTaskService().createComTask();
-        comTask.setName(" "+COM_TASK_NAME+" ");
+        ComTask comTask = getTaskService().newComTask(" "+COM_TASK_NAME+" ");
         comTask.setStoreData(STORE_DATA_TRUE);
         comTask.setMaxNrOfTries(1);
         comTask.createStatusInformationTask();
