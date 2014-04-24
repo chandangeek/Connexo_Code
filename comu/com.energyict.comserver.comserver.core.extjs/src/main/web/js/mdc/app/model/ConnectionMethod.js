@@ -10,7 +10,7 @@ Ext.define('Mdc.model.ConnectionMethod', {
         {name: 'connectionType', type: 'string', useNull: true},
         {name: 'connectionStrategy', type: 'string', useNull: true},
         'rescheduleRetryDelay',
-        'nextExecutionSpecs'
+        {name: 'nextExecutionSpecs', useNull: true}
     ],
     associations: [
         {name: 'rescheduleRetryDelay',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'rescheduleRetryDelay'},

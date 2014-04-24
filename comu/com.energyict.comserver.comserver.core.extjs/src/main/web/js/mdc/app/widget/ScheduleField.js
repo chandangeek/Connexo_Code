@@ -280,9 +280,11 @@ Ext.define('Mdc.widget.ScheduleField', {
     },
 
     getValue: function () {
-        var everyValue = parseInt(this.valueField.getSubmitValue());
-        var timeUnit = this.unitField.getSubmitValue();
-        var offSet = {timeUnit: 'seconds'};
+        var offSet = {timeUnit: 'seconds',count:0};
+
+        var everyValue = parseInt(this.valueField.getSubmitValue()) || 0;
+        var timeUnit = this.unitField.getSubmitValue() || 'seconds';
+
         switch(timeUnit){
             case 'minutes':
                 offSet.count = this.secondField.getValue();
