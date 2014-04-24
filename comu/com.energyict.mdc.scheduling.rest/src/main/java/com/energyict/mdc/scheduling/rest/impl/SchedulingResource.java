@@ -37,7 +37,7 @@ public class SchedulingResource {
         List<ComSchedule> comSchedules = schedulingService.findAllSchedules().from(queryParameters).find();
         List<ComScheduleInfo> comScheduleInfos = new ArrayList<>();
         for (ComSchedule comSchedule : comSchedules) {
-            comScheduleInfos.add(ComScheduleInfo.from(comSchedule));
+            comScheduleInfos.add(ComScheduleInfo.from(comSchedule, getPlannedDate(comSchedule)));
         }
 
         return PagedInfoList.asJson("schedules", comScheduleInfos, queryParameters);
@@ -49,7 +49,7 @@ public class SchedulingResource {
     public Response createSchedule(ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression());
         comSchedule.save();
-        return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule)).build();
+        return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, getPlannedDate(comSchedule))).build();
     }
 
     private Date getPlannedDate(ComSchedule comSchedule) {

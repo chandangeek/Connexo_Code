@@ -13,11 +13,12 @@ public class ComScheduleInfo {
     public ComScheduleInfo() {
     }
 
-    public static ComScheduleInfo from(ComSchedule comSchedule) {
+    public static ComScheduleInfo from(ComSchedule comSchedule, Date plannedDate) {
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
         comScheduleInfo.id = comSchedule.getId();
         comScheduleInfo.name = comSchedule.getName();
         comScheduleInfo.temporalExpression = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
+        comScheduleInfo.plannedDate = plannedDate;
         return comScheduleInfo;
     }
 }

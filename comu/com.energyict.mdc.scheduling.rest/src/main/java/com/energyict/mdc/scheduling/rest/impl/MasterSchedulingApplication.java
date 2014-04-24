@@ -13,6 +13,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
@@ -34,6 +35,7 @@ public class MasterSchedulingApplication extends Application {
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
     private volatile SchedulingService schedulingService;
+    private volatile DeviceDataService deviceDataService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -82,6 +84,11 @@ public class MasterSchedulingApplication extends Application {
         this.schedulingService = schedulingService;
     }
 
+    @Reference
+    public void setDeviceDataService(DeviceDataService deviceDataService) {
+        this.deviceDataService = deviceDataService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -89,6 +96,7 @@ public class MasterSchedulingApplication extends Application {
             bind(transactionService).to(TransactionService.class);
             bind(schedulingService).to(SchedulingService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(deviceDataService).to(DeviceDataService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
