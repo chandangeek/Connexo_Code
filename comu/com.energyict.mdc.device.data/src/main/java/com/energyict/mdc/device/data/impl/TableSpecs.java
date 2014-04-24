@@ -207,7 +207,7 @@ public enum TableSpecs {
             table.foreignKey("FK_MDCCONNTASK_COMSERVER").on(comServer).references(EngineModelService.COMPONENT_NAME, "MDCCOMSERVER").map("comServer").add();
             table.foreignKey("FK_MDCCONNTASK_INITIATOR").on(initiator).references(MDCCONNECTIONTASK.name()).map("initiationTask").add();
             table.foreignKey("FK_MDCCONNTASK_NEXTEXEC").on(nextExecutionSpecs).references(DeviceConfigurationService.COMPONENTNAME, "MDCNEXTEXECUTIONSPEC").map("nextExecutionSpecs").add();
-            table.foreignKey("FK_MDCCONNTASK_PARTIAL").on(partialConnectionTaskColumn).references("DTC", "MDCPARTIALCONNECTIONTASK").map("partialConnectionTask").add();
+            table.foreignKey("FK_MDCCONNTASK_PARTIAL").on(partialConnectionTaskColumn).references(DeviceConfigurationService.COMPONENTNAME, "MDCPARTIALCONNECTIONTASK").map("partialConnectionTask").add();
         }
     },
 
