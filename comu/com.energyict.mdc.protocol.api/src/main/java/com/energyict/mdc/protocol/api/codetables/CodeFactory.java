@@ -2,6 +2,8 @@ package com.energyict.mdc.protocol.api.codetables;
 
 import com.energyict.mdc.common.ApplicationComponent;
 
+import java.util.List;
+
 /**
  * Defines the behavior of an {@link ApplicationComponent}
  * that is capable of finding {@link Code}s.
@@ -12,5 +14,7 @@ import com.energyict.mdc.common.ApplicationComponent;
 public interface CodeFactory {
 
     public Code findCode (int codeId);
+
+    public List<Code> findAllCodeTables();
 
 }

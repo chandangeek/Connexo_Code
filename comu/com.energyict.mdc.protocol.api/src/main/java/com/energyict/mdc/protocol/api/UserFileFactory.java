@@ -4,6 +4,7 @@ import com.energyict.mdc.common.ApplicationComponent;
 import com.energyict.mdc.common.BusinessException;
 
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Defines the behavior of an {@link ApplicationComponent}
@@ -15,6 +16,8 @@ import java.sql.SQLException;
 public interface UserFileFactory {
 
     public UserFile findUserFile (int userFileId);
+
+    public List<UserFile> findAllUserFiles ();
 
     public UserFile createUserFile (UserFileShadow shadow) throws BusinessException, SQLException;
 

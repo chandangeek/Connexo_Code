@@ -23,5 +23,6 @@ Export-Package: com.energyict.mdc.protocol.api,\
         com.energyict.mdc.protocol.api.messaging,\
         com.energyict.mdc.protocol.api.security,\
         com.energyict.mdc.protocol.api.services,\
+        com.energyict.mdc.protocol.api.timezones,\
         com.energyict.mdc.protocol.api.tasks,\
         com.energyict.mdc.protocol.api.tasks.support
