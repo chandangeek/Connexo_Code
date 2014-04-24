@@ -1,7 +1,7 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.device.config.TemporalExpression;
 
 public class TemporalExpressionInfo {
     public TimeDurationInfo every;
