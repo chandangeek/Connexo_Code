@@ -58,15 +58,15 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
                                 itemId: 'editProtocolDialect',
                                 action: 'editProtocolDialect'
 
-                            },
-                            {
+                            }//,
+                            /*{
                                 xtype: 'menuseparator'
                             },
                             {
                                 text: Uni.I18n.translate('protocolDialects.notAvailableForUse', 'MDC', 'Not available for use'),
                                 itemId: 'changeAvailability',
                                 action: 'changeAvailability'
-                            }
+                            }*/
                         ]
                     }
                 }
@@ -104,13 +104,13 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
                                 type: 'vbox'
                             },
                             items: [
-                                {
+                               /* {
                                     xtype: 'displayfield',
                                     name: 'availableForUse',
                                     fieldLabel: Uni.I18n.translate('protocolDialect.availableForUse', 'MDC', 'Available for use'),
                                     labelAlign: 'right',
                                     labelWidth: 250
-                                }
+                                }*/
 
                             ]
                         }

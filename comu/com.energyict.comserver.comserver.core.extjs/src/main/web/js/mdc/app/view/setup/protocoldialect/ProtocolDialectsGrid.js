@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
                 fixed: true,
                 flex: 0.6
             },
-            {
+            /*{
                 header: Uni.I18n.translate('protocolDialect.availableForUse', 'MDC', 'Available for use'),
                 dataIndex: 'availableForUse',
                 sortable: false,
@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
                 },
                 fixed: true,
                 flex: 0.2
-            },
+            },*/
             {
                 xtype: 'actioncolumn',
                 tdCls: 'view',
@@ -66,8 +66,8 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
                                             }
 
                                         }
-                                    },
-                                    {
+                                    }//,
+                                    /*{
                                         xtype: 'menuseparator'
                                     },
                                     {
@@ -84,7 +84,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
                                             }
 
                                         }
-                                    }
+                                    }*/
                                 ]
                             });
                             menu.showAt(e.getXY());
