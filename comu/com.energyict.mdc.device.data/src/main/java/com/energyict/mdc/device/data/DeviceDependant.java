@@ -17,12 +17,4 @@ public interface DeviceDependant {
      */
     public void notifyDeviceDelete (Device device);
 
-    /**
-     * Notifies this component that the topology of
-     * the specified {@link com.energyict.mdc.protocol.api.device.BaseDevice} changed.
-     *
-     * @param device The Device whose topology changed
-     */
-    public void topologyChanged (Device device);
-
 }

@@ -6,16 +6,12 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.query.impl.WhereClauseBuilder;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Membership;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -44,7 +40,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
@@ -331,10 +326,10 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
             comTaskExecutionUpdater.setNextExecutionTimeStampAndPriority(nextExecutionTimestamp, priority);
+            comTaskExecutionUpdater.update();
         }
     }
 
-    @Override
     public void setDynamicMaxNumberOfTries(int maxNumberOfTries) {
         this.maxNumberOfTries = maxNumberOfTries;
     }
@@ -360,7 +355,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         return this.applyComWindowIfAny(this.calculateNextExecutionTimestamp(now));
     }
 
-    @Override
     public Date applyComWindowIfAny (Date calculatedNextExecutionTimestamp) {
         Calendar calendar = Calendar.getInstance(getClocksTimeZone());
         calendar.setTime(calculatedNextExecutionTimestamp);

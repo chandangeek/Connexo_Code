@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.ComPort;
@@ -73,17 +72,6 @@ public interface ServerComTaskExecution extends ComTaskExecution {
     public void executionStarted (ComPort comPort);
 
     /**
-     * Notifies this ComTaskExecution that a ConnectionTask
-     * was created for the specified BaseDevice.<br>
-     * This notification will only be sent to ComTaskExecutions
-     * that do not have a ConnectionTask.
-     *
-     * @param device The Device
-     * @param connectionTask The ConnectionTask that was created
-     */
-    public void connectionTaskCreated (Device device, ConnectionTask<?,?> connectionTask);
-
-    /**
      * Notifies this ComTaskExecution that the ConnectionTask
      * it was linked to before, was removed (either realy deleted or made obsolete)
      * and will unlink it from that ConnectionTask.
@@ -104,20 +92,5 @@ public interface ServerComTaskExecution extends ComTaskExecution {
      * @param connectionTask the OutboundConnectionTask which will handle this task if scheduled by the ComServer
      */
     public void updateConnectionTask(ConnectionTask<?,?> connectionTask);
-
-    /**
-     * Updates this ComTask with the given default ConnectionTask.
-     * This ComTask will be marked to always use the default ConnectionTask,
-     * so if this default changes, this ComTask will also be updated with the new one.
-     *
-     * @param connectionTask the default ConnectionTask
-     */
-    public void updateToUseDefaultConnectionTask(ConnectionTask<?,?> connectionTask);
-
-    /**
-     * Updates the ComTask with the 'useDefault' setting, but the actual connectionTaskId will be set to zero '0'.
-     * This will primarily be used for 'slave' Devices which are updated with no <i>new</i> master. Eg. the gateway will be empty.
-     */
-    public void updateToUseNonExistingDefaultConnectionTask();
 
 }
