@@ -25,9 +25,9 @@ public class BpmCreatedMessageHandler implements MessageHandler{
         String result = "";
         if (params != null && params.size() > 0) {
             for (Map.Entry<String, Object> entry : params.entrySet()) {
-                result += entry.getKey() + "=" + entry.getValue().toString()+"&";
+                result += "map_" + entry.getKey() + "=" + entry.getValue().toString()+"&";
             }
-            result = "?map_" + result.substring(0, result.length()-1);
+            result = "?" + result.substring(0, result.length()-1);
         }
         return result;
     }
