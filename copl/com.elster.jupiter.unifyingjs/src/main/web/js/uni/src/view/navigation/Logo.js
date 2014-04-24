@@ -4,13 +4,13 @@
 Ext.define('Uni.view.navigation.Logo', {
     extend: 'Ext.button.Button',
     alias: 'widget.navigationLogo',
+    ui: 'navigationlogo',
 
     text: 'Connexo Collect',
     action: 'home',
     scale: 'medium',
     href: '#',
     hrefTarget: '_self',
-    cls: 'nav-logo',
 
     initComponent: function () {
         this.callParent(arguments);

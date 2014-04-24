@@ -154,52 +154,6 @@ $navigation-color: $elster-blue-75;
     padding-right: $menu-width-collapsed;
 }
 
-.nav-menu {
-    border-right: $navigation-color 1px solid;
-    //background-color: $navigation-color;
-    padding-top: 12px;
-    $item-height: 50px;
-
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: $menu-width-collapsed !important;
-    z-index: 100;
-
-    // Animation
-    $transition-length: 400ms;
-    transition: width $transition-length;
-    -moz-transition: width $transition-length; /* Firefox 4 */
-    -webkit-transition: width $transition-length; /* Safari and Chrome */
-    -o-transition: width $transition-length; /* Opera */
-
-    &:hover {
-        width: $menu-width-expanded !important;
-    }
-
-    .menu-item, .x-box-inner, .x-box-target {
-        width: 100% !important;
-    }
-
-    .x-panel-body-default {
-        background-color: transparent;
-    }
-
-    .x-pressed {
-        //background-color: $sky-blue-25;
-
-        .x-btn-button {
-            .x-btn-inner, .x-btn-glyph {
-                //color: $navigation-color;
-            }
-
-            &:hover {
-                //background-color: $sky-blue-25;
-            }
-        }
-    }
-}
-
 // Sub menu
 
 .uni-submenu {
