@@ -17,6 +17,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Path("/registergroups")
@@ -64,11 +65,10 @@ public class RegisterGroupResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterGroupInfo createRegisterGroup(RegisterGroupInfo registerGroupInfo) {
         RegisterGroup newGroup = this.masterDataService.newRegisterGroup(registerGroupInfo.name);
-        for(RegisterMappingInfo mapping : registerGroupInfo.registerTypes){
-            newGroup.addRegisterMapping(resourceHelper.findRegisterMappingByIdOrThrowException(mapping.id));
-        }
         newGroup.save();
-        return new RegisterGroupInfo(newGroup);
+
+        return updateRegisterMappingInGroup(newGroup, registerGroupInfo, true);
+
     }
 
     @PUT
@@ -76,14 +76,27 @@ public class RegisterGroupResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterGroupInfo updateRegisterGroup(@PathParam("id") long id, RegisterGroupInfo registerGroupInfo) {
+        boolean modified = false;
         RegisterGroup group = resourceHelper.findRegisterGroupByIdOrThrowException(id);
-        group.setName(registerGroupInfo.name);
-        group.removeRegisterMappings();
-
-        for(RegisterMappingInfo mapping : registerGroupInfo.registerTypes){
-            group.addRegisterMapping(resourceHelper.findRegisterMappingByIdOrThrowException(mapping.id));
+        if(!group.getName().equals(registerGroupInfo.name)){
+            group.setName(registerGroupInfo.name);
+            modified = true;
         }
-        group.save();
+
+        return updateRegisterMappingInGroup(group, registerGroupInfo, modified);
+    }
+
+    private RegisterGroupInfo updateRegisterMappingInGroup(RegisterGroup group, RegisterGroupInfo registerGroupInfo, boolean modified){
+        HashMap<Long, RegisterMapping> registerMappings = new HashMap<>();
+        for(RegisterMappingInfo mapping : registerGroupInfo.registerTypes){
+            registerMappings.put(mapping.id, resourceHelper.findRegisterMappingByIdOrThrowException(mapping.id));
+        }
+
+        modified |= group.updateRegisterMappings(registerMappings);
+
+        if(modified){
+            group.save();
+        }
         return new RegisterGroupInfo(group);
     }
 }
