@@ -48,6 +48,8 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.pluggable.LicenseServer;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -99,6 +101,7 @@ public class InMemoryIntegrationPersistence {
     private ApplicationContext applicationContext;
     private ProtocolPluggableService protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
+    private TaskService taskService;
     private DeviceDataServiceImpl deviceDataService;
 
     public InMemoryIntegrationPersistence() {
@@ -138,6 +141,7 @@ public class InMemoryIntegrationPersistence {
                 new MasterDataModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
+                new TasksModule(),
                 new DeviceDataModule());
         BusinessEventManager eventManager = mock(BusinessEventManager.class);
         when(this.applicationContext.createEventManager()).thenReturn(eventManager);
@@ -157,6 +161,7 @@ public class InMemoryIntegrationPersistence {
             this.engineModelService = injector.getInstance(EngineModelService.class);
             this.relationService = injector.getInstance(RelationService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+            this.taskService = injector.getInstance(TaskService.class);
             this.dataModel = this.createNewDeviceDataService();
             ctx.commit();
         }
@@ -280,6 +285,10 @@ public class InMemoryIntegrationPersistence {
 
     public EventService getEventService() {
         return eventService;
+    }
+
+    public TaskService getTaskService() {
+        return taskService;
     }
 
     public static String query(String sql) {

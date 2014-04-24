@@ -38,6 +38,7 @@ public abstract class PersistenceIntegrationTest {
     static final String DEVICE_TYPE_NAME = PersistenceIntegrationTest.class.getName() + "Type";
     static final String DEVICE_CONFIGURATION_NAME = PersistenceIntegrationTest.class.getName() + "Config";
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
+    protected static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
     protected DeviceType deviceType;
     protected DeviceConfiguration deviceConfiguration;
 
@@ -91,7 +92,7 @@ public abstract class PersistenceIntegrationTest {
     }
 
     private static void initializeClock() {
-        when(clock.getTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
+        when(clock.getTimeZone()).thenReturn(utcTimeZone);
         when(clock.now()).thenAnswer(new Answer<Date>() {
             @Override
             public Date answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -109,7 +110,7 @@ public abstract class PersistenceIntegrationTest {
     }
 
     protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond) {
-        return freezeClock(year, month, day, hour, minute, second, millisecond, TimeZone.getTimeZone("UTC"));
+        return freezeClock(year, month, day, hour, minute, second, millisecond, utcTimeZone);
     }
 
     protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond, TimeZone timeZone) {

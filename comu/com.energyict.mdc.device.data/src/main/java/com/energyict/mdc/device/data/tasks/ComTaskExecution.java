@@ -1,16 +1,14 @@
 package com.energyict.mdc.device.data.tasks;
 
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.IdBusinessObject;
-import com.energyict.mdc.device.config.NextExecutionSpecs;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
-
-import java.sql.SQLException;
 import java.util.Date;
 
 /**
@@ -46,7 +44,7 @@ import java.util.Date;
  * <li>500: lowest priority</li>
  * </ul>
  * The above still leaves some room for urgent high priority tasks to be scheduled
- * and excuted before all others.
+ * and executed before all others.
  * <p/>
  * Each time a ComTaskExecution is executed,
  * a ComTaskExecutionSession is created
@@ -67,7 +65,11 @@ import java.util.Date;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-09-21 (15:14)
  */
-public interface ComTaskExecution extends IdBusinessObject, DataCollectionConfiguration {
+public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
+    /**
+     * The Default amount of seconds a ComTask should wait before retrying
+     */
+    public static final int DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS = 300;
 
     /**
      * Tests if this ComTaskExecution is scheduled,
@@ -198,10 +200,9 @@ public interface ComTaskExecution extends IdBusinessObject, DataCollectionConfig
      * Makes this ComTaskExecution obsolete, i.e. it will no longer execute
      * nor will it be returned by {@link DeviceDataService} finder methods.
      *
-     * @throws BusinessException Thrown when a business constraint was violated
-     * @throws SQLException Thrown when a database constraint was violated
+     * Note: the call needs to run in a Transaction, no additional save() is required.
      */
-    public void makeObsolete () throws BusinessException, SQLException;
+    public void makeObsolete ();
 
     /**
      * Tests if this ComTaskExecution is obsolete.
@@ -223,7 +224,7 @@ public interface ComTaskExecution extends IdBusinessObject, DataCollectionConfig
      *
      * @return the used ConnectionTask
      */
-    public ConnectionTask getConnectionTask ();
+    public ConnectionTask<?,?> getConnectionTask ();
 
     /**
      * Gets the timestamp of the last execution of this ComTaskExecution.
@@ -281,12 +282,10 @@ public interface ComTaskExecution extends IdBusinessObject, DataCollectionConfig
     /**
      * Calculates and updates the next execution of this ComTaskExecution
      * according to the recurring properties.
-     *
-     * @throws BusinessException Thrown when a business constraint is violated
-     * @throws java.sql.SQLException Thrown when a database constraint is violated
+
      * @see #getNextExecutionTimestamp()
      */
-    public void updateNextExecutionTimestamp() throws BusinessException, SQLException;
+    public void updateNextExecutionTimestamp();
 
     /**
      * Puts this ComTaskExecution "on hold", i.e. temporarily
@@ -297,25 +296,19 @@ public interface ComTaskExecution extends IdBusinessObject, DataCollectionConfig
      * @see #schedule(java.util.Date)
      * @see #updateNextExecutionTimestamp()
      */
-    public void putOnHold() throws BusinessException, SQLException;
+    public void putOnHold();
 
     /**
      * Updates the next execution of this ComTaskExecution
      * so that it will get picked up as soon as possible.
-     *
-     * @throws BusinessException Thrown when a business constraint is violated
-     * @throws java.sql.SQLException Thrown when a database constraint is violated
      */
-    public void scheduleNow() throws BusinessException, SQLException;
+    public void scheduleNow();
 
     /**
      * Updates the next execution of this ComTaskExecution
      * so that it will get picked as soon as possible after the specified Date.
-     *
-     * @throws BusinessException Thrown when a business constraint is violated
-     * @throws java.sql.SQLException Thrown when a database constraint is violated
      */
-    public void schedule(Date when) throws BusinessException, SQLException;
+    public void schedule(Date when);
 
     /**
      * Notifies this ComTaskExecution that a {@link ConnectionTask}
@@ -326,7 +319,7 @@ public interface ComTaskExecution extends IdBusinessObject, DataCollectionConfig
      * @param device The Device
      * @param connectionTask The ConnectionTask that was created
      */
-    public void connectionTaskCreated (Device device, ConnectionTask connectionTask);
+    public void connectionTaskCreated (Device device, ConnectionTask<?,?> connectionTask);
 
     /**
      * Notifies this ComTaskExecution that the {@link ConnectionTask}
@@ -346,6 +339,92 @@ public interface ComTaskExecution extends IdBusinessObject, DataCollectionConfig
      *
      * @param connectionTask the default ConnectionTask
      */
-    public void updateToUseDefaultConnectionTask(ConnectionTask connectionTask);
+    public void updateToUseDefaultConnectionTask(ConnectionTask<?,?> connectionTask);
 
+    /**
+     * Builder that supports basic value setters for a ComTaskExecution
+     */
+    interface ComTaskExecutionBuilder {
+
+        ComTaskExecutionBuilder setUseDefaultConnectionTask(boolean useDefaultConnectionTask);
+
+        /**
+         * Explicitly setting a ConnectionTask will result in NOT using the default connectionTask.
+         * This may be the default connectionTask, but if the default flag changes, then this ComTaskExecution
+         * will still be marked to use the ConnectionTask from this setter.<br/>
+         * Setting an Empty value will result in using the default ConnectionTask
+         * <p/>
+         * <i>If you want to use the default ConnectionTask, just set {@link #setUseDefaultConnectionTask(boolean)} to true</i>
+         *
+         * @param connectionTask the ConnectionTask to set
+         * @return the current updater
+         */
+        ComTaskExecutionBuilder setConnectionTask(ConnectionTask<?, ?> connectionTask);
+
+        ComTaskExecutionBuilder setPriority(int executionPriority);
+
+        ComTaskExecutionBuilder createNextExecutionSpec(TemporalExpression temporalExpression);
+
+        ComTaskExecutionBuilder setMasterNextExecutionSpec(NextExecutionSpecs masterNextExecutionSpec);
+
+        ComTaskExecutionBuilder setIgnoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
+
+        ComTaskExecutionBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
+
+        /**
+         * Creates the actual ComTaskExecution with the objects set in the builder
+         *
+         * @return the newly created ComTaskExecution
+         */
+        ComTaskExecution add();
+    }
+
+    /**
+     * Updater that supports basic value setters for a ComTaskExecution
+     */
+    interface ComTaskExecutionUpdater {
+
+        ComTaskExecutionUpdater setUseDefaultConnectionTask(boolean useDefaultConnectionTask);
+
+        /**
+         * Explicitly setting a ConnectionTask will result in NOT using the default connectionTask.
+         * This may be the default connectionTask, but if the default flag changes, then this ComTaskExecution
+         * will still be marked to use the ConnectionTask from this setter.<br/>
+         * Setting an Empty value will result in using the default ConnectionTask
+         * <p/>
+         * <i>If you want to use the default ConnectionTask, just set {@link #setUseDefaultConnectionTask(boolean)} to true</i>
+         *
+         * @param connectionTask the ConnectionTask to set
+         * @return the current updater
+         */
+        ComTaskExecutionUpdater setConnectionTask(ConnectionTask<?, ?> connectionTask);
+
+        ComTaskExecutionUpdater setPriority(int executionPriority);
+
+        ComTaskExecutionUpdater createOrUpdateNextExecutionSpec(TemporalExpression temporalExpression);
+
+        ComTaskExecutionUpdater removeNextExecutionSpec();
+
+        ComTaskExecutionUpdater setMasterNextExecutionSpec(NextExecutionSpecs masterNextExecutionSpec);
+
+        ComTaskExecutionUpdater setIgnoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
+
+        ComTaskExecutionUpdater setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
+
+        /**
+         * Updates the actual ComTaskExecution with the objects set in this builder
+         *
+         * @return the updated created ComTaskExecution
+         */
+        ComTaskExecution update();
+
+        /**
+         * Sets the given nextExecutionTimeStamp and priority
+         *
+         * @param nextExecutionTimestamp the timeStamp to set
+         * @param priority the priority to set
+         * @return the current updater
+         */
+        ComTaskExecutionUpdater setNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int priority);
+    }
 }
