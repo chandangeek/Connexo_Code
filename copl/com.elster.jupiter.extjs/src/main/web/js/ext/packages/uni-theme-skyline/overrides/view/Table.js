@@ -1,5 +1,6 @@
 Ext.define('Skyline.view.Table', {
-    override: 'Ext.view.Table',
+    override: 'Ext.view.Table'
+//    ,
 //    scroll: true,
 //    scrollbarTpl: '<div class="scrollbar"><div class="up"><span class="arrow-up"></span></div><div class="down"><span class="arrow-down"></span></div><div class="track"><div class="thumb"></div></div></div>',
 //
