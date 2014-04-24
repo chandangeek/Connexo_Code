@@ -21,9 +21,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.PluggableService;
-import com.energyict.mdc.tasks.TaskService;
-
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
 import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.DATE2DATE;
@@ -72,7 +71,7 @@ public enum TableSpecs {
             Column comScheduleId = table.column("COMSCHEDULEID").number().notNull().conversion(NUMBER2LONG).add();
 
             table.foreignKey("FK_GROUP_DEVICE").on(deviceId).references(EISRTU.name()).map(DeviceInComScheduleImpl.Fields.DEVICE_REFERENCE.fieldName())
-                    .reverseMap("comScheduleUsages")
+                    .reverseMap(DeviceImpl.Fields.COM_SCHEDULE_USAGES.fieldName())
                     .composition()
                     .add();
             table.foreignKey("FK_GROUP_COMSCHEDULE").on(comScheduleId).references(SchedulingService.COMPONENT_NAME, "MDCCOMSCHEDULE")

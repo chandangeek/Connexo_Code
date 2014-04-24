@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.impl.tasks;
+package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
  * @since 2012-10-08 (09:04)
  */
 public enum ServerComTaskStatus {
+    // TODO move back to impl package, mdc-all has references on this class though
 
     /**
      * @see TaskStatus#OnHold
