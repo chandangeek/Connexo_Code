@@ -19,24 +19,26 @@ import java.util.List;
  */
 public enum PricingInformationMessage implements DeviceMessageSpec {
 
-    ReadPricingInformation,
-    SetPricingInformation(
+    ReadPricingInformation(0),
+    SetPricingInformation(1,
             PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.PricingInformationUserFileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.PricingInformationActivationDateAttributeName)
     ),
-    SetStandingCharge(
+    SetStandingCharge(2,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.StandingChargeAttributeName),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.PricingInformationActivationDateAttributeName)
     ),
-    UpdatePricingInformation(
+    UpdatePricingInformation(3,
             PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.PricingInformationUserFileAttributeName)
     );
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.PRICING_INFORMATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private PricingInformationMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private PricingInformationMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -82,5 +84,10 @@ public enum PricingInformationMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

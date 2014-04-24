@@ -15,18 +15,20 @@ import java.util.List;
  */
 public enum SMSConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SetSmsDataNbr(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsDataNbrAttributeName)),
-    SetSmsAlarmNbr(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsAlarmNbrAttributeName)),
-    SetSmsEvery(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsEveryAttributeName)),
-    SetSmsNbr(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsNbrAttributeName)),
-    SetSmsCorrection(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsCorrectionAttributeName)),
-    SetSmsConfig(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsConfigAttributeName));
+    SetSmsDataNbr(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsDataNbrAttributeName)),
+    SetSmsAlarmNbr(1, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsAlarmNbrAttributeName)),
+    SetSmsEvery(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsEveryAttributeName)),
+    SetSmsNbr(3, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsNbrAttributeName)),
+    SetSmsCorrection(4, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsCorrectionAttributeName)),
+    SetSmsConfig(5, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSmsConfigAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.SMS_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private SMSConfigurationDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private SMSConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -68,5 +70,10 @@ public enum SMSConfigurationDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

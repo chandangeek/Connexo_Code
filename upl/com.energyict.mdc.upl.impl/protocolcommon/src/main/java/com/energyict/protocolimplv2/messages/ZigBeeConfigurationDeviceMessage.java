@@ -17,29 +17,29 @@ import java.util.List;
  */
 public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    CreateHANNetwork,
-    RemoveHANNetwork,
-    JoinZigBeeSlaveDevice(
+    CreateHANNetwork(0),
+    RemoveHANNetwork(1),
+    JoinZigBeeSlaveDevice(2,
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName),
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName)
     ),
-    RemoveMirror(
+    RemoveMirror(3,
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.ZigBeeConfigurationMirrorAddressAttributeName),
             PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.ZigBeeConfigurationForceRemovalAttributeName)
     ),
-    RemoveZigBeeSlaveDevice(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName)),
-    RemoveAllZigBeeSlaveDevices,
-    BackUpZigBeeHANParameters,
-    RestoreZigBeeHANParameters(PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName)),
-    ReadZigBeeStatus,
-    ChangeZigBeeHANStartupAttributeSetup(
+    RemoveZigBeeSlaveDevice(4, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName)),
+    RemoveAllZigBeeSlaveDevices(5),
+    BackUpZigBeeHANParameters(6),
+    RestoreZigBeeHANParameters(7, PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName)),
+    ReadZigBeeStatus(8),
+    ChangeZigBeeHANStartupAttributeSetup(9,
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.ZigBeeConfigurationSASExtendedPanIdAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ZigBeeConfigurationSASPanIdAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ZigBeeConfigurationSASPanChannelMaskAttributeName),
             PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.ZigBeeConfigurationSASInsecureJoinAttributeName)
     ),
-    ZigBeeNCPFirmwareUpdateWithUserFile(PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName)),
-    ZigBeeNCPFirmwareUpdateWithUserFileAndActivate(
+    ZigBeeNCPFirmwareUpdateWithUserFile(10, PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName)),
+    ZigBeeNCPFirmwareUpdateWithUserFileAndActivate(11,
             PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeName)
     );
@@ -47,8 +47,10 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpec {
     private static final DeviceMessageCategory category = DeviceMessageCategories.ZIGBEE_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private ZigBeeConfigurationDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private ZigBeeConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -90,5 +92,10 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

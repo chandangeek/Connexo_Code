@@ -19,14 +19,14 @@ import java.util.List;
  */
 public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
 
-    WriteExchangeStatus(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.WriteExchangeStatus)),
-    WriteRadioAcknowledge(PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.WriteRadioAcknowledge)),
-    WriteRadioUserTimeout(PropertySpecFactory.timeDurationPropertySpec(DeviceMessageConstants.WriteRadioUserTimeout)),
-    WriteNewPDRNumber(PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newPDRAttributeName, 14)),
-    ConfigureConverterMasterData(
+    WriteExchangeStatus(0, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.WriteExchangeStatus)),
+    WriteRadioAcknowledge(1, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.WriteRadioAcknowledge)),
+    WriteRadioUserTimeout(2, PropertySpecFactory.timeDurationPropertySpec(DeviceMessageConstants.WriteRadioUserTimeout)),
+    WriteNewPDRNumber(3, PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newPDRAttributeName, 14)),
+    ConfigureConverterMasterData(4,
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.converterTypeAttributeName, "VOL1", "VOL2", "VEN1", "VEN2"),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.converterSerialNumberAttributeName)),
-    ConfigureGasMeterMasterData(
+    ConfigureGasMeterMasterData(5,
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.meterTypeAttributeName, "MASS", "USON", "CORI", "VENT", "MEMB", "TURB", "ROTO", "Axxx"),
             PropertySpecFactory.boundedDecimalPropertySpec(
                     DeviceMessageConstants.meterCaliberAttributeName,
@@ -34,7 +34,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
                     new BigDecimal(999999)
             ),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.meterSerialNumberAttributeName)),
-    ConfigureGasParameters(
+    ConfigureGasParameters(6,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.gasDensityAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.airDensityAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.relativeDensityAttributeName),
@@ -44,43 +44,43 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.higherCalorificValueAttributeName)),
 
     //EIWeb general messages
-    SetDescription(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDescriptionAttributeName)),
-    SetIntervalInSeconds(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetIntervalInSecondsAttributeName)),
-    SetUpgradeUrl(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetUpgradeUrlAttributeName)),
-    SetUpgradeOptions(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetUpgradeOptionsAttributeName)),
-    SetDebounceTreshold(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDebounceTresholdAttributeName)),
-    SetTariffMoment(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTariffMomentAttributeName)),
-    SetCommOffset(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetCommOffsetAttributeName)),
-    SetAggIntv(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetAggIntvAttributeName)),
-    SetPulseTimeTrue(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPulseTimeTrueAttributeName)),
+    SetDescription(7, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDescriptionAttributeName)),
+    SetIntervalInSeconds(8, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetIntervalInSecondsAttributeName)),
+    SetUpgradeUrl(9, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetUpgradeUrlAttributeName)),
+    SetUpgradeOptions(10, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetUpgradeOptionsAttributeName)),
+    SetDebounceTreshold(11, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDebounceTresholdAttributeName)),
+    SetTariffMoment(12, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTariffMomentAttributeName)),
+    SetCommOffset(13, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetCommOffsetAttributeName)),
+    SetAggIntv(14, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetAggIntvAttributeName)),
+    SetPulseTimeTrue(15, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPulseTimeTrueAttributeName)),
 
-    SetDukePowerID(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDukePowerIDAttributeName)),
-    SetDukePowerPassword(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDukePowerPasswordAttributeName)),
-    SetDukePowerIdleTime(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDukePowerIdleTimeAttributeName)),
+    SetDukePowerID(16, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDukePowerIDAttributeName)),
+    SetDukePowerPassword(17, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDukePowerPasswordAttributeName)),
+    SetDukePowerIdleTime(18, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDukePowerIdleTimeAttributeName)),
 
-    UploadMeterScheme(PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.MeterScheme)),
-    UploadSwitchPointClockSettings(PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.SwitchPointClockSettings)),
-    UploadSwitchPointClockUpdateSettings(PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.SwitchPointClockUpdateSettings)),
+    UploadMeterScheme(19, PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.MeterScheme)),
+    UploadSwitchPointClockSettings(20, PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.SwitchPointClockSettings)),
+    UploadSwitchPointClockUpdateSettings(21, PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.SwitchPointClockUpdateSettings)),
 
-    ProgramBatteryExpiryDate(PropertySpecFactory.datePropertySpec(DeviceMessageConstants.ConfigurationChangeDate)),
+    ProgramBatteryExpiryDate(22, PropertySpecFactory.datePropertySpec(DeviceMessageConstants.ConfigurationChangeDate)),
 
-    ChangeOfSupplier(
+    ChangeOfSupplier(23,
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ChangeOfSupplierName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ChangeOfSupplierID),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
     ),
-    ChangeOfTenancy(PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)),
-    SetCalorificValue(
+    ChangeOfTenancy(24, PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)),
+    SetCalorificValue(25,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CalorificValue),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
     ),
-    SetConversionFactor(
+    SetConversionFactor(26,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ConversionFactor),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
     ),
-    SetAlarmFilter(PropertySpecFactory.fixedLengthHexStringPropertySpec(DeviceMessageConstants.AlarmFilterAttributeName, 4)),
-    ChangeDefaultResetWindow(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DefaultResetWindowAttributeName)),
-    ChangeAdministrativeStatus(
+    SetAlarmFilter(27, PropertySpecFactory.fixedLengthHexStringPropertySpec(DeviceMessageConstants.AlarmFilterAttributeName, 4)),
+    ChangeDefaultResetWindow(28, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DefaultResetWindowAttributeName)),
+    ChangeAdministrativeStatus(29,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(
                     DeviceMessageConstants.AdministrativeStatusAttributeName,
                     new BigDecimal(0),
@@ -91,8 +91,14 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     );
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private ConfigurationChangeDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    public int getMessageId() {
+        return id;
+    }
+
+    private ConfigurationChangeDeviceMessage(int id,PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 

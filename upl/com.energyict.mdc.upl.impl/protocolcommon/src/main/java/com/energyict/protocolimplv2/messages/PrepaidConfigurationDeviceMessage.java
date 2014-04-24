@@ -15,15 +15,17 @@ import java.util.List;
  */
 public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    AddPrepaidCredit(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.prepaidCreditAttributeName)),
-    DisablePrepaid(),
-    EnablePrepaid();
+    AddPrepaidCredit(0, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.prepaidCreditAttributeName)),
+    DisablePrepaid(1),
+    EnablePrepaid(2);
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.PREPAID_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private PrepaidConfigurationDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private PrepaidConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -65,5 +67,10 @@ public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

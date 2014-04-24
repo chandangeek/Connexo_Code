@@ -21,31 +21,33 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  */
 public enum FirmwareDeviceMessage implements DeviceMessageSpec {
 
-    UPGRADE_FIRMWARE_WITH_USER_FILE(PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName)),
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION(
+    UPGRADE_FIRMWARE_WITH_USER_FILE(0, PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName)),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION(1,
             PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.notNullableBooleanPropertySpec(resumeFirmwareUpdateAttributeName)),
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE(
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE(2,
             PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.notNullableBooleanPropertySpec(resumeFirmwareUpdateAttributeName),
             PropertySpecFactory.notNullableBooleanPropertySpec(plcTypeFirmwareUpdateAttributeName)),
-    UPGRADE_FIRMWARE_ACTIVATE(PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(
+    UPGRADE_FIRMWARE_ACTIVATE(3, PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(4,
             PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),
-    UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE(PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE(5, PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName),
             PropertySpecFactory.stringPropertySpec(firmwareUpdateVersionNumberAttributeName)),
-    UPGRADE_FIRMWARE_URL(PropertySpecFactory.stringPropertySpec(firmwareUpdateURLAttributeName)),
-    UPGRADE_FIRMWARE_URL_AND_ACTIVATE(
+    UPGRADE_FIRMWARE_URL(6, PropertySpecFactory.stringPropertySpec(firmwareUpdateURLAttributeName)),
+    UPGRADE_FIRMWARE_URL_AND_ACTIVATE(7,
             PropertySpecFactory.stringPropertySpec(firmwareUpdateURLAttributeName),
             PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),;
 
     private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private FirmwareDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private FirmwareDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -87,5 +89,10 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

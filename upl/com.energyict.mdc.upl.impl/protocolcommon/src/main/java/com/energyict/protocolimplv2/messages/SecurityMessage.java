@@ -23,40 +23,40 @@ import java.util.List;
  */
 public enum SecurityMessage implements DeviceMessageSpec {
 
-    ACTIVATE_DLMS_ENCRYPTION(PropertySpecFactory.stringPropertySpecWithValues(
+    ACTIVATE_DLMS_ENCRYPTION(0, PropertySpecFactory.stringPropertySpecWithValues(
             DeviceMessageConstants.encryptionLevelAttributeName,
             DlmsEncryptionLevelMessageValues.getNames())),
-    CHANGE_DLMS_AUTHENTICATION_LEVEL(
+    CHANGE_DLMS_AUTHENTICATION_LEVEL(1,
             PropertySpecFactory.stringPropertySpecWithValues(
                     DeviceMessageConstants.authenticationLevelAttributeName,
                     DlmsAuthenticationLevelMessageValues.getNames())
     ),
-    CHANGE_ENCRYPTION_KEY,
-    CHANGE_CLIENT_PASSWORDS(
+    CHANGE_ENCRYPTION_KEY(2),
+    CHANGE_CLIENT_PASSWORDS(3,
             PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newReadingClientPasswordAttributeName, 8),
             PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newManagementClientPasswordAttributeName, 8),
             PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newFirmwareClientPasswordAttributeName, 8)
     ),
-    WRITE_PSK(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.pskAttributeName)),
-    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName)),
-    CHANGE_AUTHENTICATION_KEY,
-    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName)),
-    CHANGE_PASSWORD,
-    CHANGE_PASSWORD_WITH_NEW_PASSWORD(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),   //ASCII password
-    CHANGE_LLS_SECRET,
-    CHANGE_LLS_SECRET_HEX(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),               //Hex string
-    CHANGE_HLS_SECRET,
-    CHANGE_HLS_SECRET_HEX(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),               //Hex string
-    ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(
+    WRITE_PSK(4, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.pskAttributeName)),
+    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY(5, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName)),
+    CHANGE_AUTHENTICATION_KEY(6),
+    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(7, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName)),
+    CHANGE_PASSWORD(8),
+    CHANGE_PASSWORD_WITH_NEW_PASSWORD(9, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),   //ASCII password
+    CHANGE_LLS_SECRET(10),
+    CHANGE_LLS_SECRET_HEX(11, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),               //Hex string
+    CHANGE_HLS_SECRET(12),
+    CHANGE_HLS_SECRET_HEX(13, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),               //Hex string
+    ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(14,
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(
                     DeviceMessageConstants.keyTActivationStatusAttributeName,
                     KeyTUsage.ENABLE.getDescription(),
                     KeyTUsage.getAllDescriptions()
             ),
             PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.SecurityTimeDurationAttributeName, new BigDecimal(0), new BigDecimal(255))),
-    CHANGE_EXECUTION_KEY(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.executionKeyAttributeName)),
-    CHANGE_TEMPORARY_KEY(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.temporaryKeyAttributeName)),
-    BREAK_OR_RESTORE_SEALS(
+    CHANGE_EXECUTION_KEY(15, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.executionKeyAttributeName)),
+    CHANGE_TEMPORARY_KEY(16, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.temporaryKeyAttributeName)),
+    BREAK_OR_RESTORE_SEALS(17,
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.eventLogResetSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.restoreFactorySettingsSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.restoreDefaultSettingsSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
@@ -65,7 +65,7 @@ public enum SecurityMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.downloadProgramSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.restoreDefaultPasswordSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions())),
-    TEMPORARY_BREAK_SEALS(
+    TEMPORARY_BREAK_SEALS(18,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.eventLogResetSealBreakTimeAttributeName, new BigDecimal(0)),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.restoreFactorySettingsSealBreakTimeAttributeName, new BigDecimal(0)),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.restoreDefaultSettingsSealBreakTimeAttributeName, new BigDecimal(0)),
@@ -74,40 +74,40 @@ public enum SecurityMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.remoteAnalysisParametersConfigSealBreakTimeAttributeName, new BigDecimal(0)),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.downloadProgramSealBreakTimeAttributeName, new BigDecimal(0)),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.restoreDefaultPasswordSealBreakTimeAttributeName, new BigDecimal(0))),
-    GENERATE_NEW_PUBLIC_KEY,
-    GENERATE_NEW_PUBLIC_KEY_FROM_RANDOM(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.randomBytesAttributeName)),
-    SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP(PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.deviceGroupAttributeName)),
-    DISABLE_DLMS_AUTHENTICATION_LEVEL_P0(
+    GENERATE_NEW_PUBLIC_KEY(19),
+    GENERATE_NEW_PUBLIC_KEY_FROM_RANDOM(20, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.randomBytesAttributeName)),
+    SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP(21, PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.deviceGroupAttributeName)),
+    DISABLE_DLMS_AUTHENTICATION_LEVEL_P0(22,
             PropertySpecFactory.stringPropertySpecWithValues(
                     DeviceMessageConstants.authenticationLevelAttributeName,
                     DlmsAuthenticationLevelMessageValues.getNames())
     ),
-    DISABLE_DLMS_AUTHENTICATION_LEVEL_P1(
+    DISABLE_DLMS_AUTHENTICATION_LEVEL_P1(23,
             PropertySpecFactory.stringPropertySpecWithValues(
                     DeviceMessageConstants.authenticationLevelAttributeName,
                     DlmsAuthenticationLevelMessageValues.getNames())
     ),
-    ENABLE_DLMS_AUTHENTICATION_LEVEL_P0(
+    ENABLE_DLMS_AUTHENTICATION_LEVEL_P0(24,
             PropertySpecFactory.stringPropertySpecWithValues(
                     DeviceMessageConstants.authenticationLevelAttributeName,
                     DlmsAuthenticationLevelMessageValues.getNames())
     ),
-    ENABLE_DLMS_AUTHENTICATION_LEVEL_P1(
+    ENABLE_DLMS_AUTHENTICATION_LEVEL_P1(25,
             PropertySpecFactory.stringPropertySpecWithValues(
                     DeviceMessageConstants.authenticationLevelAttributeName,
                     DlmsAuthenticationLevelMessageValues.getNames())
     ),
-    CHANGE_HLS_SECRET_USING_SERVICE_KEY(
+    CHANGE_HLS_SECRET_USING_SERVICE_KEY(26,
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
     ),
-    CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY(
+    CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY(27,
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
     ),
-    CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY(
+    CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY(28,
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
@@ -116,8 +116,10 @@ public enum SecurityMessage implements DeviceMessageSpec {
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private SecurityMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private SecurityMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -159,6 +161,11 @@ public enum SecurityMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 
     public enum SealActions {

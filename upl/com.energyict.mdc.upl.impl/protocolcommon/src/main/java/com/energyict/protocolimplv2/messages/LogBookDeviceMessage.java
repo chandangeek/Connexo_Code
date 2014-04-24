@@ -12,43 +12,45 @@ import java.util.List;
 
 /**
  * Provides a summary of all DeviceMessages related to configuration/readout of LogBooks
- *
+ * <p/>
  * Copyrights EnergyICT
  * Date: 28/02/13
  * Time: 9:10
  */
 public enum LogBookDeviceMessage implements DeviceMessageSpec {
 
-    SetInputChannel(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetInputChannelAttributeName)),
-    SetCondition(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetConditionAttributeName)),
-    SetConditionValue(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetConditionValueAttributeName)),
-    SetTimeTrue(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeTrueAttributeName)),
-    SetTimeFalse(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeFalseAttributeName)),
-    SetOutputChannel(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOutputChannelAttributeName)),
-    SetAlarm(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetAlarmAttributeName)),
-    SetTag(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTagAttributeName)),
-    SetInverse(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetInverseAttributeName)),
-    SetImmediate(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetImmediateAttributeName)),
-    ReadDebugLogBook(
+    SetInputChannel(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetInputChannelAttributeName)),
+    SetCondition(1, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetConditionAttributeName)),
+    SetConditionValue(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetConditionValueAttributeName)),
+    SetTimeTrue(3, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeTrueAttributeName)),
+    SetTimeFalse(4, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeFalseAttributeName)),
+    SetOutputChannel(5, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOutputChannelAttributeName)),
+    SetAlarm(6, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetAlarmAttributeName)),
+    SetTag(7, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTagAttributeName)),
+    SetInverse(8, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetInverseAttributeName)),
+    SetImmediate(9, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetImmediateAttributeName)),
+    ReadDebugLogBook(10,
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.fromDateAttributeName),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.toDateAttributeName)
     ),
-    ReadManufacturerSpecificLogBook(
+    ReadManufacturerSpecificLogBook(11,
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.fromDateAttributeName),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.toDateAttributeName)
     ),
-    ResetMainLogbook(),
-    ResetCoverLogbook(),
-    ResetBreakerLogbook(),
-    ResetCommunicationLogbook(),
-    ResetLQILogbook(),
-    ResetVoltageCutLogbook();
+    ResetMainLogbook(12),
+    ResetCoverLogbook(13),
+    ResetBreakerLogbook(14),
+    ResetCommunicationLogbook(15),
+    ResetLQILogbook(16),
+    ResetVoltageCutLogbook(17);
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.LOG_BOOKS;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private LogBookDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private LogBookDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -90,5 +92,10 @@ public enum LogBookDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

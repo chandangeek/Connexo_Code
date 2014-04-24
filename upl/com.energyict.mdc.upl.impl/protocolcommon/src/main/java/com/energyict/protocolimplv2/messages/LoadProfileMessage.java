@@ -22,19 +22,19 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  */
 public enum LoadProfileMessage implements DeviceMessageSpec {
 
-    PARTIAL_LOAD_PROFILE_REQUEST(
+    PARTIAL_LOAD_PROFILE_REQUEST(0,
             PropertySpecFactory.loadProfilePropertySpec(loadProfileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(fromDateAttributeName),
             PropertySpecFactory.dateTimePropertySpec(toDateAttributeName)
     ),
-    ResetActiveImportLP(),
-    ResetActiveExportLP(),
-    ResetDailyProfile(),
-    ResetMonthlyProfile(),
-    WRITE_CAPTURE_PERIOD_LP1(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(capturePeriodAttributeName)),
-    WRITE_CAPTURE_PERIOD_LP2(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(capturePeriodAttributeName)),
-    WriteConsumerProducerMode(PropertySpecFactory.stringPropertySpecWithValues(consumerProducerModeAttributeName, LoadProfileMode.getAllDescriptions())),
-    LOAD_PROFILE_REGISTER_REQUEST(
+    ResetActiveImportLP(1),
+    ResetActiveExportLP(2),
+    ResetDailyProfile(3),
+    ResetMonthlyProfile(4),
+    WRITE_CAPTURE_PERIOD_LP1(5, PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(capturePeriodAttributeName)),
+    WRITE_CAPTURE_PERIOD_LP2(6,PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(capturePeriodAttributeName)),
+    WriteConsumerProducerMode(7,PropertySpecFactory.stringPropertySpecWithValues(consumerProducerModeAttributeName, LoadProfileMode.getAllDescriptions())),
+    LOAD_PROFILE_REGISTER_REQUEST(8,
             PropertySpecFactory.loadProfilePropertySpec(loadProfileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(fromDateAttributeName)
     );
@@ -42,8 +42,10 @@ public enum LoadProfileMessage implements DeviceMessageSpec {
     private static final DeviceMessageCategory loadProfileCategory = DeviceMessageCategories.LOAD_PROFILES;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private LoadProfileMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private LoadProfileMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -86,5 +88,10 @@ public enum LoadProfileMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

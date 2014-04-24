@@ -19,26 +19,30 @@ import java.util.List;
  */
 public enum DisplayDeviceMessage implements DeviceMessageSpec {
 
-    CONSUMER_MESSAGE_CODE_TO_PORT_P1(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.p1InformationAttributeName)),
-    CONSUMER_MESSAGE_TEXT_TO_PORT_P1(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.p1InformationAttributeName)),
-    SET_DISPLAY_MESSAGE(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DisplayMessageAttributeName)),
-    SET_DISPLAY_MESSAGE_WITH_OPTIONS(
+    CONSUMER_MESSAGE_CODE_TO_PORT_P1(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.p1InformationAttributeName)),
+    CONSUMER_MESSAGE_TEXT_TO_PORT_P1(1,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.p1InformationAttributeName)),
+    SET_DISPLAY_MESSAGE(2,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DisplayMessageAttributeName)),
+    SET_DISPLAY_MESSAGE_WITH_OPTIONS(3,
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DisplayMessageAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DisplayMessageTimeDurationAttributeName),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.DisplayMessageActivationDate)
     ),
-    SET_DISPLAY_MESSAGE_ON_IHD_WITH_OPTIONS(
+    SET_DISPLAY_MESSAGE_ON_IHD_WITH_OPTIONS(4,
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DisplayMessageAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DisplayMessageTimeDurationAttributeName),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.DisplayMessageActivationDate)
     ),
-    CLEAR_DISPLAY_MESSAGE;
+    CLEAR_DISPLAY_MESSAGE(5);
 
     private static final DeviceMessageCategory displayCategory = DeviceMessageCategories.DISPLAY;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private DisplayDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+
+
+    private DisplayDeviceMessage(int id,PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -80,5 +84,10 @@ public enum DisplayDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

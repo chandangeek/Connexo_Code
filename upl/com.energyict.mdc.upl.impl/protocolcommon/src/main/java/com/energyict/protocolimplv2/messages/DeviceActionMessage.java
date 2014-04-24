@@ -20,53 +20,59 @@ import java.util.List;
  */
 public enum DeviceActionMessage implements DeviceMessageSpec {
 
-    BILLING_RESET,
-    BILLING_RESET_CONTRACT_1,
-    BILLING_RESET_CONTRACT_2,
-    SET_PASSIVE_EOB_DATETIME(
+    BILLING_RESET(0),
+    BILLING_RESET_CONTRACT_1(1),
+    BILLING_RESET_CONTRACT_2(2),
+    SET_PASSIVE_EOB_DATETIME(3,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.contractAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.year      ),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.month     ),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.day       ),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.dayOfWeek ),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.hour          ),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.minute            ),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.second            )
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.year),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.month),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.day),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.dayOfWeek),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.hour),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.minute),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.second)
     ),
-    GLOBAL_METER_RESET,
-    DEMAND_RESET,
-    POWER_OUTAGE_RESET,
-    POWER_QUALITY_RESET,
-    ERROR_STATUS_RESET,
-    REGISTERS_RESET,
-    LOAD_LOG_RESET,
-    EVENT_LOG_RESET,
-    ALARM_REGISTER_RESET,
-    ERROR_REGISTER_RESET,
-    REBOOT_DEVICE,
-    DISABLE_WEBSERVER,
-    ENABLE_WEBSERVER,
-    RESTORE_FACTORY_SETTINGS,
-    SetFTIONReboot(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONReboot)),
-    SetFTIONInitialize(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONInitialize)),
-    SetFTIONMailLog(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONMailLog)),
-    SetFTIONSaveConfig(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONSaveConfig)),
-    SetFTIONUpgrade(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONUpgrade)),
-    SetFTIONClearMem(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONClearMem)),
-    SetFTIONMailConfig(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONMailConfig)),
-    SetFTIONModemReset(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONModemReset)),
-    SetChangeAdminPassword(
+    GLOBAL_METER_RESET(4),
+    DEMAND_RESET(5),
+    POWER_OUTAGE_RESET(6),
+    POWER_QUALITY_RESET(7),
+    ERROR_STATUS_RESET(8),
+    REGISTERS_RESET(9),
+    LOAD_LOG_RESET(10),
+    EVENT_LOG_RESET(11),
+    ALARM_REGISTER_RESET(12),
+    ERROR_REGISTER_RESET(13),
+    REBOOT_DEVICE(14),
+    DISABLE_WEBSERVER(15),
+    ENABLE_WEBSERVER(16),
+    RESTORE_FACTORY_SETTINGS(17),
+    SetFTIONReboot(18, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONReboot)),
+    SetFTIONInitialize(19, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONInitialize)),
+    SetFTIONMailLog(20, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONMailLog)),
+    SetFTIONSaveConfig(21, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONSaveConfig)),
+    SetFTIONUpgrade(22, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONUpgrade)),
+    SetFTIONClearMem(23, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONClearMem)),
+    SetFTIONMailConfig(24, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONMailConfig)),
+    SetFTIONModemReset(25, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONModemReset)),
+    SetChangeAdminPassword(26,
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.AdminOld),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.AdminNew)
     ),
-    SetOutputOn(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputOn)),
-    SetOutputOff(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputOff)),
-    SetOutputToggle(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputToggle)),
-    SetOutputPulse(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputPulse)),
-    SetAnalogOut(
+    SetOutputOn(27, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputOn)),
+    SetOutputOff(28, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputOff)),
+    SetOutputToggle(29, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputToggle)),
+    SetOutputPulse(30, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputPulse)),
+    SetAnalogOut(31,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getPossibleValues()),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.AnalogOutValue)
     );
+
+    private final int id;
+
+    public int getMessageId() {
+        return id;
+    }
 
     private static BigDecimal[] getPossibleValues() {
         BigDecimal[] result = new BigDecimal[16];
@@ -80,7 +86,8 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
-    private DeviceActionMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private DeviceActionMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 

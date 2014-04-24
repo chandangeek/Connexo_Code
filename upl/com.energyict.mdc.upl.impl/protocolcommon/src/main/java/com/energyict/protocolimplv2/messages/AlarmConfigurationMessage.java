@@ -17,14 +17,16 @@ import java.util.List;
  */
 public enum AlarmConfigurationMessage implements DeviceMessageSpec {
 
-    RESET_ALL_ALARM_BITS,
-    WRITE_ALARM_FILTER(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmFilterAttributeName));
+    RESET_ALL_ALARM_BITS(0),
+    WRITE_ALARM_FILTER(1, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmFilterAttributeName));
 
     private static final DeviceMessageCategory displayCategory = DeviceMessageCategories.ALARM_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private AlarmConfigurationMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private AlarmConfigurationMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -66,5 +68,10 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

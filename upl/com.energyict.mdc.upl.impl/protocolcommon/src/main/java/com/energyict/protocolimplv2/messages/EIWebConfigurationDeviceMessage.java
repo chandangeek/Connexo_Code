@@ -16,25 +16,25 @@ import java.util.List;
  */
 public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SetEIWebPassword(
+    SetEIWebPassword(0,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebPasswordAttributeName)),
-    SetEIWebPage(
+    SetEIWebPage(1,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebPageAttributeName)),
-    SetEIWebFallbackPage(
+    SetEIWebFallbackPage(2,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebFallbackPageAttributeName)),
-    SetEIWebSendEvery(
+    SetEIWebSendEvery(3,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebSendEveryAttributeName)),
-    SetEIWebCurrentInterval(
+    SetEIWebCurrentInterval(4,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebCurrentIntervalAttributeName)),
-    SetEIWebDatabaseID(
+    SetEIWebDatabaseID(5,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebDatabaseIDAttributeName)),
-    SetEIWebOptions(
+    SetEIWebOptions(6,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebOptionsAttributeName));
 
@@ -42,8 +42,10 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpec {
     private static final DeviceMessageCategory eiWebCategory = DeviceMessageCategories.EIWEB_PARAMETERS;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private EIWebConfigurationDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private EIWebConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -85,5 +87,10 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

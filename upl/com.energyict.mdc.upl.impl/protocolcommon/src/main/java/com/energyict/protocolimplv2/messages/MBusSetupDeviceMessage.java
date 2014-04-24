@@ -17,25 +17,27 @@ import java.util.List;
  */
 public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
 
-    Decommission,
-    DataReadout,
-    Commission,
-    DecommissionAll,
-    SetEncryptionKeys(
+    Decommission(0),
+    DataReadout(1),
+    Commission(2),
+    DecommissionAll(3),
+    SetEncryptionKeys(4,
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.openKeyAttributeName),
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.transferKeyAttributeName)
     ),
-    SetEncryptionKeysUsingCryptoserver(
+    SetEncryptionKeysUsingCryptoserver(5,
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.defaultKeyAttributeName)
     ),
-    UseCorrectedValues(),
-    UseUncorrectedValues();
+    UseCorrectedValues(6),
+    UseUncorrectedValues(7);
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.MBUS_SETUP;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private MBusSetupDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private MBusSetupDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -77,5 +79,10 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

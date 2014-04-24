@@ -19,39 +19,39 @@ import java.util.List;
  */
 public enum NetworkConnectivityMessage implements DeviceMessageSpec {
 
-    ACTIVATE_WAKEUP_MECHANISM,
-    DEACTIVATE_SMS_WAKEUP,
-    CHANGE_GPRS_USER_CREDENTIALS(
+    ACTIVATE_WAKEUP_MECHANISM(0),
+    DEACTIVATE_SMS_WAKEUP(1),
+    CHANGE_GPRS_USER_CREDENTIALS(2,
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.usernameAttributeName),
             PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)),
-    CHANGE_GPRS_APN_CREDENTIALS(
+    CHANGE_GPRS_APN_CREDENTIALS(3,
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.apnAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.usernameAttributeName),
             PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)),
     // will be a semicolon separated string (maybe in the future this will be a StringListAspectEditor ...
-    ADD_PHONENUMBERS_TO_WHITE_LIST(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.whiteListPhoneNumbersAttributeName)),
-    ADD_MANAGED_PHONENUMBERS_TO_WHITE_LIST(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.managedWhiteListPhoneNumbersAttributeName)),
-    CHANGE_SMS_CENTER_NUMBER(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.smsCenterPhoneNumberAttributeName)),
-    CHANGE_DEVICE_PHONENUMBER(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.devicePhoneNumberAttributeName)),
-    CHANGE_GPRS_IP_ADDRESS_AND_PORT(
+    ADD_PHONENUMBERS_TO_WHITE_LIST(4, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.whiteListPhoneNumbersAttributeName)),
+    ADD_MANAGED_PHONENUMBERS_TO_WHITE_LIST(5, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.managedWhiteListPhoneNumbersAttributeName)),
+    CHANGE_SMS_CENTER_NUMBER(6, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.smsCenterPhoneNumberAttributeName)),
+    CHANGE_DEVICE_PHONENUMBER(7, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.devicePhoneNumberAttributeName)),
+    CHANGE_GPRS_IP_ADDRESS_AND_PORT(8,
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ipAddressAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.portNumberAttributeName)),
-    CHANGE_WAKEUP_FREQUENCY(
+    CHANGE_WAKEUP_FREQUENCY(9,
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.wakeupPeriodAttributeName, "1", "2", "4", "6", "8", "12")),
-    CHANGE_INACTIVITY_TIMEOUT(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.inactivityTimeoutAttributeName)),
+    CHANGE_INACTIVITY_TIMEOUT(10, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.inactivityTimeoutAttributeName)),
 
     //EIWeb messages
-    SetProxyServer(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetProxyServerAttributeName)),
-    SetProxyUsername(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetProxyUsernameAttributeName)),
-    SetProxyPassword(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetProxyPasswordAttributeName)),
-    SetDHCP(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDHCPAttributeName)),
-    SetDHCPTimeout(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDHCPTimeoutAttributeName)),
-    SetIPAddress(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetIPAddressAttributeName)),
-    SetSubnetMask(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSubnetMaskAttributeName)),
-    SetGateway(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetGatewayAttributeName)),
-    SetNameServer(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNameServerAttributeName)),
-    SetHttpPort(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetHttpPortAttributeName)),
-    ConfigureKeepAliveSettings(
+    SetProxyServer(11, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetProxyServerAttributeName)),
+    SetProxyUsername(12, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetProxyUsernameAttributeName)),
+    SetProxyPassword(13, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetProxyPasswordAttributeName)),
+    SetDHCP(14, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDHCPAttributeName)),
+    SetDHCPTimeout(15, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDHCPTimeoutAttributeName)),
+    SetIPAddress(16, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetIPAddressAttributeName)),
+    SetSubnetMask(17, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSubnetMaskAttributeName)),
+    SetGateway(18, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetGatewayAttributeName)),
+    SetNameServer(19, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNameServerAttributeName)),
+    SetHttpPort(20, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetHttpPortAttributeName)),
+    ConfigureKeepAliveSettings(21,
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.NetworkConnectivityIPAddressAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.NetworkConnectivityIntervalAttributeName)
     );
@@ -59,8 +59,10 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
     private static final DeviceMessageCategory networkAndConnectivityCategory = DeviceMessageCategories.NETWORK_AND_CONNECTIVITY;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private NetworkConnectivityMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private NetworkConnectivityMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -102,5 +104,10 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

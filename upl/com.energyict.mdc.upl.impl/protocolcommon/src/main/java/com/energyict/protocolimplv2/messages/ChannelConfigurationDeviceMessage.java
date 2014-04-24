@@ -18,11 +18,17 @@ import java.util.List;
  */
 public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SetFunction(PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getBigDecimalValues()), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetFunctionAttributeName)),
-    SetParameters(PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getBigDecimalValues()), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetParametersAttributeName)),
-    SetName(PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getBigDecimalValues()), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNameAttributeName)),
-    SetUnit(PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getBigDecimalValues()), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetUnitAttributeName)),
-    SetLPDivisor(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ChannelConfigurationChnNbrAttributeName), PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DivisorAttributeName));
+    SetFunction(0, PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getBigDecimalValues()), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetFunctionAttributeName)),
+    SetParameters(1, PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getBigDecimalValues()), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetParametersAttributeName)),
+    SetName(2, PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getBigDecimalValues()), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNameAttributeName)),
+    SetUnit(3, PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getBigDecimalValues()), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetUnitAttributeName)),
+    SetLPDivisor(4, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ChannelConfigurationChnNbrAttributeName), PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DivisorAttributeName));
+
+    private final int id;
+
+    public int getMessageId() {
+        return id;
+    }
 
     /**
      * Return range 1 - 32
@@ -39,7 +45,8 @@ public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpec {
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
-    private ChannelConfigurationDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private ChannelConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 

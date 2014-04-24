@@ -15,14 +15,16 @@ import java.util.List;
  */
 public enum TotalizersConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SetSumMask(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSumMaskAttributeName)),
-    SetSubstractMask(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSubstractMaskAttributeName));
+    SetSumMask(0, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSumMaskAttributeName)),
+    SetSubstractMask(1, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSubstractMaskAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.TOTALIZER_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private TotalizersConfigurationDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private TotalizersConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -64,5 +66,10 @@ public enum TotalizersConfigurationDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

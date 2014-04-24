@@ -15,16 +15,18 @@ import java.util.List;
  */
 public enum OpusConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SetOpusOSNbr(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusOSNbrAttributeName)),
-    SetOpusPassword(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusPasswordAttributeName)),
-    SetOpusTimeout(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusTimeoutAttributeName)),
-    SetOpusConfig(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusConfigAttributeName));
+    SetOpusOSNbr(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusOSNbrAttributeName)),
+    SetOpusPassword(1, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusPasswordAttributeName)),
+    SetOpusTimeout(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusTimeoutAttributeName)),
+    SetOpusConfig(3, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusConfigAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.OPUS_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private OpusConfigurationDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private OpusConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -66,5 +68,10 @@ public enum OpusConfigurationDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

@@ -15,16 +15,18 @@ import java.util.List;
  */
 public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SetDLMSDeviceID(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDLMSDeviceIDAttributeName)),
-    SetDLMSMeterID(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDLMSMeterIDAttributeName)),
-    SetDLMSPassword(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDLMSPasswordAttributeName)),
-    SetDLMSIdleTime(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDLMSIdleTimeAttributeName));
+    SetDLMSDeviceID(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDLMSDeviceIDAttributeName)),
+    SetDLMSMeterID(1, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDLMSMeterIDAttributeName)),
+    SetDLMSPassword(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDLMSPasswordAttributeName)),
+    SetDLMSIdleTime(3, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDLMSIdleTimeAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.DLMS_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private DLMSConfigurationDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private DLMSConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -66,5 +68,10 @@ public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

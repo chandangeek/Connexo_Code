@@ -21,7 +21,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * The category for all messages that relate to the Activity Calendar
      */
-    ACTIVITY_CALENDAR {
+    ACTIVITY_CALENDAR(0) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(ActivityCalendarDeviceMessage.values());
@@ -30,7 +30,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * The category for all messages that relate to the contactor/breaker/valve of a Device
      */
-    CONTACTOR {
+    CONTACTOR(1) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(ContactorDeviceMessage.values());
@@ -39,7 +39,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * The category for all messages that relate to configuring the public lighting objects
      */
-    PUBLIC_LIGHTING {
+    PUBLIC_LIGHTING(2) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(PublicLightingDeviceMessage.values());
@@ -48,7 +48,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * The category for all messages that relate to configuring alarms
      */
-    ALARM_CONFIGURATION {
+    ALARM_CONFIGURATION(3) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(AlarmConfigurationMessage.values());
@@ -57,7 +57,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * The category for all messages that relate configuring PLC
      */
-    PLC_CONFIGURATION {
+    PLC_CONFIGURATION(4) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(PLCConfigurationDeviceMessage.values());
@@ -66,7 +66,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * The category for all messages related to resetting values/registers/states/flags
      */
-    RESET {
+    RESET(5) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Collections.emptyList();
@@ -75,7 +75,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * The category for all messages that will change the connectivity setup of a device.
      */
-    NETWORK_AND_CONNECTIVITY {
+    NETWORK_AND_CONNECTIVITY(6) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(NetworkConnectivityMessage.values());
@@ -84,7 +84,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * The category for all messages that relate to ZigBee configuration
      */
-    ZIGBEE_CONFIGURATION {
+    ZIGBEE_CONFIGURATION(7) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(ZigBeeConfigurationDeviceMessage.values());
@@ -94,7 +94,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * The category for all messages that relate to authentication, authorisation and encryption.
      */
-    SECURITY {
+    SECURITY(8) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(SecurityMessage.values());
@@ -104,7 +104,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * The category for all message that relate to the device's firmware.
      */
-    FIRMWARE {
+    FIRMWARE(9) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(FirmwareDeviceMessage.values());
@@ -113,7 +113,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * The category for all messages that relate to a device action
      */
-    DEVICE_ACTIONS {
+    DEVICE_ACTIONS(10) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(DeviceActionMessage.values());
@@ -122,7 +122,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * The category for all messages that relate to a pricing information
      */
-    PRICING_INFORMATION {
+    PRICING_INFORMATION(11) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(PricingInformationMessage.values());
@@ -131,7 +131,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * The category for all messages that relate to <i>a</i> display (InHomeDisplay, Display of E-meter, ...)
      */
-    DISPLAY {
+    DISPLAY(12) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(DisplayDeviceMessage.values());
@@ -140,7 +140,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * The category for all general messages, that don't have one unique goal
      */
-    GENERAL {
+    GENERAL(13) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(GeneralDeviceMessage.values());
@@ -149,7 +149,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * The category for all messages that relate to load limiting
      */
-    LOAD_BALANCE {
+    LOAD_BALANCE(14) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(LoadBalanceDeviceMessage.values());
@@ -158,7 +158,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all advance test messages
      */
-    ADVANCED_TEST {
+    ADVANCED_TEST(15) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(AdvancedTestMessage.values());
@@ -167,7 +167,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to a LoadProfile and their configuration
      */
-    LOAD_PROFILES {
+    LOAD_PROFILES(16) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(LoadProfileMessage.values());
@@ -176,7 +176,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to LogBooks and their configuration
      */
-    LOG_BOOKS {
+    LOG_BOOKS(17) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(LogBookDeviceMessage.values());
@@ -185,7 +185,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to setting the meter time
      */
-    CLOCK {
+    CLOCK(18) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(ClockDeviceMessage.values());
@@ -194,7 +194,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to configuring a peak shaver
      */
-    PEAK_SHAVER_CONFIGURATION {
+    PEAK_SHAVER_CONFIGURATION(19) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(PeakShaverConfigurationDeviceMessage.values());
@@ -203,7 +203,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to setting the mail configuration
      */
-    MAIL_CONFIGURATION {
+    MAIL_CONFIGURATION(20) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(MailConfigurationDeviceMessage.values());
@@ -212,7 +212,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to configuring the EIWeb parameters
      */
-    EIWEB_PARAMETERS {
+    EIWEB_PARAMETERS(21) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(EIWebConfigurationDeviceMessage.values());
@@ -221,7 +221,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to configuring PPP parameters
      */
-    PPP_PARAMETERS {
+    PPP_PARAMETERS(22) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(PPPConfigurationDeviceMessage.values());
@@ -230,7 +230,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to configuring a modem
      */
-    MODEM_CONFIGURATION {
+    MODEM_CONFIGURATION(23) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(ModemConfigurationDeviceMessage.values());
@@ -239,7 +239,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to configuring SMS
      */
-    SMS_CONFIGURATION {
+    SMS_CONFIGURATION(24) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(SMSConfigurationDeviceMessage.values());
@@ -248,7 +248,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to configuring ModBus (e.g. on the RTU+Server)
      */
-    MODBUS_CONFIGURATION {
+    MODBUS_CONFIGURATION(25) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(ModbusConfigurationDeviceMessage.values());
@@ -257,7 +257,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to configuring MBus (e.g. on the RTU+Server)
      */
-    MBUS_CONFIGURATION {
+    MBUS_CONFIGURATION(26) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(MBusConfigurationDeviceMessage.values());
@@ -266,7 +266,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to setting up an MBus device (in a master slave scenario)
      */
-    MBUS_SETUP {
+    MBUS_SETUP(27) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(MBusSetupDeviceMessage.values());
@@ -275,7 +275,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to configuring Opus in the RTU+Server
      */
-    OPUS_CONFIGURATION {
+    OPUS_CONFIGURATION(28) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(OpusConfigurationDeviceMessage.values());
@@ -284,7 +284,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to configuring power failures and power quality
      */
-    POWER_CONFIGURATION {
+    POWER_CONFIGURATION(29) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(PowerConfigurationDeviceMessage.values());
@@ -293,7 +293,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to configuring Opus in the RTU+Server
      */
-    PREPAID_CONFIGURATION {
+    PREPAID_CONFIGURATION(30) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(PrepaidConfigurationDeviceMessage.values());
@@ -302,7 +302,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to configuring DLMS (e.g. via EIWeb, on the RTU+Server)
      */
-    DLMS_CONFIGURATION {
+    DLMS_CONFIGURATION(31) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(DLMSConfigurationDeviceMessage.values());
@@ -311,7 +311,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to configuring channels
      */
-    CHANNEL_CONFIGURATION {
+    CHANNEL_CONFIGURATION(32) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(ChannelConfigurationDeviceMessage.values());
@@ -320,7 +320,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to configuring the totalizers
      */
-    TOTALIZER_CONFIGURATION {
+    TOTALIZER_CONFIGURATION(33) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(TotalizersConfigurationDeviceMessage.values());
@@ -329,13 +329,18 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * This category summarizes all messages related to a configuration changes
      */
-    CONFIGURATION_CHANGE {
+    CONFIGURATION_CHANGE(34) {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(ConfigurationChangeDeviceMessage.values());
         }
     };
 
+    private final int id;
+
+    private DeviceMessageCategories(int id) {
+        this.id = id;
+    }
 
     @Override
     public String getName() {
@@ -369,7 +374,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
 
     @Override
     public int getId() {
-        return this.ordinal();
+        return id;
     }
 
     @Override

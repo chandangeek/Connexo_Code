@@ -21,46 +21,52 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meter
  */
 public enum ClockDeviceMessage implements DeviceMessageSpec {
 
-    SET_TIME(PropertySpecFactory.datePropertySpec(meterTimeAttributeName)),
-    SET_TIMEZONE(PropertySpecFactory.bigDecimalPropertySpec(TimeZoneOffsetInHoursAttributeName)),     //In hours
+    SET_TIME(0, PropertySpecFactory.datePropertySpec(meterTimeAttributeName)),
+    SET_TIMEZONE(1, PropertySpecFactory.bigDecimalPropertySpec(TimeZoneOffsetInHoursAttributeName)),     //In hours
 
-    EnableOrDisableDST(PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableDSTAttributeName)),
-    SetEndOfDST(
+    EnableOrDisableDST(2, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableDSTAttributeName)),
+    SetEndOfDST(3,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.hour)),
-    SetStartOfDST(
+    SetStartOfDST(4,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.hour)),
-    SetStartOfDSTWithoutHour(
+    SetStartOfDSTWithoutHour(5,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek)),
-    SetEndOfDSTWithoutHour(
+    SetEndOfDSTWithoutHour(6,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek)),
-    SetDSTAlgorithm(
+    SetDSTAlgorithm(7,
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.dstStartAlgorithmAttributeName, DSTAlgorithm.getAllDescriptions()),
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.dstEndAlgorithmAttributeName, DSTAlgorithm.getAllDescriptions())
     ),
 
     //EIWeb messages
-    SetDST(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDSTAttributeName)),
-    SetTimezone(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimezoneAttributeName)),
-    SetTimeAdjustment(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeAdjustmentAttributeName)),
-    SetNTPServer(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNTPServerAttributeName)),
-    SetRefreshClockEvery(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetRefreshClockEveryAttributeName)),
-    SetNTPOptions(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNTPOptionsAttributeName));
+    SetDST(8,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDSTAttributeName)),
+    SetTimezone(9,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimezoneAttributeName)),
+    SetTimeAdjustment(10,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeAdjustmentAttributeName)),
+    SetNTPServer(11,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNTPServerAttributeName)),
+    SetRefreshClockEvery(12,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetRefreshClockEveryAttributeName)),
+    SetNTPOptions(13,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNTPOptionsAttributeName));
 
     private static final DeviceMessageCategory clockCategory = DeviceMessageCategories.CLOCK;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private ClockDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    public int getMessageId() {
+        return id;
+    }
+
+    private ClockDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 

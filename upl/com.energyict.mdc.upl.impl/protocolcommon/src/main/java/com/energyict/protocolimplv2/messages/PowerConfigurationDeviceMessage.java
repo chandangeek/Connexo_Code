@@ -15,20 +15,22 @@ import java.util.List;
  */
 public enum PowerConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    IEC1107LimitPowerQuality(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.powerQualityThresholdAttributeName)),
-    SetReferenceVoltage(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ReferenceVoltageAttributeName)),
-    SetVoltageSagTimeThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.VoltageSagTimeThresholdAttributeName)),
-    SetVoltageSwellTimeThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.VoltageSwellTimeThresholdAttributeName)),
-    SetVoltageSagThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.VoltageSagThresholdAttributeName)),
-    SetVoltageSwellThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.VoltageSwellThresholdAttributeName)),
-    SetLongPowerFailureTimeThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.LongPowerFailureTimeThresholdAttributeName)),
-    SetLongPowerFailureThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.LongPowerFailureThresholdAttributeName));
+    IEC1107LimitPowerQuality(0, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.powerQualityThresholdAttributeName)),
+    SetReferenceVoltage(1, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ReferenceVoltageAttributeName)),
+    SetVoltageSagTimeThreshold(2, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.VoltageSagTimeThresholdAttributeName)),
+    SetVoltageSwellTimeThreshold(3, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.VoltageSwellTimeThresholdAttributeName)),
+    SetVoltageSagThreshold(4, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.VoltageSagThresholdAttributeName)),
+    SetVoltageSwellThreshold(5, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.VoltageSwellThresholdAttributeName)),
+    SetLongPowerFailureTimeThreshold(6, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.LongPowerFailureTimeThresholdAttributeName)),
+    SetLongPowerFailureThreshold(7, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.LongPowerFailureThresholdAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.POWER_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private PowerConfigurationDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private PowerConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -70,5 +72,10 @@ public enum PowerConfigurationDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

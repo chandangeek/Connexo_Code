@@ -20,36 +20,42 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  */
 public enum PublicLightingDeviceMessage implements DeviceMessageSpec {
 
-    SET_RELAY_OPERATING_MODE(
+    SET_RELAY_OPERATING_MODE(0,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(relayNumberAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
             PropertySpecFactory.bigDecimalPropertySpecWithValues(relayOperatingModeAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3))
     ),
-    SET_TIME_SWITCHING_TABLE(
+    SET_TIME_SWITCHING_TABLE(1,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(relayNumberAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
             PropertySpecFactory.userFileReferencePropertySpec(configUserFileAttributeName)
     ),
-    SET_THRESHOLD_OVER_CONSUMPTION(
+    SET_THRESHOLD_OVER_CONSUMPTION(2,
             PropertySpecFactory.bigDecimalPropertySpec(threshold)
     ),
-    SET_OVERALL_MINIMUM_THRESHOLD(
+    SET_OVERALL_MINIMUM_THRESHOLD(3,
             PropertySpecFactory.bigDecimalPropertySpec(threshold)
     ),
-    SET_OVERALL_MAXIMUM_THRESHOLD(
+    SET_OVERALL_MAXIMUM_THRESHOLD(4,
             PropertySpecFactory.bigDecimalPropertySpec(threshold)
     ),
-    SET_RELAY_TIME_OFFSETS_TABLE(
+    SET_RELAY_TIME_OFFSETS_TABLE(5,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(relayNumberAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
             PropertySpecFactory.stringPropertySpec(beginDatesAttributeName),
             PropertySpecFactory.stringPropertySpec(endDatesAttributeName),
             PropertySpecFactory.stringPropertySpec(offOffsetsAttributeName),
             PropertySpecFactory.stringPropertySpec(onOffsetsAttributeName)
+    ),
+    WRITE_GPS_COORDINATES(6,
+            PropertySpecFactory.stringPropertySpec(latitudeAttributeName),
+            PropertySpecFactory.stringPropertySpec(longitudeAttributeName)
     );
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.PUBLIC_LIGHTING;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private PublicLightingDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private PublicLightingDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -95,5 +101,10 @@ public enum PublicLightingDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

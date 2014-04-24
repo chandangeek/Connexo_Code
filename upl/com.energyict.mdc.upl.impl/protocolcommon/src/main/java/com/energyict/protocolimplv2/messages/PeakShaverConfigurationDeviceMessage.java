@@ -19,28 +19,28 @@ import java.util.List;
  */
 public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SetActiveChannel(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetActiveChannelAttributeName)),
-    SetReactiveChannel(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetReactiveChannelAttributeName)),
-    SetTimeBase(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeBaseAttributeName)),
-    SetPOut(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOutAttributeName)),
-    SetPIn(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPInAttributeName)),
-    SetDeadTime(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDeadTimeAttributeName)),
-    SetAutomatic(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetAutomaticAttributeName)),
-    SetCyclic(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetCyclicAttributeName)),
-    SetInvert(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetInvertAttributeName)),
-    SetAdaptSetpoint(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetAdaptSetpointAttributeName)),
-    SetInstantAnalogOut(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetInstantAnalogOutAttributeName)),
-    SetPredictedAnalogOut(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPredictedAnalogOutAttributeName)),
-    SetpointAnalogOut(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetpointAnalogOutAttributeName)),
-    SetDifferenceAnalogOut(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDifferenceAnalogOutAttributeName)),
-    SetTariff(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTariffAttributeName)),
-    SetResetLoads(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetResetLoadsAttributeName)),
-    SetSetpoint(
+    SetActiveChannel(0, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetActiveChannelAttributeName)),
+    SetReactiveChannel(1, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetReactiveChannelAttributeName)),
+    SetTimeBase(2, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeBaseAttributeName)),
+    SetPOut(3, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOutAttributeName)),
+    SetPIn(4, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPInAttributeName)),
+    SetDeadTime(5, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDeadTimeAttributeName)),
+    SetAutomatic(6, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetAutomaticAttributeName)),
+    SetCyclic(7, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetCyclicAttributeName)),
+    SetInvert(8, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetInvertAttributeName)),
+    SetAdaptSetpoint(9, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetAdaptSetpointAttributeName)),
+    SetInstantAnalogOut(10, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetInstantAnalogOutAttributeName)),
+    SetPredictedAnalogOut(11, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPredictedAnalogOutAttributeName)),
+    SetpointAnalogOut(12, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetpointAnalogOutAttributeName)),
+    SetDifferenceAnalogOut(13, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDifferenceAnalogOutAttributeName)),
+    SetTariff(14, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTariffAttributeName)),
+    SetResetLoads(15, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetResetLoadsAttributeName)),
+    SetSetpoint(16,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.tariff),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.CurrentValueAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.NewValueAttributeName)),
-    SetSwitchTime(
+    SetSwitchTime(17,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.day),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
@@ -48,7 +48,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.hour),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.minute),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.second)),
-    SetLoad(
+    SetLoad(18,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.loadIdAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.MaxOffAttributeName),
@@ -61,8 +61,10 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpec {
     private static final DeviceMessageCategory clockCategory = DeviceMessageCategories.PEAK_SHAVER_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private PeakShaverConfigurationDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private PeakShaverConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -104,5 +106,10 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

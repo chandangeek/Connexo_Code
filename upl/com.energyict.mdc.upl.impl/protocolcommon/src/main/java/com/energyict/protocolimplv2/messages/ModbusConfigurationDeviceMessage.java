@@ -17,23 +17,25 @@ import java.util.List;
  */
 public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SetMmEvery(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmEveryAttributeName)),
-    SetMmTimeout(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmTimeoutAttributeName)),
-    SetMmInstant(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmInstantAttributeName)),
-    SetMmOverflow(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmOverflowAttributeName)),
-    SetMmConfig(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmConfigAttributeName)),
-    WriteSingleRegisters(PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.RadixFormatAttributeName, "DEC", "HEX"),
+    SetMmEvery(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmEveryAttributeName)),
+    SetMmTimeout(1, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmTimeoutAttributeName)),
+    SetMmInstant(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmInstantAttributeName)),
+    SetMmOverflow(3, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmOverflowAttributeName)),
+    SetMmConfig(4, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmConfigAttributeName)),
+    WriteSingleRegisters(5, PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.RadixFormatAttributeName, "DEC", "HEX"),
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RegisterAddressAttributeName),
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RegisterValueAttributeName)),
-    WriteMultipleRegisters(PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.RadixFormatAttributeName, "DEC", "HEX"),
+    WriteMultipleRegisters(6, PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.RadixFormatAttributeName, "DEC", "HEX"),
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RegisterAddressAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.RegisterValueAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.MODBUS_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private ModbusConfigurationDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private ModbusConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -75,5 +77,10 @@ public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

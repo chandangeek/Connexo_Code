@@ -22,30 +22,30 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  */
 public enum ContactorDeviceMessage implements DeviceMessageSpec {
 
-    CONTACTOR_OPEN,
-    CONTACTOR_OPEN_WITH_OUTPUT(
+    CONTACTOR_OPEN(0),
+    CONTACTOR_OPEN_WITH_OUTPUT(1,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(digitalOutputAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2))
     ),
-    CONTACTOR_OPEN_WITH_ACTIVATION_DATE(
+    CONTACTOR_OPEN_WITH_ACTIVATION_DATE(2,
             PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
-    CONTACTOR_ARM,
-    CONTACTOR_ARM_WITH_ACTIVATION_DATE(
+    CONTACTOR_ARM(3),
+    CONTACTOR_ARM_WITH_ACTIVATION_DATE(4,
             PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
-    CONTACTOR_CLOSE,
-    CONTACTOR_CLOSE_WITH_OUTPUT(
+    CONTACTOR_CLOSE(5),
+    CONTACTOR_CLOSE_WITH_OUTPUT(6,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(digitalOutputAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2))
     ),
-    CONTACTOR_CLOSE_WITH_ACTIVATION_DATE(
+    CONTACTOR_CLOSE_WITH_ACTIVATION_DATE(7,
             PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
-    CHANGE_CONNECT_CONTROL_MODE(
+    CHANGE_CONNECT_CONTROL_MODE(8,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(contactorModeAttributeName,
                     new BigDecimal("0"), new BigDecimal("1"), new BigDecimal("2"), new BigDecimal("3"),
                     new BigDecimal("4"), new BigDecimal("5"), new BigDecimal("6"))),
-    CLOSE_RELAY(PropertySpecFactory.bigDecimalPropertySpecWithValues(relayNumberAttributeName,
+    CLOSE_RELAY(9, PropertySpecFactory.bigDecimalPropertySpecWithValues(relayNumberAttributeName,
             new BigDecimal("1"), new BigDecimal("2"))),
-    OPEN_RELAY(PropertySpecFactory.bigDecimalPropertySpecWithValues(relayNumberAttributeName,
+    OPEN_RELAY(10, PropertySpecFactory.bigDecimalPropertySpecWithValues(relayNumberAttributeName,
             new BigDecimal("1"), new BigDecimal("2"))),
-    SET_RELAY_CONTROL_MODE(
+    SET_RELAY_CONTROL_MODE(11,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(relayNumberAttributeName,
                     new BigDecimal("1"), new BigDecimal("2")),
             PropertySpecFactory.bigDecimalPropertySpecWithValues(contactorModeAttributeName,
@@ -55,8 +55,10 @@ public enum ContactorDeviceMessage implements DeviceMessageSpec {
     private static final DeviceMessageCategory contactorCategory = DeviceMessageCategories.CONTACTOR;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private ContactorDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private ContactorDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -102,5 +104,10 @@ public enum ContactorDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

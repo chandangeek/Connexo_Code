@@ -29,7 +29,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  */
 public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
 
-    WriteControlThresholds(
+    WriteControlThresholds(0,
             PropertySpecFactory.bigDecimalPropertySpec(controlThreshold1dAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(controlThreshold2dAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(controlThreshold3dAttributeName),
@@ -37,8 +37,8 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(controlThreshold5dAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(controlThreshold6dAttributeName),
             PropertySpecFactory.dateTimePropertySpec(activationDatedAttributeName)),
-    SetDemandCloseToContractPowerThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DemandCloseToContractPowerThresholdAttributeName)),
-    CONFIGURE_LOAD_LIMIT_PARAMETERS(
+    SetDemandCloseToContractPowerThreshold(1, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DemandCloseToContractPowerThresholdAttributeName)),
+    CONFIGURE_LOAD_LIMIT_PARAMETERS(2,
             PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(emergencyThresholdAttributeName),
             PropertySpecFactory.timeDurationPropertySpec(overThresholdDurationAttributeName),
@@ -46,7 +46,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileActivationDateAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileDurationAttributeName)
     ),
-    CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3(
+    CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3(3,
             PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(readFrequencyInMinutesAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName),
             PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(overThresholdDurationAttributeName),
@@ -54,7 +54,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.notNullableBooleanPropertySpec(invertDigitalOutput2AttributeName),
             PropertySpecFactory.notNullableBooleanPropertySpec(activateNowAttributeName)
     ),
-    CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS(
+    CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS(4,
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(monitoredValueAttributeName, MonitoredValue.TotalInstantCurrent.getDescription(), MonitoredValue.getAllDescriptions()),
             PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(emergencyThresholdAttributeName),
@@ -66,33 +66,35 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(emergencyProfileGroupIdListAttributeName),      //List of values, comma separated
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(actionWhenUnderThresholdAttributeName, LoadControlActions.Nothing.getDescription(), LoadControlActions.getAllDescriptions())
     ),
-    CONFIGURE_LOAD_LIMIT_PARAMETERS_FOR_GROUP(
+    CONFIGURE_LOAD_LIMIT_PARAMETERS_FOR_GROUP(5,
             PropertySpecFactory.bigDecimalPropertySpec(loadLimitGroupIDAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(powerLimitThresholdAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(contractualPowerLimitAttributeName)
     ),
-    SET_EMERGENCY_PROFILE_GROUP_IDS(PropertySpecFactory.lookupPropertySpec(emergencyProfileGroupIdListAttributeName)),
-    CLEAR_LOAD_LIMIT_CONFIGURATION(),
-    CLEAR_LOAD_LIMIT_CONFIGURATION_FOR_GROUP(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.loadLimitGroupIDAttributeName)),
-    ENABLE_LOAD_LIMITING(),
-    ENABLE_LOAD_LIMITING_FOR_GROUP(
+    SET_EMERGENCY_PROFILE_GROUP_IDS(6, PropertySpecFactory.lookupPropertySpec(emergencyProfileGroupIdListAttributeName)),
+    CLEAR_LOAD_LIMIT_CONFIGURATION(7),
+    CLEAR_LOAD_LIMIT_CONFIGURATION_FOR_GROUP(8, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.loadLimitGroupIDAttributeName)),
+    ENABLE_LOAD_LIMITING(9),
+    ENABLE_LOAD_LIMITING_FOR_GROUP(10,
             PropertySpecFactory.bigDecimalPropertySpec(loadLimitGroupIDAttributeName),
             PropertySpecFactory.dateTimePropertySpec(loadLimitStartDateAttributeName),
             PropertySpecFactory.dateTimePropertySpec(loadLimitEndDateAttributeName)
     ),
-    DISABLE_LOAD_LIMITING(),
-    CONFIGURE_SUPERVISION_MONITOR(
+    DISABLE_LOAD_LIMITING(11),
+    CONFIGURE_SUPERVISION_MONITOR(12,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(phaseAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3)),
             PropertySpecFactory.bigDecimalPropertySpec(thresholdInAmpereAttributeName)
     ),
-    SET_LOAD_LIMIT_DURATION(PropertySpecFactory.timeDurationPropertySpec(overThresholdDurationAttributeName)),
-    SET_LOAD_LIMIT_THRESHOLD(PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName));
+    SET_LOAD_LIMIT_DURATION(13, PropertySpecFactory.timeDurationPropertySpec(overThresholdDurationAttributeName)),
+    SET_LOAD_LIMIT_THRESHOLD(14, PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName));
 
     private static final DeviceMessageCategory LOAD_BALANCE_CATEGORY = DeviceMessageCategories.LOAD_BALANCE;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private LoadBalanceDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private LoadBalanceDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -134,5 +136,10 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

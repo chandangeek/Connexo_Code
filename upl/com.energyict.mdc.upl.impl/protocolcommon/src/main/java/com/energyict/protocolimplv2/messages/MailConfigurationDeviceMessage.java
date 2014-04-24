@@ -16,28 +16,30 @@ import java.util.List;
 public enum MailConfigurationDeviceMessage implements DeviceMessageSpec {
 
     // Read Mail (POP3) Parameters
-    SetPOPUsername(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOPUsernameAttributeName)),
-    SetPOPPassword(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOPPasswordAttributeName)),
-    SetPOPHost(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOPHostAttributeName)),
-    SetPOPReadMailEvery(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOPReadMailEveryAttributeName)),
-    SetPOP3Options(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOP3OptionsAttributeName)),
+    SetPOPUsername(0,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOPUsernameAttributeName)),
+    SetPOPPassword(1,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOPPasswordAttributeName)),
+    SetPOPHost(2,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOPHostAttributeName)),
+    SetPOPReadMailEvery(3,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOPReadMailEveryAttributeName)),
+    SetPOP3Options(4,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOP3OptionsAttributeName)),
 
     // Send Mail (SMTP) Parameters
-    SetSMTPFrom(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPFromAttributeName)),
-    SetSMTPTo(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPToAttributeName)),
-    SetSMTPConfigurationTo(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPConfigurationToAttributeName)),
-    SetSMTPServer(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPServerAttributeName)),
-    SetSMTPDomain(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPDomainAttributeName)),
-    SetSMTPSendMailEvery(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPSendMailEveryAttributeName)),
-    SetSMTPCurrentInterval(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPCurrentIntervalAttributeName)),
-    SetSMTPDatabaseID(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPDatabaseIDAttributeName)),
-    SetSMTPOptions(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPOptionsAttributeName));
+    SetSMTPFrom(5,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPFromAttributeName)),
+    SetSMTPTo(6,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPToAttributeName)),
+    SetSMTPConfigurationTo(7,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPConfigurationToAttributeName)),
+    SetSMTPServer(8,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPServerAttributeName)),
+    SetSMTPDomain(9,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPDomainAttributeName)),
+    SetSMTPSendMailEvery(10,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPSendMailEveryAttributeName)),
+    SetSMTPCurrentInterval(11,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPCurrentIntervalAttributeName)),
+    SetSMTPDatabaseID(12,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPDatabaseIDAttributeName)),
+    SetSMTPOptions(13,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPOptionsAttributeName));
 
     private static final DeviceMessageCategory mailConfigurationCategory = DeviceMessageCategories.MAIL_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private MailConfigurationDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private MailConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -79,5 +81,10 @@ public enum MailConfigurationDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }

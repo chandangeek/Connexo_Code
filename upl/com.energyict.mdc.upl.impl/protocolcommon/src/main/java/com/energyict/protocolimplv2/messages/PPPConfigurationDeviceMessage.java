@@ -15,23 +15,25 @@ import java.util.List;
  */
 public enum PPPConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SetISP1Phone(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP1PhoneAttributeName)),
-    SetISP1Username(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP1UsernameAttributeName)),
-    SetISP1Password(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP1PasswordAttributeName)),
-    SetISP1Tries(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP1TriesAttributeName)),
-    SetISP2Phone(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP2PhoneAttributeName)),
-    SetISP2Username(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP2UsernameAttributeName)),
-    SetISP2Password(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP2PasswordAttributeName)),
-    SetISP2Tries(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP2TriesAttributeName)),
-    SetPPPIdleTimeout(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPIdleTimeoutAttributeName)),
-    SetPPPRetryInterval(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPRetryIntervalAttributeName)),
-    SetPPPOptions(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPOptionsAttributeName));
+    SetISP1Phone(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP1PhoneAttributeName)),
+    SetISP1Username(1, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP1UsernameAttributeName)),
+    SetISP1Password(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP1PasswordAttributeName)),
+    SetISP1Tries(3, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP1TriesAttributeName)),
+    SetISP2Phone(4, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP2PhoneAttributeName)),
+    SetISP2Username(5, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP2UsernameAttributeName)),
+    SetISP2Password(6, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP2PasswordAttributeName)),
+    SetISP2Tries(7, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP2TriesAttributeName)),
+    SetPPPIdleTimeout(8, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPIdleTimeoutAttributeName)),
+    SetPPPRetryInterval(9, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPRetryIntervalAttributeName)),
+    SetPPPOptions(10, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPOptionsAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.PPP_PARAMETERS;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
 
-    private PPPConfigurationDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private PPPConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -73,5 +75,10 @@ public enum PPPConfigurationDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    @Override
+    public int getMessageId() {
+        return id;
     }
 }
