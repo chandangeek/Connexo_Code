@@ -168,14 +168,6 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                                 hideable: false,
                                                 fixed: true,
                                                 flex: 1
-                                            },
-                                            {
-                                                header: Uni.I18n.translate('registerType.type', 'MDC', 'Type'),
-                                                dataIndex: 'readingType',
-                                                sortable: false,
-                                                hideable: false,
-                                                fixed: true,
-                                                flex: 1
                                             }
                                         ]
                                     },

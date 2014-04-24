@@ -82,10 +82,19 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     previewRegisterGroup: function (grid, record) {
         var registerGroups = this.getRegisterGroupGrid().getSelectionModel().getSelection();
         if (registerGroups.length == 1) {
+            this.getRegisterTypeGrid().store.clearFilter();
+            this.getRegisterTypeGrid().store.filterBy(function (record){
+                for(var i=0; i<registerGroups[0].data.registerTypes.length; i++){
+                    if(record.get('id')==registerGroups[0].data.registerTypes[i].id){
+                        return true;
+                    }
+                }
+                return false;
+            });
+            //this.getRegisterTypeGrid().store.loadData(registerGroups[0].registerTypes, false);
             this.getRegisterGroupPreviewForm().loadRecord(registerGroups[0]);
             this.getRegisterGroupPreview().getLayout().setActiveItem(1);
             this.getRegisterGroupPreviewTitle().update('<h4>' + registerGroups[0].get('name') + '</h4>');
-
             this.getRegisterTypePreview().getLayout().setActiveItem(0);
         } else {
             this.getRegisterGroupPreview().getLayout().setActiveItem(0);
@@ -130,11 +139,13 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                         me.editBreadCrumb(registerGroup.get('name'));
                         widget.down('form').loadRecord(registerGroup);
                         widget.down('#registerGroupEditCreateTitle').update('<H2>' + registerGroup.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerGroup.registerGroup', 'MDC', 'Register group') + '</H2>');
-                        var selectedRegisterTypes = registerGroup.registerTypes().data.items;
-                        for (var i = 0; i < selectedRegisterTypes.length; i++) {
-                            var result = registerTypes.getById(selectedRegisterTypes[i].id);
-                            if(result){
-                                result.data.selected = true;
+                        if(registerTypes.length > 0){
+                            var selectedRegisterTypes = registerGroup.registerTypes().data.items;
+                            for (var i = 0; i < selectedRegisterTypes.length; i++) {
+                                var result = registerTypes[0].store.getById(selectedRegisterTypes[i].data.id);
+                                if(result){
+                                    result.data.selected = true;
+                                }
                             }
                         }
                         widget.down('#editRegisterGroupSelectedField').setValue(Ext.String.format(Uni.I18n.translate('registerGroup.registerTypes', 'MDC', '{0} register types selected'), selectedRegisterTypes.length));

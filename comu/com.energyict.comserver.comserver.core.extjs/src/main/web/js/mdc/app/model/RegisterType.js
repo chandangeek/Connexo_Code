@@ -14,6 +14,7 @@ Ext.define('Mdc.model.RegisterType', {
         {name: 'unit', type: 'string', useNull: true},
         {name: 'selected', type: 'boolean'}
     ],
+    idProperty: 'id',
     associations: [
         {name: 'readingType', type: 'hasOne', model: 'Mdc.model.ReadingType', associationKey: 'readingType',
             getterName: 'getReadingType', setterName: 'setReadingType', foreignKey: 'readingType'}

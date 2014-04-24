@@ -114,6 +114,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
             {
 
                 xtype: 'pagingtoolbartop',
+                itemId: 'registerTypeGridTop',
                 store: this.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} register types'),
