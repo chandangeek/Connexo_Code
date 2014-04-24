@@ -9,11 +9,12 @@ Ext.define('Mdc.model.ConnectionMethod', {
         {name: 'comPortPool', type: 'string', useNull: true},
         {name: 'connectionType', type: 'string', useNull: true},
         {name: 'connectionStrategy', type: 'string', useNull: true},
-        'rescheduleDelay'
+        'rescheduleRetryDelay',
+        {name: 'nextExecutionSpecs', useNull: true}
     ],
     associations: [
-        {name: 'rescheduleDelay',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'rescheduleDelay'},
-        {name: 'propertyInfos', type: 'hasMany', model: 'Mdc.model.Property', associationKey: 'propertyInfos', foreignKey: 'propertyInfos',
+        {name: 'rescheduleRetryDelay',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'rescheduleRetryDelay'},
+        {name: 'properties', type: 'hasMany', model: 'Mdc.model.Property', associationKey: 'properties', foreignKey: 'properties',
             getTypeDiscriminator: function (node) {
                 return 'Mdc.model.Property';
             }

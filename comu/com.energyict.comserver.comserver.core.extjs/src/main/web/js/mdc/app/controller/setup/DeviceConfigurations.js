@@ -188,7 +188,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     activateDeviceConfigurationFromDetails: function(){
-        debugger;
         var me = this;
         var deviceConfigurationToActivateDeactivate = this.getDeviceConfigurationDetailForm().getRecord();
         if(deviceConfigurationToActivateDeactivate.get('active')===true){
@@ -199,7 +198,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         deviceConfigurationToActivateDeactivate.getProxy().setExtraParam('deviceType',this.deviceTypeId);
         deviceConfigurationToActivateDeactivate.save({
             callback: function(){
-                debugger;
                 me.getDeviceConfigurationDetailForm().loadRecord(deviceConfigurationToActivateDeactivate);
                 me.getActivateDeactivateDeviceConfiguration().setText(deviceConfigurationToActivateDeactivate.get('active')===true?Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate'):Uni.I18n.translate('general.activate', 'MDC', 'Activate'));
             }

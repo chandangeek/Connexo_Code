@@ -87,7 +87,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                     items: [
                         {
                             xtype: 'container',
-                            columnWidth: 0.50,
+                            columnWidth: 0.49,
                             layout: {
                                 type: 'vbox',
                                 align: 'stretch'
@@ -117,7 +117,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                         },
                         {
                             xtype: 'container',
-                            columnWidth: 0.50,
+                            columnWidth: 0.49,
                             layout: {
                                 type: 'vbox',
                                 align: 'stretch'

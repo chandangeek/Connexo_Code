@@ -126,10 +126,10 @@ Ext.define('Mdc.controller.history.Setup', {
             me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showConnectionMethods(deviceTypeId,deviceConfigurationId);
         });
         crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods/addoutbound',function(deviceTypeId,deviceConfigurationId){
-            me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showAddConnectionMethodView(deviceTypeId,deviceConfigurationId,'outbound');
+            me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showAddConnectionMethodView(deviceTypeId,deviceConfigurationId,'Outbound');
         });
         crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods/addinbound',function(deviceTypeId,deviceConfigurationId){
-            me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showAddConnectionMethodView(deviceTypeId,deviceConfigurationId,'inbound');
+            me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showAddConnectionMethodView(deviceTypeId,deviceConfigurationId,'Inbound');
         });
         crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods/{connectionMethodId}/edit',function(deviceTypeId,deviceConfigurationId,connectionMethodId){
             me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showConnectionMethodEditView(deviceTypeId,deviceConfigurationId,connectionMethodId);

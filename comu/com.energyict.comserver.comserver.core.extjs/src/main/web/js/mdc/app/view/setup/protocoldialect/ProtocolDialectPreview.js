@@ -1,20 +1,17 @@
-Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
+Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
     extend: 'Ext.panel.Panel',
     border: true,
     margins: '0 10 10 10',
-    alias: 'widget.connectionMethodPreview',
-    itemId: 'connectionMethodPreview',
+    alias: 'widget.protocolDialectPreview',
+    itemId: 'protocolDialectPreview',
     requires: [
-        'Mdc.model.ConnectionMethod'
+        'Mdc.model.ProtocolDialect',
+        'Mdc.view.setup.property.PropertyView'
     ],
-//    controllers: [
-//        'Mdc.controller.setup.DeviceTypes'
-//    ],
     layout: {
         type: 'card',
         align: 'stretch'
     },
-
     items: [
         {
             xtype: 'panel',
@@ -23,14 +20,14 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
             tbar: [
                 {
                     xtype: 'component',
-                    html: '<H4>'+Uni.I18n.translate('connectionmethod.noConnectionMethodSelected', 'MDC', 'No connection method selected')+'</H4>'
+                    html: '<H4>' + Uni.I18n.translate('protocolDialect.noProtocolDialectSelected', 'MDC', 'No protocol selected') + '</H4>'
                 }
             ],
             items: [
                 {
                     xtype: 'component',
                     height: '100px',
-                    html: '<H5>'+Uni.I18n.translate('connectionmethod.selectConnectionMethod', 'MDC', 'Select a connection method to see its details')+'</H5>'
+                    html: '<H5>' + Uni.I18n.translate('protocolDialect.selectProtocolDialect', 'MDC', 'Select a protocol to see its details') + '</H5>'
                 }
             ]
 
@@ -38,7 +35,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
         {
             xtype: 'form',
             border: false,
-            itemId: 'connectionMethodPreviewForm',
+            itemId: 'protocolDialectPreviewForm',
             padding: '0 10 0 10',
             layout: {
                 type: 'vbox',
@@ -47,8 +44,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
             tbar: [
                 {
                     xtype: 'component',
-                    html: '<h4>Connection method</h4>',
-                    itemId: 'connectionMethodPreviewTitle'
+                    html: '<h4>Protocol</h4>',
+                    itemId: 'protocolDialectPreviewTitle'
                 },
                 '->',
                 {
@@ -58,19 +55,18 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                         items: [
                             {
                                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                itemId: 'editConnectionMethod',
-                                action: 'editConnectionMethod'
+                                itemId: 'editProtocolDialect',
+                                action: 'editProtocolDialect'
 
-                            },
-                            {
+                            }//,
+                            /*{
                                 xtype: 'menuseparator'
                             },
                             {
-                                text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
-                                itemId: 'deleteConnectionMethod',
-                                action: 'deleteConnectionMethod'
-
-                            }
+                                text: Uni.I18n.translate('protocolDialects.notAvailableForUse', 'MDC', 'Not available for use'),
+                                itemId: 'changeAvailability',
+                                action: 'changeAvailability'
+                            }*/
                         ]
                     }
                 }
@@ -80,87 +76,50 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                     xtype: 'container',
                     layout: {
                         type: 'column'
-//                        align: 'stretch'
                     },
-                    padding: '10 0 0 0',
+                    defaults: {
+                        labelWidth: 250
+                    },
                     items: [
                         {
                             xtype: 'container',
-                            columnWidth: 0.5,
+                            columnWidth: 0.49,
                             layout: {
-                                type: 'vbox',
-                                align: 'stretch'
-                            },
-                            defaults:{
-                                labelWidth: 250
+                                type: 'vbox'
                             },
                             items: [
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.name', 'MDC', 'Name'),
-                                    itemId: 'deviceName'
-
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'direction',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.direction', 'MDC', 'Direction')
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'simultaneousConnectionsAllowed',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.simultaneousConnectionsAllowed', 'MDC', 'Simultaneous connections allowed')
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'setAsDefault',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default')
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'portPool',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.portPool', 'MDC', 'Port pool')
+                                    fieldLabel: Uni.I18n.translate('protocolDialect.name', 'MDC', 'Name'),
+                                    labelAlign: 'right',
+                                    labelWidth: 250
                                 }
                             ]
                         },
                         {
                             xtype: 'container',
-                            columnWidth: 0.5,
+                            columnWidth: 0.49,
                             layout: {
-                                type: 'vbox',
-                                align: 'stretch'
-                            },
-                            defaults:{
-                                labelWidth: 250
+                                type: 'vbox'
                             },
                             items: [
-                                {
+                               /* {
                                     xtype: 'displayfield',
-                                    name: 'connectionType',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type')
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'host',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.host', 'MDC', 'Host')
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'portNumber',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.portNumber', 'MDC', 'Port number')
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'connectionTimeout',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.connectionTimeout', 'MDC', 'Connection timeout')
-                                }
+                                    name: 'availableForUse',
+                                    fieldLabel: Uni.I18n.translate('protocolDialect.availableForUse', 'MDC', 'Available for use'),
+                                    labelAlign: 'right',
+                                    labelWidth: 250
+                                }*/
+
                             ]
                         }
-
-
                     ]
+                },
+                {
+                    xtype: 'propertyView'
                 }
+
             ]
         }
     ],

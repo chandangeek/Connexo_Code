@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.protocolDialectSetup',
-    autoScroll: true,
     itemId: 'protocolDialectSetup',
     deviceTypeId: null,
     deviceConfigId: null,
@@ -26,21 +25,20 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
                     margins: '10 10 10 10',
                     itemId: 'protocolDialectTitle'
                 },
-//                {
-//                    xtype: 'container',
-//                    items: [],
-//                    itemId: 'connectionMethodsGridContainer'
-//                },
-//                {
-//                    xtype: 'component',
-//                    height: 25
-//                },
-//                {
-//                    xtype: 'container',
-//                    items: [],
-//                    itemId: 'connectionMethodPreviewContainer'
-//
-//                }
+                {
+                    xtype: 'container',
+                    items: [],
+                    itemId: 'protocolDialectsGridContainer'
+                },
+                {
+                    xtype: 'component',
+                    height: 25
+                },
+                {
+                    xtype: 'container',
+                    items: [],
+                    itemId: 'protocolDialectPreviewContainer'
+                }
             ]}
     ],
 
@@ -61,20 +59,20 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
             toggle: 5
         }];
         this.callParent(arguments);
-//        this.down('#connectionMethodsGridContainer').add(
-//            {
-//                xtype: 'connectionMethodsGrid',
-//                deviceTypeId: this.deviceTypeId,
-//                deviceConfigId: this.deviceConfigId
-//            }
-//        );
-//        this.down('#connectionMethodPreviewContainer').add(
-//            {
-//                xtype: 'connectionMethodPreview',
-//                deviceTypeId: this.deviceTypeId,
-//                deviceConfigId: this.deviceConfigId
-//            }
-//        );
+        this.down('#protocolDialectsGridContainer').add(
+            {
+                xtype: 'protocolDialectsGrid',
+                deviceTypeId: this.deviceTypeId,
+                deviceConfigId: this.deviceConfigId
+            }
+        );
+        this.down('#protocolDialectPreviewContainer').add(
+            {
+                xtype: 'protocolDialectPreview',
+                deviceTypeId: this.deviceTypeId,
+                deviceConfigId: this.deviceConfigId
+            }
+        );
     }
 });
 
