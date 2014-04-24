@@ -22,7 +22,7 @@ public class RemovePartialConnectionTaskEventData extends ConnectionStrategyChan
 
     @Override
     protected ConnectionStrategyEventType getEventType() {
-        return ConnectionStrategyEventType.COMTASKENABLEMENT_SWITCH_FROM_TASK_TO_DEFAULT;
+        return ConnectionStrategyEventType.COMTASKENABLEMENT_REMOVE_TASK;
     }
 
     public long getPartialConnectionTaskId() {
