@@ -53,7 +53,11 @@ public class Installer {
 
     private void createPrivileges() {
         for (DeviceSecurityUserAction userAction : DeviceSecurityUserAction.values()) {
-            userService.createPrivilege(DeviceConfigurationService.COMPONENTNAME, userAction.name(), "");
+            try {
+                userService.createPrivilege(DeviceConfigurationService.COMPONENTNAME, userAction.name(), "");
+            } catch (Exception e) {
+                logger.severe(e.getMessage());
+            }
         }
 
     }
