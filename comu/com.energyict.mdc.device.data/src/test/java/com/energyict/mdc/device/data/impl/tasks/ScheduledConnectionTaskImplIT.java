@@ -25,7 +25,6 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.TableSpecs;
-import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -1323,24 +1322,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts
         verify(obsoleteComTask).connectionTaskRemoved();
-    }
-
-    @Test
-    @Transactional
-    @Ignore
-    // Todo: Enable when ComSession (and related classes) has been moved to this bundle
-    public void testDeleteWithComSessions() throws SQLException, BusinessException {
-        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testDeleteWithComSessions");
-        connectionTask.save();
-        List<ComSession> comSessions = new ArrayList<>();
-        ComSession comSession = mock(ComSession.class);
-        comSessions.add(comSession);
-
-        // Business method
-        connectionTask.delete();
-
-        // Asserts
-        verify(comSession).delete();
     }
 
     @Test
