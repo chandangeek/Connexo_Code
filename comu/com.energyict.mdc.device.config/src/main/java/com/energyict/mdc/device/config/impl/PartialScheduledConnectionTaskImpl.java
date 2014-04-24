@@ -153,7 +153,13 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
 
         @Override
         public boolean isValid(PartialScheduledConnectionTaskImpl value, ConstraintValidatorContext context) {
-            return !ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(value.getConnectionStrategy()) || value.getNextExecutionSpecs() != null;
+            switch (value.getConnectionStrategy()) {
+                case AS_SOON_AS_POSSIBLE:
+                    return value.getNextExecutionSpecs()==null;
+                case MINIMIZE_CONNECTIONS:
+                    return value.getNextExecutionSpecs()!=null;
+                default: return false;
+            }
         }
     }
 
