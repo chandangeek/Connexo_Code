@@ -122,4 +122,6 @@ mvn:com.elster.jupiter/appserver/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/config.extjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/masterjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/users.extjs/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/bpm/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/bpm.handler/1.0.0-SNAPSHOT
 	
