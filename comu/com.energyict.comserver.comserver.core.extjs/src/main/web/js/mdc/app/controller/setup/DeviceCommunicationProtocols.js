@@ -96,7 +96,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
                 me.editBreadCrumb(protocol.get('name'), deviceCommunicationProtocol)
                 widget.down('form').loadRecord(protocol);
                 widget.down('#deviceCommunicationProtocolEditCreateTitle').update('<H2>' + protocol.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('deviceCommunicationProtocol.protocol', 'MDC', 'Protocol') + '</H2>');
-                me.getPropertiesController().showProperties(protocol, widget, false);
+                me.getPropertiesController().showProperties(protocol, widget, true);
                 widget.setLoading(false);
             }
         })
@@ -109,12 +109,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
             values = this.getDeviceCommunicationProtocolEditForm().getValues(),
             me = this;
 
-        console.log(record);
-        console.log(values);
-        console.log('edit device communication protocol');
         if (record) {
             record.set(values);
-            record.propertyInfosStore = me.getPropertiesController().updateProperties();
+            record.propertiesStore = me.getPropertiesController().updateProperties();
             record.save({
                 success: function (record) {
                     location.href = '#setup/devicecommunicationprotocols/';

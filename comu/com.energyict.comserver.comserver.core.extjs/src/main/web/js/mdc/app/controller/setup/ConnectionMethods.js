@@ -189,7 +189,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         var record = Ext.create(Mdc.model.ConnectionMethod);
         if (record) {
             record.set(values);
-            record.propertyInfosStore = this.getPropertiesController().updateProperties();
+            record.propertiesStore = this.getPropertiesController().updateProperties();
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             record.save({
                 success: function (record) {
