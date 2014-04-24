@@ -1,6 +1,6 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.energyict.mdw.core.TimeZoneInUse;
+import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
 import java.util.Map;
 import java.util.TimeZone;
 import javax.xml.bind.annotation.XmlRootElement;

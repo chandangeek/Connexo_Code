@@ -16,7 +16,7 @@ import com.energyict.mdc.pluggable.rest.impl.UserFileReferenceInfo;
 import com.energyict.mdc.pluggable.rest.impl.UserFileReferenceResource;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdw.core.TimeZoneInUse;
+import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
 
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;

@@ -3,7 +3,8 @@ package com.energyict.mdc.pluggable.rest.impl;
 import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdc.protocol.pluggable.LicenseServer;
+
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -28,7 +29,7 @@ public class LicensedProtocolResource {
     @Produces(MediaType.APPLICATION_JSON)
     public LicensedProtocolsInfo getLicensedProtocolInfos(){
         LicensedProtocolsInfo licensedProtocolsInfo = new LicensedProtocolsInfo();
-        License license = MeteringWarehouse.getCurrent().getLicense();
+        License license = LicenseServer.licenseHolder.get();
         for (LicensedProtocol licensedProtocol : this.licensedProtocolService.getAllLicensedProtocols(license)) {
             licensedProtocolsInfo.licensedProtocolInfos.add(new LicensedProtocolInfo(licensedProtocol));
         }

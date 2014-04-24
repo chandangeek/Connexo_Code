@@ -1,6 +1,8 @@
 package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.BigDecimalFactory;
 import com.energyict.mdc.dynamic.BooleanFactory;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
@@ -22,10 +24,7 @@ import com.energyict.mdc.pluggable.rest.impl.CodeTableInfo;
 import com.energyict.mdc.pluggable.rest.impl.LoadProfileTypeInfo;
 import com.energyict.mdc.pluggable.rest.impl.TimeZoneInUseInfo;
 import com.energyict.mdc.pluggable.rest.impl.UserFileReferenceInfo;
-import com.energyict.mdw.core.CodeFactory;
-import com.energyict.mdw.core.LoadProfileTypeFactory;
-import com.energyict.mdw.core.TimeZoneInUseFactory;
-import com.energyict.mdw.core.UserFileFactory;
+
 import java.util.Map;
 
 /**
@@ -90,25 +89,25 @@ public enum SimplePropertyType {
             throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'CLOCK', JSON should have properly deserialized this");
         }
     },
-    CODETABLE(true, CodeFactory.class) {
+    CODETABLE(true, Environment.DEFAULT.get().findFactory(FactoryIds.CODE.id()).getClass()) {
         @Override
         public Object getInfoObject(Map<String, Object> map) {
             return new CodeTableInfo(map);
         }
     },
-    TIMEZONEINUSE(true, TimeZoneInUseFactory.class) {
+    TIMEZONEINUSE(true, Environment.DEFAULT.get().findFactory(FactoryIds.TIMEZONE_IN_USE.id()).getClass()) {
         @Override
         public Object getInfoObject(Map<String, Object> map) {
             return new TimeZoneInUseInfo(map);
         }
     },
-    USERFILEREFERENCE(true, UserFileFactory.class) {
+    USERFILEREFERENCE(true, Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id()).getClass()) {
         @Override
         public Object getInfoObject(Map<String, Object> map) {
             return new UserFileReferenceInfo(map);
         }
     },
-    LOADPROFILETYPE(true, LoadProfileTypeFactory.class) {
+    LOADPROFILETYPE(true, Environment.DEFAULT.get().findFactory(FactoryIds.LOADPROFILE_TYPE.id()).getClass()) {
         @Override
         public Object getInfoObject(Map<String, Object> map) {
             return new LoadProfileTypeInfo(map);
