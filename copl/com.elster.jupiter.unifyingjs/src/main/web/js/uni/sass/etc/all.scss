@@ -144,16 +144,6 @@ h4 {
     }
 }
 
-// Menu
-
-$menu-width-expanded: 200px;
-$menu-width-collapsed: 55px;
-$navigation-color: $elster-blue-75;
-
-.nav-wrapper {
-    padding-right: $menu-width-collapsed;
-}
-
 // Sub menu
 
 .uni-submenu {
@@ -238,28 +228,6 @@ $navigation-color: $elster-blue-75;
 
     a {
         text-decoration: none;
-    }
-}
-
-// Footer
-
-.nav-footer {
-    border-top: $navigation-color 1px solid;
-    background-color: $sky-blue-25;
-    color: $dark-grey;
-
-    a {
-        text-decoration: none;
-        color: $dark-grey;
-
-        &:hover {
-            text-decoration: underline;
-        }
-    }
-
-    .powered-by, .report-a-bug {
-        margin-right: 16px;
-        margin-left: 16px;
     }
 }
 
