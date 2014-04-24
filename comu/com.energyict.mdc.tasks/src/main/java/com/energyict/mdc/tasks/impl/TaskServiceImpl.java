@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ComTask;
@@ -37,6 +38,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
     private volatile NlsService nlsService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
+    private volatile MasterDataService masterDataService;
 
     public TaskServiceImpl() {
         super();
@@ -76,6 +78,12 @@ public class TaskServiceImpl implements TaskService, InstallService {
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(TaskService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setMasterDataService(MasterDataService masterDataService) {
+        // Not actively used but required for foreign keys in TableSpecs
+        this.masterDataService = masterDataService;
     }
 
     private void createEventTypes() {
