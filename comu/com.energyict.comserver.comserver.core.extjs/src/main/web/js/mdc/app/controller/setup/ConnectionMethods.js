@@ -67,6 +67,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 '#addEditButton[action=addInboundConnectionMethod]':{
                     click: this.addInboundConnectionMethod
                 },
+                '#addEditButton[action=editInboundConnectionMethod]':{
+                    click: this.editInboundConnectionMethod
+                },
                 '#connectionStrategyComboBox': {
                     select: this.showScheduleField
                 }
@@ -203,6 +206,12 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     editOutboundConnectionMethod: function(){
         var values = this.getConnectionMethodEditForm().getValues();
         values.direction = 'Outbound';
+        this.editConnectionMethod(values);
+    },
+
+    editInboundConnectionMethod: function(){
+        var values = this.getConnectionMethodEditForm().getValues();
+        values.direction = 'Inbound';
         this.editConnectionMethod(values);
     },
 

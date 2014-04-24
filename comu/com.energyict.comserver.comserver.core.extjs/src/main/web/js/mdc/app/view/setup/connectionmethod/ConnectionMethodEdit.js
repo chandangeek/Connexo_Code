@@ -140,14 +140,16 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                     {
                                         xtype: 'timeInfoField',
                                         name: 'rescheduleRetryDelay',
-                                        fieldLabel: 'rescheduleRetryDelay'
+                                        fieldLabel: 'rescheduleRetryDelay',
+                                        itemId: 'rescheduleRetryDelay'
                                     },
                                     {
                                         xtype: 'checkbox',
                                         inputValue: true,
                                         uncheckedValue: 'false',
                                         name: 'isDefault',
-                                        fieldLabel: 'isDefault'
+                                        fieldLabel: 'isDefault',
+                                        itemId: 'isDefault'
                                     },
                                     {
                                         xtype: 'fieldcontainer',
@@ -196,6 +198,9 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 this.down('#addEditButton').action = 'editOutboundConnectionMethod';
             } else if (this.direction === 'Inbound'){
                 this.down('#addEditButton').action = 'editInboundConnectionMethod';
+                this.down('#connectionStrategyComboBox').setVisible(false);
+                this.down('#rescheduleRetryDelay').setVisible(false);
+                this.down('#isDefault').setVisible(false);
             }
         } else {
             this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
@@ -203,6 +208,9 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 this.down('#addEditButton').action = 'addOutboundConnectionMethod';
             } else if (this.direction === 'Inbound'){
                 this.down('#addEditButton').action = 'addInboundConnectionMethod';
+                this.down('#connectionStrategyComboBox').setVisible(false);
+                this.down('#rescheduleRetryDelay').setVisible(false);
+                this.down('#isDefault').setVisible(false);
             }
         }
         this.down('#cancelLink').autoEl.href=this.returnLink;
