@@ -54,12 +54,13 @@ public class WhiteBoard extends Application implements BinderProvider {
 
     @Reference(name = "ZResource", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(HttpResource resource) {
+    	String alias = getAlias(resource.getAlias());
         HttpContext httpContext = new HttpContextImpl(resource.getResolver(), userService, transactionService);
         try {
-            httpService.registerResources(getAlias(resource.getAlias()), resource.getLocalName(), httpContext);
+            httpService.registerResources(alias, resource.getLocalName(), httpContext);
             resources.add(resource);
         } catch (NamespaceException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, "Error while registering " + alias + ": " + e.getMessage() , e);
             throw new UnderlyingNetworkException(e);
         }
     }
