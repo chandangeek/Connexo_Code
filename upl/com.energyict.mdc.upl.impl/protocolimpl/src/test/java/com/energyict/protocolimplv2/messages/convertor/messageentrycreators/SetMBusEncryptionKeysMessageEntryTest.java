@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageAttributeImpl;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.DeviceProtocol;
@@ -40,7 +41,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SetMBusEncryptionKeysMessageEntryTest {
 
+    public static final int DEVICE_MESSAGE_ID = 1;
     public static final String ATTRIBUTE_VALUE = "000102030405060708090A0B0C0D0E0F";
+
     @Mock
     private OfflineDeviceMessage keyMessage;
     @Mock
@@ -74,11 +77,13 @@ public class SetMBusEncryptionKeysMessageEntryTest {
     private OfflineDeviceMessage createMessage(DeviceMessageSpec messageSpec) {
         OfflineDeviceMessage message = getEmptyMessageMock();
         List<OfflineDeviceMessageAttribute> attributes = new ArrayList<>();
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+        when(deviceMessage.getId()).thenReturn(DEVICE_MESSAGE_ID);
 
         for (PropertySpec propertySpec : messageSpec.getPropertySpecs()) {
             TypedProperties propertyStorage = TypedProperties.empty();
             propertyStorage.setProperty(propertySpec.getName(), ATTRIBUTE_VALUE);
-            attributes.add(new OfflineDeviceMessageAttributeImpl(new DeviceMessageAttributeImpl(propertySpec, null, propertyStorage), deviceProtocol));
+            attributes.add(new OfflineDeviceMessageAttributeImpl(new DeviceMessageAttributeImpl(propertySpec, deviceMessage, propertyStorage), deviceProtocol));
         }
         when(message.getDeviceMessageAttributes()).thenReturn(attributes);
         when(message.getSpecification()).thenReturn(messageSpec);
