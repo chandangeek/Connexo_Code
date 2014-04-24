@@ -661,7 +661,8 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
     @Override
     public Date getPlannedDate(ComSchedule comSchedule) {
-        List<Device> devices = dataModel.query(Device.class).select(Where.where("comSchedule").isEqualTo(comSchedule), new Order[0], false, new String[0], 0, 1);
+        List<Device> devices = dataModel.query(Device.class)
+                .select(Where.where("comSchedule").isEqualTo(comSchedule), new Order[0], false, new String[0], 0, 1);
 //        if (devices.isEmpty()) {
 //            return null;
 //        }
