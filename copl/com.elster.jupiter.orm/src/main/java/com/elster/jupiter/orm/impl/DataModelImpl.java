@@ -170,22 +170,24 @@ public class DataModelImpl implements DataModel {
         try (Connection connection = getConnection(false);
              Statement statement = connection.createStatement()) {
             for (TableImpl<?> toTable : toDataModel.getTables()) {
-                TableImpl<?> fromTable = (TableImpl<?>) getTable(toTable.getName());
-                if (fromTable != null) {
-                    List<String> upgradeDdl = fromTable.upgradeDdl(toTable);
-                    for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
-                        if (sequenceColumn.getQualifiedSequenceName() != null) {
-                            long sequenceValue = getLastSequenceValue(statement, sequenceColumn.getQualifiedSequenceName());
-                            long maxColumnValue = maxColumnValue(sequenceColumn, statement);
-                            if (maxColumnValue > sequenceValue) {
-                                upgradeDdl.addAll(toTable.upgradeSequenceDdl(sequenceColumn, maxColumnValue + 1));
+                if (toTable.isAutoInstall()) {
+                    TableImpl<?> fromTable = getTable(toTable.getName());
+                    if (fromTable != null) {
+                        List<String> upgradeDdl = fromTable.upgradeDdl(toTable);
+                        for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
+                            if (sequenceColumn.getQualifiedSequenceName() != null) {
+                                long sequenceValue = getLastSequenceValue(statement, sequenceColumn.getQualifiedSequenceName());
+                                long maxColumnValue = maxColumnValue(sequenceColumn, statement);
+                                if (maxColumnValue > sequenceValue) {
+                                    upgradeDdl.addAll(toTable.upgradeSequenceDdl(sequenceColumn, maxColumnValue + 1));
+                                }
                             }
                         }
+                        executeSqlStatements(statement, upgradeDdl);
+                    } else {
+                        List<String> ddl = toTable.getDdl();
+                        executeSqlStatements(statement, ddl);
                     }
-                    executeSqlStatements(statement, upgradeDdl);
-                } else {
-                    List<String> ddl = toTable.getDdl();
-                    executeSqlStatements(statement, ddl);
                 }
 
             }
@@ -215,7 +217,11 @@ public class DataModelImpl implements DataModel {
 
     private void executeSqlStatements(Statement statement, List<String> sqlStatements) throws SQLException {
         for (String each : sqlStatements) {
-            statement.execute(each);
+            try {
+                statement.execute(each);
+            } catch (SQLException sqe) {
+                throw new SQLException("SQL error while executing '" + each + "' : " + sqe.getMessage(), sqe);
+            }
         }
     }
 

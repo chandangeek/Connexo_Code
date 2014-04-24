@@ -63,6 +63,10 @@ public interface Table<T> {
     List<? extends Column> getColumns();
     List<? extends TableConstraint> getConstraints();
 
+    boolean isAutoInstall();
+
+    void doNotAutoInstall();
+
     TableConstraint getPrimaryKeyConstraint();
     List<? extends ForeignKeyConstraint> getForeignKeyConstraints();
 

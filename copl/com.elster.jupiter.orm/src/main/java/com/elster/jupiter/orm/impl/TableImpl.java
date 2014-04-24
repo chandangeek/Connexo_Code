@@ -40,8 +40,9 @@ public class TableImpl<T> implements Table<T> {
 	private int position;
 	private String journalTableName;
 	private boolean cached;
-	
-	private boolean indexOrganized;
+    private boolean autoInstall = true;
+
+    private boolean indexOrganized;
 	
 	// associations
 	private final Reference<DataModelImpl> dataModel = ValueReference.absent();
@@ -130,6 +131,16 @@ public class TableImpl<T> implements Table<T> {
     @Override
     public void cache() {
         this.cached = true;
+    }
+
+    @Override
+    public boolean isAutoInstall() {
+        return autoInstall;
+    }
+
+    @Override
+    public void doNotAutoInstall() {
+        this.autoInstall = false;
     }
 
     Column add(ColumnImpl column) {
