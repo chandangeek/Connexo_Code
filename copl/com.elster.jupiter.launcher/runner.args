@@ -74,6 +74,7 @@ mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/1.4.3_3
 mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/1.6.1_5
 mvn:org.slf4j/slf4j-jdk14/1.6.0
 mvn:org.eclipse.jdt/com.springsource.org.eclipse.jdt.core.compiler.batch/3.6.1
+mvn:org.ow2.util.base64/base64/2.0.0
 mvn:com.elster.jupiter/jupiter-oracle/1.11.2.03
 mvn:com.elster.jupiter/util/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/pubsub/1.0.0-SNAPSHOT
@@ -124,4 +125,8 @@ mvn:com.elster.jupiter/masterjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/users.extjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/bpm/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/bpm.handler/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/systemadmin/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/systemadmin.rest/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/systemadmin.extjs/1.0.0-SNAPSHOT
+
 	
