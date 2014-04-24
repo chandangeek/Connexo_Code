@@ -220,7 +220,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             failure: function(record,operation){
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
-                    form.markInvalid(json.errors);
+                    me.getRegisterGroupEditForm().getForm().markInvalid(json.errors);
                 }
             }
         });
