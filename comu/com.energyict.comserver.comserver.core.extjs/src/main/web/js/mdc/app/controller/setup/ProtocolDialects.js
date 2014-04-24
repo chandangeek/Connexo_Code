@@ -163,11 +163,11 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                             deviceConfigModel.getProxy().setExtraParam('deviceType', deviceTypeId);
                             deviceConfigModel.load(deviceConfigId, {
                                 success: function (deviceConfiguration) {
-                                    me.editBreadCrumb(deviceTypeId, deviceConfigId, protocolDialectId, deviceType.get('name'), deviceConfiguration.get('name'), protocolDialect.get('name'));
                                     widget.down('form').loadRecord(protocolDialect);
                                     me.getPropertiesController().showProperties(protocolDialect, widget);
                                     widget.down('#protocolDialectEditAddTitle').update('<H2>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + protocolDialect.get('name') + '"</H2>');
                                     me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                                    me.editBreadCrumb(deviceTypeId, deviceConfigId, protocolDialectId, deviceType.get('name'), deviceConfiguration.get('name'), protocolDialect.get('name'));
                                     widget.setLoading(false);
                                 }
                             });
