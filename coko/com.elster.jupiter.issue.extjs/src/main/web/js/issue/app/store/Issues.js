@@ -16,18 +16,6 @@ Ext.define('Isu.store.Issues', {
     pageSize: 10,
     autoLoad: false,
 
-    group: null,
-
-    setGroup: function(record) {
-        this.group = record;
-    },
-
-    getGroupParams: function() {
-        return {
-            'reason': this.group.getId()
-        }
-    },
-
     listeners: {
         beforeload: function () {
             this.getProxy().setExtraParam('issueType', 'datacollection');
