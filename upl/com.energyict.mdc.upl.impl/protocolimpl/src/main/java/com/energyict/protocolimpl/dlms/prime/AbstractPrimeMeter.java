@@ -5,7 +5,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
 import com.energyict.protocolimpl.dlms.common.ProfileCache;
 import com.energyict.protocolimpl.dlms.prime.events.PrimeEventLogs;
@@ -24,7 +24,7 @@ import java.util.logging.Level;
  * Date: 21/02/12
  * Time: 14:43
  */
-public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol implements FirmwareUpdateMessaging {
+public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol {
 
     private final PrimeProperties properties = new PrimeProperties();
     private PrimeProfile loadProfile;
@@ -189,14 +189,6 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol imp
         if ((cache != null) && (cache instanceof ProfileCache)) {
             this.cache = (ProfileCache) cache;
         }
-    }
-
-    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        return new FirmwareUpdateMessagingConfig(false, true, false);
-    }
-
-    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
-        return new FirmwareUpdateMessageBuilder();
     }
 
     /**

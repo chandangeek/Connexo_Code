@@ -1,17 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
+import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocol.messaging.TimeOfUseMessaging;
-import com.energyict.protocol.messaging.TimeOfUseMessagingConfig;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 
 import java.io.IOException;
@@ -23,7 +16,7 @@ import java.util.List;
  * Date: 20/07/11
  * Time: 16:55
  */
-public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMessaging {
+public class ZigbeeGasMessaging extends GenericMessaging {
 
     private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";
     private static final String READ_PRICE_PER_UNIT = "ReadPricePerUnit";
@@ -131,21 +124,6 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
-    }
-
-    public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
-        if (messageBuilder == null) {
-            this.messageBuilder = new ZigbeeTimeOfUseMessageBuilder();
-        }
-        return messageBuilder;
-    }
-
-    public TimeOfUseMessagingConfig getTimeOfUseMessagingConfig() {
-        TimeOfUseMessagingConfig config = new TimeOfUseMessagingConfig();
-        config.setNeedsName(true);
-        config.setSupportsCodeTables(true);
-        config.setZipContent(true);
-        return config;
     }
 
     @Override

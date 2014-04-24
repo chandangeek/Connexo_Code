@@ -24,7 +24,7 @@ import java.util.logging.Level;
  * Date: 17/07/12
  * Time: 16:41
  */
-public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements ProtocolLink, MessageProtocol, TimeOfUseMessaging {
+public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements ProtocolLink, MessageProtocol {
 
     /**
      * Contains properties related to the Actaris SL7000 protocol
@@ -265,13 +265,5 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
             messageProtocol = new Messages(this);
         }
         return messageProtocol;
-    }
-
-    public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
-        return getMessageProtocol().getTimeOfUseMessageBuilder();
-    }
-
-    public TimeOfUseMessagingConfig getTimeOfUseMessagingConfig() {
-        return getMessageProtocol().getTimeOfUseMessagingConfig();
     }
 }

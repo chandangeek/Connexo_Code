@@ -1,17 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocol.messaging.PartialLoadProfileMessaging;
+import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
@@ -25,7 +18,7 @@ import java.util.List;
  * Date: 25/01/12
  * Time: 15:04
  */
-public class IskraMx372MbusMessaging  extends GenericMessaging implements MessageProtocol, PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
+public class IskraMx372MbusMessaging  extends GenericMessaging implements MessageProtocol {
 
 
     /**

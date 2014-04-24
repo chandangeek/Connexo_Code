@@ -13,23 +13,13 @@ import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.shadow.ChannelShadow;
 import com.energyict.mdw.shadow.DeviceShadow;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.RtuDiscoveredEvent;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Logger;
 
 //import com.energyict.mdw.amr.GenericProtocol;
@@ -39,7 +29,7 @@ import java.util.logging.Logger;
  * Date: 6/06/11
  * Time: 14:53
  */
-public class EK280 implements MessageProtocol, FirmwareUpdateMessaging {
+public class EK280 implements MessageProtocol {
 
     private static final String REQUEST_INVALIDDATA = "<REQUEST>INVALIDDATA</REQUEST>";
     private static final String REQUEST_OK = "<REQUEST>OK</REQUEST>";
@@ -456,13 +446,5 @@ public class EK280 implements MessageProtocol, FirmwareUpdateMessaging {
             properties.addProperties(new PropertiesFetcher(getLogger()).getPropertiesForRtu(getRtu()));
         }
         return properties;
-    }
-
-    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        return getDlmsProtocol().getFirmwareUpdateMessagingConfig();
-    }
-
-    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
-        return getDlmsProtocol().getFirmwareUpdateMessageBuilder();
     }
 }

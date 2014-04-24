@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.messaging.FirmwareUpdateMessageBuilder;
 
 /**
  * Copyrights EnergyICT

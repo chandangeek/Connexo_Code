@@ -2,11 +2,9 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
-import com.energyict.protocol.messaging.PartialLoadProfileMessaging;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
@@ -22,7 +20,7 @@ import java.util.List;
  * Time: 16:04
  * Author: khe
  */
-public class MBusDevice extends AbstractNtaMbusDevice implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
+public class MBusDevice extends AbstractNtaMbusDevice {
 
     public MBusDevice() {
         super();

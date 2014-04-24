@@ -1,37 +1,12 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.genericprotocolimpl.common.AbstractGenericProtocol;
-import com.energyict.genericprotocolimpl.common.CommonUtils;
-import com.energyict.genericprotocolimpl.common.StoreObject;
+import com.energyict.cbo.*;
+import com.energyict.dialer.core.*;
+import com.energyict.genericprotocolimpl.common.*;
 import com.energyict.genericprotocolimpl.elster.ctr.discover.InstallationDateDiscover;
 import com.energyict.genericprotocolimpl.elster.ctr.discover.MTU155Discover;
-import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConfigurationException;
-import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConnectionException;
-import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRDiscoverException;
-import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
-import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRExceptionWithProfileData;
-import com.energyict.genericprotocolimpl.elster.ctr.messaging.ActivateTemporaryKeyMessage;
-import com.energyict.genericprotocolimpl.elster.ctr.messaging.ChangeDSTMessage;
-import com.energyict.genericprotocolimpl.elster.ctr.messaging.ChangeExecutionKeyMessage;
-import com.energyict.genericprotocolimpl.elster.ctr.messaging.ChangeSealStatusMessage;
-import com.energyict.genericprotocolimpl.elster.ctr.messaging.ChangeTemporaryKeyMessage;
-import com.energyict.genericprotocolimpl.elster.ctr.messaging.ForceSyncClockMessage;
-import com.energyict.genericprotocolimpl.elster.ctr.messaging.MTU155MessageExecutor;
-import com.energyict.genericprotocolimpl.elster.ctr.messaging.ReadPartialProfileDataMessage;
-import com.energyict.genericprotocolimpl.elster.ctr.messaging.TariffDisablePassiveMessage;
-import com.energyict.genericprotocolimpl.elster.ctr.messaging.TariffUploadPassiveMessage;
-import com.energyict.genericprotocolimpl.elster.ctr.messaging.TemporaryBreakSealMessage;
-import com.energyict.genericprotocolimpl.elster.ctr.messaging.WakeUpFrequency;
-import com.energyict.genericprotocolimpl.elster.ctr.messaging.WriteConverterMasterDataMessage;
-import com.energyict.genericprotocolimpl.elster.ctr.messaging.WriteGasParametersMessage;
-import com.energyict.genericprotocolimpl.elster.ctr.messaging.WriteMeterMasterDataMessage;
-import com.energyict.genericprotocolimpl.elster.ctr.messaging.WritePDRMessage;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.*;
+import com.energyict.genericprotocolimpl.elster.ctr.messaging.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.profile.ProfileChannel;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationResponseStructure;
@@ -39,50 +14,28 @@ import com.energyict.genericprotocolimpl.elster.ctr.tariff.CodeTableBase64Builde
 import com.energyict.genericprotocolimpl.elster.ctr.util.MeterInfo;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.CommunicationProtocol;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.OldDeviceMessage;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.RtuDiscoveredEvent;
 import com.energyict.protocolimpl.debug.DebugUtils;
-import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
+import com.energyict.protocolimpl.messages.*;
 import com.energyict.protocolimpl.utils.MeterEventUtils;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import javax.crypto.*;
 import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
  * Date: 12-may-2011
  * Time: 13:16:45
  */
-public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMessaging {
+public class MTU155 extends AbstractGenericProtocol {
 
     private final StoreObject storeObject = new StoreObject();
     private final MTU155Properties properties = new MTU155Properties();
@@ -972,24 +925,5 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
             return super.writeTag(msgTag);
         }
 
-    }
-
-    /**
-     * This method is needed to describe the capabilities supported by the protocol,
-     * and is used to create a fitting interface in EIServer.
-     *
-     * @return The {@link com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig} containing all the capabillities of the protocol.
-     */
-    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        return new FirmwareUpdateMessagingConfig(false, true, true);
-    }
-
-    /**
-     * Returns the message builder capable of generating and parsing messages.
-     *
-     * @return The {@link com.energyict.protocol.messaging.MessageBuilder} capable of generating and parsing messages.
-     */
-    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
-        return new FirmwareUpdateMessageBuilder();  //To change body of implemented methods use File | Settings | File Templates.
     }
 }

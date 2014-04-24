@@ -6,13 +6,11 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.mdw.core.OldDeviceMessage;
+import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
-import com.energyict.protocol.messaging.PartialLoadProfileMessaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
 import org.xml.sax.SAXException;
@@ -27,7 +25,7 @@ import java.util.TimeZone;
  * Date: 24/01/12
  * Time: 16:38
  */
-public class IskraMx372MbusMessageExecutor extends GenericMessageExecutor implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
+public class IskraMx372MbusMessageExecutor extends GenericMessageExecutor {
 
     IskraMx372 iskraMx372;
 

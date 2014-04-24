@@ -3,26 +3,15 @@ package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocol.messaging.TimeOfUseMessaging;
-import com.energyict.protocol.messaging.TimeOfUseMessagingConfig;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
-import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
-import com.energyict.protocolimpl.messages.ProtocolMessages;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.actaris.sl7000.ActarisSl7000;
 import org.xml.sax.SAXException;
@@ -37,7 +26,7 @@ import java.util.List;
  * Date: 23/04/12
  * Time: 11:59
  */
-public class Messages extends ProtocolMessages implements TimeOfUseMessaging {
+public class Messages extends ProtocolMessages {
 
     public static String ENABLE_DST = "EnableDST";
     public static String START_OF_DST = "StartOfDST";
@@ -191,29 +180,6 @@ public class Messages extends ProtocolMessages implements TimeOfUseMessaging {
 
     private void warningLog(String messageToLog) {
         this.protocol.getLogger().warning(messageToLog);
-    }
-
-    /**
-     * Returns the message builder capable of generating and parsing 'time of use' messages.
-     *
-     * @return The {@link com.energyict.protocol.messaging.MessageBuilder} capable of generating and parsing 'time of use' messages.
-     */
-    public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
-        return new TimeOfUseMessageBuilder();
-    }
-
-    /**
-     * Get the TimeOfUseMessagingConfig object that contains all the capabilities for the current protocol
-     *
-     * @return the config object
-     */
-    public TimeOfUseMessagingConfig getTimeOfUseMessagingConfig() {
-        TimeOfUseMessagingConfig config = new TimeOfUseMessagingConfig();
-        config.setNeedsName(true);
-        config.setSupportsUserFiles(false);
-        config.setSupportsCodeTables(true);
-        config.setZipContent(true);
-        return config;
     }
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {

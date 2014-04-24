@@ -6,24 +6,8 @@ import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.IPDialer;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DlmsSession;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SmartMeterProtocol;
-import com.energyict.protocol.WakeUpProtocolSupport;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocol.messaging.TimeOfUseMessaging;
-import com.energyict.protocol.messaging.TimeOfUseMessagingConfig;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
@@ -36,15 +20,13 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.profile.Zigbee
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.registers.ZigbeeGasRegisterFactory;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
  * The ZigbeeGas logical device has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE.
  */
-public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, TimeOfUseMessaging, WakeUpProtocolSupport {
+public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, WakeUpProtocolSupport {
 
     /**
      * The properties to use for this protocol
@@ -311,14 +293,6 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
             this.registerFactory = new ZigbeeGasRegisterFactory(this);
         }
         return registerFactory;
-    }
-
-    public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
-        return getMessageProtocol().getTimeOfUseMessageBuilder();
-    }
-
-    public TimeOfUseMessagingConfig getTimeOfUseMessagingConfig() {
-        return getMessageProtocol().getTimeOfUseMessagingConfig();
     }
 
     /**

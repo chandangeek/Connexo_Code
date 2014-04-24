@@ -1,40 +1,25 @@
 package com.energyict.protocolimpl.dlms.g3;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NestedIOException;
-import com.energyict.cbo.NotFoundException;
+import com.energyict.cbo.*;
 import com.energyict.cpo.Transaction;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
 import com.energyict.protocolimpl.dlms.g3.events.G3Events;
 import com.energyict.protocolimpl.dlms.g3.messaging.G3Messaging;
 import com.energyict.protocolimpl.dlms.g3.profile.G3Profile;
 import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
-import com.energyict.protocolimpl.messaging.messages.AnnotatedFWUpdateMessageBuilder;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -42,7 +27,7 @@ import java.util.logging.Level;
  * Date: 21/03/12
  * Time: 10:32
  */
-public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdateMessaging {
+public class AS330D extends AbstractDlmsSessionProtocol {
 
     private static final String TIMEOUT = "timeout";
     private final FirmwareUpdateMessageBuilder fwMessageBuilder = new FirmwareUpdateMessageBuilder();
@@ -228,26 +213,6 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
     @Override
     public List<MessageCategorySpec> getMessageCategories() {
         return getMessaging().getMessageCategories();
-    }
-
-    /**
-     * Return the supported features in this protocol related to the Firmware update
-     * We only support embedded user files, so we're completly disconnected from the database
-     *
-     * @return Our config object {@link FirmwareUpdateMessagingConfig}
-     */
-    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        return new FirmwareUpdateMessagingConfig(false, true, false);
-    }
-
-    /**
-     * This method is not used in EIServer the way it should. The parsing is done by this object but the
-     * The XML is still build up with a new {@link FirmwareUpdateMessageBuilder} and not with the object returned here.
-     *
-     * @return The customised FirmwareUpdateMessageBuilder: {@link AnnotatedFWUpdateMessageBuilder}
-     */
-    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
-        return this.fwMessageBuilder;
     }
 
     @Override

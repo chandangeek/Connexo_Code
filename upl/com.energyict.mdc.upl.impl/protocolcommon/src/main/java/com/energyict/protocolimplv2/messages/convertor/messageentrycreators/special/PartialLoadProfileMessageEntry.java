@@ -9,7 +9,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
 /**
- * Creates a MessageEntry based on the old {@link com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder}
+ * Creates a MessageEntry based on the old {@link com.energyict.messaging.PartialLoadProfileMessageBuilder}
  * <p/>
  * Copyrights EnergyICT
  * Date: 2/05/13

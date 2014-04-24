@@ -10,7 +10,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.structure.field.Identify;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.Segment;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.messaging.FirmwareUpdateMessageBuilder;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;

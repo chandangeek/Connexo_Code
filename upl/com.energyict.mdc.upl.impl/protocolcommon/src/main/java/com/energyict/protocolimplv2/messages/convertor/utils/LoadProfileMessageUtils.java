@@ -117,8 +117,8 @@ public class LoadProfileMessageUtils {
 
     /**
      * We format the LoadProfile is such a way it is usable in the legacy
-     * {@link com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder} and
-     * {@link com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder}
+     * {@link com.energyict.messaging.PartialLoadProfileMessageBuilder} and
+     * {@link com.energyict.messaging.LoadProfileRegisterMessageBuilder}
      *
      * @param loadProfile the LoadProfile to format
      * @return the formatted loadProfile

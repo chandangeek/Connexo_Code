@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
+import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.messaging.*;
@@ -17,7 +18,7 @@ import java.util.List;
  * Date: 12-mei-2011
  * Time: 11:36:59
  */
-public class ZmdMessages extends ProtocolMessages implements TimeOfUseMessaging{
+public class ZmdMessages extends ProtocolMessages {
 
     private final DLMSZMD protocol;
 
@@ -97,28 +98,5 @@ public class ZmdMessages extends ProtocolMessages implements TimeOfUseMessaging{
      */
     private void infoLog(String messageToLog) {
         this.protocol.getLogger().info(messageToLog);
-    }
-
-        /**
-     * Returns the message builder capable of generating and parsing 'time of use' messages.
-     *
-     * @return The {@link com.energyict.protocol.messaging.MessageBuilder} capable of generating and parsing 'time of use' messages.
-     */
-    public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
-        return new ZMDTimeOfUseMessageBuilder();
-    }
-
-    /**
-     * Get the TimeOfUseMessagingConfig object that contains all the capabilities for the current protocol
-     *
-     * @return the config object
-     */
-    public TimeOfUseMessagingConfig getTimeOfUseMessagingConfig() {
-        TimeOfUseMessagingConfig config = new TimeOfUseMessagingConfig();
-        config.setNeedsName(true);
-        config.setSupportsUserFiles(false);
-        config.setSupportsCodeTables(true);
-        config.setZipContent(true);
-        return config;
     }
 }

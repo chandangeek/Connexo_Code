@@ -1,21 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocol.messaging.TimeOfUseMessaging;
-import com.energyict.protocol.messaging.TimeOfUseMessagingConfig;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 
 import java.io.IOException;
@@ -27,7 +14,7 @@ import java.util.List;
  * Date: 8-aug-2011
  * Time: 14:32:04
  */
-public class AS300Messaging extends GenericMessaging implements MessageProtocol, TimeOfUseMessaging, FirmwareUpdateMessaging {
+public class AS300Messaging extends GenericMessaging implements MessageProtocol {
 
     private final AS300MessageExecutor messageExecutor;
     private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";
@@ -135,34 +122,6 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
      */
     public MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
         return this.messageExecutor.executeMessageEntry(messageEntry);
-    }
-
-    /**
-     * Returns the message builder capable of generating and parsing 'time of use' messages.
-     *
-     * @return The {@link com.energyict.protocol.messaging.MessageBuilder} capable of generating and parsing 'time of use' messages.
-     */
-    public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
-        return new AS300TimeOfUseMessageBuilder();
-    }
-
-    public TimeOfUseMessagingConfig getTimeOfUseMessagingConfig() {
-        TimeOfUseMessagingConfig config = new TimeOfUseMessagingConfig();
-        config.setNeedsName(true);
-        config.setSupportsUserFiles(true);
-        config.setSupportsCodeTables(true);
-        config.setZipContent(true);
-        return config;
-    }
-
-    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        FirmwareUpdateMessagingConfig config = new FirmwareUpdateMessagingConfig();
-        config.setSupportsUserFiles(true);
-        return config;
-    }
-
-    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
-        return new AS300FirmwareUpdateMessageBuilder();
     }
 
     @Override

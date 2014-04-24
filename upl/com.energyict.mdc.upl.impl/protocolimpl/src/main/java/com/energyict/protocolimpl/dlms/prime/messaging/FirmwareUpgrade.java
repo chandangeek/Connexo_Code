@@ -5,7 +5,7 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.prime.PrimeProperties;
 import org.xml.sax.SAXException;

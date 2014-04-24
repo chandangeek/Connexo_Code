@@ -1,48 +1,21 @@
 package com.energyict.protocolimpl.dlms.idis;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.idis.registers.IDISStoredValues;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -50,7 +23,7 @@ import java.util.logging.Level;
  * Date: 5/09/11
  * Time: 9:37
  */
-public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, FirmwareUpdateMessaging, CacheMechanism {
+public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, CacheMechanism {
 
     private static final ObisCode FIRMWARE_VERSION = ObisCode.fromString("1.0.0.2.0.255");
     private static final String READ_CACHE_DEFAULT_VALUE = "0";
@@ -342,18 +315,6 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
 
     public int getGasSlotId() {
         return 0;     //E-meter has no gas slot id
-    }
-
-    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        FirmwareUpdateMessagingConfig firmwareUpdateMessagingConfig = new FirmwareUpdateMessagingConfig();
-        firmwareUpdateMessagingConfig.setSupportsUserFiles(true);
-        firmwareUpdateMessagingConfig.setSupportsUrls(false);
-        firmwareUpdateMessagingConfig.setSupportsUserFileReferences(false);
-        return firmwareUpdateMessagingConfig;
-    }
-
-    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
-        return new FirmwareUpdateMessageBuilder();
     }
 
     public String getFileName() {
