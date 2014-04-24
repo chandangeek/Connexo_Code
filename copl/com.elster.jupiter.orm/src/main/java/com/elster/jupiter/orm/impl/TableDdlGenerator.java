@@ -148,7 +148,7 @@ class TableDdlGenerator {
 
 
     private void appendDdl(ColumnImpl column, StringBuilder builder, boolean addType, boolean addNullable) {
-        builder.append(column.getName());
+        builder.append("\"").append(column.getName()).append("\"");
         if (addType) {
             builder.append(" ");
             builder.append(column.getDbType() == null ? "" : column.getDbType());
