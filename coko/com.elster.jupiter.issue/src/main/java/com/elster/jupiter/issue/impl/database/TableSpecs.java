@@ -1,11 +1,41 @@
 package com.elster.jupiter.issue.impl.database;
 
-import com.elster.jupiter.issue.impl.records.*;
+import com.elster.jupiter.issue.impl.records.AssignmentRuleImpl;
+import com.elster.jupiter.issue.impl.records.BaseIssueImpl;
+import com.elster.jupiter.issue.impl.records.CreationRuleActionImpl;
+import com.elster.jupiter.issue.impl.records.CreationRuleActionParameterImpl;
+import com.elster.jupiter.issue.impl.records.CreationRuleActionTypeImpl;
+import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
+import com.elster.jupiter.issue.impl.records.CreationRuleParameterImpl;
+import com.elster.jupiter.issue.impl.records.HistoricalIssueImpl;
+import com.elster.jupiter.issue.impl.records.IssueCommentImpl;
+import com.elster.jupiter.issue.impl.records.IssueImpl;
+import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
+import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
+import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
 import com.elster.jupiter.issue.impl.records.assignee.AssigneeRoleImpl;
 import com.elster.jupiter.issue.impl.records.assignee.AssigneeTeamImpl;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.AssigneeRole;
+import com.elster.jupiter.issue.share.entity.AssigneeTeam;
+import com.elster.jupiter.issue.share.entity.AssignmentRule;
+import com.elster.jupiter.issue.share.entity.BaseIssue;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionParameter;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionType;
+import com.elster.jupiter.issue.share.entity.CreationRuleParameter;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.users.UserService;
 
 import java.util.Arrays;
@@ -191,6 +221,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<BaseIssue> table = dataModel.addTable(DatabaseConst.ALL_ISSUES_VIEW_NAME, BaseIssue.class);
             table.map(BaseIssueImpl.class);
+            table.doNotAutoInstall();
             Column idColumn = table.addAutoIdColumn();
             TableBuilder.buildIssueTable(table, idColumn, DatabaseConst.ALL_ISSUES_PK_NAME,
                     // Foreign keys

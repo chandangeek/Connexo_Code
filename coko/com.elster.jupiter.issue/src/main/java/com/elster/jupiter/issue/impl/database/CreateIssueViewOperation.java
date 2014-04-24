@@ -29,20 +29,13 @@ public class CreateIssueViewOperation {
 
     public void execute(){
         try (Connection conn = dataModel.getConnection(false)) {
-            PreparedStatement statement = buildStatement(conn, buildDropSQL());
-            statement.execute();
-            statement = buildStatement(conn, buildCreateSQL());
+            PreparedStatement statement = buildStatement(conn, buildCreateSQL());
             statement.execute();
         } catch (SQLException sqlEx){
             LOG.log(Level.SEVERE, "Unable to create view for all issues", sqlEx);
         }
     }
 
-    protected SqlBuilder buildDropSQL() {
-        SqlBuilder builder = new SqlBuilder();
-        builder.append("DROP TABLE " + DatabaseConst.ALL_ISSUES_VIEW_NAME);
-        return builder;
-    }
     protected SqlBuilder buildCreateSQL(){
         SqlBuilder builder = new SqlBuilder();
         builder.append("CREATE OR REPLACE VIEW " + DatabaseConst.ALL_ISSUES_VIEW_NAME + " AS ");
