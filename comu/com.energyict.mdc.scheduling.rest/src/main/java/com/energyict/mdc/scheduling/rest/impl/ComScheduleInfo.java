@@ -1,19 +1,23 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import java.util.Date;
 
 public class ComScheduleInfo {
 
     public long id;
     public String name;
-    public NextExecutionsSpecsInfo nextExecutionSpec;
+    public TemporalExpressionInfo temporalExpression;
+    public Date plannedDate;
 
     public ComScheduleInfo() {
     }
 
-    public ComScheduleInfo(ComSchedule comSchedule) {
-        this.id = comSchedule.getId();
-        this.name = comSchedule.getName();
-        this.nextExecutionSpec = new NextExecutionsSpecsInfo(comSchedule.getTemporalExpression());
+    public static ComScheduleInfo from(ComSchedule comSchedule) {
+        ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
+        comScheduleInfo.id = comSchedule.getId();
+        comScheduleInfo.name = comSchedule.getName();
+        comScheduleInfo.temporalExpression = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
+        return comScheduleInfo;
     }
 }
