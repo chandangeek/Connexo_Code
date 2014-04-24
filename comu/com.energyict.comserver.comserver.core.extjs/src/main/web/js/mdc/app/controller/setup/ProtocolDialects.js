@@ -231,7 +231,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
             record.propertiesStore = me.getPropertiesController().updateProperties();
             record.save({
                 success: function (record) {
-                    location.href = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
+                    location.href = '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/protocols';
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);

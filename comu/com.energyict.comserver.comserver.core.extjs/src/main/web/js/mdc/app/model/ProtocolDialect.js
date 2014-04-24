@@ -2,8 +2,9 @@ Ext.define('Mdc.model.ProtocolDialect', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'id', type: 'int', useNull: true},
-        {name: 'name', type: 'string', useNull: true},
-        {name: 'availableForUse', type: 'boolean', useNull: true}
+        {name: 'name', type: 'string', useNull: true}
+        //,
+        //{name: 'availableForUse', type: 'boolean', useNull: true}
 
     ],
     associations: [
