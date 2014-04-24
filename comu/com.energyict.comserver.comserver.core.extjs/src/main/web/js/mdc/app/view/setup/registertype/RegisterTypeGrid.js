@@ -13,6 +13,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
     ],
     store: 'RegisterTypes',
     padding: '10 10 10 10',
+    withPaging: true,
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -110,36 +111,37 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 ]
             }
         ];
-        this.dockedItems = [
-            {
+        if(this.withPaging){
+            this.dockedItems = [
+                {
 
-                xtype: 'pagingtoolbartop',
-                itemId: 'registerTypeGridTop',
-                store: this.store,
-                dock: 'top',
-                displayMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} register types'),
-                displayMoreMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} register types'),
-                emptyMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register types to display'),
-                items: [
-                    {
-                        xtype: 'component',
-                        flex: 1
-                    },
-                    {
-                        text: Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Create register type'),
-                        itemId: 'createRegisterType',
-                        xtype: 'button',
-                        action: 'createRegisterType'
-                    }
-                ]
-            },
-            {
-                xtype: 'pagingtoolbarbottom',
-                store: this.store,
-                dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('registerTypes.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Register types per page')
-            }
-        ];
+                    xtype: 'pagingtoolbartop',
+                    store: this.store,
+                    dock: 'top',
+                    displayMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} register types'),
+                    displayMoreMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} register types'),
+                    emptyMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register types to display'),
+                    items: [
+                        {
+                            xtype: 'component',
+                            flex: 1
+                        },
+                        {
+                            text: Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Create register type'),
+                            itemId: 'createRegisterType',
+                            xtype: 'button',
+                            action: 'createRegisterType'
+                        }
+                    ]
+                },
+                {
+                    xtype: 'pagingtoolbarbottom',
+                    store: this.store,
+                    dock: 'bottom',
+                    itemsPerPageMsg: Uni.I18n.translate('registerTypes.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Register types per page')
+                }
+            ];
+        }
 
         this.callParent();
     }

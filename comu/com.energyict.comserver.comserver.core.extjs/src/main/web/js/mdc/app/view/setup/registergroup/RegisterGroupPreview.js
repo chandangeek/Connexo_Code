@@ -75,12 +75,12 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                 ],
                 items: [
                     {
-                        xtype: 'registerTypeGrid'
-                        //itemId: 'registerGroupPreviewGrid'
+                        xtype: 'registerTypeGrid',
+                        withPaging: false,
+                        maxHeight: 500
                     },
                     {
                         xtype: 'registerTypePreview'
-                        //itemId: 'registerGroupPreviewDetails'
                     }
                 ]
             }

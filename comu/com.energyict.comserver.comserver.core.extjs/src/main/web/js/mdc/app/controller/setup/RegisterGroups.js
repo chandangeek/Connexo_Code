@@ -82,20 +82,25 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     previewRegisterGroup: function (grid, record) {
         var registerGroups = this.getRegisterGroupGrid().getSelectionModel().getSelection();
         if (registerGroups.length == 1) {
-            this.getRegisterTypeGrid().store.clearFilter();
-            this.getRegisterTypeGrid().store.filterBy(function (record){
-                for(var i=0; i<registerGroups[0].data.registerTypes.length; i++){
-                    if(record.get('id')==registerGroups[0].data.registerTypes[i].id){
-                        return true;
-                    }
+            var me=this;
+            this.getRegisterTypeGrid().store.load({
+                callback: function () {
+                    me.getRegisterTypeGrid().store.clearFilter();
+                    me.getRegisterTypeGrid().store.filterBy(function (record){
+                        for(var i=0; i<registerGroups[0].data.registerTypes.length; i++){
+                            if(record.get('id')==registerGroups[0].data.registerTypes[i].id){
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
+                    //me.getRegisterTypeGrid().store.loadData(registerGroups[0].data.registerTypes);
+                    me.getRegisterGroupPreviewForm().loadRecord(registerGroups[0]);
+                    me.getRegisterGroupPreview().getLayout().setActiveItem(1);
+                    me.getRegisterGroupPreviewTitle().update('<h4>' + registerGroups[0].get('name') + '</h4>');
+                    me.getRegisterTypePreview().getLayout().setActiveItem(0);
                 }
-                return false;
             });
-            //this.getRegisterTypeGrid().store.loadData(registerGroups[0].registerTypes, false);
-            this.getRegisterGroupPreviewForm().loadRecord(registerGroups[0]);
-            this.getRegisterGroupPreview().getLayout().setActiveItem(1);
-            this.getRegisterGroupPreviewTitle().update('<h4>' + registerGroups[0].get('name') + '</h4>');
-            this.getRegisterTypePreview().getLayout().setActiveItem(0);
         } else {
             this.getRegisterGroupPreview().getLayout().setActiveItem(0);
         }
