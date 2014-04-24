@@ -77,6 +77,7 @@ public enum TableSpecs {
             table.foreignKey("FK_GROUP_COMSCHEDULE").on(comScheduleId).references(SchedulingService.COMPONENT_NAME, "MDCCOMSCHEDULE")
                     .map(DeviceInComScheduleImpl.Fields.COM_SCHEDULE_REFERENCE.fieldName())
                     .add();
+            table.primaryKey("PK_EISRTUINCOMSCHEDULE").on(deviceId, comScheduleId).add();
         }
     },
 
@@ -234,7 +235,7 @@ public enum TableSpecs {
             table.foreignKey("FK_MDCCONNTASK_CPP").on(comPortPool).references(EngineModelService.COMPONENT_NAME, "MDCCOMPORTPOOL").map("comPortPool").add();
             table.foreignKey("FK_MDCCONNTASK_COMSERVER").on(comServer).references(EngineModelService.COMPONENT_NAME, "MDCCOMSERVER").map("comServer").add();
             table.foreignKey("FK_MDCCONNTASK_INITIATOR").on(initiator).references(MDCCONNECTIONTASK.name()).map("initiationTask").add();
-            table.foreignKey("FK_MDCCONNTASK_NEXTEXEC").on(nextExecutionSpecs).references(DeviceConfigurationService.COMPONENTNAME, "MDCNEXTEXECUTIONSPEC").map("nextExecutionSpecs").add();
+            table.foreignKey("FK_MDCCONNTASK_NEXTEXEC").on(nextExecutionSpecs).references(SchedulingService.COMPONENT_NAME, "MDCNEXTEXECUTIONSPEC").map("nextExecutionSpecs").add();
             table.foreignKey("FK_MDCCONNTASK_PARTIAL").on(partialConnectionTaskColumn).references("DTC", "MDCPARTIALCONNECTIONTASK").map("partialConnectionTask").add();
         }
     },
