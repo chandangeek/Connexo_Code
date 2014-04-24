@@ -16,11 +16,11 @@ public enum TableSpecs {
         void describeTable(Table table) {
         	table.map(EventTypeImpl.class);
         	table.cache();
-            Column topicColumn = table.column("TOPIC").type("varchar(80)").notNull().map("topic").add();
-            table.column("COMPONENT").type("varchar(3)").notNull().map("component").add();
-            table.column("SCOPE").type("varchar(80)").notNull().map("scope").add();
-            table.column("CATEGORY").type("varchar(80)").notNull().map("category").add();
-            table.column("NAME").type("varchar(80)").notNull().map("name").add();
+            Column topicColumn = table.column("TOPIC").varChar(80).notNull().map("topic").add();
+            table.column("COMPONENT").varChar(3).notNull().map("component").add();
+            table.column("SCOPE").varChar(80).notNull().map("scope").add();
+            table.column("CATEGORY").varChar(80).notNull().map("category").add();
+            table.column("NAME").varChar(80).notNull().map("name").add();
             table.column("PUBLISH").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("publish").add();
 
             table.primaryKey("EVT_PK_EVENTTYPE").on(topicColumn).add();
@@ -30,10 +30,10 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
         	table.map(EventPropertyTypeImpl.class);
-            Column topicColumn = table.column("TOPIC").type("varchar(80)").notNull().map("eventTypeTopic").add();
-            Column nameColumn = table.column("NAME").type("varchar(80)").notNull().map("name").add();
-            table.column("TYPE").type("number").notNull().conversion(NUMBER2ENUM).map("valueType").add();
-            table.column("ACCESSPATH").type("varchar(80)").notNull().map("accessPath").add();
+            Column topicColumn = table.column("TOPIC").varChar(80).notNull().map("eventTypeTopic").add();
+            Column nameColumn = table.column("NAME").varChar(80).notNull().map("name").add();
+            table.column("TYPE").number().notNull().conversion(NUMBER2ENUM).map("valueType").add();
+            table.column("ACCESSPATH").varChar(80).notNull().map("accessPath").add();
             Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
 
             table.primaryKey("EVT_PK_EVENTPROPERTYTYPE").on(topicColumn, nameColumn).add();
