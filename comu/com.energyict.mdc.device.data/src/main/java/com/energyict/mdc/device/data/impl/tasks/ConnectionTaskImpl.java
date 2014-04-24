@@ -14,6 +14,7 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.PartialConnectionTaskFactory;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteUsedDefaultConnectionTaskException;
@@ -22,23 +23,19 @@ import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteE
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCannotBecomeObsoleteException;
 import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.IncompatiblePartialConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.LegacyException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
 import com.energyict.mdc.device.data.impl.CreateEventType;
 import com.energyict.mdc.device.data.impl.DeleteEventType;
 import com.energyict.mdc.device.data.impl.PersistentIdObject;
 import com.energyict.mdc.device.data.impl.UpdateEventType;
-import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.device.data.tasks.TaskExecutionSummary;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
@@ -50,7 +47,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -85,8 +81,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Device device;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY + "}")
     private Reference<PCTT> partialConnectionTask = ValueReference.absent();
-    private List<ComSession> comSessions;
-    private ComSession lastComSession;
     private boolean isDefault = false;
     private boolean paused = false;
     private Date obsoleteDate;
@@ -190,18 +184,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     protected void deleteDependents() {
-        try {
-            this.deleteComSessions();
             this.unRegisterConnectionTaskFromComTasks();
-        } catch (SQLException | BusinessException e) {
-            throw new LegacyException(this.getThesaurus(), e);
-        }
-    }
-
-    private void deleteComSessions() throws SQLException, BusinessException {
-        for (ComSession comSession : this.getComSessions()) {
-            comSession.delete();
-        }
     }
 
     /**
@@ -372,21 +355,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @Override
     public PCTT getPartialConnectionTask() {
         return this.partialConnectionTask.get();
-    }
-
-    @Override
-    public List<ComSession> getComSessions() {
-        // Todo: replace with ORM composition when ComSession is being ported
-        if (this.comSessions == null) {
-            this.comSessions = Collections.emptyList();
-        }
-        return comSessions;
-    }
-
-    @Override
-    public ComSession getLastComSession() {
-        // Todo: Search for the last ComSession by date.
-        return null;
     }
 
     @Override
@@ -574,40 +542,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     public void setXmlType(String ignore) {
         // For xml unmarshalling purposes only
-    }
-
-    @Override
-    public SuccessIndicator getSuccessIndicator() {
-        ComSession lastComSession = this.getLastComSession();
-        if (lastComSession == null) {
-            return SuccessIndicator.NOT_APPLICABLE;
-        } else {
-            if (lastComSession.wasSuccessful()) {
-                return SuccessIndicator.SUCCESS;
-            } else {
-                return SuccessIndicator.FAILURE;
-            }
-        }
-    }
-
-    @Override
-    public ComSession.SuccessIndicator getLastSuccessIndicator() {
-        ComSession lastComSession = this.getLastComSession();
-        if (lastComSession == null) {
-            return null;
-        } else {
-            return lastComSession.getSuccessIndicator();
-        }
-    }
-
-    @Override
-    public TaskExecutionSummary getLastTaskExecutionSummary() {
-        ComSession lastComSession = this.getLastComSession();
-        if (lastComSession == null) {
-            return null;
-        } else {
-            return lastComSession.getTaskExecutionSummary();
-        }
     }
 
     @Override
