@@ -179,7 +179,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     showScheduleField: function(combobox,objList){
-         if(objList[0].get('connectionStrategy')==='asSoonAsPossible'){
+         if(objList[0].get('connectionStrategy')==='minimizeConnections'){
              this.getScheduleField().setVisible(true);
          } else {
              this.getScheduleField().setVisible(false);
@@ -221,6 +221,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         var me = this;
         if (record) {
             record.set(values);
+            if(values.connectionStrategy==='asSoonAsPossible'){
+                record.set('nextExecutionSpecs',null);
+            }
             record.propertiesStore = this.getPropertiesController().updateProperties();
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             record.save({
@@ -315,7 +318,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                     callback: function(){
                                                         var deviceTypeName = deviceType.get('name');
                                                         var deviceConfigName = deviceConfig.get('name');
-                                                        if(connectionMethod.get('connectionStrategy')==='asSoonAsPossible'){
+                                                        if(connectionMethod.get('connectionStrategy')==='minimizeConnections'){
                                                             widget.down('form').down('#scheduleField').setVisible(true);
                                                         }
                                                         widget.down('form').loadRecord(connectionMethod);
