@@ -2,8 +2,7 @@ package com.energyict.protocolimplv2.edp.registers;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
@@ -44,6 +43,16 @@ public class RegisterReader implements DeviceRegisterSupport {
                 readObisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) 1);
             }
             try {
+
+                if (isGPSCoordinates(obisCode)) {    //Looks like this one is not in the object list of the Janz c280 meter?
+                    Structure structure = protocol.getDlmsSession().getCosemObjectFactory().getData(obisCode).getValueAttr().getStructure();
+                    Float64 latitude = structure.getDataType(0).getFloat64();
+                    Float64 longitude = structure.getDataType(1).getFloat64();
+                    String description = "Latitude: " + latitude.getValue() + "; Longitude: " + longitude.getValue();
+                    collectedRegisters.add(createCollectedRegister(register, null, description, null));
+                    continue;
+                }
+
                 int classId = protocol.getDlmsSession().getMeterConfig().getClassId(readObisCode);
                 if (classId == DLMSClassId.REGISTER.getClassId()) {
                     Quantity quantityValue = getCosemObjectFactory().getRegister(readObisCode).getQuantityValue();
@@ -144,6 +153,10 @@ public class RegisterReader implements DeviceRegisterSupport {
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
         return new RegisterDataIdentifierByObisCodeAndDevice(offlineRtuRegister.getObisCode(), new DeviceIdentifierBySerialNumber(offlineRtuRegister.getSerialNumber()));
+    }
+
+    private boolean isGPSCoordinates(ObisCode obisCode) {
+        return obisCode.equals(ObisCode.fromString("0.65.0.30.4.255"));
     }
 
     private CosemObjectFactory getCosemObjectFactory() {

@@ -48,6 +48,7 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
         supportedMessages.add(PublicLightingDeviceMessage.SET_OVERALL_MINIMUM_THRESHOLD);
         supportedMessages.add(PublicLightingDeviceMessage.SET_OVERALL_MAXIMUM_THRESHOLD);
         supportedMessages.add(PublicLightingDeviceMessage.SET_RELAY_TIME_OFFSETS_TABLE);
+        supportedMessages.add(PublicLightingDeviceMessage.WRITE_GPS_COORDINATES);
 
         // firmware upgrade related
         supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
