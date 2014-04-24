@@ -17,10 +17,6 @@ public class NextExecutionsSpecsInfo {
     public NextExecutionsSpecsInfo() {
     }
 
-    public NextExecutionsSpecsInfo(TemporalExpressionInfo temporalExpression) {
-        this.temporalExpression = temporalExpression;
-    }
-
     public TemporalExpression asTemporalExpression() {
         if (temporalExpression.every==null) {
             return null;
