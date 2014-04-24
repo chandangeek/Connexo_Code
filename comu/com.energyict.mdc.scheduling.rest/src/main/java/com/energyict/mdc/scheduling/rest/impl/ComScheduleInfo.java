@@ -14,6 +14,6 @@ public class ComScheduleInfo {
     public ComScheduleInfo(ComSchedule comSchedule) {
         this.id = comSchedule.getId();
         this.name = comSchedule.getName();
-        this.nextExecutionSpec = new NextExecutionsSpecsInfo(comSchedule.getNextExecutionSpec().getTemporalExpression());
+        this.nextExecutionSpec = new NextExecutionsSpecsInfo(comSchedule.getTemporalExpression());
     }
 }
