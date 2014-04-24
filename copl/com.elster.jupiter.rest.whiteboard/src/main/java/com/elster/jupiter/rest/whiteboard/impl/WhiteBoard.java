@@ -31,10 +31,13 @@ import javax.ws.rs.core.Application;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component (name = "com.elster.jupiter.rest.whiteboard.implementation" , immediate = true , service = {}  )
 public class WhiteBoard {
+	
+	private static final Logger LOGGER = Logger.getLogger(WhiteBoard.class.getName());
 	
 	private volatile HttpContext httpContext;
 	private volatile HttpService httpService;
@@ -138,7 +141,7 @@ public class WhiteBoard {
         	HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container,threadPrincipalService),this);
         	httpService.registerServlet(alias.get(), wrapper, null, httpContext);
         } catch (ServletException | NamespaceException e) {
-            e.printStackTrace();
+        	LOGGER.log(Level.SEVERE, "Error while registering " + alias.get() + ": " + e.getMessage() , e);
             throw new RuntimeException(e);
         } 
     }
