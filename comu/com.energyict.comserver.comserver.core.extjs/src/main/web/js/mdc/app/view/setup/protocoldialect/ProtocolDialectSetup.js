@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.protocolDialectSetup',
-    autoScroll: true,
     itemId: 'protocolDialectSetup',
     deviceTypeId: null,
     deviceConfigId: null,

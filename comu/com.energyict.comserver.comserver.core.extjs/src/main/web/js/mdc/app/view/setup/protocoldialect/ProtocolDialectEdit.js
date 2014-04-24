@@ -2,7 +2,6 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.protocolDialectEdit',
     itemId: 'protocolDialectEdit',
-    autoScroll: true,
     cls: 'content-container',
     edit: false,
     isEdit: function () {
