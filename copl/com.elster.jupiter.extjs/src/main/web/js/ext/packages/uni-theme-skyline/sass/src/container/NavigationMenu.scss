@@ -49,3 +49,7 @@ $menu-width-collapsed: 55px;
         }
     }
 }
+
+.#{$prefix}container-navigationwrapper {
+    padding-right: $menu-width-collapsed;
+}
