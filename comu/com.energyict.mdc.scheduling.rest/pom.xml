@@ -21,6 +21,11 @@
     <dependencies>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.data</artifactId>
+            <version>${jupiter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.scheduling</artifactId>
             <version>${jupiter.version}</version>
             <scope>provided</scope>

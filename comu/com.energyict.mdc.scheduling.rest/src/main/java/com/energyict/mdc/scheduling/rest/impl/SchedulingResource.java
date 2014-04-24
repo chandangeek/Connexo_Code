@@ -2,9 +2,12 @@ package com.energyict.mdc.scheduling.rest.impl;
 
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -20,10 +23,12 @@ import javax.ws.rs.core.Response;
 public class SchedulingResource {
 
     private final SchedulingService schedulingService;
+    private final DeviceDataService deviceDataService;
 
     @Inject
-    public SchedulingResource(SchedulingService schedulingService) {
+    public SchedulingResource(SchedulingService schedulingService, DeviceDataService deviceDataService) {
         this.schedulingService = schedulingService;
+        this.deviceDataService = deviceDataService;
     }
 
     @GET
@@ -45,5 +50,13 @@ public class SchedulingResource {
         ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression());
         comSchedule.save();
         return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule)).build();
+    }
+
+    private Date getPlannedDate(ComSchedule comSchedule) {
+        if (comSchedule.getSchedulingStatus().equals(SchedulingStatus.PAUSED)) {
+            return null;
+        } else {
+            return deviceDataService.getPlannedDate(comSchedule);
+        }
     }
 }
