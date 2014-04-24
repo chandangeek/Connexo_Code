@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceInComSchedule;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
@@ -16,10 +17,15 @@ import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.PluggableService;
-
+import com.energyict.mdc.scheduling.SchedulingService;
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.DATE2DATE;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2DATE;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 /**
@@ -48,6 +54,24 @@ public enum TableSpecs {
             table.foreignKey("FK_EISRTU_DEVICECONFIG").on(deviceConfigId).references(DeviceConfigurationService.COMPONENTNAME, "EISDEVICECONFIG").map("deviceConfiguration").add();
             table.unique("UK_RTU_EXTID").on(externid).add();
             table.primaryKey("PK_RTU").on(id).add();
+        }
+    },
+
+    EISRTUINCOMSCHEDULE {
+        @Override
+        void addTo(DataModel component) {
+            Table<DeviceInComSchedule> table = component.addTable(name(), DeviceInComSchedule.class);
+            table.map(DeviceInComScheduleImpl.class);
+            Column deviceId = table.column("RTUID").number().notNull().conversion(NUMBER2LONG).add();
+            Column comScheduleId = table.column("COMSCHEDULEID").number().notNull().conversion(NUMBER2LONG).add();
+
+            table.foreignKey("FK_GROUP_DEVICE").on(deviceId).references(EISRTU.name()).map(DeviceInComScheduleImpl.Fields.DEVICE_REFERENCE.fieldName())
+                    .reverseMap("comScheduleUsages")
+                    .composition()
+                    .add();
+            table.foreignKey("FK_GROUP_COMSCHEDULE").on(deviceId).references(SchedulingService.COMPONENT_NAME, "MDCCOMSCHEDULE")
+                    .map(DeviceInComScheduleImpl.Fields.COM_SCHEDULE_REFERENCE.fieldName())
+                    .add();
         }
     },
 

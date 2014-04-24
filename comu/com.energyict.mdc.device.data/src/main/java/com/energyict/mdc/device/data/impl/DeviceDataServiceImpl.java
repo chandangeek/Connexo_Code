@@ -10,6 +10,8 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
@@ -56,6 +58,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -608,4 +611,13 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
         return this.dataModel.mapper(LogBook.class).find("device", device);
     }
 
+    @Override
+    public Date getPlannedDate(ComSchedule comSchedule) {
+        List<Device> devices = dataModel.query(Device.class).select(Where.where("comSchedule").isEqualTo(comSchedule), new Order[0], false, new String[0], 0, 1);
+//        if (devices.isEmpty()) {
+//            return null;
+//        }
+        // TODO add link to ComSchedule
+        return new Date();
+    }
 }

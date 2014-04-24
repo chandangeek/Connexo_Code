@@ -18,7 +18,9 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -325,5 +327,7 @@ public interface DeviceDataService {
      * @return a list of LogBooks which exist for the given Device
      */
     public List<LogBook> findLogBooksByDevice(Device device);
+
+    public Date getPlannedDate(ComSchedule comSchedule);
 
 }
