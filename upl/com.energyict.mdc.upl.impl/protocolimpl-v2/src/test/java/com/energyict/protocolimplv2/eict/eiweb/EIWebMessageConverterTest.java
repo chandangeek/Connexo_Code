@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageAttributeImpl;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.DataVaultProvider;
@@ -62,6 +63,8 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class EIWebMessageConverterTest {
+
+    private static final int DEVICE_MESSAGE_ID = 1;
 
     @Mock
     private OfflineDeviceMessage setDescriptionMessage;
@@ -345,11 +348,13 @@ public class EIWebMessageConverterTest {
     private OfflineDeviceMessage createMessage(DeviceMessageSpec messageSpec) {
         OfflineDeviceMessage message = getEmptyMessageMock();
         List<OfflineDeviceMessageAttribute> attributes = new ArrayList<>();
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+        when(deviceMessage.getId()).thenReturn(DEVICE_MESSAGE_ID);
 
         for (PropertySpec propertySpec : messageSpec.getPropertySpecs()) {
             TypedProperties propertyStorage = TypedProperties.empty();
             propertyStorage.setProperty(propertySpec.getName(), "1");
-            attributes.add(new OfflineDeviceMessageAttributeImpl(new DeviceMessageAttributeImpl(propertySpec, null, propertyStorage), new EIWeb()));
+            attributes.add(new OfflineDeviceMessageAttributeImpl(new DeviceMessageAttributeImpl(propertySpec, deviceMessage, propertyStorage), new EIWeb()));
         }
         when(message.getDeviceMessageAttributes()).thenReturn(attributes);
         when(message.getSpecification()).thenReturn(messageSpec);
