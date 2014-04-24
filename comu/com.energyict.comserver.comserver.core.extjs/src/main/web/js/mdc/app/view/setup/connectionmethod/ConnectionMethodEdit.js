@@ -30,8 +30,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 xtype: 'container',
                 cls: 'content-container',
                 layout: {
-                    type: 'vbox',
-                    align: 'stretch'
+                    type: 'vbox'
+//                    align: 'stretch'
                 },
 
                 items: [
@@ -41,12 +41,12 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         itemId: 'connectionMethodEditAddTitle',
                         margins: '10 10 10 10'
                     },
-                    {
-                        xtype: 'container',
-                        layout: {
-                            type: 'column'
-                        },
-                        items: [
+//                    {
+//                        xtype: 'container',
+//                        layout: {
+//                            type: 'column'
+//                        },
+//                        items: [
                             {
                                 xtype: 'form',
                                 border: false,
@@ -184,8 +184,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                             {
                                 xtype: 'propertyEdit'
                             }
-                        ]
-                    }
+//                        ]
+//                    }
 
 
                 ]

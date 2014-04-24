@@ -142,7 +142,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
 
     add: function (menuItem) {
         this.menuSelection = menuItem;
-        var url = this.getApplication().getHistorySetupController().tokenizeAddComPortPool();
+        var url = this.getApplication().getController('Mdc.controller.history.Setup').tokenizeAddComPortPool();
         Ext.History.add(url);
     },
 
