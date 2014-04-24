@@ -44,10 +44,10 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
     itemsPerPageMsg: 'Items per page',
 
-    firstText : 'First page',
-    prevText : 'Previous page',
-    nextText : 'Next page',
-    lastText : 'Last page',
+    firstText: 'First page',
+    prevText: 'Previous page',
+    nextText: 'Next page',
+    lastText: 'Last page',
 
     pageSizeStore: Ext.create('Ext.data.Store', {
         fields: ['value'],
@@ -218,10 +218,11 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             {
                 xtype: 'component',
                 html: '&nbsp;',
-                flex: 0.66
+                flex: 1
             },
             {
                 itemId: 'first',
+                ui: 'gridnav',
                 tooltip: me.firstText,
                 overflowText: me.firstText,
                 iconCls: Ext.baseCSSPrefix + 'tbar-page-first',
@@ -231,6 +232,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             },
             {
                 itemId: 'prev',
+                ui: 'gridnav',
                 tooltip: me.prevText,
                 overflowText: me.prevText,
                 iconCls: Ext.baseCSSPrefix + 'tbar-page-prev',
@@ -247,6 +249,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             '-',
             {
                 itemId: 'next',
+                ui: 'gridnav',
                 tooltip: me.nextText,
                 overflowText: me.nextText,
                 iconCls: Ext.baseCSSPrefix + 'tbar-page-next',
@@ -256,17 +259,13 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             },
             {
                 itemId: 'last',
+                ui: 'gridnav',
                 tooltip: me.lastText,
                 overflowText: me.lastText,
                 iconCls: Ext.baseCSSPrefix + 'tbar-page-last',
                 disabled: true,
                 handler: me.moveLast,
                 scope: me
-            },
-            {
-                xtype: 'component',
-                html: '&nbsp;',
-                flex: 1
             }
         ];
     },
@@ -331,9 +330,9 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         return false;
     },
 
-    moveFirst : function(){
+    moveFirst: function () {
         var me = this;
-        if (this.fireEvent('beforechange', this, 1) !== false){
+        if (this.fireEvent('beforechange', this, 1) !== false) {
             me.initExtraParams();
             this.store.loadPage(1, {
                 params: me.params
@@ -343,7 +342,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         return false;
     },
 
-    movePrevious : function(){
+    movePrevious: function () {
         var me = this,
             store = me.store,
             prev = store.currentPage - 1;
@@ -360,7 +359,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         return false;
     },
 
-    moveNext : function(){
+    moveNext: function () {
         var me = this,
             store = me.store,
             total = me.getPageData().pageCount,
@@ -457,12 +456,12 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
     initExtraParams: function () {
         var me = this;
         if (Ext.isArray(me.params)) {
-             me.params.forEach(function (entry) {
-                 var key = Object.keys(entry)[0];
-                 var value = entry[key];
-                 me.store.getProxy().setExtraParam(key, value);
-             });
-         }
+            me.params.forEach(function (entry) {
+                var key = Object.keys(entry)[0];
+                var value = entry[key];
+                me.store.getProxy().setExtraParam(key, value);
+            });
+        }
     }
 
 });
