@@ -325,7 +325,6 @@ Ext.define('Mdc.widget.ScheduleField', {
             me.unitField.setValue(schedule.temporalExpression.every.timeUnit);
 
             var offSet = schedule.temporalExpression.offset;
-            debugger;
             switch(schedule.temporalExpression.every.timeUnit){
                 case 'minutes':
                     this.secondField.setValue(offSet.count);

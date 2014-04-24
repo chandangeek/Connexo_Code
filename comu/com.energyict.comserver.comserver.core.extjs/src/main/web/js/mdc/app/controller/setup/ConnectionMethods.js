@@ -179,7 +179,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     showScheduleField: function(combobox,objList){
-        debugger;
          if(objList[0].get('connectionStrategy')==='asSoonAsPossible'){
              this.getScheduleField().setVisible(true);
          } else {
@@ -269,7 +268,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     showConnectionTypeProperties: function(combobox,objList){
-        debugger;
         this.getPropertiesController().showProperties(this.getConnectionTypeComboBox().findRecordByValue(this.getConnectionTypeComboBox().getValue()),this.getConnectionMethodEditView(),false);
     },
 

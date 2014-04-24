@@ -192,7 +192,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
         ];
         this.callParent(arguments);
         if(this.isEdit()){
-            debugger;
             this.down('#addEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
             if(this.direction === 'Outbound'){
                 this.down('#addEditButton').action = 'editOutboundConnectionMethod';
