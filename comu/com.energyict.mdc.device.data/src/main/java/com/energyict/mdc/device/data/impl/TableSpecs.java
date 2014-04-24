@@ -69,7 +69,7 @@ public enum TableSpecs {
                     .reverseMap("comScheduleUsages")
                     .composition()
                     .add();
-            table.foreignKey("FK_GROUP_COMSCHEDULE").on(deviceId).references(SchedulingService.COMPONENT_NAME, "MDCCOMSCHEDULE")
+            table.foreignKey("FK_GROUP_COMSCHEDULE").on(comScheduleId).references(SchedulingService.COMPONENT_NAME, "MDCCOMSCHEDULE")
                     .map(DeviceInComScheduleImpl.Fields.COM_SCHEDULE_REFERENCE.fieldName())
                     .add();
         }
