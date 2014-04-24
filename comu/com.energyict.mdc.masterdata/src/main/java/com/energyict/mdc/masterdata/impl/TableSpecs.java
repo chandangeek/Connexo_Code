@@ -95,7 +95,7 @@ public enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
             Table<RegisterMappingInGroup> table = dataModel.addTable(this.name(), RegisterMappingInGroup.class);
-            table.map(RegisterMappingInGroupImpl.class);
+            table.map(RegisterMappingInGroup.class);
             Column mappingIdColumn = table.column("REGISTERMAPPINGID").number().notNull().conversion(NUMBER2LONG).map("registerMappingId").add();
             Column groupIdColumn = table.column("REGISTERGROUPID").number().notNull().conversion(NUMBER2LONG).map("registerGroupId").add();
             table.addCreateTimeColumn("CREATETIME", "createTime");

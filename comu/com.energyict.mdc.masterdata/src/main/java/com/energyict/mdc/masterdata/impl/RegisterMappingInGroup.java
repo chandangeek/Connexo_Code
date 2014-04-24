@@ -4,11 +4,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterMapping;
-import com.energyict.mdc.masterdata.RegisterMappingInGroup;
 
 import javax.inject.Inject;
 
-public class RegisterMappingInGroupImpl implements RegisterMappingInGroup {
+class RegisterMappingInGroup {
     // persistent fields
     private long registerGroupId;
     private long registerMappingId;
@@ -21,11 +20,11 @@ public class RegisterMappingInGroupImpl implements RegisterMappingInGroup {
     private final DataModel dataModel;
 
     @Inject
-    RegisterMappingInGroupImpl(DataModel dataModel) {
+    RegisterMappingInGroup(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    RegisterMappingInGroupImpl init(RegisterGroup group , RegisterMapping mapping) {
+    RegisterMappingInGroup init(RegisterGroup group , RegisterMapping mapping) {
         this.registerGroupId = group.getId();
         this.registerMappingId = mapping.getId();
         this.registerGroup = group;
@@ -33,20 +32,18 @@ public class RegisterMappingInGroupImpl implements RegisterMappingInGroup {
         return this;
     }
 
-    static RegisterMappingInGroupImpl from(DataModel dataModel, RegisterGroup group, RegisterMapping mapping) {
-        return dataModel.getInstance(RegisterMappingInGroupImpl.class).init(group, mapping);
+    static RegisterMappingInGroup from(DataModel dataModel, RegisterGroup group, RegisterMapping mapping) {
+        return dataModel.getInstance(RegisterMappingInGroup.class).init(group, mapping);
     }
 
-    @Override
-    public RegisterMapping getRegisterMapping() {
+    RegisterMapping getRegisterMapping() {
         if (registerMapping == null) {
             registerMapping = dataModel.mapper(RegisterMapping.class).getExisting(registerMappingId);
         }
         return registerMapping;
     }
 
-    @Override
-    public RegisterGroup getRegisterGroup() {
+    RegisterGroup getRegisterGroup() {
         if (registerGroup == null) {
             registerGroup = dataModel.mapper(RegisterGroup.class).getExisting(registerGroupId);
         }
@@ -54,10 +51,10 @@ public class RegisterMappingInGroupImpl implements RegisterMappingInGroup {
     }
 
     void persist() {
-        dataModel.mapper(RegisterMappingInGroupImpl.class).persist(this);
+        dataModel.mapper(RegisterMappingInGroup.class).persist(this);
     }
 
-    public void delete() {
-        dataModel.mapper(RegisterMappingInGroupImpl.class).remove(this);
+    void delete() {
+        dataModel.mapper(RegisterMappingInGroup.class).remove(this);
     }
 }

@@ -6,13 +6,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterMapping;
-import com.energyict.mdc.masterdata.RegisterMappingInGroup;
 import com.energyict.mdc.masterdata.exceptions.CannotDeleteBecauseStillInUseException;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> implements RegisterGroup {
 
@@ -68,9 +65,9 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     }
 
     protected void validateDelete() {
-        if (!mappingsInGroup.isEmpty()) {
+        if (!getRegisterMappingInGroup().isEmpty()) {
             List<RegisterMapping> registerMappings = new ArrayList<>();
-            for(RegisterMappingInGroup mappingInGroup : mappingsInGroup){
+            for(RegisterMappingInGroup mappingInGroup : getRegisterMappingInGroup()){
                 registerMappings.add(mappingInGroup.getRegisterMapping());
             }
 
@@ -78,10 +75,17 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
         }
     }
 
+    private List<RegisterMappingInGroup> getRegisterMappingInGroup() {
+        if (mappingsInGroup == null) {
+            mappingsInGroup = dataModel.mapper(RegisterMappingInGroup.class).find("registerGroupId", getId());
+        }
+        return mappingsInGroup;
+    }
+
     @Override
     public List<RegisterMapping> getRegisterMappings() {
         List<RegisterMapping> registerMappings = new ArrayList<>();
-        for(RegisterMappingInGroup mappingInGroup : mappingsInGroup){
+        for(RegisterMappingInGroup mappingInGroup : getRegisterMappingInGroup()){
             registerMappings.add(mappingInGroup.getRegisterMapping());
         }
 
@@ -90,22 +94,64 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
 
     @Override
     public void addRegisterMapping(RegisterMapping registerMapping) {
-        RegisterMappingInGroupImpl mappingInGroup = new RegisterMappingInGroupImpl(dataModel).init(this, registerMapping);
-        if(!mappingsInGroup.contains(mappingInGroup)){
-            mappingsInGroup.add(mappingInGroup);
-        }
+        RegisterMappingInGroup mappingInGroup = RegisterMappingInGroup.from(dataModel, this, registerMapping);
+        mappingInGroup.persist();
+        getRegisterMappingInGroup().add(mappingInGroup);
     }
 
     @Override
     public void removeRegisterMapping(RegisterMapping registerMapping) {
-        RegisterMappingInGroup mappingInGroup = new RegisterMappingInGroupImpl(dataModel).init(this, registerMapping);
-        if(mappingsInGroup.contains(mappingInGroup)){
-            mappingsInGroup.remove(mappingInGroup);
+        Iterator<RegisterMappingInGroup> it = getRegisterMappingInGroup().iterator();
+        while (it.hasNext()) {
+            RegisterMappingInGroup each = it.next();
+            if (each.getRegisterMapping().equals(registerMapping)) {
+                each.delete();
+                it.remove();
+            }
         }
     }
 
     @Override
-    public void removeRegisterMappings(){
-        mappingsInGroup.clear();
+    public boolean updateRegisterMappings(HashMap<Long, RegisterMapping> registerMappings){
+        HashMap<Long, RegisterMapping> existing = new HashMap<>();
+        for(RegisterMappingInGroup mappingInGroup : getRegisterMappingInGroup()){
+            existing.put(mappingInGroup.getRegisterMapping().getId(), mappingInGroup.getRegisterMapping());
+        }
+
+        boolean modified = false;
+        modified |= unlinkToRegisterMappings(existing, registerMappings);
+        modified |= linkToRegisterMappings(existing, registerMappings);
+        return modified;
+    }
+
+    private boolean unlinkToRegisterMappings(HashMap<Long, RegisterMapping> current, HashMap<Long, RegisterMapping> target){
+        HashMap<Long, RegisterMapping> toRemove = new HashMap<>(current);
+        for(Map.Entry entry : target.entrySet()){
+            if(toRemove.containsKey(entry.getKey())){
+                toRemove.remove(entry.getKey());
+            }
+        }
+        boolean modified = (toRemove.size()>0);
+        for (Map.Entry entry : toRemove.entrySet()) {
+            modified = true;
+            removeRegisterMapping((RegisterMapping) entry.getValue());
+        }
+
+        return modified;
+    }
+
+    private boolean linkToRegisterMappings(HashMap<Long, RegisterMapping> current, HashMap<Long, RegisterMapping> target){
+        HashMap<Long, RegisterMapping> toAdd = new HashMap<>(target);
+        for(Map.Entry entry : current.entrySet()){
+            if(toAdd.containsKey(entry.getKey())){
+                toAdd.remove(entry.getKey());
+            }
+        }
+        boolean modified = (toAdd.size()>0);
+        for (Map.Entry entry : toAdd.entrySet()) {
+            addRegisterMapping((RegisterMapping) entry.getValue());
+        }
+
+        return modified;
     }
 }

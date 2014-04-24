@@ -2,6 +2,7 @@ package com.energyict.mdc.masterdata;
 
 import com.energyict.mdc.common.HasId;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -37,5 +38,5 @@ public interface RegisterGroup extends HasId {
 
     public void removeRegisterMapping (RegisterMapping registerMapping);
 
-    void removeRegisterMappings();
+    public boolean updateRegisterMappings(HashMap<Long, RegisterMapping> registerMappings);
 }
