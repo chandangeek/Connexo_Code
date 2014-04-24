@@ -23,7 +23,7 @@
 
                 .#{$prefix}btn-button {
                     .#{$prefix}btn-inner, .#{$prefix}btn-glyph {
-                        color: $color-blue;
+                        color: #2f77ac;
                     }
 
                     &:hover {
@@ -33,7 +33,7 @@
             }
 
             &:hover {
-                background-color: $color-white;
+                background-color: $color-blue-2;
             }
 
         }

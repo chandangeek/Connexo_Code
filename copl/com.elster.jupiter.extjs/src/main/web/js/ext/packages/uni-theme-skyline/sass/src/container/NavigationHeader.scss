@@ -32,6 +32,7 @@
     background: linear-gradient(to right, $header-default-bg-gradient-start-color, $header-default-bg-gradient-end-color); /* Standard syntax */
 
     // TODO Border bottom gradient.
+    border-bottom: $header-default-border-color solid 1px;
 
     .nav-appswitcher,
     .nav-toggler,
