@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.messaging.PartialLoadProfileMessageBuilder;
+import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -41,8 +41,8 @@ public class ReadPartialProfileDataMessage extends AbstractMTU155Message {
 
     private CollectedMessage readPartialProfileData(OfflineDeviceMessage message, String loadProfileXML, Date fromDate, Date toDate) throws CTRException {
         try {
-            PartialLoadProfileMessageBuilder builder = PartialLoadProfileMessageBuilder.getInstance();
-            builder = (PartialLoadProfileMessageBuilder) builder.fromXml(loadProfileXML);
+            LegacyPartialLoadProfileMessageBuilder builder = new LegacyPartialLoadProfileMessageBuilder();
+            builder = (LegacyPartialLoadProfileMessageBuilder) builder.fromXml(loadProfileXML);
             builder.setStartReadingTime(fromDate);
             builder.setEndReadingTime(toDate);
 
