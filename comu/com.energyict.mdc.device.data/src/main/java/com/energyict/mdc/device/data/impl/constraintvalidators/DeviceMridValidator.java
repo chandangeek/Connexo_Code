@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.constraintvalidators;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceFields;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -34,7 +35,7 @@ public class DeviceMridValidator implements ConstraintValidator<UniqueMrid, Devi
         Device other = this.deviceDataService.findByUniqueMrid(device.getmRID());
         if (other != null && other.getId() != device.getId()) {
             constraintValidatorContext.disableDefaultConstraintViolation();
-            constraintValidatorContext.buildConstraintViolationWithTemplate(message).addPropertyNode("mRID").addConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate(message).addPropertyNode(DeviceFields.MRID.fieldName()).addConstraintViolation();
             return false;
         }
         return true;

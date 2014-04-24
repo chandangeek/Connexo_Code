@@ -32,6 +32,9 @@ public enum EventType {
     PROTOCOLDIALECTPROPERTIES_CREATED("protocoldialectproperties/CREATED"),
     PROTOCOLDIALECTPROPERTIES_UPDATED("protocoldialectproperties/UPDATED"),
     PROTOCOLDIALECTPROPERTIES_DELETED("protocoldialectproperties/DELETED"),
+    COMTASKEXECUTION_CREATED("comtaskexecution/CREATED"),
+    COMTASKEXECUTION_UPDATED("comtaskexecution/UPDATED"),
+    COMTASKEXECUTION_DELETED("comtaskexecution/DELETED"),
     ;
 
     private static final String NAMESPACE = "com/energyict/mdc/device/data/";

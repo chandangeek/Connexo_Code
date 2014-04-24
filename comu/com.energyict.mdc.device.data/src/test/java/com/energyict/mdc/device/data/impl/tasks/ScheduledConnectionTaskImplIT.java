@@ -15,7 +15,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
-import com.energyict.mdc.device.data.ComTaskExecutionFactory;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteUsedDefaultConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCannotBecomeObsoleteException;
@@ -43,19 +44,18 @@ import com.energyict.mdc.scheduling.TemporalExpression;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+import org.assertj.core.api.Condition;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeConstants;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -113,43 +113,54 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateDefaultWithAlreadyExistingComTasksThatUseTheDefault() {
-        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
-        ComTaskExecution comTask = mock(ComTaskExecution.class);
-        List<ComTaskExecution> comTasksThatRelyOnTheDefault = new ArrayList<>(1);
-        comTasksThatRelyOnTheDefault.add(comTask);
-        when(comTaskExecutionFactory.findComTaskExecutionsForDefaultOutboundConnectionTask(this.device)).thenReturn(comTasksThatRelyOnTheDefault);
+        ComTaskExecution comTaskExecution = createComTaskExecution();
+//        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
+//        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
+//        ComTaskExecution comTask = mock(ComTaskExecution.class);
+//        List<ComTaskExecution> comTasksThatRelyOnTheDefault = new ArrayList<>(1);
+//        comTasksThatRelyOnTheDefault.add(comTask);
+//        when(comTaskExecutionFactory.findComTaskExecutionsForDefaultOutboundConnectionTask(this.device)).thenReturn(comTasksThatRelyOnTheDefault);
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateDefaultWithAlreadyExistingComTasksThatUseTheDefault");
         connectionTask.save();
 
         // Business method
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
 
+        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
+
         // Asserts
-        verify(comTask).updateToUseDefaultConnectionTask(connectionTask);
+        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
     }
 
     @Test
     @Transactional
     public void testCreateDefaultWithASAPCopiesTheEarliestNextExecutionTimestamp() {
-        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
-        ComTaskExecution comTask = mock(ComTaskExecution.class);
-        List<ComTaskExecution> comTasksThatRelyOnTheDefault = new ArrayList<>(1);
-        comTasksThatRelyOnTheDefault.add(comTask);
-        when(comTaskExecutionFactory.findComTaskExecutionsForDefaultOutboundConnectionTask(this.device)).thenReturn(comTasksThatRelyOnTheDefault);
+//        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
+//        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
+//        ComTaskExecution comTask = mock(ComTaskExecution.class);
+//        List<ComTaskExecution> comTasksThatRelyOnTheDefault = new ArrayList<>(1);
+//        comTasksThatRelyOnTheDefault.add(comTask);
+//        when(comTaskExecutionFactory.findComTaskExecutionsForDefaultOutboundConnectionTask(this.device)).thenReturn(comTasksThatRelyOnTheDefault);
+        Date earliestNextExecutionTimestamp = new DateMidnight(2013, 2, 14).toDate();
+        ComTaskExecution comTaskExecution = createComTaskExecution();
+        ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.setNextExecutionTimeStampAndPriority(earliestNextExecutionTimestamp, comTaskEnablementPriority);
+        comTaskExecutionUpdater.update();
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateDefaultWithASAPCopiesTheEarliestNextExecutionTimestamp");
         connectionTask.save();
-        Date earliestNextExecutionTimestamp = new DateMidnight(2013, 2, 14).toDate();
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(earliestNextExecutionTimestamp, TaskPriorityConstants.DEFAULT_PRIORITY);
-        when(comTaskExecutionFactory.getEarliestNextExecutionTimeStampAndPriority(connectionTask)).thenReturn(earliestNextExecutionTimestampAndPriority);
+//        when(comTaskExecutionFactory.getEarliestNextExecutionTimeStampAndPriority(connectionTask)).thenReturn(earliestNextExecutionTimestampAndPriority);
 
         // Business method
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
 
+        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         // Asserts
-        verify(comTask).updateToUseDefaultConnectionTask(connectionTask);
+//        verify(comTask).updateToUseDefaultConnectionTask(connectionTask);
         assertThat(connectionTask.getNextExecutionTimestamp()).isEqualTo(earliestNextExecutionTimestamp);
+        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
     }
 
     @Test
@@ -167,8 +178,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test(expected = PartialConnectionTaskNotPartOfDeviceConfigurationException.class)
     @Transactional
-    // Todo (JP-1122): enable this test when done
-    @Ignore
     public void testCreateOfDifferentConfig() {
         DeviceConfiguration mockCommunicationConfig = mock(DeviceConfiguration.class);
         when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
@@ -177,7 +186,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         PartialScheduledConnectionTask partialScheduledConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialScheduledConnectionTask.getId()).thenReturn(PARTIAL_SCHEDULED_CONNECTION_TASK3_ID);
         when(partialScheduledConnectionTask.getName()).thenReturn("testCreateOfDifferentConfig");
-        when(partialScheduledConnectionTask.getConfiguration()).thenReturn(deviceConfiguration);
+        when(partialScheduledConnectionTask.getConfiguration()).thenReturn(mockCommunicationConfig);
         when(partialScheduledConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
 
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateOfDifferentConfig", partialScheduledConnectionTask);
@@ -754,38 +763,46 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     // Todo (JP-1125): Enable when ComTaskExecution has been moved to this bundle
-    @Ignore
-    public void testCreateWithExistingComPorts() {
-        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-        comTaskExecutions.add(mock(ComTaskExecution.class));
-        comTaskExecutions.add(mock(ComTaskExecution.class));
-        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-        when(comTaskExecutionFactory.findComTaskExecutionsByTopology(this.device)).thenReturn(comTaskExecutions);
-        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateWithExistingComPorts");
+//    @Ignore
+    public void testCreateWithExistingComTaskExecutions() {
+//        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
+//        comTaskExecutions.add(mock(ComTaskExecution.class));
+//        comTaskExecutions.add(mock(ComTaskExecution.class));
+//        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
+//        when(comTaskExecutionFactory.findComTaskExecutionsByTopology(this.device)).thenReturn(comTaskExecutions);
+
+        ComTaskExecution comTaskExecution = createComTaskExecution();
+
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateWithExistingComTaskExecutions");
         connectionTask.save();
 
         // Asserts
-        for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            verify(comTaskExecution).connectionTaskCreated(this.device, connectionTask);
+        for (ComTaskExecution taskExecution : device.getComTaskExecutions()) {
+            assertThat(taskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
         }
+//        for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+//            verify(comTaskExecution).connectionTaskCreated(this.device, connectionTask);
+//        }
     }
 
     @Test
     @Transactional
     public void createWithComTaskUsingDefaultTestNextExecutionTimeStamp() throws SQLException, BusinessException {
         Date febFirst = freezeClock(2013, Calendar.FEBRUARY, 1);
-        Date nextExecutionTimeStamp = febFirst;
+//        Date nextExecutionTimeStamp = febFirst;
+//
+//        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
+//        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
+//        when(comTaskExecutionFactory.getEarliestNextExecutionTimeStampAndPriority(Matchers.<ScheduledConnectionTaskImpl>any())).thenReturn(new EarliestNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100));
 
-        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
-        when(comTaskExecutionFactory.getEarliestNextExecutionTimeStampAndPriority(Matchers.<ScheduledConnectionTaskImpl>any())).thenReturn(new EarliestNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100));
+        ComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(febFirst);
 
         ScheduledConnectionTaskImpl defaultConnectionTask = this.createAsapWithNoPropertiesWithoutViolations("createWithComTaskUsingDefaultTestNextExecutionTimeStamp");
         defaultConnectionTask.save();
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(defaultConnectionTask);
 
         // asserts
-        assertThat(defaultConnectionTask.getNextExecutionTimestamp()).isEqualTo(nextExecutionTimeStamp);
+        assertThat(defaultConnectionTask.getNextExecutionTimestamp()).isEqualTo(febFirst);
     }
 
     @Test
@@ -799,11 +816,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         notDefaultConnectionTask.save();
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
 
-        EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = new EarliestNextExecutionTimeStampAndPriority(comTaskNextExecutionTimeStamp, 100);
+//        EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = new EarliestNextExecutionTimeStampAndPriority(comTaskNextExecutionTimeStamp, 100);
 
-        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
-        when(comTaskExecutionFactory.getEarliestNextExecutionTimeStampAndPriority(Matchers.<ScheduledConnectionTaskImpl>any())).thenReturn(earliestNextExecutionTimeStampAndPriority);
+        createComTaskExecutionAndSetNextExecutionTimeStamp(comTaskNextExecutionTimeStamp);
 
         // Business method
         deviceDataService.setDefaultConnectionTask(notDefaultConnectionTask);
@@ -825,18 +840,24 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         Date nextExecutionTimestamp = notDefaultConnectionTask.getNextExecutionTimestamp();
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
 
-        EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = new EarliestNextExecutionTimeStampAndPriority(comTaskNextExecutionTimeStamp, 100);
-        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
-        when(comTaskExecutionFactory.getEarliestNextExecutionTimeStampAndPriority(Matchers.<ScheduledConnectionTaskImpl>any())).thenReturn(earliestNextExecutionTimeStampAndPriority);
+
+//        EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = new EarliestNextExecutionTimeStampAndPriority(comTaskNextExecutionTimeStamp, 100);
+//        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
+//        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
+//        when(comTaskExecutionFactory.getEarliestNextExecutionTimeStampAndPriority(Matchers.<ScheduledConnectionTaskImpl>any())).thenReturn(earliestNextExecutionTimeStampAndPriority);
+
+        ComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(comTaskNextExecutionTimeStamp);
 
         // Business method
         deviceDataService.setDefaultConnectionTask(notDefaultConnectionTask);
         ScheduledConnectionTask reloaded = deviceDataService.findScheduledConnectionTask(notDefaultConnectionTask.getId()).get();
 
         // Asserts after update
-        verify(comTaskExecutionFactory).synchronizeNextExecutionAndPriorityToMinimizeConnections(notDefaultConnectionTask, nextExecutionTimestamp, 100);
+//        verify(comTaskExecutionFactory).synchronizeNextExecutionAndPriorityToMinimizeConnections(notDefaultConnectionTask, nextExecutionTimestamp, 100);
         assertThat(reloaded.getNextExecutionTimestamp()).isEqualTo(nextExecutionTimestamp);
+        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
+        assertThat(reloadedComTaskExecution.getNextExecutionTimestamp()).isEqualTo(nextExecutionTimestamp);
+        assertThat(reloadedComTaskExecution.getPlannedNextExecutionTimestamp()).isEqualTo(comTaskNextExecutionTimeStamp);
     }
 
     @Test
@@ -1272,32 +1293,35 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testMakeObsoleteWithActiveComTasks() {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testMakeObsoleteWithActiveComTasks");
         connectionTask.save();
-        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-        ComTaskExecution comTask = mock(ComTaskExecution.class);
-        when(comTask.isObsolete()).thenReturn(false);
-        comTaskExecutions.add(comTask);
-        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-        when(comTaskExecutionFactory.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutions);
-        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
-
+//        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
+//        ComTaskExecution comTask = mock(ComTaskExecution.class);
+//        when(comTask.isObsolete()).thenReturn(false);
+//        comTaskExecutions.add(comTask);
+//        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
+//        when(comTaskExecutionFactory.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutions);
+//        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
+        createComTaskExecution();
         // Business method
         connectionTask.makeObsolete();
 
-        verify(comTask).connectionTaskRemoved();
+        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
+//        verify(comTask).connectionTaskRemoved();
+        assertThat(reloadedComTaskExecution.getConnectionTask()).isNotNull();
     }
 
-    @Test(expected = BusinessException.class)
+    @Test(expected = CannotDeleteUsedDefaultConnectionTaskException.class)
     @Transactional
     @Ignore
     // Todo (JP-1125): Enable when ComTaskExecution has been moved to this bundle
     public void testCannotDeleteDefaultTaskThatIsInUse() {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCannotDeleteDefaultTaskThatIsInUse");
         connectionTask.save();
-        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-        comTaskExecutions.add(mock(ComTaskExecution.class));
-        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-        when(comTaskExecutionFactory.findAllByConnectionTask(connectionTask)).thenReturn(comTaskExecutions);
-        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
+        createComTaskExecution();
+//        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
+//        comTaskExecutions.add(mock(ComTaskExecution.class));
+//        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
+//        when(comTaskExecutionFactory.findAllByConnectionTask(connectionTask)).thenReturn(comTaskExecutions);
+//        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
 
         // Business method
         connectionTask.delete();
@@ -1310,18 +1334,20 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testDeletedAndSetComTaskToNoConnectionTask() {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testDeletedAndSetComTaskToNoConnectionTask");
         connectionTask.save();
-        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-        ComTaskExecution obsoleteComTask = mock(ComTaskExecution.class);
-        comTaskExecutions.add(obsoleteComTask);
-        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-        when(comTaskExecutionFactory.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutions);
-        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
+//        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
+//        ComTaskExecution obsoleteComTask = mock(ComTaskExecution.class);
+//        comTaskExecutions.add(obsoleteComTask);
+//        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
+//        when(comTaskExecutionFactory.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutions);
+//        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
+        ComTaskExecution comTaskExecution = createComTaskExecution();
 
         // Business method
         connectionTask.delete();
 
         // Asserts
-        verify(obsoleteComTask).connectionTaskRemoved();
+//        verify(obsoleteComTask).connectionTaskRemoved();
+        assertThat(comTaskExecution.getConnectionTask()).isNull();
     }
 
     @Test
@@ -1704,76 +1730,113 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testTriggerWithMinimizeStrategy() throws SQLException, BusinessException {
+    public void testTriggerWithMinimizeStrategy() {
         ScheduledConnectionTaskImpl connectionTask = this.createMinimizeWithNoPropertiesWithoutViolations("testTriggerWithMinimizeStrategy", new TemporalExpression(EVERY_HOUR));
         connectionTask.save();
         Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(triggerDate, TaskPriorityConstants.DEFAULT_PRIORITY);
-        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-        when(comTaskExecutionFactory.getEarliestNextExecutionTimeStampAndPriority(connectionTask)).thenReturn(earliestNextExecutionTimestampAndPriority);
-        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
+//        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
+//        when(comTaskExecutionFactory.getEarliestNextExecutionTimeStampAndPriority(connectionTask)).thenReturn(earliestNextExecutionTimestampAndPriority);
+//        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
+
+        ComTaskExecution comTaskExecution = createComTaskExecution();
 
         // Business method
         connectionTask.trigger(triggerDate);
 
         // Asserts
-        verify(comTaskExecutionFactory).synchronizeNextExecutionAndPriorityToMinimizeConnections(connectionTask, triggerDate, TaskPriorityConstants.DEFAULT_PRIORITY);
+//        verify(comTaskExecutionFactory).synchronizeNextExecutionAndPriorityToMinimizeConnections(connectionTask, triggerDate, TaskPriorityConstants.DEFAULT_PRIORITY);
+        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
+        assertThat(reloadedComTaskExecution.getNextExecutionTimestamp()).isEqualTo(triggerDate);
     }
 
     @Test
     @Transactional
-    public void testTriggerWithAsapStrategyAndOnlyPendingTasks() throws SQLException, BusinessException {
+    public void testTriggerWithAsapStrategyAndOnlyPendingTasks() {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testTriggerWithAsapStrategyAndOnlyPendingTasks");
         connectionTask.save();
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
-        Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
+        Date pastDate = freezeClock(2013, Calendar.MARCH, 5);
+        final Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(triggerDate, TaskPriorityConstants.DEFAULT_PRIORITY);
-        ComTaskExecution ComTaskExecution1 = mock(ComTaskExecution.class);
-        when(ComTaskExecution1.getStatus()).thenReturn(TaskStatus.Pending);
-        ComTaskExecution ComTaskExecution2 = mock(ComTaskExecution.class);
-        when(ComTaskExecution2.getStatus()).thenReturn(TaskStatus.Pending);
-        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-        when(comTaskExecutionFactory.getEarliestNextExecutionTimeStampAndPriority(connectionTask)).thenReturn(earliestNextExecutionTimestampAndPriority);
-        when(comTaskExecutionFactory.findByConnectionTask(connectionTask)).thenReturn(Arrays.asList(ComTaskExecution1, ComTaskExecution2));
-        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
+
+        ComTaskExecution comTaskExecution1 = createComTaskExecutionAndSetNextExecutionTimeStamp(pastDate, comTaskEnablement1);
+        ComTaskExecution comTaskExecution2 = createComTaskExecutionAndSetNextExecutionTimeStamp(pastDate, comTaskEnablement2);
+//        ComTaskExecution ComTaskExecution1 = mock(ComTaskExecution.class);
+//        when(ComTaskExecution1.getStatus()).thenReturn(TaskStatus.Pending);
+//        ComTaskExecution ComTaskExecution2 = mock(ComTaskExecution.class);
+//        when(ComTaskExecution2.getStatus()).thenReturn(TaskStatus.Pending);
+//        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
+//        when(comTaskExecutionFactory.getEarliestNextExecutionTimeStampAndPriority(connectionTask)).thenReturn(earliestNextExecutionTimestampAndPriority);
+//        when(comTaskExecutionFactory.findByConnectionTask(connectionTask)).thenReturn(Arrays.asList(ComTaskExecution1, ComTaskExecution2));
+//        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
 
         // Business method
         Date nextExecutionTimstamp = connectionTask.trigger(triggerDate);
 
         // Asserts
-        verify(ComTaskExecution1).schedule(triggerDate);
-        verify(ComTaskExecution2).schedule(triggerDate);
+        Device reloadedDevice = getReloadedDevice(device);
+        List<ComTaskExecution> comTaskExecutions = reloadedDevice.getComTaskExecutions();
+        assertThat(comTaskExecutions).is(new Condition<List<ComTaskExecution>>() {
+            @Override
+            public boolean matches(List<ComTaskExecution> comTaskExecutions) {
+                for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+                    if(!comTaskExecution.getNextExecutionTimestamp().equals(triggerDate)){
+                        return false;
+                    }
+                }
+                return true;
+            }
+        });
+//        verify(ComTaskExecution1).schedule(triggerDate);
+//        verify(ComTaskExecution2).schedule(triggerDate);
         assertThat(nextExecutionTimstamp).isEqualTo(triggerDate);
     }
 
     @Test
     @Transactional
-    public void testTriggerWithAsapStrategyAndOnlyOnHoldAndWaitingTasks() throws SQLException, BusinessException {
+    public void testTriggerWithAsapStrategyAndOnlyOnHoldAndWaitingTasks() {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testTriggerWithAsapStrategyAndOnlyOnHoldAndWaitingTasks");
         connectionTask.save();
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
         Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
+        final Date futureDate = freezeClock(2013, Calendar.JULY, 4);
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(triggerDate, TaskPriorityConstants.DEFAULT_PRIORITY);
-        ComTaskExecution ComTaskExecution1 = mock(ComTaskExecution.class);
-        when(ComTaskExecution1.getStatus()).thenReturn(TaskStatus.Waiting);
-        ComTaskExecution ComTaskExecution2 = mock(ComTaskExecution.class);
-        when(ComTaskExecution2.getStatus()).thenReturn(TaskStatus.OnHold);
-        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-        when(comTaskExecutionFactory.getEarliestNextExecutionTimeStampAndPriority(connectionTask)).thenReturn(earliestNextExecutionTimestampAndPriority);
-        when(comTaskExecutionFactory.findByConnectionTask(connectionTask)).thenReturn(Arrays.asList(ComTaskExecution1, ComTaskExecution2));
-        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
+        ComTaskExecution ComTaskExecution1 = createComTaskExecutionAndSetNextExecutionTimeStamp(futureDate, comTaskEnablement1);
+//        when(ComTaskExecution1.getStatus()).thenReturn(TaskStatus.Waiting);
+        ComTaskExecution ComTaskExecution2 = createComTaskExecution(comTaskEnablement2);
+//        when(ComTaskExecution2.getStatus()).thenReturn(TaskStatus.OnHold);
+//        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
+//        when(comTaskExecutionFactory.getEarliestNextExecutionTimeStampAndPriority(connectionTask)).thenReturn(earliestNextExecutionTimestampAndPriority);
+//        when(comTaskExecutionFactory.findByConnectionTask(connectionTask)).thenReturn(Arrays.asList(ComTaskExecution1, ComTaskExecution2));
+//        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
 
         // Business method
         Date nextExecutionTimstamp = connectionTask.trigger(triggerDate);
 
         // Asserts
-        verify(ComTaskExecution1, never()).schedule(triggerDate);
-        verify(ComTaskExecution2, never()).schedule(triggerDate);
+//        verify(ComTaskExecution1, never()).schedule(triggerDate);
+//        verify(ComTaskExecution2, never()).schedule(triggerDate);
+        Device reloadedDevice = getReloadedDevice(device);
+        List<ComTaskExecution> comTaskExecutions = reloadedDevice.getComTaskExecutions();
+        assertThat(comTaskExecutions).areExactly(1, new Condition<ComTaskExecution>() {
+            @Override
+            public boolean matches(ComTaskExecution comTaskExecution) {
+                return comTaskExecution.getNextExecutionTimestamp().equals(futureDate);
+            }
+        });
+        assertThat(comTaskExecutions).areExactly(1, new Condition<ComTaskExecution>() {
+            @Override
+            public boolean matches(ComTaskExecution comTaskExecution) {
+                return comTaskExecution.getNextExecutionTimestamp() == null;
+            }
+        });
         assertThat(nextExecutionTimstamp).isEqualTo(triggerDate);
     }
 
     @Test
     @Transactional
+    @Ignore
     public void testTriggerWithAsapStrategyAllComTaskStatusses() throws SQLException, BusinessException {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testTriggerWithAsapStrategyAllComTaskStatusses");
         connectionTask.save();
@@ -1794,18 +1857,19 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         when(failed.getStatus()).thenReturn(TaskStatus.Failed);
         ComTaskExecution onHold = mock(ComTaskExecution.class);
         when(onHold.getStatus()).thenReturn(TaskStatus.OnHold);
-        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-        when(comTaskExecutionFactory.findByConnectionTask(connectionTask)).
-                thenReturn(Arrays.asList(
-                        neverCompleted,
-                        waiting,
-                        pending,
-                        busy,
-                        retrying,
-                        failed,
-                        onHold));
-        when(comTaskExecutionFactory.getEarliestNextExecutionTimeStampAndPriority(connectionTask)).thenReturn(earliestNextExecutionTimestampAndPriority);
-        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
+        //TODO need to 'fake' all these states ...
+//        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
+//        when(comTaskExecutionFactory.findByConnectionTask(connectionTask)).
+//                thenReturn(Arrays.asList(
+//                        neverCompleted,
+//                        waiting,
+//                        pending,
+//                        busy,
+//                        retrying,
+//                        failed,
+//                        onHold));
+//        when(comTaskExecutionFactory.getEarliestNextExecutionTimeStampAndPriority(connectionTask)).thenReturn(earliestNextExecutionTimestampAndPriority);
+//        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
 
         // Business method
         Date nextExecutionTimstamp = connectionTask.trigger(triggerDate);

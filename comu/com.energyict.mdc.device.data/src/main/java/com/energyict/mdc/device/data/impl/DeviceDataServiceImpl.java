@@ -24,9 +24,10 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.ComTaskExecutionFactory;
+import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
@@ -34,11 +35,13 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.finders.DeviceFinder;
 import com.energyict.mdc.device.data.finders.LoadProfileFinder;
 import com.energyict.mdc.device.data.finders.LogBookFinder;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
 import com.energyict.mdc.device.data.impl.tasks.TimedOutTasksSqlBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -48,6 +51,7 @@ import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -296,7 +300,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
         if (newDefaultConnectionTask != null) {
             newDefaultConnectionTask.setAsDefault();
         }
-        defaultConnectionTaskChanged(device, newDefaultConnectionTask);
+        setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(device, newDefaultConnectionTask);
     }
 
     @Override
@@ -310,8 +314,9 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
                 || (connectionTask.getId() != newDefaultConnectionTask.getId()));
     }
 
-    public void defaultConnectionTaskChanged(Device device, ConnectionTask connectionTask) {
-        List<ComTaskExecution> comTaskExecutions = this.findComTaskWithDefaultConnectionTaskForCompleteTopology(device);
+    @Override
+    public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask) {
+        List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopologyButNotLinkedYet(device, connectionTask);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             comTaskExecution.updateToUseDefaultConnectionTask(connectionTask);
         }
@@ -319,26 +324,28 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     /**
      * Constructs a list of {@link ComTaskExecution} which are linked to
-     * the default {@link ConnectionTask} for the entire topology of the specified Device.
+     * the default {@link ConnectionTask} for the entire topology of the specified Device,
+     * but are not linked yet to the given Default connectionTask
      *
      * @param device the Device for which we need to search the ComTaskExecution
+     * @param connectionTask the 'new' default ConnectionTask
      * @return The List of ComTaskExecution
      */
-    private List<ComTaskExecution> findComTaskWithDefaultConnectionTaskForCompleteTopology(Device device) {
+    private List<ComTaskExecution> findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopologyButNotLinkedYet(Device device, ConnectionTask connectionTask) {
         List<ComTaskExecution> scheduledComTasks = new ArrayList<>();
-        this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(device, scheduledComTasks);
+        this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(device, scheduledComTasks, connectionTask);
         return scheduledComTasks;
     }
 
-    private void collectComTaskWithDefaultConnectionTaskForCompleteTopology(Device device, List<ComTaskExecution> scheduledComTasks) {
-        List<ComTaskExecutionFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class);
-        for (ComTaskExecutionFactory factory : factories) {
-            scheduledComTasks.addAll(factory.findComTaskExecutionsForDefaultOutboundConnectionTask(device));
-        }
-        Iterator downstreamDevices = device.getPhysicalConnectedDevices().iterator();
-        while (downstreamDevices.hasNext()) {
-            Device slave = (Device) downstreamDevices.next();
-            this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(slave, scheduledComTasks);
+    private void collectComTaskWithDefaultConnectionTaskForCompleteTopology(Device device, List<ComTaskExecution> scheduledComTasks, ConnectionTask connectionTask) {
+        Condition query = Where.where(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).isEqualTo(true)
+                .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device))
+                .and(where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNotEqual(connectionTask));
+        List<ComTaskExecution> comTaskExecutions = this.dataModel.mapper(ComTaskExecution.class).select(query);
+        scheduledComTasks.addAll(comTaskExecutions);
+        for (Object physicalConnectedDevice : device.getPhysicalConnectedDevices()) {
+            Device slave = (Device) physicalConnectedDevice;
+            this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(slave, scheduledComTasks, connectionTask);
         }
     }
 
@@ -611,6 +618,49 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
         return this.dataModel.mapper(LogBook.class).find("device", device);
     }
 
+    @Override
+    public ComTaskExecution findComTaskExecution(long id) {
+        return this.dataModel.mapper(ComTaskExecution.class).getUnique("id", id).orNull();
+    }
+
+    @Override
+    public List<ComTaskExecution> findComTaskExecutionsByDevice(Device device) {
+        Condition condition = where("device").isEqualTo(device).and(where("obsoleteDate").isNull());
+        return this.getDataModel().mapper(ComTaskExecution.class).select(condition);
+    }
+
+    @Override
+    public List<ComTaskExecution> findAllComTaskExecutionsIncludingObsoleteForDevice(Device device) {
+        return this.getDataModel().mapper(ComTaskExecution.class).find("device", device);
+    }
+
+    @Override
+    public ComTaskExecution attemptLockComTaskExecution(ComTaskExecution comTaskExecution, ComPort comPort) {
+        Optional<ComTaskExecution> lockResult = this.getDataModel().mapper(ComTaskExecution.class).lockNoWait(comTaskExecution.getId());
+        if (lockResult.isPresent()) {
+            ComTaskExecution lockedComTaskExecution = lockResult.get();
+            if (lockedComTaskExecution.getExecutingComPort() == null) {
+                ((ServerComTaskExecution) lockedComTaskExecution).setLockedComPort(comPort);
+                return lockedComTaskExecution;
+            } else {
+                // No database lock but business lock is already set
+                return null;
+            }
+        } else {
+            // ComTaskExecution no longer exists, attempt to lock fails
+            return null;
+        }
+    }
+
+    @Override
+    public void unlockComTaskExecution(ComTaskExecution comTaskExecution) {
+        ((ComTaskExecutionImpl) comTaskExecution).setLockedComPort(null);
+    }
+
+    @Override
+    public List<ComTaskExecution> findComTaskExecutionsByConnectionTask(ConnectionTask<?, ?> connectionTask) {
+        return this.dataModel.mapper(ComTaskExecution.class).find(ComTaskExecutionFields.CONNECTIONTASK.fieldName(), connectionTask);
+    }
     @Override
     public Date getPlannedDate(ComSchedule comSchedule) {
         List<Device> devices = dataModel.query(Device.class).select(Where.where("comSchedule").isEqualTo(comSchedule), new Order[0], false, new String[0], 0, 1);
