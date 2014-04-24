@@ -46,6 +46,22 @@ $ui-body-background-color: $panel-filter-background-color
     }
   }
 }
+.#{$prefix}panel-header {
+  .#{$prefix}panel-header-sub-text {
+    float: none;
+    color: $panel-header-sub-color;
+    clear: both;
+    display: block;
+  }
+  .#{$prefix}panel-header-sub-text-medium {
+    font-size: $panel-medium-header-sub-font-size;
+    line-height: $panel-medium-header-sub-font-size;
+  }
+  .#{$prefix}panel-header-sub-text-large {
+    font-size: $panel-large-header-sub-font-size;
+    line-height: $panel-medium-header-sub-font-size;
+  }
+}
 
 .#{$prefix}panel-filter {
   background-color: $panel-filter-background-color;

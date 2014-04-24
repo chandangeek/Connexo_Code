@@ -8,10 +8,7 @@ Ext.define('Skyline.panel.Header', {
         ' role="{headerRole}"',
         '</tpl>',
         '>{title}</span>',
-        '<span id="{id}-subTextEl" class="{headerCls}-text-sub {cls}-text-sub {cls}-text-sub-{ui}" unselectable="on"',
-        '<tpl if="headerRole">',
-        ' role="{headerRole}"',
-        '</tpl>',
+        '<span id="{id}-subTextEl" class="{headerCls}-sub-text {cls}-sub-text {cls}-sub-text-{ui}" unselectable="on"',
         '>{subtitle}</span>'
     ],
 
