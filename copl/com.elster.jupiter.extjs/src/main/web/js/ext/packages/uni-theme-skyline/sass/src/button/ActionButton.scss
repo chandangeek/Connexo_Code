@@ -1,3 +1,5 @@
+// Primary Action Button (PAB)
+
 @if $include-button-default-small-ui {
   @include extjs-button-small-ui(
     $ui: 'action',
