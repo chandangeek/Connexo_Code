@@ -103,6 +103,7 @@ public enum EventType {
     PROTOCOLCONFIGURATIONPROPS_CREATED("protocolconfigurationprops/CREATED"),
     PROTOCOLCONFIGURATIONPROPS_UPDATED("protocolconfigurationprops/UPDATED"),
     PROTOCOLCONFIGURATIONPROPS_DELETED("protocolconfigurationprops/DELETED"),
+    PROTOCOLCONFIGURATIONPROPS_VALIDATEDELETE("protocolconfigurationprops/VALIDATEDELETE"),
     NEXTEXECUTIONSPECS_CREATED("nextexecutionspecs/CREATED"),
     NEXTEXECUTIONSPECS_UPDATED("nextexecutionspecs/UPDATED"),
     NEXTEXECUTIONSPECS_DELETED("nextexecutionspecs/DELETED"),

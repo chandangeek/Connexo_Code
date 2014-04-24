@@ -37,10 +37,12 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -74,6 +76,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile EngineModelService engineModelService;
     private volatile MasterDataService masterDataService;
     private volatile UserService userService;
+    private volatile TaskService taskService;
+    private volatile PluggableService pluggableService;
 
     private final Map<DeviceSecurityUserAction, Privilege> privileges = new EnumMap<>(DeviceSecurityUserAction.class);
 
@@ -440,8 +444,21 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Reference
+    public void setTaskService(TaskService taskService) {
+        // Not actively used but required for foreign keys in TableSpecs
+        this.taskService = taskService;
+    }
+
+    @Reference
     public void setMasterDataService(MasterDataService masterDataService) {
+        // Not actively used but required for foreign keys in TableSpecs
         this.masterDataService = masterDataService;
+    }
+
+    @Reference
+    public void setPluggableService(PluggableService pluggableService) {
+        // Not actively used but required for foreign keys in TableSpecs
+        this.pluggableService = pluggableService;
     }
 
     @Override

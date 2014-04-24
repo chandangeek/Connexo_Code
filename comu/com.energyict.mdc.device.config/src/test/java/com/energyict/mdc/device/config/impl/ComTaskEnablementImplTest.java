@@ -120,11 +120,11 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
     private void createPartialConnectionTasks () {
         this.partialConnectionTask1 =
-                this.deviceConfiguration1.createPartialScheduledConnectionTask().
-                    name(ComTaskEnablementImplTest.class.getSimpleName()).
-                    connectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
-                    pluggableClass(this.noParamsConnectionTypePluggableClass).
-                    rescheduleDelay(TimeDuration.minutes(5)).
+                this.deviceConfiguration1.newPartialScheduledConnectionTask(
+                        ComTaskEnablementImplTest.class.getSimpleName(),
+                        this.noParamsConnectionTypePluggableClass,
+                        TimeDuration.minutes(5),
+                        ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                     build();
     }
 
@@ -527,12 +527,12 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
         anotherNoParamsConnectionTypePluggableClass.save();
         PartialScheduledConnectionTask anotherPartialScheduledConnectionTask =
                 this.deviceConfiguration1.
-                        createPartialScheduledConnectionTask().
-                        name("testSwitchFromOneConnectionTaskToAnother").
-                        pluggableClass(anotherNoParamsConnectionTypePluggableClass).
-                        connectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS).
+                        newPartialScheduledConnectionTask(
+                                "testSwitchFromOneConnectionTaskToAnother",
+                                anotherNoParamsConnectionTypePluggableClass,
+                                TimeDuration.minutes(5),
+                                ConnectionStrategy.MINIMIZE_CONNECTIONS).
                         nextExecutionSpec().temporalExpression(TimeDuration.hours(1)).set().
-                        rescheduleDelay(TimeDuration.minutes(5)).
                         build();
 
         this.registerSubscriber();
