@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
@@ -24,7 +25,7 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.ComTaskExecutionFactory;
+import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceFields;
@@ -59,7 +60,6 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -297,7 +297,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
         if (newDefaultConnectionTask != null) {
             newDefaultConnectionTask.setAsDefault();
         }
-        defaultConnectionTaskChanged(device, newDefaultConnectionTask);
+        setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(device, newDefaultConnectionTask);
     }
 
     @Override
@@ -311,8 +311,9 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
                 || (connectionTask.getId() != newDefaultConnectionTask.getId()));
     }
 
-    public void defaultConnectionTaskChanged(Device device, ConnectionTask connectionTask) {
-        List<ComTaskExecution> comTaskExecutions = this.findComTaskWithDefaultConnectionTaskForCompleteTopology(device);
+    @Override
+    public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask) {
+        List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopologyButNotLinkedYet(device, connectionTask);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             comTaskExecution.updateToUseDefaultConnectionTask(connectionTask);
         }
@@ -320,26 +321,28 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     /**
      * Constructs a list of {@link ComTaskExecution} which are linked to
-     * the default {@link ConnectionTask} for the entire topology of the specified Device.
+     * the default {@link ConnectionTask} for the entire topology of the specified Device,
+     * but are not linked yet to the given Default connectionTask
      *
      * @param device the Device for which we need to search the ComTaskExecution
+     * @param connectionTask the 'new' default ConnectionTask
      * @return The List of ComTaskExecution
      */
-    private List<ComTaskExecution> findComTaskWithDefaultConnectionTaskForCompleteTopology(Device device) {
+    private List<ComTaskExecution> findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopologyButNotLinkedYet(Device device, ConnectionTask connectionTask) {
         List<ComTaskExecution> scheduledComTasks = new ArrayList<>();
-        this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(device, scheduledComTasks);
+        this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(device, scheduledComTasks, connectionTask);
         return scheduledComTasks;
     }
 
-    private void collectComTaskWithDefaultConnectionTaskForCompleteTopology(Device device, List<ComTaskExecution> scheduledComTasks) {
-        List<ComTaskExecutionFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class);
-        for (ComTaskExecutionFactory factory : factories) {
-            scheduledComTasks.addAll(factory.findComTaskExecutionsForDefaultOutboundConnectionTask(device));
-        }
-        Iterator downstreamDevices = device.getPhysicalConnectedDevices().iterator();
-        while (downstreamDevices.hasNext()) {
-            Device slave = (Device) downstreamDevices.next();
-            this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(slave, scheduledComTasks);
+    private void collectComTaskWithDefaultConnectionTaskForCompleteTopology(Device device, List<ComTaskExecution> scheduledComTasks, ConnectionTask connectionTask) {
+        Condition query = Where.where(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).isEqualTo(true)
+                .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device))
+                .and(where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNotEqual(connectionTask));
+        List<ComTaskExecution> comTaskExecutions = this.dataModel.mapper(ComTaskExecution.class).select(query);
+        scheduledComTasks.addAll(comTaskExecutions);
+        for (Object physicalConnectedDevice : device.getPhysicalConnectedDevices()) {
+            Device slave = (Device) physicalConnectedDevice;
+            this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(slave, scheduledComTasks, connectionTask);
         }
     }
 
@@ -643,5 +646,10 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     @Override
     public void unlockComTaskExecution(ComTaskExecution comTaskExecution) {
         ((ComTaskExecutionImpl) comTaskExecution).setLockedComPort(null);
+    }
+
+    @Override
+    public List<ComTaskExecution> findComTaskExecutionsByConnectionTask(ConnectionTask<?, ?> connectionTask) {
+        return this.dataModel.mapper(ComTaskExecution.class).find(ComTaskExecutionFields.CONNECTIONTASK.fieldName(), connectionTask);
     }
 }

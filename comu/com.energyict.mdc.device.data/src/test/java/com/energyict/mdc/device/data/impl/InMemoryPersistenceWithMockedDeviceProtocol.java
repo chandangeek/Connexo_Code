@@ -57,6 +57,8 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
@@ -108,6 +110,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private ProtocolPluggableService protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
     private DeviceDataServiceImpl deviceService;
+    private TaskService taskService;
 
 
     public InMemoryPersistenceWithMockedDeviceProtocol() {
@@ -141,6 +144,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new ProtocolsModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new MdcDynamicModule(),
+                new TasksModule(),
                 new PluggableModule(),
 //                new ProtocolPluggableModule(),
                 new EngineModelModule(),
@@ -159,6 +163,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
+            this.taskService = injector.getInstance(TaskService.class);
             this.dataModel = this.createNewDeviceDataService(injector);
             ctx.commit();
         }

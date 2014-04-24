@@ -1183,4 +1183,66 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
 
         verify(comTaskExecutionDependant).comTaskExecutionDeleted(any(ComTaskExecution.class));
     }
+
+    @Test
+    @Transactional
+    public void lockComTaskExecutionTest() {
+        TemporalExpression myTemporalExpression = new TemporalExpression(TimeDuration.hours(1));
+        ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "LockTest");
+        ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
+        comTaskExecutionBuilder.createNextExecutionSpec(myTemporalExpression);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+        OutboundComPort outboundComPort = createOutboundComPort();
+
+        ComTaskExecution lockComTaskExecution = inMemoryPersistence.getDeviceDataService().attemptLockComTaskExecution(comTaskExecution, outboundComPort);
+
+        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
+
+        assertThat(lockComTaskExecution).isNotNull();
+        assertThat(reloadedComTaskExecution.isExecuting()).isTrue();
+        assertThat(reloadedComTaskExecution.getExecutingComPort().getId()).isEqualTo(outboundComPort.getId());
+    }
+
+    @Test
+    @Transactional
+    public void cantLockTwiceTest() {
+        TemporalExpression myTemporalExpression = new TemporalExpression(TimeDuration.hours(1));
+        ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "LockTest");
+        ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
+        comTaskExecutionBuilder.createNextExecutionSpec(myTemporalExpression);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+        OutboundComPort outboundComPort = createOutboundComPort();
+
+        ComTaskExecution lockComTaskExecution = inMemoryPersistence.getDeviceDataService().attemptLockComTaskExecution(comTaskExecution, outboundComPort);
+        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
+        ComTaskExecution notLockedComTaskExecution = inMemoryPersistence.getDeviceDataService().attemptLockComTaskExecution(reloadedComTaskExecution, outboundComPort);
+
+        assertThat(notLockedComTaskExecution).isNull();
+    }
+
+    @Test
+    @Transactional
+    public void unlockComTaskExecutionTest() {
+        TemporalExpression myTemporalExpression = new TemporalExpression(TimeDuration.hours(1));
+        ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "LockTest");
+        ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
+        comTaskExecutionBuilder.createNextExecutionSpec(myTemporalExpression);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+        OutboundComPort outboundComPort = createOutboundComPort();
+
+        ComTaskExecution lockComTaskExecution = inMemoryPersistence.getDeviceDataService().attemptLockComTaskExecution(comTaskExecution, outboundComPort);
+        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
+        inMemoryPersistence.getDeviceDataService().unlockComTaskExecution(reloadedComTaskExecution);
+
+        ComTaskExecution notLockedComTaskExecution = getReloadedComTaskExecution(device);
+
+        assertThat(notLockedComTaskExecution.isExecuting()).isFalse();
+        assertThat(notLockedComTaskExecution.getExecutingComPort()).isNull();
+    }
 }

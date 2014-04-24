@@ -57,12 +57,12 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * Implementation of a ComTaskExecution
+ *
  * Copyrights EnergyICT
  * Date: 11/04/14
  * Time: 15:09
  * <p/>
- * <p/>
- * TODO validation
  */
 @ConnectionTaskIsRequiredWhenNotUsingDefault
 @UniqueComTaskExecutionPerDevice
@@ -710,7 +710,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     protected void validateDelete() {
-        // TODO still required?
+        // nothing to validate
     }
 
     @Override
@@ -1021,6 +1021,13 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         public ComTaskExecutionUpdater setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
             this.comTaskExecution.setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
+            return this;
+        }
+
+        @Override
+        public ComTaskExecution.ComTaskExecutionUpdater setNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int priority) {
+            this.comTaskExecution.setNextExecutionTimestamp(nextExecutionTimestamp);
+            this.comTaskExecution.setExecutingPriority(priority);
             return this;
         }
 

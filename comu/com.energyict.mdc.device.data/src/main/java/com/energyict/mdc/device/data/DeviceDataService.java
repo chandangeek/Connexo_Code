@@ -9,6 +9,7 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.impl.InfoType;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -170,6 +171,8 @@ public interface DeviceDataService {
      * @param device The Device
      */
     public void clearDefaultConnectionTask (Device device);
+
+    void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask);
 
     /**
      * Attempts to lock the {@link ConnectionTask} that is about to be executed
@@ -371,4 +374,13 @@ public interface DeviceDataService {
      * @param comTaskExecution The ComTaskExecution
      */
     void unlockComTaskExecution(ComTaskExecution comTaskExecution);
+
+    /**
+     * Finds all the ComTaskExecutions which are linked to the given ConnectionTask
+     * (and are not obsolete)
+     *
+     * @param connectionTask the given ConnectionTask
+     * @return all the ComTaskExecutions (which are not obsolete) for the given ConnectionTask
+     */
+    List<ComTaskExecution> findComTaskExecutionsByConnectionTask(ConnectionTask<?,?> connectionTask);
 }

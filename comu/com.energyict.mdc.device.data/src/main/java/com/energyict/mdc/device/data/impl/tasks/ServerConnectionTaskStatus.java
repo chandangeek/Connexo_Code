@@ -4,7 +4,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.SqlBuilder;
-import com.energyict.mdc.device.data.ComTaskExecutionFactory;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -69,12 +68,14 @@ public enum ServerConnectionTaskStatus {
                 return true;
             }
             else {
-                List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-                List<ComTaskExecutionFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class);
-                for (ComTaskExecutionFactory factory : factories) {
-                    comTaskExecutions.addAll(factory.findCurrentlyExecutingByConnectionTask(task));
-                }
-                return !comTaskExecutions.isEmpty();
+//                List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
+//                List<ComTaskExecutionFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class);
+//                for (ComTaskExecutionFactory factory : factories) {
+//                    comTaskExecutions.addAll(factory.findCurrentlyExecutingByConnectionTask(task));
+//                }
+//                return !comTaskExecutions.isEmpty();
+                //TODO ask the deviceDataService!!!
+                return false;
             }
         }
 

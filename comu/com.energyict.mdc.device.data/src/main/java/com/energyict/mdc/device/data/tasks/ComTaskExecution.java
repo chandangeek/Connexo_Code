@@ -419,5 +419,14 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
          * @return the updated created ComTaskExecution
          */
         ComTaskExecution update();
+
+        /**
+         * Sets the given nextExecutionTimeStamp and priority
+         *
+         * @param nextExecutionTimestamp the timeStamp to set
+         * @param priority the priority to set
+         * @return the current updater
+         */
+        ComTaskExecutionUpdater setNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int priority);
     }
 }

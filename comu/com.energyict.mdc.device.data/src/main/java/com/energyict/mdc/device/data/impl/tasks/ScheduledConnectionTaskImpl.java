@@ -6,6 +6,12 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.query.impl.WhereClauseBuilder;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Membership;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
@@ -17,7 +23,7 @@ import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.config.TemporalExpression;
-import com.energyict.mdc.device.data.ComTaskExecutionFactory;
+import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
@@ -67,11 +73,13 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private UpdateStrategy updateStrategy = new Noop();
 
     private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceDataService deviceDataService;
 
     @Inject
-    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
+    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, Provider<ConnectionMethodImpl> connectionMethodProvider, DeviceDataService deviceDataService1) {
         super(dataModel, eventService, thesaurus, clock, deviceDataService, connectionMethodProvider);
         this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceDataService = deviceDataService1;
     }
 
     public void initializeWithAsapStrategy(Device device, PartialOutboundConnectionTask partialConnectionTask, OutboundComPortPool comPortPool) {
@@ -104,7 +112,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
         super.postNew();
         if (this.isDefault()) {
-            this.notifyScheduledComTasks();
+            this.notifyComTaskExecutionsForDefaultConnectionTask();
         }
         if (this.getNextExecutionSpecs() != null) {
             this.doUpdateNextExecutionTimestamp(PostingMode.NOW);
@@ -120,20 +128,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
      * or to Devices that are downstream to this Device
      * that a default ScheduledConnectionTask was created against the Device.
      */
-    private void notifyScheduledComTasks() {
-        Device device = this.getDevice();
-        for (ComTaskExecution comTaskExecution : this.getScheduledComTasksForNotification(device)) {
-            comTaskExecution.connectionTaskCreated(device, this);
-        }
-    }
-
-    private List<ComTaskExecution> getScheduledComTasksForNotification(Device device) {
-        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-        List<ComTaskExecutionFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class);
-        for (ComTaskExecutionFactory factory : factories) {
-            comTaskExecutions.addAll(factory.findComTaskExecutionsByTopology(device));
-        }
-        return comTaskExecutions;
+    private void notifyComTaskExecutionsForDefaultConnectionTask() {
+        this.deviceDataService.setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(getDevice(), this);
     }
 
     @Override
@@ -245,12 +241,16 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private EarliestNextExecutionTimeStampAndPriority getEarliestNextExecutionTimeStampAndPriority () {
-        List<ComTaskExecutionFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class);
-        for (ComTaskExecutionFactory factory : factories) {
-            EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = factory.getEarliestNextExecutionTimeStampAndPriority(this);
-            if (earliestNextExecutionTimeStampAndPriority != null) {
-                return earliestNextExecutionTimeStampAndPriority;
-            }
+        Condition condition = Where.where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this)
+                .and(Where.where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
+
+        List<ComTaskExecution> comTaskExecutions = this.dataModel.mapper(ComTaskExecution.class).select(condition,
+                Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
+                Order.descending(ComTaskExecutionFields.PRIORITY.fieldName()));
+
+        if(!comTaskExecutions.isEmpty()){
+            ComTaskExecution comTaskExecution = comTaskExecutions.get(0);
+            return new EarliestNextExecutionTimeStampAndPriority(comTaskExecution.getNextExecutionTimestamp(), comTaskExecution.getPriority());
         }
         return null;
     }
@@ -315,14 +315,22 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     public void scheduledComTaskChangedPriority (ComTaskExecution comTask) {
         if (this.needToSynchronizePriorityChanges()) {
             EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = this.getEarliestNextExecutionTimeStampAndPriority();
+
             /* earliestNextExecutionTimeStampAndPriority is only null when there are
              * no scheduled com tasks, but since this method is called by one, there's got to be at least one right. */
             if (earliestNextExecutionTimeStampAndPriority != null) {
-                List<ComTaskExecutionFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class);
-                for (ComTaskExecutionFactory factory : factories) {
-                    factory.synchronizeNextExecutionAndPriorityToMinimizeConnections(this, earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp, earliestNextExecutionTimeStampAndPriority.priority);
-                }
+                updateNextExecutionTimeStampAndPriority(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp, earliestNextExecutionTimeStampAndPriority.priority);
             }
+        }
+    }
+
+    private void updateNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int priority) {
+        Condition condition = Where.where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this)
+                .and(Where.where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThan(nextExecutionTimestamp));
+        List<ComTaskExecution> comTaskExecutions = this.dataModel.mapper(ComTaskExecution.class).select(condition);
+        for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+            ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+            comTaskExecutionUpdater.setNextExecutionTimeStampAndPriority(nextExecutionTimestamp, priority);
         }
     }
 
@@ -381,16 +389,18 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     protected boolean doWeNeedToRetryTheConnectionTask() {
         if (getConnectionStrategy().equals(ConnectionStrategy.AS_SOON_AS_POSSIBLE)) {
-            List<ComTaskExecution> retryingComTaskExecutions = new ArrayList<>();
-            List<ComTaskExecutionFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class);
-            for (ComTaskExecutionFactory factory : factories) {
-                retryingComTaskExecutions.addAll(factory.findRetryingComTaskExecutionsForConnectionTask(this));
-            }
-            return !retryingComTaskExecutions.isEmpty();
+            Condition condition = Where.where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isNotNull()
+                    .and(appendComTaskNotExecutingCondition())
+                    .and(Where.where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this));
+            return !this.dataModel.mapper(ComTaskExecution.class).select(condition).isEmpty();
         }
         else {
             return super.doWeNeedToRetryTheConnectionTask();
         }
+    }
+
+    private Condition appendComTaskNotExecutingCondition() {
+        return Where.where(ComTaskExecutionFields.COMPORT.fieldName()).isNull();
     }
 
     @Override
@@ -563,10 +573,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private void synchronizeScheduledComTaskExecution (Date when, int priority) {
-        List<ComTaskExecutionFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class);
-        for (ComTaskExecutionFactory factory : factories) {
-            factory.synchronizeNextExecutionAndPriorityToMinimizeConnections(this, when, priority);
-        }
+        updateNextExecutionTimeStampAndPriority(when, priority);
     }
 
     private void applyNextExecutionTimestampAndPriority (Date when, int priority, PostingMode postingMode) {
@@ -611,12 +618,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     public List<ComTaskExecution> getScheduledComTasks() {
-        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-        List<ComTaskExecutionFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class);
-        for (ComTaskExecutionFactory factory : factories) {
-            comTaskExecutions.addAll(factory.findByConnectionTask(this));
-        }
-        return comTaskExecutions;
+       return this.deviceDataService.findComTaskExecutionsByConnectionTask(this);
     }
 
     private enum PostingMode {
