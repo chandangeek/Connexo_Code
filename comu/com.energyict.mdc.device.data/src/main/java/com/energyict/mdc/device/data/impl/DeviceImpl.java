@@ -97,7 +97,7 @@ import javax.validation.constraints.Size;
 public class DeviceImpl implements Device, PersistenceAware {
 
     enum Fields {
-        COM_SCHEDULE_USAGES("comScheduleUsage");
+        COM_SCHEDULE_USAGES("comScheduleUsages");
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
