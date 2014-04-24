@@ -25,6 +25,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
             {
                 xtype: 'container',
                 cls: 'content-container',
+                width: '100%',
                 overflowY: true,
                 layout: {
                     type: 'vbox',
@@ -68,7 +69,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
                                         readOnly: true,
                                         fieldLabel: Uni.I18n.translate('protocolDialect.name', 'MDC', 'Name'),
                                         itemId: 'editProtocolDialectNameField',
-                                        width: 400
+                                        width: 650
 
                                     }
                                 ]
