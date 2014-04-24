@@ -664,10 +664,9 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     public Date getPlannedDate(ComSchedule comSchedule) {
         List<DeviceInComSchedule> deviceUsages = dataModel.query(DeviceInComSchedule.class)
                 .select(Where.where(DeviceInComScheduleImpl.Fields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule), new Order[0], false, new String[0], 0, 1);
-//        if (devices.isEmpty()) {
-//            return null;
-//        }
-        // TODO add link to ComSchedule
+        if (deviceUsages.isEmpty()) {
+            return null;
+        }
         return new Date();
     }
 }
