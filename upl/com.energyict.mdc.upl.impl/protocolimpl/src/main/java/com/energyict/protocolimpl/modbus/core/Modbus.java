@@ -139,6 +139,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
     
     protected List doGetOptionalKeys() {
         List result = new ArrayList();
+        result.add("VirtualLoadProfile");
         result.add("InterframeTimeout");
         result.add("ResponseTimeout");
         result.add("PhysicalLayer");

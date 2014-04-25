@@ -44,6 +44,7 @@
 -keep class test.com.*{
  public *;
 }
+-keepnames class com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus.RtuServer
 -keepnames class com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155
 -keepnames class com.energyict.protocolimplv2.coronis.muc.WebRTUWavenisGateway
 -keepnames class com.energyict.protocolimplv2.coronis.waveflow.waveflowV2.WaveFlowV2
