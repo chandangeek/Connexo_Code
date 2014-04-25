@@ -667,6 +667,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
         if (deviceUsages.isEmpty()) {
             return null;
         }
+//        return deviceUsages.get(0).getDevice();
         return new Date();
     }
 }

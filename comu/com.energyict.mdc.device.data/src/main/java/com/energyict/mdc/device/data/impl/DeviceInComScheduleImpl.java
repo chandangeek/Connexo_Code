@@ -30,18 +30,22 @@ public class DeviceInComScheduleImpl implements DeviceInComSchedule {
         this.comScheduleReference.set(comSchedule);
     }
 
+    @Override
     public Device getDevice() {
         return deviceReference.get();
     }
 
+    @Override
     public void setDevice(Device device) {
         this.deviceReference.set(device);
     }
 
+    @Override
     public ComSchedule getComSchedule() {
         return comScheduleReference.get();
     }
 
+    @Override
     public void setComSchedule(ComSchedule comSchedule) {
         this.comScheduleReference.set(comSchedule);
     }
