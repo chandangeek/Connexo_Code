@@ -5,6 +5,8 @@ Ext.define('Uni.view.navigation.Header', {
     extend: 'Ext.container.Container',
     alias: 'widget.navigationHeader',
 
+    ui: 'navigationheader',
+
     requires: [
         'Uni.view.navigation.AppSwitcher',
         'Uni.view.navigation.Logo',
@@ -19,8 +21,8 @@ Ext.define('Uni.view.navigation.Header', {
         type: 'hbox',
         align: 'stretch'
     },
-    cls: 'nav-header',
-    height: 40,
+
+    height: 47,
 
     /**
      * Most items here have been disabled until their respective stories are fully developed.

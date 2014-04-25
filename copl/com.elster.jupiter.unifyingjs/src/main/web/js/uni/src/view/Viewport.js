@@ -20,7 +20,7 @@ Ext.define('Uni.view.Viewport', {
         },
         {
             xtype: 'container',
-            cls: 'nav-wrapper',
+            ui: 'navigationwrapper',
             region: 'west',
             layout: 'absolute',
             width: 55,
@@ -35,10 +35,6 @@ Ext.define('Uni.view.Viewport', {
             region: 'center',
             itemId: 'contentPanel',
             layout: 'fit'
-        },
-        {
-            xtype: 'navigationFooter',
-            region: 'south'
         }
     ]
 });

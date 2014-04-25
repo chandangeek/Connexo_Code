@@ -4,8 +4,8 @@
 Ext.define('Uni.view.navigation.Menu', {
     extend: 'Ext.container.Container',
     alias: 'widget.navigationMenu',
+    ui: 'navigationmenu',
 
-    cls: 'nav-menu',
     layout: {
         type: 'vbox',
         align: 'stretch'
