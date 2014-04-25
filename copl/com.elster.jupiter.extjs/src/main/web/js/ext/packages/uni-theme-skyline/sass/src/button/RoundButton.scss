@@ -1,0 +1,52 @@
+@mixin step-button-sizes {
+  width: $button-step-width !important;
+  height: $button-step-height !important;
+  padding: 6px !important;
+  font-weight: bold;
+}
+
+.#{$prefix}btn-step-active-small {
+  @include step-button-sizes
+}
+
+.#{$prefix}btn-step-completed-small {
+  @include step-button-sizes
+}
+
+.#{$prefix}btn-step-non-completed-small {
+  @include step-button-sizes
+}
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'step-active',
+    $background-color: $button-step-active-background-step-color,
+    $color: $button-step-active-color,
+    $background-color-pressed: $button-step-active-background-step-color-pressed,
+    $background-color-over: $button-step-active-background-step-color-over,
+    $border-radius: $button-step-border-radius
+  );
+}
+
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'step-completed',
+    $background-color: $button-step-completed-background-step-color,
+    $color: $button-step-completed-color,
+    $background-color-pressed: $button-step-completed-background-step-color-pressed,
+    $background-color-over: $button-step-completed-background-step-color-over,
+    $border-radius: $button-step-border-radius
+  );
+}
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'step-non-completed',
+    $background-color: $button-step-non-completed-background-step-color,
+    $color: $button-step-non-completed-color,
+    $background-color-pressed: $button-step-non-completed-background-step-color-pressed,
+    $background-color-over: $button-step-non-completed-background-step-color-over,
+    $border-radius: $button-step-border-radius
+  );
+}

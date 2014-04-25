@@ -1,0 +1,28 @@
+$button-step-width: 32px;
+$button-step-height: 32px;
+$button-step-border-radius: 16px;
+$button-step-border-width: 1px;
+$button-step-padding: 6px !default;
+
+
+$button-step-active-color: #ffffff;
+$button-step-completed-color: #A0A0A0;
+$button-step-non-completed-color: #ffffff;
+
+//regular colors
+$button-step-active-background-step-color: #70BB51;
+$button-step-completed-background-step-color: #D2D2D2;
+$button-step-non-completed-background-step-color: #686868;
+
+//hover colors
+$button-step-active-background-step-color-over: #7ec162;
+$button-step-completed-background-step-color-over: #d6d6d6;
+$button-step-non-completed-background-step-color-over: #777777;
+
+//pressed colors
+$button-step-active-background-step-color-pressed: #64a848;
+$button-step-completed-background-step-color-pressed: #bdbdbd;
+$button-step-non-completed-background-step-color-pressed: #5d5d5d;
+
+$button-step-completed-border-color: #A0A0A0
+

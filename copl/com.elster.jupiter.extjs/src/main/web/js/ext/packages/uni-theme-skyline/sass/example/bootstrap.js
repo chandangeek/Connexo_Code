@@ -10,6 +10,7 @@ Ext.Loader.addClassPathMappings({
   "ExtThemeNeptune": "../../../ext-theme-neptune/overrides",
   "Skyline": "../../overrides",
   "Skyline.button": "../../src/button",
+  "Skyline.button.StepButton": "../../src/button/RoundButton.js",
   "Skyline.panel.FilterToolbar": "../../src/panel/FilterToolbar.js"
 });
 Ext.ClassManager.addNameAlternateMappings({
@@ -29,6 +30,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "ExtThemeNeptune.tab.Tab": [],
   "ExtThemeNeptune.toolbar.Paging": [],
   "ExtThemeNeptune.toolbar.Toolbar": [],
+  "Skyline.button.StepButton": [],
   "Skyline.button.TagButton": [],
   "Skyline.form.Label": [],
   "Skyline.form.Labelable": [],
@@ -56,6 +58,9 @@ Ext.ClassManager.addNameAliasMappings({
   "ExtThemeNeptune.tab.Tab": [],
   "ExtThemeNeptune.toolbar.Paging": [],
   "ExtThemeNeptune.toolbar.Toolbar": [],
+  "Skyline.button.StepButton": [
+    "widget.step-button"
+  ],
   "Skyline.button.TagButton": [
     "widget.tag-button"
   ],
