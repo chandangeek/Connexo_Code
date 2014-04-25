@@ -37,6 +37,7 @@ public class MasterDataApplication extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
+                MasterDataResource.class,
                 TransactionWrapper.class,
                 ExceptionLogger.class,
                 ConstraintViolationExceptionMapper.class,
