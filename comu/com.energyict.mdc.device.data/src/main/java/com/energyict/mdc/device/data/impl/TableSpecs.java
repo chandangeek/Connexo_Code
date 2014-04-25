@@ -266,6 +266,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column deviceId = table.column("RTU").number().notNull().add();
             Column comtask = table.column("COMTASK").number().notNull().add();
+            Column comSchedule = table.column("COMSCHEDULE").number().add();
             table.column("NEXTEXECUTIONSPECS").number().conversion(NUMBER2LONG).map(ComTaskExecutionFields.NEXTEXECUTIONSPEC.fieldName()).add();
             table.column("MYNEXTEXECSPEC").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.MYNEXTEXECUTIONSPEC.fieldName()   ).add();
             table.column("LASTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.LASTEXECUTIONTIMESTAMP.fieldName()).add();
@@ -286,6 +287,7 @@ public enum TableSpecs {
             table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).add();
             table.foreignKey("FK_MDCCOMTASKEXEC_COMPORT").on(comport).references(EngineModelService.COMPONENT_NAME, "MDCCOMPORT").map(ComTaskExecutionFields.COMPORT.fieldName()).add();
             table.foreignKey("FK_MDCCOMTASKEXEC_COMTASK").on(comtask).references(TaskService.COMPONENT_NAME, "MDCCOMTASK").map(ComTaskExecutionFields.COMTASK.fieldName()).add();
+            table.foreignKey("FK_MDCCOMTASKEXEC_COMSCHEDULE").on(comSchedule).references(SchedulingService.COMPONENT_NAME, "MDCCOMSCHEDULE").map(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).add();
             table.foreignKey("FK_MDCCOMTASKEXEC_CONNECTTASK").on(connectionTask).references(MDCCONNECTIONTASK.name()).map(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).add();
             table.foreignKey("FK_MDCCOMTASKEXEC_DIALECT").on(protocolDialectConfigurationProperties).references(DeviceConfigurationService.COMPONENTNAME, "MDCDIALECTCONFIGPROPERTIES").map(ComTaskExecutionFields.PROTOCOLDIALECTCONFIGURATIONPROPERTIES.fieldName()).add();
             table.foreignKey("FK_MDCCOMTASKEXEC_RTU").on(deviceId).references(EISRTU.name()).map(ComTaskExecutionFields.DEVICE.fieldName()).add();

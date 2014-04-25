@@ -9,6 +9,7 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import java.util.Date;
 
@@ -371,6 +372,8 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
         ComTaskExecutionBuilder setIgnoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
 
         ComTaskExecutionBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
+
+        ComTaskExecutionBuilder comSchedule(ComSchedule comSchedule);
 
         /**
          * Creates the actual ComTaskExecution with the objects set in the builder

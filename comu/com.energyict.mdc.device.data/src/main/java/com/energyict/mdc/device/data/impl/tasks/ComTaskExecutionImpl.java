@@ -39,6 +39,7 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ComTask;
@@ -79,6 +80,8 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private Reference<ComTask> comTask = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
     private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
+
+    private Reference<ComSchedule> comScheduleReference = ValueReference.absent();
 
     private Reference<ConnectionTask<?, ?>> connectionTask = ValueReference.absent();
 
@@ -159,7 +162,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.schedulingService = schedulingService;
     }
 
-    public ComTaskExecutionImpl initialize(Device device, ComTaskEnablement comTaskEnablement) {
+    ComTaskExecutionImpl initialize(Device device, ComTaskEnablement comTaskEnablement) {
         this.device.set(device);
         this.comTask.set(comTaskEnablement.getComTask());
         if (comTaskEnablement.getNextExecutionSpecs() != null) {
@@ -193,6 +196,10 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     @Override
     public ComTask getComTask() {
         return comTask.get();       // we do an explicit get because ComTask is required and should not be null
+    }
+
+    public ComSchedule getComSchedule() {
+        return comScheduleReference.get();
     }
 
     @Override
@@ -959,6 +966,12 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         public ComTaskExecutionBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
             this.comTaskExecution.setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
+            return this;
+        }
+
+        @Override
+        public ComTaskExecution.ComTaskExecutionBuilder comSchedule(ComSchedule comSchedule) {
+            this.comTaskExecution.comScheduleReference.set(comSchedule);
             return this;
         }
 

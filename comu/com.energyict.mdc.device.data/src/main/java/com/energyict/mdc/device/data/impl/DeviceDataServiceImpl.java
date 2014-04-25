@@ -27,7 +27,6 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.DeviceInComSchedule;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
@@ -662,12 +661,11 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
     @Override
     public Date getPlannedDate(ComSchedule comSchedule) {
-        List<DeviceInComSchedule> deviceUsages = dataModel.query(DeviceInComSchedule.class)
-                .select(Where.where(DeviceInComScheduleImpl.Fields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule), new Order[0], false, new String[0], 0, 1);
-        if (deviceUsages.isEmpty()) {
+        List<ComTaskExecution> comTaskExecutions = dataModel.query(ComTaskExecution.class)
+                .select(Where.where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule), new Order[0], false, new String[0], 0, 1);
+        if (comTaskExecutions.isEmpty()) {
             return null;
         }
-//        return deviceUsages.get(0).getDevice();
-        return new Date();
+        return comTaskExecutions.get(0).getPlannedNextExecutionTimestamp();
     }
 }
