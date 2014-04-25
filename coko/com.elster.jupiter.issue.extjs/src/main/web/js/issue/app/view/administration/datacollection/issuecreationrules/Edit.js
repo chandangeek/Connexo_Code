@@ -15,7 +15,8 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                 },
                 {
                     xtype: 'form',
-                    width: '70%',
+                    width: '75%',
+                    bodyPadding: '0 30 0 0',
                     defaults: {
                         labelWidth: 150,
                         labelAlign: 'right',

@@ -58,19 +58,21 @@ Ext.define('Isu.util.IsuGrid', {
                 cellInner = cell.down('.x-grid-cell-inner'),
                 text = cellInner.getHTML();
 
-            cell.tooltip = Ext.create('Ext.tip.ToolTip', {
-                target: cell,
-                html: text,
-                style: {
-                    borderColor: 'black'
-                }
-            });
+            if (text.replace(/\s|&nbsp;/g, '')) {
+                cell.tooltip = Ext.create('Ext.tip.ToolTip', {
+                    target: cell,
+                    html: text,
+                    style: {
+                        borderColor: 'black'
+                    }
+                });
+            }
 
             grid.on('destroy', function () {
-                cell.tooltip.destroy();
+                cell.tooltip && cell.tooltip.destroy();
             });
             grid.on('beforerefresh', function () {
-                cell.tooltip.destroy();
+                cell.tooltip && cell.tooltip.destroy();
             });
         });
     },
@@ -132,7 +134,7 @@ Ext.define('Isu.util.IsuGrid', {
                 itemPanel.fireEvent('change', itemPanel, rec);
                 preloader.destroy();
             },
-            failure: function(rec) {
+            failure: function (rec) {
                 preloader.destroy();
             }
         });

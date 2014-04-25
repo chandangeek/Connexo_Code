@@ -127,6 +127,9 @@ Ext.define('Isu.controller.Issues', {
             extraParamsModel = new Isu.model.ExtraParams(),
             extraParams = issuesStore.proxy.extraParams;
 
+        issuesStore.on('load', function () {
+            issuesStore.proxy.extraParams = {};
+        }, self, {single: true});
 
         extraParamsModel.setValuesFromQueryString(function (extraParamsModel, data) {
             if (data) {
