@@ -2,7 +2,6 @@ $container-default-background-color: transparent !default;
 $container-default-border-radius: 0px !default;
 $container-default-color: $color-white !default;
 
-$breadcrumb-default-background-color: $color-blue-2 !default;
-$breadcrumb-default-color: $color-white !default;
-
 @import "NavigationHeader";
+@import "NavigationMenu";
+@import "Breadcrumb";

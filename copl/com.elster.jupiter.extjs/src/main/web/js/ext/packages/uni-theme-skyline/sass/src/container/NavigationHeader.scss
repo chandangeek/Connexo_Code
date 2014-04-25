@@ -1,32 +1,4 @@
-@mixin transparent-button {
-    background: none;
-    border: none;
-    border-radius: 0;
-    -moz-border-radius: 0;
-    -webkit-border-radius: 0;
-    padding: 0;
-
-    .x-btn-button {
-        padding: {
-            right: 10px;
-            left: 10px;
-        }
-
-        .x-btn-inner {
-            color: white;
-        }
-
-        .x-btn-glyph {
-            opacity: 1;
-            height: auto;
-            line-height: 36px;
-            margin: {
-                top: 3px;
-                left: 10px;
-            }
-        }
-    }
-}
+@import "../button/TransparentButton";
 
 @mixin highlight-header-background {
     background-color: #00ccff;
@@ -60,10 +32,10 @@
     background: linear-gradient(to right, $header-default-bg-gradient-start-color, $header-default-bg-gradient-end-color); /* Standard syntax */
 
     // TODO Border bottom gradient.
+    border-bottom: $header-default-border-color solid 1px;
 
     .nav-appswitcher,
     .nav-toggler,
-    .nav-logo,
     .notifications-anchor,
     .nav-help,
     .user-menu {
@@ -140,22 +112,6 @@
 
         &:hover {
             @include highlight-header-background;
-        }
-    }
-
-    .nav-logo {
-        background-image: url('images/container/Connexo-logo.png');
-        background-repeat: no-repeat;
-        background-size: auto 30px;
-        background-position-y: center;
-        background-position-x: 14px;
-        padding-left: 52px;
-
-        .x-btn-button {
-            .x-btn-inner {
-                font-size: 26px;
-                font-weight: normal;
-            }
         }
     }
 }

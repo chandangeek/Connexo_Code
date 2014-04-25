@@ -1,10 +1,10 @@
 @include container(
-    'breadcrumbtrail'/*,
-    $background-color: $breadcrumb-default-background-color,
-    $color: $breadcrumb-default-color       */
+'breadcrumbtrailcontainer'/*,
+$breadcrumb-default-background-color,
+$breadcrumb-default-color  */
 );
 
-.#{$prefix}container-breadcrumbtrail {
+.#{$prefix}container-breadcrumbtrailcontainer {
   background-color: $breadcrumb-default-background-color;
   color: $breadcrumb-default-color;
 
@@ -13,12 +13,3 @@
   background: -moz-linear-gradient(right, $breadcrumb-default-bg-gradient-start-color, $breadcrumb-default-bg-gradient-end-color); /* For Firefox 3.6 to 15 */
   background: linear-gradient(to right, $breadcrumb-default-bg-gradient-start-color, $breadcrumb-default-bg-gradient-end-color); /* Standard syntax */
 }
-
-
-
-
-
-
-
-
-

@@ -1,6 +1,5 @@
-@mixin transparent-button() {
-  .#{$prefix}btn-menuitem-large {
-    //background: none;
+@mixin transparent-button {
+    background: none;
     border: none;
     border-radius: 0;
     -moz-border-radius: 0;
@@ -8,24 +7,23 @@
     padding: 0;
 
     .x-btn-button {
-      padding: {
-        right: 10px;
-        left: 10px;
-      }
-
-      .x-btn-inner {
-        //color: white;
-      }
-
-      .x-btn-glyph {
-        opacity: 1;
-        height: auto;
-        line-height: 36px;
-        margin: {
-          top: 3px;
-          left: 10px;
+        padding: {
+            right: 10px;
+            left: 10px;
         }
-      }
+
+        .x-btn-inner {
+            color: white;
+        }
+
+        .x-btn-glyph {
+            opacity: 1;
+            height: auto;
+            line-height: 36px;
+            margin: {
+                top: 3px;
+                left: 10px;
+            }
+        }
     }
-  }
 }

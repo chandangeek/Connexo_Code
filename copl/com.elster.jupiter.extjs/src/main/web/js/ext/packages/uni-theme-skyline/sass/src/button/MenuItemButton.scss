@@ -1,61 +1,60 @@
 @import "TransparentButton";
 
 @mixin uni-button-menuitem() {
-  .#{$prefix}btn-menuitem-large {
-    text-align: left;
-    .#{$prefix}btn-button {
-      height: 50px;
-
-      .x-btn-inner, .x-btn-glyph {
-        line-height: 47px;
+    *[class*='#{$prefix}btn-menuitem-'] {
+        @include transparent-button();
         text-align: left;
-        margin-top: 3px;
-        //background-color: $color-blue;
-      }
 
-      .x-btn-inner {
-        margin-left: 10px;
-        //background-color: $color-blue;
-      }
+        .#{$prefix}btn-button {
+            height: 50px;
 
-      .x-pressed {
-        background-color: $color-white;
+            .#{$prefix}btn-inner, .#{$prefix}btn-glyph {
+                line-height: 47px;
+                text-align: left;
+                margin-top: 3px;
+            }
 
-        .x-btn-button {
-          .x-btn-inner, .x-btn-glyph {
-            color: $color-blue;
-          }
+            .#{$prefix}btn-inner {
+                margin-left: 10px;
+            }
 
-          &:hover {
-            background-color: $color-white;
-          }
+            .#{$prefix}pressed {
+                background-color: $color-white;
+
+                .#{$prefix}btn-button {
+                    .#{$prefix}btn-inner, .#{$prefix}btn-glyph {
+                        color: #2f77ac;
+                    }
+
+                    &:hover {
+                        background-color: $color-white;
+                    }
+                }
+            }
+
+            &:hover {
+                background-color: $color-blue-2;
+            }
+
         }
-      }
-
-      /*&:hover {
-        background-color: $color-white;
-      }   */
-
-
     }
-  }
 }
 
 @if $include-button-default-large-ui {
-@include extjs-button-large-ui(
-  $ui: 'menuitem',
-  $background-color: $color-blue,
-  $background-color-over: $color-white,
-  $background-color-focus: $color-blue,
-  $background-color-pressed: $color-blue,
-  $glyph-color: $color-white,
-  $color: $color-blue,
-  $color-over: $color-white,
-  $color-focus: $color-blue,
-  $color-pressed: $color-blue
-);
-  @include uni-button-menuitem();
-  @include transparent-button();
+    @include extjs-button-large-ui(
+    $ui: 'menuitem',
+    $background-color: $color-blue,
+    $background-color-over: $color-white,
+    $background-color-focus: $color-blue,
+    $background-color-pressed: $color-blue,
+    $glyph-color: $color-white,
+    $color: $color-blue,
+    $color-over: $color-white,
+    $color-focus: $color-blue,
+    $color-pressed: $color-blue
+    );
+
+    @include uni-button-menuitem();
 }
 
 

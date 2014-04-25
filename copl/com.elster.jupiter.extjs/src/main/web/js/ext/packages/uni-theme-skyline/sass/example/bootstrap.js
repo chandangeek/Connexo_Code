@@ -38,6 +38,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Skyline.form.field.Text": [],
   "Skyline.grid.Panel": [],
   "Skyline.panel.FilterToolbar": [],
+  "Skyline.panel.Header": [],
   "Skyline.panel.Panel": [],
   "Skyline.view.Table": []
 });
@@ -72,12 +73,14 @@ Ext.ClassManager.addNameAliasMappings({
   "Skyline.panel.FilterToolbar": [
     "widget.filter-toolbar"
   ],
+  "Skyline.panel.Header": [],
   "Skyline.panel.Panel": [],
   "Skyline.view.Table": []
 });
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/Component.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/panel/Panel.js");
 Ext.Loader.loadScript("../../overrides/panel/Panel.js");
+Ext.Loader.loadScript("../../overrides/panel/Header.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/toolbar/Toolbar.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/layout/component/Dock.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/container/ButtonGroup.js");

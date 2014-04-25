@@ -1,9 +1,23 @@
 @import "TransparentButton";
 
+*[class*='#{$prefix}btn-navigationlogo-'] {
+    @include transparent-button();
 
-@mixin uni-view-navigation-logo() {
-    $ui: 'navigationlogo'
+    background-image: url('images/container/Connexo-logo.png');
+    background-repeat: no-repeat;
+    background-size: auto 28px;
+    background-position-y: center;
+    background-position-x: 14px;
+    padding-left: 60px;
+
+    .#{$prefix}btn-button {
+        .#{$prefix}btn-inner {
+            font-size: 24px;
+            font-weight: normal;
+        }
+    }
+
+    &:hover {
+        background-color: #00ccff;
+    }
 }
-
-@include transparent-button();
-@include uni-view-navigation-logo();
