@@ -49,6 +49,14 @@ Ext.define('Isu.model.ExtraParams', {
         return obg;
     },
 
+    setDefaults: function () {
+        return {
+            sort: 'dueDate',
+            status: 1,
+            group: 'none'
+        };
+    },
+
     setValuesFromQueryString: function (callback) {
         var me = this,
             hydrator = new Uni.util.Hydrator(),
@@ -57,12 +65,23 @@ Ext.define('Isu.model.ExtraParams', {
             groupModel,
             groupStore = Ext.getStore('Isu.store.IssueGrouping'),
             queryString = Uni.util.QueryString.getQueryStringValues(),
-            filterValues = _.pick(queryString, filterModel.getFields()),
-            sortValues = _.pick(queryString, sortModel.getFields()).sort,
-            group = queryString.group,
-            groupValue = queryString.groupValue,
+            filterValues,
+            sortValues,
+            group,
+            groupValue,
             data = {},
             sorting;
+
+        delete queryString.limit;
+        delete queryString.start;
+        if (_.isEmpty(queryString)) {
+            queryString = me.setDefaults();
+        }
+
+        filterValues = _.pick(queryString, filterModel.getFields());
+        sortValues = _.pick(queryString, sortModel.getFields()).sort;
+        group = queryString.group;
+        groupValue = queryString.groupValue;
 
         if (group) {
             groupModel = groupStore.getById(group);
