@@ -284,6 +284,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     }
 
     @Test
+    @Transactional
     public void testDeletedAndSetComTaskToNoConnectionTask() {
         ConnectionInitiationTaskImpl connectionInitiationTask = (ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
         connectionInitiationTask.save();
@@ -293,12 +294,6 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.setConnectionTask(connectionInitiationTask);
         comTaskExecutionUpdater.update();
-//        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-//        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-//        comTaskExecutions.add(comTaskExecution);
-//        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-//        when(comTaskExecutionFactory.findComTaskExecutionsByConnectionTask(connectionInitiationTask)).thenReturn(comTaskExecutions);
-//        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
 
         // Business method
         connectionInitiationTask.delete();
@@ -320,13 +315,6 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         long id = connectionTask.getId();
         RelationParticipant connectionMethod = (RelationParticipant) connectionTask.getConnectionMethod();
 
-//        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-//        ComTaskExecution obsoleteComTask = mock(ComTaskExecution.class);
-//        when(obsoleteComTask.isObsolete()).thenReturn(true);
-//        comTaskExecutions.add(obsoleteComTask);
-//        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-//        when(comTaskExecutionFactory.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutions);
-//        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
         ComTaskExecution comTaskExecution = createComTaskExecution();
         ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.setConnectionTask(connectionTask);
@@ -381,12 +369,6 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     public void testMakeObsoleteWithActiveComTasks() {
         ConnectionInitiationTaskImpl connectionTask = (ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
         connectionTask.save();
-//        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-//        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-//        comTaskExecutions.add(comTaskExecution);
-//        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-//        when(comTaskExecutionFactory.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutions);
-//        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
 
         ComTaskExecution comTaskExecution = createComTaskExecution();
         ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);

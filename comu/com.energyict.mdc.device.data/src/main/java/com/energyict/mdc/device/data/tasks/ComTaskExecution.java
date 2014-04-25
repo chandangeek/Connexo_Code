@@ -53,14 +53,6 @@ import java.util.Date;
  * Therefore, ComTaskExecutions are never deleted but made obsolete.
  * Obsolete ComTaskExecutions will not return from {@link DeviceDataService}
  * finder methods.
- * <p>
- * TODO (JP-1125): Move the following methods to the implementation class as they are only used from internal bundle classes
- * <ul>
- * <li>connectionTaskCreated</li>
- * <li>connectionTaskRemoved</li>
- * <li>updateToUseDefaultConnectionTask</li>
- * </ul>
- * </p>
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-09-21 (15:14)
@@ -311,37 +303,6 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     public void schedule(Date when);
 
     /**
-     * Notifies this ComTaskExecution that a {@link ConnectionTask}
-     * was created for the specified {@link Device}.<br>
-     * This notification will only be sent to ComTaskExecutions
-     * that do not have a {@link ConnectionTask}.
-     *
-     * @param device The Device
-     * @param connectionTask The ConnectionTask that was created
-     */
-    public void connectionTaskCreated (Device device, ConnectionTask<?,?> connectionTask);
-
-    /**
-     * Notifies this ComTaskExecution that the {@link ConnectionTask}
-     * it was linked to before, was removed (either realy deleted or made obsolete)
-     * and will unlink it from that ConnectionTask.
-     * If the ConnectionTask happened to be the default one and this ComTaskExecution
-     * relies on the default ConnectionTask, then it suffices to flag another
-     * ConnectionTask as the default one to link this ComTaskExecution
-     * to that new default ConnectionTask.
-     */
-    public void connectionTaskRemoved ();
-
-    /**
-     * Updates this ComTaskExecution with the given default {@link ConnectionTask}.
-     * This ComTask will be marked to always use the default ConnectionTask,
-     * so if this default changes, this ComTask will also be updated with the new one.
-     *
-     * @param connectionTask the default ConnectionTask
-     */
-    public void updateToUseDefaultConnectionTask(ConnectionTask<?,?> connectionTask);
-
-    /**
      * Builder that supports basic value setters for a ComTaskExecution
      */
     interface ComTaskExecutionBuilder {
@@ -384,7 +345,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     interface ComTaskExecutionUpdater {
 
-        ComTaskExecutionUpdater setUseDefaultConnectionTask(boolean useDefaultConnectionTask);
+        ComTaskExecutionUpdater setUseDefaultConnectionTaskFlag(boolean useDefaultConnectionTask);
 
         /**
          * Explicitly setting a ConnectionTask will result in NOT using the default connectionTask.
@@ -392,7 +353,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
          * will still be marked to use the ConnectionTask from this setter.<br/>
          * Setting an Empty value will result in using the default ConnectionTask
          * <p/>
-         * <i>If you want to use the default ConnectionTask, just set {@link #setUseDefaultConnectionTask(boolean)} to true</i>
+         * <i>If you want to use the default ConnectionTask, just set {@link #setUseDefaultConnectionTaskFlag(boolean)} to true</i>
          *
          * @param connectionTask the ConnectionTask to set
          * @return the current updater
@@ -412,13 +373,6 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
         ComTaskExecutionUpdater setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
 
         /**
-         * Updates the actual ComTaskExecution with the objects set in this builder
-         *
-         * @return the updated created ComTaskExecution
-         */
-        ComTaskExecution update();
-
-        /**
          * Sets the given nextExecutionTimeStamp and priority
          *
          * @param nextExecutionTimestamp the timeStamp to set
@@ -426,5 +380,14 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
          * @return the current updater
          */
         ComTaskExecutionUpdater setNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int priority);
+
+        ComTaskExecutionUpdater setUseDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask);
+
+        /**
+         * Updates the actual ComTaskExecution with the objects set in this builder
+         *
+         * @return the updated created ComTaskExecution
+         */
+        ComTaskExecution update();
     }
 }

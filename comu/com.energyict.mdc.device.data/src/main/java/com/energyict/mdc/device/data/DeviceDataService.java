@@ -173,7 +173,7 @@ public interface DeviceDataService {
      */
     public void clearDefaultConnectionTask (Device device);
 
-    void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask);
+    void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask defaultConnectionTask);
 
     /**
      * Attempts to lock the {@link ConnectionTask} that is about to be executed
@@ -387,4 +387,6 @@ public interface DeviceDataService {
      * @return all the ComTaskExecutions (which are not obsolete) for the given ConnectionTask
      */
     List<ComTaskExecution> findComTaskExecutionsByConnectionTask(ConnectionTask<?,?> connectionTask);
+
+    List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device);
 }

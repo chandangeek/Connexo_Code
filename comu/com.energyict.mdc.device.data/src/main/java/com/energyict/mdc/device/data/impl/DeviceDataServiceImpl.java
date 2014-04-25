@@ -296,10 +296,10 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
                 ((ConnectionTaskImpl) connectionTask).clearDefault();
             }
         }
+        setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(device, newDefaultConnectionTask);
         if (newDefaultConnectionTask != null) {
             newDefaultConnectionTask.setAsDefault();
         }
-        setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(device, newDefaultConnectionTask);
     }
 
     @Override
@@ -314,10 +314,12 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
 
     @Override
-    public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask) {
-        List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopologyButNotLinkedYet(device, connectionTask);
+    public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask defaultConnectionTask) {
+        List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopologyButNotLinkedYet(device, defaultConnectionTask);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            comTaskExecution.updateToUseDefaultConnectionTask(connectionTask);
+            ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+            comTaskExecutionUpdater.setUseDefaultConnectionTask(defaultConnectionTask);
+            comTaskExecutionUpdater.update();
         }
     }
 
@@ -338,8 +340,9 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     private void collectComTaskWithDefaultConnectionTaskForCompleteTopology(Device device, List<ComTaskExecution> scheduledComTasks, ConnectionTask connectionTask) {
         Condition query = Where.where(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).isEqualTo(true)
-                .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device))
-                .and(where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNotEqual(connectionTask));
+                .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device)
+                .and((where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNull())
+                        .or(where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNotEqual(connectionTask))));
         List<ComTaskExecution> comTaskExecutions = this.dataModel.mapper(ComTaskExecution.class).select(query);
         scheduledComTasks.addAll(comTaskExecutions);
         for (Object physicalConnectedDevice : device.getPhysicalConnectedDevices()) {
@@ -660,6 +663,12 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     public List<ComTaskExecution> findComTaskExecutionsByConnectionTask(ConnectionTask<?, ?> connectionTask) {
         return this.dataModel.mapper(ComTaskExecution.class).find(ComTaskExecutionFields.CONNECTIONTASK.fieldName(), connectionTask);
     }
+
+    @Override
+    public List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device) {
+        return this.dataModel.mapper(ComTaskExecution.class).find(ComTaskExecutionFields.DEVICE.fieldName(), device, ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName(), true);
+    }
+    
     @Override
     public Date getPlannedDate(ComSchedule comSchedule) {
         List<DeviceInComSchedule> deviceUsages = dataModel.query(DeviceInComSchedule.class)

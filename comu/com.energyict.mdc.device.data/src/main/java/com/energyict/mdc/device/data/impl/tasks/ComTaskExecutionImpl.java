@@ -49,6 +49,10 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import org.hibernate.validator.constraints.Range;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -80,7 +84,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
     private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
 
-    private Reference<ConnectionTask<?, ?>> connectionTask = ValueReference.absent();
+    private Reference<ConnectionTask> connectionTask = ValueReference.absent();
 
     private Reference<ComPort> comPort = ValueReference.absent();
 
@@ -170,7 +174,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
         this.executionPriority = comTaskEnablement.getPriority();
         this.priority = comTaskEnablement.getPriority();
-        this.useDefaultConnectionTask = comTaskEnablement.useDefaultConnectionTask();
+        setUseDefaultConnectionTask(comTaskEnablement.useDefaultConnectionTask());
         this.protocolDialectConfigurationProperties.set(comTaskEnablement.getProtocolDialectConfigurationProperties());
         return this;
     }
@@ -385,6 +389,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void updateNextExecutionTimestamp() {
+        recalculateNextAndPlannedExecutionTimestamp();
+        post();
+    }
+
+    private void recalculateNextAndPlannedExecutionTimestamp() {
         Date plannedNextExecutionTimestamp = this.calculateNextExecutionTimestamp(this.clock.now());
         this.schedule(plannedNextExecutionTimestamp, plannedNextExecutionTimestamp);
     }
@@ -502,8 +511,8 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return connectionTask instanceof ScheduledConnectionTask;
     }
 
-    private ScheduledConnectionTask getScheduledConnectionTask() {
-        return (ScheduledConnectionTask) connectionTask.get();
+    private ScheduledConnectionTaskImpl getScheduledConnectionTask() {
+        return (ScheduledConnectionTaskImpl) connectionTask.get();
     }
 
     @Override
@@ -520,6 +529,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     @Override
     public void schedule(Date when) {
         this.schedule(when, this.getPlannedNextExecutionTimestamp());
+        post();
     }
 
     @Override
@@ -644,12 +654,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.setNextExecutionTimestamp(this.calculateNextExecutionTimestamp(this.getExecutionStartedTimestamp()));
     }
 
-    @Override
-    public void connectionTaskCreated(Device device, ConnectionTask<?, ?> connectionTask) {
-        this.assignConnectionTask(connectionTask);
-        this.post();
-    }
-
     /**
      * This will update the object with the given ConnectionTask,
      * <i>OR</i> the connectionTask will be cleared and configured to use the default ConnectionTask
@@ -674,19 +678,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     public void updateConnectionTask(ConnectionTask<?, ?> connectionTask) {
         this.assignConnectionTask(connectionTask);
         this.setUseDefaultConnectionTask(false);
-        this.post();
-    }
-
-    @Override
-    public void updateToUseDefaultConnectionTask(ConnectionTask<?, ?> connectionTask) {
-        this.assignConnectionTask(connectionTask);
-        this.setUseDefaultConnectionTask(true);
-        this.post();
-    }
-
-    @Override
-    public void updateToUseNonExistingDefaultConnectionTask() {
-        this.assignConnectionTask(null); // default flag will be set
         this.post();
     }
 
@@ -770,7 +761,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     public void prepareForSaving() {
         this.nextExecutionSpecHolder.save();
         this.modificationDate = this.now();
-        this.updateNextExecutionTimestamp();
         validateNotObsolete();
     }
 
@@ -929,6 +919,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         public ComTaskExecutionBuilder setConnectionTask(ConnectionTask<?, ?> connectionTask) {
             this.comTaskExecution.setConnectionTask(connectionTask);
             this.comTaskExecution.setUseDefaultConnectionTask(false);
+            this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
             return this;
         }
 
@@ -941,6 +932,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         public ComTaskExecutionBuilder createNextExecutionSpec(TemporalExpression temporalExpression) {
             this.comTaskExecution.createMyNextExecutionSpecs(temporalExpression);
+            this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
             return this;
         }
 
@@ -978,7 +970,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        public ComTaskExecutionUpdater setUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
+        public ComTaskExecutionUpdater setUseDefaultConnectionTaskFlag(boolean useDefaultConnectionTask) {
             this.comTaskExecution.setUseDefaultConnectionTask(useDefaultConnectionTask);
             return this;
         }
@@ -987,6 +979,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         public ComTaskExecutionUpdater setConnectionTask(ConnectionTask<?, ?> connectionTask) {
             this.comTaskExecution.setConnectionTask(connectionTask);
             this.comTaskExecution.setUseDefaultConnectionTask(false);
+            this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
             return this;
         }
 
@@ -999,6 +992,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         public ComTaskExecutionUpdater createOrUpdateNextExecutionSpec(TemporalExpression temporalExpression) {
             this.comTaskExecution.createOrUpdateMyNextExecutionSpecs(temporalExpression);
+            this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
             return this;
         }
 
@@ -1030,6 +1024,13 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         public ComTaskExecution.ComTaskExecutionUpdater setNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int priority) {
             this.comTaskExecution.setNextExecutionTimestamp(nextExecutionTimestamp);
             this.comTaskExecution.setExecutingPriority(priority);
+            return this;
+        }
+
+        @Override
+        public ComTaskExecution.ComTaskExecutionUpdater setUseDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {
+            this.comTaskExecution.setConnectionTask(defaultConnectionTask);
+            this.comTaskExecution.useDefaultConnectionTask = true;
             return this;
         }
 

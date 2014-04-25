@@ -379,7 +379,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         ComTask comTaskTopology = createComTaskWithLogBooks();
 
         this.comTaskEnablement1 = createMockedComTaskEnablement(true, configDialect, comTaskWithBasicCheck);
-        this.comTaskEnablement1 = createMockedComTaskEnablement(true, configDialect, comTaskTopology);
+        this.comTaskEnablement2 = createMockedComTaskEnablement(true, configDialect, comTaskTopology);
 
 //        DeviceFactory deviceFactory = mock(DeviceFactory.class);
 //        when(deviceFactory.findDevice(DEVICE_ID)).thenReturn(this.device);
@@ -518,6 +518,15 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         return comTaskExecution;
     }
 
+    protected ComTaskExecution createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(ConnectionTask<?, ?> connectionTask, Date nextExecutionTimeStamp){
+        ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement1);
+        comTaskExecutionBuilder.setConnectionTask(connectionTask);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+        ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.setNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);
+        return comTaskExecutionUpdater.update();
+    }
 
     protected ComTaskExecution createComTaskExecution() {
         return createComTaskExecution(comTaskEnablement1);

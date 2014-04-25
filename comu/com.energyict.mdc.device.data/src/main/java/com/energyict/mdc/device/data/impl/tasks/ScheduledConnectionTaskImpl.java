@@ -328,10 +328,10 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
             comTaskExecutionUpdater.setNextExecutionTimeStampAndPriority(nextExecutionTimestamp, priority);
+            comTaskExecutionUpdater.update();
         }
     }
 
-    @Override
     public void setDynamicMaxNumberOfTries(int maxNumberOfTries) {
         this.maxNumberOfTries = maxNumberOfTries;
     }
@@ -357,7 +357,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         return this.applyComWindowIfAny(this.calculateNextExecutionTimestamp(now));
     }
 
-    @Override
     public Date applyComWindowIfAny (Date calculatedNextExecutionTimestamp) {
         Calendar calendar = Calendar.getInstance(getClocksTimeZone());
         calendar.setTime(calculatedNextExecutionTimestamp);

@@ -400,7 +400,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         device.save();
 
         ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
-        comTaskExecutionUpdater.setUseDefaultConnectionTask(testUseDefault);
+        comTaskExecutionUpdater.setUseDefaultConnectionTaskFlag(testUseDefault);
         comTaskExecutionUpdater.update();
         device.save();
 
@@ -508,7 +508,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         device.save();
 
         ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
-        comTaskExecutionUpdater.setUseDefaultConnectionTask(useDefaultTrue);
+        comTaskExecutionUpdater.setUseDefaultConnectionTaskFlag(useDefaultTrue);
         comTaskExecutionUpdater.update();
         device.save();
 
@@ -947,7 +947,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
-        comTaskExecution.connectionTaskRemoved();
+        ((ComTaskExecutionImpl) comTaskExecution).connectionTaskRemoved();
 
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.getConnectionTask()).isNull();
@@ -1080,9 +1080,9 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void checkCorrectTimeStampsForScheduledComTaskExecutionWithMinimizeConnectionTaskTest() {
-        Date currentTime = freezeClock(2014, 4, 4, 10, 12, 32, 123);
         Date nextFromComTask = createFixedTimeStamp(2014, 4, 4, 11, 0, 0, 0);
         Date nextFromConnectionTask = createFixedTimeStamp(2014, 4, 5, 0, 0, 0, 0, TimeZone.getTimeZone("UTC"));
+        Date currentTime = freezeClock(2014, 4, 4, 10, 12, 32, 123);
         TemporalExpression myTemporalExpression = new TemporalExpression(TimeDuration.hours(1));
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "TimeChecks");

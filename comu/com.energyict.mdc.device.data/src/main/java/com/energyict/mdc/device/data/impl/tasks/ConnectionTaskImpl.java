@@ -193,7 +193,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      */
     private void unRegisterConnectionTaskFromComTasks() {
         for (ComTaskExecution comTaskExecution : this.findDependentComTaskExecutions()) {
-            comTaskExecution.connectionTaskRemoved();
+            ((ComTaskExecutionImpl) comTaskExecution).connectionTaskRemoved();
         }
     }
 
@@ -227,7 +227,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.obsoleteDate = this.now();
         this.makeDependentsObsolete();
         this.unRegisterConnectionTaskFromComTasks();
-        this.loadAndPost();
+        this.post();
     }
 
     /**
@@ -306,7 +306,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     // Keep as reference for ConnectionTaskExecutionAspects implementation in the mdc.engine bundle
     public void executionStarted(final ComServer comServer) throws SQLException, BusinessException {
         this.doExecutionStarted(comServer);
-        this.loadAndPost();
+        this.post();
     }
 
     protected void doExecutionStarted(ComServer comServer) {
@@ -317,7 +317,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     // Keep as reference for ConnectionTaskExecutionAspects implementation in the mdc.engine bundle
     public void executionCompleted() throws SQLException, BusinessException {
         this.doExecutionCompleted();
-        this.loadAndPost();
+        this.post();
     }
 
     protected void doExecutionCompleted() {
@@ -387,7 +387,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     // To be used by the DeviceDataServiceImpl only that now has the responsibility to switch defaults
     public void setAsDefault() {
         this.doSetAsDefault();
-        this.loadAndPost();
+        this.post();
     }
 
     protected void doSetAsDefault() {
@@ -397,14 +397,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     // To be used by the DeviceDataServiceImpl only that now has the responsibility to switch defaults
     public void clearDefault() {
         this.isDefault = false;
-        this.loadAndPost();
-    }
-
-    private void loadAndPost() {
-        if(this.device == null){
-            loadDevice();
-        }
-        post();
+        this.post();
     }
 
     @Override
@@ -515,6 +508,15 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void resume() {
         this.paused = false;
         post();
+    }
+
+
+    @Override
+    protected void post() {
+        if (device == null) {
+            loadDevice();
+        }
+        super.post();
     }
 
     public ConnectionMethod getConnectionMethod() {
