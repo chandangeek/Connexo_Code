@@ -3,9 +3,9 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 import com.energyict.comserver.commands.UpdateDeviceMessage;
 import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.mdc.messages.DeviceMessageStatus;
-import com.energyict.mdc.messages.ServerDeviceMessage;
 import com.energyict.mdc.meterdata.DeviceProtocolMessageAcknowledgement;
 import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
 
 /**
  * @author sva
@@ -19,7 +19,7 @@ public class CTRUpdateDeviceMessage extends UpdateDeviceMessage {
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        ServerDeviceMessage deviceMessage = (ServerDeviceMessage) comServerDAO.findDeviceMessage(getMessageIdentifier());
+        OfflineDeviceMessage deviceMessage = comServerDAO.findOfflineDeviceMessage(getMessageIdentifier());
         if (deviceMessage != null) {
             String messageProtocolInfo = deviceMessage.getProtocolInfo();
             String wdb = ((DeviceMessageIdentifierByDeviceAndProtocolInfoParts) getMessageIdentifier()).getMessageProtocolInfoParts()[1];
