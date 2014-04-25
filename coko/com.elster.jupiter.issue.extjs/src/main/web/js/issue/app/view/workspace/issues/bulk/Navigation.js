@@ -3,28 +3,29 @@ Ext.define('Isu.view.workspace.issues.bulk.Navigation', {
     alias: 'widget.bulk-navigation',
     componentCls: 'isu-bulk-navigation',
     layout: 'vbox',
-    defaults: {
+    /*defaults: {
         width: 120,
         textAlign: 'left'
-    },
+    },*/
 
 
     items: [
         {
-            xtype: 'button',
-            baseCls: 'isu-bulk-navigation-btns',
-            disabledCls: 'disabled-bulk-navigation-btns',
-            componentCls: 'active-bulk-list-action',
+            xtype: 'round-button',
+        //    baseCls: 'isu-bulk-navigation-btns',
+        //    disabledCls: 'disabled-bulk-navigation-btns',
+        //    componentCls: 'active-bulk-list-action',
             name: 'select-issues',
             number: 0,
-            disabled: true,
-            text: '1- Select issues',
+        //   disabled: true,
+            text: '1',
             renderTo: Ext.getBody()
         },
         {
             xtype: 'button',
             baseCls: 'isu-bulk-navigation-btns',
             disabledCls: 'disabled-bulk-navigation-btns',
+
             name: 'select-action',
             number: 1,
             disabled: true,
