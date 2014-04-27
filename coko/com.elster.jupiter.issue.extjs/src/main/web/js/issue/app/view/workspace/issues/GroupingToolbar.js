@@ -36,7 +36,7 @@ Ext.define('Isu.view.workspace.issues.GroupingToolbar', {
             name: 'groupinggrid',
             store: 'Isu.store.IssuesGroups',
             enableColumnHide: false,
-            minHeight: 125,
+            minHeight: 150,
             margin: '10 0 0 0',
             hidden: true,
             columns: {

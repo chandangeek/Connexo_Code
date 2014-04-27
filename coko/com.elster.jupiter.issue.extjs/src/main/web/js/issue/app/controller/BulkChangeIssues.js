@@ -75,11 +75,10 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
     showOverview: function () {
         var issuesStore = this.getStore('Isu.store.Issues'),
-            issuesStoreRoxy = issuesStore.getProxy(),
             widget;
 
-        issuesStoreRoxy.extraParams = {};
-        issuesStoreRoxy.setExtraParam('status', 1);
+        delete issuesStore.proxyFilter;
+        delete issuesStore.proxySort;
 
         widget = Ext.widget('bulk-browse');
         this.getApplication().fireEvent('changecontentevent', widget);
@@ -553,7 +552,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     step1SelectedIssuesTxtHolderUptade: function (grid) {
         var step1SelectedIssuesTxt = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step1').down('[name=issues-qty-txt]');
         step1SelectedIssuesTxt.setText(
-                grid.view.getSelectionModel().getSelection().length >= 1 ? (grid.view.getSelectionModel().getSelection().length +
+            grid.view.getSelectionModel().getSelection().length >= 1 ? (grid.view.getSelectionModel().getSelection().length +
                 (grid.view.getSelectionModel().getSelection().length > 1 ? ' issues' : ' issue') + ' selected') : 'No issues selected');
     }
 });

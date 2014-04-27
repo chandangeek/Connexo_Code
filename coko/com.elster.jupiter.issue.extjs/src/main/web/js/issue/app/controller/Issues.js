@@ -123,13 +123,9 @@ Ext.define('Isu.controller.Issues', {
         var self = this,
             widget,
             issuesStore = this.getStore('Isu.store.Issues'),
-            groupStore = this.getStore('Isu.store.IssuesGroups'),
             extraParamsModel = new Isu.model.ExtraParams(),
             extraParams = issuesStore.proxy.extraParams;
 
-        issuesStore.on('load', function () {
-            issuesStore.proxy.extraParams = {};
-        }, self, {single: true});
 
         extraParamsModel.setValuesFromQueryString(function (extraParamsModel, data) {
             if (data) {
@@ -138,12 +134,11 @@ Ext.define('Isu.controller.Issues', {
                 extraParams = {};
             }
 
+            if (issuesStore.group) {
+                Ext.merge(extraParams, issuesStore.getGroupParams());
+            }
             issuesStore.proxy.extraParams = extraParams;
             self.setParamsForIssueGroups(extraParamsModel.get('filter'), extraParamsModel.get('group').get('value'));
-
-            groupStore.on('load', function () {
-                self.setGrouping();
-            }, self, {single: true});
 
             widget = Ext.widget('issues-overview');
             self.getApplication().fireEvent('changecontentevent', widget);
@@ -153,6 +148,7 @@ Ext.define('Isu.controller.Issues', {
             self.getFilteringToolbar().addFilterButtons(extraParamsModel.get('filter'));
             self.setFilterForm();
             self.getSortingToolbar().addSortButtons(extraParamsModel.get('sort'));
+            self.setGrouping();
         });
     },
 
@@ -254,7 +250,6 @@ Ext.define('Isu.controller.Issues', {
 
     setGrouping: function () {
         var grouping = this.extraParamsModel.get('group').get('value'),
-            groupStore = this.getStore('Isu.store.IssuesGroups'),
             groupingTollbar = this.getGroupingToolbar(),
             groupingCombo = groupingTollbar.down('[name=groupingcombo]'),
             groupingGrid = groupingTollbar.down('[name=groupinggrid]'),
@@ -268,14 +263,10 @@ Ext.define('Isu.controller.Issues', {
         if (grouping == 'none') {
             groupingGrid.hide();
         } else {
-            if (this.extraParamsModel.get('filter').get(grouping)) {
-                groupingField = groupStore.getById(this.extraParamsModel.get('filter').get(grouping).getId());
-            } else {
-                groupingField = groupStore.getById(this.extraParamsModel.get('groupValue'));
-            }
+            groupingField = this.extraParamsModel.get('filter').get(grouping);
             if (groupingField) {
                 selectionModel.select(groupingField);
-                groupingInformation.down('[name=informationtext]').update('<h3>Issues for reason: ' + groupingField.get('reason') + '</h3>');
+                groupingInformation.down('[name=informationtext]').update('<h3>Issues for reason: ' + groupingField.get('name') + '</h3>');
                 groupingInformation.show();
             } else {
                 this.getIssuesList().hide();
@@ -291,14 +282,13 @@ Ext.define('Isu.controller.Issues', {
     changeGroup: function (grid, record) {
         var grouping = this.extraParamsModel.get('group').get('value');
 
-        this.extraParamsModel.set('groupValue', record.getId());
+        this.extraParamsModel.get('filter').set(grouping, record);
         window.location.href = this.extraParamsModel.getQueryStringFromValues();
     },
 
     changeGrouping: function (combo, newValue) {
         var store = combo.getStore();
 
-        this.extraParamsModel.set('groupValue', null);
         this.extraParamsModel.set('group', store.getById(newValue));
         window.location.href = this.extraParamsModel.getQueryStringFromValues();
     },
@@ -314,8 +304,6 @@ Ext.define('Isu.controller.Issues', {
 
         if (field != 'none') {
             groupStoreProxy.setExtraParam('field', field);
-        } else {
-            groupStoreProxy.setExtraParam('field', 'reason');
         }
 
         if (status) {
@@ -323,8 +311,6 @@ Ext.define('Isu.controller.Issues', {
                 statusValues.push(item.get('id'));
             });
             groupStoreProxy.setExtraParam('status', statusValues);
-        } else {
-            groupStoreProxy.setExtraParam('status', []);
         }
         if (assignee) {
             groupStoreProxy.setExtraParam('assigneeId', assignee.get('id'));
@@ -431,7 +417,7 @@ Ext.define('Isu.controller.Issues', {
     onIssuesGridRefresh: function (grid) {
         var store = grid.getStore(),
             grouping = this.extraParamsModel.get('group').get('value'),
-            groupingField = this.extraParamsModel.get('filter').get(grouping) || this.extraParamsModel.get('groupValue'),
+            groupingField = this.extraParamsModel.get('filter').get(grouping),
             extraParams = store.getProxy().extraParams,
             emptyText;
 

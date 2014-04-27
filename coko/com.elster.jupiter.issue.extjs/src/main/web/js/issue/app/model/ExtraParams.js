@@ -7,13 +7,6 @@ Ext.define('Isu.model.ExtraParams', {
         'Uni.util.Hydrator',
         'Uni.util.QueryString'
     ],
-    fields: [
-        {
-            name: 'groupValue',
-            type: 'int',
-            defaultValue: null
-        }
-    ],
     hasOne: [
         {
             model: 'Isu.model.IssueFilter',
@@ -49,14 +42,6 @@ Ext.define('Isu.model.ExtraParams', {
         return obg;
     },
 
-    setDefaults: function () {
-        return {
-            sort: 'dueDate',
-            status: 1,
-            group: 'none'
-        };
-    },
-
     setValuesFromQueryString: function (callback) {
         var me = this,
             hydrator = new Uni.util.Hydrator(),
@@ -65,36 +50,19 @@ Ext.define('Isu.model.ExtraParams', {
             groupModel,
             groupStore = Ext.getStore('Isu.store.IssueGrouping'),
             queryString = Uni.util.QueryString.getQueryStringValues(),
-            filterValues,
-            sortValues,
-            group,
-            groupValue,
+            filterValues = _.pick(queryString, filterModel.getFields()),
+            sortValues = _.pick(queryString, sortModel.getFields()).sort,
+            groupValue = queryString.group,
             data = {},
             sorting;
 
-        delete queryString.limit;
-        delete queryString.start;
-        if (_.isEmpty(queryString)) {
-            queryString = me.setDefaults();
-        }
-
-        filterValues = _.pick(queryString, filterModel.getFields());
-        sortValues = _.pick(queryString, sortModel.getFields()).sort;
-        group = queryString.group;
-        groupValue = queryString.groupValue;
-
-        if (group) {
-            groupModel = groupStore.getById(group);
+        if (groupValue) {
+            groupModel = groupStore.getById(groupValue);
         } else {
             groupModel = groupStore.getAt(0);
         }
 
-        if (groupValue) {
-            data.reason = groupValue;
-        }
-
         me.set('group', groupModel);
-        me.set('groupValue', groupValue);
 
         if (Ext.isArray(sortValues)) {
             Ext.Array.each(sortValues, function (item) {
@@ -125,7 +93,6 @@ Ext.define('Isu.model.ExtraParams', {
         var filterModel = this.get('filter'),
             sortModel = this.get('sort'),
             groupModel = this.get('group'),
-            groupValue = this.get('groupValue') || [],
             newQueryString = {};
 
         Ext.Array.each(filterModel.getFields(), function (filterItem) {
@@ -137,9 +104,6 @@ Ext.define('Isu.model.ExtraParams', {
 
         if (groupModel && groupModel.get('value')) {
             newQueryString.group = groupModel.get('value');
-            newQueryString.groupValue = !filterModel.get(groupModel.get('value')) ? groupValue : [];
-        } else {
-            newQueryString.groupValue = [];
         }
 
         Ext.merge(newQueryString, filterModel.getPlainData());
