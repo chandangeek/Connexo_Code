@@ -120,7 +120,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         this.lastBreadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
             text: prefix + 'issue creation rule'
         });
-        self.getPageTitle().update('<h1>' + prefix + 'issue creation rule</h1>');
+        self.getPageTitle().title = prefix + 'issue creation rule',
+        self.getPageTitle().ui = 'large';
         ruleActionBtn.action = action;
         ruleActionBtn.setText(btnTxt);
     },

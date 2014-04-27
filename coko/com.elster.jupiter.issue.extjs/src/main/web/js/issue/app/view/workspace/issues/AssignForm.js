@@ -11,13 +11,16 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
 
     items: [
         {
-            name: 'form-errors',
-            layout: 'hbox',
-            margin: '0 0 20 100',
-            hidden: true,
-            defaults: {
-                xtype: 'container',
-                cls: 'isu-error-panel'
+            xtype: 'panel',
+            margin: '0 0 20 0',
+            layout : {
+              type: 'vbox',
+              align: 'left'
+            },
+            items: {
+                xtype: 'uni-form-error-message',
+                name: 'form-errors',
+                hidden: true,
             }
         },
         {
@@ -33,8 +36,11 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
                     },
                     items: [
                         {
-                            html: '<b>Assign to *</b>',
-                            width: 70
+                            width: 80,
+                            items: {
+                                xtype: 'label',
+                                text: 'Assign to *'
+                            }
                         },
                         {
                             xtype: 'radiogroup',
@@ -137,8 +143,11 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
                     },
                     items: [
                         {
-                            html: '<b>Comment</b>',
-                            width: 74
+                            width: 80,
+                            items: {
+                                xtype: 'label',
+                                text: 'Assign to *'
+                            }
                         },
                         {
                             xtype: 'textareafield',

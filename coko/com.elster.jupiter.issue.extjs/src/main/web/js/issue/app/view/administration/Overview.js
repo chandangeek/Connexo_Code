@@ -15,8 +15,8 @@ Ext.define('Isu.view.administration.Overview', {
 
     content: [
         {
-            xtype: 'panel',
-            html: '<h1>Administration</h1>',
+            ui: 'large',
+            title: 'Administration',
             flex: 1
         }
     ],

@@ -21,15 +21,15 @@ Ext.define('Isu.controller.IssueDetail', {
         },
         {
             ref: 'commentsPanel',
-            selector: 'issue-detail-overview issue-comments'
+            selector: 'issue-detail-overview issue-comments dataview'
         },
         {
             ref: 'commentForm',
-            selector: 'issue-detail-overview form'
+            selector: 'issue-detail-overview issue-comments comment-add-form'
         },
         {
             ref: 'addCommentButton',
-            selector: 'issue-detail-overview button[action=addcomment]'
+            selector: 'issue-detail-overview issue-comments button[action=add]'
         },
         {
             ref: 'sendCommentButton',
@@ -42,7 +42,7 @@ Ext.define('Isu.controller.IssueDetail', {
             'issue-detail-overview breadcrumbTrail': {
                 afterrender: this.setBreadcrumb
             },
-            'issue-detail-overview button[action=addcomment]': {
+            'issue-detail-overview issue-comments button[action=add]': {
                 click: this.showCommentForm
             },
             'issue-detail-overview form button[action=cancel]': {
@@ -57,20 +57,27 @@ Ext.define('Isu.controller.IssueDetail', {
         });
     },
 
-    showOverview: function (issueId, showCommentForm) {
+    showOverview: function (id, showCommentForm) {
         var self = this,
             widget = Ext.widget('issue-detail-overview'),
             issueDetailModel = self.getModel('Isu.model.Issues'),
-            detailPanel = self.getDetailPanel();
-
-        self.commentsAPI = '/api/isu/issue/' + issueId + '/comments';
+            form = widget.down('issue-form');
 
         showCommentForm && self.showCommentForm();
 
-        issueDetailModel.load(issueId, {
+        issueDetailModel.load(id, {
             success: function (record) {
-                self.detailData = detailPanel.data = record.data;
-                self.loadComments();
+                form.loadRecord(record);
+                form.setTitle(record.get('title'));
+
+                var store = record.comments();
+
+                // todo: this is dirty solution, rewrite in to the more solid one
+                store.getProxy().url = store.getProxy().url.replace('{issue_id}', record.getId());
+                store.clearFilter();
+                self.getCommentsPanel().bindStore(record.comments());
+                store.load();
+
                 self.getApplication().fireEvent('changecontentevent', widget);
             }
         });
@@ -97,12 +104,9 @@ Ext.define('Isu.controller.IssueDetail', {
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
-    showCommentForm: function () {
-        var form = this.getCommentForm(),
-            button = this.getAddCommentButton();
-
-        button.hide();
-        form.show();
+    showCommentForm: function (btn) {
+        this.getCommentForm().show();
+        btn.hide();
     },
 
     hideCommentForm: function () {
@@ -116,39 +120,18 @@ Ext.define('Isu.controller.IssueDetail', {
 
     validateCommentForm: function (form, newValue) {
         var sendBtn = this.getSendCommentButton();
-
-        if (newValue.replace(/\s*/g, '')) {
-            sendBtn.setDisabled(false);
-        } else {
-            sendBtn.setDisabled(true);
-        }
-    },
-
-    loadComments: function () {
-        var self = this,
-            commentsPanel = self.getCommentsPanel();
-
-        commentsPanel.store.proxy.url = self.commentsAPI;
-        commentsPanel.store.load();
+        sendBtn.setDisabled(!newValue.trim().length);
     },
 
     addComment: function () {
         var self = this,
             commentsPanel = self.getCommentsPanel(),
-            commentsStore = commentsPanel.getStore(),
-            formPanel = self.getCommentForm(),
-            form = formPanel.getForm();
+            commentsStore = commentsPanel.getStore()
+        ;
 
-        Ext.Ajax.request({
-            url: self.commentsAPI,
-            method: 'POST',
-            jsonData: form.getValues(),
-            success: function (response) {
-                var data = Ext.JSON.decode(response.responseText).data;
-
-                commentsStore.add(data);
-            }
-        });
+        var store = commentsPanel.getStore();
+        store.add(self.getCommentForm().getValues());
+        store.sync();
 
         self.hideCommentForm();
     }

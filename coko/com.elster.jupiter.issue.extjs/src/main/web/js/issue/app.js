@@ -14,11 +14,11 @@ Ext.Loader.setConfig({
 
 Ext.Loader.addClassPathMappings({
     "Isu": "app",
-    "Ext": "/apps/ext/src",
+    "Ext": "vendor/ext/src/main/web/js/ext/src",
     "Ext.Msg": "/apps/ext/src/window/MessageBox.js",
-    'Uni': "/apps/uni/src",
+    'Uni': "vendor/uni/src/main/web/js/uni/src",
     'Ext.ux': "resources/js/Ext/ux",
-    'Ext.ux.window.Notification': "/apps/uni/packages/Ext.ux.window.Notification/Notification.js"
+    'Ext.ux.window.Notification': "vendor/uni/src/main/web/js/uni/packages/Ext.ux.window.Notification/Notification.js"
 });
 
 Ext.Loader.syncRequire([

@@ -158,7 +158,6 @@ Ext.define('Isu.view.workspace.issues.bulk.Wizard', {
                     name: 'wizar-toolbar',
                     dock: 'bottom',
                     border: false,
-                    padding: '0 15 20 15',
                     items: [
                         {
                             xtype: 'button',
@@ -189,10 +188,10 @@ Ext.define('Isu.view.workspace.issues.bulk.Wizard', {
                         {
                             xtype: 'button',
                             text: 'Cancel',
+                            ui: 'link',
                             itemId: 'cancel',
                             action: 'cancelWizard',
                             scope: this,
-                            cls: 'isu-btn-link',
                             handler: this.onCancelButtonClick
                         }
                     ]

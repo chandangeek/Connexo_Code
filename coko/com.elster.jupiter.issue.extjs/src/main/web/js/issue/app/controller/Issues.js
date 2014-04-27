@@ -18,8 +18,14 @@ Ext.define('Isu.controller.Issues', {
     ],
 
     views: [
-        'Isu.view.workspace.issues.Overview',
-        'Isu.view.ext.button.GridAction'
+        'workspace.issues.Overview',
+        'workspace.issues.Filter',
+        'workspace.issues.List',
+        'workspace.issues.Item',
+        'workspace.issues.IssueNoGroup',
+        'ext.button.GridAction',
+        'ext.button.SortItemButton',
+        'Skyline.button.TagButton'
     ],
 
     mixins: [
@@ -96,22 +102,16 @@ Ext.define('Isu.controller.Issues', {
             'issues-overview filtering-toolbar [name="filter"] button-tag': {
                 arrowclick: this.removeFilterItem
             },
-            'issues-overview filtering-toolbar button[action="clearfilter"]': {
-                click: this.resetFilter
-            },
-
-            'issues-side-filter button[action="filter"]': {
-                click: this.applyFilter
+            'button[name=clearsortbtn]': {
+                click: this.clearSort
             },
             'issues-side-filter button[action="reset"]': {
                 click: this.resetFilter
             },
-            'issues-side-filter filter-form combobox[name=reason]': {
-                render: this.setComboTooltip
-            },
-            'issues-side-filter filter-form combobox[name=meter]': {
-                render: this.setComboTooltip,
-                expand: this.limitNotification
+
+            // ====================================  END IssueListFilter controls  ================================
+            'issues-filter [name="filter"] button-tag': {
+                arrowclick: this.removeFilter
             }
         });
 
@@ -126,19 +126,36 @@ Ext.define('Isu.controller.Issues', {
             extraParamsModel = new Isu.model.ExtraParams(),
             extraParams = issuesStore.proxy.extraParams;
 
+        if (records && records.length < 1) {
 
-        extraParamsModel.setValuesFromQueryString(function (extraParamsModel, data) {
-            if (data) {
-                extraParams = data;
-            } else {
-                extraParams = {};
-            }
+            issueNoGroup.removeAll();
+            issueNoGroup.add({
+                html: '<h3>No issues found</h3><p>The filter is too narrow</p>',
+                bodyPadding: 10,
+                border: false
+            });
+            issueList.hide();
+            issueNoGroup && issueNoGroup.show();
+        } else {
+            issueList.show();
+            issueNoGroup && issueNoGroup.hide();
+        }
+    },
 
-            if (issuesStore.group) {
-                Ext.merge(extraParams, issuesStore.getGroupParams());
-            }
-            issuesStore.proxy.extraParams = extraParams;
-            self.setParamsForIssueGroups(extraParamsModel.get('filter'), extraParamsModel.get('group').get('value'));
+    /**
+     * After "updateProxyFilter" event from the Issue store, method will redraw button tags on the filter panel
+     *
+     * todo: I18n
+     * @param filter Uni.component.filter.model.Filter
+     */
+    filterUpdate: function (filter) {
+        if (!this.getFilter()) {
+            return;
+        }
+        var filterElm = this.getFilter().down('[name="filter"]'),
+            emptyText = this.getFilter().down('[name="empty-text"]'),
+            clearFilterBtn = this.getFilter().down('button[action="clearfilter"]'),
+            buttons = [];
 
             widget = Ext.widget('issues-overview');
             self.getApplication().fireEvent('changecontentevent', widget);
@@ -345,6 +362,141 @@ Ext.define('Isu.controller.Issues', {
                 window.location.href = '#/workspace/datacollection/issues/' + menu.issueId + '/addcomment';
                 break;
         }
+    },
+
+    changeSortDirection: function (btn) {
+        this.store.getProxySort().toggleSortParam(btn.sortValue);
+        this.store.updateProxySort();
+    },
+
+    removeSortItem: function (btn) {
+        this.store.getProxySort().removeSortParam(btn.sortValue);
+        this.store.updateProxySort();
+    },
+
+    addSortItem: function (menu, item) {
+        this.store.getProxySort().addSortParam(item.value);
+        this.store.updateProxySort();
+    },
+
+    setAddSortMenu: function (btn) {
+        if (btn.menu.items.getCount() < 1) {
+            this.store.getProxySort().fields.each(function (item) {
+                if (item.displayValue) {
+                    btn.menu.add({
+                        text: item.displayValue,
+                        value: item.name
+                    });
+                }
+            });
+            btn.showMenu();
+        }
+    },
+
+    clearSort: function () {
+        this.store.setProxySort(new Isu.model.IssueSort());
+
+    },
+
+    setGroupFields: function (view) {
+        var model = Ext.ModelManager.getModel('Isu.model.Issues'),
+            reason = model.getFields()[1];
+
+        view.store = Ext.create('Ext.data.Store', {
+            fields: ['value', 'display'],
+            data: [
+                { value: 0, display: 'None'},
+                { value: 'reason', display: reason.displayValue }
+            ]
+        });
+    },
+
+    setGroup: function (view, newValue) {
+        var grid = Ext.ComponentQuery.query('grid[name=groupgrid]')[0],
+            issuesFor = Ext.ComponentQuery.query('panel[name=issuesforlabel]')[0],
+            lineLabel = Ext.ComponentQuery.query('label[name=forissuesline]')[0],
+            groupItemsShown = grid.down('panel[name=groupitemsshown]'),
+            issueNoGroup = this.getIssueNoGroup(),
+            issuesList = this.getIssuesList(),
+            fullList = this.getIssuesList(),
+
+            XtoYof = function (store, records) {
+                if (records.length > 0) {
+                    var X = (store.currentPage - 1) * store.pageSize + 1,
+                        Y = records.length + X - 1,
+                        of = store.getTotalCount()
+                        ;
+                    groupItemsShown.removeAll();
+                    groupItemsShown.add({
+                        html: X + ' - ' + Y + ' of ' + of + ' ' + view.getRawValue() + 's',
+                        border: false,
+                        margin: '5'
+                    });
+                    groupItemsShown.show();
+                } else {
+                    groupItemsShown.hide();
+                }
+            };
+
+        issuesFor.hide();
+        lineLabel.hide();
+        this.getIssueNoGroup().show();
+        fullList.getSelectionModel().deselectAll();
+        fullList.hide();
+
+        this.showDefaultItems();
+
+        // now grouping is active
+        if (newValue) {
+            this.groupStore.proxy.extraParams.field = newValue;
+            this.groupStore.loadPage(1);
+            this.group = newValue;
+            issueNoGroup.removeAll();
+            issueNoGroup.add({
+                html: '<h3>No group selected</h3><p>Select a group of issues.</p>',
+                bodyPadding: 10,
+                border: false
+            });
+            issueNoGroup.show();
+            issuesList.hide();
+            grid.show();
+            this.groupStore.on('load', XtoYof);
+        } else {
+            // remove the grouping
+
+            this.groupStore.removeAll();
+            grid.hide();
+            groupItemsShown.hide();
+            this.groupStore.un('load', XtoYof);
+            this.getIssueNoGroup().hide();
+            fullList.show();
+            this.store.setGroup(undefined);
+            this.store.loadPage(1);
+        }
+    },
+
+    getIssuesForGroup: function (grid, record) {
+        var iString = '<h3>Issues for ' + this.group + ': ' + record.data.reason + '</h3>',
+            issuesFor = Ext.ComponentQuery.query('panel[name=issuesforlabel]')[0],
+            lineLabel = Ext.ComponentQuery.query('label[name=forissuesline]')[0]
+            ;
+        issuesFor.removeAll();
+        issuesFor.add({html: iString});
+        issuesFor.show();
+        lineLabel.show();
+        this.getIssuesList().getSelectionModel().deselectAll();
+        this.getIssuesList().show();
+        this.getIssueNoGroup().hide();
+        this.store.setGroup(record);
+        this.store.loadPage(1);
+        this.showDefaultItems();
+    },
+
+
+    showDefaultItems: function () {
+        var issueItemView = this.getItemPanel();
+
+        issueItemView && issueItemView.fireEvent('clear');
     },
 
     setFilterIconsActions: function (itemPanel) {

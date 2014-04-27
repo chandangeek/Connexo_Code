@@ -6,10 +6,6 @@ Ext.define('Isu.model.IssueComments', {
 
     fields: [
         {
-            name: 'id',
-            type: 'int'
-        },
-        {
             name: 'author',
             type: 'auto'
         },
@@ -26,5 +22,13 @@ Ext.define('Isu.model.IssueComments', {
             name: 'version',
             type: 'int'
         }
-    ]
+    ],
+    proxy: {
+        type: 'rest',
+        url: '/api/isu/issue/{issue_id}/comments',
+        reader: {
+            type: 'json',
+            root: 'data'
+        }
+    }
 });

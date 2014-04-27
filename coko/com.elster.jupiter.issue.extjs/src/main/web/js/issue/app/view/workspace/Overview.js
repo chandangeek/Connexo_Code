@@ -6,90 +6,52 @@ Ext.define('Isu.view.workspace.Overview', {
         'Uni.view.navigation.SubMenu'
     ],
 
+    side: [
+        {
+            xtype: 'navigationSubMenu',
+            itemId: 'sideMenu'
+        }
+    ],
+
     content: [
         {
-            xtype: 'panel',
-            html: '<h1>Workspace</h1>',
-            margin: 10
-        },
-        {
-            xtype: 'container',
-            layout: 'column',
-            margin: 10,
-            items: [
-                {
-                    title: 'Data collection',
-                    frame: true,
-                    margin: 5,
-                    columnWidth: 0.33,
-                    bodyPadding: 5,
-                    items: [
-                        {
-                            xtype: 'component',
-                            html: '<a href="#/workspace/datacollection/overview">Overview</a>'
-                        },
-                        {
-                            xtype: 'component',
-                            html: '<a href="#/workspace/datacollection/issues">Issues</a>'
-                        }
-                    ]
-                },
-                {
-                    title: 'Data exchange',
-                    frame: true,
-                    margin: 5,
-                    columnWidth: 0.33,
-                    bodyPadding: 5,
-                    items: [
-                        {
-                            xtype: 'component',
-                            html: '<a href="#/workspace/datacollection/">Overview</a>'
-                        },
-                        {
-                            xtype: 'component',
-                            html: '<a href="#/workspace/datacollection/issues">Issues</a>'
-                        }
-                    ]
-                },
-                {
-                    title: 'Data operation',
-                    frame: true,
-                    margin: 5,
-                    columnWidth: 0.33,
-                    bodyPadding: 5,
-                    items: [
-                        {
-                            xtype: 'component',
-                            html: '<a href="#/workspace/datacollection/">Overview</a>'
-                        },
-                        {
-                            xtype: 'component',
-                            html: '<a href="#/workspace/datacollection/issues">Issues</a>'
-                        }
-                    ]
-                },
-                {
-                    title: 'Data validation',
-                    frame: true,
-                    margin: 5,
-                    columnWidth: 0.33,
-                    bodyPadding: 5,
-                    items: [
-                        {
-                            xtype: 'component',
-                            html: '<a href="#/workspace/datacollection/">Overview</a>'
-                        },
-                        {
-                            xtype: 'component',
-                            html: '<a href="#/workspace/datacollection/issues">Issues</a>'
-                        }
-                    ]
-                }
-            ]
+            ui: 'large',
+            title: 'Workspace',
+            flex: 1
         }
     ],
 
     initComponent: function () {
         this.callParent(this);
+
+        this.initMenu();
+    },
+
+    initMenu: function () {
+        var me = this,
+            menu = this.getSideMenuCmp();
+
+        menu.add({
+            text: 'Workspace',
+            pressed: true,
+            href: '#/workspace',
+            hrefTarget: '_self'
+        });
+
+        menu.add({
+            text: 'Data collection',
+            href: '#/workspace/datacollection',
+            hrefTarget: '_self'
+        });
+
+        menu.add({
+            text: 'Issues',
+            href: '#/workspace/datacollection/issues',
+            hrefTarget: '_self'
+        });
+    },
+
+    getSideMenuCmp: function () {
+        return this.down('#sideMenu');
     }
 });

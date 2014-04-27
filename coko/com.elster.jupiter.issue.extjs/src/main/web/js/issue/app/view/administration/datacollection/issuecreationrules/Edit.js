@@ -9,30 +9,26 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
             cls: 'content-wrapper',
             items: [
                 {
-                    xtype: 'component',
+                    xtype: 'panel',
                     name: 'pageTitle',
-                    margin: '0 20 40 20'
+                    margin: '0 0 40 0'
                 },
                 {
                     xtype: 'form',
-                    width: '75%',
-                    bodyPadding: '0 30 0 0',
+                    width: '70%',
                     defaults: {
                         labelWidth: 150,
-                        labelAlign: 'right',
                         margin: '0 0 20 0',
-                        msgTarget: 'under',
                         validateOnChange: false,
                         validateOnBlur: false,
                         anchor: '100%'
                     },
                     items: [
                         {
-                            xtype: 'component',
+                            xtype: 'uni-form-error-message',
                             name: 'form-errors',
-                            html: '<div class="isu-error-panel">There are errors on this page that require your attention.</div>',
                             hidden: true,
-                            margin: '0 0 20 155'
+                            margin: '0 0 20 50'
                         },
                         {
                             xtype: 'textfield',
@@ -105,6 +101,21 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                     cls: 'x-form-item-label uni-form-item-bold x-form-item-label-right'
                                 },
                                 {
+                                    xtype: 'numberfield',
+                                    name: 'dueIn.number',
+                                    minValue: 1,
+                                    width: 60,
+                                    margin: '0 10 0 10'
+                                },
+                                {
+//                                    xtype: 'combobox',
+//                                    name: 'dueIn.type',
+//                                    store: 'Isu.store.DueinType',
+//                                    queryMode: 'local',
+//                                    displayField: 'name',
+//                                    valueField: 'name',
+//                                    editable: false,
+//                                    width: 100
                                     xtype: 'container',
                                     layout: {
                                         type: 'hbox'
@@ -229,7 +240,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                     xtype: 'container',
                     layout: 'hbox',
                     defaultType: 'button',
-                    margin: '20 20 20 150',
+                    margin: '20 0',
                     items: [
                         {
                             name: 'ruleAction',
@@ -237,6 +248,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                         },
                         {
                             text: 'Cancel',
+                            ui: 'link',
                             name: 'cancel',
                             cls: 'isu-btn-link',
                             hrefTarget: '',

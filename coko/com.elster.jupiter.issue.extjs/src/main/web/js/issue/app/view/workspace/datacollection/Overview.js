@@ -8,15 +8,16 @@ Ext.define('Isu.view.workspace.datacollection.Overview', {
 
     side: [
         {
-            xtype: 'navigationSubMenu',
+            title: 'overview',
+            xtype: 'menu',
             itemId: 'sideMenu'
         }
     ],
 
     content: [
         {
-            xtype: 'panel',
-            html: '<h1>Overview</h1>',
+            ui: 'large',
+            title: 'Data collection',
             flex: 1
         }
     ],

@@ -9,46 +9,43 @@ Ext.define('Isu.view.workspace.issues.Overview', {
         'Isu.view.workspace.issues.SideFilter'
     ],
 
-    content: [
-        {
-            xtype: 'issues-browse'
-        }
-    ],
+    content: { xtype: 'issues-browse'},
 
-    side: [
-        {
-            xtype: 'navigationSubMenu',
-            itemId: 'sideMenu'
+    side: {
+        xtype: 'panel',
+        ui: 'medium',
+        title: "Navigation",
+        subtitle: 'subtitle',
+        layout: {
+            type: 'vbox',
+            align: 'stretch'
         },
-        {
-            xtype: 'issues-side-filter'
-        }
-    ],
-
-    initComponent: function () {
-        this.callParent(this);
-
-        this.initMenu();
-    },
-
-    initMenu: function () {
-        var me = this,
-            menu = this.getSideMenuCmp();
-        menu.add({
-            text: 'Overview',
-            href: '#/workspace/datacollection/overview',
-            hrefTarget: '_self'
-        });
-
-        menu.add({
-            text: 'Issues',
-            pressed: true,
-            href: '#/workspace/datacollection/issues',
-            hrefTarget: '_self'
-        });
-    },
-
-    getSideMenuCmp: function () {
-        return this.down('#sideMenu');
+        items: [
+            {
+                xtype: 'menu',
+                title: 'Overview',
+                ui: 'side-menu',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                floating: false,
+                plain: true,
+                items: [
+                    {
+                        text: 'Issues',
+                        cls: 'current'
+                    },
+                    {
+                        text: 'sub',
+                        href: '#/workspace/datacollection/issues/sub',
+                        hrefTarget: '_self'
+                    }
+                ]
+            },
+            {
+                xtype: 'issues-side-filter'
+            }
+        ]
     }
 });

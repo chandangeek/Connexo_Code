@@ -13,21 +13,14 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.Overview
         }
     ],
 
-    content: [
-        {
-            cls: 'content-wrapper',
-            items: [
-                {
-                    html: '<h1>Issue assignment rules</h1>',
-                    margin: '0 0 20 0'
-                },
-                {
-                    xtype: 'issues-assignment-rules-list',
-                    margin: '0 15 20 0'
-                }
-            ]
+    content: {
+        xtype: 'panel',
+        ui: 'large',
+        title: 'Issue assignment rules',
+        items: {
+            xtype: 'issues-assignment-rules-list'
         }
-    ],
+    },
 
     initComponent: function () {
         this.callParent(this);
