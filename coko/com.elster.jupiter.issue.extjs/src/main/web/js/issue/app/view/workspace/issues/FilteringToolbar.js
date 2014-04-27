@@ -1,108 +1,61 @@
 Ext.define('Isu.view.workspace.issues.FilteringToolbar', {
-    extend: 'Ext.container.Container',
+    extend: 'Skyline.panel.FilterToolbar',
     requires: [
-        'Isu.view.workspace.issues.component.TagButton'
+        'Skyline.button.TagButton'
     ],
     alias: 'widget.filtering-toolbar',
-    layout: {
-        type: 'hbox',
-        align: 'middle'
-    },
-    items: [
-        {
-            xtype: 'component',
-            html: 'Filters',
-            cls: 'isu-toolbar-label',
-            width: 55
-        },
-        {
-            xtype: 'component',
-            html: 'None',
-            name: 'empty-text'
-        },
-        {
-            xtype: 'container',
-            name: 'filter',
-            header: false,
-            border: false,
-            margin: '10 0 10 0',
-            layout: {
-                type: 'hbox',
-                align: 'stretch',
-                defaultMargins: '0 5'
-            },
-            flex: 1
-        },
-        {
-            xtype: 'button',
-            action: 'clearfilter',
-            text: 'Clear all',
-            disabled: true
-        }
-    ],
+
+    title: 'Filters',
+    name: 'filter',
+    emptyText: 'None',
 
     /**
      * todo: I18n
      * @param filter Uni.component.filter.model.Filter
      */
-    addFilterButtons: function (filterModel) {
-        var filterElm = this.down('[name="filter"]'),
-            emptyText = this.down('[name="empty-text"]'),
-            clearFilterBtn = this.down('button[action="clearfilter"]'),
-            buttons = [],
-            button;
+    addFilterButtons: function (filter) {
+        var me = this,
+            btnClass = 'Skyline.button.TagButton',
+            container =  me.getContainer();
 
-        if (filterModel.get('assignee')) {
-            button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
-                text: 'Assignee: ' + filterModel.get('assignee').get('name'),
+        container.removeAll();
+
+        if (filter.get('assignee')) {
+            container.add(Ext.create(btnClass, {
+                text: 'Assignee: ' + filter.get('assignee').get('name'),
                 target: 'assignee'
-            });
-
-            buttons.push(button);
+            }));
         }
 
-        if (filterModel.get('reason')) {
-            button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
-                text: 'Reason: ' + filterModel.get('reason').get('name'),
+        if (filter.get('reason')) {
+            container.add(Ext.create(btnClass, {
+                text: 'Reason: ' + filter.get('reason').get('name'),
                 target: 'reason'
-            });
-
-            buttons.push(button);
+            }));
         }
 
-        if (filterModel.get('meter')) {
-            button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
-                text: 'Meter: ' + filterModel.get('meter').get('name'),
+        if (filter.get('department')) {
+            container.add(Ext.create(btnClass, {
+                text: 'Department: ' + filter.get('department').get('name'),
+                target: 'department'
+            }));
+        }
+
+        if (filter.get('meter')) {
+            container.add(Ext.create(btnClass, {
+                text: 'Meter: ' + filter.get('meter').get('name'),
                 target: 'meter'
-            });
-
-            buttons.push(button);
+            }));
         }
 
-        if (filterModel.status().count()) {
-            filterModel.status().each(function (status) {
-                button = Ext.create('Isu.view.workspace.issues.component.TagButton', {
+        if (filter.status().count()) {
+            filter.status().each(function (status) {
+                container.add(Ext.create(btnClass, {
                     text: 'Status: ' + status.get('name'),
                     target: 'status',
                     targetId: status.getId()
-                });
-
-                buttons.push(button);
+                }));
             });
-        }
-
-        filterElm.removeAll();
-
-        if (buttons.length) {
-            emptyText.hide();
-            clearFilterBtn.setDisabled(false);
-
-            Ext.Array.each(buttons, function (button) {
-                filterElm.add(button);
-            });
-        } else {
-            emptyText.show();
-            clearFilterBtn.setDisabled(true);
         }
     }
 });

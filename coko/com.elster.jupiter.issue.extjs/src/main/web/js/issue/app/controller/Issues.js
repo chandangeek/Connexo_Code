@@ -60,7 +60,7 @@ Ext.define('Isu.controller.Issues', {
         },
         {
             ref: 'groupingToolbar',
-            selector: 'issues-overview isu-grouping-toolbar'
+            selector: 'issues-overview grouping-toolbar'
         },
         {
             ref: 'issueFilter',
@@ -107,11 +107,6 @@ Ext.define('Isu.controller.Issues', {
             },
             'issues-side-filter button[action="reset"]': {
                 click: this.resetFilter
-            },
-
-            // ====================================  END IssueListFilter controls  ================================
-            'issues-filter [name="filter"] button-tag': {
-                arrowclick: this.removeFilter
             }
         });
 
@@ -123,39 +118,22 @@ Ext.define('Isu.controller.Issues', {
         var self = this,
             widget,
             issuesStore = this.getStore('Isu.store.Issues'),
+            groupStore = this.getStore('Isu.store.IssuesGroups'),
             extraParamsModel = new Isu.model.ExtraParams(),
             extraParams = issuesStore.proxy.extraParams;
 
-        if (records && records.length < 1) {
+        issuesStore.on('load', function () {
+            issuesStore.proxy.extraParams = {};
+        }, self, {single: true});
 
-            issueNoGroup.removeAll();
-            issueNoGroup.add({
-                html: '<h3>No issues found</h3><p>The filter is too narrow</p>',
-                bodyPadding: 10,
-                border: false
-            });
-            issueList.hide();
-            issueNoGroup && issueNoGroup.show();
-        } else {
-            issueList.show();
-            issueNoGroup && issueNoGroup.hide();
-        }
-    },
+        extraParamsModel.setValuesFromQueryString(function (extraParamsModel, data) {
+            extraParams = data || {};
+            issuesStore.proxy.extraParams = extraParams;
+            self.setParamsForIssueGroups(extraParamsModel.get('filter'), extraParamsModel.get('group').get('value'));
 
-    /**
-     * After "updateProxyFilter" event from the Issue store, method will redraw button tags on the filter panel
-     *
-     * todo: I18n
-     * @param filter Uni.component.filter.model.Filter
-     */
-    filterUpdate: function (filter) {
-        if (!this.getFilter()) {
-            return;
-        }
-        var filterElm = this.getFilter().down('[name="filter"]'),
-            emptyText = this.getFilter().down('[name="empty-text"]'),
-            clearFilterBtn = this.getFilter().down('button[action="clearfilter"]'),
-            buttons = [];
+            groupStore.on('load', function () {
+                self.setGrouping();
+            }, self, {single: true});
 
             widget = Ext.widget('issues-overview');
             self.getApplication().fireEvent('changecontentevent', widget);
@@ -163,9 +141,8 @@ Ext.define('Isu.controller.Issues', {
             self.extraParamsModel = extraParamsModel;
 
             self.getFilteringToolbar().addFilterButtons(extraParamsModel.get('filter'));
-            self.setFilterForm();
             self.getSortingToolbar().addSortButtons(extraParamsModel.get('sort'));
-            self.setGrouping();
+            self.setFilterForm();
         });
     },
 
