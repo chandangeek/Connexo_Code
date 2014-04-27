@@ -57,6 +57,8 @@ Ext.define('Uni.util.Hydrator', {
     /**
      * Hydrates data to the provided object
      *
+     * todo: replace on promises
+     *
      * @param data
      * @param object
      * @param callback
@@ -72,7 +74,6 @@ Ext.define('Uni.util.Hydrator', {
 
         var count = _.keys(associationData).length;
         var complete = function() {
-            console.log(count);
             if (--count == 0) {
                 callback(object);
             }
