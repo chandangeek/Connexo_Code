@@ -171,7 +171,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         PartialScheduledConnectionTask partialScheduledConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialScheduledConnectionTask.getId()).thenReturn(PARTIAL_SCHEDULED_CONNECTION_TASK3_ID);
         when(partialScheduledConnectionTask.getName()).thenReturn("testCreateOfDifferentConfig");
-        when(partialScheduledConnectionTask.getConfiguration()).thenReturn(mockCommunicationConfig);
+        when(partialScheduledConnectionTask.getConfiguration()).thenReturn(deviceConfiguration);
         when(partialScheduledConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
 
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateOfDifferentConfig", partialScheduledConnectionTask);

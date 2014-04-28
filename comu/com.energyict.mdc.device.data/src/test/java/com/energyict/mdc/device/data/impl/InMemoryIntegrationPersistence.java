@@ -157,11 +157,11 @@ public class InMemoryIntegrationPersistence {
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
+            this.taskService = injector.getInstance(TaskService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineModelService = injector.getInstance(EngineModelService.class);
             this.relationService = injector.getInstance(RelationService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-            this.taskService = injector.getInstance(TaskService.class);
             this.dataModel = this.createNewDeviceDataService();
             ctx.commit();
         }

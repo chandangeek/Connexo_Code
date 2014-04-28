@@ -608,6 +608,11 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
+    public void setMaxNumberOfTries(int maxNumberOfTries) {
+        this.maxNumberOfTries = maxNumberOfTries;
+    }
+
+    @Override
     protected Class<PartialScheduledConnectionTask> getPartialConnectionTaskType () {
         return PartialScheduledConnectionTask.class;
     }

@@ -246,4 +246,41 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      */
     public void resume();
 
+    /**
+     * Gets the {@link SuccessIndicator} of this ConnectionTask.
+     *
+     * @return The SuccessIndicator
+     */
+    public SuccessIndicator getSuccessIndicator ();
+
+    /**
+     * Gets the {@link ComSession.SuccessIndicator} of this ConnectionTask's
+     * last {@link ComSession} or <code>null</code> if this ConnectionTask
+     * has never before been executed and therefore no ComSession exists.
+     *
+     * @return The SuccessIndicator of the last ComSession or <code>null</code>
+     *         if there is no ComSession yet
+     */
+    public ComSession.SuccessIndicator getLastSuccessIndicator ();
+
+    /**
+     * Gets the {@link TaskExecutionSummary} of this ConnectionTask's
+     * last {@link ComSession} or <code>null</code> if this ConnectionTask
+     * has never before been executed and therefore no ComSession exists.
+     *
+     * @return The TaskExecutionSummary of the last ComSession or <code>null</code>
+     *         if there is no ComSession yet
+     */
+    public TaskExecutionSummary getLastTaskExecutionSummary ();
+
+    /**
+     * Gets this ConnectionTask's last {@link ComSession} or <code>null</code>
+     * if there are no ComSessions yet.
+     *
+     * @return The last ComSession or <code>null</code>
+     */
+    public ComSession getLastComSession ();
+
+    public void save();
+
 }

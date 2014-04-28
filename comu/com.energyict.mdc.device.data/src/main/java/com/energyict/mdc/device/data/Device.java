@@ -10,9 +10,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -27,8 +24,6 @@ import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.scheduling.TemporalExpression;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.protocols.mdc.inbound.general.InboundConnection;
 
 import java.util.Date;
 import java.util.List;

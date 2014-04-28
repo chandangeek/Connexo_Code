@@ -40,6 +40,8 @@ import java.util.List;
  */
 public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialScheduledConnectionTask> {
 
+    public void setMaxNumberOfTries(int maxNumberOfTries);
+
     /**
      * Gets the time window during which communication with the device
      * is allowed or <code>null</code> if the {@link ConnectionType}

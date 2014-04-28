@@ -33,6 +33,8 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ComTaskEnablement;
@@ -897,6 +899,15 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Override
     public String getmRID() {
         return mRID;
+=======
+    public String getExternalName() {
+        return mRID;
+    }
+
+    @Override
+    public void setExternalName(String externalName) {
+        this.mRID = externalName;
+>>>>>>> Temporary merge branch 2
     }
 
     @Override

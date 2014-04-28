@@ -50,9 +50,9 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.column("NAME").varChar(80).notNull().map(DeviceFields.NAME.fieldName()).add();
             // TODO rename the column to serialNumber
-            table.column("DEVICENAME").varChar(80).map("serialNumber").add();
-            table.column("TIMEZONE").varChar(32).map("timeZoneId").add();
-            Column externid = table.column("EXTERNID").varChar(255).map("mRID").add();
+            table.column("DEVICENAME").varChar(80).map(DeviceFields.SERIALNUMBER.fieldName()).add();
+            table.column("TIMEZONE").varChar(32).map(DeviceFields.TIMEZONE.fieldName()).add();
+            Column externid = table.column("EXTERNID").varChar(255).map(DeviceFields.MRID.fieldName()).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CERTIF_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("yearOfCertification").add();
             Column deviceConfigId = table.column("DEVICECONFIGID").number().add();

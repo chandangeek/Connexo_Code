@@ -27,6 +27,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
@@ -342,8 +343,8 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     private void collectComTaskWithDefaultConnectionTaskForCompleteTopology(Device device, List<ComTaskExecution> scheduledComTasks, ConnectionTask connectionTask) {
         Condition query = Where.where(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).isEqualTo(true)
                 .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device)
-                .and((where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNull())
-                        .or(where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNotEqual(connectionTask))));
+                        .and((where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNull())
+                                .or(where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNotEqual(connectionTask))));
         List<ComTaskExecution> comTaskExecutions = this.dataModel.mapper(ComTaskExecution.class).select(query);
         scheduledComTasks.addAll(comTaskExecutions);
         for (Object physicalConnectedDevice : device.getPhysicalConnectedDevices()) {
@@ -544,7 +545,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     @Override
     public Device findByUniqueMrid(String mrId) {
-        return dataModel.mapper(Device.class).getUnique("mRID", mrId).orNull();
+        return dataModel.mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mrId).orNull();
     }
 
     @Override
