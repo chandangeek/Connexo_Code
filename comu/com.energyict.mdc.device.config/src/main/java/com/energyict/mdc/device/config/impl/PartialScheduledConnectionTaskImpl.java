@@ -18,12 +18,11 @@ import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import org.joda.time.DateTimeConstants;
-
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.NotNull;
+import org.joda.time.DateTimeConstants;
 
 
 /**
@@ -153,7 +152,16 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
 
         @Override
         public boolean isValid(PartialScheduledConnectionTaskImpl value, ConstraintValidatorContext context) {
-            return !ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(value.getConnectionStrategy()) || value.getNextExecutionSpecs() != null;
+            if (value.getConnectionStrategy()!=null) {
+                if ((ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(value.connectionStrategy) && value.getNextExecutionSpecs()!=null)
+                    || (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(value.connectionStrategy) && value.getNextExecutionSpecs()==null)) {
+                    context.disableDefaultConstraintViolation();
+                    context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS_KEY+"}")
+                            .addPropertyNode(Fields.NEXT_EXECUTION_SPECS.fieldName()).addConstraintViolation();
+                    return false;
+                }
+            }
+            return true;
         }
     }
 

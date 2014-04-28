@@ -26,6 +26,18 @@ import javax.validation.constraints.NotNull;
  */
 public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectionTaskImpl implements PartialOutboundConnectionTask {
 
+    enum Fields {
+        NEXT_EXECUTION_SPECS("nextExecutionSpecs");
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
     @Valid
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
 

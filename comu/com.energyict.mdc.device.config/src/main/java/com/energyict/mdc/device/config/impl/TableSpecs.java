@@ -224,7 +224,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add(); // TODO remove map when enabling foreign key constraint
             table.column("DEVICEPROTOCOLDIALECT").varChar(255).notNull().map("protocolDialectName").add();
-            table.column("MOD_DATE").type("DATE").map("modDate").add();
+            table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map("modDate").add();
             table.column("NAME").varChar(255).notNull().map("name").add();
             table.foreignKey("FK_MDCDEVICECONFIG_CONFIGID").on(deviceConfiguration).references(MDCDEVICECOMMCONFIG.name()).map("deviceCommunicationConfiguration").reverseMap("configurationPropertiesList").onDelete(CASCADE).composition().add();
             table.primaryKey("PK_MDCDIALECTCONFIGPROPS").on(id).add();
