@@ -2,7 +2,7 @@ Ext.define('Isu.view.workspace.issues.Detail', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.issue-detail',
     tpl: new Ext.XTemplate(
-        '<h1>{reason.name}<tpl if="device"> to {device.name} {device.serialNumber}</tpl></h1>',
+        '<h1>{reason.name}<tpl if="device"> to {device.serialNumber}</tpl></h1>',
         '<h3 class="isu-subheader">Details</h3>',
         '<table class="isu-item-data-table">',
         '<tr>',
@@ -31,7 +31,7 @@ Ext.define('Isu.view.workspace.issues.Detail', {
         '</tr>',
         '<tr>',
         '<td><b>Device:</b></td>',
-        '<td colspan="3"><tpl if="device">{device.name} {device.serialNumber}</tpl></td>',
+        '<td colspan="3"><tpl if="device">{device.serialNumber}</tpl></td>',
         '</tr>',
         '<tr>',
         '<td><b>Service category:</b></td>',

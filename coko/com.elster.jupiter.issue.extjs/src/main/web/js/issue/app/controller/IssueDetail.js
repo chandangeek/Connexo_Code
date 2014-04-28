@@ -16,10 +16,6 @@ Ext.define('Isu.controller.IssueDetail', {
 
     refs: [
         {
-            ref: 'detailPanel',
-            selector: 'issue-detail-overview issue-detail'
-        },
-        {
             ref: 'commentsPanel',
             selector: 'issue-detail-overview issue-comments'
         },
@@ -60,8 +56,8 @@ Ext.define('Isu.controller.IssueDetail', {
     showOverview: function (issueId, showCommentForm) {
         var self = this,
             widget = Ext.widget('issue-detail-overview'),
-            issueDetailModel = self.getModel('Isu.model.Issues'),
-            detailPanel = self.getDetailPanel();
+            detailPanel = widget.down('issue-detail'),
+            issueDetailModel = self.getModel('Isu.model.Issues');
 
         self.commentsAPI = '/api/isu/issue/' + issueId + '/comments';
 
@@ -69,9 +65,14 @@ Ext.define('Isu.controller.IssueDetail', {
 
         issueDetailModel.load(issueId, {
             success: function (record) {
-                self.detailData = detailPanel.data = record.data;
+                var data = record.getData();
+
+                detailPanel.update(data);
                 self.loadComments();
                 self.getApplication().fireEvent('changecontentevent', widget);
+            },
+            failure: function () {
+                window.location.href = '#/workspace/datacollection/issues';
             }
         });
     },

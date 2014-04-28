@@ -41,7 +41,7 @@ Ext.define('Isu.view.workspace.issues.Item', {
                         {
                             xtype: 'container',
                             flex: 1,
-                            html: record.data.reason.name + (record.data.device ? ' to ' + record.data.device.name + ' ' + record.data.device.serialNumber : '')
+                            html: record.data.reason.name + (record.data.device ? ' to ' + record.data.device.serialNumber : '')
                         },
                         {
                             xtype: 'item-action',
@@ -83,7 +83,7 @@ Ext.define('Isu.view.workspace.issues.Item', {
                         '</tr>',
                         '<tr>',
                         '<td><b>Device:</b></td>',
-                        '<td colspan="3"><tpl if="device"><span>{device.name} {device.serialNumber}</span> <span class="isu-icon-filter isu-apply-filter" data-filterType="meter" data-filterValue="{device.id}"></span></tpl></td>',
+                        '<td colspan="3"><tpl if="device"><span>{device.serialNumber}</span> <span class="isu-icon-filter isu-apply-filter" data-filterType="meter" data-filterValue="{device.id}"></span></tpl></td>',
                         '</tr>',
                         '<tr>',
                         '<td><b>Service category:</b></td>',
