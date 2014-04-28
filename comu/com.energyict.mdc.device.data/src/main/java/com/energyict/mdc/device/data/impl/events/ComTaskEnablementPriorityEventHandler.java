@@ -13,7 +13,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-24 (11:51)
  */
-@Component(name="com.energyict.mdc.device.data.delete.comtaskenablement.eventhandler", service = TopicHandler.class, immediate = true)
+@Component(name="com.energyict.mdc.device.data.update.comtaskenablement.priority.eventhandler", service = TopicHandler.class, immediate = true)
 public class ComTaskEnablementPriorityEventHandler extends EventHandler<LocalEvent> {
 
     private static final String TOPIC = "com/energyict/mdc/device/config/comtaskenablement/PRIORITY_UPDATED";
