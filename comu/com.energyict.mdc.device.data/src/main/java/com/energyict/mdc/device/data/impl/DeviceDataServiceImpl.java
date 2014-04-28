@@ -62,6 +62,7 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -667,6 +668,11 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
                         .and(Where.where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()));
     }
 
+    @Override
+    public List<ComTask> findAvailableComTasksForComSchedule(ComSchedule comSchedule) {
+//        return this.dataModel.query(ComTask.class)
+//                .select(Where.where(ComTask));
+    }
 
     @Override
     public Date getPlannedDate(ComSchedule comSchedule) {
