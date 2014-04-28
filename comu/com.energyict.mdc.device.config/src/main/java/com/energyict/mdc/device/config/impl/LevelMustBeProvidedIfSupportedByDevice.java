@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {SecurityPropertySetImpl.LevelsAreSupportedValidator.class})
 public @interface LevelMustBeProvidedIfSupportedByDevice {
 
-    String message() default "{" + MessageSeeds.Constants.UNSUPPORTED_SECURITY_LEVEL_KEY + "}";
+    String message() default "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}";
 
     Class<?>[] groups() default {};
 

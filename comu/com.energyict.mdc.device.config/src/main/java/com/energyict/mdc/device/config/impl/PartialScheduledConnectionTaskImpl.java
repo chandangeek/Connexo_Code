@@ -24,6 +24,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.NotNull;
 import org.joda.time.DateTimeConstants;
+import org.joda.time.DateTimeConstants;
 
 
 /**
@@ -39,7 +40,7 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     private ComWindow comWindow;
     private int comWindowStart;
     private int comWindowEnd;
-    @NotNull(message = '{' + MessageSeeds.Constants.CONNECTION_STRATEGY_REQUIRED_KEY + '}', groups = {Save.Create.class, Save.Update.class})
+    @NotNull(message = '{' + MessageSeeds.Keys.CONNECTION_STRATEGY_REQUIRED + '}', groups = {Save.Create.class, Save.Update.class})
     private ConnectionStrategy connectionStrategy;
     private boolean allowSimultaneousConnections;
     private Reference<PartialConnectionInitiationTask> initiator = ValueReference.absent();
@@ -153,7 +154,17 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
 
         @Override
         public boolean isValid(PartialScheduledConnectionTaskImpl value, ConstraintValidatorContext context) {
-            return !ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(value.getConnectionStrategy()) || value.getNextExecutionSpecs() != null;
+            if (value.getConnectionStrategy()!=null) {
+                if ((ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(value.connectionStrategy) && value.getNextExecutionSpecs()!=null)
+                    || (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(value.connectionStrategy) && value.getNextExecutionSpecs()==null)) {
+                    context.disableDefaultConstraintViolation();
+                    context.
+                        buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS + "}").
+                        addPropertyNode(Fields.NEXT_EXECUTION_SPECS.fieldName()).addConstraintViolation();
+                    return false;
+                }
+            }
+            return true;
         }
     }
 

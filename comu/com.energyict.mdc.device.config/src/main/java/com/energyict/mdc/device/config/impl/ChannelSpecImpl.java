@@ -46,18 +46,18 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     private final DeviceConfigurationService deviceConfigurationService;
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.CHANNEL_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY + "}")
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_REGISTER_MAPPING_IS_REQUIRED + "}")
     private final Reference<RegisterMapping> registerMapping = ValueReference.absent();
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.CHANNEL_SPEC_PHENOMENON_IS_REQUIRED_KEY + "}")
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_PHENOMENON_IS_REQUIRED + "}")
     private final Reference<Phenomenon> phenomenon = ValueReference.absent();
     private final Reference<LoadProfileSpec> loadProfileSpec = ValueReference.absent();
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.CHANNEL_SPEC_READING_METHOD_IS_REQUIRED_KEY + "}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_READING_METHOD_IS_REQUIRED + "}")
     private ReadingMethod readingMethod = ReadingMethod.ENGINEERING_UNIT;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED_KEY + "}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED + "}")
     private ValueCalculationMethod valueCalculationMethod = ValueCalculationMethod.AUTOMATIC;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED_KEY + "}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED + "}")
     private MultiplierMode multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN_KEY + "}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN + "}")
     private BigDecimal multiplier = BigDecimal.ONE;
     private int nbrOfFractionDigits = 0;
     private String overruledObisCodeString;

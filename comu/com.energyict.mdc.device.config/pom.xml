@@ -46,6 +46,11 @@
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
+      <artifactId>mdc.tasks</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
       <artifactId>mdc.protocol.pluggable</artifactId>
       <version>${project.version}</version>
     </dependency>

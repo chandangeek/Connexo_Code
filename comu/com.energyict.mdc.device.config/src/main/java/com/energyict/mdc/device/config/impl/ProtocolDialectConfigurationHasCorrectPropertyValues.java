@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {ProtocolDialectConfigurationPropertiesImpl.PropertyValueValidator.class })
 public @interface ProtocolDialectConfigurationHasCorrectPropertyValues {
 
-    String message() default "{" + MessageSeeds.Constants.PROTOCOLDIALECT_CONF_PROPS_MISSING_REQUIRED + "}";
+    String message() default "{" + MessageSeeds.Keys.PROTOCOLDIALECT_CONF_PROPS_MISSING_REQUIRED + "}";
 
     Class<?>[] groups() default { };
 

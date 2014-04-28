@@ -107,7 +107,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     public void createWithoutNameTest() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration("");
         deviceConfigurationBuilder.add();
@@ -116,7 +116,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}",property = "name")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}",property = "name")
     public void createWithWhiteSpaceNameTest() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration(" ");
         deviceConfigurationBuilder.add();
@@ -125,7 +125,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_UNIQUE_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_UNIQUE + "}")
     public void duplicateNameTest() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder1 = this.deviceType.newConfiguration("DeviceConfiguration");
         deviceConfigurationBuilder1.add();
@@ -345,7 +345,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED+"}", property = "isDirectlyAddressable")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED+"}", property = "isDirectlyAddressable")
     public void testSetDeviceConfigDirectlyAddressableWhenProtocolDoesNotAllowIt() throws Exception {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Collections.<DeviceProtocolCapabilities>emptyList());
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("direct address").add();
@@ -355,7 +355,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.DEVICE_CONFIG_GATEWAY_NOT_ALLOWED+"}", property = "canActAsGateway")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.DEVICE_CONFIG_GATEWAY_NOT_ALLOWED+"}", property = "canActAsGateway")
     public void testSetDeviceConfigGatewayWhenProtocolDoesNotAllowIt() throws Exception {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Collections.<DeviceProtocolCapabilities>emptyList());
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("gateway").add();

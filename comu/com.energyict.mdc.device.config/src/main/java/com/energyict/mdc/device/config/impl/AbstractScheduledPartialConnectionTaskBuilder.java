@@ -1,15 +1,12 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.NextExecutionSpecBuilder;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.TemporalExpression;
 
 /**
  * Copyrights EnergyICT
@@ -25,6 +22,8 @@ public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends
     AbstractScheduledPartialConnectionTaskBuilder(Class<?> selfType, DataModel dataModel, DeviceCommunicationConfiguration configuration, SchedulingService schedulingService) {
         super(selfType, dataModel, configuration);
         this.schedulingService = schedulingService;
+    AbstractScheduledPartialConnectionTaskBuilder(Class<?> selfType, DataModel dataModel, DeviceCommunicationConfigurationImpl configuration) {
+        super(dataModel.getInstance(EventService.class), selfType, dataModel, configuration);
     }
 
     @Override

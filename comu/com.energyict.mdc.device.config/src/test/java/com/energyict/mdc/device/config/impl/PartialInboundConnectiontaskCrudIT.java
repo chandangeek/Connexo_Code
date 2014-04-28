@@ -57,6 +57,8 @@ import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.LicenseServer;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.base.Optional;
@@ -165,6 +167,7 @@ public class PartialInboundConnectiontaskCrudIT {
                 new OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
+                new TasksModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
@@ -185,6 +188,7 @@ public class PartialInboundConnectiontaskCrudIT {
             inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
+            injector.getInstance(TaskService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }
@@ -253,10 +257,8 @@ public class PartialInboundConnectiontaskCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            inboundConnectionTask = deviceConfiguration.createPartialInboundConnectionTask()
-                    .name("MyInbound")
+            inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
-                    .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true).build();
             deviceConfiguration.save();
 
@@ -292,10 +294,8 @@ public class PartialInboundConnectiontaskCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            inboundConnectionTask = deviceConfiguration.createPartialInboundConnectionTask()
-                    .name("MyInbound")
+            inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
-                    .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true).build();
             deviceConfiguration.save();
 
@@ -341,10 +341,8 @@ public class PartialInboundConnectiontaskCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            inboundConnectionTask = deviceConfiguration.createPartialInboundConnectionTask()
-                    .name("MyInbound")
+            inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
-                    .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true).build();
             deviceConfiguration.save();
 
@@ -365,7 +363,7 @@ public class PartialInboundConnectiontaskCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC_KEY + '}')
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC + '}')
     public void testCreateWithUnspeccedProperty() {
 
         PartialInboundConnectionTaskImpl inboundConnectionTask;
@@ -380,10 +378,8 @@ public class PartialInboundConnectiontaskCrudIT {
             communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
             communicationConfiguration.save();
 
-            inboundConnectionTask = communicationConfiguration.createPartialInboundConnectionTask()
-                    .name("MyInbound")
+            inboundConnectionTask = communicationConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
-                    .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true)
                     .addProperty("unspecced", true)
                     .build();
@@ -394,7 +390,7 @@ public class PartialInboundConnectiontaskCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.NAME_UNIQUE_KEY + '}')
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.NAME_UNIQUE + '}')
     public void testCreateWithDuplicateName() {
 
         PartialInboundConnectionTaskImpl inboundConnectionTask;
@@ -405,17 +401,13 @@ public class PartialInboundConnectiontaskCrudIT {
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            inboundConnectionTask = deviceConfiguration.createPartialInboundConnectionTask()
-                    .name("MyInbound")
+            inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
-                    .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true).build();
             deviceConfiguration.save();
 
-            inboundConnectionTask = deviceConfiguration.createPartialInboundConnectionTask()
-                    .name("MyInbound")
+            inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
-                    .pluggableClass(connectionTypePluggableClass)
                     .asDefault(true).build();
             deviceConfiguration.save();
 

@@ -5,6 +5,7 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.tasks.ComTask;
 
 import java.util.List;
 import java.util.Set;
@@ -118,4 +119,5 @@ public interface DeviceConfiguration extends HasId, DeviceCommunicationConfigura
     public void setCanBeDirectlyAddressed(boolean canBeDirectlyAddressed);
 
     //TODO we remove 'CreateDeviceTransaction' and 'DeviceConfigurationChanges' from the API, must be included when time comes ...
+
 }

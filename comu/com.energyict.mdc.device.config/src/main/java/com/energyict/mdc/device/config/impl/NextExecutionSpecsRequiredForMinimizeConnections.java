@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {PartialScheduledConnectionTaskImpl.NextExecutionSpecValidator.class})
 public @interface NextExecutionSpecsRequiredForMinimizeConnections {
 
-    String message() default '{' + MessageSeeds.Constants.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS_KEY + '}';
+    String message() default '{' + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS + '}';
 
     Class<?>[] groups() default {};
 

@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {PartialConnectionTaskImpl.ValueValidator.class})
 public @interface PartialConnectionTaskPropertyValueHasCorrectType {
 
-    String message() default "{" + MessageSeeds.Constants.PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE_KEY + "}";
+    String message() default "{" + MessageSeeds.Keys.PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE + "}";
 
     Class<?>[] groups() default {};
 

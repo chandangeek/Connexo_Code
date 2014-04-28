@@ -27,6 +27,18 @@ import javax.validation.constraints.NotNull;
  */
 public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectionTaskImpl implements PartialOutboundConnectionTask {
 
+    enum Fields {
+        NEXT_EXECUTION_SPECS("nextExecutionSpecs");
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
     private final SchedulingService schedulingService;
     @Valid
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
@@ -34,8 +46,8 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
     /**
      * Defines the delay to wait before retrying when this connectionTask failed
      */
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Constants.UNDER_MINIMUM_RESCHEDULE_DELAY_KEY + '}')
-    @MinTimeDuration(value = 60, groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Constants.UNDER_MINIMUM_RESCHEDULE_DELAY_KEY + '}')
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.UNDER_MINIMUM_RESCHEDULE_DELAY + '}')
+    @MinTimeDuration(value = 60, groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.UNDER_MINIMUM_RESCHEDULE_DELAY + '}')
     private TimeDuration rescheduleRetryDelay;
 
     PartialOutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {

@@ -60,19 +60,23 @@ public abstract class PersistentIdObject<T> {
     }
 
     private void notifyCreated() {
-        this.eventService.postEvent(this.createEventType().topic(), this);
+        this.getEventService().postEvent(this.createEventType().topic(), this);
+    }
+
+    protected EventService getEventService() {
+        return this.eventService;
     }
 
     protected abstract CreateEventType createEventType();
 
     private void notifyUpdated() {
-        this.eventService.postEvent(this.updateEventType().topic(), this);
+        this.getEventService().postEvent(this.updateEventType().topic(), this);
     }
 
     protected abstract UpdateEventType updateEventType();
 
     private void notifyDeleted() {
-        this.eventService.postEvent(this.deleteEventType().topic(), this);
+        this.getEventService().postEvent(this.deleteEventType().topic(), this);
     }
 
     protected abstract DeleteEventType deleteEventType();

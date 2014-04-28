@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
 import com.energyict.mdc.scheduling.SchedulingService;
 

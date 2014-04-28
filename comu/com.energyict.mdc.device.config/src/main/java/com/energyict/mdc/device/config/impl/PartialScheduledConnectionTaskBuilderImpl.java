@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
 import com.energyict.mdc.scheduling.SchedulingService;
 
@@ -63,7 +62,9 @@ public class PartialScheduledConnectionTaskBuilderImpl extends AbstractScheduled
     void populate(PartialScheduledConnectionTaskImpl instance) {
         super.populate(instance);
         instance.setDefault(asDefault);
-        instance.setComWindow(comWindow);
+        if (comWindow != null) {
+            instance.setComWindow(comWindow);
+        }
         instance.setConnectionStrategy(connectionStrategy);
         instance.setAllowSimultaneousConnections(allowSimultaneousConnections);
         instance.setInitiationTask(partialConnectionInitiationTask);
