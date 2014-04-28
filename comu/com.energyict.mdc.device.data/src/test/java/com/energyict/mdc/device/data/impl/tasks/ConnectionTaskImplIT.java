@@ -15,7 +15,7 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TemporalExpression;
-import com.energyict.mdc.device.data.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
@@ -36,6 +36,7 @@ import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.tasks.ComTask;
+import com.google.common.base.Optional;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -470,10 +471,11 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private ComTaskEnablement createMockedComTaskEnablement(boolean useDefault, ProtocolDialectConfigurationProperties configDialect, ComTask comTask) {
+        Optional<ProtocolDialectConfigurationProperties> optionalConfigDialect = Optional.fromNullable(configDialect);
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(configDialect);
-        when(comTaskEnablement.useDefaultConnectionTask()).thenReturn(useDefault);
+        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(optionalConfigDialect);
+        when(comTaskEnablement.usesDefaultConnectionTask()).thenReturn(useDefault);
         when(comTaskEnablement.getPriority()).thenReturn(comTaskEnablementPriority);
         return comTaskEnablement;
     }

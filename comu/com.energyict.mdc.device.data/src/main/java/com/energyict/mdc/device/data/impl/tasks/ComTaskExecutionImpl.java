@@ -17,7 +17,7 @@ import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.config.TemporalExpression;
-import com.energyict.mdc.device.data.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.ComTaskExecutionDependant;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -166,8 +166,8 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
         this.executionPriority = comTaskEnablement.getPriority();
         this.priority = comTaskEnablement.getPriority();
-        setUseDefaultConnectionTask(comTaskEnablement.useDefaultConnectionTask());
-        this.protocolDialectConfigurationProperties.set(comTaskEnablement.getProtocolDialectConfigurationProperties());
+        setUseDefaultConnectionTask(comTaskEnablement.usesDefaultConnectionTask());
+        this.protocolDialectConfigurationProperties.set(comTaskEnablement.getProtocolDialectConfigurationProperties().orNull());
         return this;
     }
 
