@@ -4,7 +4,10 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.pubsub.EventHandler;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Handles delete events that are being sent when a {@link ComTaskEnablement}
@@ -19,8 +22,15 @@ public class ComTaskEnablementDeletionHandler extends EventHandler<LocalEvent> {
 
     private static final String TOPIC = "com/energyict/mdc/device/config/comtaskenablement/VALIDATEDELETE";
 
+    private volatile ServerDeviceDataService deviceDataService;
+
     protected ComTaskEnablementDeletionHandler() {
         super(LocalEvent.class);
+    }
+
+    @Reference
+    public void setDeviceDataService(DeviceDataService deviceDataService) {
+        this.deviceDataService = (ServerDeviceDataService) deviceDataService;
     }
 
     @Override
