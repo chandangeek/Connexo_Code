@@ -395,7 +395,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS_KEY+"}", property = "nextExecutionSpecs")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS + "}", property = "nextExecutionSpecs")
     public void testCanNotCreateConnectionTaskWithNextExecutionSpecIfAsSoonAsPossible() {
 
         try (TransactionContext context = transactionService.getContext()) {
