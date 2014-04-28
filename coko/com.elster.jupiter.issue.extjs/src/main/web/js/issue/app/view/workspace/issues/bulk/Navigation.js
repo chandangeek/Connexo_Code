@@ -12,7 +12,7 @@ Ext.define('Isu.view.workspace.issues.bulk.Navigation', {
 
     items: [
         {
-            xtype: 'step-panel',
+      //      xtype: 'step-panel',
             text: '10'
         //    baseCls: 'isu-bulk-navigation-btns',
         //    disabledCls: 'disabled-bulk-navigation-btns',
