@@ -37,8 +37,6 @@ import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.List;
-
 import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
