@@ -106,7 +106,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
     }
 
     private ComTaskEnablement createMockedComTaskEnablement(boolean useDefault) {
-        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.createProtocolDialectConfigurationProperties("MyConfigDialect", new ComTaskExecutionDialect());
+        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
         deviceConfiguration.save();
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         ComTask comTaskWithBasicCheck = createComTaskWithBasicCheck();
@@ -144,12 +144,8 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ConnectionTypePluggableClass connectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService()
                 .newConnectionTypePluggableClass(NoParamsConnectionType.class.getSimpleName(), NoParamsConnectionType.class.getName());
         connectionTypePluggableClass.save();
-        return deviceConfiguration.getCommunicationConfiguration().createPartialOutboundConnectionTask().
-                name("Outbound (1)").
+        return deviceConfiguration.getCommunicationConfiguration().newPartialScheduledConnectionTask("Outbound (1)", connectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                 comWindow(new ComWindow(0, 7200)).
-                rescheduleDelay(TimeDuration.minutes(5)).
-                connectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
-                pluggableClass(connectionTypePluggableClass).
                 build();
     }
 
