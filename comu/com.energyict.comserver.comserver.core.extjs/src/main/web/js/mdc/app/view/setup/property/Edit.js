@@ -12,8 +12,10 @@ Ext.define('Mdc.view.setup.property.Edit', {
         'Mdc.view.setup.property.CodeTable',
         'Mdc.view.setup.property.UserFileReference',
         'Mdc.view.setup.property.LoadProfileType',
-        'Mdc.widget.TimeInfoField'
+        'Mdc.widget.TimeInfoField',
+        'Mdc.view.setup.property.DefaultButton'
     ],
+    fieldMargin: '0 0 0 0',
 
     initComponent: function () {
         this.items = [
@@ -31,7 +33,14 @@ Ext.define('Mdc.view.setup.property.Edit', {
 
                 },
                 items: [
-
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'propertiesTitle',
+                        fieldLabel: this.propertiesTitle,
+                        labelStyle: 'font-size: 17px;',
+                        width: 395,
+                        hidden: true
+                    }
                 ]
             }
         ];
@@ -47,7 +56,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'textfield',
@@ -60,15 +69,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     margin: '0 0 5 0 '
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
-                    margin: '0 0 5 5',
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]
@@ -83,7 +85,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'textfield',
@@ -98,14 +100,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     msgTarget: 'under'
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]
@@ -120,7 +116,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'textfield',
@@ -135,14 +131,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     msgTarget: 'under'
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]
@@ -157,7 +147,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'textareafield',
@@ -173,14 +163,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     msgTarget: 'under'
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]
@@ -195,7 +179,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'numberfield',
@@ -215,14 +199,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     msgTarget: 'under'
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]
@@ -238,7 +216,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'checkbox',
@@ -250,14 +228,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     cls: 'check'
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]
@@ -273,7 +245,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'radiogroup',
@@ -309,14 +281,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     ]
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]
@@ -332,7 +298,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'datefield',
@@ -345,14 +311,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     margin: '0 5 5 0'
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]
@@ -368,7 +328,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'timefield',
@@ -380,14 +340,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     margin: '0 5 5 0'
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]
@@ -403,7 +357,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'datefield',
@@ -425,14 +379,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     margin: '0 5 5 0'
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]
@@ -448,7 +396,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'numberfield',
@@ -475,16 +423,9 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     forceSelection: false
 
                 },
-
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]
@@ -514,7 +455,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'textfield',
@@ -558,7 +499,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'textfield',
@@ -579,14 +520,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     margin: '0 5 5 0'
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]
@@ -602,7 +537,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'textfield',
@@ -623,14 +558,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     margin: '0 5 5 0'
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]
@@ -646,7 +575,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'combobox',
@@ -664,14 +593,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     forceSelection: exhaustive
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]
@@ -687,7 +610,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'combobox',
@@ -706,14 +629,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     forceSelection: exhaustive
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]
@@ -729,7 +646,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'textfield',
@@ -743,14 +660,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     vtype: 'ean18'
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]
@@ -766,7 +677,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             defaults: {
                 hideLabel: true
             },
-            margin: '0 0 5 0 ',
+            margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'textfield',
@@ -780,14 +691,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     vtype: 'ean13'
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
+                    xtype: 'defaultButton',
+                    key: key,
                     hidden: hidden
                 }
             ]

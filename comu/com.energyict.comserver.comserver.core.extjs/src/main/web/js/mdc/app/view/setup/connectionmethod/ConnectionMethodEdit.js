@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 xtype: 'form',
                                 border: false,
                                 itemId: 'connectionMethodEditForm',
-                                padding: '10 10 0 10',
+//                                padding: '10 10 0 10',
                                 layout: {
                                     type: 'vbox',
                                     align: 'stretch'
@@ -150,7 +150,27 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                         name: 'isDefault',
                                         fieldLabel: 'isDefault',
                                         itemId: 'isDefault'
-                                    },
+                                    }
+
+                                ]
+                            },
+                            {
+                                xtype: 'propertyEdit',
+                                propertiesTitle: Uni.I18n.translate('connectionmethod.connectionDetails', 'MDC', 'Connection details')
+                            },
+                            {
+                                xtype: 'form',
+                                border: false,
+                                itemId: 'connectionMethodEditButtonForm',
+                                padding: '0 0 0 10',
+                                layout: {
+                                    type: 'vbox',
+                                    align: 'stretch'
+                                },
+                                defaults:{
+                                    labelWidth: 250
+                                },
+                                items: [
                                     {
                                         xtype: 'fieldcontainer',
                                         fieldLabel: '&nbsp',
@@ -180,9 +200,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                         ]
                                     }
                                 ]
-                            },
-                            {
-                                xtype: 'propertyEdit'
                             }
 //                        ]
 //                    }

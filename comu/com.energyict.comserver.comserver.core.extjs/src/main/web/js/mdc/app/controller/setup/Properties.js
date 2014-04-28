@@ -107,11 +107,21 @@ Ext.define('Mdc.controller.setup.Properties', {
         var propertiesView = view.down('#propertyEdit');
 
         var propertiesForm = view.down('#propertiesform');
-        propertiesForm.removeAll();
+        var items = propertiesForm.items.items.slice(0);
+        Ext.each(items, function(child,index){
+                debugger;
+               if(index!==0){
+                   propertiesForm.remove(child);
+               }
+        });
 
         var properties = objectWithProperties.propertiesStore.data.items;
         me.propertiesStore = objectWithProperties.propertiesStore;
-
+        if(properties.length>0){
+            view.down('#propertiesform').down('#propertiesTitle').setVisible(true);
+        } else {
+            view.down('#propertiesform').down('#propertiesTitle').setVisible(false);
+        }
         properties.forEach(function (entry) {
                 var property = entry;
                 var propertyType = property.getPropertyType().data.simplePropertyType;
