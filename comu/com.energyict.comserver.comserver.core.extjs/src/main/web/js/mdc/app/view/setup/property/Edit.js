@@ -188,7 +188,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: key,
                     value: value,
                     size: 15,
-                    margin: '0 5 5 0',
+                    margin: '0 0 5 0',
                     width: 200,
                     hideTrigger: true,
                     keyNavEnabled: false,
@@ -418,8 +418,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     valueField: 'timeUnit',
                     value: unit,
                     size: 50,
-                    margin: '0 5 5 0',
-                    width: 200,
+                    margin: '0 0 5 0',
+                    width: 190,
                     forceSelection: false
 
                 },
@@ -588,8 +588,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     valueField: 'key',
                     value: selectedValue,
                     size: 50,
-                    margin: '0 5 5 0',
-                    width: 350,
+                    margin: '0 0 5 0',
+                    width: 390,
                     forceSelection: exhaustive
                 },
                 {
@@ -623,7 +623,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     valueField: 'value',
                     value: selectedValue,
                     size: 50,
-                    margin: '0 5 5 0',
+                    margin: '0 0 5 0',
                     width: 200,
                     fieldStyle: 'text-align:right;',
                     forceSelection: exhaustive
