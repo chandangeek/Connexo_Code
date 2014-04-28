@@ -8,7 +8,7 @@ Ext.define('Skyline.panel.StepPanel', {
 
     initComponent: function () {
         var me = this;
-        me.add([
+        /*me.add([
             {
                 name: 'step-button-side',
                 layout: {
@@ -37,7 +37,7 @@ Ext.define('Skyline.panel.StepPanel', {
                     align: 'left'
                 }
             }
-        ]);
+        ]);*/
         me.callParent(arguments)
     }
 
