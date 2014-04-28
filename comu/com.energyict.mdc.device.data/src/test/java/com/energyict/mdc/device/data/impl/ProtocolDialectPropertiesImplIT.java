@@ -94,6 +94,8 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     private static final String DIALECT_1_NAME = TestProtocolDialect1.class.getSimpleName();
     private static final String DIALECT_2_NAME = TestProtocolDialect2.class.getSimpleName();
 
+    private static final String MRID = "mRID";
+
     private static DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private static DeviceType deviceType;
     private static DeviceConfiguration deviceConfiguration;
@@ -123,13 +125,11 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
                     DeviceCommunicationConfiguration deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
                     deviceCommunicationConfiguration.save();
                     protocolDialect1ConfigurationProperties = deviceCommunicationConfiguration.
-                            createProtocolDialectConfigurationProperties(
-                                    DIALECT_1_NAME,
+                            findOrCreateProtocolDialectConfigurationProperties(
                                     new TestProtocolDialect1());
                     protocolDialect1ConfigurationProperties.save();
                     protocolDialect2ConfigurationProperties = deviceCommunicationConfiguration.
-                            createProtocolDialectConfigurationProperties(
-                                    DIALECT_2_NAME,
+                            findOrCreateProtocolDialectConfigurationProperties(
                                     new TestProtocolDialect2());
                     protocolDialect2ConfigurationProperties.save();
                     return null;
@@ -189,7 +189,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     @Test
     @Transactional
     public void createWithoutViolationsTest() throws BusinessException, SQLException {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "createWithoutViolationsTest");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "createWithoutViolationsTest", MRID);
         device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
 
         // Business method
@@ -209,7 +209,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     @Test
     @Transactional
     public void createAndReloadWithoutViolationsTest() throws BusinessException, SQLException {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "createAndReloadWithoutViolationsTest");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "createAndReloadWithoutViolationsTest", MRID);
         device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
         device.save();
         Device deviceReloaded = inMemoryPersistence.getDeviceDataService().findDeviceById(device.getId());
@@ -235,7 +235,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         protocolDialect1ConfigurationProperties.setProperty(REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
         protocolDialect1ConfigurationProperties.save();
 
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "createWithoutViolationsWhenRequiredPropertySpecifiedByInheritedPropertyTest");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "createWithoutViolationsWhenRequiredPropertySpecifiedByInheritedPropertyTest", MRID);
         device.setProtocolDialectProperty(DIALECT_1_NAME, OPTIONAL_PROPERTY_NAME_D1, OPTIONAL_PROPERTY_VALUE);
 
         // Business method
@@ -255,7 +255,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     @Test
     @Transactional
     public void findSingleDialectsForDeviceTest() throws BusinessException, SQLException {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "findSingleDialectsForDeviceTest");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "findSingleDialectsForDeviceTest", MRID);
         device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
         device.save();
 
@@ -275,7 +275,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     @Test
     @Transactional
     public void findAllDialectsForDeviceTest() throws BusinessException, SQLException {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "findAllDialectsForDeviceTest");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "findAllDialectsForDeviceTest", MRID);
         device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
         device.setProtocolDialectProperty(DIALECT_2_NAME, REQUIRED_PROPERTY_NAME_D2, REQUIRED_PROPERTY_VALUE);
         device.save();
@@ -296,7 +296,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     @Test
     @Transactional
     public void findNoDialectsForDevice() {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "findNoDialectsForDevice");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "findNoDialectsForDevice", MRID);
         device.save();
 
         // Business method
@@ -309,7 +309,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     @Test
     @Transactional
     public void findDialect() {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "findDialect");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "findDialect", MRID);
         device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
         device.save();
 
@@ -324,7 +324,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     @Test
     @Transactional
     public void findDialectThatDoesNotExist() {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "findDialectThatDoesNotExist");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "findDialectThatDoesNotExist", MRID);
         device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
         device.save();
 
@@ -343,7 +343,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         protocolDialect1ConfigurationProperties.save();
 
         // Business method
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "getPropertiesIncludingInheritedOnesTest");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "getPropertiesIncludingInheritedOnesTest", MRID);
         device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
         device.save();
         ProtocolDialectProperties protocolDialectProperties = device.getProtocolDialectProperties(DIALECT_1_NAME);
@@ -368,7 +368,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         protocolDialect1ConfigurationProperties.setProperty(OPTIONAL_PROPERTY_NAME_D1, INHERITED_OPTIONAL_PROPERTY_VALUE);
         protocolDialect1ConfigurationProperties.save();
 
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "testInheritedPropertiesAreOverriddenByLocalProperties");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "testInheritedPropertiesAreOverriddenByLocalProperties", MRID);
         // Override the optional property
         device.setProtocolDialectProperty(DIALECT_1_NAME, OPTIONAL_PROPERTY_NAME_D1, OPTIONAL_PROPERTY_VALUE);
 
@@ -390,7 +390,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     @Test(expected = ProtocolDialectConfigurationPropertiesIsRequiredException.class)
     @Transactional
     public void createWithNonExistingConfigurationPropertiesTest() throws SQLException, BusinessException {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "createWithNonExistingConfigurationPropertiesTest");
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "createWithNonExistingConfigurationPropertiesTest", MRID);
 
         // Business method
         device.setProtocolDialectProperty("DoesNotExist", REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);

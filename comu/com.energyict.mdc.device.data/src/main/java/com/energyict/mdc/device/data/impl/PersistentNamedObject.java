@@ -21,8 +21,8 @@ import static com.elster.jupiter.util.Checks.is;
  */
 public abstract class PersistentNamedObject<D> extends PersistentIdObject<D> {
 
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @Size(min = 1, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
 
     protected PersistentNamedObject(Class<D> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {

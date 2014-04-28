@@ -3,15 +3,12 @@ package com.energyict.mdc.device.data.impl.offline;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.RegisterGroup;
-import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.protocolimpl.itron.quantum1000.minidlms.RegisterMap;
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;

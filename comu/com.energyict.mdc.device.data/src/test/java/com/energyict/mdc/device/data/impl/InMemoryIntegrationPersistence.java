@@ -40,6 +40,8 @@ import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
@@ -92,6 +94,7 @@ public class InMemoryIntegrationPersistence {
     private Environment environment;
     private RelationService relationService;
     private EngineModelService engineModelService;
+    private MasterDataService masterDataService;
     private DeviceConfigurationService deviceConfigurationService;
     private MeteringService meteringService;
     private DataModel dataModel;
@@ -135,6 +138,7 @@ public class InMemoryIntegrationPersistence {
                 new PluggableModule(),
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
+                new MasterDataModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new TasksModule(),
@@ -152,6 +156,7 @@ public class InMemoryIntegrationPersistence {
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
+            this.masterDataService = injector.getInstance(MasterDataService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineModelService = injector.getInstance(EngineModelService.class);
             this.relationService = injector.getInstance(RelationService.class);
@@ -240,6 +245,10 @@ public class InMemoryIntegrationPersistence {
 
     public MeteringService getMeteringService() {
         return meteringService;
+    }
+
+    public MasterDataService getMasterDataService() {
+        return masterDataService;
     }
 
     public DeviceConfigurationService getDeviceConfigurationService() {

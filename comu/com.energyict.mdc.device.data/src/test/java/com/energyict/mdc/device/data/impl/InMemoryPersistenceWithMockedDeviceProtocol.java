@@ -43,6 +43,8 @@ import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableService;
@@ -66,10 +68,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -80,6 +78,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import javax.inject.Inject;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -103,6 +104,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private OrmService ormService;
     private EventService eventService;
     private NlsService nlsService;
+    private MasterDataService masterDataService;
     private DeviceConfigurationService deviceConfigurationService;
     private MeteringService meteringService;
     private DataModel dataModel;
@@ -148,6 +150,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new PluggableModule(),
 //                new ProtocolPluggableModule(),
                 new EngineModelModule(),
+                new MasterDataModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new DeviceDataModule());
@@ -162,6 +165,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
+            this.masterDataService = injector.getInstance(MasterDataService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.taskService = injector.getInstance(TaskService.class);
             this.dataModel = this.createNewDeviceDataService(injector);
@@ -215,6 +219,10 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
     public MeteringService getMeteringService() {
         return meteringService;
+    }
+
+    public MasterDataService getMasterDataService() {
+        return masterDataService;
     }
 
     public DeviceConfigurationService getDeviceConfigurationService() {
@@ -393,6 +401,11 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         @Override
         public List<ConnectionTypePluggableClass> findConnectionTypePluggableClassByClassName(String javaClassName) {
             return protocolPluggableService.findConnectionTypePluggableClassByClassName(javaClassName);
+        }
+
+        @Override
+        public ConnectionTypePluggableClass findConnectionTypePluggableClassByName(String name) {
+            return protocolPluggableService.findConnectionTypePluggableClassByName(name);
         }
 
         @Override

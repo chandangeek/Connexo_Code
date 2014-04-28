@@ -3,6 +3,8 @@ package com.energyict.mdc.device.data.impl.offline;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 
 /**
@@ -39,7 +41,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
     private int registerId;
 
     /**
-     * The ID of the {@link com.energyict.mdc.device.config.RegisterGroup} where this registers belongs to.
+     * The ID of the {@link RegisterGroup} where this registers belongs to.
      */
     private int registerGroupId;
 
@@ -81,7 +83,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
 
     /**
      * Returns the ObisCode for this Register.<br/>
-     * (actually the ObisCode from the {@link com.energyict.mdc.device.config.RegisterMapping})
+     * (actually the ObisCode from the {@link RegisterMapping})
      *
      * @return the ObisCode
      */
@@ -96,9 +98,9 @@ public class OfflineRegisterImpl implements OfflineRegister {
     }
 
     /**
-     * Get the business Id of the {@link com.energyict.mdc.device.config.RegisterGroup} where this registers belongs to
+     * Get the business Id of the {@link RegisterGroup} where this registers belongs to
      *
-     * @return the ID of the {@link com.energyict.mdc.device.config.RegisterGroup}
+     * @return the ID of the {@link RegisterGroup}
      */
     @Override
     public int getRegisterGroupId() {

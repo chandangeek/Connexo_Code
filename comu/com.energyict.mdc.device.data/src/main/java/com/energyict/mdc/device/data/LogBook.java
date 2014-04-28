@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
 
 import java.util.Date;

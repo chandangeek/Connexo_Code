@@ -2,10 +2,10 @@ package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.impl.InfoType;
@@ -60,7 +60,7 @@ public interface DeviceDataService {
      * @param comPortPool The OutboundComPortPool
      * @return The new ScheduledConnectionTask
      */
-    public ScheduledConnectionTask newAsapConnectionTask(Device device, PartialOutboundConnectionTask partialConnectionTask, OutboundComPortPool comPortPool);
+    public ScheduledConnectionTask newAsapConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool);
 
     /**
      * Creates a new {@link ScheduledConnectionTask}, that uses the {@link ConnectionStrategy#MINIMIZE_CONNECTIONS} strategy,
@@ -74,7 +74,7 @@ public interface DeviceDataService {
      * @param nextExecutionSpecs The specification for the next execution of the new ScheduledConnectionTask
      * @return The new ScheduledConnectionTask
      */
-    public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialOutboundConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression nextExecutionSpecs);
+    public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression nextExecutionSpecs);
 
     public ConnectionInitiationTask newConnectionInitiationTask(Device device, PartialConnectionInitiationTask partialConnectionTask, OutboundComPortPool comPortPool);
 
@@ -222,9 +222,10 @@ public interface DeviceDataService {
      *
      * @param deviceConfiguration the deviceConfiguration which models the device
      * @param name                the name which should be used for the device
+     * @param mRID
      * @return the newly created Device
      */
-    public Device newDevice(DeviceConfiguration deviceConfiguration, String name);
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID);
 
     public Device getPrototypeDeviceFor(DeviceConfiguration deviceConfiguration);
 
@@ -239,10 +240,10 @@ public interface DeviceDataService {
     /**
      * Finds the Device based on his unique External name
      *
-     * @param externalName the external name of the device
+     * @param mrId the unique Identifier of the device
      * @return the requested Device or null if none was found
      */
-    public Device findDeviceByExternalName(String externalName);
+    public Device findByUniqueMrid(String mrId);
 
     /**
      * Finds the devices which are physically connected to the given Device

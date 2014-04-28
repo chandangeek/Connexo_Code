@@ -3,11 +3,10 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.model.ComServer;
@@ -25,7 +24,7 @@ import java.sql.SQLException;
  * Date: 13/09/12
  * Time: 13:10
  */
-public abstract class OutboundConnectionTaskImpl<PCTT extends PartialScheduledConnectionTask>
+public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundConnectionTask>
         extends ConnectionTaskImpl<PCTT, OutboundComPortPool>
         implements OutboundConnectionTask<PCTT> {
 
