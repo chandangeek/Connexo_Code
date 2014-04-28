@@ -5,10 +5,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.impl.InfoType;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -173,7 +171,7 @@ public interface DeviceDataService {
      */
     public void clearDefaultConnectionTask (Device device);
 
-    void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask defaultConnectionTask);
+    void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask);
 
     /**
      * Attempts to lock the {@link ConnectionTask} that is about to be executed
@@ -389,4 +387,13 @@ public interface DeviceDataService {
     List<ComTaskExecution> findComTaskExecutionsByConnectionTask(ConnectionTask<?,?> connectionTask);
 
     List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device);
+
+    /**
+     * Finds all the ComTaskExecutions which are linked to the given ComSchedule (MasterSchedule)
+     * (and are not obsolete)
+     *
+     * @param comSchedule the given comSchedule
+     * @return all the ComTaskExecutions (which are not obsolete) for the given ConnectionTask
+     */
+    List<ComTaskExecution> findComTaskExecutionsByComSchedule(ComSchedule comSchedule);
 }

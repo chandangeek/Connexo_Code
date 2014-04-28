@@ -29,6 +29,7 @@ public enum ComTaskExecutionFields implements ImplField {
     IGNORENEXTEXECUTIONSPECSFORINBOUND("ignoreNextExecutionSpecsForInbound"),
     COMPORT("comPort"),
     PROTOCOLDIALECTCONFIGURATIONPROPERTIES("protocolDialectConfigurationProperties"),
+    COM_SCHEDULE_REFERENCE("comScheduleReference");
     ;
 
     private final String javaFieldName;
