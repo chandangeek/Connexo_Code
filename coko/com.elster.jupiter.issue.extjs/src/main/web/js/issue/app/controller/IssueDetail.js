@@ -79,6 +79,9 @@ Ext.define('Isu.controller.IssueDetail', {
                 store.load();
 
                 self.getApplication().fireEvent('changecontentevent', widget);
+            },
+            failure: function () {
+                window.location.href = '#/workspace/datacollection/issues';
             }
         });
     },

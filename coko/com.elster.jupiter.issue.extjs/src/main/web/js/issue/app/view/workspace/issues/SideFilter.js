@@ -88,8 +88,8 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
 
                     triggerAction: 'query',
                     anchor: '100%',
-                    emptyText: 'select a meter',
-                    tooltipText: 'Start typing for meter'
+                    emptyText: 'select a MRID of the meter',
+                    tooltipText: 'Start typing for a MRID'
                 }
             ]
         }
