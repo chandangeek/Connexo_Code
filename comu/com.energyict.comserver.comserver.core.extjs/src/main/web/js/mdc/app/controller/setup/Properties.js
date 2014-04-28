@@ -331,7 +331,7 @@ Ext.define('Mdc.controller.setup.Properties', {
 
     enableDeleteButton: function (key, required, isInheritedOrDefaultValue) {
         if (isInheritedOrDefaultValue === false) {
-            Ext.ComponentQuery.query('#btn_delete_' + key)[0].enable();
+            Ext.ComponentQuery.query('#btn_delete_' + key)[0].enabled = true;
         }
     },
 
