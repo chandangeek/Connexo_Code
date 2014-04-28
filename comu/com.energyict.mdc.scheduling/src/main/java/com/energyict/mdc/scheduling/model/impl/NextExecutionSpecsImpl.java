@@ -6,6 +6,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.events.CreateEventType;
+import com.energyict.mdc.scheduling.events.DeleteEventType;
 import java.util.Calendar;
 import java.util.Date;
 import javax.inject.Inject;

@@ -1,13 +1,17 @@
 package com.energyict.mdc.scheduling.model.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.EventTypeBuilder;
+import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.TransactionRequired;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.events.EventType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -64,11 +68,23 @@ public class Installer {
     private void createEventTypes() {
         try {
             for (EventType eventType : EventType.values()) {
-                eventType.install(this.eventService);
+                install(eventType);
             }
         } catch (Exception e) {
             logger.severe(e.getMessage());
         }
+    }
+
+    @TransactionRequired
+    void install(EventType eventType) {
+        EventTypeBuilder builder = this.eventService.buildEventTypeWithTopic(eventType.topic())
+                .name(eventType.name())
+                .component(SchedulingService.COMPONENT_NAME)
+                .category("Crud")
+                .scope("System")
+                .shouldPublish()
+                .withProperty("id", ValueType.LONG, "id");
+        builder.create().save();
     }
 
     private static class SimpleTranslation implements Translation {

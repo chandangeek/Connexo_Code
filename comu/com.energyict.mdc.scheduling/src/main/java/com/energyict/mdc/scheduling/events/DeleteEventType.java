@@ -1,4 +1,4 @@
-package com.energyict.mdc.scheduling.model.impl;
+package com.energyict.mdc.scheduling.events;
 
 /**
  * Subset of {@link EventType}s that relate to deletion of persistent objects.
@@ -8,7 +8,9 @@ package com.energyict.mdc.scheduling.model.impl;
  */
 public enum DeleteEventType {
 
-    NEXTEXECUTIONSPECS(EventType.NEXTEXECUTIONSPECS_DELETED);
+    NEXTEXECUTIONSPECS(EventType.NEXTEXECUTIONSPECS_DELETED),
+    COM_SCHEDULE(EventType.COM_SCHEDULE_DELETED),
+    ;
 
     private EventType eventType;
 

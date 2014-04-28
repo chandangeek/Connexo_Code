@@ -1,4 +1,4 @@
-package com.energyict.mdc.scheduling.model.impl;
+package com.energyict.mdc.scheduling.events;
 
 /**
  * Subset of {@link EventType}s that relate to creation of persistent objects.

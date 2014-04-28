@@ -22,4 +22,6 @@ public interface ComSchedule {
     public void setTemporalExpression(TemporalExpression temporalExpression);
 
     public void save();
+
+    public void delete();
 }

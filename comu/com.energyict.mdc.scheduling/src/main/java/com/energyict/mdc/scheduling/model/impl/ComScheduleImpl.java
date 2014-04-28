@@ -1,12 +1,14 @@
 package com.energyict.mdc.scheduling.model.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.events.DeleteEventType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.tasks.ComTask;
@@ -19,6 +21,7 @@ import javax.inject.Inject;
 public class ComScheduleImpl implements ComSchedule {
 
     private final SchedulingService schedulingService;
+    private final EventService eventService;
     private final DataModel dataModel;
 
     enum Fields {
@@ -39,8 +42,9 @@ public class ComScheduleImpl implements ComSchedule {
     }
 
     @Inject
-    public ComScheduleImpl(SchedulingService schedulingService, DataModel dataModel) {
+    public ComScheduleImpl(SchedulingService schedulingService, EventService eventService,DataModel dataModel) {
         this.schedulingService = schedulingService;
+        this.eventService = eventService;
         this.dataModel = dataModel;
     }
 
@@ -92,6 +96,15 @@ public class ComScheduleImpl implements ComSchedule {
         Save.action(this.getId()).save(dataModel, this);
     }
 
+    @Override
+    public void delete() {
+        this.eventService.postEvent(DeleteEventType.COM_SCHEDULE.topic(), this);
+
+//        for (ComTaskExecution comTaskExecution : this.deviceDataService.findComTaskExecutionsByComSchedule(this)) {
+//            comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).comSchedule(null).removeNextExecutionSpec().update();
+//        }
+        this.dataModel.remove(this);
+    }
 
     @Override
     public List<ComTask> getComTasks() {
