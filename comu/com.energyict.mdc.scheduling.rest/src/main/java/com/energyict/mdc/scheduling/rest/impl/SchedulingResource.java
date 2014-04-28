@@ -78,7 +78,6 @@ public class SchedulingResource {
     public Response deleteSchedules(@PathParam("id") long id) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         comSchedule.delete();
-        // TODO implement
         return Response.noContent().build();
     }
 
