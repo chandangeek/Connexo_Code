@@ -88,6 +88,7 @@ public class ComScheduleImpl implements ComSchedule {
             this.nextExecutionSpecs.set(nextExecutionSpecs);
         } else  {
             this.nextExecutionSpecs.get().setTemporalExpression(temporalExpression);
+            this.nextExecutionSpecs.get().save();
         }
     }
 
