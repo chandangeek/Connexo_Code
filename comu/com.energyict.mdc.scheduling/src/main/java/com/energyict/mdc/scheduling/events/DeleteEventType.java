@@ -9,7 +9,7 @@ package com.energyict.mdc.scheduling.events;
 public enum DeleteEventType {
 
     NEXTEXECUTIONSPECS(EventType.NEXTEXECUTIONSPECS_DELETED),
-    COM_SCHEDULE(EventType.COMSCHEDULE_DELETED),
+    COM_SCHEDULE(EventType.COMSCHEDULE_BEFORE_DELETE),
     ;
 
     private EventType eventType;

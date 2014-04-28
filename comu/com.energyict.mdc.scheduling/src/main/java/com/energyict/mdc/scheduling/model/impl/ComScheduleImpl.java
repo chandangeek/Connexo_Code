@@ -100,10 +100,6 @@ public class ComScheduleImpl implements ComSchedule {
     @Override
     public void delete() {
         this.eventService.postEvent(DeleteEventType.COM_SCHEDULE.topic(), this);
-
-//        for (ComTaskExecution comTaskExecution : this.deviceDataService.findComTaskExecutionsByComSchedule(this)) {
-//            comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).comSchedule(null).removeNextExecutionSpec().update();
-//        }
         this.dataModel.remove(this);
     }
 
