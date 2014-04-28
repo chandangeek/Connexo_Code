@@ -144,8 +144,8 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
         this.storeData = storeData;
     }
 
-    public List<? extends ProtocolTask> getProtocolTasks() {
-        return ImmutableList.copyOf(protocolTasks);
+    public List<ProtocolTask> getProtocolTasks() {
+        return ImmutableList.<ProtocolTask>copyOf(protocolTasks);
     }
 
     private void addProtocolTask(ProtocolTaskImpl protocolTask) {
