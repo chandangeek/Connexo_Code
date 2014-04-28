@@ -41,14 +41,13 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 

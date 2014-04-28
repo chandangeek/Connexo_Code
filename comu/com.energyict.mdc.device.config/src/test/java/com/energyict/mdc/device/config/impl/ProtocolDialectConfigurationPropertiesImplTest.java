@@ -68,10 +68,17 @@ import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.LicenseServer;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import java.security.Principal;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -82,12 +89,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
-
-import java.security.Principal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -171,6 +172,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
+                new SchedulingModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
@@ -191,6 +193,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
+            SchedulingService schedulingService = injector.getInstance(SchedulingService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }
