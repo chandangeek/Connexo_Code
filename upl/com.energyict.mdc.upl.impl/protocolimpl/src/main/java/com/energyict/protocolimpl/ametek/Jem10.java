@@ -211,8 +211,6 @@ public class Jem10 extends Jem implements MessageProtocol {
         for (int i = 0; i < channelCount; i++) {
             pd.addChannel(new ChannelInfo(i, i, "JemStarChannel_" + i, Unit.get(BaseUnit.UNITLESS)));
         }
-
-
     }
 
     protected void processRegisters(InputStream byteStream, int obisCValue) throws IOException {
@@ -255,16 +253,15 @@ public class Jem10 extends Jem implements MessageProtocol {
                     } else if ((bt & 12) == 12 || (bt & 3) == 3) {
                         f *= .001;
                     }
-                    rv = new RegisterValue(ob, new Quantity(new BigDecimal(f), Unit.getUndefined()), new Date(), null, new Date(), time);
+                    rv = new RegisterValue(ob, new Quantity(new BigDecimal(f), Unit.getUndefined()), null, null, time);
                     break;
                 case 1:
                     Calendar cal = Calendar.getInstance(getTimeZone());
                     cal.set(1990, 0, 1, 0, 0, 0);
-                    Date tstamp = new Date(cal.getTimeInMillis() + (val * 1000));
+                    Date tstamp = new Date(val * 1000 - getTimeZone().getOffset(val * 1000)); // Warning: val is number of seconds since midnight 1970, expressed in local timezone - so should convert to regular EPOCH first!
                     time = tstamp;
                     break;
             }
-
 
             if (rv != null) {
                 registerValues.put(ob.toString(), rv);

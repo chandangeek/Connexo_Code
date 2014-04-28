@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -276,17 +278,17 @@ public class JemStar extends Jem implements MessageProtocol  {
                 switch (type) {
                     case 0:
                         f = Float.intBitsToFloat((int) val);
-                        rv = new RegisterValue(ob, new Quantity(new BigDecimal(f), Unit.getUndefined()), new Date(), null, new Date(), time);
+                        rv = new RegisterValue(ob, new Quantity(new BigDecimal(f), Unit.getUndefined()), null, null, time);
                         break;
                     case 1:
                     case 2:
-                        tstamp = new Date(val * 1000);
+                        tstamp = new Date(val * 1000 - getTimeZone().getOffset(val * 1000)); // Warning: val is number of seconds since midnight 1970, expressed in local timezone - so should convert to regular EPOCH first!
                         if (s.trim().equals("Present Time")) {
                             time = tstamp;
                         }
                         break;
                     case 3:
-                        rv = new RegisterValue(ob, new Quantity(new BigDecimal(val), Unit.getUndefined()), null, null, null, new Date(), 0, s);
+                        rv = new RegisterValue(ob, new Quantity(new BigDecimal(val), Unit.getUndefined()), null, null, time, new Date(), 0, s);
                         break;
                     case 4:
                         rv = new RegisterValue(ob, new Quantity(new BigDecimal(val), Unit.getUndefined()));
@@ -308,6 +310,8 @@ public class JemStar extends Jem implements MessageProtocol  {
         int channelCount = (int) convertHexToLongLE(byteStream, 1);
         byteStream.skip(3);
         pos += 4;//1 eaten during channel count
+
+        Map alternateRegisterValues = new HashMap();
 
         while (byteStream.available() > 0) {
             for (int i = 0; i < channelCount; i++) {
@@ -349,30 +353,51 @@ public class JemStar extends Jem implements MessageProtocol  {
                 switch (type) {
                     case 0:
                         f = Float.intBitsToFloat((int) val);
-                        rv = new RegisterValue(ob, new Quantity(new BigDecimal(f), Unit.getUndefined()), null, billingDate);
+                        rv = new RegisterValue(ob, new Quantity(new BigDecimal(f), Unit.getUndefined()));
                         tempRegisterValue = rv;
                         break;
                     case 1:
                     case 2:
-                        tstamp = new Date(val * 1000);
+                        tstamp = new Date(val * 1000 - getTimeZone().getOffset(val * 1000)); // Warning: val is number of seconds since midnight 1970, expressed in local timezone - so should convert to GMT EPOCH first!
                         if (s.trim().equals("Last BPR Time")) {
                             billingDate = tstamp;
                         } else if (s.contains("TPkD,Time:")) {
                             registerValues.remove(tempRegisterValue.getObisCode().toString());
-                            registerValues.put(tempRegisterValue.getObisCode().toString(), new RegisterValue(tempRegisterValue.getObisCode(), tempRegisterValue.getQuantity(), tstamp, billingDate));
+                            registerValues.put(tempRegisterValue.getObisCode().toString(), new RegisterValue(tempRegisterValue.getObisCode(), tempRegisterValue.getQuantity()));
                         }
                         break;
                     case 3:
-                        rv = new RegisterValue(ob, new Quantity(new BigDecimal(val), Unit.getUndefined()), null, billingDate);
+                        rv = new RegisterValue(ob, new Quantity(new BigDecimal(val), Unit.getUndefined()));
                         break;
                     case 4:
-                        rv = new RegisterValue(ob, new Quantity(new BigDecimal(val), Unit.getUndefined()), null, billingDate);
+                        rv = new RegisterValue(ob, new Quantity(new BigDecimal(val), Unit.getUndefined()));
                 }
                 if (rv != null) {
-                    registerValues.put(ob.toString(), rv);
+                    alternateRegisterValues.put(ob.toString(), rv);
                 }
             }
+        }
+        applyBillingTimestampToAlternateRegisterValues(alternateRegisterValues, billingDate);
+        registerValues.putAll(alternateRegisterValues);
+    }
 
+    private void applyBillingTimestampToAlternateRegisterValues(Map registerValueMap, Date billingTimeStamp) {
+        if (billingTimeStamp != null) {
+            Iterator it = registerValueMap.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry entry = (Map.Entry) it.next();
+                RegisterValue registerValue = (RegisterValue) entry.getValue();
+                entry.setValue(new RegisterValue(
+                        registerValue.getObisCode(),
+                        registerValue.getQuantity(),
+                        registerValue.getEventTime(),
+                        registerValue.getFromTime(),
+                        billingTimeStamp,
+                        registerValue.getReadTime(),
+                        registerValue.getRtuRegisterId(),
+                        registerValue.getText()
+                ));
+            }
         }
     }
 
