@@ -39,13 +39,19 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.protocol.pluggable</artifactId>
+            <artifactId>mdc-engine-config</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc-engine-config</artifactId>
+            <artifactId>mdc-protocols</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.protocol.pluggable</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
