@@ -49,6 +49,16 @@ public class ComScheduleImplTest extends PersistenceTest {
         inMemoryPersistence.getSchedulingService().newComSchedule("nameX", null).save();
     }
 
+    @Test
+    @Transactional
+    public void testDeleteComSchedule() throws Exception {
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS));
+        comSchedule.save();
+        ComSchedule retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        retrievedSchedule.delete();
+        assertThat(inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId())).isNull();
+    }
+
     private TemporalExpression temporalExpression(TimeDuration ... td) {
         if (td.length==1) {
             return new TemporalExpression(td[0]);
