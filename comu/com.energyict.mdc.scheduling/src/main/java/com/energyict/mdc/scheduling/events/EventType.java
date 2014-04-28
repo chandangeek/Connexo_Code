@@ -11,7 +11,7 @@ public enum EventType {
     NEXTEXECUTIONSPECS_CREATED("nextexecutionspecs/CREATED"),
     NEXTEXECUTIONSPECS_UPDATED("nextexecutionspecs/UPDATED"),
     NEXTEXECUTIONSPECS_DELETED("nextexecutionspecs/DELETED"),
-    COM_SCHEDULE_DELETED("comschedule/DELETED"),
+    COMSCHEDULE_DELETED("comschedule/DELETED"),
     ;
 
     private static final String NAMESPACE = "com/energyict/mdc/scheduling/";
