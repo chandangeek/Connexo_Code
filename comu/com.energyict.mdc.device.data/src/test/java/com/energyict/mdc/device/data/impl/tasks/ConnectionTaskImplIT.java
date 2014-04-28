@@ -109,7 +109,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     private OnlineComServer onlineComServer;
     private OnlineComServer otherOnlineComServer;
     private String COM_TASK_NAME = "TheNameOfMyComTask";
-    private int maxNrOfTries = 27;
+    private int maxNrOfTries = 5;
     protected ComTaskEnablement comTaskEnablement1;
     protected ComTaskEnablement comTaskEnablement2;
 

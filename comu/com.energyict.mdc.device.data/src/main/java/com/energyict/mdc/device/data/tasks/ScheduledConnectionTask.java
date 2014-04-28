@@ -106,6 +106,8 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialO
      */
     public Date updateNextExecutionTimestamp();
 
+    void setDynamicMaxNumberOfTries(int maxNumberOfTries);
+
     /**
      * Updates the next execution of this ConnectionTask
      * so that it will get picked up as soon as possible.

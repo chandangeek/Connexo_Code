@@ -221,8 +221,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public TaskStatus getStatus() {
-        //TODO JP-1125
-        return ServerComTaskStatus.getApplicableStatusFor(this);
+        return ServerComTaskStatus.getApplicableStatusFor(this, this.now());
     }
 
     @Override
@@ -534,6 +533,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     public void executionCompleted() {
         this.markSuccessfullyCompleted();
         this.doReschedule(calculateNextExecutionTimestamp(this.clock.now()));
+        post();
     }
 
     /**
@@ -556,7 +556,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         } else {
             this.doExecutionFailed();
         }
-        // don't do a post, the reschedules will handle that
+        post();
     }
 
     protected void doExecutionAttemptFailed() {

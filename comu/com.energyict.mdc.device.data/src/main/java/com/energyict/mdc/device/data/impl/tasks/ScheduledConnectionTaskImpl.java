@@ -330,6 +330,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
     }
 
+    @Override
     public void setDynamicMaxNumberOfTries(int maxNumberOfTries) {
         this.maxNumberOfTries = maxNumberOfTries;
     }
@@ -479,7 +480,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private boolean needsTriggering (ComTaskExecution scheduledComTask) {
-        Set<TaskStatus> taskStatusesThatRequireTriggering = EnumSet.complementOf(EnumSet.of(TaskStatus.Waiting, TaskStatus.OnHold));
+        Set<TaskStatus> taskStatusesThatRequireTriggering = EnumSet.complementOf(EnumSet.of(TaskStatus.Waiting, TaskStatus.OnHold, TaskStatus.Busy));
         return taskStatusesThatRequireTriggering.contains(scheduledComTask.getStatus());
     }
 
