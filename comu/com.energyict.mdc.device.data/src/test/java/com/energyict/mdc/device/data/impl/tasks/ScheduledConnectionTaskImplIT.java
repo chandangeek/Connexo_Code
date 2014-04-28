@@ -52,6 +52,7 @@ import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.energyict.mdc.scheduling.TemporalExpression;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -61,6 +62,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+import org.assertj.core.api.Condition;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTimeConstants;
+import org.junit.After;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -173,7 +180,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         PartialScheduledConnectionTask partialScheduledConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialScheduledConnectionTask.getId()).thenReturn(PARTIAL_SCHEDULED_CONNECTION_TASK3_ID);
         when(partialScheduledConnectionTask.getName()).thenReturn("testCreateOfDifferentConfig");
-        when(partialScheduledConnectionTask.getConfiguration()).thenReturn(mockedDeviceConfiguration);
+        when(partialScheduledConnectionTask.getConfiguration()).thenReturn(mockCommunicationConfig);
         when(partialScheduledConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
 
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateOfDifferentConfig", partialScheduledConnectionTask);

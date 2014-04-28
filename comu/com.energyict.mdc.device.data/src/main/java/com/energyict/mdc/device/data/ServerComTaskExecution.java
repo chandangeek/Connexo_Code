@@ -14,6 +14,7 @@ import com.energyict.mdc.engine.model.ComPort;
  * @since 2012-09-21 (15:27)
  */
 public interface ServerComTaskExecution extends ComTaskExecution {
+    // TODO move back to impl package, mdc-all has references on this class though
 
     /**
      * Sets the given Comport as 'lock'

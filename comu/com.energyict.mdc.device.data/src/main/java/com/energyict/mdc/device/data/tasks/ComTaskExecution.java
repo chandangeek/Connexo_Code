@@ -1,16 +1,16 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.journal.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
 import java.util.Date;
 
 /**
@@ -97,6 +97,8 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * @return The ComTask
      */
     public ComTask getComTask ();
+
+    public ComSchedule getComSchedule();
 
     /**
      * Gets the {@link ProtocolDialectConfigurationProperties}.
@@ -334,6 +336,8 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
 
         ComTaskExecutionBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
 
+        ComTaskExecutionBuilder comSchedule(ComSchedule comSchedule);
+
         /**
          * Creates the actual ComTaskExecution with the objects set in the builder
          *
@@ -373,6 +377,8 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
         ComTaskExecutionUpdater setIgnoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
 
         ComTaskExecutionUpdater setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
+
+        ComTaskExecutionUpdater comSchedule(ComSchedule comSchedule);
 
         /**
          * Sets the given nextExecutionTimeStamp and priority

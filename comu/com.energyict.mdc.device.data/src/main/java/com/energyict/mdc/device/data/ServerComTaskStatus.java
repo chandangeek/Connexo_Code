@@ -14,6 +14,7 @@ import java.util.Date;
  * @since 2012-10-08 (09:04)
  */
 public enum ServerComTaskStatus {
+    // TODO move back to impl package, mdc-all has references on this class though
 
     /**
      * @see TaskStatus#OnHold

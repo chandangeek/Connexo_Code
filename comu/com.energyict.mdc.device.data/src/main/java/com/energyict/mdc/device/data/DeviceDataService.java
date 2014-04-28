@@ -9,7 +9,6 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.impl.InfoType;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -21,8 +20,10 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
-
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -332,6 +333,8 @@ public interface DeviceDataService {
      */
     public List<LogBook> findLogBooksByDevice(Device device);
 
+    public Date getPlannedDate(ComSchedule comSchedule);
+
     /**
      * Finds the ComTaskExecution with the given ID
      *
@@ -384,6 +387,15 @@ public interface DeviceDataService {
      * @return all the ComTaskExecutions (which are not obsolete) for the given ConnectionTask
      */
     List<ComTaskExecution> findComTaskExecutionsByConnectionTask(ConnectionTask<?,?> connectionTask);
+
+    /**
+     * Finds all the ComTaskExecutions which are linked to the given ComSchedule (MasterSchedule)
+     * (and are not obsolete)
+     *
+     * @param comSchedule the given comSchedule
+     * @return all the ComTaskExecutions (which are not obsolete) for the given ConnectionTask
+     */
+    List<ComTaskExecution> findComTaskExecutionsByComSchedule(ComSchedule comSchedule);
 
     List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device);
 }
