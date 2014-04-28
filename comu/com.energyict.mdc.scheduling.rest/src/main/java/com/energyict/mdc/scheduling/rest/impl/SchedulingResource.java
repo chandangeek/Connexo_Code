@@ -12,10 +12,14 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -43,6 +47,22 @@ public class SchedulingResource {
         return PagedInfoList.asJson("schedules", comScheduleInfos, queryParameters);
     }
 
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ComScheduleInfo getSchedules(@PathParam("id") long id) {
+        ComSchedule comSchedule = findComScheduleOrThrowException(id);
+        return ComScheduleInfo.from(comSchedule, getPlannedDate(comSchedule));
+    }
+
+    private ComSchedule findComScheduleOrThrowException(long id) {
+        ComSchedule comSchedule = schedulingService.findSchedule(id);
+        if (comSchedule==null) {
+            throw new WebApplicationException("No such schedule", Response.Status.NOT_FOUND);
+        }
+        return comSchedule;
+    }
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -50,6 +70,27 @@ public class SchedulingResource {
         ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression());
         comSchedule.save();
         return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, getPlannedDate(comSchedule))).build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteSchedules(@PathParam("id") long id) {
+        ComSchedule comSchedule = findComScheduleOrThrowException(id);
+        comSchedule.delete();
+        // TODO implement
+        return Response.noContent().build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ComScheduleInfo updateSchedules(@PathParam("id") long id, ComScheduleInfo comScheduleInfo) {
+        ComSchedule comSchedule = findComScheduleOrThrowException(id);
+
+        // TODO implement
+
+        return ComScheduleInfo.from(comSchedule, getPlannedDate(comSchedule));
     }
 
     private Date getPlannedDate(ComSchedule comSchedule) {
