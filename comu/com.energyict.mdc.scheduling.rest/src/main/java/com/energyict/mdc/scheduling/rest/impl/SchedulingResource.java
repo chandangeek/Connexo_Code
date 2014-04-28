@@ -41,7 +41,7 @@ public class SchedulingResource {
         List<ComSchedule> comSchedules = schedulingService.findAllSchedules().from(queryParameters).find();
         List<ComScheduleInfo> comScheduleInfos = new ArrayList<>();
         for (ComSchedule comSchedule : comSchedules) {
-            comScheduleInfos.add(ComScheduleInfo.from(comSchedule, getPlannedDate(comSchedule)));
+            comScheduleInfos.add(ComScheduleInfo.from(comSchedule, getPlannedDate(comSchedule), isInUse(comSchedule)));
         }
 
         return PagedInfoList.asJson("schedules", comScheduleInfos, queryParameters);
@@ -52,7 +52,7 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ComScheduleInfo getSchedules(@PathParam("id") long id) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
-        return ComScheduleInfo.from(comSchedule, getPlannedDate(comSchedule));
+        return ComScheduleInfo.from(comSchedule, getPlannedDate(comSchedule), isInUse(comSchedule));
     }
 
     private ComSchedule findComScheduleOrThrowException(long id) {
@@ -69,7 +69,7 @@ public class SchedulingResource {
     public Response createSchedule(ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression());
         comSchedule.save();
-        return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, getPlannedDate(comSchedule))).build();
+        return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, getPlannedDate(comSchedule), isInUse(comSchedule))).build();
     }
 
     @DELETE
@@ -89,7 +89,12 @@ public class SchedulingResource {
         comSchedule.setName(comScheduleInfo.name);
         comSchedule.setTemporalExpression(comScheduleInfo.temporalExpression.asTemporalExpression());
         comSchedule.save();
-        return ComScheduleInfo.from(findComScheduleOrThrowException(id), getPlannedDate(comSchedule));
+        return ComScheduleInfo.from(findComScheduleOrThrowException(id), getPlannedDate(comSchedule), isInUse(comSchedule));
+    }
+
+
+    private boolean isInUse(ComSchedule comSchedule) {
+        return this.deviceDataService.isLinkedToDevices(comSchedule);
     }
 
     private Date getPlannedDate(ComSchedule comSchedule) {

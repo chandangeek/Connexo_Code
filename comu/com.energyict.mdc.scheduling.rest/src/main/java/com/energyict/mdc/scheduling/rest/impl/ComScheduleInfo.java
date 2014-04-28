@@ -9,16 +9,18 @@ public class ComScheduleInfo {
     public String name;
     public TemporalExpressionInfo temporalExpression;
     public Date plannedDate;
+    public boolean isInUse;
 
     public ComScheduleInfo() {
     }
 
-    public static ComScheduleInfo from(ComSchedule comSchedule, Date plannedDate) {
+    public static ComScheduleInfo from(ComSchedule comSchedule, Date plannedDate, boolean inUse) {
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
         comScheduleInfo.id = comSchedule.getId();
         comScheduleInfo.name = comSchedule.getName();
         comScheduleInfo.temporalExpression = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
         comScheduleInfo.plannedDate = plannedDate;
+        comScheduleInfo.isInUse = inUse;
         return comScheduleInfo;
     }
 }
