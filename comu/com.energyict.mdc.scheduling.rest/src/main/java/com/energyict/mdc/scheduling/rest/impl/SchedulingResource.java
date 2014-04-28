@@ -86,10 +86,10 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ComScheduleInfo updateSchedules(@PathParam("id") long id, ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
-
-        // TODO implement
-
-        return ComScheduleInfo.from(comSchedule, getPlannedDate(comSchedule));
+        comSchedule.setName(comScheduleInfo.name);
+        comSchedule.setTemporalExpression(comScheduleInfo.temporalExpression.asTemporalExpression());
+        comSchedule.save();
+        return ComScheduleInfo.from(findComScheduleOrThrowException(id), getPlannedDate(comSchedule));
     }
 
     private Date getPlannedDate(ComSchedule comSchedule) {
