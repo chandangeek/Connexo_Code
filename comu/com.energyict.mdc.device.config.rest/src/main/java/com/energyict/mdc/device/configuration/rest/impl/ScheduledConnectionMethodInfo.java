@@ -2,6 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -50,14 +51,11 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
     @Override
     public PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
         ConnectionTypePluggableClass connectionTypePluggableClass = findConnectionTypeOrThrowException(this.connectionType, protocolPluggableService);
-        PartialScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = deviceConfiguration.createPartialScheduledConnectionTask()
-            .name(this.name)
-            .pluggableClass(connectionTypePluggableClass)
+        TimeDuration rescheduleDelay = this.rescheduleRetryDelay == null ? null : this.rescheduleRetryDelay.asTimeDuration();
+        PartialScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = deviceConfiguration.newPartialScheduledConnectionTask(this.name, connectionTypePluggableClass, rescheduleDelay, this.connectionStrategy)
             .comPortPool((OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool))
             .comWindow(new ComWindow(this.comWindowStart, this.comWindowEnd))
             .asDefault(this.isDefault)
-            .connectionStrategy(this.connectionStrategy)
-            .rescheduleDelay(this.rescheduleRetryDelay == null ? null : this.rescheduleRetryDelay.asTimeDuration())
             .allowSimultaneousConnections(this.allowSimultaneousConnections);
         if (this.nextExecutionSpecs!=null) {
             if (this.nextExecutionSpecs.temporalExpression.offset==null) {
