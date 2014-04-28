@@ -12,12 +12,11 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceFactory;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -421,7 +420,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDevice() {
-        Device simpleDevice = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "SimpleDevice");
+        Device simpleDevice = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "SimpleDevice", "ConnectionTaskImplIT");
         simpleDevice.save();
         return simpleDevice;
     }
@@ -480,14 +479,13 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private ProtocolDialectConfigurationProperties createDialectConfigProperties() {
-        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.createProtocolDialectConfigurationProperties("MyConfigDialect", new ComTaskExecutionDialect());
+        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
         deviceConfiguration.save();
         return configDialect;
     }
 
     private ComTask createComTaskWithBasicCheck() {
-        ComTask comTask = inMemoryPersistence.getTaskService().createComTask();
-        comTask.setName(COM_TASK_NAME);
+        ComTask comTask = inMemoryPersistence.getTaskService().newComTask(COM_TASK_NAME);
         comTask.setStoreData(true);
         comTask.setMaxNrOfTries(maxNrOfTries);
         comTask.createBasicCheckTask().add();
@@ -496,8 +494,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private ComTask createComTaskWithLogBooks(){
-        ComTask comTask = inMemoryPersistence.getTaskService().createComTask();
-        comTask.setName(COM_TASK_NAME+2);
+        ComTask comTask = inMemoryPersistence.getTaskService().newComTask(COM_TASK_NAME + 2);
         comTask.setStoreData(true);
         comTask.setMaxNrOfTries(maxNrOfTries);
         comTask.createLogbooksTask().add();

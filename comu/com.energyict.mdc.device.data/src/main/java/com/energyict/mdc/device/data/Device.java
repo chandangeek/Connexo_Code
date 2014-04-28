@@ -7,14 +7,10 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TemporalExpression;
-import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -28,8 +24,6 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.protocols.mdc.inbound.general.InboundConnection;
 
 import java.util.Date;
 import java.util.List;
@@ -211,10 +205,10 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     /**
      * Provides a builder that allows the creation of a ScheduledConnectionTask for the Device
      *
-     * @param partialOutboundConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask
+     * @param partialConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask
      * @return the builder
      */
-    ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask);
+    ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialScheduledConnectionTask partialConnectionTask);
 
     /**
      * Provides a builder that allows the creation of an InboundConnectionTask for the Device

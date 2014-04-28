@@ -76,7 +76,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -341,8 +340,8 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     private void collectComTaskWithDefaultConnectionTaskForCompleteTopology(Device device, List<ComTaskExecution> scheduledComTasks, ConnectionTask connectionTask) {
         Condition query = Where.where(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).isEqualTo(true)
                 .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device)
-                .and((where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNull())
-                        .or(where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNotEqual(connectionTask))));
+                        .and((where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNull())
+                                .or(where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNotEqual(connectionTask))));
         List<ComTaskExecution> comTaskExecutions = this.dataModel.mapper(ComTaskExecution.class).select(query);
         scheduledComTasks.addAll(comTaskExecutions);
         for (Object physicalConnectedDevice : device.getPhysicalConnectedDevices()) {
@@ -536,8 +535,8 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
 
     @Override
-    public Device findDeviceByExternalName(String externalName) {
-        return dataModel.mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), externalName).orNull();
+    public Device findByUniqueMrid(String mrId) {
+        return dataModel.mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mrId).orNull();
     }
 
     @Override

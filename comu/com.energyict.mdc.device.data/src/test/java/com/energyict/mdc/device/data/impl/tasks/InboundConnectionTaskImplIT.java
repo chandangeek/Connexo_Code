@@ -210,7 +210,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         InboundConnectionTaskImpl connectionTask = createSimpleInboundConnectionTask();
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
         List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-        ComTaskExecution obsoleteComTask = mock(ComTaskExecution.class);
+        ComTaskExecutionImpl obsoleteComTask = mock(ComTaskExecutionImpl.class);
         comTaskExecutions.add(obsoleteComTask);
         //when(this.comTaskExecutionFactory.findAllByConnectionTask(connectionTask)).thenReturn(comTaskExecutions);
 

@@ -312,4 +312,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      * @return The last ComSession or <code>null</code>
      */
     public ComSession getLastComSession ();
+
+    public void save();
+
 }

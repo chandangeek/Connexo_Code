@@ -882,13 +882,13 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     @Override
-    public String getExternalName() {
+    public String getmRID() {
         return mRID;
     }
 
     @Override
-    public void setExternalName(String externalName) {
-        this.mRID = externalName;
+    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialScheduledConnectionTask partialScheduledConnectionTask) {
+        return new ScheduledConnectionTaskBuilderForDevice(this, partialScheduledConnectionTask);
     }
 
     @Override
