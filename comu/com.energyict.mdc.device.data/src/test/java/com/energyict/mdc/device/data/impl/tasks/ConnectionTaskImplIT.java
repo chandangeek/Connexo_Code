@@ -372,20 +372,14 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     @Before
     public void initializeMocks () {
         super.initializeMocks();
-        this.device = createSimpleDevice();
-        this.otherDevice =createSimpleDevice();
+        this.device = createSimpleDevice("First");
+        this.otherDevice = createSimpleDevice("Second");
         ProtocolDialectConfigurationProperties configDialect = createDialectConfigProperties();
         ComTask comTaskWithBasicCheck = createComTaskWithBasicCheck();
         ComTask comTaskTopology = createComTaskWithLogBooks();
 
         this.comTaskEnablement1 = createMockedComTaskEnablement(true, configDialect, comTaskWithBasicCheck);
         this.comTaskEnablement2 = createMockedComTaskEnablement(true, configDialect, comTaskTopology);
-
-//        DeviceFactory deviceFactory = mock(DeviceFactory.class);
-//        when(deviceFactory.findDevice(DEVICE_ID)).thenReturn(this.device);
-//        when(deviceFactory.findDevice(DEVICE_2_ID)).thenReturn(this.otherDevice);
-//        List<DeviceFactory> deviceFactories = Arrays.asList(deviceFactory);
-//        when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class)).thenReturn(deviceFactories);
 
         deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
 
@@ -420,8 +414,8 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     }
 
-    private Device createSimpleDevice() {
-        Device simpleDevice = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "SimpleDevice", "ConnectionTaskImplIT");
+    private Device createSimpleDevice(String mRID) {
+        Device simpleDevice = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "SimpleDevice", mRID);
         simpleDevice.save();
         return simpleDevice;
     }
