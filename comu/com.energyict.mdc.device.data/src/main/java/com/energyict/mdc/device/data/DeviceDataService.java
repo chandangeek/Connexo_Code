@@ -20,6 +20,7 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
 import java.util.Date;
 import java.util.List;
@@ -396,4 +397,10 @@ public interface DeviceDataService {
      * @return all the ComTaskExecutions (which are not obsolete) for the given ConnectionTask
      */
     List<ComTaskExecution> findComTaskExecutionsByComSchedule(ComSchedule comSchedule);
+
+    /**
+     * Find all ComTasks that can be added to the ComSchedule, i.e. all ComTasks that have a ComTaskEnablement for all
+     * devices linked to the ComSchedule.
+     */
+    List<ComTask> findAvailableComTasksForComSchedule(ComSchedule comSchedule);
 }

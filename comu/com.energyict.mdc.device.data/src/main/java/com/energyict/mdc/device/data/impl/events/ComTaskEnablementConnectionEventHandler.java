@@ -4,12 +4,9 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.pubsub.EventHandler;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import org.osgi.service.component.annotations.Component;
-
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * Handles events that are being sent when connection related changes
