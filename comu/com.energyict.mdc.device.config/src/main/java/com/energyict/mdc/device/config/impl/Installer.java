@@ -11,7 +11,6 @@ import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;

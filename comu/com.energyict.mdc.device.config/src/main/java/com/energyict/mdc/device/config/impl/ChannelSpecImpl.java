@@ -15,7 +15,6 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLoadProfileSpecOfChannelSpec;
 import com.energyict.mdc.device.config.exceptions.CannotChangeRegisterMappingOfChannelSpecException;
 import com.energyict.mdc.device.config.exceptions.DuplicateRegisterMappingException;
@@ -25,14 +24,14 @@ import com.energyict.mdc.device.config.exceptions.LoadProfileSpecIsNotConfigured
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredException;
 import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-
+import java.math.BigDecimal;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 
 import static com.elster.jupiter.util.Checks.is;
 

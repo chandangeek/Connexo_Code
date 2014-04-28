@@ -11,19 +11,18 @@ import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
-import org.hibernate.validator.constraints.Range;
-
 import javax.inject.Inject;
 import javax.validation.Valid;
+import org.hibernate.validator.constraints.Range;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -61,7 +60,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         }
     }
 
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final SchedulingService schedulingService;
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COM_TASK_ENABLEMENT_COM_TASK_REQUIRED + "}")
     private Reference<ComTask> comTask = ValueReference.absent();
@@ -82,9 +81,9 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
 
     @Inject
-    protected ComTaskEnablementImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {
+    protected ComTaskEnablementImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, SchedulingService schedulingService) {
         super(ComTaskEnablement.class, dataModel, eventService, thesaurus);
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.schedulingService = schedulingService;
     }
 
     ComTaskEnablementImpl initialize(DeviceCommunicationConfiguration deviceCommunicationConfiguration, ComTask comTask, SecurityPropertySet securityPropertySet) {
@@ -367,7 +366,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         private NextExecutionSpecs nextExecutionSpecs;
 
         private CreateNextExecutionSpecs(TemporalExpression temporalExpression) {
-            this(deviceConfigurationService.newNextExecutionSpecs(temporalExpression));
+            this(schedulingService.newNextExecutionSpecs(temporalExpression));
             setNextExecutionSpecs(this.getNextExecutionSpecs());
         }
 

@@ -7,6 +7,9 @@ import com.energyict.mdc.device.config.NextExecutionSpecBuilder;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.TemporalExpression;
 
 /**
  * Copyrights EnergyICT
@@ -19,11 +22,9 @@ public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends
     private NextExecutionSpecs nextExecutionSpecs;
     private TimeDuration retryDelay;
 
-    AbstractScheduledPartialConnectionTaskBuilder(Class<?> selfType, DataModel dataModel, DeviceCommunicationConfiguration configuration, SchedulingService schedulingService) {
-        super(selfType, dataModel, configuration);
+    AbstractScheduledPartialConnectionTaskBuilder(Class<?> selfType, DataModel dataModel, DeviceCommunicationConfigurationImpl configuration, SchedulingService schedulingService, EventService eventService) {
+        super(eventService, selfType, dataModel, configuration);
         this.schedulingService = schedulingService;
-    AbstractScheduledPartialConnectionTaskBuilder(Class<?> selfType, DataModel dataModel, DeviceCommunicationConfigurationImpl configuration) {
-        super(dataModel.getInstance(EventService.class), selfType, dataModel, configuration);
     }
 
     @Override

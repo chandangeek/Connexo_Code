@@ -5,8 +5,6 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterMapping;
-import com.energyict.mdc.tasks.ComTask;
-
 import java.util.List;
 import java.util.Set;
 

@@ -24,7 +24,6 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.NotNull;
 import org.joda.time.DateTimeConstants;
-import org.joda.time.DateTimeConstants;
 
 
 /**

@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
