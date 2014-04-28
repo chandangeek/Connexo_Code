@@ -8,10 +8,12 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.exceptions.CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectException;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -19,13 +21,12 @@ import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.google.inject.Inject;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import javax.validation.constraints.NotNull;
 
 import static com.elster.jupiter.util.conditions.Operator.EQUAL;
 
@@ -43,7 +44,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     private final DataModel dataModel;
 
     private DeviceProtocolDialect protocolDialect;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.PROTOCOLDIALECT_REQUIRED_KEY + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOLDIALECT_REQUIRED + "}")
     private String protocolDialectName;
     private List<ProtocolDialectConfigurationProperty> propertyList = new ArrayList<>();
 
@@ -100,16 +101,11 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
 
     @Override
     protected void validateDelete() {
-        //TODO
-//        ProtocolDialectPropertiesFactory factory = ManagerFactory.getCurrent().getProtocolDialectPropertiesFactory();
-//        dataModel.mapper(PDProp)
-//        if (factory.existsUsing(this)) {
-//            throw new BusinessException(
-//                    "protocolDialectConfigurationPropertiesXIsStillInUseByProtocolDialectProperties",
-//                    "ProtocolDialectConfigurationProperties for {0} on configuration {1} is still being used by ProtocolDialectProperties on one or more devices",
-//                    this.getDeviceProtocolDialect().getDeviceProtocolDialectName(),
-//                    this.getDeviceCommunicationConfiguration().getDeviceConfiguration().getName());
-//        }
+        this.getEventService().postEvent(EventType.PROTOCOLCONFIGURATIONPROPS_VALIDATEDELETE.topic(), this);
+        List<ComTaskEnablement> comTaskEnablements = this.dataModel.mapper(ComTaskEnablement.class).find(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName(), this);
+        if (!comTaskEnablements.isEmpty()) {
+            throw new CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException(this.getThesaurus(), this);
+        }
     }
 
     @Override

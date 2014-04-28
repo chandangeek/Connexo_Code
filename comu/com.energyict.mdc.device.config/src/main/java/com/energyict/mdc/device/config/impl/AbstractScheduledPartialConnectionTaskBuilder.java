@@ -22,8 +22,8 @@ public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends
     private NextExecutionSpecs nextExecutionSpecs;
     private TimeDuration retryDelay;
 
-    AbstractScheduledPartialConnectionTaskBuilder(Class<?> selfType, DataModel dataModel, DeviceCommunicationConfigurationImpl configuration, SchedulingService schedulingService) {
-        super(dataModel.getInstance(EventService.class), selfType, dataModel, configuration);
+    AbstractScheduledPartialConnectionTaskBuilder(Class<?> selfType, DataModel dataModel, DeviceCommunicationConfigurationImpl configuration, SchedulingService schedulingService, EventService eventService) {
+        super(eventService, selfType, dataModel, configuration);
         this.schedulingService = schedulingService;
     }
 

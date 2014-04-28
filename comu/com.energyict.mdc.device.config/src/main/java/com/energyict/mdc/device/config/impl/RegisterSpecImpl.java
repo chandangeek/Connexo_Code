@@ -12,13 +12,13 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.InvalidValueException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredOnDeviceTypeException;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -48,11 +48,11 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     private final Reference<DeviceConfiguration> deviceConfig = ValueReference.absent();
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED_KEY + "}")
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED + "}")
     private final Reference<RegisterMapping> registerMapping = ValueReference.absent();
-    @Range(min = 1, max = 20, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS + "}")
+    @Range(min = 1, max = 20, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS + "}")
     private int numberOfDigits;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
     private Integer numberOfFractionDigits;
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;

@@ -29,8 +29,10 @@ import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -38,10 +40,15 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import com.google.inject.Provider;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -52,6 +59,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -77,6 +87,7 @@ public class InMemoryPersistence {
     private Publisher publisher;
     private NlsService nlsService;
     private MasterDataService masterDataService;
+    private TaskService taskService;
     private DeviceConfigurationServiceImpl deviceConfigurationService;
     private MeteringService meteringService;
     private MdcReadingTypeUtilService readingTypeUtilService;
@@ -86,6 +97,7 @@ public class InMemoryPersistence {
     private Injector injector;
 
     private ApplicationContext applicationContext;
+    private boolean mockProtocolPluggableService;
     private ProtocolPluggableService protocolPluggableService;
     private LogBookTypeUpdateEventHandler logBookTypeUpdateEventHandler;
     private LogBookTypeDeletionEventHandler logBookTypeDeletionEventHandler;
@@ -95,10 +107,45 @@ public class InMemoryPersistence {
     private RegisterMappingDeletionEventHandler registerMappingDeletionEventHandler;
     private RegisterMappingDeleteFromLoadProfileTypeEventHandler registerMappingDeleteFromLoadProfileTypeEventHandler;
 
-    public void initializeDatabase(String testName, boolean showSqlLogging, boolean createMasterData) {
-        this.initializeMocks(testName);
+    public void initializeDatabaseWithMockedProtocolPluggableService(String testName, boolean showSqlLogging) {
+        this.initializeDatabase(testName, showSqlLogging, true);
+    }
+
+    public void initializeDatabaseWithRealProtocolPluggableService(String testName, boolean showSqlLogging) {
+        this.initializeDatabase(testName, showSqlLogging, false);
+    }
+
+    private void initializeDatabase(String testName, boolean showSqlLogging, boolean mockedProtocolPluggableService) {
+        this.initializeMocks(testName, mockedProtocolPluggableService);
         InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
-        injector = Guice.createInjector(
+        injector = Guice.createInjector(this.guiceModules(showSqlLogging, mockedProtocolPluggableService, bootstrapModule));
+        this.transactionService = injector.getInstance(TransactionService.class);
+        try (TransactionContext ctx = this.transactionService.getContext()) {
+            this.ormService = injector.getInstance(OrmService.class);
+            this.userService = injector.getInstance(UserService.class);
+            this.eventService = injector.getInstance(EventService.class);
+            this.publisher = injector.getInstance(Publisher.class);
+            this.nlsService = injector.getInstance(NlsService.class);
+            this.meteringService = injector.getInstance(MeteringService.class);
+            this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
+            this.engineModelService = injector.getInstance(EngineModelService.class);
+            this.masterDataService = injector.getInstance(MasterDataService.class);
+            this.taskService = injector.getInstance(TaskService.class);
+            this.injector.getInstance(PluggableService.class);
+            if (!mockedProtocolPluggableService) {
+                this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+            }
+            this.dataModel = this.createNewDeviceConfigurationService();
+            ctx.commit();
+        }
+        Environment environment = injector.getInstance(Environment.class);
+        environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
+        environment.setApplicationContext(this.applicationContext);
+    }
+
+    private Module[] guiceModules(boolean showSqlLogging, boolean mockedProtocolPluggableService, InMemoryBootstrapModule bootstrapModule) {
+        List<Module> modules = new ArrayList<>();
+        modules.addAll(Arrays.asList(
                 new MockModule(),
                 bootstrapModule,
                 new ThreadSecurityModule(this.principal),
@@ -117,6 +164,7 @@ public class InMemoryPersistence {
                 new OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
+                new TasksModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
@@ -136,14 +184,19 @@ public class InMemoryPersistence {
             injector.getInstance(PluggableService.class);
             this.dataModel = this.createNewDeviceConfigurationService(createMasterData);
             ctx.commit();
+        if (!mockedProtocolPluggableService) {
+            modules.add(new IssuesModule());
+            modules.add(new MdcDynamicModule());
+            modules.add(new ProtocolPluggableModule());
+            modules.add(new ProtocolsModule());
         }
-        Environment environment = injector.getInstance(Environment.class);
-        environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
-        environment.setApplicationContext(this.applicationContext);
+        return modules.toArray(new Module[modules.size()]);
     }
 
     private DataModel createNewDeviceConfigurationService(boolean createMasterData) {
         this.deviceConfigurationService = injector.getInstance(DeviceConfigurationServiceImpl.class);
+    private DataModel createNewDeviceConfigurationService() {
+        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.readingTypeUtilService, userService, this.protocolPluggableService, engineModelService, masterDataService);
         return this.deviceConfigurationService.getDataModel();
     }
 
@@ -156,12 +209,15 @@ public class InMemoryPersistence {
         }
     }
 
-    private void initializeMocks(String testName) {
+    private void initializeMocks(String testName, boolean mockedProtocolPluggableService) {
+        this.mockProtocolPluggableService = mockedProtocolPluggableService;
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(Principal.class);
         when(this.principal.getName()).thenReturn(testName);
-        this.protocolPluggableService = mock(ProtocolPluggableService.class);
+        if (this.mockProtocolPluggableService) {
+            this.protocolPluggableService = mock(ProtocolPluggableService.class);
+        }
         this.applicationContext = mock(ApplicationContext.class);
         Translator translator = mock(Translator.class);
         when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
@@ -186,12 +242,20 @@ public class InMemoryPersistence {
         }
     }
 
+    public EventService getEventService() {
+        return eventService;
+    }
+
     public MeteringService getMeteringService() {
         return meteringService;
     }
 
     public MasterDataService getMasterDataService() {
         return masterDataService;
+    }
+
+    public TaskService getTaskService() {
+        return taskService;
     }
 
     public DeviceConfigurationServiceImpl getDeviceConfigurationService() {
@@ -243,7 +307,7 @@ public class InMemoryPersistence {
         this.registerMappingDeleteFromLoadProfileTypeEventHandler = this.registerSubscriber(new RegisterMappingDeleteFromLoadProfileTypeEventHandler(this.deviceConfigurationService));
     }
 
-    private <T extends Subscriber> T registerSubscriber(T subscriber) {
+    <T extends Subscriber> T registerSubscriber(T subscriber) {
         this.publisher.addThreadSubscriber(subscriber);
         return subscriber;
     }
@@ -258,7 +322,7 @@ public class InMemoryPersistence {
         this.unregisterSubscriber(this.registerMappingDeleteFromLoadProfileTypeEventHandler);
     }
 
-    private void unregisterSubscriber(Subscriber subscriber) {
+    void unregisterSubscriber(Subscriber subscriber) {
         if (subscriber != null) {
             this.publisher.removeThreadSubscriber(subscriber);
         }
@@ -269,7 +333,9 @@ public class InMemoryPersistence {
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
-            bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
+            if (mockProtocolPluggableService) {
+                bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
+            }
             bind(DataModel.class).toProvider(new Provider<DataModel>() {
                 @Override
                 public DataModel get() {

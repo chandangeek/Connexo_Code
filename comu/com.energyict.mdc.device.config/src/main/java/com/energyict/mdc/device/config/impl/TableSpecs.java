@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -20,6 +21,7 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
+import static com.elster.jupiter.orm.ColumnConversion.DATE2DATE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
@@ -279,7 +281,11 @@ public enum TableSpecs {
             Column devicecomconfig = table.column("DEVICECOMCONFIG").conversion(NUMBER2LONG).number().notNull().add();
             table.column("AUTHENTICATIONLEVEL").number().conversion(NUMBER2INT).notNull().map("authenticationLevelId").add();
             table.column("ENCRYPTIONLEVEL").number().conversion(NUMBER2INT).notNull().map("encryptionLevelId").add();
-            table.foreignKey("FK_MDCSECPROPSET_DEVCOMCONFIG").on(devicecomconfig).references(MDCDEVICECOMMCONFIG.name()).map("deviceCommunicationConfiguration").reverseMap("securityPropertySets").composition().add();
+            table.
+                foreignKey("FK_MDCSECPROPSET_DEVCOMCONFIG").
+                on(devicecomconfig).references(MDCDEVICECOMMCONFIG.name()).
+                    map("deviceCommunicationConfiguration").
+                    reverseMap(DeviceCommunicationConfigurationImpl.Fields.SECURITY_PROPERTY_SETS.fieldName()).composition().add();
             table.primaryKey("PK_MDCSECURITYPROPERTYSET").on(id).add();
         }
     },
@@ -294,6 +300,57 @@ public enum TableSpecs {
             table.primaryKey("PK_MDCSECURITYPROPETUSERACTION").on(useraction,securitypropertyset).add();
         }
     },
+    MDCCOMTASKENABLEMENT {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ComTaskEnablement> table = dataModel.addTable(name(), ComTaskEnablement.class);
+            table.map(ComTaskEnablementImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column comtask = table.column("COMTASK").number().notNull().add();
+            Column deviceCommunicationConfigation = table.column("DEVICECOMCONFIG").number().notNull().add();
+            Column securityPropertySet = table.column("SECURITYPROPERTYSET").number().notNull().add();
+            Column nextExecutionSpecs = table.column("NEXTEXECUTIONSPECS").number().add();
+            table.column("SUSPENDED").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.SUSPENDED.fieldName()).add();
+            Column partialConnectionTask = table.column("PARTIALCONNECTIONTASK").number().add();
+            table.column("USEDEFAULTCONNECTIONTASK").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.USE_DEFAULT_CONNECTION_TASK.fieldName()).add();
+            table.column("PRIORITY").number().notNull().conversion(NUMBER2INT).map(ComTaskEnablementImpl.Fields.PRIORITY.fieldName()).add();
+            Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().add();
+            table.column("IGNORENEXTEXECSPECS").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.IGNORE_NEXT_EXECUTION_SPECS_FOR_INBOUND.fieldName()).add();
+            table.
+                foreignKey("FK_MDCCOMTASKENABLMNT_OPARTCT").
+                on(partialConnectionTask).
+                references(MDCPARTIALCONNECTIONTASK.name()).
+                    map(ComTaskEnablementImpl.Fields.PARTIAL_CONNECTION_TASK.fieldName()).add();
+            table.
+                foreignKey("FK_MDCCOMTASKSEC_SECPROPSET").
+                on(securityPropertySet).
+                references(MDCSECURITYPROPERTYSET.name()).
+                    map(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName()).add();
+            table.
+                foreignKey("FK_MDCCOMTASKSEC_COMTASK").
+                on(comtask).
+                references(TaskService.COMPONENT_NAME, "MDCCOMTASK").
+                    map(ComTaskEnablementImpl.Fields.COM_TASK.fieldName()).add();
+            table.
+                foreignKey("FK_MDCCOMTASKENBLMNT_DCOMCONF").
+                on(deviceCommunicationConfigation).
+                references(MDCDEVICECOMMCONFIG.name()).
+                    map(ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName()).
+                    reverseMap(DeviceCommunicationConfigurationImpl.Fields.COM_TASK_ENABLEMENTS.fieldName()).composition().add();
+            table.
+                foreignKey("FK_MDCCOMTASKENABLMNT_NEXTEXEC").
+                on(nextExecutionSpecs).
+                references(SchedulingService.COMPONENT_NAME, "MDCNEXTEXECUTIONSPEC").
+                    map(ComTaskEnablementImpl.Fields.NEXT_EXECUTION_SPECS.fieldName()).add();
+            table.
+                foreignKey("FK_MDCCOMTASKENABLMNT_PDCP").
+                on(dialectConfigurationProperties).
+                references(MDCDIALECTCONFIGPROPERTIES.name()).
+                    map(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName()).add();
+            table.unique("UK_MDCCOMTASKENABLEMENT").on(comtask,deviceCommunicationConfigation).add();
+            table.primaryKey("PK_MDCCOMTASKENABLEMENT").on(id).add();
+        }
+    }
     ;
 
     abstract void addTo(DataModel component);

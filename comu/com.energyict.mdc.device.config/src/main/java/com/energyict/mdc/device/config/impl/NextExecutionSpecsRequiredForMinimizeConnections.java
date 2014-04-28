@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-
-import javax.validation.Constraint;
-import javax.validation.Payload;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
 /**
  * Copyrights EnergyICT
@@ -19,7 +18,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {PartialScheduledConnectionTaskImpl.NextExecutionSpecValidator.class})
 public @interface NextExecutionSpecsRequiredForMinimizeConnections {
 
-    String message() default '{' + MessageSeeds.Constants.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS_KEY + '}';
+    String message() default '{' + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS + '}';
 
     Class<?>[] groups() default {};
 

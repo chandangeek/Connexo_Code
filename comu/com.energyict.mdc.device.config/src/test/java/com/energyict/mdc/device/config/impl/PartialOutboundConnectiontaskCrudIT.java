@@ -61,6 +61,8 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.impl.NextExecutionSpecsImpl;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.base.Optional;
@@ -169,6 +171,7 @@ public class PartialOutboundConnectiontaskCrudIT {
                 new OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
+                new TasksModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
@@ -189,6 +192,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
+            injector.getInstance(TaskService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }
@@ -393,7 +397,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS_KEY+"}", property = "nextExecutionSpecs")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS + "}", property = "nextExecutionSpecs")
     public void testCanNotCreateConnectionTaskWithNextExecutionSpecIfAsSoonAsPossible() {
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -556,7 +560,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.CONNECTION_STRATEGY_REQUIRED_KEY + '}')
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.CONNECTION_STRATEGY_REQUIRED + '}')
     public void testCreateWithoutConnectionStrategy() {
 
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
@@ -580,7 +584,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS_KEY + '}', property = "nextExecutionSpecs")
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS + '}')
     public void testCreateMinimizingConnectionsWithoutNextExecutionSpecs() {
 
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
@@ -603,7 +607,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY + '}')
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW + '}')
     public void testCreateWithNextExecutionSpecsOffsetNotWithinComWindowTest() {
 
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
@@ -627,7 +631,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.UNDER_MINIMUM_RESCHEDULE_DELAY_KEY + '}')
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.UNDER_MINIMUM_RESCHEDULE_DELAY + '}')
     public void testCreateWithTooLowReschedulingRetryDelayTest() {
 
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
@@ -651,7 +655,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC_KEY + '}')
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC + '}')
     public void testCreateWithNonSpeccedProperty() {
 
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
@@ -680,7 +684,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE_KEY + '}')
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE + '}')
     public void testCreateWithWrongValueForProperty() {
 
         PartialScheduledConnectionTaskImpl outboundConnectionTask;

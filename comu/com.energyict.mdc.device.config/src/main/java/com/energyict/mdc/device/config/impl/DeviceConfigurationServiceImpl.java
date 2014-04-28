@@ -16,6 +16,7 @@ import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -34,10 +35,13 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -71,6 +75,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile MasterDataService masterDataService;
     private volatile SchedulingService schedulingService;
     private volatile UserService userService;
+    private volatile TaskService taskService;
+    private volatile PluggableService pluggableService;
 
     private final Map<DeviceSecurityUserAction, Privilege> privileges = new EnumMap<>(DeviceSecurityUserAction.class);
 
@@ -316,6 +322,20 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return !this.getDataModel().mapper(ChannelSpec.class).find("phenomenon", phenomenon).isEmpty();
     }
 
+    @Override
+    public Optional<ComTaskEnablement> findComTaskEnablement(long id) {
+        return dataModel.mapper(ComTaskEnablement.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<ComTaskEnablement> findComTaskEnablement(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        return dataModel.
+                mapper(ComTaskEnablement.class).
+                getUnique(
+                        ComTaskEnablementImpl.Fields.COM_TASK.fieldName(), comTask,
+                        ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName(), deviceConfiguration.getCommunicationConfiguration());
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "DeviceType and configurations");
@@ -424,8 +444,21 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Reference
+    public void setTaskService(TaskService taskService) {
+        // Not actively used but required for foreign keys in TableSpecs
+        this.taskService = taskService;
+    }
+
+    @Reference
     public void setMasterDataService(MasterDataService masterDataService) {
+        // Not actively used but required for foreign keys in TableSpecs
         this.masterDataService = masterDataService;
+    }
+
+    @Reference
+    public void setPluggableService(PluggableService pluggableService) {
+        // Not actively used but required for foreign keys in TableSpecs
+        this.pluggableService = pluggableService;
     }
 
     @Override
