@@ -23,7 +23,7 @@ public interface ComTask {
     /**
      * @return a List of {@link ProtocolTask ProtocolTasks} for this ComTask
      */
-    public List<? extends ProtocolTask> getProtocolTasks();
+    public List<ProtocolTask> getProtocolTasks();
 
     /**
      * Create a {@link BasicCheckTask} based on the given shadow for this {@link ComTask}

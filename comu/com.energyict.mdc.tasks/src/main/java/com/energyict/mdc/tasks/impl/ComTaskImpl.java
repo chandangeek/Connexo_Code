@@ -93,7 +93,7 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
      * Keeps track of the maximum number of tries a ComTask may execute before failing
      */
     @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message="{"+Constants.VALUE_TOO_SMALL +"}")
-    private int maxNrOfTries;
+    private int maxNrOfTries = 3;
 
     @Inject
     public ComTaskImpl(DataModel dataModel, Thesaurus thesaurus,
@@ -144,8 +144,8 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
         this.storeData = storeData;
     }
 
-    public List<? extends ProtocolTask> getProtocolTasks() {
-        return ImmutableList.copyOf(protocolTasks);
+    public List<ProtocolTask> getProtocolTasks() {
+        return ImmutableList.<ProtocolTask>copyOf(protocolTasks);
     }
 
     private void addProtocolTask(ProtocolTaskImpl protocolTask) {

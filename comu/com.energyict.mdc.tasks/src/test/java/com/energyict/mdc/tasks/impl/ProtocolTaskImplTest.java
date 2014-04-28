@@ -43,8 +43,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
     private static final TimeDuration maximumClockShift = new TimeDuration(13, TimeDuration.SECONDS);
 
     private ComTask createSimpleComTask() {
-        ComTask comTask = getTaskService().createComTask();
-        comTask.setName(COM_TASK_NAME);
+        ComTask comTask = getTaskService().newComTask(COM_TASK_NAME);
         comTask.setStoreData(STORE_DATA_TRUE);
         comTask.setMaxNrOfTries(1);
         return comTask;
