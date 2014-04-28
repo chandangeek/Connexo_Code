@@ -106,6 +106,8 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     public ComTask getComTask ();
 
+    public ComSchedule getComSchedule();
+
     /**
      * Gets the {@link ProtocolDialectConfigurationProperties}.
      */
@@ -414,6 +416,8 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
         ComTaskExecutionUpdater setIgnoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
 
         ComTaskExecutionUpdater setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
+
+        ComTaskExecutionUpdater comSchedule(ComSchedule comSchedule);
 
         /**
          * Updates the actual ComTaskExecution with the objects set in this builder

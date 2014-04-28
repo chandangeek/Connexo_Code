@@ -127,6 +127,13 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
     }
 
+    private void setComSchedule(ComSchedule comSchedule) {
+        if (comSchedule==null) {
+            this.comScheduleReference.setNull();
+        }
+        this.comScheduleReference.set(comSchedule);
+    }
+
     /**
      * Serves as a <i>provider</i> for the current NextExecutionSpec.
      * The NextExecutionSpec will either be owned by:
@@ -198,6 +205,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return comTask.get();       // we do an explicit get because ComTask is required and should not be null
     }
 
+    @Override
     public ComSchedule getComSchedule() {
         return comScheduleReference.get();
     }
@@ -1043,6 +1051,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         public ComTaskExecution.ComTaskExecutionUpdater setNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int priority) {
             this.comTaskExecution.setNextExecutionTimestamp(nextExecutionTimestamp);
             this.comTaskExecution.setExecutingPriority(priority);
+            return this;
+        }
+
+        public ComTaskExecution.ComTaskExecutionUpdater comSchedule(ComSchedule comSchedule) {
+            this.comTaskExecution.setComSchedule(comSchedule);
             return this;
         }
 

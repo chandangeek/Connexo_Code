@@ -659,6 +659,15 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     public List<ComTaskExecution> findComTaskExecutionsByConnectionTask(ConnectionTask<?, ?> connectionTask) {
         return this.dataModel.mapper(ComTaskExecution.class).find(ComTaskExecutionFields.CONNECTIONTASK.fieldName(), connectionTask);
     }
+
+    @Override
+    public List<ComTaskExecution> findComTaskExecutionsByComSchedule(ComSchedule comSchedule) {
+        return this.dataModel.query(ComTaskExecution.class)
+                .select(Where.where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule)
+                        .and(Where.where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()));
+    }
+
+
     @Override
     public Date getPlannedDate(ComSchedule comSchedule) {
         List<ComTaskExecution> comTaskExecutions = dataModel.query(ComTaskExecution.class)
