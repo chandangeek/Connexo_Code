@@ -57,6 +57,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
@@ -97,6 +98,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     private volatile Clock clock;
     private volatile RelationService relationService;
+    private volatile PluggableService pluggableService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile EngineModelService engineModelService;
@@ -416,6 +418,12 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setPluggableService(PluggableService pluggableService) {
+        // Not actively used but required for foreign keys in TableSpecs
+        this.pluggableService = pluggableService;
     }
 
     @Reference
