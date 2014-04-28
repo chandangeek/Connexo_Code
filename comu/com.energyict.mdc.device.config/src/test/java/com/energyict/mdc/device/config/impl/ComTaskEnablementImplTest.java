@@ -91,7 +91,6 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
     private ComTask createComTask (String name) {
         ComTask comTask = inMemoryPersistence.getTaskService().newComTask(name);
-        comTask.setName(name);
         comTask.setMaxNrOfTries(1);
         comTask.createBasicCheckTask().add();
         comTask.save();
