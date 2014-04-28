@@ -680,6 +680,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     public List<ComTask> findAvailableComTasksForComSchedule(ComSchedule comSchedule) {
 //        return this.dataModel.query(ComTask.class)
 //                .select(Where.where(ComTask));
+        return null; // TODO complete me
     }
 
     @Override
