@@ -3,10 +3,13 @@
   height: $button-step-height !important;
   padding: 6px !important;
   font-weight: bold;
+  .x-btn-inner {
+    padding: 1px 0 !important;
+  }
 }
 
 .#{$prefix}btn-step-active-small {
-  @include step-button-sizes
+  @include step-button-sizes;
 }
 
 .#{$prefix}btn-step-completed-small {
@@ -36,7 +39,10 @@
     $color: $button-step-completed-color,
     $background-color-pressed: $button-step-completed-background-step-color-pressed,
     $background-color-over: $button-step-completed-background-step-color-over,
-    $border-radius: $button-step-border-radius
+    $border-radius: $button-step-border-radius,
+    $border-color: $button-step-completed-border-color,
+    $border-width: $button-step-border-width
+
   );
 }
 
