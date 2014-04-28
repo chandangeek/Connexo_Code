@@ -156,8 +156,9 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
                 if ((ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(value.connectionStrategy) && value.getNextExecutionSpecs()!=null)
                     || (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(value.connectionStrategy) && value.getNextExecutionSpecs()==null)) {
                     context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS_KEY+"}")
-                            .addPropertyNode(Fields.NEXT_EXECUTION_SPECS.fieldName()).addConstraintViolation();
+                    context.
+                        buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS + "}").
+                        addPropertyNode(Fields.NEXT_EXECUTION_SPECS.fieldName()).addConstraintViolation();
                     return false;
                 }
             }
