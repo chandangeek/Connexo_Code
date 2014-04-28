@@ -14,10 +14,11 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.TemporalExpression;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -44,8 +45,8 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     private Reference<PartialConnectionInitiationTask> initiator = ValueReference.absent();
 
     @Inject
-    PartialScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
-        super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService);
+    PartialScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
+        super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService, schedulingService);
     }
 
     static PartialScheduledConnectionTaskImpl from(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
@@ -152,16 +153,7 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
 
         @Override
         public boolean isValid(PartialScheduledConnectionTaskImpl value, ConstraintValidatorContext context) {
-            if (value.getConnectionStrategy()!=null) {
-                if ((ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(value.connectionStrategy) && value.getNextExecutionSpecs()!=null)
-                    || (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(value.connectionStrategy) && value.getNextExecutionSpecs()==null)) {
-                    context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS_KEY+"}")
-                            .addPropertyNode(Fields.NEXT_EXECUTION_SPECS.fieldName()).addConstraintViolation();
-                    return false;
-                }
-            }
-            return true;
+            return !ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(value.getConnectionStrategy()) || value.getNextExecutionSpecs() != null;
         }
     }
 

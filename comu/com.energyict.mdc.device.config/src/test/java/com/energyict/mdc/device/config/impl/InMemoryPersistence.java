@@ -38,6 +38,7 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -122,12 +123,13 @@ public class InMemoryPersistence {
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
-                new PluggableModule());
+                new PluggableModule(),
+                new SchedulingModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
-            this.ormService = injector.getInstance(OrmService.class);
+            OrmService ormService = injector.getInstance(OrmService.class);
             userService = injector.getInstance(UserService.class);
-            this.eventService = injector.getInstance(EventService.class);
+            EventService eventService = injector.getInstance(EventService.class);
             this.publisher = injector.getInstance(Publisher.class);
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
@@ -144,7 +146,7 @@ public class InMemoryPersistence {
     }
 
     private DataModel createNewDeviceConfigurationService(boolean createMasterData) {
-        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.readingTypeUtilService, this.protocolPluggableService, userService, engineModelService, masterDataService, createMasterData);
+        this.deviceConfigurationService = injector.getInstance(DeviceConfigurationServiceImpl.class);
         return this.deviceConfigurationService.getDataModel();
     }
 

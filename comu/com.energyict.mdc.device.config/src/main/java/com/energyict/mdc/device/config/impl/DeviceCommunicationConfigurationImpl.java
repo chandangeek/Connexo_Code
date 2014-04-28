@@ -29,6 +29,7 @@ import com.energyict.mdc.device.config.exceptions.PartialConnectionTaskDoesNotEx
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.scheduling.SchedulingService;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -47,6 +48,7 @@ import java.util.Set;
  */
 public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<DeviceCommunicationConfiguration> implements ServerDeviceCommunicationConfiguration {
 
+    private final SchedulingService schedulingService;
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private List<SecurityPropertySet> securityPropertySets = new ArrayList<>();
 //    private List<ComTaskEnablement> comTaskEnablements;
@@ -60,8 +62,9 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     private List<ProtocolDialectConfigurationProperties> configurationPropertiesList = new ArrayList<>();
 
     @Inject
-    DeviceCommunicationConfigurationImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    DeviceCommunicationConfigurationImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, SchedulingService schedulingService) {
         super(DeviceCommunicationConfiguration.class, dataModel, eventService, thesaurus);
+        this.schedulingService = schedulingService;
     }
 
     static DeviceCommunicationConfigurationImpl from(DataModel dataModel, DeviceConfiguration deviceConfiguration) {
@@ -661,7 +664,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public PartialScheduledConnectionTaskBuilder newPartialScheduledConnectionTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ConnectionStrategy connectionStrategy) {
-        return new PartialScheduledConnectionTaskBuilderImpl(dataModel, this).name(name)
+        return new PartialScheduledConnectionTaskBuilderImpl(dataModel, this, schedulingService).name(name)
                 .pluggableClass(connectionType)
                 .rescheduleDelay(rescheduleRetryDelay)
                 .connectionStrategy(connectionStrategy);
@@ -676,7 +679,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public PartialConnectionInitiationTaskBuilder newPartialConnectionInitiationTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay) {
-        return new PartialConnectionInitiationTaskBuilderImpl(dataModel, this)
+        return new PartialConnectionInitiationTaskBuilderImpl(dataModel, this, schedulingService)
                 .name(name)
                 .pluggableClass(connectionType)
                 .rescheduleDelay(rescheduleRetryDelay);
