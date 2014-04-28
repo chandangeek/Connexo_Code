@@ -12,7 +12,7 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.ComTaskEnablement;
@@ -23,6 +23,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OnlineComServer;
@@ -97,8 +98,8 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected Device otherDevice;
     protected PartialInboundConnectionTask partialInboundConnectionTask;
     protected PartialInboundConnectionTask partialInboundConnectionTask2;
-    protected PartialOutboundConnectionTask partialScheduledConnectionTask;
-    protected PartialOutboundConnectionTask partialScheduledConnectionTask2;
+    protected PartialScheduledConnectionTask partialScheduledConnectionTask;
+    protected PartialScheduledConnectionTask partialScheduledConnectionTask2;
     protected PartialConnectionInitiationTask partialConnectionInitiationTask;
     protected PartialConnectionInitiationTask partialConnectionInitiationTask2;
 
@@ -238,17 +239,23 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
             Environment.DEFAULT.get().execute(new Transaction<Object>() {
                 @Override
                 public Object doExecute() {
-                    outboundTcpipComPortPool.delete();
-                    outboundTcpipComPortPool2.delete();
-                    inboundTcpipComPortPool.delete();
-                    inboundTcpipComPortPool2.delete();
-                    outboundModemComPortPool.delete();
+                    deleteComPortPool(outboundTcpipComPortPool);
+                    deleteComPortPool(outboundTcpipComPortPool2);
+                    deleteComPortPool(inboundTcpipComPortPool);
+                    deleteComPortPool(inboundTcpipComPortPool2);
+                    deleteComPortPool(outboundModemComPortPool);
                     return null;
                 }
             });
         }
         catch (BusinessException | SQLException e) {
             // Not thrown by the transaction
+        }
+    }
+
+    private static void deleteComPortPool(ComPortPool comPortPool) {
+        if (comPortPool != null) {
+            comPortPool.delete();
         }
     }
 
@@ -381,42 +388,24 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
         deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
 
-        partialInboundConnectionTask = deviceCommunicationConfiguration.createPartialInboundConnectionTask().
-                name("Inbound (1)").
-                pluggableClass(noParamsConnectionTypePluggableClass).
+        partialInboundConnectionTask = deviceCommunicationConfiguration.newPartialInboundConnectionTask("Inbound (1)", noParamsConnectionTypePluggableClass).
                 build();
 
-        partialInboundConnectionTask2 = deviceCommunicationConfiguration.createPartialInboundConnectionTask().
-                name("Inbound (2)").
-                pluggableClass(noParamsConnectionTypePluggableClass).
+        partialInboundConnectionTask2 = deviceCommunicationConfiguration.newPartialInboundConnectionTask("Inbound (2)", noParamsConnectionTypePluggableClass).
                 build();
 
-        partialScheduledConnectionTask = deviceCommunicationConfiguration.createPartialOutboundConnectionTask().
-                name("Outbound (1)").
+        partialScheduledConnectionTask = deviceCommunicationConfiguration.newPartialScheduledConnectionTask("Outbound (1)", noParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                 comWindow(new ComWindow(0, 7200)).
-                rescheduleDelay(TimeDuration.minutes(5)).
-                connectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
-                pluggableClass(noParamsConnectionTypePluggableClass).
                 build();
 
-        partialScheduledConnectionTask2 = deviceCommunicationConfiguration.createPartialOutboundConnectionTask().
-                name("Outbound (2)").
+        partialScheduledConnectionTask2 = deviceCommunicationConfiguration.newPartialScheduledConnectionTask("Outbound (2)", noParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                 comWindow(new ComWindow(0, 7200)).
-                rescheduleDelay(TimeDuration.minutes(5)).
-                connectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
-                pluggableClass(noParamsConnectionTypePluggableClass).
                 build();
 
-        partialConnectionInitiationTask = deviceCommunicationConfiguration.createPartialConnectionInitiationTask().
-                name("Initiation (1)").
-                rescheduleDelay(TimeDuration.minutes(5)).
-                pluggableClass(ipConnectionTypePluggableClass).
+        partialConnectionInitiationTask = deviceCommunicationConfiguration.newPartialConnectionInitiationTask("Initiation (1)", ipConnectionTypePluggableClass, TimeDuration.minutes(5)).
                 build();
 
-        partialConnectionInitiationTask2 = deviceCommunicationConfiguration.createPartialConnectionInitiationTask().
-                name("Initiation (2)").
-                rescheduleDelay(TimeDuration.minutes(5)).
-                pluggableClass(ipConnectionTypePluggableClass).
+        partialConnectionInitiationTask2 = deviceCommunicationConfiguration.newPartialConnectionInitiationTask("Initiation (2)", ipConnectionTypePluggableClass, TimeDuration.minutes(5)).
                 build();
 
         deviceCommunicationConfiguration.save();
@@ -431,7 +420,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDevice() {
-        Device simpleDevice = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "SimpleDevice");
+        Device simpleDevice = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "SimpleDevice", "ConnectionTaskImplIT");
         simpleDevice.save();
         return simpleDevice;
     }
@@ -441,6 +430,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected ScheduledConnectionTask createOutboundWithIpPropertiesWithoutViolations(String name, ConnectionStrategy connectionStrategy) {
+        partialConnectionInitiationTask.setName(name);
         partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTask connectionTask;
@@ -489,14 +479,13 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private ProtocolDialectConfigurationProperties createDialectConfigProperties() {
-        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.createProtocolDialectConfigurationProperties("MyConfigDialect", new ComTaskExecutionDialect());
+        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
         deviceConfiguration.save();
         return configDialect;
     }
 
     private ComTask createComTaskWithBasicCheck() {
-        ComTask comTask = inMemoryPersistence.getTaskService().createComTask();
-        comTask.setName(COM_TASK_NAME);
+        ComTask comTask = inMemoryPersistence.getTaskService().newComTask(COM_TASK_NAME);
         comTask.setStoreData(true);
         comTask.setMaxNrOfTries(maxNrOfTries);
         comTask.createBasicCheckTask().add();
@@ -505,8 +494,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private ComTask createComTaskWithLogBooks(){
-        ComTask comTask = inMemoryPersistence.getTaskService().createComTask();
-        comTask.setName(COM_TASK_NAME+2);
+        ComTask comTask = inMemoryPersistence.getTaskService().newComTask(COM_TASK_NAME + 2);
         comTask.setStoreData(true);
         comTask.setMaxNrOfTries(maxNrOfTries);
         comTask.createLogbooksTask().add();

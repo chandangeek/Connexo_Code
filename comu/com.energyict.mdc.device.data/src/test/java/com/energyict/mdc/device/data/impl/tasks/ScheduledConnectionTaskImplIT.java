@@ -13,7 +13,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.Device;
@@ -166,13 +166,14 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test(expected = PartialConnectionTaskNotPartOfDeviceConfigurationException.class)
     @Transactional
     public void testCreateOfDifferentConfig() {
-        DeviceConfiguration mockedDeviceConfiguration = mock(DeviceConfiguration.class);
-        when(mockedDeviceConfiguration.getDeviceConfiguration()).thenReturn(mockedDeviceConfiguration);
-        when(mockedDeviceConfiguration.getCommunicationConfiguration()).thenReturn(mockedDeviceConfiguration);
-        PartialOutboundConnectionTask partialScheduledConnectionTask = mock(PartialOutboundConnectionTask.class);
+        DeviceConfiguration mockCommunicationConfig = mock(DeviceConfiguration.class);
+        when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
+        when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(mockCommunicationConfig);
+        when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        PartialScheduledConnectionTask partialScheduledConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialScheduledConnectionTask.getId()).thenReturn(PARTIAL_SCHEDULED_CONNECTION_TASK3_ID);
         when(partialScheduledConnectionTask.getName()).thenReturn("testCreateOfDifferentConfig");
-        when(partialScheduledConnectionTask.getConfiguration()).thenReturn(mockedDeviceConfiguration);
+        when(partialScheduledConnectionTask.getConfiguration()).thenReturn(deviceConfiguration);
         when(partialScheduledConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
 
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateOfDifferentConfig", partialScheduledConnectionTask);
@@ -1925,7 +1926,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         return createAsapWithNoPropertiesWithoutViolations(name, this.partialScheduledConnectionTask);
     }
 
-    private ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name, PartialOutboundConnectionTask partialConnectionTask) {
+    private ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name, PartialScheduledConnectionTask partialConnectionTask) {
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
         partialConnectionTask.setName(name);
         partialConnectionTask.save();

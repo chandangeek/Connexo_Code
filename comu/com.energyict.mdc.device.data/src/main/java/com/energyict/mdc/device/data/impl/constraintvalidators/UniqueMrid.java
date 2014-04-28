@@ -16,8 +16,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = { DeviceExternalNameValidator.class })
-public @interface UniqueName {
+@Constraint(validatedBy = { DeviceMridValidator.class })
+public @interface UniqueMrid {
 
     String message() default "";
 

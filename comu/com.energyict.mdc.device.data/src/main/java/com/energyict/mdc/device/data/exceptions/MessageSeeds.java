@@ -96,6 +96,7 @@ public enum MessageSeeds implements MessageSeed {
 
     public static class Constants {
         public static final String NAME_REQUIRED_KEY = "DDC.X.name.required";
+        public static final String MRID_REQUIRED_KEY = "DDC.mRIDRequired";
         public static final String COMPORT_TYPE_NOT_SUPPORTED_KEY = "DDC.comPortTypeOfComPortPoolMustBeSupportedByConnectionType";
         public static final String CONNECTION_TASK_DEVICE_REQUIRED_KEY = "DDC.connectionType.device.required";
         public static final String CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY = "DDC.connectionType.partialConnectionTask.required";
@@ -119,7 +120,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW_KEY = "DDC.outboundConnectionTask.nextExecutionSpecs.offsetNotWithinWindow";
         public static final String OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW_KEY = "DDC.outboundConnectionTask.nextExecutionSpecs.longOffsetNotWithinWindow";
         public static final String VALUE_IS_REQUIRED_KEY = "DDC.X.value.required";
-        public static final String DUPLICATE_DEVICE_EXTERNAL_KEY = "DDC.device.duplicateExternalName";
+        public static final String DUPLICATE_DEVICE_MRID = "DDC.deviceDuplicateMrid";
         public static final String GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY = "DDC.gateway.not.origin";
         public static final String PHYSICAL_GATEWAY_STILL_IN_USE = "DDC.device.delete.linked.physical.gateway";
         public static final String COMMUNICATION_GATEWAY_STILL_IN_USE = "DDC.device.delete.linked.communication.gateway";

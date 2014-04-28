@@ -33,6 +33,8 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.Channel;
@@ -53,7 +55,7 @@ import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
-import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
+import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.offline.DeviceOffline;
 import com.energyict.mdc.device.data.impl.offline.OfflineDeviceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
@@ -93,7 +95,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_EXTERNAL_KEY + "}")
+@UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_MRID + "}")
 public class DeviceImpl implements Device, PersistenceAware {
 
     private final DataModel dataModel;
@@ -110,13 +112,16 @@ public class DeviceImpl implements Device, PersistenceAware {
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private String name;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.MRID_REQUIRED_KEY + "}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.MRID_REQUIRED_KEY + "}")
+    private String mRID;
 
     private String serialNumber;
-
     private String timeZoneId;
     private TimeZone timeZone;
-    private String mRID;
     private Date modificationDate;
+    private Date yearOfCertification;
+
     @Valid
     private TemporalReference<CommunicationGatewayReference> communicationGatewayReferenceDevice = Temporals.absent();
     @Valid
@@ -300,9 +305,10 @@ public class DeviceImpl implements Device, PersistenceAware {
         }
     }
 
-    DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name) {
+    DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
         this.deviceConfiguration.set(deviceConfiguration);
         setName(name);
+        this.mRID = mRID;
         createLoadProfiles();
         createLogBooks();
         return this;
@@ -380,6 +386,16 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Override
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
+    }
+
+    @Override
+    public void setYearOfCertification(Date yearOfCertification) {
+        this.yearOfCertification = yearOfCertification;
+    }
+
+    @Override
+    public Date getYearOfCertification() {
+        return yearOfCertification;
     }
 
     public Date getModDate() {
@@ -813,11 +829,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         Meter meter;
         if (!holder.isPresent()) {
             // create meter
-            if (getExternalName() != null) {
-                meter = amrSystem.get().newMeter(String.valueOf(getId()), getExternalName());
-            } else {
-                meter = amrSystem.get().newMeter(String.valueOf(getId()));
-            }
+            meter = amrSystem.get().newMeter(String.valueOf(getId()), getmRID());
             meter.save();
         } else {
             meter = holder.get();
@@ -870,13 +882,8 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     @Override
-    public String getExternalName() {
+    public String getmRID() {
         return mRID;
-    }
-
-    @Override
-    public void setExternalName(String externalName) {
-        this.mRID = externalName;
     }
 
     @Override
@@ -1036,11 +1043,11 @@ public class DeviceImpl implements Device, PersistenceAware {
 
         private final ScheduledConnectionTaskImpl scheduledConnectionTask;
 
-        private ScheduledConnectionTaskBuilderForDevice(Device device, PartialScheduledConnectionTask partialScheduledConnectionTask) {
+        private ScheduledConnectionTaskBuilderForDevice(Device device, PartialOutboundConnectionTask partialOutboundConnectionTask) {
             this.scheduledConnectionTask = scheduledConnectionTaskProvider.get();
-            this.scheduledConnectionTask.initialize(device, (PartialOutboundConnectionTask) partialScheduledConnectionTask, partialScheduledConnectionTask.getComPortPool());
-            this.scheduledConnectionTask.setNextExecutionSpecsFrom(partialScheduledConnectionTask.getNextExecutionSpecs().getTemporalExpression());
-            this.scheduledConnectionTask.setConnectionStrategy(((PartialOutboundConnectionTask) partialScheduledConnectionTask).getConnectionStrategy());
+            this.scheduledConnectionTask.initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool());
+            this.scheduledConnectionTask.setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
+            this.scheduledConnectionTask.setConnectionStrategy(((PartialScheduledConnectionTask) partialOutboundConnectionTask).getConnectionStrategy());
         }
 
         @Override

@@ -22,7 +22,7 @@ import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
@@ -58,6 +58,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
@@ -75,7 +76,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -96,6 +96,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
 
     private volatile Clock clock;
     private volatile RelationService relationService;
+    private volatile PluggableService pluggableService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile EngineModelService engineModelService;
@@ -183,14 +184,14 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
 
     @Override
-    public ScheduledConnectionTask newAsapConnectionTask(Device device, PartialOutboundConnectionTask partialConnectionTask, OutboundComPortPool comPortPool) {
+    public ScheduledConnectionTask newAsapConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool) {
         ScheduledConnectionTaskImpl connectionTask = this.dataModel.getInstance(ScheduledConnectionTaskImpl.class);
         connectionTask.initializeWithAsapStrategy(device, partialConnectionTask, comPortPool);
         return connectionTask;
     }
 
     @Override
-    public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialOutboundConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression temporalExpression) {
+    public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression temporalExpression) {
         NextExecutionSpecs nextExecutionSpecs = null;
         if (temporalExpression != null) {
             nextExecutionSpecs = this.deviceConfigurationService.newNextExecutionSpecs(temporalExpression);
@@ -339,8 +340,8 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     private void collectComTaskWithDefaultConnectionTaskForCompleteTopology(Device device, List<ComTaskExecution> scheduledComTasks, ConnectionTask connectionTask) {
         Condition query = Where.where(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).isEqualTo(true)
                 .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device)
-                .and((where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNull())
-                        .or(where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNotEqual(connectionTask))));
+                        .and((where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNull())
+                                .or(where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNotEqual(connectionTask))));
         List<ComTaskExecution> comTaskExecutions = this.dataModel.mapper(ComTaskExecution.class).select(query);
         scheduledComTasks.addAll(comTaskExecutions);
         for (Object physicalConnectedDevice : device.getPhysicalConnectedDevices()) {
@@ -414,6 +415,12 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setPluggableService(PluggableService pluggableService) {
+        // Not actively used but required for foreign keys in TableSpecs
+        this.pluggableService = pluggableService;
     }
 
     @Reference
@@ -518,8 +525,8 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
 
     @Override
-    public Device newDevice(DeviceConfiguration deviceConfiguration, String name) {
-        return dataModel.getInstance(DeviceImpl.class).initialize(deviceConfiguration, name);
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID) {
+        return dataModel.getInstance(DeviceImpl.class).initialize(deviceConfiguration, name, mRID);
     }
 
     @Override
@@ -528,8 +535,8 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
 
     @Override
-    public Device findDeviceByExternalName(String externalName) {
-        return dataModel.mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), externalName).orNull();
+    public Device findByUniqueMrid(String mrId) {
+        return dataModel.mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mrId).orNull();
     }
 
     @Override

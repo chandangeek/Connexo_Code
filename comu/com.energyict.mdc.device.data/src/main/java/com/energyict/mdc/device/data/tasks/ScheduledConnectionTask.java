@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.tasks;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.NextExecutionSpecs;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
@@ -39,7 +38,9 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-11 (16:40)
  */
-public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialOutboundConnectionTask> {
+public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialScheduledConnectionTask> {
+
+    public void setMaxNumberOfTries(int maxNumberOfTries);
 
     /**
      * Gets the time window during which communication with the device

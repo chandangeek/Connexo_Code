@@ -4,6 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 
@@ -30,7 +31,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     private int loadProfileId;
 
     /**
-     * The ID of the {@link com.energyict.mdc.device.config.LoadProfileType LoadProfileType} of this {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * The ID of the {@link LoadProfileType LoadProfileType} of this {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
      */
     private int loadProfileTypeId;
 
@@ -116,9 +117,9 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     }
 
     /**
-     * Returns the database ID of the {@link com.energyict.mdc.device.config.LoadProfileType LoadProfileType} of this {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * Returns the database ID of the {@link LoadProfileType LoadProfileType} of this {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
      *
-     * @return the ID of the {@link com.energyict.mdc.device.config.LoadProfileType LoadProfileType}
+     * @return the ID of the {@link LoadProfileType LoadProfileType}
      */
     @Override
     public int getLoadProfileTypeId() {
