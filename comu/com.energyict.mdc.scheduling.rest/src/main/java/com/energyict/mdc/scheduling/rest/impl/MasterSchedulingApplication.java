@@ -11,6 +11,7 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -36,6 +37,7 @@ public class MasterSchedulingApplication extends Application {
     private volatile Thesaurus thesaurus;
     private volatile SchedulingService schedulingService;
     private volatile DeviceDataService deviceDataService;
+    private volatile Clock clock;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -89,6 +91,11 @@ public class MasterSchedulingApplication extends Application {
         this.deviceDataService = deviceDataService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -101,6 +108,7 @@ public class MasterSchedulingApplication extends Application {
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(clock).to(Clock.class);
         }
     }
 
