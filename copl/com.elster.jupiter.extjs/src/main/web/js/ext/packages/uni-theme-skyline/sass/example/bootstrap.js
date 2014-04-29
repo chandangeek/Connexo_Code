@@ -10,7 +10,7 @@ Ext.Loader.addClassPathMappings({
   "ExtThemeNeptune": "../../../ext-theme-neptune/overrides",
   "Skyline": "../../overrides",
   "Skyline.button": "../../src/button",
-  "Skyline.menu": "../../src/menu",
+  "Skyline.pa.StepButton": "../../src/panel/WizardMenu.js",
   "Skyline.panel": "../../src/panel",
   "Skyline.panel.Header": "../../overrides/panel/Header.js",
   "Skyline.panel.Panel": "../../overrides/panel/Panel.js"
@@ -32,6 +32,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "ExtThemeNeptune.tab.Tab": [],
   "ExtThemeNeptune.toolbar.Paging": [],
   "ExtThemeNeptune.toolbar.Toolbar": [],
+  "Skyline.button.SortItemButton": [],
   "Skyline.button.StepButton": [],
   "Skyline.button.TagButton": [],
   "Skyline.form.Label": [],
@@ -39,8 +40,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Skyline.form.field.Base": [],
   "Skyline.form.field.Text": [],
   "Skyline.grid.Panel": [],
-  "Skyline.menu.WizardItem": [],
-  "Skyline.menu.WizardMenu": [],
+  "Skyline.pa.StepButton": [],
   "Skyline.panel.FilterToolbar": [],
   "Skyline.panel.Header": [],
   "Skyline.panel.Panel": [],
@@ -64,6 +64,9 @@ Ext.ClassManager.addNameAliasMappings({
   "ExtThemeNeptune.tab.Tab": [],
   "ExtThemeNeptune.toolbar.Paging": [],
   "ExtThemeNeptune.toolbar.Toolbar": [],
+  "Skyline.button.SortItemButton": [
+    "widget.sort-item-btn"
+  ],
   "Skyline.button.StepButton": [
     "widget.step-button"
   ],
@@ -75,11 +78,8 @@ Ext.ClassManager.addNameAliasMappings({
   "Skyline.form.field.Base": [],
   "Skyline.form.field.Text": [],
   "Skyline.grid.Panel": [],
-  "Skyline.menu.WizardItem": [
-    "widget.wizard-item"
-  ],
-  "Skyline.menu.WizardMenu": [
-    "widget.wizard-menu"
+  "Skyline.pa.StepButton": [
+    "widget.step-button"
   ],
   "Skyline.panel.FilterToolbar": [
     "widget.filter-toolbar"
