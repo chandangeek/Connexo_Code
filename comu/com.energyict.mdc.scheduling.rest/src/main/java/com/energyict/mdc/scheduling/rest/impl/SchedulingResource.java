@@ -1,13 +1,14 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
+import com.elster.jupiter.util.time.Clock;
+import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -28,20 +29,23 @@ public class SchedulingResource {
 
     private final SchedulingService schedulingService;
     private final DeviceDataService deviceDataService;
+    private final Clock clock;
 
     @Inject
-    public SchedulingResource(SchedulingService schedulingService, DeviceDataService deviceDataService) {
+    public SchedulingResource(SchedulingService schedulingService, DeviceDataService deviceDataService, Clock clock) {
         this.schedulingService = schedulingService;
         this.deviceDataService = deviceDataService;
+        this.clock = clock;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public PagedInfoList getSchedules(@BeanParam QueryParameters queryParameters) {
-        List<ComSchedule> comSchedules = schedulingService.findAllSchedules().from(queryParameters).find();
+    public PagedInfoList getSchedules(@BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
+        Calendar calendar = Calendar.getInstance(clock.getTimeZone());
+        List<ComSchedule> comSchedules = schedulingService.findAllSchedules(calendar).from(queryParameters).find();
         List<ComScheduleInfo> comScheduleInfos = new ArrayList<>();
         for (ComSchedule comSchedule : comSchedules) {
-            comScheduleInfos.add(ComScheduleInfo.from(comSchedule, getPlannedDate(comSchedule), isInUse(comSchedule)));
+            comScheduleInfos.add(ComScheduleInfo.from(comSchedule, isInUse(comSchedule)));
         }
 
         return PagedInfoList.asJson("schedules", comScheduleInfos, queryParameters);
@@ -52,7 +56,7 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ComScheduleInfo getSchedules(@PathParam("id") long id) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
-        return ComScheduleInfo.from(comSchedule, getPlannedDate(comSchedule), isInUse(comSchedule));
+        return ComScheduleInfo.from(comSchedule, isInUse(comSchedule));
     }
 
     private ComSchedule findComScheduleOrThrowException(long id) {
@@ -69,7 +73,7 @@ public class SchedulingResource {
     public Response createSchedule(ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression());
         comSchedule.save();
-        return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, getPlannedDate(comSchedule), isInUse(comSchedule))).build();
+        return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, isInUse(comSchedule))).build();
     }
 
     @DELETE
@@ -89,7 +93,7 @@ public class SchedulingResource {
         comSchedule.setName(comScheduleInfo.name);
         comSchedule.setTemporalExpression(comScheduleInfo.temporalExpression.asTemporalExpression());
         comSchedule.save();
-        return ComScheduleInfo.from(findComScheduleOrThrowException(id), getPlannedDate(comSchedule), isInUse(comSchedule));
+        return ComScheduleInfo.from(findComScheduleOrThrowException(id), isInUse(comSchedule));
     }
 
 
@@ -97,11 +101,4 @@ public class SchedulingResource {
         return this.deviceDataService.isLinkedToDevices(comSchedule);
     }
 
-    private Date getPlannedDate(ComSchedule comSchedule) {
-        if (comSchedule.getSchedulingStatus().equals(SchedulingStatus.PAUSED)) {
-            return null;
-        } else {
-            return deviceDataService.getPlannedDate(comSchedule);
-        }
-    }
 }

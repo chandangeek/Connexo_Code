@@ -14,12 +14,12 @@ public class ComScheduleInfo {
     public ComScheduleInfo() {
     }
 
-    public static ComScheduleInfo from(ComSchedule comSchedule, Date plannedDate, boolean inUse) {
+    public static ComScheduleInfo from(ComSchedule comSchedule, boolean inUse) {
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
         comScheduleInfo.id = comSchedule.getId();
         comScheduleInfo.name = comSchedule.getName();
         comScheduleInfo.temporalExpression = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
-        comScheduleInfo.plannedDate = plannedDate;
+        comScheduleInfo.plannedDate = comSchedule.getNextTimestamp(java.util.Calendar.getInstance());
         comScheduleInfo.isInUse = inUse;
         return comScheduleInfo;
     }
