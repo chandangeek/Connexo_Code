@@ -34,14 +34,16 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.tasks.ComTask;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.inject.Inject;
-import javax.validation.Valid;
 
 /**
  * Provides an implementation for the {@link DeviceCommunicationConfiguration} interface.
@@ -679,7 +681,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public PartialScheduledConnectionTaskBuilder newPartialScheduledConnectionTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ConnectionStrategy connectionStrategy) {
-        return new PartialScheduledConnectionTaskBuilderImpl(dataModel, this).name(name)
+        return new PartialScheduledConnectionTaskBuilderImpl(dataModel, this, schedulingService, eventService).name(name)
                 .pluggableClass(connectionType)
                 .rescheduleDelay(rescheduleRetryDelay)
                 .connectionStrategy(connectionStrategy);
@@ -694,7 +696,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public PartialConnectionInitiationTaskBuilder newPartialConnectionInitiationTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay) {
-        return new PartialConnectionInitiationTaskBuilderImpl(dataModel, this)
+        return new PartialConnectionInitiationTaskBuilderImpl(dataModel, this, schedulingService, eventService)
                 .name(name)
                 .pluggableClass(connectionType)
                 .rescheduleDelay(rescheduleRetryDelay);

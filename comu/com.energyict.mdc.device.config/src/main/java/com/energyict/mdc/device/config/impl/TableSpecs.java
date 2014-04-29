@@ -20,12 +20,9 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
 
-import static com.elster.jupiter.orm.ColumnConversion.DATE2DATE;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 /**
