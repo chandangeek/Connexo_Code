@@ -588,6 +588,53 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
         return sqlBuilder;
     }
 
+    @Override
+    public void suspendAll(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        this.executeUpdate(this.suspendAllSqlBuilder(comTask, deviceConfiguration));
+    }
+
+    private SqlBuilder suspendAllSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        SqlBuilder sqlBuilder = new SqlBuilder("update ");
+        sqlBuilder.append(TableSpecs.MDCCOMTASKEXEC.name());
+        sqlBuilder.append(" set ");
+        sqlBuilder.append(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName());
+        sqlBuilder.append(" = null");
+        sqlBuilder.append(" where rtu in (select id from eisrtu where deviceConfigId = ?)");    // against devices of the specified configuration
+        sqlBuilder.bindLong(deviceConfiguration.getId());
+        sqlBuilder.append("   and comtask = ?");
+        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.append("   and comport is null");    // exclude tasks that are currently executing
+        sqlBuilder.append("   and ");
+        sqlBuilder.append(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
+        sqlBuilder.append(" is not null");  // Exclude tasks that have been put on hold manually
+        return sqlBuilder;
+    }
+
+    @Override
+    public void resumeAll(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        this.executeUpdate(this.resumeAllSqlBuilder(comTask, deviceConfiguration));
+    }
+
+    private SqlBuilder resumeAllSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        SqlBuilder sqlBuilder = new SqlBuilder("update ");
+        sqlBuilder.append(TableSpecs.MDCCOMTASKEXEC.name());
+        sqlBuilder.append(" set ");
+        sqlBuilder.append(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName());
+        sqlBuilder.append(" = ");
+        sqlBuilder.append(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
+        sqlBuilder.append(" where rtu in (select id from eisrtu where deviceConfigId = ?)");    // against devices of the specified configuration
+        sqlBuilder.bindLong(deviceConfiguration.getId());
+        sqlBuilder.append("   and comtask = ?");
+        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.append("   and ");
+        sqlBuilder.append(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName());
+        sqlBuilder.append(" is null");      // Only tasks that were suspended
+        sqlBuilder.append("   and ");
+        sqlBuilder.append(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
+        sqlBuilder.append(" is not null");  // Only tasks that were suspended
+        return sqlBuilder;
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "Device data");

@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.util.json.JsonService;
@@ -42,9 +41,9 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
     // For testing purposes
     ComTaskEnablementConnectionMessageHandler(JsonService jsonService, DeviceConfigurationService deviceConfigurationService, ServerDeviceDataService deviceDataService) {
         this();
-        this.jsonService = jsonService;
-        this.deviceConfigurationService = deviceConfigurationService;
-        this.deviceDataService = deviceDataService;
+        this.setJsonService(jsonService);
+        this.setDeviceConfigurationService(deviceConfigurationService);
+        this.setDeviceDataService(deviceDataService);
     }
 
     @Reference
@@ -59,7 +58,11 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
 
     @Reference
     public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = (ServerDeviceDataService) deviceDataService;
+        this.setDeviceDataService((ServerDeviceDataService) deviceDataService);
+    }
+
+    private void setDeviceDataService(ServerDeviceDataService deviceDataService) {
+        this.deviceDataService = deviceDataService;
     }
 
     @Override

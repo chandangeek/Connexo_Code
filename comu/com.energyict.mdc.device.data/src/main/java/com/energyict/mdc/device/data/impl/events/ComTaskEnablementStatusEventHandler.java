@@ -1,14 +1,18 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.pubsub.EventHandler;
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.EventConstants;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -18,57 +22,121 @@ import java.util.Set;
  * <a href="http://confluence.eict.vpdc/display/JUPMDC/ComTaskEnablement+events">here</a>.
  * @see ComTaskEnablement#suspend()
  * @see ComTaskEnablement#resume()
- * Todo (JP-1125): complete implementation as part of the port of ComTaskExecution to the new ORM framework
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-24 (11:51)
  */
-@Component(name="com.energyict.mdc.device.data.update.comtaskenablement.status.eventhandler", service = TopicHandler.class, immediate = true)
-public class ComTaskEnablementStatusEventHandler extends EventHandler<LocalEvent> {
+@Component(name="com.energyict.mdc.device.data.update.comtaskenablement.status.messagehandler", service = MessageHandler.class, immediate = true)
+public class ComTaskEnablementStatusEventHandler implements MessageHandler {
 
-    protected ComTaskEnablementStatusEventHandler() {
-        super(LocalEvent.class);
+    private volatile JsonService jsonService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile ServerDeviceDataService deviceDataService;
+
+    public ComTaskEnablementStatusEventHandler() {
+        super();
+    }
+
+    // For testing purposes
+    ComTaskEnablementStatusEventHandler(JsonService jsonService, DeviceConfigurationService deviceConfigurationService, ServerDeviceDataService deviceDataService) {
+        this();
+        this.setJsonService(jsonService);
+        this.setDeviceConfigurationService(deviceConfigurationService);
+        this.setDeviceDataService(deviceDataService);
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
+    }
+
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
+    public void setDeviceDataService(DeviceDataService deviceDataService) {
+        this.setDeviceDataService((ServerDeviceDataService) deviceDataService);
+    }
+
+    private void setDeviceDataService(ServerDeviceDataService deviceDataService) {
+        this.deviceDataService = deviceDataService;
     }
 
     @Override
-    protected void onEvent(LocalEvent event, Object... eventDetails) {
-        ActualEventHandler.forTopic(event.getType().getTopic()).onEvent(event, eventDetails);
+    @SuppressWarnings("unchecked")
+    public void process(Message message) {
+        Map<String, Object> messageProperties = this.jsonService.deserialize(message.getPayload(), Map.class);
+        String topic = (String) messageProperties.get(EventConstants.EVENT_TOPIC);
+        ActualEventHandler.forTopic(topic).process(messageProperties, new ServiceLocatorImpl());
+    }
+
+    private interface ServiceLocator {
+        public DeviceConfigurationService deviceConfigurationService();
+        public ServerDeviceDataService deviceDataService();
+    }
+
+    private class ServiceLocatorImpl implements ComTaskEnablementStatusEventHandler.ServiceLocator {
+        @Override
+        public DeviceConfigurationService deviceConfigurationService() {
+            return deviceConfigurationService;
+        }
+
+        @Override
+        public ServerDeviceDataService deviceDataService() {
+            return deviceDataService;
+        }
     }
 
     private enum ActualEventHandler {
         SUSPEND {
             @Override
-            void onEvent(LocalEvent event, Object... eventDetails) {
-                // Code from 9.1
-//                this.getComTaskExecutionFactory().
-//                        suspendAll(
-//                                this.getComTask(),
-//                                this.getDeviceCommunicationConfiguration().getDeviceConfiguration());
+            protected void process(Long comTaskEnablementId, ServiceLocator serviceLocator) {
+                ComTaskEnablement comTaskEnablement = serviceLocator.deviceConfigurationService().findComTaskEnablement(comTaskEnablementId).get();
+                serviceLocator.deviceDataService().suspendAll(comTaskEnablement.getComTask(), comTaskEnablement.getDeviceConfiguration());
             }
         },
 
         RESUME {
             @Override
-            void onEvent(LocalEvent event, Object... eventDetails) {
-                // Code from 9.1
-//                this.getComTaskExecutionFactory().
-//                        resumeAll(
-//                                this.getComTask(),
-//                                this.getDeviceCommunicationConfiguration().getDeviceConfiguration());
+            protected void process(Long comTaskEnablementId, ServiceLocator serviceLocator) {
+                ComTaskEnablement comTaskEnablement = serviceLocator.deviceConfigurationService().findComTaskEnablement(comTaskEnablementId).get();
+                serviceLocator.deviceDataService().resumeAll(comTaskEnablement.getComTask(), comTaskEnablement.getDeviceConfiguration());
             }
         },
 
         DEV_NULL {
             @Override
-            void onEvent(LocalEvent event, Object... eventDetails) {
+            protected void process(Long comTaskEnablementId, ServiceLocator serviceLocator) {
                 // Designed to ignore everything
             }
         };
 
-        abstract void onEvent(LocalEvent event, Object... eventDetails);
+        protected void process(Map<String, Object> messageProperties, ServiceLocator serviceLocator) {
+            Long comTaskEnablementId = this.getLong("id", messageProperties);
+            this.process(comTaskEnablementId, serviceLocator);
+        }
+
+        protected abstract void process(Long comTaskEnablementId, ServiceLocator serviceLocator);
 
         private String topic () {
             return "com/energyict/mdc/device/config/comtaskenablement/" + this.name();
+        }
+
+        private Long getLong(String key, Map<String, Object> messageProperties) {
+            if (messageProperties.containsKey(key)) {
+                Object contents = messageProperties.get(key);
+                if (contents instanceof Long) {
+                    return (Long) contents;
+                }
+                else {
+                    return ((Integer) contents).longValue();
+                }
+            }
+            else {
+                return null;
+            }
         }
 
         private static ActualEventHandler forTopic (String topic) {
