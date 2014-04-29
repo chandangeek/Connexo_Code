@@ -66,6 +66,7 @@ import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.cim.EndDeviceEventType;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
@@ -853,6 +854,11 @@ public class DeviceImpl implements Device, PersistenceAware {
             throw new CannotDeleteConnectionTaskWhichIsNotFromThisDevice(this.thesaurus, connectionTask, this);
 
         }
+    }
+
+    @Override
+    public int countNumberOfEndDeviceEvents(EndDeviceEventType eventType, Interval interval) {
+        return 0;
     }
 
     private class ConnectionInitiationTaskBuilderForDevice implements ConnectionInitiationTaskBuilder {
