@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
 //        'Mdc.controller.setup.DeviceTypes'
 //    ],
     store: 'DeviceTypes',
-    padding: '10 10 10 10',
+    //padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
         this.columns = [
