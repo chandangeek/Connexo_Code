@@ -46,14 +46,14 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 	
 	@Override
 	public void add(int index,T element) {
-		setPosition(index,element);
+		setPosition(index + 1,element);
 		try {
 			getWriter().persist(element);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
 		getTarget().add(index,element);
-		updatePositions(index);
+		updatePositions(index + 1);
 	}
 	
 	@Override
@@ -114,7 +114,9 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 				toUpdate.add(value);
 			}
 		}
-		getDataMapper().update(toUpdate, "position");
+		if (!toUpdate.isEmpty()) {
+			getDataMapper().update(toUpdate, "position");
+		}
 	}
 	
 	
