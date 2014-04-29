@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pubsub.EventHandler;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -20,12 +21,19 @@ import org.osgi.service.component.annotations.Reference;
 @Component(name="com.energyict.mdc.device.data.delete.comtaskenablement.eventhandler", service = TopicHandler.class, immediate = true)
 public class ComTaskEnablementDeletionHandler extends EventHandler<LocalEvent> {
 
-    private static final String TOPIC = "com/energyict/mdc/device/config/comtaskenablement/VALIDATEDELETE";
+    static final String TOPIC = "com/energyict/mdc/device/config/comtaskenablement/VALIDATEDELETE";
 
     private volatile ServerDeviceDataService deviceDataService;
+    private volatile Thesaurus thesaurus;
 
     protected ComTaskEnablementDeletionHandler() {
         super(LocalEvent.class);
+    }
+
+    ComTaskEnablementDeletionHandler (ServerDeviceDataService deviceDataService, Thesaurus thesaurus) {
+        this();
+        this.deviceDataService = deviceDataService;
+        this.thesaurus = thesaurus;
     }
 
     @Reference
@@ -50,7 +58,9 @@ public class ComTaskEnablementDeletionHandler extends EventHandler<LocalEvent> {
      * @param comTaskEnablement The ComTaskEnablement that is about to be deleted
      */
     private void validateNotUsedByDevice(ComTaskEnablement comTaskEnablement) {
-        return;
+        if (this.deviceDataService.hasComTaskExecutions(comTaskEnablement)) {
+            throw new VetoDeleteComTaskEnablementException(this.thesaurus, comTaskEnablement);
+        }
     }
 
 }
