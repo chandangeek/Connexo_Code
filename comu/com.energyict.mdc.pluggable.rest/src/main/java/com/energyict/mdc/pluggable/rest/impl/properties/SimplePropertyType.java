@@ -107,7 +107,7 @@ public enum SimplePropertyType {
             return new UserFileReferenceInfo(map);
         }
     },
-    LOADPROFILETYPE(true, Environment.DEFAULT.get().findFactory(FactoryIds.LOADPROFILE_TYPE.id()).getClass()) {
+    LOADPROFILETYPE(true, Environment.DEFAULT.get().finderFor(FactoryIds.LOADPROFILE_TYPE).getClass()) {
         @Override
         public Object getInfoObject(Map<String, Object> map) {
             return new LoadProfileTypeInfo(map);
@@ -164,7 +164,7 @@ public enum SimplePropertyType {
 
     READINGTYPE(false, ReadingType.class) {
         public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'READINTYPE', JSON should have properly deserialized this");
+            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'READINGTYPE', JSON should have properly deserialized this");
         }
     },
 
