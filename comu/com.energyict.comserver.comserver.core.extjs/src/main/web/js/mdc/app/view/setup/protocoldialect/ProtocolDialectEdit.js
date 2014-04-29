@@ -62,11 +62,8 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
 
                                 items: [
                                     {
-                                        xtype: 'textfield',
+                                        xtype: 'displayfield',
                                         name: 'name',
-                                        msgTarget: 'under',
-                                        disabled: true,
-                                        readOnly: true,
                                         fieldLabel: Uni.I18n.translate('protocolDialect.name', 'MDC', 'Name'),
                                         itemId: 'editProtocolDialectNameField',
                                         width: 650
@@ -76,7 +73,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
                             },
                             {
                                 xtype: 'propertyEdit',
-                                propertiesTitle: Uni.I18n.translate('protocolDialect.protocolDialectProperties', 'MDC', 'Properties'),
+                                //propertiesTitle: Uni.I18n.translate('protocolDialect.protocolDialectProperties', 'MDC', 'Properties'),
                                 width: '100%',
                                 padding: '10 10 0 10'
                             }

@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
 
         this.callParent(arguments);
     },
-    addTextProperty: function (key, text, hidden) {
+    addTextProperty: function (key, text, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -71,12 +71,12 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+                    default: defaultValue
                 }
             ]
         });
     },
-    addPasswordProperty: function (key, text, hidden) {
+    addPasswordProperty: function (key, text, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -102,12 +102,12 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+                    default: defaultValue
                 }
             ]
         });
     },
-    addHexStringProperty: function (key, text, hidden) {
+    addHexStringProperty: function (key, text,defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -133,12 +133,13 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+
+                    default: defaultValue
                 }
             ]
         });
     },
-    addTextAreaProperty: function (key, text, hidden) {
+    addTextAreaProperty: function (key, text, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -165,12 +166,13 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+
+                    default: defaultValue
                 }
             ]
         });
     },
-    addNumberProperty: function (key, value, minvalue, maxvalue, allowdecimals, hidden) {
+    addNumberProperty: function (key, value, minvalue, maxvalue, allowdecimals, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -201,12 +203,13 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+
+                                        default: defaultValue
                 }
             ]
         });
     },
-    addBooleanProperty: function (key, value, hidden) {
+    addBooleanProperty: function (key, value, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -230,12 +233,13 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+
+                                        default: defaultValue
                 }
             ]
         });
     },
-    addNullableBooleanProperty: function (key, value1, value2, value3, hidden) {
+    addNullableBooleanProperty: function (key, value1, value2, value3, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -283,12 +287,13 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+
+                                        default: defaultValue
                 }
             ]
         });
     },
-    addDateProperty: function (key, value, hidden) {
+    addDateProperty: function (key, value, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -313,12 +318,13 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+
+                                        default: defaultValue
                 }
             ]
         });
     },
-    addTimeProperty: function (key, value, hidden) {
+    addTimeProperty: function (key, value, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -342,12 +348,13 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+
+                                        default: defaultValue
                 }
             ]
         });
     },
-    addDateTimeProperty: function (key, dateValue, timeValue, hidden) {
+    addDateTimeProperty: function (key, dateValue, timeValue, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -381,12 +388,13 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+
+                                        default: defaultValue
                 }
             ]
         });
     },
-    addTimeDurationProperty: function (key, count, unit, timeUnitsStore, hidden) {
+    addTimeDurationProperty: function (key, count, unit, timeUnitsStore, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -418,20 +426,21 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     valueField: 'timeUnit',
                     value: unit,
                     size: 50,
-                    margin: '0 0 5 0',
-                    width: 190,
+                    margin: '0 5 5 0',
+                    width: 200,
                     forceSelection: false
 
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+
+                                        default: defaultValue
                 }
             ]
         });
     },
-    addCodeTableProperty: function (key, value, hidden) {
+    addCodeTableProperty: function (key, value) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'codeTableSelector',
@@ -445,7 +454,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             }
         })
     },
-    addCodeTablePropertyWithSelectionWindow: function (key, value, hidden) {
+    addCodeTablePropertyWithSelectionWindow: function (key, value, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -484,12 +493,13 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     scale: 'small',
                     action: 'delete',
                     disabled: true,
-                    hidden: hidden
+
+                    default: defaultValue
                 }
             ]
         });
     },
-    addUserReferenceFilePropertyWithSelectionWindow: function (key, value, hidden) {
+    addUserReferenceFilePropertyWithSelectionWindow: function (key, value, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -522,12 +532,13 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+
+                    default: defaultValue
                 }
             ]
         });
     },
-    addLoadProfileTypePropertyWithSelectionWindow: function (key, value, hidden) {
+    addLoadProfileTypePropertyWithSelectionWindow: function (key, value, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -560,12 +571,13 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+
+                    default: defaultValue
                 }
             ]
         });
     },
-    addComboBoxTextProperty: function (key, store, selectedValue, exhaustive, hidden) {
+    addComboBoxTextProperty: function (key, store, selectedValue, exhaustive, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -595,12 +607,13 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+
+                    default: defaultValue
                 }
             ]
         });
     },
-    addComboBoxNumberProperty: function (key, store, selectedValue, exhaustive, hidden) {
+    addComboBoxNumberProperty: function (key, store, selectedValue, exhaustive, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -631,12 +644,12 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+                    default: defaultValue
                 }
             ]
         });
     },
-    addEan18StringProperty: function (key, text, hidden) {
+    addEan18StringProperty: function (key, text, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -662,12 +675,13 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+
+                    default: defaultValue
                 }
             ]
         });
     },
-    addEan13StringProperty: function (key, text, hidden) {
+    addEan13StringProperty: function (key, text, defaultValue) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -693,7 +707,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    hidden: hidden
+                    default: defaultValue
                 }
             ]
         });
