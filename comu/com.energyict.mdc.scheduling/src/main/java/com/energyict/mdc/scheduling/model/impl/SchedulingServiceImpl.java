@@ -113,6 +113,11 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
     }
 
     @Override
+    public List<ComSchedule> findAllSchedules() {
+        return this.dataModel.query(ComSchedule.class, NextExecutionSpecs.class).select(Condition.TRUE);
+    }
+
+    @Override
     public ListPager<ComSchedule> findAllSchedules(final Calendar calendar) {
         List<ComSchedule> comSchedules = this.dataModel.query(ComSchedule.class, NextExecutionSpecs.class).select(Condition.TRUE);
         return ListPager.of(comSchedules, new Comparator<ComSchedule>() {

@@ -21,7 +21,7 @@ public class UniqueComSchedulingNameValidator implements ConstraintValidator<Uni
 
     @Override
     public boolean isValid(ComScheduleImpl value, ConstraintValidatorContext context) {
-        for (ComSchedule comSchedule : schedulingService.findAllSchedules().find()) {
+        for (ComSchedule comSchedule : schedulingService.findAllSchedules()) {
             if (comSchedule.getName().equals(value.getName()) && comSchedule.getId()!=value.getId()) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate("{"+Constants.NOT_UNIQUE+"}")
