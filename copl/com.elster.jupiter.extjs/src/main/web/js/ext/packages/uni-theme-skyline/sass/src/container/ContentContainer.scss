@@ -1,0 +1,51 @@
+@include container(
+    'contentcontainer'
+);
+
+.#{$prefix}container-contentcontainer {
+    background-color: $contentcontainer-default-background-color;
+
+    .north {
+      padding: 6px;
+    }
+
+    .west {
+      background-color: $contentcontainer-default-background-color;
+
+      .x-panel-header-default {
+        background-color: transparent;
+      }
+
+      .x-panel-header-text-container-default {
+        color: $contentcontainer-default-header-text-container-default-background-color;
+        font-size: 16px;
+      }
+      //
+      //        .x-panel-body {
+      //            padding: 5px;
+      //        }
+
+      .x-toolbar {
+        padding: 6px;
+      }
+
+      .x-toolbar-footer {
+        background-color: transparent;
+      }
+    }
+
+    .center {
+      background-color: transparent;
+      margin: $contentcontainer-margin-center;
+
+    }
+}
+
+
+
+
+
+
+
+
+
