@@ -22,16 +22,16 @@ public class DefaultFinder<T> implements Finder<T> {
     private List<Order> sortingColumns = new ArrayList<>();
     private Order defaultSort;
 
-    public static <T> Finder<T> of(Class<T> clazz, DataModel dataModel) {
-        return of(clazz, Condition.TRUE, dataModel);
+    public static <T> Finder<T> of(Class<T> clazz, DataModel dataModel, Class<?> ... eagers) {
+        return of(clazz, Condition.TRUE, dataModel, eagers);
     }
 
-    public static <T> Finder<T> of(Class<T> clazz, Condition condition, DataModel dataModel) {
-        return new DefaultFinder<>(clazz, condition, dataModel);
+    public static <T> Finder<T> of(Class<T> clazz, Condition condition, DataModel dataModel, Class<?> ... eagers) {
+        return new DefaultFinder<>(clazz, condition, dataModel, eagers);
     }
 
-    private DefaultFinder(Class<T> clazz, Condition condition, DataModel dataModel) {
-        query = dataModel.query(clazz);
+    private DefaultFinder(Class<T> clazz, Condition condition, DataModel dataModel, Class<?> ... eagers) {
+        query = dataModel.query(clazz, eagers);
         this.condition = condition;
     }
 
