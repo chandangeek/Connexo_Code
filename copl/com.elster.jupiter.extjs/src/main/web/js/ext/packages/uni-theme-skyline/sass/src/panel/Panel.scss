@@ -109,3 +109,5 @@ $ui-body-background-color: $panel-filter-background-color
 .#{$prefix}uni-form-error-msg-icon {
   background-image: $panel-form-error-msg-icon;
 }
+
+@import "StepPanel";
