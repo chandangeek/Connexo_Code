@@ -73,7 +73,6 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
                             },
                             {
                                 xtype: 'propertyEdit',
-                                //propertiesTitle: Uni.I18n.translate('protocolDialect.protocolDialectProperties', 'MDC', 'Properties'),
                                 width: '100%',
                                 padding: '10 10 0 10'
                             }

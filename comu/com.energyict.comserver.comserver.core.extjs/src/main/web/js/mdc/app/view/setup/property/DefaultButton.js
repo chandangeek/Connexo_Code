@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.property.DefaultButton', {
     initComponent: function(){
         this.name = 'btn_delete_' + this.key;
         this.itemId = 'btn_delete_' + this.key;
-        this.tooltip = 'Restore to default value &quot;' + this.default + '&quot;';
+        this.tooltip = Uni.I18n.translate('general.restoreDefaultValue', 'MDC', 'Restore to default value') + ' &quot; ' + this.default + '&quot;';
         this.callParent(arguments);
     }
 });
