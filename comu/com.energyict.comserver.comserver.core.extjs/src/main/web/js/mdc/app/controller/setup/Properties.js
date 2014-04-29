@@ -339,7 +339,7 @@ Ext.define('Mdc.controller.setup.Properties', {
 
     enableDeleteButton: function (key, required, isInheritedOrDefaultValue) {
         if (isInheritedOrDefaultValue === false) {
-            Ext.ComponentQuery.query('#btn_delete_' + key)[0].hidden = false;
+            Ext.ComponentQuery.query('#btn_delete_' + key)[0].setVisible(true);
         }
     },
 
@@ -437,7 +437,7 @@ Ext.define('Mdc.controller.setup.Properties', {
     },
 
     disableDeleteButton: function (key) {
-        Ext.ComponentQuery.query('#btn_delete_' + key)[0].hidden=true;
+        Ext.ComponentQuery.query('#btn_delete_' + key)[0].setVisible(false);
     },
 
     changeProperty: function (field, value, options) {
