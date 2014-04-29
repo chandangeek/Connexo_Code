@@ -4,6 +4,7 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import java.util.Calendar;
 import java.util.Date;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 public class ComScheduleInfo {
 
@@ -12,6 +13,8 @@ public class ComScheduleInfo {
     public TemporalExpressionInfo temporalExpression;
     public Date plannedDate;
     public boolean isInUse;
+    @XmlJavaTypeAdapter(SchedulingStatusAdapter.class)
+    public SchedulingStatus schedulingStatus;
 
     public ComScheduleInfo() {
     }
@@ -22,6 +25,7 @@ public class ComScheduleInfo {
         comScheduleInfo.name = comSchedule.getName();
         comScheduleInfo.temporalExpression = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
         comScheduleInfo.plannedDate = SchedulingStatus.PAUSED.equals(comSchedule.getSchedulingStatus())?null:comSchedule.getNextTimestamp(Calendar.getInstance());
+        comScheduleInfo.schedulingStatus = comSchedule.getSchedulingStatus();
         comScheduleInfo.isInUse = inUse;
         return comScheduleInfo;
     }

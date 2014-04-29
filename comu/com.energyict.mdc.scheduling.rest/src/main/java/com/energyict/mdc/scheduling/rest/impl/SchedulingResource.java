@@ -92,6 +92,7 @@ public class SchedulingResource {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         comSchedule.setName(comScheduleInfo.name);
         comSchedule.setTemporalExpression(comScheduleInfo.temporalExpression.asTemporalExpression());
+        comSchedule.setSchedulingStatus(comScheduleInfo.schedulingStatus);
         comSchedule.save();
         return ComScheduleInfo.from(findComScheduleOrThrowException(id), isInUse(comSchedule));
     }
