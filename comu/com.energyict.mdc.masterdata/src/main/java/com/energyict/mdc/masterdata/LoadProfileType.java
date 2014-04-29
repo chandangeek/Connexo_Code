@@ -1,5 +1,6 @@
 package com.energyict.mdc.masterdata;
 
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 
@@ -10,7 +11,7 @@ import java.util.List;
  * Date: 11-jan-2011
  * Time: 15:55:54
  */
-public interface LoadProfileType {
+public interface LoadProfileType extends HasId {
 
     /**
      * Returns number that uniquely identifies this LoadProfileType.
