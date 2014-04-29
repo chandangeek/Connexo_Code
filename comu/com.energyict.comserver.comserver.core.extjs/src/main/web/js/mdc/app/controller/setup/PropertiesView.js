@@ -125,7 +125,7 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
                             //var durationValue = moment.duration(value.seconds, 'seconds').humanize();
                             unit = value.timeUnit;
                             count = value.count;
-                            timeDuration = count + ':' + unit;
+                            timeDuration = count + ' ' + unit;
                         }
                         propertiesView.addProperty(key, timeDuration, columnNumber);
                         break;
