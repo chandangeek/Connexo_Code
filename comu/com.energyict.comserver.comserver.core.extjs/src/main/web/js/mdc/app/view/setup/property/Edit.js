@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
 
         this.callParent(arguments);
     },
-    addTextProperty: function (key, text, defaultValue) {
+    addTextProperty: function (key, text, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -66,7 +66,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     value: text,
                     width: 395,
                     msgTarget: 'under',
-                    margin: '0 0 5 0 '
+                    margin: '0 0 5 0 ',
+                    required: required
                 },
                 {
                     xtype: 'defaultButton',
@@ -76,7 +77,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             ]
         });
     },
-    addPasswordProperty: function (key, text, defaultValue) {
+    addPasswordProperty: function (key, text, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -97,7 +98,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     size: 200,
                     margin: '0 5 5 0',
                     width: 395,
-                    msgTarget: 'under'
+                    msgTarget: 'under',
+                    required: required
                 },
                 {
                     xtype: 'defaultButton',
@@ -107,7 +109,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             ]
         });
     },
-    addHexStringProperty: function (key, text,defaultValue) {
+    addHexStringProperty: function (key, text, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -128,7 +130,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     margin: '0 5 5 0',
                     width: 395,
                     vtype: 'hexstring',
-                    msgTarget: 'under'
+                    msgTarget: 'under',
+                    required: required
                 },
                 {
                     xtype: 'defaultButton',
@@ -139,7 +142,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             ]
         });
     },
-    addTextAreaProperty: function (key, text, defaultValue) {
+    addTextAreaProperty: function (key, text, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -161,7 +164,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     width: 395,
                     grow: true,
                     anchor: '100%',
-                    msgTarget: 'under'
+                    msgTarget: 'under',
+                    required: required
                 },
                 {
                     xtype: 'defaultButton',
@@ -172,7 +176,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             ]
         });
     },
-    addNumberProperty: function (key, value, minvalue, maxvalue, allowdecimals, defaultValue) {
+    addNumberProperty: function (key, value, minvalue, maxvalue, allowdecimals, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -198,18 +202,19 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     minValue: minvalue,
                     maxValue: maxvalue,
                     allowDecimals: allowdecimals,
-                    msgTarget: 'under'
+                    msgTarget: 'under',
+                    required: required
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
 
-                                        default: defaultValue
+                    default: defaultValue
                 }
             ]
         });
     },
-    addBooleanProperty: function (key, value, defaultValue) {
+    addBooleanProperty: function (key, value, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -228,18 +233,19 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: key,
                     checked: value,
                     margin: '0 5 5 0',
-                    cls: 'check'
+                    cls: 'check',
+                    required: required
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
 
-                                        default: defaultValue
+                    default: defaultValue
                 }
             ]
         });
     },
-    addNullableBooleanProperty: function (key, value1, value2, value3, defaultValue) {
+    addNullableBooleanProperty: function (key, value1, value2, value3, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -255,6 +261,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     xtype: 'radiogroup',
                     itemId: 'rg' + key,
                     allowBlank: false,
+                    required: required,
                     vertical: true,
                     columns: 1,
                     items: [
@@ -288,12 +295,12 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     xtype: 'defaultButton',
                     key: key,
 
-                                        default: defaultValue
+                    default: defaultValue
                 }
             ]
         });
     },
-    addDateProperty: function (key, value, defaultValue) {
+    addDateProperty: function (key, value, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -313,18 +320,18 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     value: value,
                     format: 'd/m/Y',
                     altFormats: 'd.m.Y|d m Y',
-                    margin: '0 5 5 0'
+                    margin: '0 5 5 0',
+                    required: required
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-
-                                        default: defaultValue
+                    default: defaultValue
                 }
             ]
         });
     },
-    addTimeProperty: function (key, value, defaultValue) {
+    addTimeProperty: function (key, value, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -343,18 +350,18 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: 'time' + key,
                     value: value,
                     format: 'H:i:s',
-                    margin: '0 5 5 0'
+                    margin: '0 5 5 0',
+                    required: required
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-
-                                        default: defaultValue
+                    default: defaultValue
                 }
             ]
         });
     },
-    addDateTimeProperty: function (key, dateValue, timeValue, defaultValue) {
+    addDateTimeProperty: function (key, dateValue, timeValue, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -374,7 +381,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     value: dateValue,
                     format: 'd/m/Y',
                     altFormats: 'd.m.Y|d m Y',
-                    margin: '0 5 5 0'
+                    margin: '0 5 5 0',
+                    required: required
                 },
                 {
                     xtype: 'timefield',
@@ -383,18 +391,18 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: 'time' + key,
                     value: timeValue,
                     format: 'H:i:s',
-                    margin: '0 5 5 0'
+                    margin: '0 5 5 0',
+                    required: required
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-
-                                        default: defaultValue
+                    default: defaultValue
                 }
             ]
         });
     },
-    addTimeDurationProperty: function (key, count, unit, timeUnitsStore, defaultValue) {
+    addTimeDurationProperty: function (key, count, unit, timeUnitsStore, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -414,7 +422,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     value: count,
                     size: 200,
                     margin: '0 5 5 0',
-                    width: 200
+                    width: 200,
+                    required: required
                 },
                 {
                     xtype: 'combobox',
@@ -428,14 +437,14 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     size: 50,
                     margin: '0 5 5 0',
                     width: 200,
-                    forceSelection: false
+                    forceSelection: false,
+                    required: required
 
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-
-                                        default: defaultValue
+                    default: defaultValue
                 }
             ]
         });
@@ -454,7 +463,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             }
         })
     },
-    addCodeTablePropertyWithSelectionWindow: function (key, value, defaultValue) {
+    addCodeTablePropertyWithSelectionWindow: function (key, value, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -473,7 +482,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: key,
                     size: 75,
                     margin: '0 5 5 0',
-                    width: 395
+                    width: 395,
+                    required: required
                 },
                 {
                     xtype: 'button',
@@ -485,21 +495,14 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     margin: '0 5 5 0'
                 },
                 {
-                    xtype: 'button',
-                    icon: '../mdc/resources/images/redo.png',
-                    tooltip: 'Restore to default value',
-                    name: 'btn_delete_' + key,
-                    itemId: 'btn_delete_' + key,
-                    scale: 'small',
-                    action: 'delete',
-                    disabled: true,
-
+                    xtype: 'defaultButton',
+                    key: key,
                     default: defaultValue
                 }
             ]
         });
     },
-    addUserReferenceFilePropertyWithSelectionWindow: function (key, value, defaultValue) {
+    addUserReferenceFilePropertyWithSelectionWindow: function (key, value, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -518,7 +521,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: key,
                     size: 75,
                     margin: '0 5 5 0',
-                    width: 395
+                    width: 395,
+                    required: required
                 },
                 {
                     xtype: 'button',
@@ -532,13 +536,12 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-
                     default: defaultValue
                 }
             ]
         });
     },
-    addLoadProfileTypePropertyWithSelectionWindow: function (key, value, defaultValue) {
+    addLoadProfileTypePropertyWithSelectionWindow: function (key, value, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -557,7 +560,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: key,
                     size: 75,
                     margin: '0 5 5 0',
-                    width: 350
+                    width: 350,
+                    required: required
                 },
                 {
                     xtype: 'button',
@@ -571,13 +575,12 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-
                     default: defaultValue
                 }
             ]
         });
     },
-    addComboBoxTextProperty: function (key, store, selectedValue, exhaustive, defaultValue) {
+    addComboBoxTextProperty: function (key, store, selectedValue, exhaustive, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -602,18 +605,18 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     size: 50,
                     margin: '0 0 5 0',
                     width: 390,
-                    forceSelection: exhaustive
+                    forceSelection: exhaustive,
+                    required: required
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-
                     default: defaultValue
                 }
             ]
         });
     },
-    addComboBoxNumberProperty: function (key, store, selectedValue, exhaustive, defaultValue) {
+    addComboBoxNumberProperty: function (key, store, selectedValue, exhaustive, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -639,7 +642,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     margin: '0 0 5 0',
                     width: 200,
                     fieldStyle: 'text-align:right;',
-                    forceSelection: exhaustive
+                    forceSelection: exhaustive,
+                    required: required
                 },
                 {
                     xtype: 'defaultButton',
@@ -649,7 +653,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             ]
         });
     },
-    addEan18StringProperty: function (key, text, defaultValue) {
+    addEan18StringProperty: function (key, text, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -670,18 +674,18 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     size: 200,
                     margin: '0 5 5 0',
                     width: 350,
-                    vtype: 'ean18'
+                    vtype: 'ean18',
+                    required: required
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-
                     default: defaultValue
                 }
             ]
         });
     },
-    addEan13StringProperty: function (key, text, defaultValue) {
+    addEan13StringProperty: function (key, text, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
             xtype: 'fieldcontainer',
@@ -702,7 +706,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     size: 200,
                     margin: '0 5 5 0',
                     width: 350,
-                    vtype: 'ean13'
+                    vtype: 'ean13',
+                    required: required
                 },
                 {
                     xtype: 'defaultButton',
