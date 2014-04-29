@@ -14,7 +14,7 @@ Ext.define('Isu.view.workspace.issues.SortingToolbar', {
             action: 'addSort',
             text: 'Add sort',
             menu: {
-                name: 'addsortitemmenu'
+                xtype: 'issue-sort-menu'
             }
         }
     ],
@@ -88,14 +88,27 @@ Ext.define('Isu.view.workspace.issues.SortingToolbar', {
 //    ],
 
     addSortButtons: function (sortModel) {
-        var container = this.getContainer(),
-            data = sortModel.getData();
+        var self = this,
+            container = self.getContainer(),
+            data = sortModel.getData(),
+            menuItem,
+            cls;
 
         Ext.Object.each(data, function (key, value) {
-            key != 'id' && value && container.add({
-                sortName: key,
-                sortDirection: value
-            });
+            if (key != 'id' && value) {
+                menuItem = self.down('issue-sort-menu [action=' + key + ']');
+                cls = value == Isu.model.IssueSort.ASC
+                    ? 'x-btn-sort-item-asc'
+                    : 'x-btn-sort-item-desc';
+
+                container.add({
+                    xtype: 'sort-item-btn',
+                    text: menuItem.text,
+                    sortName: key,
+                    sortDirection: value,
+                    iconCls: cls
+                });
+            }
         });
     }
 });

@@ -99,7 +99,7 @@ Ext.define('Isu.controller.Issues', {
                 click: this.clearSortParams
             },
 
-            'issues-overview filtering-toolbar [name="filter"] button-tag': {
+            'issues-overview filtering-toolbar tag-button': {
                 arrowclick: this.removeFilterItem
             },
             'button[name=clearsortbtn]': {
@@ -107,6 +107,16 @@ Ext.define('Isu.controller.Issues', {
             },
             'issues-side-filter button[action="reset"]': {
                 click: this.resetFilter
+            },
+            'issues-side-filter button[action="filter"]': {
+                click: this.applyFilter
+            },
+            'issues-side-filter filter-form combobox[name=reason]': {
+                render: this.setComboTooltip
+            },
+            'issues-side-filter filter-form combobox[name=meter]': {
+                render: this.setComboTooltip,
+                expand: this.limitNotification
             }
         });
 
