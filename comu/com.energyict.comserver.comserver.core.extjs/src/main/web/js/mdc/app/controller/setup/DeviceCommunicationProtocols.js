@@ -45,6 +45,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
             },
             '#createEditButton[action=editDeviceCommunicationProtocol]': {
                 click: this.editDeviceCommunicationProtocol
+            }, '#deviceCommunicationProtocolSetup breadcrumbTrail': {
+                afterrender: this.overviewBreadCrumb
             }
         });
     },
