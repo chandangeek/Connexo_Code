@@ -98,16 +98,17 @@ public class InMemoryPersistence {
                 new MasterDataModule(),
                 new MdcCommonModule());
         this.transactionService = injector.getInstance(TransactionService.class);
+        Environment environment;
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.ormService = injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
+            environment = injector.getInstance(Environment.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.mdcReadingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.dataModel = this.createNewMasterDataService(createDefaults);
             ctx.commit();
         }
-        Environment environment = injector.getInstance(Environment.class);
         environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
         environment.setApplicationContext(this.applicationContext);
     }
