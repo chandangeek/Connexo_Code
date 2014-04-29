@@ -13,7 +13,6 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * Handles delete events that are being sent when a {@link ComTaskEnablement}
  * is about to be deleted and will veto the delete when it is in use by at least one device.
- * Todo (JP-1125): complete implementation as part of the port of ComTaskExecution to the new ORM framework
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-24 (11:51)
