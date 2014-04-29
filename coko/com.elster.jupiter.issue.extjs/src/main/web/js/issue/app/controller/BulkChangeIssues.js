@@ -17,7 +17,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         'workspace.issues.IssueNoGroup',
         'workspace.issues.bulk.Browse',
         'ext.button.IssuesGridAction',
-        'ext.button.SortItemButton'
+        'Skyline.button.SortItemButton'
     ],
 
     listeners: {

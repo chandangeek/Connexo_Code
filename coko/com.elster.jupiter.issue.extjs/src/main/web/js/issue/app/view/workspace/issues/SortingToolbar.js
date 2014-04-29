@@ -1,7 +1,7 @@
 Ext.define('Isu.view.workspace.issues.SortingToolbar', {
     extend: 'Skyline.panel.FilterToolbar',
     requires: [
-        'Isu.view.ext.button.SortItemButton',
+        'Skyline.button.SortItemButton',
         'Isu.view.workspace.issues.SortMenu'
     ],
     alias: 'widget.sorting-toolbar',
