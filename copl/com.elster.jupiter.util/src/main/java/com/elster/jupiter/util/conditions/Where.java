@@ -1,6 +1,8 @@
 package com.elster.jupiter.util.conditions;
 
 import java.util.Date;
+import java.util.List;
+
 import com.elster.jupiter.util.time.Interval;
 
 public final class Where {
@@ -123,6 +125,10 @@ public final class Where {
 	
 	public Condition isEffective(Interval interval) {
 		return where(field + ".start").isLessThan(interval.dbEnd()).and(where(field + ".end").isGreaterThan(interval.dbStart()));
+	}
+	
+	public Condition in(List<?> values) {
+		return ListOperator.IN.contains(field, values);
 	}
 	
 	@Deprecated
