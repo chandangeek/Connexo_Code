@@ -106,4 +106,17 @@ public interface ServerDeviceDataService extends DeviceDataService {
      */
     public void preferredConnectionTaskChanged (ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask previousPartialConnectionTask, PartialConnectionTask newPartialConnectionTask);
 
+    /**
+     * Updates the priority of all the executions of the specified {@link ComTask}
+     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * of the specified {@link DeviceConfiguration} that have not overruled
+     * the previous preferred priority.
+     *
+     * @param comTask The ComTask
+     * @param deviceConfiguration The DeviceConfiguration
+     * @param previousPreferredPriority The previous preferred priority
+     * @param newPreferredPriority The new preferred priority
+     */
+    public void preferredPriorityChanged (ComTask comTask, DeviceConfiguration deviceConfiguration, int previousPreferredPriority, int newPreferredPriority);
+
 }

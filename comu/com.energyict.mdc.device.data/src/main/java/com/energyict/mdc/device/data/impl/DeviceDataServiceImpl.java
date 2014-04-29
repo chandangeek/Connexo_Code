@@ -543,7 +543,9 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     @Override
     public boolean hasComTaskExecutions(ComTaskEnablement comTaskEnablement) {
         SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.append("select count(*) from MDCCOMTASKEXEC cte");
+        sqlBuilder.append("select count(*) from ");
+        sqlBuilder.append(TableSpecs.MDCCOMTASKEXEC.name());
+        sqlBuilder.append(" cte");
         sqlBuilder.append(" inner join eisrtu rtu on cte.rtu = rtu.id");
         sqlBuilder.append(" inner join eisdeviceconfig dcf on rtu.deviceconfigid = dcf.id");
         sqlBuilder.append(" inner join mdcdevicecommconfig dcc on dcf.id = dcc.deviceconfiguration");
@@ -561,6 +563,29 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
             throw new UnderlyingSQLFailedException(e);
         }
         return false;
+    }
+
+    @Override
+    public void preferredPriorityChanged(ComTask comTask, DeviceConfiguration deviceConfiguration, int previousPreferredPriority, int newPreferredPriority) {
+        this.executeUpdate(this.preferredPriorityChangedSqlBuilder(comTask, deviceConfiguration, previousPreferredPriority, newPreferredPriority));
+    }
+
+    private SqlBuilder preferredPriorityChangedSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, int previousPreferredPriority, int newPreferredPriority) {
+        SqlBuilder sqlBuilder = new SqlBuilder("update ");
+        sqlBuilder.append(TableSpecs.MDCCOMTASKEXEC.name());
+        sqlBuilder.append(" set ");
+        sqlBuilder.append(ComTaskExecutionFields.PRIORITY.fieldName());
+        sqlBuilder.append(" = ?");
+        sqlBuilder.bindInt(newPreferredPriority);
+        sqlBuilder.appendWhereOrAnd();
+        sqlBuilder.append(ComTaskExecutionFields.CONNECTIONTASK.fieldName());
+        sqlBuilder.append(" = ?");  // Match the previous priority
+        sqlBuilder.bindInt(previousPreferredPriority);
+        sqlBuilder.append("   and comtask = ?");  // Match the ComTask
+        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.append("   and rtu in (select id from eisrtu where deviceConfigId = ?)");  // Match device of the specified DeviceConfiguration
+        sqlBuilder.bindLong(deviceConfiguration.getId());
+        return sqlBuilder;
     }
 
     @Reference
