@@ -14,6 +14,9 @@ public interface ComSchedule {
     public void setName(String name);
 
     public SchedulingStatus getSchedulingStatus();
+    public void setSchedulingStatus(SchedulingStatus status);
+
+
     public Date getNextTimestamp(Calendar calendar);
 
     public void addComTask(ComTask comTask);
