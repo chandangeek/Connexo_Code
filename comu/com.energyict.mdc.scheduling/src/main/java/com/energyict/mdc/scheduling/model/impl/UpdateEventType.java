@@ -10,7 +10,8 @@ import com.energyict.mdc.scheduling.events.EventType;
  */
 public enum UpdateEventType {
 
-    NEXTEXECUTIONSPECS(EventType.NEXTEXECUTIONSPECS_UPDATED);
+    NEXTEXECUTIONSPECS(EventType.NEXTEXECUTIONSPECS_UPDATED),
+    COMSCHEDULES(EventType.COMSCHEDULES_UPDATED);
 
     private EventType eventType;
 

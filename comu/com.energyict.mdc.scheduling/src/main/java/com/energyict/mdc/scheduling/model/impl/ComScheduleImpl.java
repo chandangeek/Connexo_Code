@@ -101,11 +101,12 @@ public class ComScheduleImpl implements ComSchedule {
     @Override
     public void save() {
         Save.action(this.getId()).save(dataModel, this);
+        this.eventService.postEvent(UpdateEventType.COMSCHEDULES.topic(), this);
     }
 
     @Override
     public void delete() {
-        this.eventService.postEvent(DeleteEventType.COM_SCHEDULE.topic(), this);
+        this.eventService.postEvent(DeleteEventType.COMSCHEDULES.topic(), this);
         this.dataModel.remove(this);
     }
 
