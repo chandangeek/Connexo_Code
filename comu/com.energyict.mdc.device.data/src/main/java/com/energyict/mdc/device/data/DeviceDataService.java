@@ -403,4 +403,9 @@ public interface DeviceDataService {
      * devices linked to the ComSchedule.
      */
     List<ComTask> findAvailableComTasksForComSchedule(ComSchedule comSchedule);
+
+    /**
+     * Returns true if the ComSchedule has been linked to a device
+     */
+    public boolean isLinkedToDevices(ComSchedule comSchedule);
 }
