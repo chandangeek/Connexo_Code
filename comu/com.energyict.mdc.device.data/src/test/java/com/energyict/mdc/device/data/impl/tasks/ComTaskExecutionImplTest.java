@@ -5,6 +5,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
@@ -29,9 +30,11 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
 import org.fest.assertions.core.Condition;
-import org.junit.*;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -39,14 +42,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-import org.fest.assertions.core.Condition;
-import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the ComTaskExecutionImpl component
@@ -243,7 +242,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void createWithMasterScheduleNextExecutionSpecTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
-        NextExecutionSpecs masterScheduleNextExecutionSpec = inMemoryPersistence.getDeviceConfigurationService().newNextExecutionSpecs(temporalExpression);
+        NextExecutionSpecs masterScheduleNextExecutionSpec = inMemoryPersistence.getSchedulingService().newNextExecutionSpecs(temporalExpression);
         masterScheduleNextExecutionSpec.save();
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithMasterNextExecSpec", "WithMasterNextExecSpec");
@@ -262,7 +261,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void updateWithMasterScheduleNextExecutionSpecTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
-        NextExecutionSpecs masterScheduleNextExecutionSpec = inMemoryPersistence.getDeviceConfigurationService().newNextExecutionSpecs(temporalExpression);
+        NextExecutionSpecs masterScheduleNextExecutionSpec = inMemoryPersistence.getSchedulingService().newNextExecutionSpecs(temporalExpression);
         masterScheduleNextExecutionSpec.save();
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithMasterNextExecSpec", "WithMasterNextExecSpec");
@@ -313,14 +312,14 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         long nextExecutionSpecId = reloadedComTaskExecution.getNextExecutionSpecs().getId();
         ((ComTaskExecutionImpl) reloadedComTaskExecution).delete();
 
-        assertThat(inMemoryPersistence.getDeviceConfigurationService().findNextExecutionSpecs(nextExecutionSpecId)).isNull();
+        assertThat(inMemoryPersistence.getSchedulingService().findNextExecutionSpecs(nextExecutionSpecId)).isNull();
     }
 
     @Test
     @Transactional
     public void masterScheduleNextExecSpecNotDeletedWhenComTaskExecutionDeletedTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
-        NextExecutionSpecs masterScheduleNextExecutionSpec = inMemoryPersistence.getDeviceConfigurationService().newNextExecutionSpecs(temporalExpression);
+        NextExecutionSpecs masterScheduleNextExecutionSpec = inMemoryPersistence.getSchedulingService().newNextExecutionSpecs(temporalExpression);
         masterScheduleNextExecutionSpec.save();
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "MasterNextExecSpecNotDeleted", "MasterNextExecSpecNotDeleted");
@@ -334,7 +333,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         device.removeComTaskExecution(reloadedComTaskExecution);
         device.save();
 
-        assertThat(inMemoryPersistence.getDeviceConfigurationService().findNextExecutionSpecs(nextExecutionSpecId)).isNotNull();
+        assertThat(inMemoryPersistence.getSchedulingService().findNextExecutionSpecs(nextExecutionSpecId)).isNotNull();
     }
 
     @Test

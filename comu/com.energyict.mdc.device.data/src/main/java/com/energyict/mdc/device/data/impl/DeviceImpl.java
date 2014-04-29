@@ -33,8 +33,6 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ComTaskEnablement;
@@ -81,8 +79,14 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
+
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -90,10 +94,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_MRID + "}")
 public class DeviceImpl implements Device, PersistenceAware {
@@ -899,15 +899,14 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Override
     public String getmRID() {
         return mRID;
-=======
+    }
+
     public String getExternalName() {
         return mRID;
     }
 
-    @Override
     public void setExternalName(String externalName) {
         this.mRID = externalName;
->>>>>>> Temporary merge branch 2
     }
 
     @Override
@@ -984,6 +983,18 @@ public class DeviceImpl implements Device, PersistenceAware {
 
         private ComTaskExecutionUpdaterForDevice(ComTaskExecutionImpl comTaskExecution) {
             super(comTaskExecution);
+        }
+
+        @Override
+        public ComTaskExecution.ComTaskExecutionUpdater comSchedule(ComSchedule comSchedule) {
+            //TODO automatically generated method body, provide implementation.
+            return null;
+        }
+
+        @Override
+        public ComTaskExecution.ComTaskExecutionUpdater setUseDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {
+            //TODO automatically generated method body, provide implementation.
+            return null;
         }
 
         @Override
