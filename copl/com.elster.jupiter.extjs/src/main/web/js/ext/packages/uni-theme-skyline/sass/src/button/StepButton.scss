@@ -1,7 +1,7 @@
 @mixin step-button-sizes {
   width: $button-step-width !important;
   height: $button-step-height !important;
-  padding: 6px !important;
+  padding: 2px !important;
   font-weight: bold;
   .x-btn-inner {
     padding: 1px 0 !important;
@@ -54,5 +54,51 @@
     $background-color-pressed: $button-step-non-completed-background-step-color-pressed,
     $background-color-over: $button-step-non-completed-background-step-color-over,
     $border-radius: $button-step-border-radius
+  );
+}
+
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'step-label-active',
+    $background-color: $button-step-label-background-color,
+    $background-color-over: $button-step-label-background-color,
+    $background-color-focus: $button-step-label-background-color,
+    $background-color-pressed: $button-step-label-background-color,
+    $color:  $button-step-label-active-color,
+    $color-over: $button-step-label-active-color-over,
+    $color-pressed: $button-step-label-active-color-pressed,
+    $include-ui-menu-arrows: false,
+    $include-ui-split-arrows: false
+  );
+}
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'step-label-completed',
+    $background-color: $button-step-label-background-color,
+    $background-color-over: $button-step-label-background-color,
+    $background-color-focus: $button-step-label-background-color,
+    $background-color-pressed: $button-step-label-background-color,
+    $color:  $button-step-label-completed-color,
+    $color-over: $button-step-label-completed-color-over,
+    $color-pressed: $button-step-label-completed-color-pressed,
+    $include-ui-menu-arrows: false,
+    $include-ui-split-arrows: false
+  );
+}
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'step-label-non-completed',
+    $background-color: $button-step-label-background-color,
+    $background-color-over: $button-step-label-background-color,
+    $background-color-focus: $button-step-label-background-color,
+    $background-color-pressed: $button-step-label-background-color,
+    $color:  $button-step-label-non-completed-color,
+    $color-over: $button-step-label-non-completed-color-over,
+    $color-pressed: $button-step-label-non-completed-color-pressed,
+    $include-ui-menu-arrows: false,
+    $include-ui-split-arrows: false
   );
 }
