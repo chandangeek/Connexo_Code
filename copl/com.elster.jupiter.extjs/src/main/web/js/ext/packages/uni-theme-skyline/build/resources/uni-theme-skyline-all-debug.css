@@ -20660,6 +20660,42 @@ a.x-color-picker-item:hover {
   margin: 5px 5px 5px 5px;
   background-repeat: no-repeat; }
 
+/* line 1, ../../sass/src/Headings.scss */
+h1, h2, h3, h4, h5, h6 {
+  text-decoration: none;
+  font-weight: normal;
+  font-family: "Marvel", helvetica, arial, verdana, sans-serif;
+  color: #686868;
+  margin: 0; }
+
+/* line 9, ../../sass/src/Headings.scss */
+h1, h2 {
+  color: #1e7d9e; }
+
+/* line 13, ../../sass/src/Headings.scss */
+h1 {
+  font-size: 60px; }
+
+/* line 17, ../../sass/src/Headings.scss */
+h2 {
+  font-size: 30px; }
+
+/* line 21, ../../sass/src/Headings.scss */
+h3 {
+  font-size: 20px; }
+
+/* line 25, ../../sass/src/Headings.scss */
+h4 {
+  font-size: 18px; }
+
+/* line 29, ../../sass/src/Headings.scss */
+h5 {
+  font-size: 16px; }
+
+/* line 33, ../../sass/src/Headings.scss */
+h6 {
+  font-size: 14px; }
+
 /* line 7, ../../sass/src/container/BreadcrumbTrail.scss */
 .x-container-breadcrumbtrail {
   background-color: #71adc7;
