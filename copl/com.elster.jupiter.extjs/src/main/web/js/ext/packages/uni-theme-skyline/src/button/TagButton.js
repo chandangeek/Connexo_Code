@@ -16,6 +16,7 @@ Ext.define('Skyline.button.TagButton', {
             closeIconEl = baseSpan.getById(closeIcon.id);
         textSpan.addCls(me.iconCls ? 'x-btn-tag-text' : 'x-btn-tag-text-noicon');
         closeIconEl.on('click', function(){
+            me.fireEvent('closeclick', me);
             me.destroy();
         });
         this.callParent(arguments)

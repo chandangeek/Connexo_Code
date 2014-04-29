@@ -10,6 +10,7 @@ Ext.Loader.addClassPathMappings({
   "ExtThemeNeptune": "../../../ext-theme-neptune/overrides",
   "Skyline": "../../overrides",
   "Skyline.button": "../../src/button",
+  "Skyline.menu": "../../src/menu",
   "Skyline.panel": "../../src/panel",
   "Skyline.panel.Header": "../../overrides/panel/Header.js",
   "Skyline.panel.Panel": "../../overrides/panel/Panel.js"
@@ -38,6 +39,8 @@ Ext.ClassManager.addNameAlternateMappings({
   "Skyline.form.field.Base": [],
   "Skyline.form.field.Text": [],
   "Skyline.grid.Panel": [],
+  "Skyline.menu.WizardItem": [],
+  "Skyline.menu.WizardMenu": [],
   "Skyline.panel.FilterToolbar": [],
   "Skyline.panel.Header": [],
   "Skyline.panel.Panel": [],
@@ -72,6 +75,12 @@ Ext.ClassManager.addNameAliasMappings({
   "Skyline.form.field.Base": [],
   "Skyline.form.field.Text": [],
   "Skyline.grid.Panel": [],
+  "Skyline.menu.WizardItem": [
+    "widget.wizard-item"
+  ],
+  "Skyline.menu.WizardMenu": [
+    "widget.wizard-menu"
+  ],
   "Skyline.panel.FilterToolbar": [
     "widget.filter-toolbar"
   ],
