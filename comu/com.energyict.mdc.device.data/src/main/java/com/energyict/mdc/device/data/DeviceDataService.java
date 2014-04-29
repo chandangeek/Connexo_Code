@@ -403,4 +403,6 @@ public interface DeviceDataService {
      * devices linked to the ComSchedule.
      */
     List<ComTask> findAvailableComTasksForComSchedule(ComSchedule comSchedule);
+
+    List<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort);
 }

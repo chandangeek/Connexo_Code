@@ -9,6 +9,7 @@ import com.elster.jupiter.pubsub.Subscriber;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.scheduling.events.*;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -16,7 +17,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(name="com.energyict.mdc.device.data.comschedule.delete.eventhandler", service = Subscriber.class, immediate = true)
 public class ComScheduleDeletionEventHandler extends EventHandler<LocalEvent> {
 
-    private static final String TOPIC = com.energyict.mdc.scheduling.events.EventType.COMSCHEDULE_DELETED.topic();
+    private static final String TOPIC = com.energyict.mdc.scheduling.events.EventType.COMSCHEDULE_BEFORE_DELETE.topic();
 
     private volatile DeviceDataService deviceDataService;
     private volatile Thesaurus thesaurus;

@@ -9,6 +9,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -31,6 +32,7 @@ public class DeviceDataModule extends AbstractModule {
         requireBinding(Clock.class);
         requireBinding(RelationService.class);
         requireBinding(ProtocolPluggableService.class);
+        requireBinding(SchedulingService.class);
 
         bind(DeviceDataService.class).to(DeviceDataServiceImpl.class).in(Scopes.SINGLETON);
     }

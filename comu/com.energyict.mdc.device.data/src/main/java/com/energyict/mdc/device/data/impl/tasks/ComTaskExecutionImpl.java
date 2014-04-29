@@ -57,9 +57,6 @@ import javax.inject.Provider;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import javax.inject.Inject;
-import javax.inject.Provider;
-import org.hibernate.validator.constraints.Range;
 
 /**
  * Implementation of a ComTaskExecution
@@ -458,7 +455,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             nextExecutionTimestamp = defineNextExecutionTimeStamp(nextExecutionTimestamp);
         }
         this.setPlannedNextExecutionTimestamp(plannedNextExecutionTimestamp);
-        this.setNextExecutionTimestamp(nextExecutionTimestamp);
+        this.nextExecutionTimestamp = nextExecutionTimestamp;
 
         /* ConnectionTask can be null when the default is used but
          * no default has been set or created yet. */
@@ -481,7 +478,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     private void setNextExecutionTimestamp(Date nextExecutionTimestamp) {
-        this.nextExecutionTimestamp = nextExecutionTimestamp;
+        this.doReschedule(nextExecutionTimestamp);
     }
 
     /**

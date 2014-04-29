@@ -48,6 +48,8 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.pluggable.LicenseServer;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
@@ -55,7 +57,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -103,6 +104,7 @@ public class InMemoryIntegrationPersistence {
     private MdcReadingTypeUtilService readingTypeUtilService;
     private TaskService taskService;
     private DeviceDataServiceImpl deviceDataService;
+    private SchedulingService schedulingService;
 
     public InMemoryIntegrationPersistence() {
         this(new DefaultClock());
@@ -142,6 +144,7 @@ public class InMemoryIntegrationPersistence {
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new TasksModule(),
+                new SchedulingModule(),
                 new DeviceDataModule());
         BusinessEventManager eventManager = mock(BusinessEventManager.class);
         when(this.applicationContext.createEventManager()).thenReturn(eventManager);
@@ -162,6 +165,7 @@ public class InMemoryIntegrationPersistence {
             this.engineModelService = injector.getInstance(EngineModelService.class);
             this.relationService = injector.getInstance(RelationService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+            this.schedulingService = injector.getInstance(SchedulingService.class);
             this.dataModel = this.createNewDeviceDataService();
             ctx.commit();
         }
@@ -178,7 +182,7 @@ public class InMemoryIntegrationPersistence {
     private DataModel createNewDeviceDataService() {
         this.deviceDataService = new DeviceDataServiceImpl(
                 this.ormService, this.eventService, this.nlsService, this.clock,
-                this.environment, this.relationService, this.protocolPluggableService, this.engineModelService, this.deviceConfigurationService, this.meteringService);
+                this.environment, this.relationService, this.protocolPluggableService, this.engineModelService, this.deviceConfigurationService, this.meteringService, this.schedulingService);
         return this.deviceDataService.getDataModel();
     }
 
@@ -289,6 +293,10 @@ public class InMemoryIntegrationPersistence {
 
     public TaskService getTaskService() {
         return taskService;
+    }
+
+    public SchedulingService getSchedulingService() {
+        return schedulingService;
     }
 
     public static String query(String sql) {
