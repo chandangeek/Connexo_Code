@@ -435,8 +435,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     valueField: 'timeUnit',
                     value: unit,
                     size: 50,
-                    margin: '0 5 5 0',
-                    width: 200,
+                    margin: '0 0 5 0',
+                    width: 190,
                     forceSelection: false,
                     required: required
 
