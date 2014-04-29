@@ -823,10 +823,25 @@ Ext.define('Skyline.button.TagButton', {
             closeIconEl = baseSpan.getById(closeIcon.id);
         textSpan.addCls(me.iconCls ? 'x-btn-tag-text' : 'x-btn-tag-text-noicon');
         closeIconEl.on('click', function(){
+            me.fireEvent('closeclick', me);
             me.destroy();
         });
         this.callParent(arguments)
     }
+});
+
+Ext.define('Skyline.button.SortItemButton', {
+    extend: 'Skyline.button.TagButton',
+    alias: 'widget.sort-item-btn',
+    name: 'sortitembtn',
+    iconCls: 'x-btn-sort-item-asc',
+    sortOrder: 'asc'
+});
+
+Ext.define('Skyline.button.StepButton', {
+    extend: 'Ext.button.Button',
+    alias: 'widget.step-button',
+    ui: 'step-active'
 });
 
 Ext.define('Skyline.panel.FilterToolbar', {
@@ -892,14 +907,15 @@ Ext.define('Skyline.panel.FilterToolbar', {
     },
 
     constructor: function (config) {
-        var items = config.content;
-        var tools = config.tools;
+        var me = this;
 
-        this.dockedItems[0].title = config.title;
+        Ext.apply(config, me);
 
-        this.items[0].items = items;
-        this.items[1].text = config.emptyText;
-        this.items[2].items = tools;
+        this.dockedItems[0].title = me.title;
+
+        this.items[0].items =  me.content;
+        this.items[1].text = me.emptyText;
+        this.items[2].items = me.tools;
 
         this.callSuper(arguments);
         if (!this.showClearButton) {
@@ -923,5 +939,138 @@ Ext.define('Skyline.panel.FilterToolbar', {
     getEmptyLabel: function() {
         return this.down('#emptyLabel')
     }
+});
+
+Ext.define('Skyline.panel.StepPanel', {
+    extend: 'Ext.panel.Panel',
+    alias: 'widget.step-panel',
+    text: 'Some step text',
+
+    indexText: '12',
+    index: null,
+
+    isLastItem: null,
+    isFirstItem: null,
+    isMiddleItem: null,
+    isOneItem: null,
+
+    isActiveStep: null,
+    isCompletedStep: null,
+    isNonCompletedStep: null,
+
+    state: 'noncompleted',
+
+    layout: {
+        type: 'vbox',
+        align: 'left'
+    },
+
+    states: {
+        active: ['step-active', 'step-label-active'],
+        completed: ['step-completed', 'step-label-completed'],
+        noncompleted: ['step-non-completed', 'step-label-non-completed']
+    },
+
+    items: [],
+
+    handler: function () {
+    },
+
+    getStepDots: function () {
+        return {
+            layout: {
+                type: 'vbox',
+                align: 'left'
+            },
+            cls: 'x-panel-step-dots',
+            items: [
+                {
+                    xtype: 'box',
+                    name: 'bottomdots',
+                    cls: 'x-image-step-dots'
+                }
+            ]
+        }
+    },
+
+
+    getStepLabel: function () {
+        var me = this;
+        return {
+            name: 'step-label-side',
+            layout: {
+                type: 'hbox',
+                align: 'middle'
+            },
+            items: [
+                {
+                    xtype: 'button',
+                    name: 'steppanellabel',
+                    text: me.text,
+                    cls: 'x-label-step',
+                    ui: 'step-label-active',
+                    handler: me.handler
+                }
+            ]
+        }
+    },
+
+    getStepPanelLayout: function () {
+        var me = this;
+        return {
+            layout: {
+                type: 'hbox',
+                align: 'middle'
+            },
+            items: [
+                {
+                    name: 'steppanelbutton',
+                    xtype: 'step-button',
+                    text: me.indexText,
+                    handler: me.handler
+                },
+                me.getStepLabel()
+            ]
+        }
+    },
+
+    doStepLayout: function () {
+        var me = this,
+            items = null;
+        me.isFirstItem && (items = [me.getStepPanelLayout(), me.getStepDots()]);
+        me.isLastItem && (items = [me.getStepDots(), me.getStepPanelLayout()]);
+        me.isMiddleItem && (items = [me.getStepDots(), me.getStepPanelLayout(), me.getStepDots()]);
+        me.isOneItem && (items = [me.getStepPanelLayout()]);
+        me.items = items
+    },
+
+    afterRender: function () {
+        this.stepButton = Ext.ComponentQuery.query('button[name=steppanelbutton]')[0];
+        this.stepLabel = Ext.ComponentQuery.query('button[name=steppanellabel]')[0];
+        this.setState(this.state);
+        this.callParent(arguments)
+    },
+
+    setState: function (state) {
+        !state && (this.state = state);
+        this.stepButton.setUI(this.states[this.state][0]);
+        this.stepLabel.setUI(this.states[this.state][1]);
+    },
+
+    getState: function(){
+        return this.state;
+    },
+
+    initComponent: function () {
+        var me = this;
+        me.doStepLayout();
+        me.callParent(arguments)
+    }
+});
+
+Ext.define('Skyline.pa.StepButton', {
+    extend: 'Ext.button.Button',
+    alias: 'widget.step-button',
+    ui: 'step-active'
 });
 
