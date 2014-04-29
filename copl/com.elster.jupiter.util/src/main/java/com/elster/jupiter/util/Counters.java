@@ -4,6 +4,7 @@ import net.jcip.annotations.NotThreadSafe;
 import net.jcip.annotations.ThreadSafe;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Factory for Counter implementations
@@ -75,6 +76,65 @@ public enum Counters {
     }
 
     /**
+     * @return a Counter that does not allow decrements.
+     */
+    public static LongCounter newStrictLongCounter() {
+        return new SimpleLongCounter() {
+            @Override
+            public void add(long value) {
+                if (value < 0) {
+                    throw new IllegalArgumentException(NO_DECREMENTS_ALLOWED_MESSAGE);
+                }
+                super.add(value);
+            }
+        };
+    }
+
+    /**
+     * @return a Counter that does not allow decrements.
+     */
+    public static LongCounter newLenientLongCounter() {
+        return new SimpleLongCounter();
+    }
+
+    /**
+     * @return a Counter that does allow decrements, yet disallows a negative total.
+     */
+    public static LongCounter newLenientNonNegativeLongCounter() {
+        return new SimpleLongCounter() {
+            @Override
+            public void add(long value) {
+                if (getValue() + value < 0) {
+                    throw new IllegalArgumentException("No negative total allowed.");
+                }
+                super.add(value);
+            }
+        };
+    }
+
+    /**
+     * @return a thread safe Counter that does not allow decrements.
+     */
+    public static LongCounter newStrictThreadSafeLongCounter() {
+        return new AtomicLongCounter() {
+            @Override
+            public void add(long value) {
+                if (value < 0) {
+                    throw new IllegalArgumentException(NO_DECREMENTS_ALLOWED_MESSAGE);
+                }
+                super.add(value);
+            }
+        };
+    }
+
+    /**
+     * @return a Counter that does not allow decrements.
+     */
+    public static LongCounter newLenientThreadSafeLongCounter() {
+        return new AtomicLongCounter();
+    }
+
+    /**
      * Simple implementation that directly manipulates an int total.
      */
     @NotThreadSafe
@@ -135,6 +195,72 @@ public enum Counters {
 
         @Override
         public int getValue() {
+            return this.total.get();
+        }
+
+    }
+
+    /**
+     * Simple implementation that directly manipulates an int total.
+     */
+    @NotThreadSafe
+    private static class SimpleLongCounter implements LongCounter {
+        private long total;
+
+        private SimpleLongCounter() {
+        }
+
+        @Override
+        public void reset() {
+            total = 0;
+        }
+
+        @Override
+        public void increment() {
+            total++;
+        }
+
+        @Override
+        public void add(long value) {
+            total += value;
+        }
+
+        @Override
+        public long getValue() {
+            return total;
+        }
+
+    }
+
+    /**
+     * A very simple, yet thread safe counter that will e.g. allow you to count
+     * the occurrence of, say, a type of event.
+     *
+     * @author Rudi Vankeirsbilck (rudi)
+     * @since 2012-07-19 (13:38)
+     */
+    @ThreadSafe
+    private static class AtomicLongCounter implements LongCounter {
+
+        private AtomicLong total = new AtomicLong();
+
+        @Override
+        public void reset() {
+            this.total.getAndSet(0);
+        }
+
+        @Override
+        public void increment() {
+            this.total.incrementAndGet();
+        }
+
+        @Override
+        public void add(long value) {
+            this.total.addAndGet(value);
+        }
+
+        @Override
+        public long getValue() {
             return this.total.get();
         }
 

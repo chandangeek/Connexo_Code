@@ -1,5 +1,6 @@
 package com.elster.jupiter.util;
 
+
 public interface Counter {
 
     void reset();
