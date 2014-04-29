@@ -13,6 +13,7 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.tasks.ComTask;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
@@ -78,6 +79,11 @@ public class ComScheduleImpl implements ComSchedule {
     @Override
     public TemporalExpression getTemporalExpression() {
         return this.nextExecutionSpecs.get().getTemporalExpression();
+    }
+
+    @Override
+    public Date getNextTimestamp(Calendar calendar) {
+        return this.nextExecutionSpecs.get().getNextTimestamp(calendar);
     }
 
     @Override

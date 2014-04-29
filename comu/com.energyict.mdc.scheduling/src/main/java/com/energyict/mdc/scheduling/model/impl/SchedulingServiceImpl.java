@@ -7,8 +7,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.energyict.mdc.common.services.DefaultFinder;
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
@@ -17,6 +17,9 @@ import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.List;
 import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -110,8 +113,23 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
     }
 
     @Override
-    public Finder<ComSchedule> findAllSchedules() {
-        return DefaultFinder.of(ComSchedule.class, this.dataModel).defaultSortColumn("name");
+    public ListPager<ComSchedule> findAllSchedules(final Calendar calendar) {
+        List<ComSchedule> comSchedules = this.dataModel.query(ComSchedule.class, NextExecutionSpecs.class).select(Condition.TRUE);
+        return ListPager.of(comSchedules, new Comparator<ComSchedule>() {
+                    @Override
+                    public int compare(ComSchedule o1, ComSchedule o2) {
+                        if (SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
+                            return 0;
+                        }
+                        if (SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && !SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
+                            return 1;
+                        }
+                        if (!SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
+                            return -1;
+                        }
+                        return -o1.getNextTimestamp(calendar).compareTo(o2.getNextTimestamp(calendar));
+                    }
+                });
     }
 
     @Override
@@ -128,4 +146,5 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
         instance.save();
         return instance;
     }
+
 }

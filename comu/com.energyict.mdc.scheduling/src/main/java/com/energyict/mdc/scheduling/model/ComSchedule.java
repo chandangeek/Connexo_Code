@@ -2,6 +2,8 @@ package com.energyict.mdc.scheduling.model;
 
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public interface ComSchedule {
@@ -12,6 +14,7 @@ public interface ComSchedule {
     public void setName(String name);
 
     public SchedulingStatus getSchedulingStatus();
+    public Date getNextTimestamp(Calendar calendar);
 
     public void addComTask(ComTask comTask);
 
@@ -24,4 +27,5 @@ public interface ComSchedule {
     public void save();
 
     public void delete();
+
 }
