@@ -127,21 +127,7 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
                             count = value.count;
                             timeDuration = count + ':' + unit;
                         }
-
-                        if (selectionMode === 'COMBOBOX') {
-                            //clear store
-                            me.timeDurationStore.loadData([], false);
-                            for (var i = 0; i < predefinedPropertyValues.length; i++) {
-                                //var timeDuration = moment.duration(predefinedPropertyValues[i].seconds, 'seconds').humanize();
-                                //me.timeDurationStore.add({key: predefinedPropertyValues[i].seconds, value: timeDuration})
-                                var timeDurationValue = predefinedPropertyValues[i].count + " " + predefinedPropertyValues[i].timeUnit;
-                                var timeDurationKey = predefinedPropertyValues[i].count + ":" + predefinedPropertyValues[i].timeUnit;
-                                me.timeDurationStore.add({key: timeDurationKey, value: timeDurationValue});
-                            }
-                            propertiesView.addProperty(key, timeDuration, columnNumber);
-                        } else {
-                            propertiesView.addProperty(key, timeDuration, columnNumber);
-                        }
+                        propertiesView.addProperty(key, timeDuration, columnNumber);
                         break;
                     case 'TIMEOFDAY':
                         if (value !== null) {
@@ -165,9 +151,9 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
                         }
                         break;
                     case 'REFERENCE':
-                        if (selectionMode === 'COMBOBOX') {
-                            properties.addProperty(key, value, columnNumber);
-                        }
+
+                        properties.addProperty(key, value, columnNumber);
+
                     case 'EAN13':
                         propertiesView.addProperty(key, value, columnNumber);
                         break;
