@@ -174,43 +174,45 @@ Ext.define('Mdc.controller.setup.Properties', {
 
                 }
 
+                var required = property.data.required;
+
                 switch (propertyType) {
                     case 'TEXT':
                         if (selectionMode === 'COMBOBOX') {
-                            propertiesView.addComboBoxTextProperty(key, predefinedPropertyValues, value, exhaustive, restoreValue);
+                            propertiesView.addComboBoxTextProperty(key, predefinedPropertyValues, value, exhaustive, restoreValue, required);
                         } else {
-                            propertiesView.addTextProperty(key, value, restoreValue);
+                            propertiesView.addTextProperty(key, value, restoreValue, required);
                         }
                         break;
                     case 'TEXTAREA':
-                        propertiesView.addTextAreaProperty(key, value, restoreValue);
+                        propertiesView.addTextAreaProperty(key, value, restoreValue, required);
                         break;
                     case 'PASSWORD':
-                        propertiesView.addPasswordProperty(key, value, restoreValue);
+                        propertiesView.addPasswordProperty(key, value, restoreValue, required);
                         break;
                     case 'HEXSTRING':
-                        propertiesView.addHexStringProperty(key, value, restoreValue);
+                        propertiesView.addHexStringProperty(key, value, restoreValue, required);
                         break;
                     case 'BOOLEAN':
                         if (value === true) {
-                            propertiesView.addBooleanProperty(key, true, restoreValue);
+                            propertiesView.addBooleanProperty(key, true, restoreValue, required);
                         } else {
-                            propertiesView.addBooleanProperty(key, false, restoreValue);
+                            propertiesView.addBooleanProperty(key, false, restoreValue, required);
                         }
                         break;
                     case 'NULLABLE_BOOLEAN':
                         if (value === true) {
-                            propertiesView.addNullableBooleanProperty(key, true, false, false, restoreValue);
+                            propertiesView.addNullableBooleanProperty(key, true, false, false, restoreValue, required);
                         } else if (value === false) {
-                            propertiesView.addNullableBooleanProperty(key, false, true, false, restoreValue);
+                            propertiesView.addNullableBooleanProperty(key, false, true, false, restoreValue, required);
                         } else {
-                            propertiesView.addNullableBooleanProperty(key, false, false, true, restoreValue);
+                            propertiesView.addNullableBooleanProperty(key, false, false, true, restoreValue, required);
                         }
 
                         break;
                     case 'NUMBER':
                         if (selectionMode === 'COMBOBOX') {
-                            propertiesView.addComboBoxNumberProperty(key, predefinedPropertyValues, parseFloat(value), exhaustive, restoreValue);
+                            propertiesView.addComboBoxNumberProperty(key, predefinedPropertyValues, parseFloat(value), exhaustive, restoreValue, required);
                         } else {
                             var allowDecimals = true;
                             if (propertyValidationRule != null) {
@@ -218,7 +220,7 @@ Ext.define('Mdc.controller.setup.Properties', {
                                 var maxValue = propertyValidationRule.data.maximumValue;
                                 allowDecimals = propertyValidationRule.data.allowDecimals;
                             }
-                            propertiesView.addNumberProperty(key, value, minValue, maxValue, allowDecimals,restoreValue);
+                            propertiesView.addNumberProperty(key, value, minValue, maxValue, allowDecimals,restoreValue, required);
                         }
                         break;
                     case 'CLOCK':
@@ -226,16 +228,16 @@ Ext.define('Mdc.controller.setup.Properties', {
                             var date = new Date(value);
                             var dateValue = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
                             var timeValue = new Date(1970, 0, 1, date.getHours(), date.getMinutes(), date.getSeconds(), 0);
-                            propertiesView.addDateTimeProperty(key, dateValue, timeValue, restoreValue);
+                            propertiesView.addDateTimeProperty(key, dateValue, timeValue, restoreValue, required);
                         } else {
-                            propertiesView.addDateTimeProperty(key, null, null ,restoreValue);
+                            propertiesView.addDateTimeProperty(key, null, null ,restoreValue, required);
                         }
                         break;
                     case 'DATE':
                         if (value !== null) {
-                            propertiesView.addDateProperty(key, new Date(value), restoreValue);
+                            propertiesView.addDateProperty(key, new Date(value), restoreValue, required);
                         } else {
-                            propertiesView.addDateProperty(key, null, restoreValue);
+                            propertiesView.addDateProperty(key, null, restoreValue, required);
                         }
                         break;
                     case 'TIMEDURATION':
@@ -259,56 +261,56 @@ Ext.define('Mdc.controller.setup.Properties', {
                                 var timeDurationKey = predefinedPropertyValues[i].count + ":" + predefinedPropertyValues[i].timeUnit;
                                 me.timeDurationStore.add({key: timeDurationKey, value: timeDurationValue});
                             }
-                            propertiesView.addComboBoxTextProperty(key, me.timeDurationStore, timeDuration, exhaustive, restoreValue);
+                            propertiesView.addComboBoxTextProperty(key, me.timeDurationStore, timeDuration, exhaustive, restoreValue, required);
                         } else {
-                            propertiesView.addTimeDurationProperty(key, count, unit, me.getTimeUnitsStore(), restoreValue);
+                            propertiesView.addTimeDurationProperty(key, count, unit, me.getTimeUnitsStore(), restoreValue, required);
                         }
                         break;
                     case 'TIMEOFDAY':
                         if (value !== null) {
-                            propertiesView.addTimeProperty(key, new Date(value * 1000), restoreValue);
+                            propertiesView.addTimeProperty(key, new Date(value * 1000), restoreValue, required);
                         } else {
-                            propertiesView.addTimeProperty(key, null, restoreValue);
+                            propertiesView.addTimeProperty(key, null, restoreValue, required);
                         }
                         break;
                     case 'CODETABLE':
                         if (value !== null) {
-                            propertiesView.addCodeTablePropertyWithSelectionWindow(key, value.codeTableId + '-' + value.name, restoreValue);
+                            propertiesView.addCodeTablePropertyWithSelectionWindow(key, value.codeTableId + '-' + value.name, restoreValue, required);
                         } else {
-                            propertiesView.addCodeTablePropertyWithSelectionWindow(key, null, restoreValue);
+                            propertiesView.addCodeTablePropertyWithSelectionWindow(key, null, restoreValue, required);
                         }
                         break;
                     case 'LOADPROFILETYPE':
                         if (value !== null) {
-                            propertiesView.addLoadProfileTypePropertyWithSelectionWindow(key, value.loadProfileTypeId + '-' + value.name, restoreValue);
+                            propertiesView.addLoadProfileTypePropertyWithSelectionWindow(key, value.loadProfileTypeId + '-' + value.name, restoreValue, required);
                         } else {
-                            propertiesView.addLoadProfileTypePropertyWithSelectionWindow(key, null, restoreValue);
+                            propertiesView.addLoadProfileTypePropertyWithSelectionWindow(key, null, restoreValue, required);
                         }
                         break;
                     case 'REFERENCE':
                         if (selectionMode === 'COMBOBOX') {
-                            properties.addComboBoxTextProperty(key, predefinedPropertyValues, value, exhaustive, restoreValue);
+                            properties.addComboBoxTextProperty(key, predefinedPropertyValues, value, exhaustive, restoreValue, required);
                         }
                     case 'EAN13':
-                        propertiesView.addEan13StringProperty(key, value, restoreValue);
+                        propertiesView.addEan13StringProperty(key, value, restoreValue, required);
                         break;
                     case 'EAN18':
-                        propertiesView.addEan18StringProperty(key, value, restoreValue);
+                        propertiesView.addEan18StringProperty(key, value, restoreValue, required);
                         break;
                     case 'USERFILEREFERENCE':
 
                         if (value !== null) {
-                            propertiesView.addUserReferenceFilePropertyWithSelectionWindow(key, value.userFileReferenceId + '-' + value.name, restoreValue);
+                            propertiesView.addUserReferenceFilePropertyWithSelectionWindow(key, value.userFileReferenceId + '-' + value.name, restoreValue, required);
                         } else {
-                            propertiesView.addUserReferenceFilePropertyWithSelectionWindow(key, null, restoreValue);
+                            propertiesView.addUserReferenceFilePropertyWithSelectionWindow(key, null, restoreValue, required);
                         }
                         break;
                     case 'UNKNOWN':
-                        propertiesView.addTextProperty(key, value, restoreValue);
+                        propertiesView.addTextProperty(key, value, restoreValue, required);
                         break;
                 }
                 if (hidden !== true) {
-                me.enableDeleteButton(key, property.data.required, isInheritedValue);
+                me.enableDeleteButton(key, required, isInheritedValue);
                 }
             }
         )
