@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
+import static com.elster.jupiter.util.conditions.Where.*;
+
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
@@ -9,12 +11,13 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Provider;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -153,14 +156,20 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
 
     @Override
     public List<EndDeviceEventRecord> getDeviceEvents(Interval interval) {
-        Condition thisEndDevice = Operator.EQUAL.compare("endDevice", this);
-        return dataModel.query(EndDeviceEventRecord.class).select(thisEndDevice.and(inInterval(interval)));
+        return dataModel.query(EndDeviceEventRecord.class).select(inInterval(interval),Order.ascending("createdDateTime"));
     }
 
+    @Override
+    public List<EndDeviceEventRecord> getDeviceEvents(Interval interval, List<EndDeviceEventType> eventTypes) {
+    	Condition condition = inInterval(interval).and(where("eventType").in(eventTypes));
+        return dataModel.query(EndDeviceEventRecord.class).select(condition,Order.ascending("createdDateTime"));
+    }
+    
     private Condition inInterval(Interval interval) {
-        Condition notBeforeStart = Operator.GREATERTHANOREQUAL.compare("createdDateTime", interval.dbStart());
-        Condition notAfterEnd = Operator.LESSTHANOREQUAL.compare("createdDateTime", interval.dbEnd());
-        return notBeforeStart.and(notAfterEnd);
+    	Condition thisEndDevice = where("endDevice").isEqualTo(this);
+        Condition notBeforeStart = where("createdDateTime").isGreaterThanOrEqual(interval.dbStart());
+        Condition notAfterEnd = where("createdDateTime").isLessThanOrEqual(interval.dbEnd());
+        return thisEndDevice.and(notBeforeStart).and(notAfterEnd);
     }
 
     DataModel getDataModel() {

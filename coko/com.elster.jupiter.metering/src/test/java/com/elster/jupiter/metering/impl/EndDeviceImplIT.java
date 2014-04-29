@@ -24,6 +24,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -35,6 +36,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -104,8 +106,8 @@ public class EndDeviceImplIT {
         EndDevice endDevice;
         EndDeviceEventRecord eventRecord;
         TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext context = transactionService.getContext()) {
-            MeteringService meteringService = injector.getInstance(MeteringService.class);
             List<EndDeviceEventType> availableEndDeviceEventTypes = meteringService.getAvailableEndDeviceEventTypes();
             endDevice = meteringService.findAmrSystem(1).get().newEndDevice("1", "1");
             endDevice.save();
@@ -115,6 +117,12 @@ public class EndDeviceImplIT {
         }
         List<EndDeviceEventRecord> deviceEvents = endDevice.getDeviceEvents(Interval.startAt(date));
         assertThat(deviceEvents).contains(eventRecord);
+        List<EndDeviceEventType> endDeviceEventTypes = new ArrayList<>(meteringService.getAvailableEndDeviceEventTypes());
+        deviceEvents = endDevice.getDeviceEvents(Interval.startAt(date), endDeviceEventTypes);
+        assertThat(deviceEvents).contains(eventRecord);
+        endDeviceEventTypes.remove(0);
+        deviceEvents = endDevice.getDeviceEvents(Interval.startAt(date), endDeviceEventTypes);
+        assertThat(deviceEvents).isEmpty();
     }
 
 

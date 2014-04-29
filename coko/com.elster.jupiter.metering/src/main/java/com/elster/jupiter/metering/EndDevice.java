@@ -26,4 +26,5 @@ public interface EndDevice extends IdentifiedObject {
     EndDeviceEventRecord addEventRecord(EndDeviceEventType type, Date date);
 
     List<EndDeviceEventRecord> getDeviceEvents(Interval interval);
+    List<EndDeviceEventRecord> getDeviceEvents(Interval interval, List<EndDeviceEventType> eventTypes);
 }
