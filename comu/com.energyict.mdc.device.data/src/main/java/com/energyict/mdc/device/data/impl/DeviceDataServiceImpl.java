@@ -10,6 +10,8 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
@@ -19,12 +21,10 @@ import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
@@ -34,6 +34,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.finders.DeviceFinder;
 import com.energyict.mdc.device.data.finders.LoadProfileFinder;
 import com.energyict.mdc.device.data.finders.LogBookFinder;
@@ -43,7 +44,6 @@ import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
 import com.energyict.mdc.device.data.impl.tasks.TimedOutTasksSqlBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -58,29 +58,36 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.joda.time.DateTimeConstants;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import javax.inject.Inject;
+import org.joda.time.DateTimeConstants;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -104,17 +111,18 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile EngineModelService engineModelService;
     private volatile MeteringService meteringService;
+    private volatile SchedulingService schedulingService;
     private volatile Environment environment;
 
     public DeviceDataServiceImpl() {
     }
 
     @Inject
-    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService) {
-        this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false);
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, SchedulingService schedulingService) {
+        this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false, schedulingService);
     }
 
-    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData) {
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData, SchedulingService schedulingService) {
         super();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -126,6 +134,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
         this.setEngineModelService(engineModelService);
         this.setDeviceConfigurationService(deviceConfigurationService);
         this.setMeteringService(meteringService);
+        this.setSchedulingService(schedulingService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install(true, createMasterData);
@@ -197,7 +206,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression temporalExpression) {
         NextExecutionSpecs nextExecutionSpecs = null;
         if (temporalExpression != null) {
-            nextExecutionSpecs = this.deviceConfigurationService.newNextExecutionSpecs(temporalExpression);
+            nextExecutionSpecs = this.schedulingService.newNextExecutionSpecs(temporalExpression);
         }
         ScheduledConnectionTaskImpl connectionTask = this.dataModel.getInstance(ScheduledConnectionTaskImpl.class);
         connectionTask.initializeWithMinimizeStrategy(device, partialConnectionTask, comPortPool, nextExecutionSpecs);
@@ -703,6 +712,11 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
         this.environment = environment;
     }
 
+    @Reference
+    public void setSchedulingService(SchedulingService schedulingService) {
+        this.schedulingService = schedulingService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -716,6 +730,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(SchedulingService.class).toInstance(schedulingService);
             }
         };
     }
@@ -919,7 +934,100 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     }
 
     @Override
+    public List<ComTaskExecution> findComTaskExecutionsByComSchedule(ComSchedule comSchedule) {
+        return this.dataModel.query(ComTaskExecution.class)
+                .select(Where.where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule)
+                        .and(Where.where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()));
+    }
+
+
+    @Override
+    public boolean isLinkedToDevices(ComSchedule comSchedule) {
+        return !this.dataModel.query(DeviceInComScheduleImpl.class)
+                .select(Where.where(DeviceInComScheduleImpl.Fields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule),new Order[0], false, new String[0], 0,1)
+                .isEmpty();
+    }
+
+    @Override
+    public List<ComTask> findAvailableComTasksForComSchedule(ComSchedule comSchedule) {
+//        return this.dataModel.query(ComTask.class)
+//                .select(Where.where(ComTask));
+        return null; // TODO complete me
+    }
+
+    @Override
+    public Date getPlannedDate(ComSchedule comSchedule) {
+        List<ComTaskExecution> comTaskExecutions = dataModel.query(ComTaskExecution.class)
+                .select(Where.where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule), new Order[0], false, new String[0], 0, 1);
+        if (comTaskExecutions.isEmpty()) {
+            return null;
+        }
+        return comTaskExecutions.get(0).getPlannedNextExecutionTimestamp();
+    }
+
+    @Override
     public List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device) {
         return this.dataModel.mapper(ComTaskExecution.class).find(ComTaskExecutionFields.DEVICE.fieldName(), device, ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName(), true);
+    }
+
+    @Override
+    public List<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort) {
+        List<OutboundComPortPool> comPortPools = this.engineModelService.findContainingComPortPoolsForComPort((OutboundComPort) comPort);
+        if(!comPortPools.isEmpty()){
+            Date now = this.clock.now();
+            Condition condition = Where.where("connectionTask.paused").isEqualTo(false)
+                    .and(where("connectionTask.comServer").isNull())
+                    .and(where("connectionTask.obsoleteDate").isNull())
+                    .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                    .and(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now))
+                    .and(where("connectionTask.nextExecutionTimestamp").isLessThanOrEqual(now))
+                    .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNull())
+                    .and(ListOperator.IN.contains("connectionTask.comPortPool", comPortPools));
+            return this.dataModel.query(ComTaskExecution.class, ConnectionTask.class).select(condition,
+                    Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
+                    Order.ascending(ComTaskExecutionFields.PRIORITY.fieldName()),
+                    Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds) {
+
+//        StringBuilder buffer = new StringBuilder("select ");
+//        if (!Utils.isNull(hint)) {
+//            buffer.append("/*+ ");
+//            buffer.append(hint);
+//            buffer.append(" */ ");
+//        }
+//        buffer.append("1 from ");
+//        SqlBuilder builder = new SqlBuilder(buffer.toString());
+//        builder.append(getTableName());
+//        builder.append(" where ");
+//        builder.append(whereClause);
+//        builder.append(" and rownum = 1");
+//        return hasNext(builder);
+
+
+//        SqlBuilder sqlBuilder = new SqlBuilder();
+//        sqlBuilder.append(NEXT_EXECUTION_COLUMN_NAME);
+//        sqlBuilder.append(" < ? and id in ");
+//        sqlBuilder.bindLong(Utils.asSeconds(now));
+//        sqlBuilder.append(comTaskExecutionIds, true);
+//        sqlBuilder.append(" and exists (select id from ");
+//        sqlBuilder.append(ConnectionTaskFactoryImpl.TABLENAME);
+//        sqlBuilder.append(" where id = ");
+//        sqlBuilder.append(TABLENAME);
+//        sqlBuilder.append(".");
+//        sqlBuilder.append(CONNECTION_TASK_COLUMN_NAME);
+//        sqlBuilder.append(" and ");
+//        sqlBuilder.append(ConnectionTaskFactoryImpl.COMSERVER_COLUMN_NAME);
+//        sqlBuilder.append(" is null)");
+//        return sqlBuilder;
+        Date now = this.clock.now();
+        Condition condition = Where.where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)
+                .and(ListOperator.IN.contains("id", new ArrayList<>(comTaskExecutionIds)));
+        return false;
     }
 }

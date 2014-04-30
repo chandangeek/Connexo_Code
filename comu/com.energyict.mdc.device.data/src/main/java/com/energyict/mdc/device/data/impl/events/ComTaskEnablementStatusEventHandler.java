@@ -14,6 +14,7 @@ import org.osgi.service.event.EventConstants;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * Handles events that are being sent when a {@link ComTaskEnablement}

@@ -52,11 +52,6 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,6 +60,13 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -124,14 +126,8 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
                     DeviceCommunicationConfiguration deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
                     deviceCommunicationConfiguration.save();
-                    protocolDialect1ConfigurationProperties = deviceCommunicationConfiguration.
-                            findOrCreateProtocolDialectConfigurationProperties(
-                                    new TestProtocolDialect1());
-                    protocolDialect1ConfigurationProperties.save();
-                    protocolDialect2ConfigurationProperties = deviceCommunicationConfiguration.
-                            findOrCreateProtocolDialectConfigurationProperties(
-                                    new TestProtocolDialect2());
-                    protocolDialect2ConfigurationProperties.save();
+                    protocolDialect1ConfigurationProperties = deviceCommunicationConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+                    protocolDialect2ConfigurationProperties = deviceCommunicationConfiguration.getProtocolDialectConfigurationPropertiesList().get(1);
                     return null;
                 }
             });

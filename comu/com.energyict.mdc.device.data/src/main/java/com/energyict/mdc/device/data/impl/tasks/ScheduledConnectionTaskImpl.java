@@ -15,10 +15,8 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
-import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -35,16 +33,18 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.constraints.NotNull;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.TemporalExpression;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides an implementation for the {@link ScheduledConnectionTask} interface.
@@ -55,6 +55,7 @@ import java.util.Set;
 @ValidNextExecutionSpecsWithMinimizeConnectionsStrategy(groups = {Save.Create.class, Save.Update.class})
 public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<PartialScheduledConnectionTask> implements ScheduledConnectionTask {
 
+    private final SchedulingService schedulingService;
     private ComWindow comWindow;
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OUTBOUND_CONNECTION_TASK_STRATEGY_REQUIRED_KEY + "}")
@@ -71,8 +72,9 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private final DeviceDataService deviceDataService;
 
     @Inject
-    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, Provider<ConnectionMethodImpl> connectionMethodProvider, DeviceDataService deviceDataService1) {
+    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, Provider<ConnectionMethodImpl> connectionMethodProvider, DeviceDataService deviceDataService1, SchedulingService schedulingService) {
         super(dataModel, eventService, thesaurus, clock, deviceDataService, connectionMethodProvider);
+        this.schedulingService = schedulingService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceDataService = deviceDataService1;
     }
@@ -330,6 +332,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
     }
 
+    @Override
     public void setDynamicMaxNumberOfTries(int maxNumberOfTries) {
         this.maxNumberOfTries = maxNumberOfTries;
     }
@@ -479,7 +482,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private boolean needsTriggering (ComTaskExecution scheduledComTask) {
-        Set<TaskStatus> taskStatusesThatRequireTriggering = EnumSet.complementOf(EnumSet.of(TaskStatus.Waiting, TaskStatus.OnHold));
+        Set<TaskStatus> taskStatusesThatRequireTriggering = EnumSet.complementOf(EnumSet.of(TaskStatus.Waiting, TaskStatus.OnHold, TaskStatus.Busy));
         return taskStatusesThatRequireTriggering.contains(scheduledComTask.getStatus());
     }
 
@@ -719,7 +722,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         private final NextExecutionSpecs nextExecutionSpecs;
 
         protected CreateSchedule(TemporalExpression temporalExpression) {
-            this.nextExecutionSpecs = deviceConfigurationService.newNextExecutionSpecs(temporalExpression);
+            this.nextExecutionSpecs = schedulingService.newNextExecutionSpecs(temporalExpression);
         }
 
         @Override

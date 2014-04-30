@@ -1,15 +1,15 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import javax.validation.Constraint;
-import javax.validation.Payload;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
 /**
  * Models the contraint that a {@link ScheduledConnectionTaskImpl}
- * must have {@link com.energyict.mdc.device.config.NextExecutionSpecs}
+ * must have {@link com.energyict.mdc.scheduling.NextExecutionSpecs}
  * when the {@link com.energyict.mdc.device.config.ConnectionStrategy}
  * is {@link com.energyict.mdc.device.config.ConnectionStrategy#MINIMIZE_CONNECTIONS minimize connections}.
  *

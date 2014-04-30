@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.device.data.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
@@ -12,12 +12,11 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -40,7 +39,7 @@ public class ComTaskExecutionCheckWhichTaskTests {
     }
 
     private ComTaskExecutionImpl createComTaskExecution() {
-        return new ComTaskExecutionImpl(null, null, null, null, null, null);
+        return new ComTaskExecutionImpl(null, null, null, null, null, null, null);
     }
 
     @Test
