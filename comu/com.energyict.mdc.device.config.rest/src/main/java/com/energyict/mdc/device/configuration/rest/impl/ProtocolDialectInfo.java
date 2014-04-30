@@ -23,7 +23,7 @@ public class ProtocolDialectInfo {
     public static ProtocolDialectInfo from(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, UriInfo uriInfo) {
         ProtocolDialectInfo protocolDialectInfo = new ProtocolDialectInfo();
         protocolDialectInfo.id = protocolDialectConfigurationProperties.getId();
-        protocolDialectInfo.name = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
+        protocolDialectInfo.name = protocolDialectConfigurationProperties.getName();
         protocolDialectInfo.availableForUse = true;
 
         List<PropertySpec> propertySpecs = protocolDialectConfigurationProperties.getPropertySpecs();
