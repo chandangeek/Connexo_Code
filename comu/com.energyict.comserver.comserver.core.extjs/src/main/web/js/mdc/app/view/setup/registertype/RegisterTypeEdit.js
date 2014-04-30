@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerTypeEdit',
     itemId: 'registerTypeEdit',
     requires: [
@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
     },
 
     initComponent: function () {
-        this.items = [
+        this.content = [
             {
                 xtype: 'container',
                 cls: 'content-container',
