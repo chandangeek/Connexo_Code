@@ -49,6 +49,12 @@ Ext.define('Isu.view.administration.datacollection.Overview', {
             href: '#/issue-administration/issuecreationrules',
             hrefTarget: '_self'
         });
+
+        menu.add({
+            text: 'Communication tasks',
+            href: '#/issue-administration/communicationtasks',
+            hrefTarget: '_self'
+        });
     },
 
     getSideMenuCmp: function () {
