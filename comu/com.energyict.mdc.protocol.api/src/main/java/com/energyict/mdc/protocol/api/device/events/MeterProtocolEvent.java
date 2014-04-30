@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.device.events;
 
-import com.energyict.mdc.protocol.api.cim.EndDeviceEventType;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 
 import java.io.Serializable;
 import java.util.Date;
