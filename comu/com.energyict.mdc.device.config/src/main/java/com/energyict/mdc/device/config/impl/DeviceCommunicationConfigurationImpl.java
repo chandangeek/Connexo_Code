@@ -707,7 +707,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     @Override
     public ProtocolDialectConfigurationProperties findOrCreateProtocolDialectConfigurationProperties(DeviceProtocolDialect protocolDialect) {
         for (ProtocolDialectConfigurationProperties candidate : configurationPropertiesList) {
-            if (candidate.getDeviceProtocolDialect().equals(protocolDialect)) {
+            if (candidate.getDeviceProtocolDialect().getDeviceProtocolDialectName().equals(protocolDialect.getDeviceProtocolDialectName())) {
                 return candidate;
             }
         }
