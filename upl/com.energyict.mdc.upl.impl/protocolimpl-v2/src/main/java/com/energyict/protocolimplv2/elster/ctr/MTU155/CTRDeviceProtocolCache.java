@@ -2,13 +2,15 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 
+import java.io.Serializable;
+
 /**
  * Implementation of the {@link DeviceProtocolCache} interface, specific for SMS behavior of CTR protocols
  *
  * @author sva
  * @since 21/06/13 - 15:44
  */
-public class CTRDeviceProtocolCache implements DeviceProtocolCache {
+public class CTRDeviceProtocolCache implements DeviceProtocolCache, Serializable {
 
     /** The last WriteDataBlock ID used in SMS communication. **/
     int smsWriteDataBlockID = 0;
