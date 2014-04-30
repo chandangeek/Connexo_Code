@@ -558,9 +558,9 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     name: key,
                     value: value,
                     itemId: key,
-                    size: 75,
+                    size: 200,
                     margin: '0 5 5 0',
-                    width: 350,
+                    width: 395,
                     required: required
                 },
                 {
@@ -604,7 +604,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     value: selectedValue,
                     size: 50,
                     margin: '0 0 5 0',
-                    width: 390,
+                    width: 395,
                     forceSelection: exhaustive,
                     required: required
                 },
@@ -673,7 +673,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     value: text,
                     size: 200,
                     margin: '0 5 5 0',
-                    width: 350,
+                    width: 395,
                     vtype: 'ean18',
                     required: required
                 },
@@ -705,7 +705,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     value: text,
                     size: 200,
                     margin: '0 5 5 0',
-                    width: 350,
+                    width: 395,
                     vtype: 'ean13',
                     required: required
                 },
