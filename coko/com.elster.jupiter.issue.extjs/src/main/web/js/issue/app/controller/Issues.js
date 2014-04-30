@@ -24,7 +24,7 @@ Ext.define('Isu.controller.Issues', {
         'workspace.issues.Item',
         'workspace.issues.IssueNoGroup',
         'ext.button.GridAction',
-        'ext.button.SortItemButton',
+        'Skyline.button.SortItemButton',
         'Skyline.button.TagButton'
     ],
 
