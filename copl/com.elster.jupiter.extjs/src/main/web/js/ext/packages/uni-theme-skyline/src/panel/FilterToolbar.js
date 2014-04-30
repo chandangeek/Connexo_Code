@@ -61,14 +61,15 @@ Ext.define('Skyline.panel.FilterToolbar', {
     },
 
     constructor: function (config) {
-        var items = config.content;
-        var tools = config.tools;
+        var me = this;
 
-        this.dockedItems[0].title = config.title;
+        Ext.apply(config, me);
 
-        this.items[0].items = items;
-        this.items[1].text = config.emptyText;
-        this.items[2].items = tools;
+        this.dockedItems[0].title = me.title;
+
+        this.items[0].items =  me.content;
+        this.items[1].text = me.emptyText;
+        this.items[2].items = me.tools;
 
         this.callSuper(arguments);
         if (!this.showClearButton) {
