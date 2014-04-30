@@ -200,42 +200,6 @@
     }
 }
 
-.uni-content-container {
-    background-color: #ffffff;
-
-    .north {
-        padding: 6px;
-    }
-
-    .west {
-        background-color: #ffffff;
-
-        .x-panel-header-default {
-            background-color: transparent;
-        }
-
-        .x-panel-header-text-container-default {
-            color: $ocean-blue;
-            font-size: 16px;
-        }
-        //
-        //        .x-panel-body {
-        //            padding: 5px;
-        //        }
-
-        .x-toolbar {
-            padding: 6px;
-        }
-
-        .x-toolbar-footer {
-            background-color: transparent;
-        }
-    }
-
-    .center {
-        background-color: transparent;
-    }
-}
 
 // Portal
 
