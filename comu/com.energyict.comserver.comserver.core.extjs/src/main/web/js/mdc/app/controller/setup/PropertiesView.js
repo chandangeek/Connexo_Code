@@ -105,14 +105,14 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
                             var date = new Date(value);
                             var dateValue = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
                             var timeValue = new Date(1970, 0, 1, date.getHours(), date.getMinutes(), date.getSeconds(), 0);
-                            propertiesView.addProperty(key, value, columnNumber);
+                            propertiesView.addProperty(key, date, columnNumber);
                         } else {
                             propertiesView.addProperty(key, value, columnNumber);
                         }
                         break;
                     case 'DATE':
                         if (value !== null) {
-                            propertiesView.addProperty(key, new Date(value), propertyNumber % 2);
+                            propertiesView.addProperty(key, new Date(value).toDateString(), propertyNumber % 2);
                         } else {
                             propertiesView.addDateProperty(key, null, columnNumber);
                         }
@@ -131,9 +131,9 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
                         break;
                     case 'TIMEOFDAY':
                         if (value !== null) {
-                            propertiesView.addProperty(key, new Date(value * 1000), columnNumber);
+                            propertiesView.addProperty(key, new Date(value).toTimeString(), columnNumber);
                         } else {
-                            propertiesView.addProperty(key, propertyNumber % 2);
+                            propertiesView.addProperty(key, null, propertyNumber % 2);
                         }
                         break;
                     case 'CODETABLE':
