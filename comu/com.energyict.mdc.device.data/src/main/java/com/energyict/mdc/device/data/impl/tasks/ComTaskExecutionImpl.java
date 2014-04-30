@@ -658,12 +658,12 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     protected void doExecutionStarted(ComPort comPort) {
-        this.setExecutingComPort(comPort);
         Date now = this.clock.now();
         this.setExecutionStartedTimestamp(now);
         this.lastExecutionTimestamp = this.clock.now();
         this.lastExecutionFailed = false;
         this.setNextExecutionTimestamp(this.calculateNextExecutionTimestamp(this.getExecutionStartedTimestamp()));
+        this.setExecutingComPort(comPort);
     }
 
     /**
