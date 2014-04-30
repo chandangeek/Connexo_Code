@@ -2,7 +2,8 @@ Ext.define('Isu.controller.CommunicationTasksView', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem'
+        'Uni.model.BreadcrumbItem',
+        'Isu.model.CommunicationTasksSort'
     ],
 
     stores: [
@@ -19,7 +20,7 @@ Ext.define('Isu.controller.CommunicationTasksView', {
 
     refs: [
         {
-            ref: 'view',
+            ref: 'tasksView',
             selector: 'communication-tasks-view'
         },
         {
@@ -43,6 +44,9 @@ Ext.define('Isu.controller.CommunicationTasksView', {
             'communication-tasks-action-menu': {
                 beforehide: this.hideItemAction,
                 click: this.chooseCommunicationTasksAction
+            },
+            'communication-tasks-view communication-tasks-sort-toolbar communication-tasks-sort-menu': {
+                click: this.addSortParam
             }
         });
 
@@ -69,6 +73,13 @@ Ext.define('Isu.controller.CommunicationTasksView', {
         breadcrumbParent.setChild(breadcrumbChild1);
 
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
+    },
+
+    addSortParam: function (menu, item) {
+        var sorting = new Isu.model.CommunicationTasksSort();
+
+        sorting.addSortParam(item.action);
+        this.getTasksView().down('communication-tasks-sort-toolbar').addSortButtons(sorting);
     },
 
     chooseCommunicationTasksAction: function (menu, item) {
