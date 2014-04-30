@@ -368,9 +368,14 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
         if (lockResult.isPresent()) {
             T lockedConnectionTask = (T) lockResult.get();
             if (lockedConnectionTask.getExecutingComServer() == null) {
-                ((ConnectionTaskImpl) lockedConnectionTask).setExecutingComServer(comServer);
-                ((ConnectionTaskImpl) lockedConnectionTask).save();
-                return lockedConnectionTask;
+                try {
+                    ((ConnectionTaskImpl) lockedConnectionTask).setExecutingComServer(comServer);
+                    lockedConnectionTask.save();
+                    return lockedConnectionTask;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw e;
+                }
             }
             else {
                 // No database lock but business lock is already set
@@ -994,40 +999,10 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
 
     @Override
     public boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds) {
-
-//        StringBuilder buffer = new StringBuilder("select ");
-//        if (!Utils.isNull(hint)) {
-//            buffer.append("/*+ ");
-//            buffer.append(hint);
-//            buffer.append(" */ ");
-//        }
-//        buffer.append("1 from ");
-//        SqlBuilder builder = new SqlBuilder(buffer.toString());
-//        builder.append(getTableName());
-//        builder.append(" where ");
-//        builder.append(whereClause);
-//        builder.append(" and rownum = 1");
-//        return hasNext(builder);
-
-
-//        SqlBuilder sqlBuilder = new SqlBuilder();
-//        sqlBuilder.append(NEXT_EXECUTION_COLUMN_NAME);
-//        sqlBuilder.append(" < ? and id in ");
-//        sqlBuilder.bindLong(Utils.asSeconds(now));
-//        sqlBuilder.append(comTaskExecutionIds, true);
-//        sqlBuilder.append(" and exists (select id from ");
-//        sqlBuilder.append(ConnectionTaskFactoryImpl.TABLENAME);
-//        sqlBuilder.append(" where id = ");
-//        sqlBuilder.append(TABLENAME);
-//        sqlBuilder.append(".");
-//        sqlBuilder.append(CONNECTION_TASK_COLUMN_NAME);
-//        sqlBuilder.append(" and ");
-//        sqlBuilder.append(ConnectionTaskFactoryImpl.COMSERVER_COLUMN_NAME);
-//        sqlBuilder.append(" is null)");
-//        return sqlBuilder;
         Date now = this.clock.now();
         Condition condition = Where.where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)
-                .and(ListOperator.IN.contains("id", new ArrayList<>(comTaskExecutionIds)));
-        return false;
+                .and(ListOperator.IN.contains("id", new ArrayList<>(comTaskExecutionIds)))
+                .and(where("connectionTask.comServer").isNull());
+        return this.dataModel.query(ComTaskExecution.class, ConnectionTask.class).select(condition).size() > 0;
     }
 }
