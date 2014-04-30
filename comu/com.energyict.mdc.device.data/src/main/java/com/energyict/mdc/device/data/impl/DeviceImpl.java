@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -33,8 +34,6 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -294,7 +293,7 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     private void deleteCache() {
         List<DeviceCacheFactory> deviceCacheFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceCacheFactory.class);
-        if (deviceCacheFactories.size() > 0) {
+        if (!deviceCacheFactories.isEmpty()) {
             deviceCacheFactories.get(0).removeDeviceCacheFor(getId());
         }
     }
@@ -923,16 +922,16 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Override
     public void removeConnectionTask(ConnectionTask<?, ?> connectionTask) {
         Iterator<ConnectionTaskImpl<?,?>> connectionTaskIterator = this.connectionTasks.iterator();
-        boolean removed = false;
-        while(connectionTaskIterator.hasNext() && !removed){
+        boolean removedNone = true;
+        while(connectionTaskIterator.hasNext() && removedNone){
             ConnectionTaskImpl<?,?> connectionTaskToRemove = connectionTaskIterator.next();
             if(connectionTaskToRemove.getId() == connectionTask.getId()){
                 connectionTask.makeObsolete();
                 connectionTaskIterator.remove();
-                removed = true;
+                removedNone = false;
             }
         }
-        if(!removed){
+        if(removedNone){
             throw new CannotDeleteConnectionTaskWhichIsNotFromThisDevice(this.thesaurus, connectionTask, this);
 
         }
@@ -956,16 +955,16 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Override
     public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
         Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.comTaskExecutions.iterator();
-        boolean removed = false;
-        while (comTaskExecutionIterator.hasNext() && !removed){
+        boolean removedNone = true;
+        while (comTaskExecutionIterator.hasNext() && removedNone){
             ComTaskExecution comTaskExecutionToRemove = comTaskExecutionIterator.next();
             if(comTaskExecutionToRemove.getId() == comTaskExecution.getId()){
                 comTaskExecution.makeObsolete();
                 comTaskExecutionIterator.remove();
-                removed = true;
+                removedNone = false;
             }
         }
-        if(!removed){
+        if(removedNone){
             throw new CannotDeleteComTaskExecutionWhichIsNotFromThisDevice(thesaurus, comTaskExecution, this);
         }
     }
@@ -995,6 +994,21 @@ public class DeviceImpl implements Device, PersistenceAware {
             DeviceImpl.this.comTaskExecutions.add((ComTaskExecutionImpl) comTaskExecution);
             return comTaskExecution;
         }
+    }
+
+    @Override
+    public int countNumberOfEndDeviceEvents(List<EndDeviceEventType> eventTypes, Interval interval) {
+        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            Optional<Meter> meter = amrSystem.get().findMeter(String.valueOf(getId()));
+            if (meter.isPresent()) {
+                return meter.get().getDeviceEvents(interval, eventTypes).size();
+            }
+            else {
+                return 0;
+            }
+        }
+        return 0;
     }
 
     private class ConnectionInitiationTaskBuilderForDevice implements ConnectionInitiationTaskBuilder {
