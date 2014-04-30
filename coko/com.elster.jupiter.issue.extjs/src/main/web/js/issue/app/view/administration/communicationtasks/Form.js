@@ -18,7 +18,7 @@ Ext.define('Isu.view.administration.communicationtasks.Form', {
         {
             xtype: 'displayfield',
             fieldLabel: 'Commands',
-            name: 'commands'
+            name: 'commandsString'
         }
     ]
 });
