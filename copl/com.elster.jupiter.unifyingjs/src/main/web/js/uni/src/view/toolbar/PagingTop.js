@@ -33,6 +33,7 @@
 Ext.define('Uni.view.toolbar.PagingTop', {
     extend: 'Ext.toolbar.Paging',
     xtype: 'pagingtoolbartop',
+    ui: 'pagingtoolbartop',
 
     displayInfo: false,
 

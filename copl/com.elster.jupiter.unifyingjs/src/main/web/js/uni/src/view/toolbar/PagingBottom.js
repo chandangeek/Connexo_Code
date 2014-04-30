@@ -4,6 +4,7 @@
 Ext.define('Uni.view.toolbar.PagingBottom', {
     extend: 'Ext.toolbar.Paging',
     xtype: 'pagingtoolbarbottom',
+    ui: 'pagingtoolbarbottom',
 
     requires: [
         'Uni.util.QueryString',
