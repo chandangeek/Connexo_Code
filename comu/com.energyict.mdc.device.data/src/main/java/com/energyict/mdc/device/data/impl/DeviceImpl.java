@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -981,6 +982,21 @@ public class DeviceImpl implements Device, PersistenceAware {
             DeviceImpl.this.comTaskExecutions.add((ComTaskExecutionImpl) comTaskExecution);
             return comTaskExecution;
         }
+    }
+
+    @Override
+    public int countNumberOfEndDeviceEvents(List<EndDeviceEventType> eventTypes, Interval interval) {
+        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            Optional<Meter> meter = amrSystem.get().findMeter(String.valueOf(getId()));
+            if (meter.isPresent()) {
+                return meter.get().getDeviceEvents(interval, eventTypes).size();
+            }
+            else {
+                return 0;
+            }
+        }
+        return 0;
     }
 
     private class ConnectionInitiationTaskBuilderForDevice implements ConnectionInitiationTaskBuilder {
