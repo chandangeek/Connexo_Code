@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
@@ -19,7 +20,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.cim.EndDeviceEventType;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
@@ -233,15 +233,15 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     void removeConnectionTask(ConnectionTask connectionTask);
 
     /**
-     * Counts the number of EndDeviceEvents of the specified type
+     * Counts the number of EndDeviceEvents of the specified types
      * that have occurred in the specified {@link Interval}
      * within the topology that starts from this Device.
      *
-     * @param eventType The EndDeviceEventType
+     * @param eventTypes The List of EndDeviceEventType of interest
      * @param interval The Interval during which the EndDeviceEvents have occurred
      * @return The number of EndDeviceEvents
      */
-    public int countNumberOfEndDeviceEvents(EndDeviceEventType eventType, Interval interval);
+    public int countNumberOfEndDeviceEvents(List<EndDeviceEventType> eventTypes, Interval interval);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask

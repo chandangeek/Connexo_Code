@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -30,9 +31,9 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.Channel;
@@ -66,7 +67,6 @@ import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.cim.EndDeviceEventType;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
@@ -841,23 +841,33 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Override
     public void removeConnectionTask(ConnectionTask connectionTask) {
         Iterator<ConnectionTaskImpl> connectionTaskIterator = this.connectionTasks.iterator();
-        boolean removed = false;
-        while(connectionTaskIterator.hasNext() && !removed){
+        boolean removedNone = true;
+        while(connectionTaskIterator.hasNext() && removedNone){
             ConnectionTaskImpl connectionTaskToRemove = connectionTaskIterator.next();
             if(connectionTaskToRemove.getId() == connectionTask.getId()){
                 ((ConnectionTaskImpl) connectionTask).delete();
                 this.connectionTasks.remove(connectionTaskToRemove);
-                removed = true;
+                removedNone = false;
             }
         }
-        if(!removed){
+        if(removedNone){
             throw new CannotDeleteConnectionTaskWhichIsNotFromThisDevice(this.thesaurus, connectionTask, this);
 
         }
     }
 
     @Override
-    public int countNumberOfEndDeviceEvents(EndDeviceEventType eventType, Interval interval) {
+    public int countNumberOfEndDeviceEvents(List<EndDeviceEventType> eventTypes, Interval interval) {
+        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            Optional<Meter> meter = amrSystem.get().findMeter(String.valueOf(getId()));
+            if (meter.isPresent()) {
+                return meter.get().getDeviceEvents(interval, eventTypes).size();
+            }
+            else {
+                return 0;
+            }
+        }
         return 0;
     }
 

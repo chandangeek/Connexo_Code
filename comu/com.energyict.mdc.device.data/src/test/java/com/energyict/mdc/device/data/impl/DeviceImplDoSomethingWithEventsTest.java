@@ -57,6 +57,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
@@ -219,6 +221,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private RelationService relationService;
         private EngineModelService engineModelService;
         private Environment environment;
+        private TaskService taskService;
 
         public void initializeDatabase(String testName, boolean showSqlLogging) {
             this.initializeMocks(testName);
@@ -247,6 +250,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new MasterDataModule(),
                     new DeviceConfigurationModule(),
                     new MdcCommonModule(),
+                    new TasksModule(),
                     new DeviceDataModule());
             BusinessEventManager eventManager = mock(BusinessEventManager.class);
             when(this.applicationContext.createEventManager()).thenReturn(eventManager);
@@ -262,6 +266,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.meteringService = injector.getInstance(MeteringService.class);
                 this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
                 injector.getInstance(MasterDataService.class);
+                this.taskService = injector.getInstance(TaskService.class);
                 this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
                 this.engineModelService = injector.getInstance(EngineModelService.class);
                 this.relationService = injector.getInstance(RelationService.class);
