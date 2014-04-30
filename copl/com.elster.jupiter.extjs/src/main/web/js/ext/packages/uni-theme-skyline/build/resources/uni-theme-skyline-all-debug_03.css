@@ -1,3 +1,98 @@
+/* line 253, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-large-vertical {
+  padding: 0 0 0 16px;
+}
+
+/* line 257, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-large-vertical-noborder {
+  padding: 0 0 0 16px;
+}
+
+/* line 273, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-text-container-large {
+  color: #007dc3;
+  font-size: 60px;
+  font-weight: normal;
+  font-family: "Marvel", helvetica, arial, verdana, sans-serif;
+  line-height: 60px;
+  padding: 1px 0 0;
+  text-transform: none;
+}
+
+/* line 285, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-body-large {
+  background: white;
+  border-color: #71adc7;
+  color: black;
+  font-size: 13px;
+  font-weight: normal;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
+  border-width: 0;
+}
+
+/* line 447, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-large {
+  background-image: none;
+  background-color: white;
+}
+
+/* line 451, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-large-vertical {
+  background-image: none;
+  background-color: white;
+}
+
+/* line 509, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel .x-panel-header-large-collapsed-border-top {
+  border-bottom-width: 0 !important;
+}
+/* line 513, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel .x-panel-header-large-collapsed-border-right {
+  border-left-width: 0 !important;
+}
+/* line 517, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel .x-panel-header-large-collapsed-border-bottom {
+  border-top-width: 0 !important;
+}
+/* line 521, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel .x-panel-header-large-collapsed-border-left {
+  border-right-width: 0 !important;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-panel-header-large-top:after {
+  display: none;
+  content: "x-slicer:stretch:bottom";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-panel-header-large-bottom:after {
+  display: none;
+  content: "x-slicer:stretch:bottom";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-panel-header-large-left:after {
+  display: none;
+  content: "x-slicer:stretch:left";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-panel-header-large-right:after {
+  display: none;
+  content: "x-slicer:stretch:left";
+}
+
 /*</if slicer>*/
 /* */
 /* line 537, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
@@ -2893,6 +2988,12 @@ div.x-form-spinner-down {
 /* line 13, ../../sass/src/toolbar/Paging.scss */
 .x-tbar-page-last {
   background-image: url("images/grid/page-last.png");
+}
+
+/* line 17, ../../sass/src/toolbar/Paging.scss */
+.x-toolbar-pagingtoolbartop, .x-toolbar-pagingtoolbarbottom {
+  padding-right: 0;
+  padding-left: 0;
 }
 
 /* line 1, ../../sass/src/picker/Date.scss */

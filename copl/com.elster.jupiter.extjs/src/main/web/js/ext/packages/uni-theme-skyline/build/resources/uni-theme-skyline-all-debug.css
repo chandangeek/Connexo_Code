@@ -36117,6 +36117,13 @@ div.x-form-spinner-down {
 .x-tbar-page-last {
   background-image: url("images/grid/page-last.png"); }
 
+/* line 17, ../../sass/src/toolbar/Paging.scss */
+.x-toolbar-pagingtoolbartop, .x-toolbar-pagingtoolbarbottom {
+  padding-right: 0;
+  padding-left: 0;
+  margin-right: -7px;
+  margin-left: -5px; }
+
 /* line 1, ../../sass/src/picker/Date.scss */
 .x-datepicker {
   border-color: #70bb51;

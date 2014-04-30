@@ -1,3 +1,94 @@
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-delete-small-disabled:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-delete-small-disabled-corners.gif), sides:url(images/btn/btn-delete-small-disabled-sides.gif), frame-bg:url(images/btn/btn-delete-small-disabled-fbg.gif), bg:url(images/btn/btn-delete-small-disabled-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-delete-medium {
+  border-color: #6194ab;
+}
+
+/* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  padding: 5px 5px 5px 5px;
+  border-width: 0;
+  border-style: solid;
+  background-color: #eb5642;
+}
+
+/* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-mc {
+  background-color: #eb5642;
+}
+
+/* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-nbr .x-btn-delete-medium {
+  padding: 0 !important;
+  border-width: 0 !important;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -ms-border-radius: 0px;
+  -o-border-radius: 0px;
+  border-radius: 0px;
+  background-color: transparent;
+}
+
+/* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-frameInfo {
+  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+}
+
+/* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-tl {
+  background-position: 0 -10px;
+}
+
+/* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-tr {
+  background-position: right -15px;
+}
+
+/* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-bl {
+  background-position: 0 -20px;
+}
+
+/* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-br {
+  background-position: right -25px;
+}
+
+/* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-ml {
+  background-position: 0 top;
+}
+
+/* line 335, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-mr {
+  background-position: right top;
+}
+
+/* line 339, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-tc {
+  background-position: 0 0;
+}
+
+/* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-bc {
+  background-position: 0 -5px;
+}
+
 /* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-delete-medium-tr,
 .x-btn-delete-medium-br,
@@ -14025,8 +14116,7 @@
   background-image: url("images/container/Connexo-logo.png");
   background-repeat: no-repeat;
   background-size: auto 28px;
-  background-position-y: center;
-  background-position-x: 14px;
+  background-position: 14px;
   padding-left: 60px;
 }
 /* line 9, ../../sass/src/button/TransparentButton.scss */
@@ -14046,12 +14136,12 @@
   margin-top: 3px;
   margin-left: 10px;
 }
-/* line 14, ../../sass/src/button/NavigationLogoButton.scss */
+/* line 13, ../../sass/src/button/NavigationLogoButton.scss */
 *[class*='x-btn-navigationlogo-'] .x-btn-button .x-btn-inner {
   font-size: 24px;
   font-weight: normal;
 }
-/* line 20, ../../sass/src/button/NavigationLogoButton.scss */
+/* line 19, ../../sass/src/button/NavigationLogoButton.scss */
 *[class*='x-btn-navigationlogo-']:hover {
   background-color: #00ccff;
 }
@@ -14546,99 +14636,4 @@
 /* line 249, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-large-horizontal-noborder {
   padding: 0 0 16px 0;
-}
-
-/* line 253, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel-header-large-vertical {
-  padding: 0 0 0 16px;
-}
-
-/* line 257, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel-header-large-vertical-noborder {
-  padding: 0 0 0 16px;
-}
-
-/* line 273, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel-header-text-container-large {
-  color: #007dc3;
-  font-size: 60px;
-  font-weight: normal;
-  font-family: "Marvel", helvetica, arial, verdana, sans-serif;
-  line-height: 60px;
-  padding: 1px 0 0;
-  text-transform: none;
-}
-
-/* line 285, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel-body-large {
-  background: white;
-  border-color: #71adc7;
-  color: black;
-  font-size: 13px;
-  font-weight: normal;
-  font-family: "Lato", helvetica, arial, verdana, sans-serif;
-  border-width: 0;
-}
-
-/* line 447, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel-header-large {
-  background-image: none;
-  background-color: white;
-}
-
-/* line 451, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel-header-large-vertical {
-  background-image: none;
-  background-color: white;
-}
-
-/* line 509, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel .x-panel-header-large-collapsed-border-top {
-  border-bottom-width: 0 !important;
-}
-/* line 513, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel .x-panel-header-large-collapsed-border-right {
-  border-left-width: 0 !important;
-}
-/* line 517, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel .x-panel-header-large-collapsed-border-bottom {
-  border-top-width: 0 !important;
-}
-/* line 521, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel .x-panel-header-large-collapsed-border-left {
-  border-right-width: 0 !important;
-}
-
-/*<if slicer>*/
-/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
-.x-panel-header-large-top:after {
-  display: none;
-  content: "x-slicer:stretch:bottom";
-}
-
-/*</if slicer>*/
-/* */
-/*<if slicer>*/
-/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
-.x-panel-header-large-bottom:after {
-  display: none;
-  content: "x-slicer:stretch:bottom";
-}
-
-/*</if slicer>*/
-/* */
-/*<if slicer>*/
-/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
-.x-panel-header-large-left:after {
-  display: none;
-  content: "x-slicer:stretch:left";
-}
-
-/*</if slicer>*/
-/* */
-/*<if slicer>*/
-/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
-.x-panel-header-large-right:after {
-  display: none;
-  content: "x-slicer:stretch:left";
 }
