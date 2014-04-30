@@ -78,6 +78,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -972,19 +973,61 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     @Override
     public List<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort) {
         List<OutboundComPortPool> comPortPools = this.engineModelService.findContainingComPortPoolsForComPort((OutboundComPort) comPort);
-        Date now = this.clock.now();
-        Condition condition = Where.where("connectionTask.paused").isEqualTo(false)
-                .and(where("connectionTask.comServer").isNull())
-                .and(where("connectionTask.obsoleteDate").isNull())
-                .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
-                .and(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now))
-                .and(where("connectionTask.nextExecutionTimestamp").isLessThanOrEqual(now))
-                .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNull())
-                .and(ListOperator.IN.contains("connectionTask.comPortPool", comPortPools));
-        return this.dataModel.query(ComTaskExecution.class, ConnectionTask.class).select(condition,
-                Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
-                Order.ascending(ComTaskExecutionFields.PRIORITY.fieldName()),
-                Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
+        if(!comPortPools.isEmpty()){
+            Date now = this.clock.now();
+            Condition condition = Where.where("connectionTask.paused").isEqualTo(false)
+                    .and(where("connectionTask.comServer").isNull())
+                    .and(where("connectionTask.obsoleteDate").isNull())
+                    .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                    .and(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now))
+                    .and(where("connectionTask.nextExecutionTimestamp").isLessThanOrEqual(now))
+                    .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNull())
+                    .and(ListOperator.IN.contains("connectionTask.comPortPool", comPortPools));
+            return this.dataModel.query(ComTaskExecution.class, ConnectionTask.class).select(condition,
+                    Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
+                    Order.ascending(ComTaskExecutionFields.PRIORITY.fieldName()),
+                    Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
+        } else {
+            return Collections.emptyList();
+        }
     }
 
+    @Override
+    public boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds) {
+
+//        StringBuilder buffer = new StringBuilder("select ");
+//        if (!Utils.isNull(hint)) {
+//            buffer.append("/*+ ");
+//            buffer.append(hint);
+//            buffer.append(" */ ");
+//        }
+//        buffer.append("1 from ");
+//        SqlBuilder builder = new SqlBuilder(buffer.toString());
+//        builder.append(getTableName());
+//        builder.append(" where ");
+//        builder.append(whereClause);
+//        builder.append(" and rownum = 1");
+//        return hasNext(builder);
+
+
+//        SqlBuilder sqlBuilder = new SqlBuilder();
+//        sqlBuilder.append(NEXT_EXECUTION_COLUMN_NAME);
+//        sqlBuilder.append(" < ? and id in ");
+//        sqlBuilder.bindLong(Utils.asSeconds(now));
+//        sqlBuilder.append(comTaskExecutionIds, true);
+//        sqlBuilder.append(" and exists (select id from ");
+//        sqlBuilder.append(ConnectionTaskFactoryImpl.TABLENAME);
+//        sqlBuilder.append(" where id = ");
+//        sqlBuilder.append(TABLENAME);
+//        sqlBuilder.append(".");
+//        sqlBuilder.append(CONNECTION_TASK_COLUMN_NAME);
+//        sqlBuilder.append(" and ");
+//        sqlBuilder.append(ConnectionTaskFactoryImpl.COMSERVER_COLUMN_NAME);
+//        sqlBuilder.append(" is null)");
+//        return sqlBuilder;
+        Date now = this.clock.now();
+        Condition condition = Where.where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)
+                .and(ListOperator.IN.contains("id", new ArrayList<>(comTaskExecutionIds)));
+        return false;
+    }
 }
