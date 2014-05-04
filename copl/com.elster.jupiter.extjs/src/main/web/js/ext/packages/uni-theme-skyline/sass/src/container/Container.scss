@@ -1,3 +1,4 @@
+
 @mixin container($ui){}
 
 @include container('default');
@@ -5,3 +6,7 @@
 @import "BreadcrumbTrail";
 @import "NavigationHeader";
 @import "NavigationMenu";
+
+.west {
+  padding: $container-default-padding;
+}
