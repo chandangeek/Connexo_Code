@@ -8,9 +8,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.offline.OfflineRegisterImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**

@@ -44,13 +44,6 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import org.assertj.core.api.Condition;
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTimeConstants;
-import org.junit.After;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import com.energyict.mdc.scheduling.TemporalExpression;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -69,7 +62,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link ScheduledConnectionTaskImpl} component.

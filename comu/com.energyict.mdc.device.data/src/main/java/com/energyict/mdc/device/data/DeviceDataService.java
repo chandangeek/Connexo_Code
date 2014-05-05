@@ -220,6 +220,19 @@ public interface DeviceDataService {
     public void releaseTimedOutConnectionTasks(ComServer outboundCapableComServer);
 
     /**
+     * Cleans up any marker flags on {@link ComTaskExecution}s that were not properly
+     * cleaned because the {@link ComServer} they were running
+     * on was actually forcefully shutdown, i.e. not allowing it to
+     * shut down running processing and cleanup when done.
+     * Leaving the marker flags, prohibits the ComServer from
+     * picking up the tasks again.
+     * This is intended to be called at startup time.
+     *
+     * @param comServer The ComServer that is currently starting up.
+     */
+    public void releaseInterruptedComTasks(ComServer comServer);
+
+    /**
      * Creates a new Device based on the given name and DeviceConfiguration
      *
      * @param deviceConfiguration the deviceConfiguration which models the device
@@ -397,6 +410,7 @@ public interface DeviceDataService {
      * @return all the ComTaskExecutions (which are not obsolete) for the given ConnectionTask
      */
     List<ComTaskExecution> findComTaskExecutionsByComSchedule(ComSchedule comSchedule);
+    List<ComTaskExecution> findComTaskExecutionsByComScheduleWithinRange(ComSchedule comSchedule, long minId, long maxId);
 
     List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device);
 
@@ -415,5 +429,4 @@ public interface DeviceDataService {
 
     boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds);
 
-    void releaseInterruptedComTasks(ComServer comServer);
 }

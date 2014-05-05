@@ -19,7 +19,6 @@ import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 import com.energyict.mdc.pluggable.PluggableClassWithRelationSupport;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;

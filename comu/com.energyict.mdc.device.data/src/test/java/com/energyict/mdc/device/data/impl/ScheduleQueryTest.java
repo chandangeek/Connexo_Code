@@ -10,11 +10,10 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import org.junit.Test;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 

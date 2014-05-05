@@ -68,8 +68,6 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -950,6 +948,14 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
         return this.dataModel.query(ComTaskExecution.class)
                 .select(Where.where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule)
                         .and(Where.where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()));
+    }
+
+    @Override
+    public List<ComTaskExecution> findComTaskExecutionsByComScheduleWithinRange(ComSchedule comSchedule, long minId, long maxId) {
+        return this.dataModel.query(ComTaskExecution.class)
+                .select(Where.where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule)
+                    .and(Where.where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                    .and(Where.where(ComTaskExecutionFields.ID.fieldName()).between(minId).and(maxId)));
     }
 
 
