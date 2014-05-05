@@ -143,6 +143,11 @@ Ext.define('Mdc.controller.history.Setup', {
             me.getApplication().getController('Mdc.controller.setup.ProtocolDialects').showProtocolDialectsEditView(deviceTypeId,deviceConfigurationId,protocolDialectId);
         });
 
+        //search devices
+        crossroads.addRoute('setup/searchdevices',function(){
+            me.getApplication().getController('Mdc.controller.setup.SearchDevices').showSearchDevices();
+        });
+
         this.callParent(arguments);
     },
 
