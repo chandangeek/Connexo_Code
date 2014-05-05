@@ -193,10 +193,10 @@ public class PartialOutboundConnectiontaskCrudIT {
             engineModelService = injector.getInstance(EngineModelService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
-            schedulingService = injector.getInstance(SchedulingService.class);
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
+            schedulingService = injector.getInstance(SchedulingService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }
