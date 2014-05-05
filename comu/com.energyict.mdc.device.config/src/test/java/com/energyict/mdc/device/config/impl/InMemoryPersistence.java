@@ -106,6 +106,8 @@ public class InMemoryPersistence {
     private RegisterMappingUpdateEventHandler registerMappingUpdateEventHandler;
     private RegisterMappingDeletionEventHandler registerMappingDeletionEventHandler;
     private RegisterMappingDeleteFromLoadProfileTypeEventHandler registerMappingDeleteFromLoadProfileTypeEventHandler;
+    private OrmService ormService;
+    private EventService eventService;
 
     public void initializeDatabaseWithMockedProtocolPluggableService(String testName, boolean showSqlLogging) {
         this.initializeDatabase(testName, showSqlLogging, true);
@@ -169,21 +171,7 @@ public class InMemoryPersistence {
                 new MdcCommonModule(),
                 new EngineModelModule(),
                 new PluggableModule(),
-                new SchedulingModule());
-        this.transactionService = injector.getInstance(TransactionService.class);
-        try (TransactionContext ctx = this.transactionService.getContext()) {
-            OrmService ormService = injector.getInstance(OrmService.class);
-            userService = injector.getInstance(UserService.class);
-            EventService eventService = injector.getInstance(EventService.class);
-            this.publisher = injector.getInstance(Publisher.class);
-            this.nlsService = injector.getInstance(NlsService.class);
-            this.meteringService = injector.getInstance(MeteringService.class);
-            this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
-            this.engineModelService = injector.getInstance(EngineModelService.class);
-            this.masterDataService = injector.getInstance(MasterDataService.class);
-            injector.getInstance(PluggableService.class);
-            this.dataModel = this.createNewDeviceConfigurationService(createMasterData);
-            ctx.commit();
+                new SchedulingModule()));
         if (!mockedProtocolPluggableService) {
             modules.add(new IssuesModule());
             modules.add(new MdcDynamicModule());
@@ -193,10 +181,8 @@ public class InMemoryPersistence {
         return modules.toArray(new Module[modules.size()]);
     }
 
-    private DataModel createNewDeviceConfigurationService(boolean createMasterData) {
-        this.deviceConfigurationService = injector.getInstance(DeviceConfigurationServiceImpl.class);
     private DataModel createNewDeviceConfigurationService() {
-        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.readingTypeUtilService, userService, this.protocolPluggableService, engineModelService, masterDataService);
+        this.deviceConfigurationService = injector.getInstance(DeviceConfigurationServiceImpl.class);
         return this.deviceConfigurationService.getDataModel();
     }
 

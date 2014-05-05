@@ -58,7 +58,10 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.impl.NextExecutionSpecsImpl;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
@@ -132,6 +135,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     private InboundDeviceProtocolPluggableClass discoveryPluggable;
     @Mock
     private IdBusinessObjectFactory businessObjectFactory;
+    private SchedulingService schedulingService;
 
     private class MockModule extends AbstractModule {
 
@@ -177,7 +181,8 @@ public class PartialOutboundConnectiontaskCrudIT {
                 new IssuesModule(),
                 new ProtocolsModule(),
                 new MdcDynamicModule(),
-                new PluggableModule());
+                new PluggableModule(),
+                new SchedulingModule());
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             ormService = injector.getInstance(OrmService.class);
@@ -188,6 +193,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             engineModelService = injector.getInstance(EngineModelService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
+            schedulingService = injector.getInstance(SchedulingService.class);
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
@@ -372,7 +378,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         PartialScheduledConnectionTaskImpl task;
         try (TransactionContext context = transactionService.getContext()) {
             task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
-            NextExecutionSpecsImpl instance = (NextExecutionSpecsImpl) deviceConfigurationService.newNextExecutionSpecs(null);
+            NextExecutionSpecsImpl instance = (NextExecutionSpecsImpl) schedulingService.newNextExecutionSpecs(null);
             instance.setTemporalExpression(new TemporalExpression(TimeDuration.minutes(60), TimeDuration.minutes(60)));
             instance.save();
             task.setNextExecutionSpecs(instance);
@@ -443,7 +449,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         PartialScheduledConnectionTaskImpl task;
         try (TransactionContext context = transactionService.getContext()) {
             task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
-            NextExecutionSpecsImpl instance = (NextExecutionSpecsImpl) deviceConfigurationService.newNextExecutionSpecs(null);
+            NextExecutionSpecsImpl instance = (NextExecutionSpecsImpl) schedulingService.newNextExecutionSpecs(null);
             instance.setTemporalExpression(new TemporalExpression(TimeDuration.minutes(60), TimeDuration.minutes(60)));
             instance.save();
             task.save();
