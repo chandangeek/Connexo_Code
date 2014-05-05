@@ -6,7 +6,7 @@ Ext.define('Isu.view.administration.communicationtasks.Edit', {
     alias: 'widget.communication-tasks-edit',
     content: [
         {
-            title: 'Create communication task'
+            ui: 'large'
         }
     ]
 });
