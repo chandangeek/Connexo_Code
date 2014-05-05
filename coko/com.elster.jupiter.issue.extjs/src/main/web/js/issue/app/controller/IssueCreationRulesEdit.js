@@ -245,12 +245,15 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
 
     addTemplateDescription: function (combo, descriptionText) {
         if (descriptionText) {
-            combo.templateDescriptionIcon = Ext.DomHelper.append(Ext.getBody(), {
-                tag: 'div',
-                cls: 'isu-icon-help-circled isu-creation-rule-template-description'
-            }, true);
+            if (!combo.templateDescriptionIcon) {
+                combo.templateDescriptionIcon = Ext.DomHelper.append(this.getRuleForm().getEl(), {
+                    tag: 'div',
+                    cls: 'isu-icon-help-circled isu-creation-rule-template-description'
+                }, true);
+            }
 
             this.comboTemplateResize(combo);
+            combo.templateDescriptionIcon.clearListeners();
 
             combo.templateDescriptionIcon.on('click', function () {
                 combo.templateDescriptionWindow = Ext.Msg.show({
@@ -271,20 +274,16 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         var comboEl = combo.getEl();
 
         combo.templateDescriptionIcon && combo.templateDescriptionIcon.setStyle({
-            top: comboEl.getY() + 'px',
-            left: comboEl.getX() + comboEl.getWidth(false) + 'px'
+            top: comboEl.getY() - 145 + 'px',
+            left: comboEl.getX() + comboEl.getWidth(false) - 55 + 'px'
         });
     },
 
     removeTemplateDescription: function () {
         var combo = Ext.ComponentQuery.query('issues-creation-rules-edit form [name=template]')[0];
 
-        if (combo && combo.templateDescriptionWindow) {
-            combo.templateDescriptionWindow.destroy();
-            delete combo.templateDescriptionWindow;
-        }
-
         if (combo && combo.templateDescriptionIcon) {
+            combo.templateDescriptionIcon.clearListeners();
             combo.templateDescriptionIcon.destroy();
             delete combo.templateDescriptionIcon;
         }
