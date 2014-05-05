@@ -265,7 +265,7 @@ public class MasterDataServiceImpl implements MasterDataService, InstallService 
     }
 
     private void install(boolean exeuteDdl, boolean createDefaults) {
-        new Installer(this.dataModel, this.thesaurus, eventService, this.meteringService, this.mdcReadingTypeUtilService, this).install(exeuteDdl, true, createDefaults);
+        new Installer(this.dataModel, this.thesaurus, eventService, this.meteringService, this.mdcReadingTypeUtilService, this).install(exeuteDdl, createDefaults);
     }
 
 }

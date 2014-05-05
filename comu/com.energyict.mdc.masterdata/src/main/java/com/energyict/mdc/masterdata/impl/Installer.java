@@ -46,9 +46,9 @@ public class Installer {
         this.masterDataService = masterDataService;
     }
 
-    public void install(boolean executeDdl, boolean updateOrm, boolean createDefaults) {
+    public void install(boolean executeDdl, boolean createDefaults) {
         try {
-            this.dataModel.install(executeDdl, updateOrm);
+            this.dataModel.install(executeDdl, false);
         }
         catch (Exception e) {
             logger.severe(e.getMessage());
