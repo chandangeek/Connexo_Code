@@ -11,11 +11,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventConstants;
 
-@Component(name="com.energyict.mdc.device.data.comschedule.update.messagehandler", service = MessageHandler.class, immediate = true)
 public class ComScheduleUpdatedMessageHandler implements MessageHandler {
 
     private static final String TOPIC = com.energyict.mdc.scheduling.events.EventType.COMSCHEDULES_UPDATED.topic();
