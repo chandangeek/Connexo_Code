@@ -10,10 +10,10 @@
         <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>mdc-engine</artifactId>
+    <artifactId>mdc.engine</artifactId>
     <packaging>bundle</packaging>
     <version>${comserver.version}</version>
-    <name>[MDC] mdc-engine</name>
+    <name>[MDC] mdc.engine</name>
     <description>
         Contains the full ComServer engine
     </description>
