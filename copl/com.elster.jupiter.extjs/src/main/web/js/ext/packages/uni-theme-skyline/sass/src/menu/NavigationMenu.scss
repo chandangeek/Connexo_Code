@@ -4,6 +4,15 @@
     opacity: 1 !important;
   }*/
 
+  .#{$prefix}menu-body:before {
+    border-left: 2px dotted #A0A0A0;
+    bottom: $menu-navigation-dots-bottom;
+    content: "";
+    left: $menu-navigation-dots-left;
+    position: absolute;
+    top: $menu-navigation-dots-top;
+  }
+
   .#{$prefix}menu-body {
     border-radius: $menu-navigation-border-radius !important;
     background: $menu-navigation-background-color !important;
@@ -14,14 +23,7 @@
   .#{$prefix}menu-item {
     padding: $menu-navigation-item-padding;
     height: $menu-navigation-item-height;
-  }
-
-  .#{$prefix}menu-item:hover {
-    background: $menu-navigation-item-background-over;
-  }
-
-  .#{$prefix}menu-item-active {
-    background: $menu-navigation-item-item-active;
+    background-color: transparent;
   }
 
   .#{$prefix}menu-item:first-child {
