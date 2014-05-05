@@ -1,7 +1,3 @@
-@include container(
-        'breadcrumbtrailcontainer'
-);
-
 .#{$prefix}container-breadcrumbtrailcontainer {
     background-color: $breadcrumb-default-background-color;
     color: $breadcrumb-default-color;

@@ -20644,22 +20644,6 @@ a.x-color-picker-item:hover {
   background-position: 2px -2px; }
 
 /* including package uni-theme-skyline */
-/* line 7, ../../sass/src/BreadcrumbLink.scss */
-.x-component-link {
-  background-color: transparent;
-  color: white; }
-  /* line 10, ../../sass/src/BreadcrumbLink.scss */
-  .x-component-link a {
-    color: white; }
-
-/* line 7, ../../sass/src/BreadcrumbLinkSeparator.scss */
-.x-component-linkseparator {
-  background-image: url("images/container/white_bullet.png");
-  width: 14px;
-  height: 13px;
-  margin: 5px 5px 5px 5px;
-  background-repeat: no-repeat; }
-
 /* line 1, ../../sass/src/Headings.scss */
 h1, h2, h3, h4, h5, h6 {
   text-decoration: none;
@@ -20696,8 +20680,24 @@ h5 {
 h6 {
   font-size: 14px; }
 
-/* line 5, ../../sass/src/container/BreadcrumbTrail.scss */
-.x-container-breadcrumbtrail {
+/* line 7, ../../sass/src/breadcrumb/BreadcrumbLink.scss */
+.x-component-link {
+  background-color: transparent;
+  color: white; }
+  /* line 10, ../../sass/src/breadcrumb/BreadcrumbLink.scss */
+  .x-component-link a {
+    color: white; }
+
+/* line 1, ../../sass/src/breadcrumb/BreadcrumbLinkSeparator.scss */
+.x-component-linkseparator {
+  background: url("images/breadcrumb/separator.png") no-repeat center 1px;
+  width: 17px;
+  height: 17px;
+  padding-right: 12px;
+  padding-left: 12px; }
+
+/* line 1, ../../sass/src/container/BreadcrumbTrailContainer.scss */
+.x-container-breadcrumbtrailcontainer {
   background-color: #71adc7;
   color: white;
   background: -webkit-linear-gradient(left, #587b9b, #76b4cd);
@@ -20708,6 +20708,10 @@ h6 {
   /* For Firefox 3.6 to 15 */
   background: linear-gradient(to right, #587b9b, #76b4cd);
   /* Standard syntax */ }
+
+/* line 1, ../../sass/src/container/BreadcrumbTrail.scss */
+.x-container-breadcrumbtrail {
+  margin: 12px; }
 
 /* line 21, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader {
