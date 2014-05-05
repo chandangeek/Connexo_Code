@@ -6,19 +6,15 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.BoundedBigDecimalPropertySpec;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecPossibleValues;
-import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
-import com.energyict.mdc.pluggable.rest.impl.properties.PredefinedPropertyValuesInfo;
-import com.energyict.mdc.pluggable.rest.impl.properties.PropertySelectionMode;
-import com.energyict.mdc.pluggable.rest.impl.properties.PropertyTypeInfo;
-import com.energyict.mdc.pluggable.rest.impl.properties.PropertyValidationRule;
-import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
+import com.energyict.mdc.pluggable.rest.impl.properties.*;
 import com.energyict.mdc.pluggable.rest.impl.properties.validators.NumberValidationRules;
+
+import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import javax.ws.rs.core.UriInfo;
 
 /**
  * Serves as a utility class to create proper PropertyInfo objects for a set of Properties
@@ -149,6 +145,8 @@ public class MdcPropertyUtils {
             return new Date((long)value);
         } else if (propertySpec.getValueFactory().getValueType() == TimeDuration.class) {
             return new TimeDuration(value.toString());
+        } else if (propertySpec.getValueFactory().getValueType() == String.class) {
+            return value;
         }
         return propertySpec.getValueFactory().fromStringValue(value.toString());
     }
