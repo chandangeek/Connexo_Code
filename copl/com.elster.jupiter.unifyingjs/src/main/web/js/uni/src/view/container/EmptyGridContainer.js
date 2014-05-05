@@ -66,6 +66,7 @@ Ext.define('Uni.view.container.EmptyGridContainer', {
             grid = me.grid,
             emptyCmp = me.emptyComponent;
 
+        me.setVisible(false);
         if (!(grid instanceof Ext.Component)) {
             grid = Ext.clone(grid);
         }
@@ -82,6 +83,8 @@ Ext.define('Uni.view.container.EmptyGridContainer', {
 
         me.grid = me.getGridCt().items.items[0];
         me.bindStore(me.grid.store || 'ext-empty-store', true);
+
+        this.on('beforedestroy', this.onBeforeDestroy, this);
     },
 
     getStoreListeners: function () {
@@ -89,6 +92,10 @@ Ext.define('Uni.view.container.EmptyGridContainer', {
             beforeload: this.onBeforeLoad,
             load: this.onLoad
         };
+    },
+
+    onBeforeDestroy: function () {
+        this.bindStore('ext-empty-store');
     },
 
     onBeforeLoad: function () {
