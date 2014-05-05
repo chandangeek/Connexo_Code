@@ -16,6 +16,7 @@ public class UnmodifiableTypedProperties extends TypedProperties {
 
     public UnmodifiableTypedProperties(TypedProperties delegate) {
         this.delegate = delegate;
+        super.setAllProperties(delegate);
     }
 
     @Override
