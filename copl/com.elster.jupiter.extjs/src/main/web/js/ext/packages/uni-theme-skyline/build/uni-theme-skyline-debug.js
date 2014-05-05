@@ -844,6 +844,100 @@ Ext.define('Skyline.button.StepButton', {
     ui: 'step-active'
 });
 
+Ext.define('Skyline.menu.NavigationItem', {
+    extend: 'Ext.menu.Item',
+    alias: 'widget.navigation-item',
+    arrowCls: null,
+    renderTpl: [
+        '<tpl if="plain">',
+        '{text}',
+        '<tpl else>',
+                '<a id="{id}-itemEl"',
+                ' class="' + Ext.baseCSSPrefix + 'menu-item-link{childElCls}"',
+                ' href="{href}"',
+                '<tpl if="hrefTarget"> target="{hrefTarget}"</tpl>',
+                ' hidefocus="true"',
+                ' unselectable="on"',
+                '<tpl if="tabIndex">',
+                    ' tabIndex="{tabIndex}"',
+                '</tpl>',
+                '>',
+                '<div role="img" id="{id}-iconEl" class="' + Ext.baseCSSPrefix + 'menu-item-icon {iconCls}',
+                    '{childElCls} {glyphCls}" style="<tpl if="icon">background-image:url({icon});</tpl>',
+                    '<tpl if="glyph && glyphFontFamily">font-family:{glyphFontFamily};</tpl>">',
+                    '<tpl if="glyph">&#{glyph};</tpl>',
+                '</div>',
+                '<span class="navigation-item-number">{index}</span>',
+                '<span id="{id}-textEl" class="' + Ext.baseCSSPrefix + 'menu-item-text" unselectable="on">{text}</span>',
+                '</a>',
+        '</tpl>'
+    ]
+});
+
+Ext.define('Skyline.menu.NavigationMenu', {
+    extend: 'Ext.menu.Menu',
+    alias: 'widget.navigation-menu',
+    cls: 'x-navigation-menu',
+    defaults: {
+        xtype: 'navigation-item'
+    },
+    floating: false,
+    hidden: false,
+    activeStep: 1,
+    jumpBack: true,
+    jumpForward: false,
+    listeners: {
+        add: function (menu, item, index) {
+            item.renderData.index = item.index = ++index;
+            this.updateItemCls(index)
+        },
+        click: function (menu, item) {
+            item.index < menu.activeStep ?
+                (menu.jumpBack ? menu.moveTo(item.index) : null) :
+                (menu.jumpForward ? menu.moveTo(item.index) : null)
+        }
+    },
+
+    updateItemCls: function (index) {
+        var me = this,
+            item = me.items.getAt(index - 1);
+        item.removeCls(['step-completed', 'step-active', 'step-non-completed']);
+        index < me.activeStep ? item.addCls('step-completed') :
+            (index > me.activeStep ? item.addCls('step-non-completed') :
+                item.addCls('step-active'));
+    },
+
+    moveTo: function (step) {
+        var me = this;
+        me.moveToStep(step);
+        me.fireEvent('movetostep', me.activeStep)
+    },
+
+    moveToStep: function (step) {
+        var me = this,
+            stepCount = me.items.getCount();
+        if (1 < step < stepCount) {
+            me.activeStep = step;
+            me.items.each(function (item) {
+                var index = item.index;
+                me.updateItemCls(index);
+            });
+        }
+    },
+
+    getActiveStep: function () {
+        return this.activeStep;
+    },
+
+    moveNextStep: function () {
+        this.moveToStep(this.activeStep + 1);
+    },
+
+    movePrevStep: function () {
+        this.moveToStep(this.activeStep - 1);
+    }
+});
+
 Ext.define('Skyline.panel.FilterToolbar', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.filter-toolbar',
@@ -1018,6 +1112,7 @@ Ext.define('Skyline.panel.StepPanel', {
     getStepPanelLayout: function () {
         var me = this;
         return {
+            name: 'basepanel',
             layout: {
                 type: 'hbox',
                 align: 'middle'
@@ -1026,6 +1121,7 @@ Ext.define('Skyline.panel.StepPanel', {
                 {
                     name: 'steppanelbutton',
                     xtype: 'step-button',
+                    ui: 'step-active',
                     text: me.indexText,
                     handler: me.handler
                 },
@@ -1044,15 +1140,16 @@ Ext.define('Skyline.panel.StepPanel', {
         me.items = items
     },
 
-    afterRender: function () {
-        this.stepButton = Ext.ComponentQuery.query('button[name=steppanelbutton]')[0];
-        this.stepLabel = Ext.ComponentQuery.query('button[name=steppanellabel]')[0];
-        this.setState(this.state);
-        this.callParent(arguments)
+    afterRender: function (panel) {
+        panel.stepButton = this.down('panel[name=basepanel]');
+        panel.stepLabel = this.down();
+        console.log( this.stepButton, this.stepLabel);
+     //   this.setState(this.state);
     },
 
     setState: function (state) {
         !state && (this.state = state);
+        console.log(this, this.stepButton, this.stepLabel);
         this.stepButton.setUI(this.states[this.state][0]);
         this.stepLabel.setUI(this.states[this.state][1]);
     },
@@ -1066,11 +1163,5 @@ Ext.define('Skyline.panel.StepPanel', {
         me.doStepLayout();
         me.callParent(arguments)
     }
-});
-
-Ext.define('Skyline.pa.StepButton', {
-    extend: 'Ext.button.Button',
-    alias: 'widget.step-button',
-    ui: 'step-active'
 });
 

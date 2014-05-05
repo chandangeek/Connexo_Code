@@ -23534,6 +23534,11 @@ a.x-color-picker-item:hover {
   padding-right: 55px;
 }
 
+/* line 10, ../../sass/src/container/Container.scss */
+.west {
+  padding: 32px 40px 16px 16px;
+}
+
 /* line 1, ../../sass/src/button/Button.scss */
 .x-uni-action-iconA {
   background-image: url("images/button/ico_actionsA.png");
@@ -24080,9 +24085,4 @@ a.x-color-picker-item:hover {
 /* line 339, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-delete-medium-tc {
   background-position: 0 0;
-}
-
-/* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-delete-medium-bc {
-  background-position: 0 -5px;
 }

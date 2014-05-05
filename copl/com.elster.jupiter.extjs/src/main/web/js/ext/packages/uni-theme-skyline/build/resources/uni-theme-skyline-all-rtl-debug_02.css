@@ -996,6 +996,11 @@
   padding-right: 55px;
 }
 
+/* line 10, ../../sass/src/container/Container.scss */
+.west {
+  padding: 32px 40px 16px 16px;
+}
+
 /* line 1, ../../sass/src/button/Button.scss */
 .x-uni-action-iconA {
   background-image: url("images/button/ico_actionsA.png");
@@ -14969,9 +14974,4 @@
 /* line 335, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-sort-large-mr {
   background-position: right top;
-}
-
-/* line 339, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-large-tc {
-  background-position: 0 0;
 }

@@ -1,3 +1,8 @@
+/* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-bc {
+  background-position: 0 -5px;
+}
+
 /* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-delete-medium-tr,
 .x-btn-delete-medium-br,
@@ -14669,9 +14674,4 @@
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-step-completed-small-tl {
   background-position: 0 -24px;
-}
-
-/* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-step-completed-small-tr {
-  background-position: right -36px;
 }
