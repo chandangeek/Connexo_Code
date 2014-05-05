@@ -9,7 +9,6 @@ import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.exceptions.MessageSeeds;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -35,7 +34,7 @@ public class Installer {
 
     public void install(boolean executeDdl, boolean createMasterData) {
         try {
-            this.dataModel.install(executeDdl, false);
+            this.dataModel.install(executeDdl, true);
             if (createMasterData) {
                 this.createMasterData();
             }
