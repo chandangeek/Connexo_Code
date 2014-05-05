@@ -63,7 +63,7 @@ public class ComScheduleUpdatedMessageHandler implements MessageHandler {
 
     private void propagateRecalculation(long comScheduleId, long minId, long maxId) {
         while(minId+1000<maxId) {
-            eventService.postEvent(UpdateEventType.COMSCHEDULE.topic(), new IdRange(comScheduleId, minId, maxId));
+            eventService.postEvent(UpdateEventType.COMSCHEDULE.topic(), new IdRange(comScheduleId, minId, minId+999));
             minId+=1000;
         }
         eventService.postEvent(UpdateEventType.COMSCHEDULE.topic(), new IdRange(comScheduleId, minId, maxId));

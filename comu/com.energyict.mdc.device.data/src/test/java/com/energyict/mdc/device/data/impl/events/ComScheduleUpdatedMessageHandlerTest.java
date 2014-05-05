@@ -10,14 +10,20 @@ import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ComScheduleUpdatedMessageHandlerTest {
 
     @Mock
@@ -46,11 +52,21 @@ public class ComScheduleUpdatedMessageHandlerTest {
         when(resultSet.getLong(1)).thenReturn(9000L);
         when(jsonService.deserialize((byte[]) anyObject(), (Class<?>) anyObject())).thenReturn(map);
         map.put("id", 7);
+        map.put("event.topics", "com/energyict/mdc/scheduling/comschedules/UPDATED");
         ComScheduleUpdatedMessageHandler messageHandler = new ComScheduleUpdatedMessageHandler(jsonService, eventService, dataModel);
         messageHandler.process(message);
 
+        ArgumentCaptor<ComScheduleUpdatedMessageHandler.IdRange> idRangeArgumentCaptor = ArgumentCaptor.forClass(ComScheduleUpdatedMessageHandler.IdRange.class);
+        verify(eventService, times(9)).postEvent(anyString(), idRangeArgumentCaptor.capture());
+        assertThat(idRangeArgumentCaptor.getAllValues().get(0).minId).isEqualTo(100L);
+        assertThat(idRangeArgumentCaptor.getAllValues().get(0).maxId).isEqualTo(1099L);
+        assertThat(idRangeArgumentCaptor.getAllValues().get(1).minId).isEqualTo(1100L);
+        assertThat(idRangeArgumentCaptor.getAllValues().get(1).maxId).isEqualTo(2099L);
+        assertThat(idRangeArgumentCaptor.getAllValues().get(2).minId).isEqualTo(2100L);
+        assertThat(idRangeArgumentCaptor.getAllValues().get(2).maxId).isEqualTo(3099L);
 
-        verify(eventService).postEvent("com/energyict/mdc/device/data/comschedule/UPDATED", anyObject());
+        assertThat(idRangeArgumentCaptor.getAllValues().get(8).minId).isEqualTo(8100L);
+        assertThat(idRangeArgumentCaptor.getAllValues().get(8).maxId).isEqualTo(9000L);
 
     }
 }
