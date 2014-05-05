@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -20,7 +21,9 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
 import com.energyict.mdc.masterdata.exceptions.UnitHasNoMatchingPhenomenonException;
+import com.energyict.mdc.masterdata.finders.LoadProfileTypeFinder;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
@@ -48,6 +51,7 @@ public class MasterDataServiceImpl implements MasterDataService, InstallService 
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
+    private volatile Environment environment;
 
     public MasterDataServiceImpl() {
         super();
@@ -203,6 +207,13 @@ public class MasterDataServiceImpl implements MasterDataService, InstallService 
         return this.getDataModel().mapper(LoadProfileType.class).find("name", name);
     }
 
+    @Override
+    public void validateRegisterGroup(RegisterGroup group) {
+        if(group.getRegisterMappings().size()==0){
+            throw new RegisterTypesRequiredException(this.thesaurus);
+        }
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "MDC Master data");
@@ -240,6 +251,11 @@ public class MasterDataServiceImpl implements MasterDataService, InstallService 
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
 
+    @Reference
+    public void setEnvironment (Environment environment) {
+        this.environment = environment;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -257,6 +273,11 @@ public class MasterDataServiceImpl implements MasterDataService, InstallService 
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
+        registerFinders();
+    }
+
+    private void registerFinders() {
+        Environment.DEFAULT.get().registerFinder(new LoadProfileTypeFinder(this.dataModel));
     }
 
     @Override
