@@ -32,7 +32,7 @@ public interface ConnectionTaskExecutionAspects {
      * @param comServer The ComServer that is started the execution
      * @throws SQLException
      */
-    public void executionStarted (ComServer comServer) throws SQLException, BusinessException;
+    public void executionStarted (ComServer comServer);
 
     /**
      * Notifies this ConnectionTask that the execution has completed without errors.

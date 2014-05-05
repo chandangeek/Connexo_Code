@@ -25,17 +25,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link ComTaskEnablementStatusEventHandler} component.
+ * Tests the {@link ComTaskEnablementPriorityMessageHandler} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2014-04-29 (10:33)
+ * @since 2014-04-29 (09:52)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ComTaskEnablementStatusEventHandlerTest {
+public class ComTaskEnablementPriorityMessageHandlerTest {
 
     private static final long DEVICE_CONFIGURATION_ID = 97;
     private static final long COMTASK_ID = DEVICE_CONFIGURATION_ID + 1;
     private static final long COMTASK_ENABLEMENT_ID = COMTASK_ID + 1;
+    private static final int OLD_PRIORITY = ComTaskEnablement.LOWEST_PRIORITY;
+    private static final int NEW_PRIORITY = ComTaskEnablement.HIGHEST_PRIORITY;
 
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
@@ -68,6 +70,7 @@ public class ComTaskEnablementStatusEventHandlerTest {
     @Test
     public void testProcessUnIntendedMessage () {
         Map<String, Object> messageProperties = new HashMap<>();
+        messageProperties.put("id", 97);
         messageProperties.put(EventConstants.TIMESTAMP, new Date().getTime());
         messageProperties.put(EventConstants.EVENT_TOPIC, EventType.CHANNELSPEC_CREATED.topic());
         String payload = this.getJsonService().serialize(messageProperties);
@@ -81,11 +84,13 @@ public class ComTaskEnablementStatusEventHandlerTest {
     }
 
     @Test
-    public void testSuspend () {
+    public void testProcessPriorityChange () {
         Map<String, Object> messageProperties = new HashMap<>();
-        messageProperties.put("id", COMTASK_ENABLEMENT_ID);
+        messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
+        messageProperties.put("oldPriority", OLD_PRIORITY);
+        messageProperties.put("newPriority", NEW_PRIORITY);
         messageProperties.put(EventConstants.TIMESTAMP, new Date().getTime());
-        messageProperties.put(EventConstants.EVENT_TOPIC, EventType.COMTASKENABLEMENT_SUSPEND.topic());
+        messageProperties.put(EventConstants.EVENT_TOPIC, EventType.COMTASKENABLEMENT_PRIORITY_UPDATED.topic());
         String payload = this.getJsonService().serialize(messageProperties);
         Message message = mock(Message.class);
         when(message.getPayload()).thenReturn(payload.getBytes());
@@ -94,32 +99,15 @@ public class ComTaskEnablementStatusEventHandlerTest {
         this.newHandler().process(message);
 
         // Asserts
-        verify(this.deviceDataService).suspendAll(this.comTask, this.deviceConfiguration);
-    }
-
-    @Test
-    public void testResume () {
-        Map<String, Object> messageProperties = new HashMap<>();
-        messageProperties.put("id", COMTASK_ENABLEMENT_ID);
-        messageProperties.put(EventConstants.TIMESTAMP, new Date().getTime());
-        messageProperties.put(EventConstants.EVENT_TOPIC, EventType.COMTASKENABLEMENT_RESUME.topic());
-        String payload = this.getJsonService().serialize(messageProperties);
-        Message message = mock(Message.class);
-        when(message.getPayload()).thenReturn(payload.getBytes());
-
-        // Business method
-        this.newHandler().process(message);
-
-        // Asserts
-        verify(this.deviceDataService).resumeAll(this.comTask, this.deviceConfiguration);
+        verify(this.deviceDataService).preferredPriorityChanged(this.comTask, this.deviceConfiguration, OLD_PRIORITY, NEW_PRIORITY);
     }
 
     private JsonService getJsonService () {
         return this.jsonService;
     }
 
-    private ComTaskEnablementStatusEventHandler newHandler () {
-        return new ComTaskEnablementStatusEventHandler(this.getJsonService(), this.deviceConfigurationService, this.deviceDataService);
+    private ComTaskEnablementPriorityMessageHandler newHandler () {
+        return new ComTaskEnablementPriorityMessageHandler(this.getJsonService(), this.deviceConfigurationService, this.deviceDataService);
     }
 
 }

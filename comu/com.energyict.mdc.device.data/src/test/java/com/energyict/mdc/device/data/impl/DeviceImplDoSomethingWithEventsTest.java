@@ -259,8 +259,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new DeviceConfigurationModule(),
                     new MdcCommonModule(),
                     new TasksModule(),
-                    new DeviceDataModule(),
-                    new SchedulingModule());
+                    new SchedulingModule(),
+                    new DeviceDataModule());
             BusinessEventManager eventManager = mock(BusinessEventManager.class);
             when(this.applicationContext.createEventManager()).thenReturn(eventManager);
             this.transactionService = injector.getInstance(TransactionService.class);

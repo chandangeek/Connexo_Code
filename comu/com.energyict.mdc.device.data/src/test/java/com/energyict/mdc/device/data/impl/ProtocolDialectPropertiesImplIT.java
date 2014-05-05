@@ -126,14 +126,8 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
                     DeviceCommunicationConfiguration deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
                     deviceCommunicationConfiguration.save();
-                    protocolDialect1ConfigurationProperties = deviceCommunicationConfiguration.
-                            findOrCreateProtocolDialectConfigurationProperties(
-                                    new TestProtocolDialect1());
-                    protocolDialect1ConfigurationProperties.save();
-                    protocolDialect2ConfigurationProperties = deviceCommunicationConfiguration.
-                            findOrCreateProtocolDialectConfigurationProperties(
-                                    new TestProtocolDialect2());
-                    protocolDialect2ConfigurationProperties.save();
+                    protocolDialect1ConfigurationProperties = deviceCommunicationConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+                    protocolDialect2ConfigurationProperties = deviceCommunicationConfiguration.getProtocolDialectConfigurationPropertiesList().get(1);
                     return null;
                 }
             });

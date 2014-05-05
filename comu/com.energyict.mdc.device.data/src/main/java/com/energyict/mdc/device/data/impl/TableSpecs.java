@@ -188,7 +188,7 @@ public enum TableSpecs {
             table.map(ConnectionMethodImpl.class);
             Column id = table.addAutoIdColumn();
             Column connectionTypePluggableClass = table.column("CONNECTIONTYPEPLUGGABLECLASS").number().conversion(NUMBER2LONG).map("pluggableClassId").notNull().add();
-            table.column("NAME").varChar(255).map("name").add();
+//            table.column("NAME").varChar(255).map("name").add();
             Column comPortPool = table.column("COMPORTPOOL").number().notNull().add();
             table.primaryKey("PK_MDCCONNECTIONMETHOD").on(id).add();
             table.foreignKey("FK_MDCCONNMETHOD_CLASS").on(connectionTypePluggableClass).references(PluggableService.COMPONENTNAME, "EISPLUGGABLECLASS").map("pluggableClass").add();
@@ -206,7 +206,7 @@ public enum TableSpecs {
             // Common columns
             table.column("RTU").number().conversion(NUMBER2LONG).map("deviceId").add();
             Column connectionMethod = table.column("CONNECTIONMETHOD").number().add();
-            table.column("MOD_DATE").type("DATE").map("modificationDate").add();
+            table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map("modificationDate").add();
             table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map("obsoleteDate").add();
             table.column("ISDEFAULT").number().conversion(NUMBER2BOOLEAN).map("isDefault").add();
             table.column("PAUSED").number().conversion(NUMBER2BOOLEAN).map("paused").add();
@@ -214,7 +214,7 @@ public enum TableSpecs {
             table.column("LASTSUCCESSFULCOMMUNICATIONEND").conversion(NUMBERINUTCSECONDS2DATE).number().map("lastSuccessfulCommunicationEnd").add();
             Column comServer = table.column("COMSERVER").number().add();
             Column comPortPool = table.column("COMPORTPOOL").number().add();
-            Column partialConnectionTaskColumn = table.column("PARTIALCONNECTIONTASK").number().conversion(NUMBER2LONG).add();
+            Column partialConnectionTaskColumn = table.column("PARTIALCONNECTIONTASK").number().add();
             // Common columns for sheduled connection tasks
             table.column("CURRENTRETRYCOUNT").number().conversion(NUMBER2INT).map("currentRetryCount").add();
             table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map("lastExecutionFailed").add();

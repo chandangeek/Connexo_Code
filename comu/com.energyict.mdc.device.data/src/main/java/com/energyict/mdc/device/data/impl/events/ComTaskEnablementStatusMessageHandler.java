@@ -5,8 +5,9 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import org.osgi.service.event.EventConstants;
+
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
@@ -25,41 +26,16 @@ import org.osgi.service.event.EventConstants;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-24 (11:51)
  */
-@Component(name="com.energyict.mdc.device.data.update.comtaskenablement.status.messagehandler", service = MessageHandler.class, immediate = true)
-public class ComTaskEnablementStatusEventHandler implements MessageHandler {
+public class ComTaskEnablementStatusMessageHandler implements MessageHandler {
 
-    private volatile JsonService jsonService;
-    private volatile DeviceConfigurationService deviceConfigurationService;
-    private volatile ServerDeviceDataService deviceDataService;
+    private final JsonService jsonService;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final ServerDeviceDataService deviceDataService;
 
-    public ComTaskEnablementStatusEventHandler() {
+    public ComTaskEnablementStatusMessageHandler(JsonService jsonService, DeviceConfigurationService deviceConfigurationService, ServerDeviceDataService deviceDataService) {
         super();
-    }
-
-    // For testing purposes
-    ComTaskEnablementStatusEventHandler(JsonService jsonService, DeviceConfigurationService deviceConfigurationService, ServerDeviceDataService deviceDataService) {
-        this();
-        this.setJsonService(jsonService);
-        this.setDeviceConfigurationService(deviceConfigurationService);
-        this.setDeviceDataService(deviceDataService);
-    }
-
-    @Reference
-    public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
-    }
-
-    @Reference
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
-    }
-
-    @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.setDeviceDataService((ServerDeviceDataService) deviceDataService);
-    }
-
-    private void setDeviceDataService(ServerDeviceDataService deviceDataService) {
         this.deviceDataService = deviceDataService;
     }
 
@@ -76,7 +52,7 @@ public class ComTaskEnablementStatusEventHandler implements MessageHandler {
         public ServerDeviceDataService deviceDataService();
     }
 
-    private class ServiceLocatorImpl implements ComTaskEnablementStatusEventHandler.ServiceLocator {
+    private class ServiceLocatorImpl implements ComTaskEnablementStatusMessageHandler.ServiceLocator {
         @Override
         public DeviceConfigurationService deviceConfigurationService() {
             return deviceConfigurationService;

@@ -6,6 +6,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.impl.offline.OfflineRegisterImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 
 import java.util.ArrayList;
@@ -74,6 +75,6 @@ public class RegisterImpl implements Register {
 
     @Override
     public OfflineRegister goOffline() {
-        return null;
+        return new OfflineRegisterImpl(this);
     }
 }

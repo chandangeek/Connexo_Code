@@ -8,6 +8,8 @@ import com.energyict.mdc.engine.model.ComPort;
  * Adds behavior to ComTaskExecution that is private
  * to the server side implementation.
  *
+ * TODO fix this, this should not be in the public api ...
+ *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-09-21 (15:27)
  */

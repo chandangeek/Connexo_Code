@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.CreateEventType;
 import com.energyict.mdc.device.data.impl.DeleteEventType;
+import com.energyict.mdc.device.data.impl.IdPluggableClassUsageImpl;
 import com.energyict.mdc.device.data.impl.NamedPluggableClassUsageImpl;
 import com.energyict.mdc.device.data.impl.UpdateEventType;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -48,7 +49,7 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
  * @since 2012-05-31 (08:54)
  */
 @ComPortPoolIsCompatibleWithConnectionType(groups = {Save.Create.class, Save.Update.class})
-public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<ConnectionMethod, ConnectionType, ConnectionTaskProperty>
+public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMethod, ConnectionType, ConnectionTaskProperty>
         implements
             ConnectionMethod,
             ConnectionTaskPropertyProvider,
@@ -70,7 +71,6 @@ public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<Connectio
 
     public ConnectionMethodImpl initialize (ConnectionTask connectionTask, ConnectionTypePluggableClass pluggableClass, ComPortPool comPortPool) {
         this.connectionTask.set(connectionTask);
-        this.setName(connectionTask.getName());
         this.pluggableClass = pluggableClass;
         this.setPluggableClassId(pluggableClass.getId());
         this.comPortPool.set(comPortPool);
@@ -80,11 +80,6 @@ public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<Connectio
     @Override
     public void postLoad() {
         this.loadPluggableClass();
-    }
-
-    @Override
-    protected boolean nameMustBeUnique() {
-        return false;
     }
 
     @Override
@@ -133,11 +128,6 @@ public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<Connectio
     public void removeProperty(String propertyName) {
         // Make the superclass' method public
         super.removeProperty(propertyName);
-    }
-
-    @Override
-    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
-        return DuplicateNameException.connectionMethodAlreadyExists(thesaurus, name);
     }
 
     @Override

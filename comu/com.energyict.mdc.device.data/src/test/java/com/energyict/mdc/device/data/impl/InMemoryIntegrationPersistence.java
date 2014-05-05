@@ -50,6 +50,8 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
@@ -57,6 +59,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -144,8 +149,8 @@ public class InMemoryIntegrationPersistence {
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new TasksModule(),
-                new DeviceDataModule(),
-                new SchedulingModule());
+                new SchedulingModule(),
+                new DeviceDataModule());
         BusinessEventManager eventManager = mock(BusinessEventManager.class);
         when(this.applicationContext.createEventManager()).thenReturn(eventManager);
         this.transactionService = injector.getInstance(TransactionService.class);
@@ -302,6 +307,10 @@ public class InMemoryIntegrationPersistence {
 
     public TaskService getTaskService() {
         return taskService;
+    }
+
+    public SchedulingService getSchedulingService() {
+        return schedulingService;
     }
 
     public static String query(String sql) {

@@ -68,13 +68,11 @@ public enum ServerConnectionTaskStatus {
                 return true;
             }
             else {
-//                List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-//                List<ComTaskExecutionFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class);
-//                for (ComTaskExecutionFactory factory : factories) {
-//                    comTaskExecutions.addAll(factory.findCurrentlyExecutingByConnectionTask(task));
-//                }
-//                return !comTaskExecutions.isEmpty();
-                //TODO ask the deviceDataService!!!
+                for (ComTaskExecution comTaskExecution : task.getDevice().getComTaskExecutions()) {
+                    if(comTaskExecution.isExecuting()){
+                        return true;
+                    }
+                }
                 return false;
             }
         }
