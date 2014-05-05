@@ -31,6 +31,13 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         'Isu.util.IsuGrid'
     ],
 
+    refs: [
+        {
+            selector: 'bulk-browse bulk-navigation',
+            ref: 'bulkNavigation'
+        }
+    ],
+
     init: function () {
         this.control({
             'bulk-browse breadcrumbTrail': {
@@ -43,8 +50,8 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                 wizardfinished: this.onWizardFinishedEvent,
                 wizardcancelled: this.onWizardCancelledEvent
             },
-            'bulk-browse bulk-navigation button': {
-                click: this.setActivePage
+            'bulk-browse bulk-navigation': {
+                movetostep: this.setActivePage
             },
             'bulk-browse bulk-wizard bulk-step1 issues-list': {
                 afterrender: this.onIssuesListAfterRender,
@@ -73,6 +80,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         });
     },
 
+
     showOverview: function () {
         var issuesStore = this.getStore('Isu.store.Issues'),
             issuesStoreRoxy = issuesStore.getProxy(),
@@ -85,27 +93,12 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
-    setActivePage: function (btn) {
+    setActivePage: function (index) {
         var wizard = this.createdWizard;
-        wizard.activeItemId = btn.number;
+        wizard.show();
+        wizard.activeItemId = index - 1;
         wizard.getLayout().setActiveItem(wizard.activeItemId);
         wizard.fireEvent('wizardpagechange', wizard);
-        this.setButtonsDisabling(btn.number);
-    },
-
-    setButtonsDisabling: function (index) {
-        var btns = Ext.ComponentQuery.query('bulk-browse bulk-navigation button');
-        Ext.each(btns, function (btn) {
-            btn.removeCls('active-bulk-list-action');
-            if (btn.number < index && index != 4) {
-                btn.setDisabled(false);
-            } else {
-                btn.setDisabled(true);
-                if (btn.number == index) {
-                    btn.addCls('active-bulk-list-action');
-                }
-            }
-        });
     },
 
 
@@ -198,7 +191,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     onWizardPrevEvent: function (wizard) {
         var index = wizard.getActiveItemId();
         this.setBulkActionListActiveItem(wizard);
-        this.setButtonsDisabling(index);
+        this.getBulkNavigation().movePrevStep();
     },
 
     onWizardNextEvent: function (wizard) {
@@ -206,7 +199,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         this.setBulkActionListActiveItem(wizard);
         var functionName = 'processNextOnStep' + index;
         this.processStep(functionName, wizard);
-        this.setButtonsDisabling(index);
+        this.getBulkNavigation().moveNextStep();
     },
 
     onWizardStartedEvent: function (wizard) {
@@ -217,7 +210,6 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     onWizardFinishedEvent: function (wizard) {
         var self = this;
         this.setBulkActionListActiveItem(wizard);
-        this.setButtonsDisabling(4);
         var step5panel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step5'),
             record = this.getBulkRecord(),
             requestData = this.getRequestData(record),
