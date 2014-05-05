@@ -20,7 +20,7 @@ Ext.define('Isu.view.administration.communicationtasks.List', {
                 header: 'Actions',
                 xtype: 'actioncolumn',
                 iconCls: 'x-uni-action-icon',
-                width: 70,
+                width: 90,
                 align: 'left'
             }
         ]
@@ -47,7 +47,6 @@ Ext.define('Isu.view.administration.communicationtasks.List', {
                 },
                 {
                     xtype: 'button',
-                    ui: 'action',
                     text: 'Create communication tasks',
                     action: 'createcommunicationtasks'
                 }

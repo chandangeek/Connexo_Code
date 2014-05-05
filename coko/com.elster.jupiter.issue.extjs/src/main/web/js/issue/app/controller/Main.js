@@ -23,7 +23,8 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.IssueDetail',
         'Isu.controller.history.Administration',
         'Isu.controller.Administration',
-        'Isu.controller.AdministrationDataCollection'
+        'Isu.controller.AdministrationDataCollection',
+        'Isu.controller.CommunicationTasksView'
     ],
 
     stores: [
