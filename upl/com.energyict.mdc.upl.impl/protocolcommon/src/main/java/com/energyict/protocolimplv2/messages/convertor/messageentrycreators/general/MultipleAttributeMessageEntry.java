@@ -42,6 +42,14 @@ public class MultipleAttributeMessageEntry implements MessageEntryCreator {
             String value = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, attributeName).getDeviceMessageAttributeValue();
             messageTag.add(new MessageAttribute(attributeTag, value));
         }
-        return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
+        return new MessageEntry(writeTag(messagingProtocol, messageTag), offlineDeviceMessage.getTrackingId());
+    }
+
+    private String writeTag(Messaging messagingProtocol, MessageTag messageTag) {
+        if (messagingProtocol == null) {
+            return SimpleTagWriter.writeTag(messageTag);
+        } else {
+            return messagingProtocol.writeTag(messageTag);
+        }
     }
 }

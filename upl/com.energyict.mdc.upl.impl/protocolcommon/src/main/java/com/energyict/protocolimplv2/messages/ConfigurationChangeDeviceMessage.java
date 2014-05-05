@@ -88,7 +88,11 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
                     new BigDecimal(2),
                     new BigDecimal(3)
             )
-    );
+    ),
+    BootSyncEnable(30, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.enableBootSync)),
+    WhitelistedPhoneNumbers(31, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.whiteListPhoneNumbersAttributeName)),
+    EnableFW(32),
+    DisableFW(33);
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
@@ -97,7 +101,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
         return id;
     }
 
-    private ConfigurationChangeDeviceMessage(int id,PropertySpec... deviceMessagePropertySpecs) {
+    private ConfigurationChangeDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
         this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }

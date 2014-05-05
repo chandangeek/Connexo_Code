@@ -36,8 +36,8 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebDatabaseIDAttributeName)),
     SetEIWebOptions(6,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebOptionsAttributeName));
-
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebOptionsAttributeName)),
+    UpdateEIWebSSLCertificate(7, PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.sslCertificateUserFile));
 
     private static final DeviceMessageCategory eiWebCategory = DeviceMessageCategories.EIWEB_PARAMETERS;
 

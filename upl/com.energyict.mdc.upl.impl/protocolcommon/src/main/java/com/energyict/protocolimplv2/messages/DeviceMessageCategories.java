@@ -291,7 +291,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         }
     },
     /**
-     * This category summarizes all messages related to configuring Opus in the RTU+Server
+     * This category summarizes all messages related to configuring prepaid
      */
     PREPAID_CONFIGURATION(30) {
         @Override
@@ -333,6 +333,33 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(ConfigurationChangeDeviceMessage.values());
+        }
+    },
+    /**
+     * The category for all messages that relate to configuring outputs
+     */
+    OUTPUT_CONFIGURATION(35) {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(OutputConfigurationMessage.values());
+        }
+    },
+    /**
+     * The category for all messages that relate configuring Wavenis stuff on the RTU+Server
+     */
+    WAVENIS_CONFIGURATION(36) {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(WavenisDeviceMessage.values());
+        }
+    },
+    /**
+     * The category for all messages that relate to configuring logging (e.g. on the RTU+Server)
+     */
+    LOGGING_CONFIGURATION(37) {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(LoggingConfigurationDeviceMessage.values());
         }
     };
 

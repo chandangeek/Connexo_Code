@@ -2,23 +2,7 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.protocolimplv2.messages.ChannelConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DLMSConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.EIWebConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
-import com.energyict.protocolimplv2.messages.MBusConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.MailConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.ModbusConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.ModemConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.OpusConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.PPPConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.PeakShaverConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.SMSConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.TotalizersConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.AnalogOutMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChangeAdminPasswordMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChannelMessageEntry;
@@ -219,10 +203,10 @@ public class EIWebMessageConverter extends AbstractMessageConverter {
         registry.put(DeviceActionMessage.SetFTIONModemReset, new SimpleEIWebMessageEntry());
         registry.put(DeviceActionMessage.SetChangeAdminPassword, new ChangeAdminPasswordMessageEntry());
 
-        registry.put(DeviceActionMessage.SetOutputOn, new SimpleEIWebMessageEntry());
-        registry.put(DeviceActionMessage.SetOutputOff, new SimpleEIWebMessageEntry());
-        registry.put(DeviceActionMessage.SetOutputToggle, new SimpleEIWebMessageEntry());
-        registry.put(DeviceActionMessage.SetOutputPulse, new SimpleEIWebMessageEntry());
+        registry.put(OutputConfigurationMessage.SetOutputOn, new SimpleEIWebMessageEntry());
+        registry.put(OutputConfigurationMessage.SetOutputOff, new SimpleEIWebMessageEntry());
+        registry.put(OutputConfigurationMessage.SetOutputToggle, new SimpleEIWebMessageEntry());
+        registry.put(OutputConfigurationMessage.SetOutputPulse, new SimpleEIWebMessageEntry());
         registry.put(DeviceActionMessage.SetAnalogOut, new AnalogOutMessageEntry());
     }
 

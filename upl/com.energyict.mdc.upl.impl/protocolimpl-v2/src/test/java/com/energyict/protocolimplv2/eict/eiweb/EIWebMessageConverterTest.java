@@ -13,23 +13,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdw.offlineimpl.OfflineDeviceMessageAttributeImpl;
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocolimplv2.messages.ChannelConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DLMSConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.EIWebConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
-import com.energyict.protocolimplv2.messages.MBusConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.MailConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.ModbusConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.ModemConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.OpusConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.PPPConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.PeakShaverConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.SMSConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.TotalizersConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.AnalogOutMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChangeAdminPasswordMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChannelMessageEntry;
@@ -196,8 +180,8 @@ public class EIWebMessageConverterTest {
         setFTIONReboot = createMessage(DeviceActionMessage.SetFTIONReboot);
         setFTIONClearMem = createMessage(DeviceActionMessage.SetFTIONClearMem);
         setChangeAdminPassword = createMessage(DeviceActionMessage.SetChangeAdminPassword);
-        setOutputOn = createMessage(DeviceActionMessage.SetOutputOn);
-        setOutputToggle = createMessage(DeviceActionMessage.SetOutputToggle);
+        setOutputOn = createMessage(OutputConfigurationMessage.SetOutputOn);
+        setOutputToggle = createMessage(OutputConfigurationMessage.SetOutputToggle);
         setAnalogOut = createMessage(DeviceActionMessage.SetAnalogOut);
     }
 

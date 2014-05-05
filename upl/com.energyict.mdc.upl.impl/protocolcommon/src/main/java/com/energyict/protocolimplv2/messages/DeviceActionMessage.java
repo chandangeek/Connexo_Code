@@ -59,14 +59,25 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.AdminOld),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.AdminNew)
     ),
-    SetOutputOn(27, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputOn)),
-    SetOutputOff(28, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputOff)),
-    SetOutputToggle(29, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputToggle)),
-    SetOutputPulse(30, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputPulse)),
-    SetAnalogOut(31,
+    SetAnalogOut(27,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getPossibleValues()),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.AnalogOutValue)
-    );
+    ),
+
+    FTIONUpgrade(28),
+    RtuPlusServerEnterMaintenanceMode(29),
+    RtuPlusServerExitMaintenanceMode(30),
+    ForceMessageToFailed(31,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.deviceId),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.trackingId)),
+    FTIONUpgradeAndInit(32),
+    FTIONUpgradeAndInitWithNewEIServerURL(33, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.servletURL)),
+    FTIONUpgradeWithNewEIServerURL(34, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.servletURL)),
+    FTIONInitDatabaseKeepConfig(35),
+    FTIONReboot(36),
+    FTIONRestart(37),
+    FTIONScanBus(38),
+    SyncMasterdata(39);
 
     private final int id;
 

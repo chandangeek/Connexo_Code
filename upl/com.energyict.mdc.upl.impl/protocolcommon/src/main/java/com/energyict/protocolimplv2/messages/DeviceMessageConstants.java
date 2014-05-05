@@ -444,4 +444,33 @@ public class DeviceMessageConstants {
     public static final String plcG3TimeoutAttributeName = "PLCConfigurationDeviceMessage.plcg3timeout";
     public static final String G3PanIdAttributename = "PLCConfigurationDeviceMessage.g3panid";
     public static final String MaxOrphanTimerAttributeName = "PLCConfigurationDeviceMessage.maxorphantimer";
+
+    public static final String interval = "interval";
+    public static final String duration = "duration";
+    public static final String deviceId = "rtuDeviceId";
+    public static final String trackingId = "trackingId";
+    public static final String delete = "delete";
+    public static final String startTime = "startTime";
+    public static final String macAddress = "macAddress";
+    public static final String output = "output";
+
+    public static final String receptionThreshold = "receptionThreshold";
+    public static final String numberOfTimeSlotsForNewSystems = "numberOfTimeSlotsForNewSystems";
+    public static final String outputBitMap = "outputBitMap";
+    public static final String endTime = "endTime";
+    public static final String rfAddress = "rfAddress";
+    public static final String waveCardFirmware = "waveCardFirmware";
+    public static final String nodeListUserFile = "nodeListUserFile";
+    public static final String enableWavenis = "enableWavenis";
+    public static final String rfCommand = "rfCommand";
+    public static final String friendlyName = "friendlyName";
+    public static final String preferredL1NodeList = "preferredL1NodeList";
+    public static final String enablePLC = "enablePLC";
+    public static final String enableBootSync = "enableBootSync";
+    public static final String frequencyPair = "frequencyPair";
+    public static final String discoveryMaxCredits = "discoveryMaxCredits";
+    public static final String fileInfo = "fileInfo";
+    public static final String sslCertificateUserFile = "sslCertificateUserFile";
+    public static final String servletURL = "servletURL";
+
 }

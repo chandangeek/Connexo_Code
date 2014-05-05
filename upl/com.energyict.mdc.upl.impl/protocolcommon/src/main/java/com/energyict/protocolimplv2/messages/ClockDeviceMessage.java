@@ -49,12 +49,13 @@ public enum ClockDeviceMessage implements DeviceMessageSpec {
     ),
 
     //EIWeb messages
-    SetDST(8,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDSTAttributeName)),
-    SetTimezone(9,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimezoneAttributeName)),
-    SetTimeAdjustment(10,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeAdjustmentAttributeName)),
-    SetNTPServer(11,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNTPServerAttributeName)),
-    SetRefreshClockEvery(12,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetRefreshClockEveryAttributeName)),
-    SetNTPOptions(13,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNTPOptionsAttributeName));
+    SetDST(8, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDSTAttributeName)),
+    SetTimezone(9, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimezoneAttributeName)),
+    SetTimeAdjustment(10, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeAdjustmentAttributeName)),
+    SetNTPServer(11, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNTPServerAttributeName)),
+    SetRefreshClockEvery(12, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetRefreshClockEveryAttributeName)),
+    SetNTPOptions(13, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNTPOptionsAttributeName)),
+    FTIONForceTimeSync(14);
 
     private static final DeviceMessageCategory clockCategory = DeviceMessageCategories.CLOCK;
 
