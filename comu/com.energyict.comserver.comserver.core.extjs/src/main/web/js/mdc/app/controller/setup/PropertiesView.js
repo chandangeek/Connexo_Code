@@ -144,7 +144,6 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
                         }
                         break;
                     case 'REFERENCE':
-
                         properties.addProperty(key, value, columnNumber);
 
                     case 'EAN13':
@@ -160,6 +159,15 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
                         } else {
                             propertiesView.addProperty(key, null, columnNumber);
                         }
+                        break;
+                    case 'OBISCODE':
+                        propertiesView.addProperty(key, value, columnNumber);
+                        break;
+                    case 'SPATIAL_COORDINATES':
+                        propertiesView.addProperty(key, value, columnNumber);
+                        break;
+                    case 'ENCRYPTED_STRING':
+                        propertiesView.addProperty(key, value, columnNumber);
                         break;
                     case 'UNKNOWN':
                         propertiesView.addProperty(key, value, columnNumber);
