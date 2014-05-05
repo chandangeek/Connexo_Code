@@ -13,7 +13,6 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -48,7 +47,7 @@ public class Installer {
 
     public void install(boolean executeDdl, boolean createDefaults) {
         try {
-            this.dataModel.install(executeDdl, false);
+            this.dataModel.install(executeDdl, true);
         }
         catch (Exception e) {
             logger.severe(e.getMessage());
