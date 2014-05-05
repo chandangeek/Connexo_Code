@@ -54,7 +54,7 @@ public enum TableSpecs {
                         composition().
                         add();
                 table.foreignKey("FK_COMTASK").on(comTaskId).references(TaskService.COMPONENT_NAME, "MDCCOMTASK").map(ComTaskInComScheduleImpl.Fields.COM_TASK_REFERENCE.fieldName()).add();
-                table.primaryKey("PK_REGISTERGROUPUSAGE").on(comTaskId, comScheduleId).add();
+                table.primaryKey("PK_COMTASKINCOMSCHEDULE").on(comTaskId, comScheduleId).add();
             }
         };
 

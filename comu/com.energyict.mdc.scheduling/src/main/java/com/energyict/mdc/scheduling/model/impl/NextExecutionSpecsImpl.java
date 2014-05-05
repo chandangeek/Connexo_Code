@@ -8,6 +8,7 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.events.CreateEventType;
 import com.energyict.mdc.scheduling.events.DeleteEventType;
+import com.energyict.mdc.scheduling.events.UpdateEventType;
 import java.util.Calendar;
 import java.util.Date;
 import javax.inject.Inject;

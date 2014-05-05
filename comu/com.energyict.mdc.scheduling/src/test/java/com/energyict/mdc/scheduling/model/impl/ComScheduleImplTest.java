@@ -17,6 +17,7 @@ public class ComScheduleImplTest extends PersistenceTest {
 
     private static final TimeDuration TEN_MINUTES = new TimeDuration("10 minutes");
     private static final TimeDuration TWENTY_SECONDS = new TimeDuration("20 seconds");
+    private static final TimeDuration THIRTY_SECONDS = new TimeDuration("30 seconds");
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
     @Rule
@@ -57,6 +58,18 @@ public class ComScheduleImplTest extends PersistenceTest {
         ComSchedule retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         retrievedSchedule.delete();
         assertThat(inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId())).isNull();
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateComScheduleTemporalExpression() throws Exception {
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS));
+        comSchedule.save();
+        ComSchedule retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        retrievedSchedule.setTemporalExpression(temporalExpression(TEN_MINUTES, THIRTY_SECONDS));
+        retrievedSchedule.save();
+
+        assertThat(inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId())).isNotNull();
     }
 
     private TemporalExpression temporalExpression(TimeDuration ... td) {
