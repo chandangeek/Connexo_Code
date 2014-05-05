@@ -215,7 +215,7 @@ public class RequestDiscoverTest {
         assertThat(requestDiscover.getCollectedData()).hasSize(1);
         CollectedData collectedData = requestDiscover.getCollectedData().get(0);
         assertThat(collectedData).isEqualTo(collectedLogBook);
-        verify(collectedLogBook).setMeterEvents(argThat(new ArgumentMatcher<List<MeterProtocolEvent>>() {
+        verify(collectedLogBook).setCollectedMeterEvents(argThat(new ArgumentMatcher<List<MeterProtocolEvent>>() {
             @Override
             public boolean matches(Object o) {
                 List<MeterProtocolEvent> meterProtocolEvents = (List<MeterProtocolEvent>) o;
@@ -266,7 +266,7 @@ public class RequestDiscoverTest {
         CollectedData collectedData = requestDiscover.getCollectedData().get(0);
         assertThat(collectedData).isEqualTo(collectedLogBook);
 
-        verify(collectedLogBook).setMeterEvents(argThat(new ArgumentMatcher<List<MeterProtocolEvent>>() {
+        verify(collectedLogBook).setCollectedMeterEvents(argThat(new ArgumentMatcher<List<MeterProtocolEvent>>() {
             @Override
             public boolean matches(Object o) {
                 List<MeterProtocolEvent> meterProtocolEvents = (List<MeterProtocolEvent>) o;

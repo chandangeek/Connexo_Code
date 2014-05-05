@@ -348,7 +348,7 @@ public class MTU155 implements DeviceProtocol {
                     List<MeterProtocolEvent> meterProtocolEvents = MeterEvent.mapMeterEventsToMeterProtocolEvents(
                             meterEvent.getMeterEvents(lastLogBookReading));
 
-                    collectedLogBook.setMeterEvents(meterProtocolEvents);
+                    collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
                 } catch (CTRException e) {
                     collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(logBook, "logBookXissue", logBook.getLogBookObisCode(), e));
                 }

@@ -11,7 +11,9 @@ import com.energyict.protocolimplv2.edp.CX20009;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -67,7 +69,7 @@ public class LogbookReader implements DeviceLogBookSupport {
                 fromDate.setTime(logBookReader.getLastLogBook());
                 try {
                     byte[] bufferData = profileGeneric.getBufferData(fromDate, getCalendar());
-                    collectedLogBook.setMeterEvents(logBookParser.parseEvents(bufferData));
+                    collectedLogBook.setCollectedMeterEvents(logBookParser.parseEvents(bufferData));
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
                         collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));

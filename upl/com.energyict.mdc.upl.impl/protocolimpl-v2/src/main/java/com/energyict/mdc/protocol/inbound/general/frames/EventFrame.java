@@ -61,7 +61,7 @@ public class EventFrame extends AbstractInboundFrame {
         }
         if (!meterEvents.isEmpty()) {
             CollectedLogBook deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookIdentifier);
-            deviceLogBook.setMeterEvents(meterEvents);
+            deviceLogBook.setCollectedMeterEvents(meterEvents);
             getCollectedDatas().add(deviceLogBook);
         }
     }

@@ -127,7 +127,7 @@ public class SmsHandler {
                 ctrMeterEvent.convertToMeterEvents(Arrays.asList(data.getEvento_Short())));
         CollectedLogBook collectedLogBook = new DeviceLogBook(
                 new LogBookIdentifierByDeviceAndObisCodeImpl(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
-        collectedLogBook.setMeterEvents(meterProtocolEvents);
+        collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
         this.collectedDataList.add(collectedLogBook);
     }
 

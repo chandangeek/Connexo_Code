@@ -131,7 +131,7 @@ public class ProtocolHandler {
                 for (MeterEvent meterEvent : meterEvents) {
                     meterProtocolEvents.add(createMeterEvent(meterEvent.getTime(), meterEvent.getProtocolCode(), meterEvent.getMessage(), meterEvent.getEiCode()));
                 }
-                deviceLogBook.setMeterEvents(meterProtocolEvents);
+                deviceLogBook.setCollectedMeterEvents(meterProtocolEvents);
             }
 
         }
@@ -213,7 +213,7 @@ public class ProtocolHandler {
             }
             meterEvents.add(createMeterEvent(date, status, tag, meterEvent));
         }
-        getDeviceLogBook().setMeterEvents(meterEvents);
+        getDeviceLogBook().setCollectedMeterEvents(meterEvents);
     }
 
     private MeterProtocolEvent createMeterEvent(Date date, int status, String message, int meterEvent) {

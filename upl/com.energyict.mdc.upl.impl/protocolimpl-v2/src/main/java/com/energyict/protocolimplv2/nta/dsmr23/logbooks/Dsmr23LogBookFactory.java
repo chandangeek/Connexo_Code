@@ -71,7 +71,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
                 DataContainer dataContainer;
                 try {
                     dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
-                    collectedLogBook.setMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
+                    collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
                         collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));

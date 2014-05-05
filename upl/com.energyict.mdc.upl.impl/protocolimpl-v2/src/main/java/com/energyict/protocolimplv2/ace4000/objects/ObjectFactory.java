@@ -1031,7 +1031,7 @@ public class ObjectFactory {
 
     public CollectedLogBook getDeviceLogBook(LogBookIdentifier identifier) {
         CollectedLogBook deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(identifier);
-        deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(getAllMeterEvents()));
+        deviceLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(getAllMeterEvents()));
         return deviceLogBook;
     }
 

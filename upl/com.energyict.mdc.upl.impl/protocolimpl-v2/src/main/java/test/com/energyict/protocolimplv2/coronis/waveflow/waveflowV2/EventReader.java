@@ -2,14 +2,23 @@ package test.com.energyict.protocolimplv2.coronis.waveflow.waveflowV2;
 
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
-import com.energyict.protocol.*;
+import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimplv2.MdcManager;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.ApplicationStatusParser;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.EventStatusAndDescription;
-import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.*;
-import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.*;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.BackflowDetectionFlags;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.ProfileType;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.PulseWeight;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.BackFlowEventByFlowRate;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.BackFlowEventByVolumeMeasuring;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.LeakageEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -39,7 +48,7 @@ public class EventReader implements DeviceLogBookSupport {
                 meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(meterEvent));
             }
         }
-        result.setMeterEvents(meterProtocolEvents);
+        result.setCollectedMeterEvents(meterProtocolEvents);
         return Arrays.asList(result);
     }
 
