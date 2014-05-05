@@ -149,6 +149,13 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     }
 
     @Override
+    public void releaseInterruptedComTasks(ComServer comServer) {
+        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.MDCCOMTASKEXEC.name() + " SET comport = NULL, executionStart = null WHERE comport in (select id from mdccomport where COMSERVERID = ?)");
+        sqlBuilder.bindLong(comServer.getId());
+        this.executeUpdate(sqlBuilder);
+    }
+
+    @Override
     public void releaseTimedOutConnectionTasks(ComServer outboundCapableComServer) {
         List<ComPortPool> containingComPortPoolsForComServer = this.engineModelService.findContainingComPortPoolsForComServer(outboundCapableComServer);
         for (ComPortPool comPortPool : containingComPortPoolsForComServer) {

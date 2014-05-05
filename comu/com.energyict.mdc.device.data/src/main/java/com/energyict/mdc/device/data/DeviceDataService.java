@@ -414,4 +414,6 @@ public interface DeviceDataService {
     List<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort);
 
     boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds);
+
+    void releaseInterruptedComTasks(ComServer comServer);
 }
