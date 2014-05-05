@@ -64,26 +64,17 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                                     labelWidth: 250
                                 },
                                 items: [
-
                                     {
-                                        xtype: 'textfield',
+                                        xtype: 'displayfield',
                                         name: 'name',
-                                        msgTarget: 'under',
                                         fieldLabel: Uni.I18n.translate('deviceCommunicationProtocol.name', 'MDC', 'Name'),
-                                        itemId: 'editName',
-                                        disabled: true,
-                                        readOnly: true,
-                                        width: 650
+                                        itemId: 'editName'
                                     },
                                     {
-                                        xtype: 'textfield',
+                                        xtype: 'displayfield',
                                         name: 'deviceProtocolVersion',
-                                        msgTarget: 'under',
                                         fieldLabel: Uni.I18n.translate('deviceCommunicationProtocol.version', 'MDC', 'Version'),
-                                        itemId: 'editDeviceProtocolVersion',
-                                        disabled: true,
-                                        readOnly: true,
-                                        width: 650
+                                        itemId: 'editDeviceProtocolVersion'
                                     }
                                 ]
                             },

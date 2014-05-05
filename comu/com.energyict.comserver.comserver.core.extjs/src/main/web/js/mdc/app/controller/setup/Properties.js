@@ -54,6 +54,7 @@ Ext.define('Mdc.controller.setup.Properties', {
     userFileReferenceSelectionWindow: null,
     buttonClicked: null,
     propertiesStore: null,
+    hidden: true,
 
     init: function () {
         this.control({
@@ -105,7 +106,7 @@ Ext.define('Mdc.controller.setup.Properties', {
     showProperties: function (objectWithProperties, view, hidden) {
         var me = this;
         var propertiesView = view.down('#propertyEdit');
-
+        this.hidden = hidden;
         var propertiesForm = view.down('#propertiesform');
         var items = propertiesForm.items.items.slice(0);
         Ext.each(items, function(child,index){
@@ -113,6 +114,7 @@ Ext.define('Mdc.controller.setup.Properties', {
                    propertiesForm.remove(child);
                }
         });
+
 
         var properties = objectWithProperties.propertiesStore.data.items;
         me.propertiesStore = objectWithProperties.propertiesStore;
@@ -458,7 +460,9 @@ Ext.define('Mdc.controller.setup.Properties', {
             property.data.isInheritedOrDefaultValue = false;
             //this.propertiesStore.commitChanges();
             var required = property.data.required;
+            if (this.hidden !== true) {
             this.enableDeleteButton(itemId, required, false);
+            }
         }
     },
     changeRadioGroupProperty: function (field, value, options) {

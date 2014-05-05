@@ -46,7 +46,6 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
                 var propertyValue = null;
                 var value = null;
                 var key = property.data.key;
-                var isInheritedValue = true;
                 propertyNumber++;
                 var columnNumber = propertyNumber % 2;
 
@@ -55,14 +54,11 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
 
                     if ((propertyValue != null)) {
                         value = propertyValue.data.value;
-                        isInheritedValue = false;
                         if (value === '') {
                             value = propertyValue.data.inheritedValue;
-                            isInheritedValue = true;
                         }
                         if (value === '') {
                             value = propertyValue.data.defaultValue;
-                            isInheritedValue = true;
                         }
                     }
                 } catch (ex) {
@@ -103,16 +99,14 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
                     case 'CLOCK':
                         if (value !== null && value !== '') {
                             var date = new Date(value);
-                            var dateValue = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
-                            var timeValue = new Date(1970, 0, 1, date.getHours(), date.getMinutes(), date.getSeconds(), 0);
-                            propertiesView.addProperty(key, value, columnNumber);
+                            propertiesView.addProperty(key, date.toLocaleString(), columnNumber);
                         } else {
                             propertiesView.addProperty(key, value, columnNumber);
                         }
                         break;
                     case 'DATE':
                         if (value !== null) {
-                            propertiesView.addProperty(key, new Date(value), propertyNumber % 2);
+                            propertiesView.addProperty(key, new Date(value).toLocaleDateString(), propertyNumber % 2);
                         } else {
                             propertiesView.addDateProperty(key, null, columnNumber);
                         }
@@ -122,7 +116,6 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
                         var count;
                         var timeDuration = null;
                         if (value != null) {
-                            //var durationValue = moment.duration(value.seconds, 'seconds').humanize();
                             unit = value.timeUnit;
                             count = value.count;
                             timeDuration = count + ' ' + unit;
@@ -131,9 +124,9 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
                         break;
                     case 'TIMEOFDAY':
                         if (value !== null) {
-                            propertiesView.addProperty(key, new Date(value * 1000), columnNumber);
+                            propertiesView.addProperty(key, new Date(value).toLocaleTimeString(), columnNumber);
                         } else {
-                            propertiesView.addProperty(key, propertyNumber % 2);
+                            propertiesView.addProperty(key, null, propertyNumber % 2);
                         }
                         break;
                     case 'CODETABLE':
