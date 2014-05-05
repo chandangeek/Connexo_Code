@@ -109,16 +109,16 @@ Ext.define('Mdc.controller.setup.Properties', {
         this.hidden = hidden;
         var propertiesForm = view.down('#propertiesform');
         var items = propertiesForm.items.items.slice(0);
-        Ext.each(items, function(child,index){
-               if(index!==0){
-                   propertiesForm.remove(child);
-               }
+        Ext.each(items, function (child, index) {
+            if (index !== 0) {
+                propertiesForm.remove(child);
+            }
         });
 
 
         var properties = objectWithProperties.propertiesStore.data.items;
         me.propertiesStore = objectWithProperties.propertiesStore;
-        if(properties.length>0){
+        if (properties.length > 0) {
             view.down('#propertiesform').down('#propertiesTitle').setVisible(true);
         } else {
             view.down('#propertiesform').down('#propertiesTitle').setVisible(false);
@@ -222,7 +222,7 @@ Ext.define('Mdc.controller.setup.Properties', {
                                 var maxValue = propertyValidationRule.data.maximumValue;
                                 allowDecimals = propertyValidationRule.data.allowDecimals;
                             }
-                            propertiesView.addNumberProperty(key, value, minValue, maxValue, allowDecimals,restoreValue, required);
+                            propertiesView.addNumberProperty(key, value, minValue, maxValue, allowDecimals, restoreValue, required);
                         }
                         break;
                     case 'CLOCK':
@@ -232,7 +232,7 @@ Ext.define('Mdc.controller.setup.Properties', {
                             var timeValue = new Date(1970, 0, 1, date.getHours(), date.getMinutes(), date.getSeconds(), 0);
                             propertiesView.addDateTimeProperty(key, dateValue, timeValue, restoreValue, required);
                         } else {
-                            propertiesView.addDateTimeProperty(key, null, null ,restoreValue, required);
+                            propertiesView.addDateTimeProperty(key, null, null, restoreValue, required);
                         }
                         break;
                     case 'DATE':
@@ -306,12 +306,15 @@ Ext.define('Mdc.controller.setup.Properties', {
                             propertiesView.addUserReferenceFilePropertyWithSelectionWindow(key, null, restoreValue, required);
                         }
                         break;
+                    case 'ENCRYPTED_STRING':
+                        propertiesView.addTextProperty(key, value, restoreValue, required);
+                        break;
                     case 'UNKNOWN':
                         propertiesView.addTextProperty(key, value, restoreValue, required);
                         break;
                 }
                 if (hidden !== true) {
-                me.enableDeleteButton(key, required, isInheritedValue);
+                    me.enableDeleteButton(key, required, isInheritedValue);
                 }
             }
         )
@@ -460,7 +463,7 @@ Ext.define('Mdc.controller.setup.Properties', {
             //this.propertiesStore.commitChanges();
             var required = property.data.required;
             if (this.hidden !== true) {
-            this.enableDeleteButton(itemId, required, false);
+                this.enableDeleteButton(itemId, required, false);
             }
         }
     },
@@ -560,15 +563,15 @@ Ext.define('Mdc.controller.setup.Properties', {
     },
 
     updatePropertiesWithoutView: function (model) {
-           var properties = model.propertiesStore.data.items;
-           if (properties != null) {
-               properties.forEach(function (property) {
-                       delete property.data.isInheritedOrDefaultValue;
-                       delete property.setPropertyType(null);
-                   }
-               );
-           }
-           return properties;
+        var properties = model.propertiesStore.data.items;
+        if (properties != null) {
+            properties.forEach(function (property) {
+                    delete property.data.isInheritedOrDefaultValue;
+                    delete property.setPropertyType(null);
+                }
+            );
+        }
+        return properties;
     },
 
     showUserFileReferenceOverview: function (button) {
