@@ -50,7 +50,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 },
                 '#connectionmethodsgrid actioncolumn': {
                     editItem: this.editConnectionMethodHistory,
-                    deleteItem: this.deleteConnectionMethod
+                    deleteItem: this.deleteConnectionMethod,
+                    toggleDefault: this.toggleDefaultConnectionMethod
                 },
                 '#connectionMethodPreview menuitem[action=editConnectionMethod]': {
                     click: this.editConnectionMethodHistoryFromPreview
@@ -89,7 +90,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                     success: function (deviceConfig) {
                         var deviceTypeName = deviceType.get('name');
                         var deviceConfigName = deviceConfig.get('name');
-                        //widget.down('#registerConfigTitle').html = '<h1>' + deviceConfigName + ' > ' + Uni.I18n.translate('registerConfig.registerConfigurations', 'MDC', 'Register configurations') + '</h1>';
+                        widget.down('#connectionMethodTitle').html = '<h1>' + deviceConfigName + ' > ' + Uni.I18n.translate('connectionmethod.connectionmethods', 'MDC', 'Connection methods') + '</h1>';
                         me.getApplication().getController('Mdc.controller.Main').showContent(widget);
                         me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName);
                     }
@@ -98,8 +99,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         });
     },
 
-    previewConnectionMethod: function(grid,record){
-        console.log(connectionMethod);
+    previewConnectionMethod: function(){
         var connectionMethod = this.getConnectionmethodsgrid().getSelectionModel().getSelection();
         if (connectionMethod.length == 1) {
             this.getConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
@@ -150,7 +150,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             direction: direction
         });
         me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-
+        widget.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
@@ -167,8 +167,11 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                              callback: function(){
                                                  var deviceTypeName = deviceType.get('name');
                                                  var deviceConfigName = deviceConfig.get('name');
-                                                 widget.down('#connectionMethodEditAddTitle').update('<H2>' + Uni.I18n.translate('connectionmethod.addConnectionMethod', 'MDC', 'Add connection method') + '</H2>');
-                                                 me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName);
+                                                 var title = direction==='Outbound'?Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'):Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method');
+                                                 title = deviceConfigName + ' > ' + title;
+                                                 widget.down('#connectionMethodEditAddTitle').update('<H2>' + title  + '</H2>');
+                                                 me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName, direction, 'add');
+                                                 widget.setLoading(false);
                                              }
                                          });
                                      }
@@ -331,12 +334,14 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                             widget.down('form').down('#scheduleField').setVisible(true);
                                                         }
                                                         widget.down('form').loadRecord(connectionMethod);
-                                                        widget.down('#connectionMethodEditAddTitle').update('<H2>' + Uni.I18n.translate('connectionmethod.editConnectionMethod', 'MDC', 'Edit connection method') + '</H2>');
+                                                        var title = connectionMethod.get('direction')==='Outbound'?Uni.I18n.translate('connectionmethod.editOutboundConnectionMethod', 'MDC', 'Edit outbound connection method'):Uni.I18n.translate('connectionmethod.editInboundConnectionMethod', 'MDC', 'Edit inbound connection method');
+                                                        title = deviceConfigName + ' > ' + title;
+                                                        widget.down('#connectionMethodEditAddTitle').update('<H2>' + title + '</H2>');
                                                         widget.down('form').down('#connectionTypeComboBox').setValue(connectionMethod.get('connectionType'));
                                                         widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
                                                         widget.down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategy'));
                                                         me.getPropertiesController().showProperties(connectionMethod,me.getConnectionMethodEditView(),false);
-                                                        me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName);
+                                                        me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName, connectionMethod.get('direction'), 'edit');
                                                         widget.setLoading(false);
                                                     }
                                                 });
@@ -348,6 +353,28 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                         });
                     }
                 });
+            }
+        });
+    },
+
+    toggleDefaultConnectionMethod: function(connectionMethod){
+        var me=this;
+        if(connectionMethod.hasOwnProperty('action')){
+            connectionMethod = this.getConnectionmethodsgrid().getSelectionModel().getSelection()[0];
+        }
+        if(connectionMethod.get('isDefault')===true){
+            connectionMethod.set('isDefault',false);
+        } else {
+            connectionMethod.set('isDefault',true);
+        }
+        if(connectionMethod.get('connectionStrategy')==='asSoonAsPossible' || connectionMethod.get('direction')==='Inbound'){
+            connectionMethod.set('nextExecutionSpecs',null);
+        }
+        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
+        connectionMethod.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
+        connectionMethod.save({
+            callback: function(){
+                me.previewConnectionMethod();
             }
         });
     },
@@ -390,12 +417,21 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
     },
 
-    createBreadCrumbs: function (deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName) {
+    createBreadCrumbs: function (deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName, direction, action) {
         var me = this;
+        var directionText;
+        var createEditHref;
+        if(action === 'add'){
+            createEditHref = 'create';
+            directionText = direction==='Outbound'?Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'):Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method');
+        } else if (action === 'edit'){
+            createEditHref = 'edit';
+            directionText = direction==='Outbound'?Uni.I18n.translate('connectionmethod.editOutboundConnectionMethod', 'MDC', 'Edit outbound connection method'):Uni.I18n.translate('connectionmethod.editInboundConnectionMethod', 'MDC', 'Edit inbound connection method');
+        }
 
         var breadcrumbCreate = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('connectionmethod.addConnectionMethod', 'MDC', 'Add connection method'),
-            href: 'create'
+            text: directionText,
+            href: createEditHref
         });
 
         var breadcrumbRegisterConfigurations = Ext.create('Uni.model.BreadcrumbItem', {
@@ -403,7 +439,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             href: 'connectionmethods'
 
         });
-
         var breadcrumbDeviceConfig = Ext.create('Uni.model.BreadcrumbItem', {
             text: deviceConfigName,
             href: deviceConfigId

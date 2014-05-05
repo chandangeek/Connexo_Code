@@ -51,6 +51,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 xtype: 'form',
                                 border: false,
                                 itemId: 'connectionMethodEditForm',
+                                width: 645,
 //                                padding: '10 10 0 10',
                                 layout: {
                                     type: 'vbox',
@@ -99,7 +100,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                         store: this.comPortPools,
                                         queryMode: 'local',
                                         displayField: 'name',
-                                        required: true,
                                         valueField: 'name',
                                         emptyText: Uni.I18n.translate('connectionmethod.selectComPortPool', 'MDC', 'Select a communication port pool...'),
                                         forceSelection: true,
@@ -140,33 +140,74 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                     {
                                         xtype: 'timeInfoField',
                                         name: 'rescheduleRetryDelay',
-                                        fieldLabel: 'rescheduleRetryDelay',
-                                        itemId: 'rescheduleRetryDelay'
+                                        fieldLabel: Uni.I18n.translate('connectionmethod.rescheduleRetryDelay', 'MDC', 'Retry delay'),
+                                        itemId: 'rescheduleRetryDelay',
+                                        required: true
                                     },
+//                                    {
+//                                        xtype: 'radiogroup',
+//                                        fieldLabel: 'isDefault',
+//                                        itemId: 'isDefault',
+//                                        allowBlank: false,
+//                                        horizontal: true,
+//                                        columns: 2,
+//                                        items: [
+//                                            {
+//                                                boxLabel: 'yes',
+//                                                name: 'isDefault',
+//                                                inputValue: true,
+//                                                margin: '0 10 5 0'
+//                                            },
+//                                            {
+//                                                boxLabel: 'no',
+//                                                name: 'isDefault',
+//                                                checked: true,
+//                                                inputValue: false,
+//                                                margin: '0 10 5 0'
+//                                            }
+//                                        ]
+//                                    },
                                     {
-                                        xtype: 'checkbox',
-                                        inputValue: true,
-                                        uncheckedValue: 'false',
-                                        name: 'isDefault',
-                                        fieldLabel: 'isDefault',
-                                        itemId: 'isDefault'
+                                        xtype: 'radiogroup',
+                                        fieldLabel: Uni.I18n.translate('connectionmethod.allowSimultaneousConnections', 'MDC', 'Allow simultaneous connection'),
+                                        itemId: 'allowSimultaneousConnections',
+                                        allowBlank: false,
+                                        vertical: true,
+                                        required: true,
+                                        columns: 1,
+                                        items: [
+                                            {
+                                                boxLabel: 'yes',
+                                                name: 'allowSimultaneousConnections',
+                                                inputValue: true,
+                                                margin: '0 10 5 0'
+                                            },
+                                            {
+                                                boxLabel: 'no',
+                                                name: 'allowSimultaneousConnections',
+                                                checked: true,
+                                                inputValue: false,
+                                                margin: '0 10 5 0'
+                                            }
+                                        ]
                                     }
 
                                 ]
                             },
                             {
                                 xtype: 'propertyEdit',
+                                width: '100%',
                                 propertiesTitle: Uni.I18n.translate('connectionmethod.connectionDetails', 'MDC', 'Connection details')
                             },
                             {
                                 xtype: 'form',
                                 border: false,
                                 itemId: 'connectionMethodEditButtonForm',
-                                padding: '0 0 0 10',
                                 layout: {
                                     type: 'vbox',
                                     align: 'stretch'
                                 },
+                                width: '100%',
                                 defaults:{
                                     labelWidth: 250
                                 },
@@ -179,6 +220,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                             type: 'hbox',
                                             align: 'stretch'
                                         },
+                                        width: '100%',
                                         items: [
                                             {
                                                 text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
@@ -200,6 +242,10 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                         ]
                                     }
                                 ]
+                            },
+                            {
+                                xtype: 'component',
+                                height: 100
                             }
 //                        ]
 //                    }
@@ -217,7 +263,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 this.down('#addEditButton').action = 'editInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
                 this.down('#rescheduleRetryDelay').setVisible(false);
-                this.down('#isDefault').setVisible(false);
+//                this.down('#isDefault').setVisible(false);
             }
         } else {
             this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
@@ -227,7 +273,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 this.down('#addEditButton').action = 'addInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
                 this.down('#rescheduleRetryDelay').setVisible(false);
-                this.down('#isDefault').setVisible(false);
+//                this.down('#isDefault').setVisible(false);
             }
         }
         this.down('#cancelLink').autoEl.href=this.returnLink;

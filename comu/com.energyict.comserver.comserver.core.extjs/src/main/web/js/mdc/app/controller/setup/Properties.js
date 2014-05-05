@@ -560,10 +560,10 @@ Ext.define('Mdc.controller.setup.Properties', {
     },
 
     updatePropertiesWithoutView: function (model) {
-           var properties = model.getProperties();
+           var properties = model.propertiesStore.data.items;
            if (properties != null) {
-               properties.each(function (property, id) {
-                       delete property.get("isInheritedOrDefaultValue");
+               properties.forEach(function (property) {
+                       delete property.data.isInheritedOrDefaultValue;
                        delete property.setPropertyType(null);
                    }
                );
