@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.DuplicateNameException;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 

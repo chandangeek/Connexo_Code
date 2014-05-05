@@ -1,0 +1,235 @@
+package com.energyict.mdc.device.data.impl;
+
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.device.data.ServerComTaskExecution;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImplIT;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.protocol.api.ComPortType;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import org.junit.Test;
+
+import static org.fest.assertions.api.Assertions.assertThat;
+
+public class ScheduleQueryTest extends ConnectionTaskImplIT {
+
+    private ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name) {
+        DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
+        this.partialScheduledConnectionTask.setName(name);
+        this.partialScheduledConnectionTask.save();
+        return ((ScheduledConnectionTaskImpl) deviceDataService.newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool));
+    }
+
+    private ScheduledConnectionTaskImpl createOtherAsapWithNoPropertiesWithoutViolations(String name) {
+        DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
+        this.partialScheduledConnectionTask2.setName(name);
+        this.partialScheduledConnectionTask2.save();
+        return ((ScheduledConnectionTaskImpl) deviceDataService.newAsapConnectionTask(this.device, this.partialScheduledConnectionTask2, outboundTcpipComPortPool));
+    }
+
+
+    private OutboundComPort createOutboundComPort() {
+        OnlineComServer onlineComServer = inMemoryPersistence.getEngineModelService().newOnlineComServerInstance();
+        onlineComServer.setName("ComServer");
+        onlineComServer.setStoreTaskQueueSize(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setChangesInterPollDelay(TimeDuration.minutes(5));
+        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.setSchedulingInterPollDelay(TimeDuration.minutes(1));
+        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.setNumberOfStoreTaskThreads(2);
+        OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = onlineComServer.newOutboundComPort("ComPort", 1);
+        outboundComPortBuilder.comPortType(ComPortType.TCP);
+        OutboundComPort outboundComPort = outboundComPortBuilder.add();
+        onlineComServer.save();
+        outboundTcpipComPortPool.addOutboundComPort(outboundComPort);
+        outboundTcpipComPortPool.save();
+        return outboundComPort;
+    }
+
+    private OutboundComPort createComPortInOtherComPortPool(){
+        OnlineComServer onlineComServer = inMemoryPersistence.getEngineModelService().newOnlineComServerInstance();
+        onlineComServer.setName("ComServer");
+        onlineComServer.setStoreTaskQueueSize(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setChangesInterPollDelay(TimeDuration.minutes(5));
+        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.setSchedulingInterPollDelay(TimeDuration.minutes(1));
+        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.setNumberOfStoreTaskThreads(2);
+        OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = onlineComServer.newOutboundComPort("ComPort", 1);
+        outboundComPortBuilder.comPortType(ComPortType.TCP);
+        OutboundComPort outboundComPort = outboundComPortBuilder.add();
+        onlineComServer.save();
+        outboundTcpipComPortPool2.addOutboundComPort(outboundComPort);
+        outboundTcpipComPortPool2.save();
+        return outboundComPort;
+    }
+
+    @Test
+    @Transactional
+    public void simpleSchedulingQueryTest() {
+        Date pastDate = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("simpleSchedulingQueryTest");
+        connectionTask.save();
+        ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
+        final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
+        OutboundComPort outboundComPort = createOutboundComPort();
+        List<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+
+        assertThat(plannedComTaskExecutions).isNotEmpty();
+        assertThat(plannedComTaskExecutions.get(0).getId()).isEqualTo(comTaskExecution.getId());
+    }
+
+    @Test
+    @Transactional
+    public void scheduleQueryTestNoTaskWhenConnectionTaskIsPaused() {
+        Date pastDate = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("scheduleQueryTestNoTaskWhenConnectionTaskIsPaused");
+        connectionTask.save();
+        ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
+        final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
+        OutboundComPort outboundComPort = createOutboundComPort();
+        connectionTask.pause();
+        List<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+
+        assertThat(plannedComTaskExecutions).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void scheduleQueryTestNoTaskWhenConnectionTaskIsAlreadyBusyTest() {
+        // we will make sure the ComServer field is filled in
+        Date pastDate = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("scheduleQueryTestNoTaskWhenConnectionTaskIsPaused");
+        connectionTask.save();
+        ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
+        final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
+        OutboundComPort outboundComPort = createOutboundComPort();
+        connectionTask.executionStarted(getOnlineComServer());
+        List<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+
+        assertThat(plannedComTaskExecutions).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void scheduleQueryTestNoTaskWhenComTaskIsObsoleteTest() {
+        // we will make sure the ComServer field is filled in
+        Date pastDate = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("scheduleQueryTestNoTaskWhenConnectionTaskIsPaused");
+        connectionTask.save();
+        ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
+        final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
+        OutboundComPort outboundComPort = createOutboundComPort();
+        comTaskExecution.makeObsolete();
+        List<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+
+        assertThat(plannedComTaskExecutions).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void scheduleQueryTestNoTaskWhenNoPendingComTaskExecutionTest() {
+        Date pastDate = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("simpleSchedulingQueryTest");
+        connectionTask.save();
+        ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
+        final Date futureDate = freezeClock(2012, Calendar.JULY, 5); // make the task waiting
+        OutboundComPort outboundComPort = createOutboundComPort();
+        List<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+
+        assertThat(plannedComTaskExecutions).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void scheduleQueryTestNoTaskWhenComTaskExecutionAlreadyBusyTest() {
+        Date pastDate = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("simpleSchedulingQueryTest");
+        connectionTask.save();
+        ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
+        final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
+        OutboundComPort outboundComPort = createOutboundComPort();
+        ((ServerComTaskExecution) comTaskExecution).executionStarted(outboundComPort);
+        List<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+
+        assertThat(plannedComTaskExecutions).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void scheduleQueryTestNoTaskWhenComPortInOtherPoolTest() {
+        Date pastDate = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("simpleSchedulingQueryTest");
+        connectionTask.save();
+        ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
+        final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
+        OutboundComPort outboundComPort = createComPortInOtherComPortPool();
+        List<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+
+        assertThat(plannedComTaskExecutions).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void orderByNextExecutionTimeStampTest() {
+        Date nextOne = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
+        Date nextTwo = freezeClock(2013, Calendar.JANUARY, 30, 9, 1, 10, 0);
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("orderByNextExecutionTimeStampTest");
+        connectionTask.save();
+        ComTaskExecution comTaskExecution1 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask, nextOne, comTaskEnablement1);
+        ComTaskExecution comTaskExecution2 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask, nextTwo, comTaskEnablement2);
+        final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
+        OutboundComPort outboundComPort = createOutboundComPort();
+        List<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+
+        assertThat(plannedComTaskExecutions).hasSize(2);
+        assertThat(plannedComTaskExecutions.get(0).getId()).isEqualTo(comTaskExecution2.getId());
+        assertThat(plannedComTaskExecutions.get(1).getId()).isEqualTo(comTaskExecution1.getId());
+    }
+
+    @Test
+    @Transactional
+    public void multipleTaskOneInFutureOneInPastTest() {
+        Date nextOne = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
+        Date nextTwo = freezeClock(2025, Calendar.AUGUST, 23, 9, 1, 10, 0);
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("orderByNextExecutionTimeStampTest");
+        connectionTask.save();
+        ComTaskExecution comTaskExecution2 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask, nextTwo, comTaskEnablement2);
+        ComTaskExecution comTaskExecution1 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask, nextOne, comTaskEnablement1);
+        final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
+        OutboundComPort outboundComPort = createOutboundComPort();
+        List<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+
+        assertThat(plannedComTaskExecutions).hasSize(1);
+        assertThat(plannedComTaskExecutions.get(0).getId()).isEqualTo(comTaskExecution1.getId());
+    }
+
+    @Test
+    @Transactional
+    public void orderByConnectionTaskTest() {
+        Date nextOne = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
+        ScheduledConnectionTaskImpl connectionTask1 = this.createAsapWithNoPropertiesWithoutViolations("orderByConnectionTaskTest1");
+        ScheduledConnectionTaskImpl connectionTask2 = this.createOtherAsapWithNoPropertiesWithoutViolations("orderByConnectionTaskTest2");
+        connectionTask1.save();
+        connectionTask2.save();
+        ComTaskExecution comTaskExecution1 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask1, nextOne, comTaskEnablement1);
+        ComTaskExecution comTaskExecution2 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask2, nextOne, comTaskEnablement2);
+        ComTaskExecution comTaskExecution3 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask1, nextOne, comTaskEnablement3);
+        final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the tasks pending
+        OutboundComPort outboundComPort = createOutboundComPort();
+        List<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+
+        assertThat(plannedComTaskExecutions).hasSize(3);
+        assertThat(plannedComTaskExecutions.get(0).getId()).isEqualTo(comTaskExecution1.getId());
+        assertThat(plannedComTaskExecutions.get(1).getId()).isEqualTo(comTaskExecution3.getId());
+        assertThat(plannedComTaskExecutions.get(2).getId()).isEqualTo(comTaskExecution2.getId());
+    }
+}

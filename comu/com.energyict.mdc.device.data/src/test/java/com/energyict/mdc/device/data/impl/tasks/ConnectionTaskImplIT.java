@@ -8,16 +8,17 @@ import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Transaction;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.TemporalExpression;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceFactory;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -28,19 +29,25 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
+import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.tasks.ComTask;
+import com.google.common.base.Optional;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -55,10 +62,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
-    protected static final long DEVICE_ID = 100;
-    protected static final long DEVICE_2_ID = DEVICE_ID + 1;
     protected static final int CODE_TABLE_ID = 102;
     protected static final TimeDuration EVERY_HOUR = new TimeDuration(1, TimeDuration.HOURS);
+    private static final String DEVICE_PROTOCOL_DIALECT_NAME = "Limbueregs";
 
     protected static long PARTIAL_SCHEDULED_CONNECTION_TASK1_ID;
     protected static long PARTIAL_SCHEDULED_CONNECTION_TASK2_ID;
@@ -90,9 +96,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static OutboundComPortPool outboundModemComPortPool;
 
     protected DeviceCommunicationConfiguration deviceCommunicationConfiguration;
-    @Mock
     protected Device device;
-    @Mock
     protected Device otherDevice;
     protected PartialInboundConnectionTask partialInboundConnectionTask;
     protected PartialInboundConnectionTask partialInboundConnectionTask2;
@@ -104,8 +108,14 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     protected static Code codeTable;
     private static IdBusinessObjectFactory<Code> codeTableFactory;
+    protected int comTaskEnablementPriority = 213;
     private OnlineComServer onlineComServer;
     private OnlineComServer otherOnlineComServer;
+    private String COM_TASK_NAME = "TheNameOfMyComTask";
+    private int maxNrOfTries = 5;
+    protected ComTaskEnablement comTaskEnablement1;
+    protected ComTaskEnablement comTaskEnablement2;
+    protected ComTaskEnablement comTaskEnablement3;
 
     public OnlineComServer getOnlineComServer() {
         return onlineComServer;
@@ -364,13 +374,16 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     @Before
     public void initializeMocks () {
         super.initializeMocks();
-        when(this.device.getId()).thenReturn(DEVICE_ID);
-        when(this.otherDevice.getId()).thenReturn(DEVICE_2_ID);
-        DeviceFactory deviceFactory = mock(DeviceFactory.class);
-        when(deviceFactory.findDevice(DEVICE_ID)).thenReturn(this.device);
-        when(deviceFactory.findDevice(DEVICE_2_ID)).thenReturn(this.otherDevice);
-        List<DeviceFactory> deviceFactories = Arrays.asList(deviceFactory);
-        when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class)).thenReturn(deviceFactories);
+        this.device = createSimpleDevice("First");
+        this.otherDevice = createSimpleDevice("Second");
+        ProtocolDialectConfigurationProperties configDialect = createDialectConfigProperties();
+        ComTask comTaskWithBasicCheck = createComTaskWithBasicCheck();
+        ComTask comTaskWithLogBooks = createComTaskWithLogBooks();
+        ComTask comTaskWithRegisters = createComTaskWithRegisters();
+
+        this.comTaskEnablement1 = createMockedComTaskEnablement(true, configDialect, comTaskWithBasicCheck);
+        this.comTaskEnablement2 = createMockedComTaskEnablement(true, configDialect, comTaskWithLogBooks);
+        this.comTaskEnablement3 = createMockedComTaskEnablement(true, configDialect, comTaskWithRegisters);
 
         deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
 
@@ -403,6 +416,12 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         PARTIAL_CONNECTION_INITIATION_TASK1_ID = partialConnectionInitiationTask.getId();
         PARTIAL_CONNECTION_INITIATION_TASK2_ID = partialConnectionInitiationTask2.getId();
 
+    }
+
+    private Device createSimpleDevice(String mRID) {
+        Device simpleDevice = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "SimpleDevice", mRID);
+        simpleDevice.save();
+        return simpleDevice;
     }
 
     protected ScheduledConnectionTask createOutboundWithIpPropertiesWithoutViolations(String name) {
@@ -449,4 +468,112 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         }
     }
 
+    private ComTaskEnablement createMockedComTaskEnablement(boolean useDefault, ProtocolDialectConfigurationProperties configDialect, ComTask comTask) {
+        Optional<ProtocolDialectConfigurationProperties> optionalConfigDialect = Optional.fromNullable(configDialect);
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(optionalConfigDialect);
+        when(comTaskEnablement.usesDefaultConnectionTask()).thenReturn(useDefault);
+        when(comTaskEnablement.getPriority()).thenReturn(comTaskEnablementPriority);
+        return comTaskEnablement;
+    }
+
+    private ProtocolDialectConfigurationProperties createDialectConfigProperties() {
+        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
+        deviceConfiguration.save();
+        return configDialect;
+    }
+
+    private ComTask createComTaskWithBasicCheck() {
+        ComTask comTask = inMemoryPersistence.getTaskService().newComTask(COM_TASK_NAME);
+        comTask.setStoreData(true);
+        comTask.setMaxNrOfTries(maxNrOfTries);
+        comTask.createBasicCheckTask().add();
+        comTask.save();
+        return inMemoryPersistence.getTaskService().findComTask(comTask.getId()); // to make sure all elements in the composition are properly loaded
+    }
+
+    private ComTask createComTaskWithLogBooks(){
+        ComTask comTask = inMemoryPersistence.getTaskService().newComTask(COM_TASK_NAME + 2);
+        comTask.setStoreData(true);
+        comTask.setMaxNrOfTries(maxNrOfTries);
+        comTask.createLogbooksTask().add();
+        comTask.save();
+        return inMemoryPersistence.getTaskService().findComTask(comTask.getId()); // to make sure all elements in the composition are properly loaded
+    }
+
+    private ComTask createComTaskWithRegisters(){
+        ComTask comTask = inMemoryPersistence.getTaskService().newComTask(COM_TASK_NAME + 3);
+        comTask.setStoreData(true);
+        comTask.setMaxNrOfTries(maxNrOfTries);
+        comTask.createRegistersTask().add();
+        comTask.save();
+        return inMemoryPersistence.getTaskService().findComTask(comTask.getId()); // to make sure all elements in the composition are properly loaded
+    }
+
+    protected ComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Date nextExecutionTimeStamp) {
+        return createComTaskExecutionAndSetNextExecutionTimeStamp(nextExecutionTimeStamp, comTaskEnablement1);
+    }
+
+
+    protected ComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Date nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement) {
+        ComTaskExecution comTaskExecution = createComTaskExecution(comTaskEnablement);
+        ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.setNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);
+        comTaskExecutionUpdater.update();
+        return comTaskExecution;
+    }
+
+    protected ComTaskExecution createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(ConnectionTask<?, ?> connectionTask, Date nextExecutionTimeStamp){
+        return createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask, nextExecutionTimeStamp, comTaskEnablement1);
+    }
+
+    protected ComTaskExecution createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(ConnectionTask<?,?> connectionTask, Date nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement){
+        ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
+        comTaskExecutionBuilder.setConnectionTask(connectionTask);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+        ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.setNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);
+        return comTaskExecutionUpdater.update();
+    }
+
+    protected ComTaskExecution createComTaskExecution() {
+        return createComTaskExecution(comTaskEnablement1);
+    }
+
+    protected ComTaskExecution createComTaskExecution(ComTaskEnablement comTaskEnablement) {
+        ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+        return comTaskExecution;
+    }
+
+    protected ComTaskExecution getReloadedComTaskExecution(Device device) {
+        Device reloadedDevice = getReloadedDevice(device);
+        return reloadedDevice.getComTaskExecutions().get(0);
+    }
+
+    private class ComTaskExecutionDialect implements DeviceProtocolDialect {
+
+        @Override
+        public String getDeviceProtocolDialectName() {
+            return DEVICE_PROTOCOL_DIALECT_NAME;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "It's a Dell Display";
+        }
+
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public PropertySpec getPropertySpec(String name) {
+            return null;
+        }
+    }
 }

@@ -6,13 +6,14 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.TemporalExpression;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -25,6 +26,7 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.scheduling.TemporalExpression;
 
 import java.util.Date;
 import java.util.List;
@@ -206,10 +208,10 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     /**
      * Provides a builder that allows the creation of a ScheduledConnectionTask for the Device
      *
-     * @param partialOutboundConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask
+     * @param partialConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask
      * @return the builder
      */
-    ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask);
+    ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialScheduledConnectionTask partialConnectionTask);
 
     /**
      * Provides a builder that allows the creation of an InboundConnectionTask for the Device
@@ -228,9 +230,22 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     ConnectionInitiationTaskBuilder getConnectionInitiationTaskBuilder(PartialConnectionInitiationTask partialConnectionInitiationTask);
 
 
-    List<ConnectionTask> getConnectionTasks();
+    List<ConnectionTask<?, ?>> getConnectionTasks();
 
-    void removeConnectionTask(ConnectionTask connectionTask);
+    void removeConnectionTask(ConnectionTask<?, ?> connectionTask);
+
+    /**
+     * Gets the ComTaskExecutions that are configured against this Device.
+     *
+     * @return The List of ComTaskExecutions
+     */
+    public List<ComTaskExecution> getComTaskExecutions();
+
+    ComTaskExecution.ComTaskExecutionBuilder getComTaskExecutionBuilder(ComTaskEnablement comTaskEnablement);
+
+    ComTaskExecution.ComTaskExecutionUpdater getComTaskExecutionUpdater(ComTaskExecution comTaskExecution);
+
+    void removeComTaskExecution(ComTaskExecution comTaskExecution);
 
     /**
      * Counts the number of EndDeviceEvents of the specified types

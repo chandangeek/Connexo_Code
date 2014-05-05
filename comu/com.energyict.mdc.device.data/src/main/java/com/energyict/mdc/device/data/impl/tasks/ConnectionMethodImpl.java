@@ -11,17 +11,15 @@ import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.data.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.CreateEventType;
 import com.energyict.mdc.device.data.impl.DeleteEventType;
-import com.energyict.mdc.device.data.impl.NamedPluggableClassUsageImpl;
+import com.energyict.mdc.device.data.impl.IdPluggableClassUsageImpl;
 import com.energyict.mdc.device.data.impl.UpdateEventType;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.relation.CanLock;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationService;
@@ -30,11 +28,10 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 
 import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelationAttributeTypeNames.CONNECTION_METHOD_ATTRIBUTE_NAME;
 
@@ -48,7 +45,7 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
  * @since 2012-05-31 (08:54)
  */
 @ComPortPoolIsCompatibleWithConnectionType(groups = {Save.Create.class, Save.Update.class})
-public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<ConnectionMethod, ConnectionType, ConnectionTaskProperty>
+public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMethod, ConnectionType, ConnectionTaskProperty>
         implements
             ConnectionMethod,
             ConnectionTaskPropertyProvider,
@@ -70,7 +67,6 @@ public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<Connectio
 
     public ConnectionMethodImpl initialize (ConnectionTask connectionTask, ConnectionTypePluggableClass pluggableClass, ComPortPool comPortPool) {
         this.connectionTask.set(connectionTask);
-        this.setName(connectionTask.getName());
         this.pluggableClass = pluggableClass;
         this.setPluggableClassId(pluggableClass.getId());
         this.comPortPool.set(comPortPool);
@@ -80,11 +76,6 @@ public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<Connectio
     @Override
     public void postLoad() {
         this.loadPluggableClass();
-    }
-
-    @Override
-    protected boolean nameMustBeUnique() {
-        return false;
     }
 
     @Override
@@ -133,11 +124,6 @@ public class ConnectionMethodImpl extends NamedPluggableClassUsageImpl<Connectio
     public void removeProperty(String propertyName) {
         // Make the superclass' method public
         super.removeProperty(propertyName);
-    }
-
-    @Override
-    protected DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name) {
-        return DuplicateNameException.connectionMethodAlreadyExists(thesaurus, name);
     }
 
     @Override

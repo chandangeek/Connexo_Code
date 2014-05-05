@@ -2,14 +2,13 @@ package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
 import java.util.Date;
 import java.util.List;
 
@@ -312,4 +311,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      * @return The last ComSession or <code>null</code>
      */
     public ComSession getLastComSession ();
+
+    public void save();
+
 }

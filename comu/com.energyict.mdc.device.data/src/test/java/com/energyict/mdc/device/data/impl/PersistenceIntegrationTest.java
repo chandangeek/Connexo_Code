@@ -11,18 +11,24 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import org.junit.*;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-
-import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -38,6 +44,7 @@ public abstract class PersistenceIntegrationTest {
     static final String DEVICE_TYPE_NAME = PersistenceIntegrationTest.class.getName() + "Type";
     static final String DEVICE_CONFIGURATION_NAME = PersistenceIntegrationTest.class.getName() + "Config";
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
+    protected static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
     protected DeviceType deviceType;
     protected DeviceConfiguration deviceConfiguration;
 
@@ -78,6 +85,12 @@ public abstract class PersistenceIntegrationTest {
     public void initializeMocks() {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
+        when(authenticationAccessLevel.getId()).thenReturn(0);
+        when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
+        EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
+        when(encryptionAccessLevel.getId()).thenReturn(0);
+        when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
@@ -91,7 +104,7 @@ public abstract class PersistenceIntegrationTest {
     }
 
     private static void initializeClock() {
-        when(clock.getTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
+        when(clock.getTimeZone()).thenReturn(utcTimeZone);
         when(clock.now()).thenAnswer(new Answer<Date>() {
             @Override
             public Date answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -109,7 +122,7 @@ public abstract class PersistenceIntegrationTest {
     }
 
     protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond) {
-        return freezeClock(year, month, day, hour, minute, second, millisecond, TimeZone.getTimeZone("UTC"));
+        return freezeClock(year, month, day, hour, minute, second, millisecond, utcTimeZone);
     }
 
     protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond, TimeZone timeZone) {

@@ -4,13 +4,12 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import org.joda.time.DateTimeConstants;
-
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import org.joda.time.DateTimeConstants;
 
 /**
  * Validates the {@link ValidNextExecutionSpecsWithMinimizeConnectionsStrategy} constraint

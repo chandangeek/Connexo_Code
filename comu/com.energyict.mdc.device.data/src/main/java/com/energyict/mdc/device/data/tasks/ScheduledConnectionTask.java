@@ -2,12 +2,11 @@ package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.protocol.api.ConnectionType;
-
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.TemporalExpression;
 import java.util.Date;
 import java.util.List;
 
@@ -39,6 +38,8 @@ import java.util.List;
  * @since 2012-04-11 (16:40)
  */
 public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialScheduledConnectionTask> {
+
+    public void setMaxNumberOfTries(int maxNumberOfTries);
 
     /**
      * Gets the time window during which communication with the device
@@ -105,6 +106,8 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      */
     public Date updateNextExecutionTimestamp();
 
+    void setDynamicMaxNumberOfTries(int maxNumberOfTries);
+
     /**
      * Updates the next execution of this ConnectionTask
      * so that it will get picked up as soon as possible.
@@ -165,26 +168,5 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      * @see #schedule(Date)
      */
     public Date trigger (Date when);
-
-    /**
-     * Depending on the connectionStrategy and the execution ComTasks,
-     * the number of tries of a ConnectionTask is dynamic.
-     * This number will be updated by the retryLogic in order
-     * to perform correct rescheduling.
-     * Todo: should be moved to the wrapper entitiy that will be part of the engine bundle
-     *
-     * @param maxNumberOfTries the new dynamic maxNumberOfTries
-     */
-    public void setDynamicMaxNumberOfTries(int maxNumberOfTries);
-
-    /**
-     * Applies the {@link ComWindow} to the calculated next execution timestamp
-     * of a {@link ComTaskExecution} before it is actually applied.
-     * Todo (JP-1125): move this down to the implementation class once ComTaskExecution is moved to this bundle
-     *
-     * @param calculatedNextExecutionTimestamp The calculated next execution timestamp
-     * @return The next execution timestamp
-     */
-    public Date applyComWindowIfAny (Date calculatedNextExecutionTimestamp);
 
 }

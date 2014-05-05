@@ -6,7 +6,6 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.data.ComTaskExecutionFactory;
 import com.energyict.mdc.device.data.PartialConnectionTaskFactory;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
@@ -16,16 +15,19 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
+import java.util.Arrays;
+import java.util.List;
+import org.assertj.core.api.Condition;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link ConnectionInitiationTaskImpl} component.
@@ -283,24 +285,25 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).isNotEmpty();    // The relations should have been made obsolete
     }
 
+    @Test
+    @Transactional
     public void testDeletedAndSetComTaskToNoConnectionTask() {
         ConnectionInitiationTaskImpl connectionInitiationTask = (ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
         connectionInitiationTask.save();
         long id = connectionInitiationTask.getId();
 
-        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-        comTaskExecutions.add(comTaskExecution);
-        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-        when(comTaskExecutionFactory.findComTaskExecutionsByConnectionTask(connectionInitiationTask)).thenReturn(comTaskExecutions);
-        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
+        ComTaskExecution comTaskExecution = createComTaskExecution();
+        ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.setConnectionTask(connectionInitiationTask);
+        comTaskExecutionUpdater.update();
 
         // Business method
         connectionInitiationTask.delete();
 
         // Asserts
+        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
+        assertThat(reloadedComTaskExecution.getConnectionTask()).isNull();
         assertThat(inMemoryPersistence.getDeviceDataService().findConnectionInitiationTask(id).isPresent()).isFalse();
-        verify(comTaskExecution).connectionTaskRemoved();
     }
 
     @Test
@@ -314,19 +317,24 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         long id = connectionTask.getId();
         RelationParticipant connectionMethod = (RelationParticipant) connectionTask.getConnectionMethod();
 
-        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-        ComTaskExecution obsoleteComTask = mock(ComTaskExecution.class);
-        when(obsoleteComTask.isObsolete()).thenReturn(true);
-        comTaskExecutions.add(obsoleteComTask);
-        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-        when(comTaskExecutionFactory.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutions);
-        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
+        ComTaskExecution comTaskExecution = createComTaskExecution();
+        ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.setConnectionTask(connectionTask);
+        ComTaskExecution update = comTaskExecutionUpdater.update();
+        device.removeComTaskExecution(update);
+        device.save();
 
         // Business method
         connectionTask.delete();
 
+        List<ComTaskExecution> allComTaskExecutionsIncludingObsoleteForDevice = inMemoryPersistence.getDeviceDataService().findAllComTaskExecutionsIncludingObsoleteForDevice(device);
         // Asserts
-        verify(obsoleteComTask).connectionTaskRemoved();
+        assertThat(allComTaskExecutionsIncludingObsoleteForDevice).are(new Condition<ComTaskExecution>() {
+            @Override
+            public boolean matches(ComTaskExecution comTaskExecution) {
+                return comTaskExecution.getConnectionTask() == null;
+            }
+        });
         assertThat(inMemoryPersistence.getDeviceDataService().findConnectionInitiationTask(id).isPresent()).isFalse();
         RelationAttributeType connectionMethodAttributeType = ipConnectionTypePluggableClass.getDefaultAttributeType();
         assertThat(connectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
@@ -363,18 +371,19 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     public void testMakeObsoleteWithActiveComTasks() {
         ConnectionInitiationTaskImpl connectionTask = (ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
         connectionTask.save();
-        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-        comTaskExecutions.add(comTaskExecution);
-        ComTaskExecutionFactory comTaskExecutionFactory = mock(ComTaskExecutionFactory.class);
-        when(comTaskExecutionFactory.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutions);
-        when(inMemoryPersistence.getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class)).thenReturn(Arrays.asList(comTaskExecutionFactory));
+
+        ComTaskExecution comTaskExecution = createComTaskExecution();
+        ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.setConnectionTask(connectionTask);
+        ComTaskExecution update = comTaskExecutionUpdater.update();
 
         // Business method
         connectionTask.makeObsolete();
 
+        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
+
         // Asserts
-        verify(comTaskExecution).connectionTaskRemoved();
+        assertThat(reloadedComTaskExecution.getConnectionTask()).isNull();
     }
 
     @Test(expected = CannotUpdateObsoleteConnectionTaskException.class)

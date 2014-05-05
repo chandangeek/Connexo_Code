@@ -14,9 +14,8 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.ComTaskExecutionFactory;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.DeviceFactory;
 import com.energyict.mdc.device.data.PartialConnectionTaskFactory;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteUsedDefaultConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
@@ -40,16 +39,9 @@ import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-
-import javax.inject.Provider;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,6 +49,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
+import javax.inject.Provider;
+import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -81,7 +79,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
                     INBOUND_DISCRIMINATOR, InboundConnectionTaskImpl.class,
                     SCHEDULED_DISCRIMINATOR, ScheduledConnectionTaskImpl.class);
 
-    // Todo: remove once Device (JP-1122) is properly moved to the mdc.device.data bundle
     private long deviceId;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_TASK_DEVICE_REQUIRED_KEY + "}")
     private Device device;
@@ -118,9 +115,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.deviceId = device.getId();
         this.validatePartialConnectionTaskType(partialConnectionTask);
         this.validateConstraint(partialConnectionTask, device);
-        /* Todo: wait for JP-1122 that will resurrect the getConfiguration method on Device
         this.validateSameConfiguration(partialConnectionTask, device);
-         */
         this.partialConnectionTask.set(partialConnectionTask);
         this.comPortPool.set(comPortPool);
         this.connectionMethod.set(this.connectionMethodProvider.get().initialize(this, partialConnectionTask.getPluggableClass(), comPortPool));
@@ -128,7 +123,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public void postLoad() {
-        this.loadDevice();
+//        this.loadDevice();
     }
 
     private void validatePartialConnectionTaskType(PCTT partialConnectionTask) {
@@ -157,18 +152,16 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      * is part of the Device's configuration.
      *
      * @param partialConnectionTask The PartialConnectionTask
-     * @param device The Device
+     * @param device                The Device
      */
     private void validateSameConfiguration(PCTT partialConnectionTask, Device device) {
-        if (!is(this.getDeviceConfigurationId(device)).equalTo(partialConnectionTask.getConfiguration().getDeviceConfiguration().getId())) {
+        if (!is(this.getDeviceConfigurationId(device)).equalTo(partialConnectionTask.getConfiguration().getId())) {
             throw new PartialConnectionTaskNotPartOfDeviceConfigurationException(this.getThesaurus(), partialConnectionTask, device);
         }
     }
 
-    // Todo: Inline once JP-1122 is complete and the getConfiguration method is ressurected
     private long getDeviceConfigurationId(Device device) {
-        //return device.getConfiguration().getId();
-        return 0;
+        return device.getDeviceConfiguration().getId();
     }
 
     @Override
@@ -199,8 +192,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         try {
             this.deleteComSessions();
             this.unRegisterConnectionTaskFromComTasks();
-        }
-        catch (SQLException | BusinessException e) {
+        } catch (SQLException | BusinessException e) {
             throw new LegacyException(this.getThesaurus(), e);
         }
     }
@@ -217,12 +209,15 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      */
     private void unRegisterConnectionTaskFromComTasks() {
         for (ComTaskExecution comTaskExecution : this.findDependentComTaskExecutions()) {
-            comTaskExecution.connectionTaskRemoved();
+            ((ComTaskExecutionImpl) comTaskExecution).connectionTaskRemoved();
         }
     }
 
     @Override
     public void save() {
+        if (device == null) {
+            loadDevice();
+        }
         this.deviceId = device.getId();
         this.validateNotObsolete();
         this.modificationDate = this.now();
@@ -235,7 +230,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return this.clock.now();
     }
 
-    protected void validateNotObsolete () {
+    protected void validateNotObsolete() {
         if (this.obsoleteDate != null) {
             throw new CannotUpdateObsoleteConnectionTaskException(this.getThesaurus(), this);
         }
@@ -279,21 +274,14 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private void validateMakeObsolete() {
         if (this.isObsolete()) {
             throw new ConnectionTaskIsAlreadyObsoleteException(this.getThesaurus(), this);
-        }
-        else if (this.comServer.isPresent()) {
+        } else if (this.comServer.isPresent()) {
             throw new ConnectionTaskIsExecutingAndCannotBecomeObsoleteException(this.getThesaurus(), this, this.getExecutingComServer());
         }
     }
 
     protected Device findDevice(long deviceId) {
         if (deviceId != 0) {
-            List<DeviceFactory> deviceFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class);
-            for (DeviceFactory deviceFactory : deviceFactories) {
-                Device device = deviceFactory.findDevice(deviceId);
-                if (device != null) {
-                    return device;
-                }
-            }
+            return this.deviceDataService.findDeviceById(deviceId);
         }
         return null;
     }
@@ -328,22 +316,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     private List<ComTaskExecution> findDependentComTaskExecutions() {
-        List<ComTaskExecution> dependents = new ArrayList<>();
-        List<ComTaskExecutionFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class);
-        for (ComTaskExecutionFactory factory : factories) {
-            dependents.addAll(factory.findComTaskExecutionsByConnectionTask(this));
-        }
-        return dependents;
+        return this.deviceDataService.findComTaskExecutionsByConnectionTask(this);
     }
 
     // Keep as reference for ConnectionTaskExecutionAspects implementation in the mdc.engine bundle
-    public void unlock() {
-        this.setExecutingComServer(null);
-        this.post();
-    }
-
-    // Keep as reference for ConnectionTaskExecutionAspects implementation in the mdc.engine bundle
-    public void executionStarted(final ComServer comServer) throws SQLException, BusinessException {
+    public void executionStarted(final ComServer comServer) {
         this.doExecutionStarted(comServer);
         this.post();
     }
@@ -372,7 +349,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public Device getDevice() {
         if (this.device == null) {
             this.loadDevice();
-    }
+        }
         return this.device;
     }
 
@@ -487,12 +464,12 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
                             propertyName,
                             partialProperties.getProperty(propertyName),
                             this.always(),
-                            this.getPartialConnectionTask().getPluggableClass()));
+                            this.getPartialConnectionTask().getPluggableClass())
+            );
         }
         if (this.getConnectionMethod() != null) {
             return this.merge(allProperties, this.getConnectionMethod().getAllProperties(date));
-        }
-        else {
+        } else {
             return allProperties;
         }
     }
@@ -525,8 +502,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
                 if (!inheritedProperties.hasValueFor(property.getName())) {
                     inheritedProperties.setProperty(property.getName(), property.getValue());
                 }
-            }
-            else {
+            } else {
                 typedProperties.setProperty(property.getName(), property.getValue());
             }
         }
@@ -565,6 +541,15 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         post();
     }
 
+
+    @Override
+    protected void post() {
+        if (device == null) {
+            loadDevice();
+        }
+        super.post();
+    }
+
     public ConnectionMethod getConnectionMethod() {
         return connectionMethod.get();
     }
@@ -597,12 +582,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         ComSession lastComSession = this.getLastComSession();
         if (lastComSession == null) {
             return SuccessIndicator.NOT_APPLICABLE;
-        }
-        else {
+        } else {
             if (lastComSession.wasSuccessful()) {
                 return SuccessIndicator.SUCCESS;
-            }
-            else {
+            } else {
                 return SuccessIndicator.FAILURE;
             }
         }
@@ -613,8 +596,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         ComSession lastComSession = this.getLastComSession();
         if (lastComSession == null) {
             return null;
-        }
-        else {
+        } else {
             return lastComSession.getSuccessIndicator();
         }
     }
@@ -624,8 +606,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         ComSession lastComSession = this.getLastComSession();
         if (lastComSession == null) {
             return null;
-        }
-        else {
+        } else {
             return lastComSession.getTaskExecutionSummary();
         }
     }
@@ -641,4 +622,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return this.modificationDate;
     }
 
+
+    protected TimeZone getClocksTimeZone() {
+        return this.clock.getTimeZone();
+    }
 }

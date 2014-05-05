@@ -6,7 +6,6 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.impl.InfoType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
@@ -14,12 +13,18 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
 
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -169,6 +174,8 @@ public interface DeviceDataService {
      */
     public void clearDefaultConnectionTask (Device device);
 
+    void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask defaultConnectionTask);
+
     /**
      * Attempts to lock the {@link ConnectionTask} that is about to be executed
      * by the specified {@link ComServer} and returns the locked ConnectionTask
@@ -211,6 +218,19 @@ public interface DeviceDataService {
      * @param outboundCapableComServer The ComServer
      */
     public void releaseTimedOutConnectionTasks(ComServer outboundCapableComServer);
+
+    /**
+     * Cleans up any marker flags on {@link ComTaskExecution}s that were not properly
+     * cleaned because the {@link ComServer} they were running
+     * on was actually forcefully shutdown, i.e. not allowing it to
+     * shut down running processing and cleanup when done.
+     * Leaving the marker flags, prohibits the ComServer from
+     * picking up the tasks again.
+     * This is intended to be called at startup time.
+     *
+     * @param comServer The ComServer that is currently starting up.
+     */
+    public void releaseInterruptedComTasks(ComServer comServer);
 
     /**
      * Creates a new Device based on the given name and DeviceConfiguration
@@ -326,5 +346,87 @@ public interface DeviceDataService {
      * @return a list of LogBooks which exist for the given Device
      */
     public List<LogBook> findLogBooksByDevice(Device device);
+
+    public Date getPlannedDate(ComSchedule comSchedule);
+
+    /**
+     * Finds the ComTaskExecution with the given ID
+     *
+     * @param id the unique ID of the ComTaskExecution
+     * @return the requested ComTaskExecution
+     */
+    ComTaskExecution findComTaskExecution(long id);
+
+    /**
+     * Finds all ComTaskExecutions for the given Device which aren't made obsolete yet
+     *
+     * @param device the device
+     * @return the currently active ComTaskExecutions for this device
+     */
+    List<ComTaskExecution> findComTaskExecutionsByDevice(Device device);
+
+    /**
+     * Finds all the ComTaskExecutions for the given Device, including the ones that have been made obsolete
+     *
+     * @param device the device
+     * @return all ComTaskExecutions which have ever been created for this Device
+     */
+    List<ComTaskExecution> findAllComTaskExecutionsIncludingObsoleteForDevice(Device device);
+
+    /**
+     * Attempts to lock the ComTaskExecution that is about to be executed
+     * by the specified ComPort and returns the locked ComTaskExecution
+     * when the lock succeeds and <code>null</code> when the lock fails.
+     * Note that this MUST run in an existing transactional context.
+     *
+     * @param comTaskExecution The ComTaskExecution
+     * @param comPort The ComPort that is about to execute the ComTaskExecution
+     * @return <code>true</code> iff the lock succeeds
+     */
+    ComTaskExecution attemptLockComTaskExecution(ComTaskExecution comTaskExecution, ComPort comPort);
+
+    /**
+     * Removes the business lock on the specified ComTaskExecution,
+     * making it available for other ComPorts to execute the ComTaskExecution.
+     *
+     * @param comTaskExecution The ComTaskExecution
+     */
+    void unlockComTaskExecution(ComTaskExecution comTaskExecution);
+
+    /**
+     * Finds all the ComTaskExecutions which are linked to the given ConnectionTask
+     * (and are not obsolete)
+     *
+     * @param connectionTask the given ConnectionTask
+     * @return all the ComTaskExecutions (which are not obsolete) for the given ConnectionTask
+     */
+    List<ComTaskExecution> findComTaskExecutionsByConnectionTask(ConnectionTask<?,?> connectionTask);
+
+    /**
+     * Finds all the ComTaskExecutions which are linked to the given ComSchedule (MasterSchedule)
+     * (and are not obsolete)
+     *
+     * @param comSchedule the given comSchedule
+     * @return all the ComTaskExecutions (which are not obsolete) for the given ConnectionTask
+     */
+    List<ComTaskExecution> findComTaskExecutionsByComSchedule(ComSchedule comSchedule);
+    List<ComTaskExecution> findComTaskExecutionsByComScheduleWithinRange(ComSchedule comSchedule, long minId, long maxId);
+
+    List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device);
+
+    /**
+     * Find all ComTasks that can be added to the ComSchedule, i.e. all ComTasks that have a ComTaskEnablement for all
+     * devices linked to the ComSchedule.
+     */
+    List<ComTask> findAvailableComTasksForComSchedule(ComSchedule comSchedule);
+
+    /**
+     * Returns true if the ComSchedule has been linked to a device
+     */
+    public boolean isLinkedToDevices(ComSchedule comSchedule);
+
+    List<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort);
+
+    boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds);
 
 }

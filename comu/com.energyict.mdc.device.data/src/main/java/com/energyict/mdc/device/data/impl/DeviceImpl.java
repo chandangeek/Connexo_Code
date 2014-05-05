@@ -25,6 +25,7 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -36,18 +37,19 @@ import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceCacheFactory;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceDependant;
+import com.energyict.mdc.device.data.DeviceInComSchedule;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
@@ -56,10 +58,12 @@ import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.offline.DeviceOffline;
 import com.energyict.mdc.device.data.impl.offline.OfflineDeviceImpl;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -76,13 +80,9 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
+import com.energyict.mdc.scheduling.TemporalExpression;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
-
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -92,9 +92,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_MRID + "}")
 public class DeviceImpl implements Device, PersistenceAware {
+
+    enum Fields {
+        COM_SCHEDULE_USAGES("comScheduleUsages");
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -105,6 +122,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
+    private final List<DeviceInComSchedule> comScheduleUsages = new ArrayList<>();
     private long id;
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
@@ -127,7 +145,9 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Valid
     private List<DeviceProtocolProperty> deviceProperties = new ArrayList<>();
     @Valid
-    private List<ConnectionTaskImpl> connectionTasks = new ArrayList<>();
+    private List<ConnectionTaskImpl<?,?>> connectionTasks = new ArrayList<>();
+    @Valid
+    private List<ComTaskExecutionImpl> comTaskExecutions = new ArrayList<>();
     @Valid
     private List<ProtocolDialectProperties> dialectPropertiesList = new ArrayList<>();
     private List<ProtocolDialectProperties> newDialectProperties = new ArrayList<>();
@@ -136,6 +156,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     private final Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
     private final Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
     private final Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
+    private final Provider<ComTaskExecutionImpl> comTaskExecutionProvider;
 
     @Inject
     public DeviceImpl(DataModel dataModel,
@@ -146,7 +167,8 @@ public class DeviceImpl implements Device, PersistenceAware {
                       DeviceDataService deviceDataService,
                       Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
                       Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
-                      Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider) {
+                      Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
+                      Provider<ComTaskExecutionImpl> comTaskExecutionProvider) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
@@ -156,6 +178,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         this.scheduledConnectionTaskProvider = scheduledConnectionTaskProvider;
         this.inboundConnectionTaskProvider = inboundConnectionTaskProvider;
         this.connectionInitiationTaskProvider = connectionInitiationTaskProvider;
+        this.comTaskExecutionProvider = comTaskExecutionProvider;
     }
 
     @Override
@@ -171,10 +194,17 @@ public class DeviceImpl implements Device, PersistenceAware {
             this.notifyCreated();
         }
         this.saveAllConnectionTasks();
+        this.saveAllComTaskExecutions();
+    }
+
+    private void saveAllComTaskExecutions() {
+        for (ComTaskExecutionImpl comTaskExecution : comTaskExecutions) {
+            comTaskExecution.save();
+        }
     }
 
     private void saveAllConnectionTasks() {
-        for (ConnectionTaskImpl connectionTask : connectionTasks) {
+        for (ConnectionTaskImpl<?,?> connectionTask : connectionTasks) {
             connectionTask.save();
         }
     }
@@ -226,6 +256,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private void notifyDeviceIsGoingToBeDeleted() {
+        // todo create event instead!
         List<DeviceDependant> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceDependant.class);
         for (DeviceDependant deviceDependant : modulesImplementing) {
             deviceDependant.notifyDeviceDelete(this);
@@ -238,13 +269,19 @@ public class DeviceImpl implements Device, PersistenceAware {
         deleteLoadProfiles();
         deleteLogBooks();
         deleteConnectionTasks();
-        // TODO delete communication stuff, if necessary
+        deleteComTaskExecutions();
         // TODO delete messages
         this.getDataMapper().remove(this);
     }
 
+    private void deleteComTaskExecutions() {
+        for (ComTaskExecution comTaskExecution : this.deviceDataService.findAllComTaskExecutionsIncludingObsoleteForDevice(this)) {
+            ((ComTaskExecutionImpl) comTaskExecution).delete();
+        }
+    }
+
     private void deleteConnectionTasks() {
-        for (ConnectionTaskImpl connectionTask : connectionTasks) {
+        for (ConnectionTaskImpl<?,?> connectionTask : connectionTasks) {
             connectionTask.delete();
         }
     }
@@ -259,7 +296,7 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     private void deleteCache() {
         List<DeviceCacheFactory> deviceCacheFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceCacheFactory.class);
-        if (deviceCacheFactories.size() > 0) {
+        if (!deviceCacheFactories.isEmpty()) {
             deviceCacheFactories.get(0).removeDeviceCacheFor(getId());
         }
     }
@@ -434,10 +471,41 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private void topologyChanged() {
-        List<DeviceDependant> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceDependant.class);
-        if (!modulesImplementing.isEmpty()) {
-            modulesImplementing.get(0).topologyChanged(this);
+        List<ComTaskExecution> comTasksForDefaultConnectionTask = this.deviceDataService.findComTasksByDefaultConnectionTask(this);
+        Device gateway = this.getPhysicalGateway();
+            if (gateway != null) {
+                updateComTasksToUseNewDefaultConnectionTask(comTasksForDefaultConnectionTask);
+            } else {
+                updateComTasksToUseNonExistingDefaultConnectionTask(comTasksForDefaultConnectionTask);
+            }
+
+    }
+
+    private void updateComTasksToUseNonExistingDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
+        for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
+            ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = getComTaskExecutionUpdater(comTaskExecution);
+            comTaskExecutionUpdater.setConnectionTask(null);
+            comTaskExecutionUpdater.setUseDefaultConnectionTaskFlag(true);
+            comTaskExecutionUpdater.update();
         }
+    }
+
+    private void updateComTasksToUseNewDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask){
+        ConnectionTask<?,?> defaultConnectionTaskForGateway = getDefaultConnectionTask();
+        for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
+            ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = getComTaskExecutionUpdater(comTaskExecution);
+            comTaskExecutionUpdater.setUseDefaultConnectionTask(defaultConnectionTaskForGateway);
+            comTaskExecutionUpdater.update();
+        }
+    }
+
+    private ConnectionTask<?, ?> getDefaultConnectionTask() {
+        for (ConnectionTaskImpl<?, ?> connectionTask : connectionTasks) {
+            if(connectionTask.isDefault()){
+                return connectionTask;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -540,16 +608,29 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Override
     public void postLoad() {
         loadConnectionTasks();
+        loadComTaskExecutions();
+    }
+
+    private void loadComTaskExecutions() {
+        this.comTaskExecutions = getComTAskExecutionImpls();
+    }
+
+    private List<ComTaskExecutionImpl> getComTAskExecutionImpls() {
+        List<ComTaskExecutionImpl> comTaskExecutionImpls = new ArrayList<>();
+        for (ComTaskExecution comTaskExecution : this.deviceDataService.findComTaskExecutionsByDevice(this)) {
+            comTaskExecutionImpls.add((ComTaskExecutionImpl) comTaskExecution);
+        }
+        return comTaskExecutionImpls;
     }
 
     private void loadConnectionTasks() {
         this.connectionTasks = getConnectionTaskImpls();
     }
 
-    private List<ConnectionTaskImpl> getConnectionTaskImpls() {
-        List<ConnectionTaskImpl> connectionTaskImpls = new ArrayList<>();
+    private List<ConnectionTaskImpl<?,?>> getConnectionTaskImpls() {
+        List<ConnectionTaskImpl<?,?>> connectionTaskImpls = new ArrayList<>();
         for (ConnectionTask connectionTask : this.deviceDataService.findConnectionTasksByDevice(this)) {
-            connectionTaskImpls.add((ConnectionTaskImpl) connectionTask);
+            connectionTaskImpls.add((ConnectionTaskImpl<?,?>) connectionTask);
         }
         return connectionTaskImpls;
     }
@@ -822,8 +903,8 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     @Override
-    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask) {
-        return new ScheduledConnectionTaskBuilderForDevice(this, partialOutboundConnectionTask);
+    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialScheduledConnectionTask partialScheduledConnectionTask) {
+        return new ScheduledConnectionTaskBuilderForDevice(this, partialScheduledConnectionTask);
     }
 
     @Override
@@ -837,25 +918,84 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     @Override
-    public List<ConnectionTask> getConnectionTasks() {
-        return new ArrayList<ConnectionTask>(connectionTasks);
+    public List<ConnectionTask<?, ?>> getConnectionTasks() {
+        return new ArrayList<ConnectionTask<?,?>>(connectionTasks);
     }
 
     @Override
-    public void removeConnectionTask(ConnectionTask connectionTask) {
-        Iterator<ConnectionTaskImpl> connectionTaskIterator = this.connectionTasks.iterator();
+    public void removeConnectionTask(ConnectionTask<?, ?> connectionTask) {
+        Iterator<ConnectionTaskImpl<?,?>> connectionTaskIterator = this.connectionTasks.iterator();
         boolean removedNone = true;
         while(connectionTaskIterator.hasNext() && removedNone){
-            ConnectionTaskImpl connectionTaskToRemove = connectionTaskIterator.next();
+            ConnectionTaskImpl<?,?> connectionTaskToRemove = connectionTaskIterator.next();
             if(connectionTaskToRemove.getId() == connectionTask.getId()){
-                ((ConnectionTaskImpl) connectionTask).delete();
-                this.connectionTasks.remove(connectionTaskToRemove);
+                connectionTask.makeObsolete();
+                connectionTaskIterator.remove();
                 removedNone = false;
             }
         }
         if(removedNone){
             throw new CannotDeleteConnectionTaskWhichIsNotFromThisDevice(this.thesaurus, connectionTask, this);
 
+        }
+    }
+
+    @Override
+    public List<ComTaskExecution> getComTaskExecutions() {
+        return new ArrayList<ComTaskExecution>(this.comTaskExecutions);
+    }
+
+    @Override
+    public ComTaskExecution.ComTaskExecutionBuilder getComTaskExecutionBuilder(ComTaskEnablement comTaskEnablement) {
+        return new ComTaskExecutionBuilderForDevice(comTaskExecutionProvider, this, comTaskEnablement);
+    }
+
+    @Override
+    public ComTaskExecution.ComTaskExecutionUpdater getComTaskExecutionUpdater(ComTaskExecution comTaskExecution) {
+        return new ComTaskExecutionUpdaterForDevice((ComTaskExecutionImpl) comTaskExecution);
+    }
+
+    @Override
+    public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
+        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.comTaskExecutions.iterator();
+        boolean removedNone = true;
+        while (comTaskExecutionIterator.hasNext() && removedNone){
+            ComTaskExecution comTaskExecutionToRemove = comTaskExecutionIterator.next();
+            if(comTaskExecutionToRemove.getId() == comTaskExecution.getId()){
+                comTaskExecution.makeObsolete();
+                comTaskExecutionIterator.remove();
+                removedNone = false;
+            }
+        }
+        if(removedNone){
+            throw new CannotDeleteComTaskExecutionWhichIsNotFromThisDevice(thesaurus, comTaskExecution, this);
+        }
+    }
+
+    private class ComTaskExecutionUpdaterForDevice extends ComTaskExecutionImpl.ComTaskExecutionUpdater {
+
+        private ComTaskExecutionUpdaterForDevice(ComTaskExecutionImpl comTaskExecution) {
+            super(comTaskExecution);
+        }
+
+        @Override
+        public ComTaskExecution update() {
+            //TODO validate unique ComTaskEnablement?
+            return super.update();
+        }
+    }
+
+    private class ComTaskExecutionBuilderForDevice extends ComTaskExecutionImpl.ComTaskExecutionBuilder {
+
+        private ComTaskExecutionBuilderForDevice(Provider<ComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement) {
+            super(comTaskExecutionProvider, device, comTaskEnablement);
+        }
+
+        @Override
+        public ComTaskExecution add() {
+            ComTaskExecution comTaskExecution = super.add();
+            DeviceImpl.this.comTaskExecutions.add((ComTaskExecutionImpl) comTaskExecution);
+            return comTaskExecution;
         }
     }
 
