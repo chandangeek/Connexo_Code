@@ -144,7 +144,7 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
     }
 
     private void install(boolean executeDdl) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(executeDdl, true, true);
+        new Installer(this.dataModel, this.eventService, this.thesaurus).install(executeDdl, true);
     }
 
 }
