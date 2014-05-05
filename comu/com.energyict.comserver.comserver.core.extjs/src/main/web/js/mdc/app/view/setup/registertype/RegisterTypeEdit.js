@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerTypeEdit',
     itemId: 'registerTypeEdit',
     requires: [
@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
     },
 
     initComponent: function () {
-        this.items = [
+        this.content = [
             {
                 xtype: 'container',
                 cls: 'content-container',
@@ -38,22 +38,17 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
 
                 items: [
                     {
-                        xtype: 'breadcrumbTrail',
-                        region: 'north',
-                        padding: 6
-                    },
-                    {
                         xtype: 'component',
                         html: '',
                         itemId: 'registerTypeEditCreateTitle',
                         margins: '10 10 10 10'
                     },
-                    {
-                        xtype: 'component',
-                        html: '',
-                        margins: '10 10 10 10',
-                        itemId: 'registerTypeEditCreateInformation'
-                    },
+                    //{
+                    //    xtype: 'component',
+                    //    html: '',
+                    //    margins: '10 10 10 10',
+                    //    itemId: 'registerTypeEditCreateInformation'
+                    //},
                     {
                         xtype: 'container',
                         columnWidth: 0.5,

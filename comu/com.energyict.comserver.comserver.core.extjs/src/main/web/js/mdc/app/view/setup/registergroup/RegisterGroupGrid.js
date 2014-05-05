@@ -2,13 +2,11 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.registerGroupGrid',
     overflowY: 'auto',
-    itemId: 'registergroupgrid',
+    itemId: 'registerGroupGrid',
     selModel: {
         mode: 'SINGLE'
     },
     requires: [
-        'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom',
         'Mdc.store.RegisterGroups'
     ],
     store: 'RegisterGroups',
@@ -77,6 +75,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupGrid', {
                 ]
             }
         ];
+
         this.dockedItems = [
             {
 
