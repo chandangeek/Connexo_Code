@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.scheduling.model.impl.SchedulingServiceImpl;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -20,6 +21,7 @@ public class SchedulingModule extends AbstractModule {
         requireBinding(OrmService.class);
         requireBinding(EventService.class);
         requireBinding(NlsService.class);
+        requireBinding(TaskService.class);
 
         bind(SchedulingService.class).to(SchedulingServiceImpl.class).in(Scopes.SINGLETON);
     }

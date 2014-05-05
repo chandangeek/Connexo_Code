@@ -1,6 +1,4 @@
-package com.energyict.mdc.scheduling.model.impl;
-
-import com.energyict.mdc.scheduling.events.EventType;
+package com.energyict.mdc.scheduling.events;
 
 /**
  * Subset of {@link com.energyict.mdc.scheduling.events.EventType}s that relate to update of persistent objects.
@@ -10,7 +8,8 @@ import com.energyict.mdc.scheduling.events.EventType;
  */
 public enum UpdateEventType {
 
-    NEXTEXECUTIONSPECS(EventType.NEXTEXECUTIONSPECS_UPDATED);
+    NEXTEXECUTIONSPECS(EventType.NEXTEXECUTIONSPECS_UPDATED),
+    COMSCHEDULES(EventType.COMSCHEDULES_UPDATED);
 
     private EventType eventType;
 

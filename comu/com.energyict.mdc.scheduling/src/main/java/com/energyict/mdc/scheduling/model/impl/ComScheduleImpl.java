@@ -9,6 +9,7 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.events.DeleteEventType;
+import com.energyict.mdc.scheduling.events.UpdateEventType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.tasks.ComTask;
@@ -101,11 +102,14 @@ public class ComScheduleImpl implements ComSchedule {
     @Override
     public void save() {
         Save.action(this.getId()).save(dataModel, this);
+        if (Save.UPDATE.equals(Save.action(this.getId()))) {
+            this.eventService.postEvent(UpdateEventType.COMSCHEDULES.topic(), this);
+        }
     }
 
     @Override
     public void delete() {
-        this.eventService.postEvent(DeleteEventType.COM_SCHEDULE.topic(), this);
+        this.eventService.postEvent(DeleteEventType.COMSCHEDULES.topic(), this);
         this.dataModel.remove(this);
     }
 
@@ -129,6 +133,7 @@ public class ComScheduleImpl implements ComSchedule {
         return schedulingStatus;
     }
 
+    @Override
     public void setSchedulingStatus(SchedulingStatus schedulingStatus) {
         this.schedulingStatus = schedulingStatus;
     }

@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.scheduling.events.CreateEventType;
 import com.energyict.mdc.scheduling.events.DeleteEventType;
+import com.energyict.mdc.scheduling.events.UpdateEventType;
 
 /**
  * Provides code reuse opportunities for entities in this bundle
