@@ -36,7 +36,7 @@ public enum TableSpecs {
             Column nextExecutionSpec = table.column("NEXTEXECUTIONSPEC").number().conversion(NUMBER2LONG).add(); // DO NOT MAP
 
             table.foreignKey("FK_NEXTEXECUTIONSPEC").on(nextExecutionSpec).references(MDCNEXTEXECUTIONSPEC.name()).map(ComScheduleImpl.Fields.NEXT_EXECUTION_SPEC.fieldName()).add();
-            table.primaryKey("PK_COMSCHULE").on(idColumn).add();
+            table.primaryKey("PK_COMSCHEDULE").on(idColumn).add();
         }
     },
     MDCCOMTASKINCOMSCHEDULE {
