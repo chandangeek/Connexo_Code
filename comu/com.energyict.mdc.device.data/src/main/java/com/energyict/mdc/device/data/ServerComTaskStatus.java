@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-
 import java.util.Date;
 
 /**

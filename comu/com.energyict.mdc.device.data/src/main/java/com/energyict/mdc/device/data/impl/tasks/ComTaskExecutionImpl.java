@@ -50,13 +50,12 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
-import org.hibernate.validator.constraints.Range;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import org.hibernate.validator.constraints.Range;
 
 /**
  * Implementation of a ComTaskExecution

@@ -27,7 +27,6 @@ import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.scheduling.TemporalExpression;
-
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;

@@ -6,13 +6,9 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
-import org.osgi.service.event.EventConstants;
-
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventConstants;
 
 /**

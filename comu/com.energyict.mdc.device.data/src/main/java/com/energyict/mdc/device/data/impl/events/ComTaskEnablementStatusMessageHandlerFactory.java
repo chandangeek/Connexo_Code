@@ -1,21 +1,9 @@
 package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
-import com.google.common.base.Optional;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * Implements the {@link MessageHandlerFactory} for the {@link ComTaskEnablementStatusMessageHandler}.

@@ -22,7 +22,6 @@ import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
