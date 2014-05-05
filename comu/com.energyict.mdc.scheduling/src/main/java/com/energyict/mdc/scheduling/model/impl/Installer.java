@@ -37,9 +37,9 @@ public class Installer {
         this.thesaurus = thesaurus;
     }
 
-    public void install(boolean executeDdl, boolean updateOrm) {
+    public void install(boolean executeDdl) {
         try {
-            this.dataModel.install(executeDdl, updateOrm);
+            this.dataModel.install(executeDdl, false);
         } catch (Exception e) {
             logger.severe(e.getMessage());
         }

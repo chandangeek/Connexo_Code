@@ -79,11 +79,11 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
 
     @Override
     public void install() {
-        new Installer(dataModel, eventService, thesaurus).install(true, true);
+        new Installer(dataModel, eventService, thesaurus).install(true);
     }
 
     private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(exeuteDdl, true);
+        new Installer(this.dataModel, this.eventService, this.thesaurus).install(exeuteDdl);
     }
 
     private Module getModule() {
