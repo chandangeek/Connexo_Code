@@ -57,7 +57,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
     @Override
     public void install() {
         if (!dataModel.isInstalled()) {
-            dataModel.install(true, true);
+            dataModel.install(true, false);
         }
     }
 
