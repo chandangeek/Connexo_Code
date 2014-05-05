@@ -1,5 +1,5 @@
-
 @import "Colors";
+@import "Headings";
 
 $color: #000000 !default;
 $font-family: 'Lato', helvetica, arial, verdana, sans-serif !default;
@@ -27,4 +27,4 @@ $body-background-color: $neutral-light-color !default;
 $link-default-background-color: transparent !default;
 $link-default-color: $color-white !default;
 
-$link-background-image: url("images/container/white_bullet.png") !default;
+@import "breadcrumb/BreadcrumbLinkSeparator";

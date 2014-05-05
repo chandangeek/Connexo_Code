@@ -1,0 +1,9 @@
+.#{$prefix}component-linkseparator {
+    background: $breadcrumb-separator-bg-image no-repeat center 1px;
+    width: 17px;
+    height: 17px;
+    padding: {
+        right: 12px;
+        left: 12px;
+    }
+}
