@@ -300,7 +300,6 @@ Ext.define('Mdc.controller.setup.Properties', {
                         propertiesView.addEan18StringProperty(key, value, restoreValue, required);
                         break;
                     case 'USERFILEREFERENCE':
-
                         if (value !== null) {
                             propertiesView.addUserReferenceFilePropertyWithSelectionWindow(key, value.userFileReferenceId + '-' + value.name, restoreValue, required);
                         } else {
@@ -558,6 +557,18 @@ Ext.define('Mdc.controller.setup.Properties', {
             );
         }
         return properties;
+    },
+
+    updatePropertiesWithoutView: function (model) {
+           var properties = model.getProperties();
+           if (properties != null) {
+               properties.each(function (property, id) {
+                       delete property.get("isInheritedOrDefaultValue");
+                       delete property.setPropertyType(null);
+                   }
+               );
+           }
+           return properties;
     },
 
     showUserFileReferenceOverview: function (button) {
