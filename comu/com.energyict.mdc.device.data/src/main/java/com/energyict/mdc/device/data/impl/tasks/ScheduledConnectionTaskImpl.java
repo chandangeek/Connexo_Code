@@ -222,7 +222,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     /**
-     * Updates the next excution timestamps of the dependent ComTaskExecutions.
+     * Updates the next execution timestamps of the dependent ComTaskExecutions.
      */
     private void rescheduleComTaskExecutions() {
         for (ComTaskExecution comTaskExecution : this.getScheduledComTasks()) {
