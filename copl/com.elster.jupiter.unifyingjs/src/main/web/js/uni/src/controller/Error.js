@@ -24,7 +24,7 @@ Ext.define('Uni.controller.Error', {
         var me = this;
 
         Ext.Error.handle = me.handleGenericError;
-        Ext.Ajax.on('requestexception', me.handleRequestError, this);
+//        Ext.Ajax.on('requestexception', me.handleRequestError, this);
     },
 
     handleGenericError: function (error) {

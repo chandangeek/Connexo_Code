@@ -46,12 +46,13 @@
 Ext.define('Uni.view.container.ContentContainer', {
     extend: 'Ext.container.Container',
     alias: 'widget.contentcontainer',
+    ui: 'contentcontainer',
 
     requires: [
         'Uni.view.breadcrumb.Trail'
     ],
 
-    baseCls: Uni.About.baseCssPrefix + 'content-container',
+    //baseCls: Uni.About.baseCssPrefix + 'content-container',
     layout: 'border',
 
     /**
