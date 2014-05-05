@@ -222,7 +222,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     /**
-     * Updates the next excution timestamps of the dependent ComTaskExecutions.
+     * Updates the next execution timestamps of the dependent ComTaskExecutions.
      */
     private void rescheduleComTaskExecutions() {
         for (ComTaskExecution comTaskExecution : this.getScheduledComTasks()) {
@@ -323,7 +323,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private void updateNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int priority) {
         Condition condition = Where.where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this)
-                .and(Where.where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThan(nextExecutionTimestamp));
+                .and(Where.where(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName()).isLessThan(nextExecutionTimestamp));
         List<ComTaskExecution> comTaskExecutions = this.dataModel.mapper(ComTaskExecution.class).select(condition);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
