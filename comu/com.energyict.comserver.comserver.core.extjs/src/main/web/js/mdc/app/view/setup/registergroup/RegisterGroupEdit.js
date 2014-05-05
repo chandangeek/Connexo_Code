@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerGroupEdit',
     itemId: 'registerGroupEdit',
     requires: [
@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
     },
     cls: 'content-container',
     edit: false,
-    checked: 0,
+    autoScroll: true,
     isEdit: function () {
         return this.edit
     },
@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
     },
 
     initComponent: function () {
-        this.items = [
+        this.content = [
             {
                 xtype: 'container',
                 cls: 'content-container',
@@ -39,22 +39,17 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
 
                 items: [
                     {
-                        xtype: 'breadcrumbTrail',
-                        region: 'north',
-                        padding: 6
-                    },
-                    {
                         xtype: 'component',
                         html: '',
                         itemId: 'registerGroupEditCreateTitle',
                         margins: '10 10 10 10'
                     },
-                    {
-                        xtype: 'component',
-                        html: '',
-                        margins: '10 10 10 10',
-                        itemId: 'registerGroupEditCreateInformation'
-                    },
+                    //{
+                    //    xtype: 'component',
+                    //    html: '',
+                    //    margins: '10 10 10 10',
+                    //    itemId: 'registerGroupEditCreateInformation'
+                    //},
                     {
                         xtype: 'container',
                         columnWidth: 0.5,
@@ -67,13 +62,6 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                 layout: {
                                     type: 'vbox'
                                 },
-//                    tbar: [
-//                        {
-//                            xtype: 'component',
-//                            html: '<h4>Overview</h4>',
-//                            itemId: 'deviceTypePreviewTitle'
-//                        }
-//                    ],
                                 defaults: {
                                     labelWidth: 250
                                 },
@@ -95,6 +83,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                     },
                                     {
                                         xtype: 'displayfield',
+                                        name: 'selectedRegisterTypes',
+                                        msgTarget: 'under',
                                         itemId: 'editRegisterGroupSelectedField',
                                         fieldLabel: Uni.I18n.translate('registerGroup.registerTypes', 'MDC', 'Register types'),
                                         value: Uni.I18n.translate('registerGroup.selectedRegisterTypes', 'MDC', 'Register types selected'),
@@ -103,31 +93,30 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                     {
                                         xtype: 'gridpanel',
                                         width: 950,
-                                        height: 500,
+                                        maxHeight: 500,
                                         margins: '10 10 10 250',
-                                        //flex: 1,
-                                        //fieldLabel: Uni.I18n.translate('registerGroup.registerTypes', 'MDC', 'Register types'),
-                                        //required: true,
                                         itemId: 'editRegisterGroupGridField',
                                         bodyBorder: true,
                                         columnLines: false,
                                         enableColumnHide: false,
                                         enableColumnMove: false,
                                         enableColumnResize: false,
-                                        //hideHeaders: true,
                                         sortableColumns: false,
                                         store: new Ext.data.Store({
                                             model: 'Mdc.model.RegisterType'
                                         }),
-                                        //data: [],
+                                        selModel : Ext.create('Ext.selection.CheckboxModel',{
+                                            allowDeselect: true,
+                                            mode : 'MULTI'
+                                            }),
                                         columns: [
-                                            {
+                                            /*{
                                                 xtype: 'checkcolumn',
                                                 dataIndex: 'selected',
                                                 sortable: false,
                                                 hideable: false,
                                                 flex: 0.1
-                                            },
+                                            },*/
                                             {
                                                 header: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
                                                 dataIndex: 'name',
@@ -143,7 +132,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                                         + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
                                                         + '</div>'
                                                 },
-                                                header: Uni.I18n.translate('registerMappings.cimReadingType', 'MDC', 'CIM reading type'),
+                                                header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
                                                 items: [
                                                     {
                                                         icon: '../mdc/resources/images/information.png',
