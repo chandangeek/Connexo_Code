@@ -20,6 +20,7 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
 import com.energyict.mdc.masterdata.exceptions.UnitHasNoMatchingPhenomenonException;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.common.base.Optional;
@@ -201,6 +202,13 @@ public class MasterDataServiceImpl implements MasterDataService, InstallService 
     @Override
     public List<LoadProfileType> findLoadProfileTypesByName(String name) {
         return this.getDataModel().mapper(LoadProfileType.class).find("name", name);
+    }
+
+    @Override
+    public void validateRegisterGroup(RegisterGroup group) {
+        if(group.getRegisterMappings().size()==0){
+            throw new RegisterTypesRequiredException(this.thesaurus);
+        }
     }
 
     @Reference

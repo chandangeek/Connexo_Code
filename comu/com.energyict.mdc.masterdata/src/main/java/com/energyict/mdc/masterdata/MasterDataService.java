@@ -154,4 +154,5 @@ public interface MasterDataService {
 
     public List<LoadProfileType> findLoadProfileTypesByName(String name);
 
+    void validateRegisterGroup(RegisterGroup group);
 }
