@@ -2,6 +2,15 @@
 /* */
 /*<if slicer>*/
 /* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-delete-small-pressed:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-delete-small-pressed-corners.gif), sides:url(images/btn/btn-delete-small-pressed-sides.gif), frame-bg:url(images/btn/btn-delete-small-pressed-fbg.gif), bg:url(images/btn/btn-delete-small-pressed-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
 .x-btn-delete-small-disabled:after {
   display: none;
   content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-delete-small-disabled-corners.gif), sides:url(images/btn/btn-delete-small-disabled-sides.gif), frame-bg:url(images/btn/btn-delete-small-disabled-fbg.gif), bg:url(images/btn/btn-delete-small-disabled-bg.gif)";
@@ -14630,10 +14639,5 @@
 
 /* line 245, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-large-horizontal {
-  padding: 0 0 16px 0;
-}
-
-/* line 249, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel-header-large-horizontal-noborder {
   padding: 0 0 16px 0;
 }

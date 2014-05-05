@@ -1,3 +1,8 @@
+/* line 249, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-large-horizontal-noborder {
+  padding: 0 0 16px 0;
+}
+
 /* line 253, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-large-vertical {
   padding: 0 0 0 16px;
@@ -2994,6 +2999,8 @@ div.x-form-spinner-down {
 .x-toolbar-pagingtoolbartop, .x-toolbar-pagingtoolbarbottom {
   padding-right: 0;
   padding-left: 0;
+  margin-right: -7px;
+  margin-left: -5px;
 }
 
 /* line 1, ../../sass/src/picker/Date.scss */
