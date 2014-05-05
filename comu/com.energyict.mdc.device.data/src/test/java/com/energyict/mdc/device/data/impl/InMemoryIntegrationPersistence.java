@@ -292,10 +292,6 @@ public class InMemoryIntegrationPersistence {
         return clock;
     }
 
-    public SchedulingService getSchedulingService() {
-        return schedulingService;
-    }
-
     public EventService getEventService() {
         return eventService;
     }
