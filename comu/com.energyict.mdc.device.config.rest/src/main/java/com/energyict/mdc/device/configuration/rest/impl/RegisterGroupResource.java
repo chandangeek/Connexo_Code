@@ -40,7 +40,7 @@ public class RegisterGroupResource {
         List<RegisterGroup> allRegisterGroups = this.masterDataService.findAllRegisterGroups();
         List<RegisterGroupInfo> registerGroupInfos = new ArrayList<>();
         for(RegisterGroup registerGroup : allRegisterGroups){
-            registerGroupInfos.add(new RegisterGroupInfo(registerGroup));
+            registerGroupInfos.add(new RegisterGroupInfo(registerGroup.getId(), registerGroup.getName()));
         }
 
         return PagedInfoList.asJson("registerGroups", registerGroupInfos, queryParameters);
@@ -51,6 +51,13 @@ public class RegisterGroupResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterGroupInfo getRegisterGroup(@PathParam("id") long id) {
         return new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
+    }
+
+    @GET
+    @Path("/{id}/registertypes")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<RegisterMappingInfo> getRegisterTypesOfRegisterGroup(@PathParam("id") long id) {
+        return new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id)).registerTypes;
     }
 
     @DELETE
@@ -95,6 +102,7 @@ public class RegisterGroupResource {
         modified |= group.updateRegisterMappings(registerMappings);
 
         if(modified){
+            this.masterDataService.validateRegisterGroup(group);
             group.save();
         }
         return new RegisterGroupInfo(group);
