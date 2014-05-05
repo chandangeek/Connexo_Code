@@ -1,11 +1,15 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.impl.MeteringServiceImpl;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -70,6 +74,10 @@ public class SmartMeterProtocolLogBookAdapterTest {
     private ApplicationContext applicationContext;
     @Mock
     private CollectedDataFactory collectedDataFactory;
+    @Mock
+    private MeteringService meteringService;
+    @Mock
+    private EndDeviceEventType otherEndDeviceEventType;
 
     @Before
     public void initializeMocks () {
@@ -88,6 +96,12 @@ public class SmartMeterProtocolLogBookAdapterTest {
         when(this.environment.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(this.environment.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         Environment.DEFAULT.set(this.environment);
+        when(this.otherEndDeviceEventType.getName()).thenReturn("0.0.0.0");
+        when(this.otherEndDeviceEventType.getMRID()).thenReturn("0.0.0.0");
+        when(this.meteringService.getAvailableEndDeviceEventTypes()).thenReturn(Arrays.asList(this.otherEndDeviceEventType));
+        EndDeviceEventTypeFactory endDeviceEventTypeFactory = new EndDeviceEventTypeFactory();
+        endDeviceEventTypeFactory.setMeteringService(this.meteringService);
+        endDeviceEventTypeFactory.activate();
     }
 
     @Before
