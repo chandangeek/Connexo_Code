@@ -434,7 +434,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus, userService).install(exeuteDdl, true);
+        new Installer(this.dataModel, this.eventService, this.thesaurus, userService).install(exeuteDdl);
         initPrivileges();
     }
 
