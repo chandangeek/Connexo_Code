@@ -33,9 +33,9 @@ public class Installer {
         this.thesaurus = thesaurus;
     }
 
-    public void install(boolean executeDdl, boolean updateOrm, boolean createMasterData) {
+    public void install(boolean executeDdl, boolean createMasterData) {
         try {
-            this.dataModel.install(executeDdl, updateOrm);
+            this.dataModel.install(executeDdl, false);
             if (createMasterData) {
                 this.createMasterData();
             }
