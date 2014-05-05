@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlRootElement
 public class LogBookTypeInfo {
 
+    public long id;
     public String name;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
@@ -20,6 +21,7 @@ public class LogBookTypeInfo {
 
     public static LogBookTypeInfo from(LogBookType logBookType) {
         LogBookTypeInfo logBookTypeInfo = new LogBookTypeInfo();
+        logBookTypeInfo.id = logBookType.getId();
         logBookTypeInfo.name = logBookType.getName();
         logBookTypeInfo.obisCode = logBookType.getObisCode();
         return logBookTypeInfo;

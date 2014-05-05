@@ -3,6 +3,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -12,6 +13,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
@@ -19,26 +21,14 @@ import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.sql.SQLException;
+import java.util.*;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
@@ -125,9 +115,65 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/logbooktypes")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<LogBookTypeInfo> getLogBookTypesForDeviceType(@PathParam("id") long id) {
+    public Response getLogBookTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @QueryParam("available") String available) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        return LogBookTypeInfo.from(ListPager.of(deviceType.getLogBookTypes(), new LogBookTypeComparator()).find());
+        List<LogBookType> resultLogBookTypes = deviceType.getLogBookTypes();
+        if (available != null && Boolean.parseBoolean(available)) {
+            resultLogBookTypes = findAllAvailableLoogBookTypesForDeviceType(resultLogBookTypes);
+        }
+        return Response.ok(PagedInfoList.asJson("data",
+                        LogBookTypeInfo.from(ListPager.of(resultLogBookTypes, new LogBookTypeComparator()).find()), queryParameters)).build();
+    }
+
+    private List<LogBookType> findAllAvailableLoogBookTypesForDeviceType(List<LogBookType> registeredLogBookTypes) {
+        List<LogBookType> allLoogBookTypes = masterDataService.findAllLogBookTypes();
+        Set<Long> registeredLoogBookTypeIds = new HashSet<>(registeredLogBookTypes.size());
+        for (LogBookType logBookType : registeredLogBookTypes) {
+            registeredLoogBookTypeIds.add(logBookType.getId());
+        }
+        Iterator<LogBookType> logBookTypeIterator = allLoogBookTypes.iterator();
+        while (logBookTypeIterator.hasNext()) {
+            LogBookType logBookType = logBookTypeIterator.next();
+            if (registeredLoogBookTypeIds.contains(logBookType.getId())){
+                logBookTypeIterator.remove();
+            }
+        }
+        return allLoogBookTypes;
+    }
+
+    @POST
+    @Path("/{id}/logbooktypes")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLogBookTypesForDeviceType(@PathParam("id") long id, @QueryParam("id") List<Long> ids) {
+        if (ids == null || ids.size() == 0) {
+            throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOGBOOK_ID_FOR_DEVICE_TYPE);
+        }
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        List<LogBookType> logBookTypes = new ArrayList<>(ids.size());
+        for (Long logBookTypeId : ids) {
+            Optional<LogBookType> logBookTypeRef = masterDataService.findLogBookType(logBookTypeId);
+            if (logBookTypeRef.isPresent()){
+                logBookTypes.add(logBookTypeRef.get());
+            }
+        }
+        for (LogBookType logBookType : logBookTypes) {
+            deviceType.addLogBookType(logBookType);
+        }
+        return Response.ok().build();
+    }
+
+    @DELETE
+    @Path("/{id}/logbooktypes/{lbid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteLogbookTypeFromDeviceType(@PathParam("id") long id, @PathParam("lbid") long lbid) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        Optional<LogBookType> logBookTypeRef = masterDataService.findLogBookType(lbid);
+        if(!logBookTypeRef.isPresent()){
+            throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOGBOOK_TYPE_FOUND, lbid);
+        }
+        LogBookType logBookType = logBookTypeRef.get();
+        deviceType.removeLogBookType(logBookType);
+        return Response.ok().build();
     }
 
     @Path("/{deviceTypeId}/deviceconfigurations")
