@@ -27,41 +27,16 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-24 (11:51)
  */
-@Component(name="com.energyict.mdc.device.data.update.comtaskenablement.connection.messagehandler", service = MessageHandler.class, immediate = true)
 public class ComTaskEnablementConnectionMessageHandler implements MessageHandler {
 
-    private volatile JsonService jsonService;
-    private volatile DeviceConfigurationService deviceConfigurationService;
-    private volatile ServerDeviceDataService deviceDataService;
+    private final JsonService jsonService;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final ServerDeviceDataService deviceDataService;
 
-    public ComTaskEnablementConnectionMessageHandler() {
+    public ComTaskEnablementConnectionMessageHandler(JsonService jsonService, DeviceConfigurationService deviceConfigurationService, ServerDeviceDataService deviceDataService) {
         super();
-    }
-
-    // For testing purposes
-    ComTaskEnablementConnectionMessageHandler(JsonService jsonService, DeviceConfigurationService deviceConfigurationService, ServerDeviceDataService deviceDataService) {
-        this();
-        this.setJsonService(jsonService);
-        this.setDeviceConfigurationService(deviceConfigurationService);
-        this.setDeviceDataService(deviceDataService);
-    }
-
-    @Reference
-    public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
-    }
-
-    @Reference
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
-    }
-
-    @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.setDeviceDataService((ServerDeviceDataService) deviceDataService);
-    }
-
-    private void setDeviceDataService(ServerDeviceDataService deviceDataService) {
         this.deviceDataService = deviceDataService;
     }
 

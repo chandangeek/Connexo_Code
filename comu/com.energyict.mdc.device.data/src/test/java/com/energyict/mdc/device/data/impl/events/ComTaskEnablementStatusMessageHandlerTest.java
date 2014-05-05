@@ -25,19 +25,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link ComTaskEnablementPriorityEventHandler} component.
+ * Tests the {@link ComTaskEnablementStatusMessageHandler} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2014-04-29 (09:52)
+ * @since 2014-04-29 (10:33)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ComTaskEnablementPriorityEventHandlerTest {
+public class ComTaskEnablementStatusMessageHandlerTest {
 
     private static final long DEVICE_CONFIGURATION_ID = 97;
     private static final long COMTASK_ID = DEVICE_CONFIGURATION_ID + 1;
     private static final long COMTASK_ENABLEMENT_ID = COMTASK_ID + 1;
-    private static final int OLD_PRIORITY = ComTaskEnablement.LOWEST_PRIORITY;
-    private static final int NEW_PRIORITY = ComTaskEnablement.HIGHEST_PRIORITY;
 
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
@@ -70,7 +68,6 @@ public class ComTaskEnablementPriorityEventHandlerTest {
     @Test
     public void testProcessUnIntendedMessage () {
         Map<String, Object> messageProperties = new HashMap<>();
-        messageProperties.put("id", 97);
         messageProperties.put(EventConstants.TIMESTAMP, new Date().getTime());
         messageProperties.put(EventConstants.EVENT_TOPIC, EventType.CHANNELSPEC_CREATED.topic());
         String payload = this.getJsonService().serialize(messageProperties);
@@ -84,13 +81,11 @@ public class ComTaskEnablementPriorityEventHandlerTest {
     }
 
     @Test
-    public void testProcessPriorityChange () {
+    public void testSuspend () {
         Map<String, Object> messageProperties = new HashMap<>();
-        messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
-        messageProperties.put("oldPriority", OLD_PRIORITY);
-        messageProperties.put("newPriority", NEW_PRIORITY);
+        messageProperties.put("id", COMTASK_ENABLEMENT_ID);
         messageProperties.put(EventConstants.TIMESTAMP, new Date().getTime());
-        messageProperties.put(EventConstants.EVENT_TOPIC, EventType.COMTASKENABLEMENT_PRIORITY_UPDATED.topic());
+        messageProperties.put(EventConstants.EVENT_TOPIC, EventType.COMTASKENABLEMENT_SUSPEND.topic());
         String payload = this.getJsonService().serialize(messageProperties);
         Message message = mock(Message.class);
         when(message.getPayload()).thenReturn(payload.getBytes());
@@ -99,15 +94,32 @@ public class ComTaskEnablementPriorityEventHandlerTest {
         this.newHandler().process(message);
 
         // Asserts
-        verify(this.deviceDataService).preferredPriorityChanged(this.comTask, this.deviceConfiguration, OLD_PRIORITY, NEW_PRIORITY);
+        verify(this.deviceDataService).suspendAll(this.comTask, this.deviceConfiguration);
+    }
+
+    @Test
+    public void testResume () {
+        Map<String, Object> messageProperties = new HashMap<>();
+        messageProperties.put("id", COMTASK_ENABLEMENT_ID);
+        messageProperties.put(EventConstants.TIMESTAMP, new Date().getTime());
+        messageProperties.put(EventConstants.EVENT_TOPIC, EventType.COMTASKENABLEMENT_RESUME.topic());
+        String payload = this.getJsonService().serialize(messageProperties);
+        Message message = mock(Message.class);
+        when(message.getPayload()).thenReturn(payload.getBytes());
+
+        // Business method
+        this.newHandler().process(message);
+
+        // Asserts
+        verify(this.deviceDataService).resumeAll(this.comTask, this.deviceConfiguration);
     }
 
     private JsonService getJsonService () {
         return this.jsonService;
     }
 
-    private ComTaskEnablementPriorityEventHandler newHandler () {
-        return new ComTaskEnablementPriorityEventHandler(this.getJsonService(), this.deviceConfigurationService, this.deviceDataService);
+    private ComTaskEnablementStatusMessageHandler newHandler () {
+        return new ComTaskEnablementStatusMessageHandler(this.getJsonService(), this.deviceConfigurationService, this.deviceDataService);
     }
 
 }
