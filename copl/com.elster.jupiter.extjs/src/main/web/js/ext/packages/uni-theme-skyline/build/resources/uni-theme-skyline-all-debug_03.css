@@ -1,3 +1,2884 @@
+/* line 707, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nbr .x-btn-step-active-small {
+  background-image: none;
+}
+
+/* line 722, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-active-small .x-btn-split-right {
+  background-image: url(images/button/step-active-small-s-arrow.png);
+  padding-right: 23px;
+}
+/* line 735, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-active-small .x-btn-split-bottom {
+  background-image: url(images/button/step-active-small-s-arrow-b.png);
+  padding-bottom: 20px;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-active-small-focus:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-active-small-focus-corners.gif), sides:url(images/btn/btn-step-active-small-focus-sides.gif), frame-bg:url(images/btn/btn-step-active-small-focus-fbg.gif), bg:url(images/btn/btn-step-active-small-focus-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-active-small-over:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-active-small-over-corners.gif), sides:url(images/btn/btn-step-active-small-over-sides.gif), frame-bg:url(images/btn/btn-step-active-small-over-fbg.gif), bg:url(images/btn/btn-step-active-small-over-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-active-small-pressed:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-active-small-pressed-corners.gif), sides:url(images/btn/btn-step-active-small-pressed-sides.gif), frame-bg:url(images/btn/btn-step-active-small-pressed-fbg.gif), bg:url(images/btn/btn-step-active-small-pressed-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-active-small-disabled:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-active-small-disabled-corners.gif), sides:url(images/btn/btn-step-active-small-disabled-sides.gif), frame-bg:url(images/btn/btn-step-active-small-disabled-fbg.gif), bg:url(images/btn/btn-step-active-small-disabled-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small {
+  border-color: #a0a0a0;
+}
+
+/* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small {
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  -ms-border-radius: 12px;
+  -o-border-radius: 12px;
+  border-radius: 12px;
+  padding: 11px 11px 11px 11px;
+  border-width: 1px;
+  border-style: solid;
+  background-color: #d2d2d2;
+}
+
+/* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-mc {
+  background-color: #d2d2d2;
+}
+
+/* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-nbr .x-btn-step-completed-small {
+  padding: 0 !important;
+  border-width: 0 !important;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -ms-border-radius: 0px;
+  -o-border-radius: 0px;
+  border-radius: 0px;
+  background-color: transparent;
+}
+
+/* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-frameInfo {
+  font-family: th-12-12-12-12-1-1-1-1-11-11-11-11;
+}
+
+/* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-tl {
+  background-position: 0 -24px;
+}
+
+/* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-tr {
+  background-position: right -36px;
+}
+
+/* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-bl {
+  background-position: 0 -48px;
+}
+
+/* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-br {
+  background-position: right -60px;
+}
+
+/* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-ml {
+  background-position: 0 top;
+}
+
+/* line 335, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-mr {
+  background-position: right top;
+}
+
+/* line 339, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-tc {
+  background-position: 0 0;
+}
+
+/* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-bc {
+  background-position: 0 -12px;
+}
+
+/* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-tr,
+.x-btn-step-completed-small-br,
+.x-btn-step-completed-small-mr {
+  padding-right: 12px;
+}
+
+/* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-tl,
+.x-btn-step-completed-small-bl,
+.x-btn-step-completed-small-ml {
+  padding-left: 12px;
+}
+
+/* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-tc {
+  height: 12px;
+}
+
+/* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-bc {
+  height: 12px;
+}
+
+/* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-tl,
+.x-btn-step-completed-small-bl,
+.x-btn-step-completed-small-tr,
+.x-btn-step-completed-small-br,
+.x-btn-step-completed-small-tc,
+.x-btn-step-completed-small-bc,
+.x-btn-step-completed-small-ml,
+.x-btn-step-completed-small-mr {
+  zoom: 1;
+  background-image: url(images/btn/btn-step-completed-small-corners.gif);
+}
+
+/* line 418, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-ml,
+.x-btn-step-completed-small-mr {
+  zoom: 1;
+  background-image: url(images/btn/btn-step-completed-small-sides.gif);
+  background-repeat: repeat-y;
+}
+
+/* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-mc {
+  padding: 0px 0px 0px 0px;
+}
+
+/* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-strict .x-ie7 .x-btn-step-completed-small-tl,
+.x-strict .x-ie7 .x-btn-step-completed-small-bl {
+  position: relative;
+  right: 0;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-completed-small:after {
+  display: none;
+  content: "x-slicer:corners:url(images/btn/btn-step-completed-small-corners.gif), sides:url(images/btn/btn-step-completed-small-sides.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 262, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small .x-btn-inner {
+  font-size: 13px;
+  font-weight: "normal";
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
+  color: #a0a0a0;
+  padding: 0 5px;
+}
+/* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small .x-btn-arrow {
+  background-image: url(images/button/step-completed-small-arrow.png);
+}
+/* line 278, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small .x-btn-arrow-right {
+  padding-right: 21px;
+}
+/* line 289, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small .x-btn-arrow-bottom {
+  padding-bottom: 18px;
+}
+/* line 293, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small .x-btn-glyph {
+  font-size: 17px;
+  line-height: 17px;
+  color: white;
+  opacity: 0.5;
+}
+/* line 313, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie8m .x-btn-step-completed-small .x-btn-glyph {
+  color: #e8e8e8;
+}
+
+/* line 320, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-disabled {
+  background-image: none;
+  background-color: #d2d2d2;
+}
+
+/* line 346, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-icon .x-btn-button,
+.x-btn-step-completed-small-noicon .x-btn-button {
+  height: 17px;
+}
+/* line 350, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-icon .x-btn-inner,
+.x-btn-step-completed-small-noicon .x-btn-inner {
+  line-height: 17px;
+}
+
+/* line 360, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-icon .x-btn-arrow-right .x-btn-inner,
+.x-btn-step-completed-small-noicon .x-btn-arrow-right .x-btn-inner,
+.x-btn-step-completed-small-icon-text-left .x-btn-arrow-right .x-btn-inner {
+  padding-right: 0;
+}
+
+/* line 375, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-icon .x-btn-inner {
+  width: 17px;
+  padding: 0;
+}
+/* line 381, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-icon .x-btn-icon-el {
+  width: 17px;
+  height: 17px;
+}
+
+/* line 388, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-icon-text-left .x-btn-button {
+  height: 17px;
+}
+/* line 393, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-icon-text-left .x-btn-inner {
+  line-height: 17px;
+  padding-left: 22px;
+}
+/* line 409, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-icon-text-left .x-btn-icon-el {
+  width: 17px;
+  right: auto;
+}
+/* line 415, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-completed-small-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-completed-small-icon-text-left .x-btn-icon-el {
+  height: 17px;
+}
+
+/* line 430, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-icon-text-right .x-btn-button {
+  height: 17px;
+}
+/* line 435, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-icon-text-right .x-btn-inner {
+  line-height: 17px;
+  padding-right: 22px;
+}
+/* line 447, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-icon-text-right .x-btn-icon-el {
+  width: 17px;
+  left: auto;
+}
+/* line 453, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-completed-small-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-completed-small-icon-text-right .x-btn-icon-el {
+  height: 17px;
+}
+
+/* line 468, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-icon-text-top .x-btn-inner {
+  padding-top: 22px;
+}
+/* line 472, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-icon-text-top .x-btn-icon-el {
+  height: 17px;
+  bottom: auto;
+}
+/* line 480, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-completed-small-icon-text-top .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-completed-small-icon-text-top .x-btn-icon-el {
+  width: 100%;
+}
+
+/* line 488, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-icon-text-bottom .x-btn-inner {
+  padding-bottom: 22px;
+}
+/* line 492, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-icon-text-bottom .x-btn-icon-el {
+  height: 17px;
+  top: auto;
+}
+/* line 500, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-completed-small-icon-text-bottom .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-completed-small-icon-text-bottom .x-btn-icon-el {
+  width: 100%;
+}
+
+/* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-focus {
+  border-color: #939393;
+  background-image: none;
+  background-color: #c1c1c1;
+}
+
+/* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-over {
+  border-color: #939393;
+  background-image: none;
+  background-color: #d6d6d6;
+}
+
+/* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-menu-active,
+.x-btn-step-completed-small-pressed {
+  border-color: #787878;
+  background-image: none;
+  background-color: #bdbdbd;
+}
+
+/* line 588, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-focus .x-frame-tl,
+.x-btn-step-completed-small-focus .x-frame-bl,
+.x-btn-step-completed-small-focus .x-frame-tr,
+.x-btn-step-completed-small-focus .x-frame-br,
+.x-btn-step-completed-small-focus .x-frame-tc,
+.x-btn-step-completed-small-focus .x-frame-bc {
+  background-image: url(images/btn/btn-step-completed-small-focus-corners.gif);
+}
+/* line 592, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-focus .x-frame-ml,
+.x-btn-step-completed-small-focus .x-frame-mr {
+  background-image: url(images/btn/btn-step-completed-small-focus-sides.gif);
+}
+/* line 595, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-focus .x-frame-mc {
+  background-color: #c1c1c1;
+  background-image: url(images/btn/btn-step-completed-small-focus-fbg.gif);
+}
+
+/* line 610, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-over .x-frame-tl,
+.x-btn-step-completed-small-over .x-frame-bl,
+.x-btn-step-completed-small-over .x-frame-tr,
+.x-btn-step-completed-small-over .x-frame-br,
+.x-btn-step-completed-small-over .x-frame-tc,
+.x-btn-step-completed-small-over .x-frame-bc {
+  background-image: url(images/btn/btn-step-completed-small-over-corners.gif);
+}
+/* line 614, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-over .x-frame-ml,
+.x-btn-step-completed-small-over .x-frame-mr {
+  background-image: url(images/btn/btn-step-completed-small-over-sides.gif);
+}
+/* line 617, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-over .x-frame-mc {
+  background-color: #d6d6d6;
+  background-image: url(images/btn/btn-step-completed-small-over-fbg.gif);
+}
+
+/* line 633, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-menu-active .x-frame-tl,
+.x-btn-step-completed-small-menu-active .x-frame-bl,
+.x-btn-step-completed-small-menu-active .x-frame-tr,
+.x-btn-step-completed-small-menu-active .x-frame-br,
+.x-btn-step-completed-small-menu-active .x-frame-tc,
+.x-btn-step-completed-small-menu-active .x-frame-bc,
+.x-btn-step-completed-small-pressed .x-frame-tl,
+.x-btn-step-completed-small-pressed .x-frame-bl,
+.x-btn-step-completed-small-pressed .x-frame-tr,
+.x-btn-step-completed-small-pressed .x-frame-br,
+.x-btn-step-completed-small-pressed .x-frame-tc,
+.x-btn-step-completed-small-pressed .x-frame-bc {
+  background-image: url(images/btn/btn-step-completed-small-pressed-corners.gif);
+}
+/* line 637, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-menu-active .x-frame-ml,
+.x-btn-step-completed-small-menu-active .x-frame-mr,
+.x-btn-step-completed-small-pressed .x-frame-ml,
+.x-btn-step-completed-small-pressed .x-frame-mr {
+  background-image: url(images/btn/btn-step-completed-small-pressed-sides.gif);
+}
+/* line 640, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-menu-active .x-frame-mc,
+.x-btn-step-completed-small-pressed .x-frame-mc {
+  background-color: #bdbdbd;
+  background-image: url(images/btn/btn-step-completed-small-pressed-fbg.gif);
+}
+
+/* line 655, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-disabled .x-frame-tl,
+.x-btn-step-completed-small-disabled .x-frame-bl,
+.x-btn-step-completed-small-disabled .x-frame-tr,
+.x-btn-step-completed-small-disabled .x-frame-br,
+.x-btn-step-completed-small-disabled .x-frame-tc,
+.x-btn-step-completed-small-disabled .x-frame-bc {
+  background-image: url(images/btn/btn-step-completed-small-disabled-corners.gif);
+}
+/* line 659, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-disabled .x-frame-ml,
+.x-btn-step-completed-small-disabled .x-frame-mr {
+  background-image: url(images/btn/btn-step-completed-small-disabled-sides.gif);
+}
+/* line 662, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small-disabled .x-frame-mc {
+  background-color: #d2d2d2;
+  background-image: url(images/btn/btn-step-completed-small-disabled-fbg.gif);
+}
+
+/* line 674, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-completed-small-focus {
+  background-image: url(images/btn/btn-step-completed-small-focus-bg.gif);
+}
+
+/* line 682, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-completed-small-over {
+  background-image: url(images/btn/btn-step-completed-small-over-bg.gif);
+}
+
+/* line 691, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-completed-small-menu-active,
+.x-nlg .x-btn-step-completed-small-pressed {
+  background-image: url(images/btn/btn-step-completed-small-pressed-bg.gif);
+}
+
+/* line 699, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-completed-small-disabled {
+  background-image: url(images/btn/btn-step-completed-small-disabled-bg.gif);
+}
+
+/* line 707, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nbr .x-btn-step-completed-small {
+  background-image: none;
+}
+
+/* line 722, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small .x-btn-split-right {
+  background-image: url(images/button/step-completed-small-s-arrow.png);
+  padding-right: 23px;
+}
+/* line 735, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small .x-btn-split-bottom {
+  background-image: url(images/button/step-completed-small-s-arrow-b.png);
+  padding-bottom: 20px;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-completed-small-focus:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-completed-small-focus-corners.gif), sides:url(images/btn/btn-step-completed-small-focus-sides.gif), frame-bg:url(images/btn/btn-step-completed-small-focus-fbg.gif), bg:url(images/btn/btn-step-completed-small-focus-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-completed-small-over:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-completed-small-over-corners.gif), sides:url(images/btn/btn-step-completed-small-over-sides.gif), frame-bg:url(images/btn/btn-step-completed-small-over-fbg.gif), bg:url(images/btn/btn-step-completed-small-over-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-completed-small-pressed:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-completed-small-pressed-corners.gif), sides:url(images/btn/btn-step-completed-small-pressed-sides.gif), frame-bg:url(images/btn/btn-step-completed-small-pressed-fbg.gif), bg:url(images/btn/btn-step-completed-small-pressed-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-completed-small-disabled:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-completed-small-disabled-corners.gif), sides:url(images/btn/btn-step-completed-small-disabled-sides.gif), frame-bg:url(images/btn/btn-step-completed-small-disabled-fbg.gif), bg:url(images/btn/btn-step-completed-small-disabled-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small {
+  border-color: #6194ab;
+}
+
+/* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small {
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  -ms-border-radius: 12px;
+  -o-border-radius: 12px;
+  border-radius: 12px;
+  padding: 12px 12px 12px 12px;
+  border-width: 0;
+  border-style: solid;
+  background-color: #686868;
+}
+
+/* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-mc {
+  background-color: #686868;
+}
+
+/* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-nbr .x-btn-step-non-completed-small {
+  padding: 0 !important;
+  border-width: 0 !important;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -ms-border-radius: 0px;
+  -o-border-radius: 0px;
+  border-radius: 0px;
+  background-color: transparent;
+}
+
+/* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-frameInfo {
+  font-family: th-12-12-12-12-0-0-0-0-12-12-12-12;
+}
+
+/* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-tl {
+  background-position: 0 -24px;
+}
+
+/* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-tr {
+  background-position: right -36px;
+}
+
+/* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-bl {
+  background-position: 0 -48px;
+}
+
+/* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-br {
+  background-position: right -60px;
+}
+
+/* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-ml {
+  background-position: 0 top;
+}
+
+/* line 335, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-mr {
+  background-position: right top;
+}
+
+/* line 339, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-tc {
+  background-position: 0 0;
+}
+
+/* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-bc {
+  background-position: 0 -12px;
+}
+
+/* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-tr,
+.x-btn-step-non-completed-small-br,
+.x-btn-step-non-completed-small-mr {
+  padding-right: 12px;
+}
+
+/* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-tl,
+.x-btn-step-non-completed-small-bl,
+.x-btn-step-non-completed-small-ml {
+  padding-left: 12px;
+}
+
+/* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-tc {
+  height: 12px;
+}
+
+/* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-bc {
+  height: 12px;
+}
+
+/* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-tl,
+.x-btn-step-non-completed-small-bl,
+.x-btn-step-non-completed-small-tr,
+.x-btn-step-non-completed-small-br,
+.x-btn-step-non-completed-small-tc,
+.x-btn-step-non-completed-small-bc,
+.x-btn-step-non-completed-small-ml,
+.x-btn-step-non-completed-small-mr {
+  zoom: 1;
+  background-image: url(images/btn/btn-step-non-completed-small-corners.gif);
+}
+
+/* line 418, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-ml,
+.x-btn-step-non-completed-small-mr {
+  zoom: 1;
+  background-image: url(images/btn/btn-step-non-completed-small-sides.gif);
+  background-repeat: repeat-y;
+}
+
+/* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-non-completed-small-mc {
+  padding: 0px 0px 0px 0px;
+}
+
+/* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-strict .x-ie7 .x-btn-step-non-completed-small-tl,
+.x-strict .x-ie7 .x-btn-step-non-completed-small-bl {
+  position: relative;
+  right: 0;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-non-completed-small:after {
+  display: none;
+  content: "x-slicer:corners:url(images/btn/btn-step-non-completed-small-corners.gif), sides:url(images/btn/btn-step-non-completed-small-sides.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 262, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small .x-btn-inner {
+  font-size: 13px;
+  font-weight: "normal";
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
+  color: white;
+  padding: 0 5px;
+}
+/* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small .x-btn-arrow {
+  background-image: url(images/button/step-non-completed-small-arrow.png);
+}
+/* line 278, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small .x-btn-arrow-right {
+  padding-right: 21px;
+}
+/* line 289, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small .x-btn-arrow-bottom {
+  padding-bottom: 18px;
+}
+/* line 293, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small .x-btn-glyph {
+  font-size: 17px;
+  line-height: 17px;
+  color: white;
+  opacity: 0.5;
+}
+/* line 313, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie8m .x-btn-step-non-completed-small .x-btn-glyph {
+  color: #b3b3b3;
+}
+
+/* line 320, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-disabled {
+  background-image: none;
+  background-color: #686868;
+}
+
+/* line 346, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-icon .x-btn-button,
+.x-btn-step-non-completed-small-noicon .x-btn-button {
+  height: 17px;
+}
+/* line 350, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-icon .x-btn-inner,
+.x-btn-step-non-completed-small-noicon .x-btn-inner {
+  line-height: 17px;
+}
+
+/* line 360, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-icon .x-btn-arrow-right .x-btn-inner,
+.x-btn-step-non-completed-small-noicon .x-btn-arrow-right .x-btn-inner,
+.x-btn-step-non-completed-small-icon-text-left .x-btn-arrow-right .x-btn-inner {
+  padding-right: 0;
+}
+
+/* line 375, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-icon .x-btn-inner {
+  width: 17px;
+  padding: 0;
+}
+/* line 381, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-icon .x-btn-icon-el {
+  width: 17px;
+  height: 17px;
+}
+
+/* line 388, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-icon-text-left .x-btn-button {
+  height: 17px;
+}
+/* line 393, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-icon-text-left .x-btn-inner {
+  line-height: 17px;
+  padding-left: 22px;
+}
+/* line 409, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-icon-text-left .x-btn-icon-el {
+  width: 17px;
+  right: auto;
+}
+/* line 415, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-non-completed-small-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-non-completed-small-icon-text-left .x-btn-icon-el {
+  height: 17px;
+}
+
+/* line 430, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-icon-text-right .x-btn-button {
+  height: 17px;
+}
+/* line 435, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-icon-text-right .x-btn-inner {
+  line-height: 17px;
+  padding-right: 22px;
+}
+/* line 447, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-icon-text-right .x-btn-icon-el {
+  width: 17px;
+  left: auto;
+}
+/* line 453, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-non-completed-small-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-non-completed-small-icon-text-right .x-btn-icon-el {
+  height: 17px;
+}
+
+/* line 468, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-icon-text-top .x-btn-inner {
+  padding-top: 22px;
+}
+/* line 472, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-icon-text-top .x-btn-icon-el {
+  height: 17px;
+  bottom: auto;
+}
+/* line 480, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-non-completed-small-icon-text-top .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-non-completed-small-icon-text-top .x-btn-icon-el {
+  width: 100%;
+}
+
+/* line 488, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-icon-text-bottom .x-btn-inner {
+  padding-bottom: 22px;
+}
+/* line 492, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-icon-text-bottom .x-btn-icon-el {
+  height: 17px;
+  top: auto;
+}
+/* line 500, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-non-completed-small-icon-text-bottom .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-non-completed-small-icon-text-bottom .x-btn-icon-el {
+  width: 100%;
+}
+
+/* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-focus {
+  border-color: #59889d;
+  background-image: none;
+  background-color: #5f5f5f;
+}
+
+/* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-over {
+  border-color: #59889d;
+  background-image: none;
+  background-color: #777777;
+}
+
+/* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-menu-active,
+.x-btn-step-non-completed-small-pressed {
+  border-color: #486f80;
+  background-image: none;
+  background-color: #5d5d5d;
+}
+
+/* line 588, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-focus .x-frame-tl,
+.x-btn-step-non-completed-small-focus .x-frame-bl,
+.x-btn-step-non-completed-small-focus .x-frame-tr,
+.x-btn-step-non-completed-small-focus .x-frame-br,
+.x-btn-step-non-completed-small-focus .x-frame-tc,
+.x-btn-step-non-completed-small-focus .x-frame-bc {
+  background-image: url(images/btn/btn-step-non-completed-small-focus-corners.gif);
+}
+/* line 592, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-focus .x-frame-ml,
+.x-btn-step-non-completed-small-focus .x-frame-mr {
+  background-image: url(images/btn/btn-step-non-completed-small-focus-sides.gif);
+}
+/* line 595, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-focus .x-frame-mc {
+  background-color: #5f5f5f;
+  background-image: url(images/btn/btn-step-non-completed-small-focus-fbg.gif);
+}
+
+/* line 610, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-over .x-frame-tl,
+.x-btn-step-non-completed-small-over .x-frame-bl,
+.x-btn-step-non-completed-small-over .x-frame-tr,
+.x-btn-step-non-completed-small-over .x-frame-br,
+.x-btn-step-non-completed-small-over .x-frame-tc,
+.x-btn-step-non-completed-small-over .x-frame-bc {
+  background-image: url(images/btn/btn-step-non-completed-small-over-corners.gif);
+}
+/* line 614, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-over .x-frame-ml,
+.x-btn-step-non-completed-small-over .x-frame-mr {
+  background-image: url(images/btn/btn-step-non-completed-small-over-sides.gif);
+}
+/* line 617, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-over .x-frame-mc {
+  background-color: #777777;
+  background-image: url(images/btn/btn-step-non-completed-small-over-fbg.gif);
+}
+
+/* line 633, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-menu-active .x-frame-tl,
+.x-btn-step-non-completed-small-menu-active .x-frame-bl,
+.x-btn-step-non-completed-small-menu-active .x-frame-tr,
+.x-btn-step-non-completed-small-menu-active .x-frame-br,
+.x-btn-step-non-completed-small-menu-active .x-frame-tc,
+.x-btn-step-non-completed-small-menu-active .x-frame-bc,
+.x-btn-step-non-completed-small-pressed .x-frame-tl,
+.x-btn-step-non-completed-small-pressed .x-frame-bl,
+.x-btn-step-non-completed-small-pressed .x-frame-tr,
+.x-btn-step-non-completed-small-pressed .x-frame-br,
+.x-btn-step-non-completed-small-pressed .x-frame-tc,
+.x-btn-step-non-completed-small-pressed .x-frame-bc {
+  background-image: url(images/btn/btn-step-non-completed-small-pressed-corners.gif);
+}
+/* line 637, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-menu-active .x-frame-ml,
+.x-btn-step-non-completed-small-menu-active .x-frame-mr,
+.x-btn-step-non-completed-small-pressed .x-frame-ml,
+.x-btn-step-non-completed-small-pressed .x-frame-mr {
+  background-image: url(images/btn/btn-step-non-completed-small-pressed-sides.gif);
+}
+/* line 640, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-menu-active .x-frame-mc,
+.x-btn-step-non-completed-small-pressed .x-frame-mc {
+  background-color: #5d5d5d;
+  background-image: url(images/btn/btn-step-non-completed-small-pressed-fbg.gif);
+}
+
+/* line 655, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-disabled .x-frame-tl,
+.x-btn-step-non-completed-small-disabled .x-frame-bl,
+.x-btn-step-non-completed-small-disabled .x-frame-tr,
+.x-btn-step-non-completed-small-disabled .x-frame-br,
+.x-btn-step-non-completed-small-disabled .x-frame-tc,
+.x-btn-step-non-completed-small-disabled .x-frame-bc {
+  background-image: url(images/btn/btn-step-non-completed-small-disabled-corners.gif);
+}
+/* line 659, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-disabled .x-frame-ml,
+.x-btn-step-non-completed-small-disabled .x-frame-mr {
+  background-image: url(images/btn/btn-step-non-completed-small-disabled-sides.gif);
+}
+/* line 662, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small-disabled .x-frame-mc {
+  background-color: #686868;
+  background-image: url(images/btn/btn-step-non-completed-small-disabled-fbg.gif);
+}
+
+/* line 674, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-non-completed-small-focus {
+  background-image: url(images/btn/btn-step-non-completed-small-focus-bg.gif);
+}
+
+/* line 682, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-non-completed-small-over {
+  background-image: url(images/btn/btn-step-non-completed-small-over-bg.gif);
+}
+
+/* line 691, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-non-completed-small-menu-active,
+.x-nlg .x-btn-step-non-completed-small-pressed {
+  background-image: url(images/btn/btn-step-non-completed-small-pressed-bg.gif);
+}
+
+/* line 699, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-non-completed-small-disabled {
+  background-image: url(images/btn/btn-step-non-completed-small-disabled-bg.gif);
+}
+
+/* line 707, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nbr .x-btn-step-non-completed-small {
+  background-image: none;
+}
+
+/* line 722, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small .x-btn-split-right {
+  background-image: url(images/button/step-non-completed-small-s-arrow.png);
+  padding-right: 23px;
+}
+/* line 735, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-non-completed-small .x-btn-split-bottom {
+  background-image: url(images/button/step-non-completed-small-s-arrow-b.png);
+  padding-bottom: 20px;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-non-completed-small-focus:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-non-completed-small-focus-corners.gif), sides:url(images/btn/btn-step-non-completed-small-focus-sides.gif), frame-bg:url(images/btn/btn-step-non-completed-small-focus-fbg.gif), bg:url(images/btn/btn-step-non-completed-small-focus-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-non-completed-small-over:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-non-completed-small-over-corners.gif), sides:url(images/btn/btn-step-non-completed-small-over-sides.gif), frame-bg:url(images/btn/btn-step-non-completed-small-over-fbg.gif), bg:url(images/btn/btn-step-non-completed-small-over-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-non-completed-small-pressed:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-non-completed-small-pressed-corners.gif), sides:url(images/btn/btn-step-non-completed-small-pressed-sides.gif), frame-bg:url(images/btn/btn-step-non-completed-small-pressed-fbg.gif), bg:url(images/btn/btn-step-non-completed-small-pressed-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-non-completed-small-disabled:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-non-completed-small-disabled-corners.gif), sides:url(images/btn/btn-step-non-completed-small-disabled-sides.gif), frame-bg:url(images/btn/btn-step-non-completed-small-disabled-fbg.gif), bg:url(images/btn/btn-step-non-completed-small-disabled-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small {
+  border-color: #6194ab;
+}
+
+/* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  padding: 5px 5px 5px 5px;
+  border-width: 0;
+  border-style: solid;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+/* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-mc {
+  background-color: rgba(0, 0, 0, 0);
+}
+
+/* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-nbr .x-btn-step-label-active-small {
+  padding: 0 !important;
+  border-width: 0 !important;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -ms-border-radius: 0px;
+  -o-border-radius: 0px;
+  border-radius: 0px;
+  background-color: transparent;
+}
+
+/* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-frameInfo {
+  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+}
+
+/* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-tl {
+  background-position: 0 -10px;
+}
+
+/* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-tr {
+  background-position: right -15px;
+}
+
+/* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-bl {
+  background-position: 0 -20px;
+}
+
+/* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-br {
+  background-position: right -25px;
+}
+
+/* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-ml {
+  background-position: 0 top;
+}
+
+/* line 335, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-mr {
+  background-position: right top;
+}
+
+/* line 339, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-tc {
+  background-position: 0 0;
+}
+
+/* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-bc {
+  background-position: 0 -5px;
+}
+
+/* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-tr,
+.x-btn-step-label-active-small-br,
+.x-btn-step-label-active-small-mr {
+  padding-right: 5px;
+}
+
+/* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-tl,
+.x-btn-step-label-active-small-bl,
+.x-btn-step-label-active-small-ml {
+  padding-left: 5px;
+}
+
+/* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-tc {
+  height: 5px;
+}
+
+/* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-bc {
+  height: 5px;
+}
+
+/* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-tl,
+.x-btn-step-label-active-small-bl,
+.x-btn-step-label-active-small-tr,
+.x-btn-step-label-active-small-br,
+.x-btn-step-label-active-small-tc,
+.x-btn-step-label-active-small-bc,
+.x-btn-step-label-active-small-ml,
+.x-btn-step-label-active-small-mr {
+  zoom: 1;
+  background-image: url(images/btn/btn-step-label-active-small-corners.gif);
+}
+
+/* line 418, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-ml,
+.x-btn-step-label-active-small-mr {
+  zoom: 1;
+  background-image: url(images/btn/btn-step-label-active-small-sides.gif);
+  background-repeat: repeat-y;
+}
+
+/* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-active-small-mc {
+  padding: 0px 0px 0px 0px;
+}
+
+/* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-strict .x-ie7 .x-btn-step-label-active-small-tl,
+.x-strict .x-ie7 .x-btn-step-label-active-small-bl {
+  position: relative;
+  right: 0;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-label-active-small:after {
+  display: none;
+  content: "x-slicer:corners:url(images/btn/btn-step-label-active-small-corners.gif), sides:url(images/btn/btn-step-label-active-small-sides.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 262, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small .x-btn-inner {
+  font-size: 13px;
+  font-weight: "normal";
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
+  color: #70bb51;
+  padding: 0 5px;
+}
+/* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small .x-btn-arrow {
+  background-image: url(images/button/arrow.png);
+}
+/* line 278, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small .x-btn-arrow-right {
+  padding-right: 21px;
+}
+/* line 289, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small .x-btn-arrow-bottom {
+  padding-bottom: 18px;
+}
+/* line 293, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small .x-btn-glyph {
+  font-size: 17px;
+  line-height: 17px;
+  color: white;
+  opacity: 0.5;
+}
+/* line 313, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie8m .x-btn-step-label-active-small .x-btn-glyph {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* line 320, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-disabled {
+  background-image: none;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+/* line 346, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-icon .x-btn-button,
+.x-btn-step-label-active-small-noicon .x-btn-button {
+  height: 17px;
+}
+/* line 350, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-icon .x-btn-inner,
+.x-btn-step-label-active-small-noicon .x-btn-inner {
+  line-height: 17px;
+}
+
+/* line 360, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-icon .x-btn-arrow-right .x-btn-inner,
+.x-btn-step-label-active-small-noicon .x-btn-arrow-right .x-btn-inner,
+.x-btn-step-label-active-small-icon-text-left .x-btn-arrow-right .x-btn-inner {
+  padding-right: 0;
+}
+
+/* line 375, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-icon .x-btn-inner {
+  width: 17px;
+  padding: 0;
+}
+/* line 381, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-icon .x-btn-icon-el {
+  width: 17px;
+  height: 17px;
+}
+
+/* line 388, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-icon-text-left .x-btn-button {
+  height: 17px;
+}
+/* line 393, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-icon-text-left .x-btn-inner {
+  line-height: 17px;
+  padding-left: 22px;
+}
+/* line 409, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-icon-text-left .x-btn-icon-el {
+  width: 17px;
+  right: auto;
+}
+/* line 415, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-label-active-small-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-label-active-small-icon-text-left .x-btn-icon-el {
+  height: 17px;
+}
+
+/* line 430, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-icon-text-right .x-btn-button {
+  height: 17px;
+}
+/* line 435, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-icon-text-right .x-btn-inner {
+  line-height: 17px;
+  padding-right: 22px;
+}
+/* line 447, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-icon-text-right .x-btn-icon-el {
+  width: 17px;
+  left: auto;
+}
+/* line 453, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-label-active-small-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-label-active-small-icon-text-right .x-btn-icon-el {
+  height: 17px;
+}
+
+/* line 468, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-icon-text-top .x-btn-inner {
+  padding-top: 22px;
+}
+/* line 472, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-icon-text-top .x-btn-icon-el {
+  height: 17px;
+  bottom: auto;
+}
+/* line 480, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-label-active-small-icon-text-top .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-label-active-small-icon-text-top .x-btn-icon-el {
+  width: 100%;
+}
+
+/* line 488, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-icon-text-bottom .x-btn-inner {
+  padding-bottom: 22px;
+}
+/* line 492, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-icon-text-bottom .x-btn-icon-el {
+  height: 17px;
+  top: auto;
+}
+/* line 500, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-label-active-small-icon-text-bottom .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-label-active-small-icon-text-bottom .x-btn-icon-el {
+  width: 100%;
+}
+
+/* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-focus {
+  border-color: #59889d;
+  background-image: none;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+/* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-over {
+  border-color: #59889d;
+  background-image: none;
+  background-color: rgba(0, 0, 0, 0);
+}
+/* line 539, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-over .x-btn-inner {
+  color: #7ec162;
+}
+
+/* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-menu-active,
+.x-btn-step-label-active-small-pressed {
+  border-color: #486f80;
+  background-image: none;
+  background-color: rgba(0, 0, 0, 0);
+}
+/* line 564, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-menu-active .x-btn-inner,
+.x-btn-step-label-active-small-pressed .x-btn-inner {
+  color: #64a848;
+}
+
+/* line 588, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-focus .x-frame-tl,
+.x-btn-step-label-active-small-focus .x-frame-bl,
+.x-btn-step-label-active-small-focus .x-frame-tr,
+.x-btn-step-label-active-small-focus .x-frame-br,
+.x-btn-step-label-active-small-focus .x-frame-tc,
+.x-btn-step-label-active-small-focus .x-frame-bc {
+  background-image: url(images/btn/btn-step-label-active-small-focus-corners.gif);
+}
+/* line 592, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-focus .x-frame-ml,
+.x-btn-step-label-active-small-focus .x-frame-mr {
+  background-image: url(images/btn/btn-step-label-active-small-focus-sides.gif);
+}
+/* line 595, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-focus .x-frame-mc {
+  background-color: rgba(0, 0, 0, 0);
+  background-image: url(images/btn/btn-step-label-active-small-focus-fbg.gif);
+}
+
+/* line 610, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-over .x-frame-tl,
+.x-btn-step-label-active-small-over .x-frame-bl,
+.x-btn-step-label-active-small-over .x-frame-tr,
+.x-btn-step-label-active-small-over .x-frame-br,
+.x-btn-step-label-active-small-over .x-frame-tc,
+.x-btn-step-label-active-small-over .x-frame-bc {
+  background-image: url(images/btn/btn-step-label-active-small-over-corners.gif);
+}
+/* line 614, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-over .x-frame-ml,
+.x-btn-step-label-active-small-over .x-frame-mr {
+  background-image: url(images/btn/btn-step-label-active-small-over-sides.gif);
+}
+/* line 617, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-over .x-frame-mc {
+  background-color: rgba(0, 0, 0, 0);
+  background-image: url(images/btn/btn-step-label-active-small-over-fbg.gif);
+}
+
+/* line 633, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-menu-active .x-frame-tl,
+.x-btn-step-label-active-small-menu-active .x-frame-bl,
+.x-btn-step-label-active-small-menu-active .x-frame-tr,
+.x-btn-step-label-active-small-menu-active .x-frame-br,
+.x-btn-step-label-active-small-menu-active .x-frame-tc,
+.x-btn-step-label-active-small-menu-active .x-frame-bc,
+.x-btn-step-label-active-small-pressed .x-frame-tl,
+.x-btn-step-label-active-small-pressed .x-frame-bl,
+.x-btn-step-label-active-small-pressed .x-frame-tr,
+.x-btn-step-label-active-small-pressed .x-frame-br,
+.x-btn-step-label-active-small-pressed .x-frame-tc,
+.x-btn-step-label-active-small-pressed .x-frame-bc {
+  background-image: url(images/btn/btn-step-label-active-small-pressed-corners.gif);
+}
+/* line 637, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-menu-active .x-frame-ml,
+.x-btn-step-label-active-small-menu-active .x-frame-mr,
+.x-btn-step-label-active-small-pressed .x-frame-ml,
+.x-btn-step-label-active-small-pressed .x-frame-mr {
+  background-image: url(images/btn/btn-step-label-active-small-pressed-sides.gif);
+}
+/* line 640, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-menu-active .x-frame-mc,
+.x-btn-step-label-active-small-pressed .x-frame-mc {
+  background-color: rgba(0, 0, 0, 0);
+  background-image: url(images/btn/btn-step-label-active-small-pressed-fbg.gif);
+}
+
+/* line 655, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-disabled .x-frame-tl,
+.x-btn-step-label-active-small-disabled .x-frame-bl,
+.x-btn-step-label-active-small-disabled .x-frame-tr,
+.x-btn-step-label-active-small-disabled .x-frame-br,
+.x-btn-step-label-active-small-disabled .x-frame-tc,
+.x-btn-step-label-active-small-disabled .x-frame-bc {
+  background-image: url(images/btn/btn-step-label-active-small-disabled-corners.gif);
+}
+/* line 659, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-disabled .x-frame-ml,
+.x-btn-step-label-active-small-disabled .x-frame-mr {
+  background-image: url(images/btn/btn-step-label-active-small-disabled-sides.gif);
+}
+/* line 662, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small-disabled .x-frame-mc {
+  background-color: rgba(0, 0, 0, 0);
+  background-image: url(images/btn/btn-step-label-active-small-disabled-fbg.gif);
+}
+
+/* line 674, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-label-active-small-focus {
+  background-image: url(images/btn/btn-step-label-active-small-focus-bg.gif);
+}
+
+/* line 682, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-label-active-small-over {
+  background-image: url(images/btn/btn-step-label-active-small-over-bg.gif);
+}
+
+/* line 691, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-label-active-small-menu-active,
+.x-nlg .x-btn-step-label-active-small-pressed {
+  background-image: url(images/btn/btn-step-label-active-small-pressed-bg.gif);
+}
+
+/* line 699, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-label-active-small-disabled {
+  background-image: url(images/btn/btn-step-label-active-small-disabled-bg.gif);
+}
+
+/* line 707, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nbr .x-btn-step-label-active-small {
+  background-image: none;
+}
+
+/* line 722, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small .x-btn-split-right {
+  background-image: url(images/button/s-arrow.png);
+  padding-right: 23px;
+}
+/* line 735, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-active-small .x-btn-split-bottom {
+  background-image: url(images/button/s-arrow-b.png);
+  padding-bottom: 20px;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-label-active-small-focus:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-label-active-small-focus-corners.gif), sides:url(images/btn/btn-step-label-active-small-focus-sides.gif), frame-bg:url(images/btn/btn-step-label-active-small-focus-fbg.gif), bg:url(images/btn/btn-step-label-active-small-focus-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-label-active-small-over:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-label-active-small-over-corners.gif), sides:url(images/btn/btn-step-label-active-small-over-sides.gif), frame-bg:url(images/btn/btn-step-label-active-small-over-fbg.gif), bg:url(images/btn/btn-step-label-active-small-over-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-label-active-small-pressed:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-label-active-small-pressed-corners.gif), sides:url(images/btn/btn-step-label-active-small-pressed-sides.gif), frame-bg:url(images/btn/btn-step-label-active-small-pressed-fbg.gif), bg:url(images/btn/btn-step-label-active-small-pressed-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-label-active-small-disabled:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-label-active-small-disabled-corners.gif), sides:url(images/btn/btn-step-label-active-small-disabled-sides.gif), frame-bg:url(images/btn/btn-step-label-active-small-disabled-fbg.gif), bg:url(images/btn/btn-step-label-active-small-disabled-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small {
+  border-color: #6194ab;
+}
+
+/* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  padding: 5px 5px 5px 5px;
+  border-width: 0;
+  border-style: solid;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+/* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-mc {
+  background-color: rgba(0, 0, 0, 0);
+}
+
+/* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-nbr .x-btn-step-label-completed-small {
+  padding: 0 !important;
+  border-width: 0 !important;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -ms-border-radius: 0px;
+  -o-border-radius: 0px;
+  border-radius: 0px;
+  background-color: transparent;
+}
+
+/* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-frameInfo {
+  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+}
+
+/* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-tl {
+  background-position: 0 -10px;
+}
+
+/* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-tr {
+  background-position: right -15px;
+}
+
+/* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-bl {
+  background-position: 0 -20px;
+}
+
+/* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-br {
+  background-position: right -25px;
+}
+
+/* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-ml {
+  background-position: 0 top;
+}
+
+/* line 335, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-mr {
+  background-position: right top;
+}
+
+/* line 339, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-tc {
+  background-position: 0 0;
+}
+
+/* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-bc {
+  background-position: 0 -5px;
+}
+
+/* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-tr,
+.x-btn-step-label-completed-small-br,
+.x-btn-step-label-completed-small-mr {
+  padding-right: 5px;
+}
+
+/* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-tl,
+.x-btn-step-label-completed-small-bl,
+.x-btn-step-label-completed-small-ml {
+  padding-left: 5px;
+}
+
+/* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-tc {
+  height: 5px;
+}
+
+/* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-bc {
+  height: 5px;
+}
+
+/* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-tl,
+.x-btn-step-label-completed-small-bl,
+.x-btn-step-label-completed-small-tr,
+.x-btn-step-label-completed-small-br,
+.x-btn-step-label-completed-small-tc,
+.x-btn-step-label-completed-small-bc,
+.x-btn-step-label-completed-small-ml,
+.x-btn-step-label-completed-small-mr {
+  zoom: 1;
+  background-image: url(images/btn/btn-step-label-completed-small-corners.gif);
+}
+
+/* line 418, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-ml,
+.x-btn-step-label-completed-small-mr {
+  zoom: 1;
+  background-image: url(images/btn/btn-step-label-completed-small-sides.gif);
+  background-repeat: repeat-y;
+}
+
+/* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-completed-small-mc {
+  padding: 0px 0px 0px 0px;
+}
+
+/* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-strict .x-ie7 .x-btn-step-label-completed-small-tl,
+.x-strict .x-ie7 .x-btn-step-label-completed-small-bl {
+  position: relative;
+  right: 0;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-label-completed-small:after {
+  display: none;
+  content: "x-slicer:corners:url(images/btn/btn-step-label-completed-small-corners.gif), sides:url(images/btn/btn-step-label-completed-small-sides.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 262, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small .x-btn-inner {
+  font-size: 13px;
+  font-weight: "normal";
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
+  color: #d2d2d2;
+  padding: 0 5px;
+}
+/* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small .x-btn-arrow {
+  background-image: url(images/button/arrow.png);
+}
+/* line 278, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small .x-btn-arrow-right {
+  padding-right: 21px;
+}
+/* line 289, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small .x-btn-arrow-bottom {
+  padding-bottom: 18px;
+}
+/* line 293, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small .x-btn-glyph {
+  font-size: 17px;
+  line-height: 17px;
+  color: white;
+  opacity: 0.5;
+}
+/* line 313, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie8m .x-btn-step-label-completed-small .x-btn-glyph {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* line 320, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-disabled {
+  background-image: none;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+/* line 346, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-icon .x-btn-button,
+.x-btn-step-label-completed-small-noicon .x-btn-button {
+  height: 17px;
+}
+/* line 350, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-icon .x-btn-inner,
+.x-btn-step-label-completed-small-noicon .x-btn-inner {
+  line-height: 17px;
+}
+
+/* line 360, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-icon .x-btn-arrow-right .x-btn-inner,
+.x-btn-step-label-completed-small-noicon .x-btn-arrow-right .x-btn-inner,
+.x-btn-step-label-completed-small-icon-text-left .x-btn-arrow-right .x-btn-inner {
+  padding-right: 0;
+}
+
+/* line 375, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-icon .x-btn-inner {
+  width: 17px;
+  padding: 0;
+}
+/* line 381, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-icon .x-btn-icon-el {
+  width: 17px;
+  height: 17px;
+}
+
+/* line 388, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-icon-text-left .x-btn-button {
+  height: 17px;
+}
+/* line 393, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-icon-text-left .x-btn-inner {
+  line-height: 17px;
+  padding-left: 22px;
+}
+/* line 409, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-icon-text-left .x-btn-icon-el {
+  width: 17px;
+  right: auto;
+}
+/* line 415, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-label-completed-small-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-label-completed-small-icon-text-left .x-btn-icon-el {
+  height: 17px;
+}
+
+/* line 430, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-icon-text-right .x-btn-button {
+  height: 17px;
+}
+/* line 435, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-icon-text-right .x-btn-inner {
+  line-height: 17px;
+  padding-right: 22px;
+}
+/* line 447, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-icon-text-right .x-btn-icon-el {
+  width: 17px;
+  left: auto;
+}
+/* line 453, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-label-completed-small-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-label-completed-small-icon-text-right .x-btn-icon-el {
+  height: 17px;
+}
+
+/* line 468, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-icon-text-top .x-btn-inner {
+  padding-top: 22px;
+}
+/* line 472, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-icon-text-top .x-btn-icon-el {
+  height: 17px;
+  bottom: auto;
+}
+/* line 480, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-label-completed-small-icon-text-top .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-label-completed-small-icon-text-top .x-btn-icon-el {
+  width: 100%;
+}
+
+/* line 488, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-icon-text-bottom .x-btn-inner {
+  padding-bottom: 22px;
+}
+/* line 492, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-icon-text-bottom .x-btn-icon-el {
+  height: 17px;
+  top: auto;
+}
+/* line 500, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-label-completed-small-icon-text-bottom .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-label-completed-small-icon-text-bottom .x-btn-icon-el {
+  width: 100%;
+}
+
+/* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-focus {
+  border-color: #59889d;
+  background-image: none;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+/* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-over {
+  border-color: #59889d;
+  background-image: none;
+  background-color: rgba(0, 0, 0, 0);
+}
+/* line 539, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-over .x-btn-inner {
+  color: #d6d6d6;
+}
+
+/* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-menu-active,
+.x-btn-step-label-completed-small-pressed {
+  border-color: #486f80;
+  background-image: none;
+  background-color: rgba(0, 0, 0, 0);
+}
+/* line 564, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-menu-active .x-btn-inner,
+.x-btn-step-label-completed-small-pressed .x-btn-inner {
+  color: #bdbdbd;
+}
+
+/* line 588, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-focus .x-frame-tl,
+.x-btn-step-label-completed-small-focus .x-frame-bl,
+.x-btn-step-label-completed-small-focus .x-frame-tr,
+.x-btn-step-label-completed-small-focus .x-frame-br,
+.x-btn-step-label-completed-small-focus .x-frame-tc,
+.x-btn-step-label-completed-small-focus .x-frame-bc {
+  background-image: url(images/btn/btn-step-label-completed-small-focus-corners.gif);
+}
+/* line 592, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-focus .x-frame-ml,
+.x-btn-step-label-completed-small-focus .x-frame-mr {
+  background-image: url(images/btn/btn-step-label-completed-small-focus-sides.gif);
+}
+/* line 595, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-focus .x-frame-mc {
+  background-color: rgba(0, 0, 0, 0);
+  background-image: url(images/btn/btn-step-label-completed-small-focus-fbg.gif);
+}
+
+/* line 610, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-over .x-frame-tl,
+.x-btn-step-label-completed-small-over .x-frame-bl,
+.x-btn-step-label-completed-small-over .x-frame-tr,
+.x-btn-step-label-completed-small-over .x-frame-br,
+.x-btn-step-label-completed-small-over .x-frame-tc,
+.x-btn-step-label-completed-small-over .x-frame-bc {
+  background-image: url(images/btn/btn-step-label-completed-small-over-corners.gif);
+}
+/* line 614, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-over .x-frame-ml,
+.x-btn-step-label-completed-small-over .x-frame-mr {
+  background-image: url(images/btn/btn-step-label-completed-small-over-sides.gif);
+}
+/* line 617, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-over .x-frame-mc {
+  background-color: rgba(0, 0, 0, 0);
+  background-image: url(images/btn/btn-step-label-completed-small-over-fbg.gif);
+}
+
+/* line 633, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-menu-active .x-frame-tl,
+.x-btn-step-label-completed-small-menu-active .x-frame-bl,
+.x-btn-step-label-completed-small-menu-active .x-frame-tr,
+.x-btn-step-label-completed-small-menu-active .x-frame-br,
+.x-btn-step-label-completed-small-menu-active .x-frame-tc,
+.x-btn-step-label-completed-small-menu-active .x-frame-bc,
+.x-btn-step-label-completed-small-pressed .x-frame-tl,
+.x-btn-step-label-completed-small-pressed .x-frame-bl,
+.x-btn-step-label-completed-small-pressed .x-frame-tr,
+.x-btn-step-label-completed-small-pressed .x-frame-br,
+.x-btn-step-label-completed-small-pressed .x-frame-tc,
+.x-btn-step-label-completed-small-pressed .x-frame-bc {
+  background-image: url(images/btn/btn-step-label-completed-small-pressed-corners.gif);
+}
+/* line 637, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-menu-active .x-frame-ml,
+.x-btn-step-label-completed-small-menu-active .x-frame-mr,
+.x-btn-step-label-completed-small-pressed .x-frame-ml,
+.x-btn-step-label-completed-small-pressed .x-frame-mr {
+  background-image: url(images/btn/btn-step-label-completed-small-pressed-sides.gif);
+}
+/* line 640, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-menu-active .x-frame-mc,
+.x-btn-step-label-completed-small-pressed .x-frame-mc {
+  background-color: rgba(0, 0, 0, 0);
+  background-image: url(images/btn/btn-step-label-completed-small-pressed-fbg.gif);
+}
+
+/* line 655, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-disabled .x-frame-tl,
+.x-btn-step-label-completed-small-disabled .x-frame-bl,
+.x-btn-step-label-completed-small-disabled .x-frame-tr,
+.x-btn-step-label-completed-small-disabled .x-frame-br,
+.x-btn-step-label-completed-small-disabled .x-frame-tc,
+.x-btn-step-label-completed-small-disabled .x-frame-bc {
+  background-image: url(images/btn/btn-step-label-completed-small-disabled-corners.gif);
+}
+/* line 659, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-disabled .x-frame-ml,
+.x-btn-step-label-completed-small-disabled .x-frame-mr {
+  background-image: url(images/btn/btn-step-label-completed-small-disabled-sides.gif);
+}
+/* line 662, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small-disabled .x-frame-mc {
+  background-color: rgba(0, 0, 0, 0);
+  background-image: url(images/btn/btn-step-label-completed-small-disabled-fbg.gif);
+}
+
+/* line 674, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-label-completed-small-focus {
+  background-image: url(images/btn/btn-step-label-completed-small-focus-bg.gif);
+}
+
+/* line 682, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-label-completed-small-over {
+  background-image: url(images/btn/btn-step-label-completed-small-over-bg.gif);
+}
+
+/* line 691, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-label-completed-small-menu-active,
+.x-nlg .x-btn-step-label-completed-small-pressed {
+  background-image: url(images/btn/btn-step-label-completed-small-pressed-bg.gif);
+}
+
+/* line 699, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-label-completed-small-disabled {
+  background-image: url(images/btn/btn-step-label-completed-small-disabled-bg.gif);
+}
+
+/* line 707, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nbr .x-btn-step-label-completed-small {
+  background-image: none;
+}
+
+/* line 722, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small .x-btn-split-right {
+  background-image: url(images/button/s-arrow.png);
+  padding-right: 23px;
+}
+/* line 735, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-completed-small .x-btn-split-bottom {
+  background-image: url(images/button/s-arrow-b.png);
+  padding-bottom: 20px;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-label-completed-small-focus:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-label-completed-small-focus-corners.gif), sides:url(images/btn/btn-step-label-completed-small-focus-sides.gif), frame-bg:url(images/btn/btn-step-label-completed-small-focus-fbg.gif), bg:url(images/btn/btn-step-label-completed-small-focus-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-label-completed-small-over:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-label-completed-small-over-corners.gif), sides:url(images/btn/btn-step-label-completed-small-over-sides.gif), frame-bg:url(images/btn/btn-step-label-completed-small-over-fbg.gif), bg:url(images/btn/btn-step-label-completed-small-over-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-label-completed-small-pressed:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-label-completed-small-pressed-corners.gif), sides:url(images/btn/btn-step-label-completed-small-pressed-sides.gif), frame-bg:url(images/btn/btn-step-label-completed-small-pressed-fbg.gif), bg:url(images/btn/btn-step-label-completed-small-pressed-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-label-completed-small-disabled:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-label-completed-small-disabled-corners.gif), sides:url(images/btn/btn-step-label-completed-small-disabled-sides.gif), frame-bg:url(images/btn/btn-step-label-completed-small-disabled-fbg.gif), bg:url(images/btn/btn-step-label-completed-small-disabled-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small {
+  border-color: #6194ab;
+}
+
+/* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  padding: 5px 5px 5px 5px;
+  border-width: 0;
+  border-style: solid;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+/* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-mc {
+  background-color: rgba(0, 0, 0, 0);
+}
+
+/* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-nbr .x-btn-step-label-non-completed-small {
+  padding: 0 !important;
+  border-width: 0 !important;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -ms-border-radius: 0px;
+  -o-border-radius: 0px;
+  border-radius: 0px;
+  background-color: transparent;
+}
+
+/* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-frameInfo {
+  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+}
+
+/* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-tl {
+  background-position: 0 -10px;
+}
+
+/* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-tr {
+  background-position: right -15px;
+}
+
+/* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-bl {
+  background-position: 0 -20px;
+}
+
+/* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-br {
+  background-position: right -25px;
+}
+
+/* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-ml {
+  background-position: 0 top;
+}
+
+/* line 335, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-mr {
+  background-position: right top;
+}
+
+/* line 339, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-tc {
+  background-position: 0 0;
+}
+
+/* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-bc {
+  background-position: 0 -5px;
+}
+
+/* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-tr,
+.x-btn-step-label-non-completed-small-br,
+.x-btn-step-label-non-completed-small-mr {
+  padding-right: 5px;
+}
+
+/* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-tl,
+.x-btn-step-label-non-completed-small-bl,
+.x-btn-step-label-non-completed-small-ml {
+  padding-left: 5px;
+}
+
+/* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-tc {
+  height: 5px;
+}
+
+/* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-bc {
+  height: 5px;
+}
+
+/* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-tl,
+.x-btn-step-label-non-completed-small-bl,
+.x-btn-step-label-non-completed-small-tr,
+.x-btn-step-label-non-completed-small-br,
+.x-btn-step-label-non-completed-small-tc,
+.x-btn-step-label-non-completed-small-bc,
+.x-btn-step-label-non-completed-small-ml,
+.x-btn-step-label-non-completed-small-mr {
+  zoom: 1;
+  background-image: url(images/btn/btn-step-label-non-completed-small-corners.gif);
+}
+
+/* line 418, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-ml,
+.x-btn-step-label-non-completed-small-mr {
+  zoom: 1;
+  background-image: url(images/btn/btn-step-label-non-completed-small-sides.gif);
+  background-repeat: repeat-y;
+}
+
+/* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-label-non-completed-small-mc {
+  padding: 0px 0px 0px 0px;
+}
+
+/* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-strict .x-ie7 .x-btn-step-label-non-completed-small-tl,
+.x-strict .x-ie7 .x-btn-step-label-non-completed-small-bl {
+  position: relative;
+  right: 0;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-label-non-completed-small:after {
+  display: none;
+  content: "x-slicer:corners:url(images/btn/btn-step-label-non-completed-small-corners.gif), sides:url(images/btn/btn-step-label-non-completed-small-sides.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 262, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small .x-btn-inner {
+  font-size: 13px;
+  font-weight: "normal";
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
+  color: #686868;
+  padding: 0 5px;
+}
+/* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small .x-btn-arrow {
+  background-image: url(images/button/arrow.png);
+}
+/* line 278, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small .x-btn-arrow-right {
+  padding-right: 21px;
+}
+/* line 289, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small .x-btn-arrow-bottom {
+  padding-bottom: 18px;
+}
+/* line 293, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small .x-btn-glyph {
+  font-size: 17px;
+  line-height: 17px;
+  color: white;
+  opacity: 0.5;
+}
+/* line 313, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie8m .x-btn-step-label-non-completed-small .x-btn-glyph {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* line 320, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-disabled {
+  background-image: none;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+/* line 346, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-icon .x-btn-button,
+.x-btn-step-label-non-completed-small-noicon .x-btn-button {
+  height: 17px;
+}
+/* line 350, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-icon .x-btn-inner,
+.x-btn-step-label-non-completed-small-noicon .x-btn-inner {
+  line-height: 17px;
+}
+
+/* line 360, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-icon .x-btn-arrow-right .x-btn-inner,
+.x-btn-step-label-non-completed-small-noicon .x-btn-arrow-right .x-btn-inner,
+.x-btn-step-label-non-completed-small-icon-text-left .x-btn-arrow-right .x-btn-inner {
+  padding-right: 0;
+}
+
+/* line 375, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-icon .x-btn-inner {
+  width: 17px;
+  padding: 0;
+}
+/* line 381, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-icon .x-btn-icon-el {
+  width: 17px;
+  height: 17px;
+}
+
+/* line 388, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-icon-text-left .x-btn-button {
+  height: 17px;
+}
+/* line 393, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-icon-text-left .x-btn-inner {
+  line-height: 17px;
+  padding-left: 22px;
+}
+/* line 409, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-icon-text-left .x-btn-icon-el {
+  width: 17px;
+  right: auto;
+}
+/* line 415, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-label-non-completed-small-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-label-non-completed-small-icon-text-left .x-btn-icon-el {
+  height: 17px;
+}
+
+/* line 430, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-icon-text-right .x-btn-button {
+  height: 17px;
+}
+/* line 435, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-icon-text-right .x-btn-inner {
+  line-height: 17px;
+  padding-right: 22px;
+}
+/* line 447, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-icon-text-right .x-btn-icon-el {
+  width: 17px;
+  left: auto;
+}
+/* line 453, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-label-non-completed-small-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-label-non-completed-small-icon-text-right .x-btn-icon-el {
+  height: 17px;
+}
+
+/* line 468, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-icon-text-top .x-btn-inner {
+  padding-top: 22px;
+}
+/* line 472, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-icon-text-top .x-btn-icon-el {
+  height: 17px;
+  bottom: auto;
+}
+/* line 480, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-label-non-completed-small-icon-text-top .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-label-non-completed-small-icon-text-top .x-btn-icon-el {
+  width: 100%;
+}
+
+/* line 488, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-icon-text-bottom .x-btn-inner {
+  padding-bottom: 22px;
+}
+/* line 492, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-icon-text-bottom .x-btn-icon-el {
+  height: 17px;
+  top: auto;
+}
+/* line 500, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-step-label-non-completed-small-icon-text-bottom .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-label-non-completed-small-icon-text-bottom .x-btn-icon-el {
+  width: 100%;
+}
+
+/* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-focus {
+  border-color: #59889d;
+  background-image: none;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+/* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-over {
+  border-color: #59889d;
+  background-image: none;
+  background-color: rgba(0, 0, 0, 0);
+}
+/* line 539, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-over .x-btn-inner {
+  color: #777777;
+}
+
+/* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-menu-active,
+.x-btn-step-label-non-completed-small-pressed {
+  border-color: #486f80;
+  background-image: none;
+  background-color: rgba(0, 0, 0, 0);
+}
+/* line 564, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-menu-active .x-btn-inner,
+.x-btn-step-label-non-completed-small-pressed .x-btn-inner {
+  color: #5d5d5d;
+}
+
+/* line 588, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-focus .x-frame-tl,
+.x-btn-step-label-non-completed-small-focus .x-frame-bl,
+.x-btn-step-label-non-completed-small-focus .x-frame-tr,
+.x-btn-step-label-non-completed-small-focus .x-frame-br,
+.x-btn-step-label-non-completed-small-focus .x-frame-tc,
+.x-btn-step-label-non-completed-small-focus .x-frame-bc {
+  background-image: url(images/btn/btn-step-label-non-completed-small-focus-corners.gif);
+}
+/* line 592, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-focus .x-frame-ml,
+.x-btn-step-label-non-completed-small-focus .x-frame-mr {
+  background-image: url(images/btn/btn-step-label-non-completed-small-focus-sides.gif);
+}
+/* line 595, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-focus .x-frame-mc {
+  background-color: rgba(0, 0, 0, 0);
+  background-image: url(images/btn/btn-step-label-non-completed-small-focus-fbg.gif);
+}
+
+/* line 610, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-over .x-frame-tl,
+.x-btn-step-label-non-completed-small-over .x-frame-bl,
+.x-btn-step-label-non-completed-small-over .x-frame-tr,
+.x-btn-step-label-non-completed-small-over .x-frame-br,
+.x-btn-step-label-non-completed-small-over .x-frame-tc,
+.x-btn-step-label-non-completed-small-over .x-frame-bc {
+  background-image: url(images/btn/btn-step-label-non-completed-small-over-corners.gif);
+}
+/* line 614, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-over .x-frame-ml,
+.x-btn-step-label-non-completed-small-over .x-frame-mr {
+  background-image: url(images/btn/btn-step-label-non-completed-small-over-sides.gif);
+}
+/* line 617, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-over .x-frame-mc {
+  background-color: rgba(0, 0, 0, 0);
+  background-image: url(images/btn/btn-step-label-non-completed-small-over-fbg.gif);
+}
+
+/* line 633, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-menu-active .x-frame-tl,
+.x-btn-step-label-non-completed-small-menu-active .x-frame-bl,
+.x-btn-step-label-non-completed-small-menu-active .x-frame-tr,
+.x-btn-step-label-non-completed-small-menu-active .x-frame-br,
+.x-btn-step-label-non-completed-small-menu-active .x-frame-tc,
+.x-btn-step-label-non-completed-small-menu-active .x-frame-bc,
+.x-btn-step-label-non-completed-small-pressed .x-frame-tl,
+.x-btn-step-label-non-completed-small-pressed .x-frame-bl,
+.x-btn-step-label-non-completed-small-pressed .x-frame-tr,
+.x-btn-step-label-non-completed-small-pressed .x-frame-br,
+.x-btn-step-label-non-completed-small-pressed .x-frame-tc,
+.x-btn-step-label-non-completed-small-pressed .x-frame-bc {
+  background-image: url(images/btn/btn-step-label-non-completed-small-pressed-corners.gif);
+}
+/* line 637, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-menu-active .x-frame-ml,
+.x-btn-step-label-non-completed-small-menu-active .x-frame-mr,
+.x-btn-step-label-non-completed-small-pressed .x-frame-ml,
+.x-btn-step-label-non-completed-small-pressed .x-frame-mr {
+  background-image: url(images/btn/btn-step-label-non-completed-small-pressed-sides.gif);
+}
+/* line 640, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-menu-active .x-frame-mc,
+.x-btn-step-label-non-completed-small-pressed .x-frame-mc {
+  background-color: rgba(0, 0, 0, 0);
+  background-image: url(images/btn/btn-step-label-non-completed-small-pressed-fbg.gif);
+}
+
+/* line 655, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-disabled .x-frame-tl,
+.x-btn-step-label-non-completed-small-disabled .x-frame-bl,
+.x-btn-step-label-non-completed-small-disabled .x-frame-tr,
+.x-btn-step-label-non-completed-small-disabled .x-frame-br,
+.x-btn-step-label-non-completed-small-disabled .x-frame-tc,
+.x-btn-step-label-non-completed-small-disabled .x-frame-bc {
+  background-image: url(images/btn/btn-step-label-non-completed-small-disabled-corners.gif);
+}
+/* line 659, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-disabled .x-frame-ml,
+.x-btn-step-label-non-completed-small-disabled .x-frame-mr {
+  background-image: url(images/btn/btn-step-label-non-completed-small-disabled-sides.gif);
+}
+/* line 662, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small-disabled .x-frame-mc {
+  background-color: rgba(0, 0, 0, 0);
+  background-image: url(images/btn/btn-step-label-non-completed-small-disabled-fbg.gif);
+}
+
+/* line 674, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-label-non-completed-small-focus {
+  background-image: url(images/btn/btn-step-label-non-completed-small-focus-bg.gif);
+}
+
+/* line 682, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-label-non-completed-small-over {
+  background-image: url(images/btn/btn-step-label-non-completed-small-over-bg.gif);
+}
+
+/* line 691, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-label-non-completed-small-menu-active,
+.x-nlg .x-btn-step-label-non-completed-small-pressed {
+  background-image: url(images/btn/btn-step-label-non-completed-small-pressed-bg.gif);
+}
+
+/* line 699, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-label-non-completed-small-disabled {
+  background-image: url(images/btn/btn-step-label-non-completed-small-disabled-bg.gif);
+}
+
+/* line 707, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nbr .x-btn-step-label-non-completed-small {
+  background-image: none;
+}
+
+/* line 722, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small .x-btn-split-right {
+  background-image: url(images/button/s-arrow.png);
+  padding-right: 23px;
+}
+/* line 735, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-label-non-completed-small .x-btn-split-bottom {
+  background-image: url(images/button/s-arrow-b.png);
+  padding-bottom: 20px;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-label-non-completed-small-focus:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-label-non-completed-small-focus-corners.gif), sides:url(images/btn/btn-step-label-non-completed-small-focus-sides.gif), frame-bg:url(images/btn/btn-step-label-non-completed-small-focus-fbg.gif), bg:url(images/btn/btn-step-label-non-completed-small-focus-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-label-non-completed-small-over:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-label-non-completed-small-over-corners.gif), sides:url(images/btn/btn-step-label-non-completed-small-over-sides.gif), frame-bg:url(images/btn/btn-step-label-non-completed-small-over-fbg.gif), bg:url(images/btn/btn-step-label-non-completed-small-over-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-label-non-completed-small-pressed:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-label-non-completed-small-pressed-corners.gif), sides:url(images/btn/btn-step-label-non-completed-small-pressed-sides.gif), frame-bg:url(images/btn/btn-step-label-non-completed-small-pressed-fbg.gif), bg:url(images/btn/btn-step-label-non-completed-small-pressed-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-label-non-completed-small-disabled:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-label-non-completed-small-disabled-corners.gif), sides:url(images/btn/btn-step-label-non-completed-small-disabled-sides.gif), frame-bg:url(images/btn/btn-step-label-non-completed-small-disabled-fbg.gif), bg:url(images/btn/btn-step-label-non-completed-small-disabled-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small {
+  border-color: #e1e1e1;
+}
+
+/* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  padding: 5px 5px 5px 5px;
+  border-width: 0;
+  border-style: solid;
+  background-color: #828282;
+}
+
+/* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-mc {
+  background-color: #828282;
+}
+
+/* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-nbr .x-btn-gridnav-toolbar-small {
+  padding: 0 !important;
+  border-width: 0 !important;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -ms-border-radius: 0px;
+  -o-border-radius: 0px;
+  border-radius: 0px;
+  background-color: transparent;
+}
+
+/* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-frameInfo {
+  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+}
+
+/* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-tl {
+  background-position: 0 -10px;
+}
+
+/* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-tr {
+  background-position: right -15px;
+}
+
+/* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-bl {
+  background-position: 0 -20px;
+}
+
+/* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-br {
+  background-position: right -25px;
+}
+
+/* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-ml {
+  background-position: 0 top;
+}
+
+/* line 335, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-mr {
+  background-position: right top;
+}
+
+/* line 339, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-tc {
+  background-position: 0 0;
+}
+
+/* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-bc {
+  background-position: 0 -5px;
+}
+
+/* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-tr,
+.x-btn-gridnav-toolbar-small-br,
+.x-btn-gridnav-toolbar-small-mr {
+  padding-right: 5px;
+}
+
+/* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-tl,
+.x-btn-gridnav-toolbar-small-bl,
+.x-btn-gridnav-toolbar-small-ml {
+  padding-left: 5px;
+}
+
+/* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-tc {
+  height: 5px;
+}
+
+/* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-bc {
+  height: 5px;
+}
+
+/* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-tl,
+.x-btn-gridnav-toolbar-small-bl,
+.x-btn-gridnav-toolbar-small-tr,
+.x-btn-gridnav-toolbar-small-br,
+.x-btn-gridnav-toolbar-small-tc,
+.x-btn-gridnav-toolbar-small-bc,
+.x-btn-gridnav-toolbar-small-ml,
+.x-btn-gridnav-toolbar-small-mr {
+  zoom: 1;
+  background-image: url(images/btn/btn-gridnav-toolbar-small-corners.gif);
+}
+
+/* line 418, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-ml,
+.x-btn-gridnav-toolbar-small-mr {
+  zoom: 1;
+  background-image: url(images/btn/btn-gridnav-toolbar-small-sides.gif);
+  background-repeat: repeat-y;
+}
+
+/* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-gridnav-toolbar-small-mc {
+  padding: 0px 0px 0px 0px;
+}
+
+/* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-strict .x-ie7 .x-btn-gridnav-toolbar-small-tl,
+.x-strict .x-ie7 .x-btn-gridnav-toolbar-small-bl {
+  position: relative;
+  right: 0;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-gridnav-toolbar-small:after {
+  display: none;
+  content: "x-slicer:corners:url(images/btn/btn-gridnav-toolbar-small-corners.gif), sides:url(images/btn/btn-gridnav-toolbar-small-sides.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 262, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small .x-btn-inner {
+  font-size: 13px;
+  font-weight: "normal";
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
+  color: white;
+  padding: 0 5px;
+}
+/* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small .x-btn-arrow {
+  background-image: url(images/button/gridnav-toolbar-small-arrow.png);
+}
+/* line 278, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small .x-btn-arrow-right {
+  padding-right: 21px;
+}
+/* line 289, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small .x-btn-arrow-bottom {
+  padding-bottom: 18px;
+}
+/* line 293, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small .x-btn-glyph {
+  font-size: 17px;
+  line-height: 17px;
+  color: white;
+  opacity: 0.5;
+}
+/* line 313, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie8m .x-btn-gridnav-toolbar-small .x-btn-glyph {
+  color: silver;
+}
+
+/* line 320, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-disabled {
+  background-image: none;
+  background-color: #e9e9e9;
+}
+
+/* line 346, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-icon .x-btn-button,
+.x-btn-gridnav-toolbar-small-noicon .x-btn-button {
+  height: 17px;
+}
+/* line 350, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-icon .x-btn-inner,
+.x-btn-gridnav-toolbar-small-noicon .x-btn-inner {
+  line-height: 17px;
+}
+
+/* line 360, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-icon .x-btn-arrow-right .x-btn-inner,
+.x-btn-gridnav-toolbar-small-noicon .x-btn-arrow-right .x-btn-inner,
+.x-btn-gridnav-toolbar-small-icon-text-left .x-btn-arrow-right .x-btn-inner {
+  padding-right: 0;
+}
+
+/* line 375, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-icon .x-btn-inner {
+  width: 17px;
+  padding: 0;
+}
+/* line 381, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-icon .x-btn-icon-el {
+  width: 17px;
+  height: 17px;
+}
+
+/* line 388, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-icon-text-left .x-btn-button {
+  height: 17px;
+}
+/* line 393, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-icon-text-left .x-btn-inner {
+  line-height: 17px;
+  padding-left: 22px;
+}
+/* line 409, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-icon-text-left .x-btn-icon-el {
+  width: 17px;
+  right: auto;
+}
+/* line 415, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-gridnav-toolbar-small-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-gridnav-toolbar-small-icon-text-left .x-btn-icon-el {
+  height: 17px;
+}
+
+/* line 430, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-icon-text-right .x-btn-button {
+  height: 17px;
+}
+/* line 435, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-icon-text-right .x-btn-inner {
+  line-height: 17px;
+  padding-right: 22px;
+}
+/* line 447, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-icon-text-right .x-btn-icon-el {
+  width: 17px;
+  left: auto;
+}
+/* line 453, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-gridnav-toolbar-small-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-gridnav-toolbar-small-icon-text-right .x-btn-icon-el {
+  height: 17px;
+}
+
+/* line 468, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-icon-text-top .x-btn-inner {
+  padding-top: 22px;
+}
+/* line 472, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-icon-text-top .x-btn-icon-el {
+  height: 17px;
+  bottom: auto;
+}
+/* line 480, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-gridnav-toolbar-small-icon-text-top .x-btn-icon-el, .x-quirks .x-ie .x-btn-gridnav-toolbar-small-icon-text-top .x-btn-icon-el {
+  width: 100%;
+}
+
+/* line 488, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-icon-text-bottom .x-btn-inner {
+  padding-bottom: 22px;
+}
+/* line 492, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-icon-text-bottom .x-btn-icon-el {
+  height: 17px;
+  top: auto;
+}
+/* line 500, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-gridnav-toolbar-small-icon-text-bottom .x-btn-icon-el, .x-quirks .x-ie .x-btn-gridnav-toolbar-small-icon-text-bottom .x-btn-icon-el {
+  width: 100%;
+}
+
+/* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-focus {
+  border-color: #d8d8d8;
+  background-image: none;
+  background-color: #757575;
+}
+
+/* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-over {
+  border-color: #d8d8d8;
+  background-image: none;
+  background-color: #8e8e8e;
+}
+
+/* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-menu-active,
+.x-btn-gridnav-toolbar-small-pressed {
+  border-color: #cecece;
+  background-image: none;
+  background-color: #757575;
+}
+
+/* line 588, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-focus .x-frame-tl,
+.x-btn-gridnav-toolbar-small-focus .x-frame-bl,
+.x-btn-gridnav-toolbar-small-focus .x-frame-tr,
+.x-btn-gridnav-toolbar-small-focus .x-frame-br,
+.x-btn-gridnav-toolbar-small-focus .x-frame-tc,
+.x-btn-gridnav-toolbar-small-focus .x-frame-bc {
+  background-image: url(images/btn/btn-gridnav-toolbar-small-focus-corners.gif);
+}
+/* line 592, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-focus .x-frame-ml,
+.x-btn-gridnav-toolbar-small-focus .x-frame-mr {
+  background-image: url(images/btn/btn-gridnav-toolbar-small-focus-sides.gif);
+}
+/* line 595, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-focus .x-frame-mc {
+  background-color: #757575;
+  background-image: url(images/btn/btn-gridnav-toolbar-small-focus-fbg.gif);
+}
+
+/* line 610, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-over .x-frame-tl,
+.x-btn-gridnav-toolbar-small-over .x-frame-bl,
+.x-btn-gridnav-toolbar-small-over .x-frame-tr,
+.x-btn-gridnav-toolbar-small-over .x-frame-br,
+.x-btn-gridnav-toolbar-small-over .x-frame-tc,
+.x-btn-gridnav-toolbar-small-over .x-frame-bc {
+  background-image: url(images/btn/btn-gridnav-toolbar-small-over-corners.gif);
+}
+/* line 614, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-over .x-frame-ml,
+.x-btn-gridnav-toolbar-small-over .x-frame-mr {
+  background-image: url(images/btn/btn-gridnav-toolbar-small-over-sides.gif);
+}
+/* line 617, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-over .x-frame-mc {
+  background-color: #8e8e8e;
+  background-image: url(images/btn/btn-gridnav-toolbar-small-over-fbg.gif);
+}
+
+/* line 633, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-menu-active .x-frame-tl,
+.x-btn-gridnav-toolbar-small-menu-active .x-frame-bl,
+.x-btn-gridnav-toolbar-small-menu-active .x-frame-tr,
+.x-btn-gridnav-toolbar-small-menu-active .x-frame-br,
+.x-btn-gridnav-toolbar-small-menu-active .x-frame-tc,
+.x-btn-gridnav-toolbar-small-menu-active .x-frame-bc,
+.x-btn-gridnav-toolbar-small-pressed .x-frame-tl,
+.x-btn-gridnav-toolbar-small-pressed .x-frame-bl,
+.x-btn-gridnav-toolbar-small-pressed .x-frame-tr,
+.x-btn-gridnav-toolbar-small-pressed .x-frame-br,
+.x-btn-gridnav-toolbar-small-pressed .x-frame-tc,
+.x-btn-gridnav-toolbar-small-pressed .x-frame-bc {
+  background-image: url(images/btn/btn-gridnav-toolbar-small-pressed-corners.gif);
+}
+/* line 637, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-menu-active .x-frame-ml,
+.x-btn-gridnav-toolbar-small-menu-active .x-frame-mr,
+.x-btn-gridnav-toolbar-small-pressed .x-frame-ml,
+.x-btn-gridnav-toolbar-small-pressed .x-frame-mr {
+  background-image: url(images/btn/btn-gridnav-toolbar-small-pressed-sides.gif);
+}
+/* line 640, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-menu-active .x-frame-mc,
+.x-btn-gridnav-toolbar-small-pressed .x-frame-mc {
+  background-color: #757575;
+  background-image: url(images/btn/btn-gridnav-toolbar-small-pressed-fbg.gif);
+}
+
+/* line 655, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-disabled .x-frame-tl,
+.x-btn-gridnav-toolbar-small-disabled .x-frame-bl,
+.x-btn-gridnav-toolbar-small-disabled .x-frame-tr,
+.x-btn-gridnav-toolbar-small-disabled .x-frame-br,
+.x-btn-gridnav-toolbar-small-disabled .x-frame-tc,
+.x-btn-gridnav-toolbar-small-disabled .x-frame-bc {
+  background-image: url(images/btn/btn-gridnav-toolbar-small-disabled-corners.gif);
+}
+/* line 659, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-disabled .x-frame-ml,
+.x-btn-gridnav-toolbar-small-disabled .x-frame-mr {
+  background-image: url(images/btn/btn-gridnav-toolbar-small-disabled-sides.gif);
+}
+/* line 662, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small-disabled .x-frame-mc {
+  background-color: #e9e9e9;
+  background-image: url(images/btn/btn-gridnav-toolbar-small-disabled-fbg.gif);
+}
+
+/* line 674, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-gridnav-toolbar-small-focus {
+  background-image: url(images/btn/btn-gridnav-toolbar-small-focus-bg.gif);
+}
+
+/* line 682, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-gridnav-toolbar-small-over {
+  background-image: url(images/btn/btn-gridnav-toolbar-small-over-bg.gif);
+}
+
+/* line 691, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-gridnav-toolbar-small-menu-active,
+.x-nlg .x-btn-gridnav-toolbar-small-pressed {
+  background-image: url(images/btn/btn-gridnav-toolbar-small-pressed-bg.gif);
+}
+
+/* line 699, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-gridnav-toolbar-small-disabled {
+  background-image: url(images/btn/btn-gridnav-toolbar-small-disabled-bg.gif);
+}
+
+/* line 707, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nbr .x-btn-gridnav-toolbar-small {
+  background-image: none;
+}
+
+/* line 722, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small .x-btn-split-right {
+  background-image: url(images/button/gridnav-toolbar-small-s-arrow.png);
+  padding-right: 23px;
+}
+/* line 735, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-gridnav-toolbar-small .x-btn-split-bottom {
+  background-image: url(images/button/gridnav-toolbar-small-s-arrow-b.png);
+  padding-bottom: 20px;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-gridnav-toolbar-small-focus:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-gridnav-toolbar-small-focus-corners.gif), sides:url(images/btn/btn-gridnav-toolbar-small-focus-sides.gif), frame-bg:url(images/btn/btn-gridnav-toolbar-small-focus-fbg.gif), bg:url(images/btn/btn-gridnav-toolbar-small-focus-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-gridnav-toolbar-small-over:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-gridnav-toolbar-small-over-corners.gif), sides:url(images/btn/btn-gridnav-toolbar-small-over-sides.gif), frame-bg:url(images/btn/btn-gridnav-toolbar-small-over-fbg.gif), bg:url(images/btn/btn-gridnav-toolbar-small-over-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-gridnav-toolbar-small-pressed:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-gridnav-toolbar-small-pressed-corners.gif), sides:url(images/btn/btn-gridnav-toolbar-small-pressed-sides.gif), frame-bg:url(images/btn/btn-gridnav-toolbar-small-pressed-fbg.gif), bg:url(images/btn/btn-gridnav-toolbar-small-pressed-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-gridnav-toolbar-small-disabled:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-gridnav-toolbar-small-disabled-corners.gif), sides:url(images/btn/btn-gridnav-toolbar-small-disabled-sides.gif), frame-bg:url(images/btn/btn-gridnav-toolbar-small-disabled-fbg.gif), bg:url(images/btn/btn-gridnav-toolbar-small-disabled-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*
+.#{$prefix}toolbar {
+  padding: $toolbar-padding;
+}*/
+/* line 219, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-large {
+  border-color: #71adc7;
+  padding: 16px;
+}
+
+/* line 225, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-large {
+  font-size: 60px;
+}
+/* line 232, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-large .x-tool-img {
+  background-color: white;
+}
+
+/* line 245, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-large-horizontal {
+  padding: 0 0 16px 0;
+}
+
 /* line 249, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-large-horizontal-noborder {
   padding: 0 0 16px 0;
@@ -2924,6 +5805,24 @@
 /* line 109, ../../sass/src/panel/Panel.scss */
 .x-uni-form-error-msg-icon {
   background-image: url("images/form/ico_warning.png");
+}
+
+/* line 1, ../../sass/src/panel/StepPanel.scss */
+.x-image-step-dots {
+  height: 8px !important;
+  width: 4px !important;
+  background-image: url("images/panel/step_dots.png");
+}
+
+/* line 7, ../../sass/src/panel/StepPanel.scss */
+.x-panel-step-dots {
+  left: 10px !important;
+}
+
+/* line 11, ../../sass/src/panel/StepPanel.scss */
+.x-label-step {
+  height: 24px;
+  padding: 3px 0 0 12px;
 }
 
 /* line 1, ../../sass/src/tip/Tip.scss */

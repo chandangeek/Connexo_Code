@@ -10607,22 +10607,22 @@ a.x-tab {
 .x-toolbar {
   font-size: 13px;
   border-style: solid;
-  padding: 6px 0 6px 8px;
+  padding: 8px 0 8px 0px;
 }
 
 /* line 99, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-item {
-  margin: 0 8px 0 0;
+  margin: 0 0px 0 0;
 }
 
 /* line 105, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
 .x-rtl.x-toolbar {
-  padding: 6px 8px 6px 0;
+  padding: 8px 0px 8px 0;
 }
 
 /* line 109, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
 .x-rtl.x-toolbar-item {
-  margin: 0 0 0 8px;
+  margin: 0 0 0 0px;
 }
 
 /* line 114, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
@@ -10631,16 +10631,16 @@ a.x-tab {
   color: #4a4b4b;
   line-height: 16px;
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: normal;
 }
 
 /* line 123, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-separator-horizontal {
-  margin: 0 8px 0 0;
+  margin: 0 0px 0 0;
   height: 14px;
   border-style: solid;
-  border-width: 0 0 0 1px;
+  border-width: 0 1px;
   border-left-color: #e1e1e1;
   border-right-color: white;
 }
@@ -10659,7 +10659,7 @@ a.x-tab {
 
 /* line 144, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-spacer {
-  width: 2px;
+  width: 6px;
 }
 
 /* line 149, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
@@ -10671,10 +10671,10 @@ a.x-tab {
 
 /* line 45, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-default {
-  border-color: silver;
+  border-color: #71adc7;
   border-width: 1px;
   background-image: none;
-  background-color: white;
+  background-color: transparent;
 }
 /* line 51, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-default .x-box-scroller {
@@ -10687,7 +10687,7 @@ a.x-tab {
 /* line 65, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-default .x-tool-img {
   background-image: url(images/tools/tool-sprites-dark.png);
-  background-color: white;
+  background-color: transparent;
 }
 
 /* line 161, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
@@ -10725,16 +10725,16 @@ a.x-tab {
 
 /* line 190, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
 .x-toolbar .x-box-menu-after {
-  margin: 0 8px;
+  margin: 0 0px;
 }
 
 /* line 194, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-vertical {
-  padding: 6px 8px 0 8px;
+  padding: 8px 0px 0 0px;
 }
 /* line 197, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-vertical .x-toolbar-item {
-  margin: 0 0 6px 0;
+  margin: 0 0 8px 0;
 }
 /* line 201, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-vertical .x-toolbar-text {
@@ -10742,20 +10742,20 @@ a.x-tab {
 }
 /* line 205, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-vertical .x-toolbar-separator-vertical {
-  margin: 0 5px 6px;
+  margin: 0 5px 8px;
   border-style: solid none;
-  border-width: 1px 0 0;
+  border-width: 1px 0;
   border-top-color: #e1e1e1;
   border-bottom-color: white;
 }
 /* line 213, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-vertical .x-box-menu-after {
-  margin: 6px 0;
+  margin: 8px 0;
 }
 
 /* line 219, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
 .x-rtl.x-toolbar-vertical {
-  padding: 6px 8px 0 8px;
+  padding: 8px 0px 0 0px;
 }
 
 /* line 2, ../../../ext-theme-neutral/sass/src/panel/Header.scss */
@@ -22499,7 +22499,7 @@ a.x-color-picker-item:hover {
 .x-btn-plain-toolbar-small-disabled .x-btn-icon-el,
 .x-btn-plain-toolbar-medium-disabled .x-btn-icon-el,
 .x-btn-plain-toolbar-large-disabled .x-btn-icon-el {
-  background-color: white;
+  background-color: transparent;
 }
 /* line 139, ../../../ext-theme-neptune/sass/src/button/Button.scss */
 .x-strict .x-ie8 .x-btn-plain-toolbar-small-disabled .x-btn-icon-el, .x-strict .x-ie8
@@ -22511,11 +22511,11 @@ a.x-color-picker-item:hover {
 
 /* line 3, ../../../ext-theme-neptune/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-default .x-toolbar-scroll-left {
-  margin-right: 4px;
+  margin-right: 0px;
 }
 /* line 7, ../../../ext-theme-neptune/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-default .x-toolbar-scroll-right {
-  margin-left: 4px;
+  margin-left: 0px;
 }
 /* line 12, ../../../ext-theme-neptune/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-default .x-toolbar-scroll-left, .x-toolbar-default .x-toolbar-scroll-right {
@@ -22541,17 +22541,17 @@ a.x-color-picker-item:hover {
 }
 /* line 33, ../../../ext-theme-neptune/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-default .x-box-scroller {
-  background-color: white;
+  background-color: transparent;
 }
 
 /* line 41, ../../../ext-theme-neptune/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-scroller {
-  padding: 6px 4px 6px 4px;
+  padding: 8px 0px 8px 0px;
 }
 
 /* line 45, ../../../ext-theme-neptune/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-vertical-scroller {
-  padding: 3px 8px 3px 8px;
+  padding: 4px 0px 4px 0px;
 }
 
 /* line 219, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
