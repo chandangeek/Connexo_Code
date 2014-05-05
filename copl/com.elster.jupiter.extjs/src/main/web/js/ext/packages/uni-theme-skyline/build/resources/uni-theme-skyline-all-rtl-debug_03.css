@@ -1,3 +1,102 @@
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-sort-medium-over:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-sort-medium-over-corners.gif), sides:url(images/btn/btn-sort-medium-over-sides.gif), frame-bg:url(images/btn/btn-sort-medium-over-fbg.gif), bg:url(images/btn/btn-sort-medium-over-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-sort-medium-pressed:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-sort-medium-pressed-corners.gif), sides:url(images/btn/btn-sort-medium-pressed-sides.gif), frame-bg:url(images/btn/btn-sort-medium-pressed-fbg.gif), bg:url(images/btn/btn-sort-medium-pressed-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-sort-medium-disabled:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-sort-medium-disabled-corners.gif), sides:url(images/btn/btn-sort-medium-disabled-sides.gif), frame-bg:url(images/btn/btn-sort-medium-disabled-fbg.gif), bg:url(images/btn/btn-sort-medium-disabled-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-large {
+  border-color: #6194ab;
+}
+
+/* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-sort-large {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  padding: 5px 5px 5px 5px;
+  border-width: 0;
+  border-style: solid;
+  background-color: #d8d8d8;
+}
+
+/* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-sort-large-mc {
+  background-color: #d8d8d8;
+}
+
+/* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-nbr .x-btn-sort-large {
+  padding: 0 !important;
+  border-width: 0 !important;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -ms-border-radius: 0px;
+  -o-border-radius: 0px;
+  border-radius: 0px;
+  background-color: transparent;
+}
+
+/* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-sort-large-frameInfo {
+  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+}
+
+/* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-sort-large-tl {
+  background-position: 0 -10px;
+}
+
+/* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-sort-large-tr {
+  background-position: right -15px;
+}
+
+/* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-sort-large-bl {
+  background-position: 0 -20px;
+}
+
+/* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-sort-large-br {
+  background-position: right -25px;
+}
+
+/* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-sort-large-ml {
+  background-position: 0 top;
+}
+
+/* line 335, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-sort-large-mr {
+  background-position: right top;
+}
+
 /* line 339, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-sort-large-tc {
   background-position: 0 0;
@@ -5605,7 +5704,7 @@
 
 /*</if slicer>*/
 /* */
-/* line 2, ../../sass/src/button/ToolbarButton.scss */
+/* line 1, ../../sass/src/button/ToolbarButton.scss */
 .x-toolbar .x-btn {
   margin: 0 10px 0 10px !important;
 }
@@ -5613,6 +5712,11 @@
 /* line 2, ../../sass/src/toolbar/Toolbar.scss */
 .x-toolbar {
   background-color: taransparent !important;
+}
+
+/* line 6, ../../sass/src/toolbar/Toolbar.scss */
+.x-toolbar .x-btn {
+  margin: 0 10px 0 10px !important;
 }
 
 /* line 219, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
@@ -9062,6 +9166,14 @@ div.x-form-spinner-down {
 /* line 13, ../../sass/src/toolbar/Paging.scss */
 .x-tbar-page-last {
   background-image: url("images/grid/page-last.png");
+}
+
+/* line 17, ../../sass/src/toolbar/Paging.scss */
+.x-toolbar-pagingtoolbartop, .x-toolbar-pagingtoolbarbottom {
+  padding-right: 0;
+  padding-left: 0;
+  margin-right: -7px;
+  margin-left: -5px;
 }
 
 /* line 1, ../../sass/src/picker/Date.scss */

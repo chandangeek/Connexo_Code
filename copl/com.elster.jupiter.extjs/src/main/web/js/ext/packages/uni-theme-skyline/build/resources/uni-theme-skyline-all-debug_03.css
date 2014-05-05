@@ -1,3 +1,105 @@
+/* line 699, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-step-active-small-disabled {
+  background-image: url(images/btn/btn-step-active-small-disabled-bg.gif);
+}
+
+/* line 707, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nbr .x-btn-step-active-small {
+  background-image: none;
+}
+
+/* line 722, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-active-small .x-btn-split-right {
+  background-image: url(images/button/step-active-small-s-arrow.png);
+  padding-right: 23px;
+}
+/* line 735, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-active-small .x-btn-split-bottom {
+  background-image: url(images/button/step-active-small-s-arrow-b.png);
+  padding-bottom: 20px;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-active-small-focus:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-active-small-focus-corners.gif), sides:url(images/btn/btn-step-active-small-focus-sides.gif), frame-bg:url(images/btn/btn-step-active-small-focus-fbg.gif), bg:url(images/btn/btn-step-active-small-focus-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-active-small-over:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-active-small-over-corners.gif), sides:url(images/btn/btn-step-active-small-over-sides.gif), frame-bg:url(images/btn/btn-step-active-small-over-fbg.gif), bg:url(images/btn/btn-step-active-small-over-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-active-small-pressed:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-active-small-pressed-corners.gif), sides:url(images/btn/btn-step-active-small-pressed-sides.gif), frame-bg:url(images/btn/btn-step-active-small-pressed-fbg.gif), bg:url(images/btn/btn-step-active-small-pressed-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-step-active-small-disabled:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-step-active-small-disabled-corners.gif), sides:url(images/btn/btn-step-active-small-disabled-sides.gif), frame-bg:url(images/btn/btn-step-active-small-disabled-fbg.gif), bg:url(images/btn/btn-step-active-small-disabled-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-completed-small {
+  border-color: #a0a0a0;
+}
+
+/* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small {
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  -ms-border-radius: 12px;
+  -o-border-radius: 12px;
+  border-radius: 12px;
+  padding: 11px 11px 11px 11px;
+  border-width: 1px;
+  border-style: solid;
+  background-color: #d2d2d2;
+}
+
+/* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-mc {
+  background-color: #d2d2d2;
+}
+
+/* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-nbr .x-btn-step-completed-small {
+  padding: 0 !important;
+  border-width: 0 !important;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -ms-border-radius: 0px;
+  -o-border-radius: 0px;
+  border-radius: 0px;
+  background-color: transparent;
+}
+
+/* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-frameInfo {
+  font-family: th-12-12-12-12-1-1-1-1-11-11-11-11;
+}
+
+/* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-completed-small-tl {
+  background-position: 0 -24px;
+}
+
 /* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-step-completed-small-tr {
   background-position: right -36px;
@@ -2758,7 +2860,7 @@
 
 /*</if slicer>*/
 /* */
-/* line 2, ../../sass/src/button/ToolbarButton.scss */
+/* line 1, ../../sass/src/button/ToolbarButton.scss */
 .x-toolbar .x-btn {
   margin: 0 10px 0 10px !important;
 }
@@ -2766,6 +2868,11 @@
 /* line 2, ../../sass/src/toolbar/Toolbar.scss */
 .x-toolbar {
   background-color: taransparent !important;
+}
+
+/* line 6, ../../sass/src/toolbar/Toolbar.scss */
+.x-toolbar .x-btn {
+  margin: 0 10px 0 10px !important;
 }
 
 /* line 219, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
@@ -5807,6 +5914,14 @@ div.x-form-spinner-down {
 /* line 13, ../../sass/src/toolbar/Paging.scss */
 .x-tbar-page-last {
   background-image: url("images/grid/page-last.png");
+}
+
+/* line 17, ../../sass/src/toolbar/Paging.scss */
+.x-toolbar-pagingtoolbartop, .x-toolbar-pagingtoolbarbottom {
+  padding-right: 0;
+  padding-left: 0;
+  margin-right: -7px;
+  margin-left: -5px;
 }
 
 /* line 1, ../../sass/src/picker/Date.scss */
