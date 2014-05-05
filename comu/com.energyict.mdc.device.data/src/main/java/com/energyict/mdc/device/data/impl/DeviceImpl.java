@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
@@ -86,8 +87,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 import javax.inject.Provider;
 import javax.validation.Valid;
@@ -998,17 +1001,25 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     @Override
     public int countNumberOfEndDeviceEvents(List<EndDeviceEventType> eventTypes, Interval interval) {
+        int eventCounter = 0;
         Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
         if (amrSystem.isPresent()) {
-            Optional<Meter> meter = amrSystem.get().findMeter(String.valueOf(getId()));
-            if (meter.isPresent()) {
-                return meter.get().getDeviceEvents(interval, eventTypes).size();
-            }
-            else {
-                return 0;
+            for (BaseDevice<Channel, LoadProfile, Register> slaveDevice : this.getPhysicalConnectedDevices()) {
+                Optional<Meter> slaveMeter = amrSystem.get().findMeter(String.valueOf(slaveDevice.getId()));
+                if (slaveMeter.isPresent()) {
+                    eventCounter = eventCounter + this.countUniqueEndDeviceEvents(slaveMeter.get(), eventTypes, interval);
+                }
             }
         }
-        return 0;
+        return eventCounter;
+    }
+
+    private int countUniqueEndDeviceEvents(Meter slaveMeter, List<EndDeviceEventType> eventTypes, Interval interval) {
+        Set<String> deviceEventTypes = new HashSet<>();
+        for (EndDeviceEventRecord endDeviceEvent : slaveMeter.getDeviceEvents(interval, eventTypes)) {
+            deviceEventTypes.add(endDeviceEvent.getMRID());
+        }
+        return deviceEventTypes.size();
     }
 
     private class ConnectionInitiationTaskBuilderForDevice implements ConnectionInitiationTaskBuilder {
