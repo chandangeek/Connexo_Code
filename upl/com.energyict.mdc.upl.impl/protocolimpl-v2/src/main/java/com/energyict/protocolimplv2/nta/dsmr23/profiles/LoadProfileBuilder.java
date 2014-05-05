@@ -478,7 +478,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                             this.statusMasksMap.get(lpr), this.channelMaskMap.get(lpr), new DSMRProfileIntervalStatusBits());
                     List<IntervalData> collectedIntervalData = intervals.parseIntervals(lpc.getProfileInterval());
 
-                    collectedLoadProfile.setCollectedData(collectedIntervalData, channelInfos);
+                    collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession())) {
                         Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);

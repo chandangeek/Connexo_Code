@@ -17,8 +17,8 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -207,7 +207,7 @@ public class SmsHandlerTest {
         assertEquals("Wrong channelInfo unit", "m3/h", channelInfo.getUnit().toString());
 
         assertThat(collectedProfile.getIssues()).isEmpty();
-        assertTrue("Expecting doStoreOlderValues to be true", collectedProfile.doStoreOlderValues());
+        assertTrue("Expecting doStoreOlderValues to be true", collectedProfile.isDoStoreOlderValues());
         assertEquals("Expecting resultType 'Supported'", ResultType.Supported.ordinal(), collectedProfile.getResultType().ordinal());
     }
 
@@ -260,7 +260,7 @@ public class SmsHandlerTest {
         assertEquals("Wrong channelInfo unit", "bar", channelInfo.getUnit().toString());
 
         assertThat(collectedProfile.getIssues()).isEmpty();
-        assertTrue("Expecting doStoreOlderValues to be true", collectedProfile.doStoreOlderValues());
+        assertTrue("Expecting doStoreOlderValues to be true", collectedProfile.isDoStoreOlderValues());
         assertEquals("Expecting resultType 'Supported'", ResultType.Supported.ordinal(), collectedProfile.getResultType().ordinal());
     }
 

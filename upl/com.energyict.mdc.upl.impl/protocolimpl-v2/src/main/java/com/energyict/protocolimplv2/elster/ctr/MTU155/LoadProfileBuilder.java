@@ -200,7 +200,7 @@ public class LoadProfileBuilder {
                     }
                 }
 
-                collectedLoadProfile.setCollectedData(collectedIntervalData, channelInfos);
+                collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
                 collectedLoadProfileList.add(collectedLoadProfile);
             } else {
                 LoadProfileIdentifier loadProfileIdentifier = new LoadProfileIdentifierByObisCodeAndDevice(lpc.getObisCode(), new DeviceIdentifierBySerialNumber(lpr.getMeterSerialNumber()));

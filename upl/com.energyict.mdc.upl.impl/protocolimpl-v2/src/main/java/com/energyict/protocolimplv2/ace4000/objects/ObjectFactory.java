@@ -943,7 +943,7 @@ public class ObjectFactory {
     public List<CollectedLoadProfile> createCollectedLoadProfiles(ObisCode obisCode) {
         List<CollectedLoadProfile> collectedLoadProfiles = new ArrayList<>();
         CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(obisCode, getAce4000().getDeviceIdentifier()));
-        collectedLoadProfile.setCollectedData(getLoadProfile().getProfileData().getIntervalDatas(), getLoadProfile().getProfileData().getChannelInfos());
+        collectedLoadProfile.setCollectedIntervalData(getLoadProfile().getProfileData().getIntervalDatas(), getLoadProfile().getProfileData().getChannelInfos());
         collectedLoadProfiles.add(collectedLoadProfile);
         return collectedLoadProfiles;
     }

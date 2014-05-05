@@ -6,16 +6,30 @@ import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
-import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.*;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.AbstractRadioCommand;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.DailyConsumption;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.ExtendedDataloggingTable;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.ExtendedIndexReading;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.TimeZone;
 
 public class ProfileDataReader implements DeviceLoadProfileSupport {
 
@@ -61,7 +75,7 @@ public class ProfileDataReader implements DeviceLoadProfileSupport {
 
         LoadProfileIdentifierByObisCodeAndDevice loadProfileIdentifier = new LoadProfileIdentifierByObisCodeAndDevice(loadProfileReader.getProfileObisCode(), waveFlowV2.getDeviceIdentifier());
         CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(loadProfileIdentifier);
-        collectedLoadProfile.setCollectedData(profileData.getIntervalDatas(), profileData.getChannelInfos());
+        collectedLoadProfile.setCollectedIntervalData(profileData.getIntervalDatas(), profileData.getChannelInfos());
 
         return Arrays.asList(collectedLoadProfile);
     }

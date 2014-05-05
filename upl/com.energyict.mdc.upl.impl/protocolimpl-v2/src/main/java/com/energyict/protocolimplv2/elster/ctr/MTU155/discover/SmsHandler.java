@@ -145,7 +145,7 @@ public class SmsHandler {
 
     private CollectedData convertToCollectedData(Trace_CQueryResponseStructure data, ProfileData profileData) throws CTRException {
         DeviceLoadProfile collectedProfile = new DeviceLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(getProfileObisCode(data), getDeviceIdentifier()));
-        collectedProfile.setCollectedData(profileData.getIntervalDatas(), profileData.getChannelInfos());
+        collectedProfile.setCollectedIntervalData(profileData.getIntervalDatas(), profileData.getChannelInfos());
         collectedProfile.setDoStoreOlderValues(true);
         return collectedProfile;
     }
