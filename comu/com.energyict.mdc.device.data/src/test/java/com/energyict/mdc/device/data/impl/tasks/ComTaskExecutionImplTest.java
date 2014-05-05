@@ -30,10 +30,9 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
-import org.fest.assertions.core.Condition;
-import org.junit.*;
-
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -246,7 +245,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void createWithMasterScheduleNextExecutionSpecTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
-        NextExecutionSpecs masterScheduleNextExecutionSpec = inMemoryPersistence.getDeviceConfigurationService().newNextExecutionSpecs(temporalExpression);
+        NextExecutionSpecs masterScheduleNextExecutionSpec = inMemoryPersistence.getSchedulingService().newNextExecutionSpecs(temporalExpression);
         masterScheduleNextExecutionSpec.save();
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithMasterNextExecSpec", "WithMasterNextExecSpec");
@@ -265,7 +264,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void updateWithMasterScheduleNextExecutionSpecTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
-        NextExecutionSpecs masterScheduleNextExecutionSpec = inMemoryPersistence.getDeviceConfigurationService().newNextExecutionSpecs(temporalExpression);
+        NextExecutionSpecs masterScheduleNextExecutionSpec = inMemoryPersistence.getSchedulingService().newNextExecutionSpecs(temporalExpression);
         masterScheduleNextExecutionSpec.save();
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithMasterNextExecSpec", "WithMasterNextExecSpec");
@@ -316,14 +315,14 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         long nextExecutionSpecId = reloadedComTaskExecution.getNextExecutionSpecs().getId();
         ((ComTaskExecutionImpl) reloadedComTaskExecution).delete();
 
-        assertThat(inMemoryPersistence.getDeviceConfigurationService().findNextExecutionSpecs(nextExecutionSpecId)).isNull();
+        assertThat(inMemoryPersistence.getSchedulingService().findNextExecutionSpecs(nextExecutionSpecId)).isNull();
     }
 
     @Test
     @Transactional
     public void masterScheduleNextExecSpecNotDeletedWhenComTaskExecutionDeletedTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
-        NextExecutionSpecs masterScheduleNextExecutionSpec = inMemoryPersistence.getDeviceConfigurationService().newNextExecutionSpecs(temporalExpression);
+        NextExecutionSpecs masterScheduleNextExecutionSpec = inMemoryPersistence.getSchedulingService().newNextExecutionSpecs(temporalExpression);
         masterScheduleNextExecutionSpec.save();
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "MasterNextExecSpecNotDeleted", "MasterNextExecSpecNotDeleted");
@@ -337,7 +336,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         device.removeComTaskExecution(reloadedComTaskExecution);
         device.save();
 
-        assertThat(inMemoryPersistence.getDeviceConfigurationService().findNextExecutionSpecs(nextExecutionSpecId)).isNotNull();
+        assertThat(inMemoryPersistence.getSchedulingService().findNextExecutionSpecs(nextExecutionSpecId)).isNotNull();
     }
 
     @Test

@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl.constraintvalidators;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceFields;
-
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -18,6 +17,7 @@ import javax.validation.ConstraintValidatorContext;
 public class DeviceMridValidator implements ConstraintValidator<UniqueMrid, Device> {
 
     private final DeviceDataService deviceDataService;
+    private String message;
 
     @Inject
     public DeviceMridValidator(DeviceDataService deviceDataService) {
@@ -26,6 +26,7 @@ public class DeviceMridValidator implements ConstraintValidator<UniqueMrid, Devi
 
     @Override
     public void initialize(UniqueMrid uniqueName) {
+        message = uniqueName.message();
     }
 
     @Override

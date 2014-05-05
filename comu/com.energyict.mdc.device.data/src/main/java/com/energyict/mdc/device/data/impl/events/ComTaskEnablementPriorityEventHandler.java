@@ -8,11 +8,10 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import java.util.Map;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventConstants;
-
-import java.util.Map;
 
 /**
  * Handles events that are being sent when the priority of a {@link ComTaskEnablement} changes.

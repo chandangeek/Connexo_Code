@@ -4,8 +4,9 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.*;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
+import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.MessageService;
@@ -66,6 +67,10 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
+import java.security.Principal;
+import java.sql.SQLException;
+import java.util.List;
+import javax.inject.Inject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -79,14 +84,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import javax.inject.Inject;
-import java.security.Principal;
-import java.sql.SQLException;
-import java.util.List;
-
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT

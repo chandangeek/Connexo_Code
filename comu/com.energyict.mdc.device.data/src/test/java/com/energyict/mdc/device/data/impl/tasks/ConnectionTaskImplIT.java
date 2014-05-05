@@ -14,7 +14,6 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
@@ -422,7 +421,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDevice() {
-        Device simpleDevice = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "SimpleDevice", "ConnectionTaskImplIT", "1.2.3.4.5");
+        Device simpleDevice = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "SimpleDevice", "ConnectionTaskImplIT");
         simpleDevice.save();
         return simpleDevice;
     }

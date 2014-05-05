@@ -10,13 +10,12 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
 import com.energyict.mdc.tasks.ComTask;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.event.EventConstants;
-
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.EventConstants;
 
 /**
  * Handles events that are being sent when connection related changes

@@ -10,15 +10,15 @@ import com.energyict.mdc.device.config.impl.EventType;
 import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.service.event.EventConstants;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.service.event.EventConstants;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

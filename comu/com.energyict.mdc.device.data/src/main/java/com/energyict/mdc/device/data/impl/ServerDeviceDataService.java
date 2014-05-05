@@ -7,8 +7,6 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.ComTask;
 
-import java.sql.SQLException;
-
 /**
  * Adds behavior to {@link DeviceDataService} that is specific
  * to server side components.
