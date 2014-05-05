@@ -113,11 +113,11 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     }
 
     @Inject
-    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService) {
-        this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false);
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, SchedulingService schedulingService) {
+        this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false, schedulingService);
     }
 
-    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData) {
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData, SchedulingService schedulingService) {
         super();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -129,6 +129,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
         this.setEngineModelService(engineModelService);
         this.setDeviceConfigurationService(deviceConfigurationService);
         this.setMeteringService(meteringService);
+        this.setSchedulingService(schedulingService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install(true, createMasterData);

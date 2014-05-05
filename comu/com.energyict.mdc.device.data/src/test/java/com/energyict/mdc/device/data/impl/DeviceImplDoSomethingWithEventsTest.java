@@ -58,6 +58,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
@@ -227,6 +229,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private EngineModelService engineModelService;
         private Environment environment;
         private TaskService taskService;
+        private SchedulingService schedulingService;
 
         public void initializeDatabase(String testName, boolean showSqlLogging) {
             this.initializeMocks(testName);
@@ -256,7 +259,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new DeviceConfigurationModule(),
                     new MdcCommonModule(),
                     new TasksModule(),
-                    new DeviceDataModule());
+                    new DeviceDataModule(),
+                    new SchedulingModule());
             BusinessEventManager eventManager = mock(BusinessEventManager.class);
             when(this.applicationContext.createEventManager()).thenReturn(eventManager);
             this.transactionService = injector.getInstance(TransactionService.class);
@@ -276,13 +280,14 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.engineModelService = injector.getInstance(EngineModelService.class);
                 this.relationService = injector.getInstance(RelationService.class);
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+                this.schedulingService = injector.getInstance(SchedulingService.class);
                 this.dataModel = this.createNewDeviceDataService();
                 ctx.commit();
             }
         }
 
         private DataModel createNewDeviceDataService() {
-            this.deviceService = new DeviceDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.clock, environment, relationService, protocolPluggableService, engineModelService, this.deviceConfigurationService, meteringService);
+            this.deviceService = new DeviceDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.clock, environment, relationService, protocolPluggableService, engineModelService, this.deviceConfigurationService, meteringService, schedulingService);
             return this.deviceService.getDataModel();
         }
 
