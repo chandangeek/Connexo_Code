@@ -39,6 +39,8 @@ import java.util.List;
  */
 public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialScheduledConnectionTask> {
 
+    public void setMaxNumberOfTries(int maxNumberOfTries);
+
     /**
      * Gets the time window during which communication with the device
      * is allowed or <code>null</code> if the {@link ConnectionType}
@@ -164,26 +166,5 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      * @see #schedule(Date)
      */
     public Date trigger (Date when);
-
-    /**
-     * Depending on the connectionStrategy and the execution ComTasks,
-     * the number of tries of a ConnectionTask is dynamic.
-     * This number will be updated by the retryLogic in order
-     * to perform correct rescheduling.
-     * Todo: should be moved to the wrapper entitiy that will be part of the engine bundle
-     *
-     * @param maxNumberOfTries the new dynamic maxNumberOfTries
-     */
-    public void setDynamicMaxNumberOfTries(int maxNumberOfTries);
-
-    /**
-     * Applies the {@link ComWindow} to the calculated next execution timestamp
-     * of a {@link ComTaskExecution} before it is actually applied.
-     * Todo (JP-1125): move this down to the implementation class once ComTaskExecution is moved to this bundle
-     *
-     * @param calculatedNextExecutionTimestamp The calculated next execution timestamp
-     * @return The next execution timestamp
-     */
-    public Date applyComWindowIfAny (Date calculatedNextExecutionTimestamp);
 
 }

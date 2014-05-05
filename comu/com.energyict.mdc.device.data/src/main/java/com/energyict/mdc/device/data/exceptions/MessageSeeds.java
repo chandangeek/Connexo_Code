@@ -1,10 +1,11 @@
 package com.energyict.mdc.device.data.exceptions;
 
-import com.elster.jupiter.util.conditions.Constant;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 
 import java.util.logging.Level;
+
+import static java.util.logging.Level.SEVERE;
 
 /**
  * Defines all the {@link MessageSeed}s of the device data module.
@@ -56,6 +57,7 @@ public enum MessageSeeds implements MessageSeed {
     COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE(2029, Constants.COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it has already been made obsolete on {2}", Level.SEVERE),
     COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE(2030, Constants.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it is currently execution on comserver {2}", Level.SEVERE),
     COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2031, Constants.COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not delete comtaskexecution {0} because it is not owned by device {1}", Level.SEVERE),
+    VETO_COM_TASK_ENABLEMENT_DELETION(2032, Constants.VETO_COM_TASK_ENABLEMENT_DELETION, "The device protocol pluggable class {0} is still used by the following device types: {1}", SEVERE),
     ;
     private final int number;
     private final String key;
@@ -140,6 +142,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE = "DDC.comTaskExecutionAlreadyObsolete";
         public static final String COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE = "DDC.comTaskExecutionCannotObsoleteCurrentlyExecuting";
         public static final String COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE = "DDC.comTaskExecutionCannotDeleteNotFromDevice";
+        public static final String VETO_COM_TASK_ENABLEMENT_DELETION = "DDC.comTaskExecution.comTaskEnablement.inUse";
         public static final String CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT = "DDC.connectionTaskRequiredWhenNotUsingDefault";
         public static final String PRIORITY_NOT_IN_RANGE = "DDC.priorityNotInRange";
         public static final String UNIQUE_COMTASKS_PER_DEVICE = "DDC.uniqueComTasksPerDevice";

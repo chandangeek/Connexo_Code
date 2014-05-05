@@ -91,6 +91,7 @@ public class InMemoryIntegrationPersistence {
     private EventService eventService;
     private NlsService nlsService;
     private Clock clock;
+    private JsonService jsonService;
     private Environment environment;
     private RelationService relationService;
     private EngineModelService engineModelService;
@@ -150,6 +151,7 @@ public class InMemoryIntegrationPersistence {
         this.environment.put(InMemoryIntegrationPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
         this.environment.setApplicationContext(this.applicationContext);
         try (TransactionContext ctx = this.transactionService.getContext()) {
+            this.jsonService = injector.getInstance(JsonService.class);
             this.ormService = injector.getInstance(OrmService.class);
             this.transactionService = injector.getInstance(TransactionService.class);
             this.eventService = injector.getInstance(EventService.class);
@@ -157,11 +159,11 @@ public class InMemoryIntegrationPersistence {
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
+            this.taskService = injector.getInstance(TaskService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineModelService = injector.getInstance(EngineModelService.class);
             this.relationService = injector.getInstance(RelationService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-            this.taskService = injector.getInstance(TaskService.class);
             this.dataModel = this.createNewDeviceDataService();
             ctx.commit();
         }
@@ -237,6 +239,10 @@ public class InMemoryIntegrationPersistence {
             InMemoryBootstrapModule inMemoryBootstrapModule = (InMemoryBootstrapModule) bootstrapModule;
             inMemoryBootstrapModule.deactivate();
         }
+    }
+
+    public JsonService getJsonService() {
+        return jsonService;
     }
 
     public EngineModelService getEngineModelService() {

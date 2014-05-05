@@ -210,10 +210,10 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     /**
      * Provides a builder that allows the creation of a ScheduledConnectionTask for the Device
      *
-     * @param partialOutboundConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask
+     * @param partialConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask
      * @return the builder
      */
-    ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask);
+    ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialScheduledConnectionTask partialConnectionTask);
 
     /**
      * Provides a builder that allows the creation of an InboundConnectionTask for the Device

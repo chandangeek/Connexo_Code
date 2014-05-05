@@ -14,6 +14,7 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
@@ -379,7 +380,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         ComTask comTaskTopology = createComTaskWithLogBooks();
 
         this.comTaskEnablement1 = createMockedComTaskEnablement(true, configDialect, comTaskWithBasicCheck);
-        this.comTaskEnablement1 = createMockedComTaskEnablement(true, configDialect, comTaskTopology);
+        this.comTaskEnablement2 = createMockedComTaskEnablement(true, configDialect, comTaskTopology);
 
 //        DeviceFactory deviceFactory = mock(DeviceFactory.class);
 //        when(deviceFactory.findDevice(DEVICE_ID)).thenReturn(this.device);
@@ -421,7 +422,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDevice() {
-        Device simpleDevice = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "SimpleDevice", "1.2.3.4.5");
+        Device simpleDevice = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "SimpleDevice", "ConnectionTaskImplIT", "1.2.3.4.5");
         simpleDevice.save();
         return simpleDevice;
     }
@@ -480,14 +481,13 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private ProtocolDialectConfigurationProperties createDialectConfigProperties() {
-        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.createProtocolDialectConfigurationProperties("MyConfigDialect", new ComTaskExecutionDialect());
+        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
         deviceConfiguration.save();
         return configDialect;
     }
 
     private ComTask createComTaskWithBasicCheck() {
-        ComTask comTask = inMemoryPersistence.getTaskService().createComTask();
-        comTask.setName(COM_TASK_NAME);
+        ComTask comTask = inMemoryPersistence.getTaskService().newComTask(COM_TASK_NAME);
         comTask.setStoreData(true);
         comTask.setMaxNrOfTries(maxNrOfTries);
         comTask.createBasicCheckTask().add();
@@ -496,8 +496,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private ComTask createComTaskWithLogBooks(){
-        ComTask comTask = inMemoryPersistence.getTaskService().createComTask();
-        comTask.setName(COM_TASK_NAME+2);
+        ComTask comTask = inMemoryPersistence.getTaskService().newComTask(COM_TASK_NAME + 2);
         comTask.setStoreData(true);
         comTask.setMaxNrOfTries(maxNrOfTries);
         comTask.createLogbooksTask().add();
@@ -518,6 +517,15 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         return comTaskExecution;
     }
 
+    protected ComTaskExecution createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(ConnectionTask<?, ?> connectionTask, Date nextExecutionTimeStamp){
+        ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement1);
+        comTaskExecutionBuilder.setConnectionTask(connectionTask);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+        ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.setNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);
+        return comTaskExecutionUpdater.update();
+    }
 
     protected ComTaskExecution createComTaskExecution() {
         return createComTaskExecution(comTaskEnablement1);

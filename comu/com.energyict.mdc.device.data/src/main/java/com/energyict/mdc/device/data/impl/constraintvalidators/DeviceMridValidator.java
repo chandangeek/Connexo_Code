@@ -9,7 +9,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 /**
- * Validates that each device has a unique external name
+ * Validates that each device has a unique external name.
  * <p/>
  * Copyrights EnergyICT
  * Date: 10/03/14
@@ -18,7 +18,6 @@ import javax.validation.ConstraintValidatorContext;
 public class DeviceMridValidator implements ConstraintValidator<UniqueMrid, Device> {
 
     private final DeviceDataService deviceDataService;
-    private String message;
 
     @Inject
     public DeviceMridValidator(DeviceDataService deviceDataService) {
@@ -27,7 +26,6 @@ public class DeviceMridValidator implements ConstraintValidator<UniqueMrid, Devi
 
     @Override
     public void initialize(UniqueMrid uniqueName) {
-        message = uniqueName.message();
     }
 
     @Override

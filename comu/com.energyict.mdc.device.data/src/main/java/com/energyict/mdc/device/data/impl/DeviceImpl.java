@@ -33,6 +33,8 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ComTaskEnablement;
@@ -253,6 +255,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private void notifyDeviceIsGoingToBeDeleted() {
+        // todo create event instead!
         List<DeviceDependant> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceDependant.class);
         for (DeviceDependant deviceDependant : modulesImplementing) {
             deviceDependant.notifyDeviceDelete(this);
@@ -467,10 +470,41 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private void topologyChanged() {
-        List<DeviceDependant> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceDependant.class);
-        if (!modulesImplementing.isEmpty()) {
-            modulesImplementing.get(0).topologyChanged(this);
+        List<ComTaskExecution> comTasksForDefaultConnectionTask = this.deviceDataService.findComTasksByDefaultConnectionTask(this);
+        Device gateway = this.getPhysicalGateway();
+            if (gateway != null) {
+                updateComTasksToUseNewDefaultConnectionTask(comTasksForDefaultConnectionTask);
+            } else {
+                updateComTasksToUseNonExistingDefaultConnectionTask(comTasksForDefaultConnectionTask);
+            }
+
+    }
+
+    private void updateComTasksToUseNonExistingDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
+        for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
+            ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = getComTaskExecutionUpdater(comTaskExecution);
+            comTaskExecutionUpdater.setConnectionTask(null);
+            comTaskExecutionUpdater.setUseDefaultConnectionTaskFlag(true);
+            comTaskExecutionUpdater.update();
         }
+    }
+
+    private void updateComTasksToUseNewDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask){
+        ConnectionTask<?,?> defaultConnectionTaskForGateway = getDefaultConnectionTask();
+        for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
+            ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = getComTaskExecutionUpdater(comTaskExecution);
+            comTaskExecutionUpdater.setUseDefaultConnectionTask(defaultConnectionTaskForGateway);
+            comTaskExecutionUpdater.update();
+        }
+    }
+
+    private ConnectionTask<?, ?> getDefaultConnectionTask() {
+        for (ConnectionTaskImpl<?, ?> connectionTask : connectionTasks) {
+            if(connectionTask.isDefault()){
+                return connectionTask;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -868,8 +902,8 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     @Override
-    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask) {
-        return new ScheduledConnectionTaskBuilderForDevice(this, partialOutboundConnectionTask);
+    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialScheduledConnectionTask partialScheduledConnectionTask) {
+        return new ScheduledConnectionTaskBuilderForDevice(this, partialScheduledConnectionTask);
     }
 
     @Override

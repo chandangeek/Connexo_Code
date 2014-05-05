@@ -6,6 +6,7 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.data.impl.InfoType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
@@ -172,7 +173,7 @@ public interface DeviceDataService {
      */
     public void clearDefaultConnectionTask (Device device);
 
-    void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask);
+    void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask defaultConnectionTask);
 
     /**
      * Attempts to lock the {@link ConnectionTask} that is about to be executed
@@ -407,4 +408,6 @@ public interface DeviceDataService {
      * Returns true if the ComSchedule has been linked to a device
      */
     public boolean isLinkedToDevices(ComSchedule comSchedule);
+
+    List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device);
 }
