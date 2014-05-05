@@ -39,6 +39,7 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_MAPPING_TIME_OF_USE_TOO_SMALL(1408, Keys.REGISTER_MAPPING_TIMEOFUSE_TOO_SMALL, "The time of use must be a positive number", SEVERE),
     REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE(1409, "registerMapping.usedBy.loadProfileType", "The register mapping {0} cannot be deleted because it is still in use by the following load profile type(s): {1}", SEVERE),
     REGISTER_MAPPING_UNIT_DOES_NOT_MATCH_PHENOMENON(1410, "registerMapping.unit.noMatchingPhenomenon" , "The unit {0} could not be associated with an existing phenomenon", SEVERE),
+    REGISTER_GROUP_REQUIRES_REGISTER_TYPES(1411, "registerGroup.items.noRegisterType" , "The register group requires at least a register type", SEVERE),
 
     LOAD_PROFILE_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(1500, "loadProfileType.cannotUpdateObisCode", "The obis code of the load profile type \"{0}\" cannot be updated because it is in use", SEVERE),
     LOAD_PROFILE_TYPE_INTERVAL_CANNOT_BE_UPDATED(1501, "loadProfileType.cannotUpdateInterval", "The interval of the load profile type \"{0}\" cannot be updated because it is in use", SEVERE),
