@@ -12,7 +12,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class RegisterMappingInfo {
 
     public long id;
