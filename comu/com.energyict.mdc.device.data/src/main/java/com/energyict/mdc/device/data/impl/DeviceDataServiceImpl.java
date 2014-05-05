@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
@@ -57,6 +58,7 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -66,6 +68,8 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -74,6 +78,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -139,6 +144,13 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     @Override
     public void releaseInterruptedConnectionTasks(ComServer comServer) {
         SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.MDCCONNECTIONTASK.name() + " SET comserver = NULL WHERE comserver = ?");
+        sqlBuilder.bindLong(comServer.getId());
+        this.executeUpdate(sqlBuilder);
+    }
+
+    @Override
+    public void releaseInterruptedComTasks(ComServer comServer) {
+        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.MDCCOMTASKEXEC.name() + " SET comport = NULL, executionStart = null WHERE comport in (select id from mdccomport where COMSERVERID = ?)");
         sqlBuilder.bindLong(comServer.getId());
         this.executeUpdate(sqlBuilder);
     }
@@ -363,9 +375,14 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
         if (lockResult.isPresent()) {
             T lockedConnectionTask = (T) lockResult.get();
             if (lockedConnectionTask.getExecutingComServer() == null) {
-                ((ConnectionTaskImpl) lockedConnectionTask).setExecutingComServer(comServer);
-                ((ConnectionTaskImpl) lockedConnectionTask).save();
-                return lockedConnectionTask;
+                try {
+                    ((ConnectionTaskImpl) lockedConnectionTask).setExecutingComServer(comServer);
+                    lockedConnectionTask.save();
+                    return lockedConnectionTask;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw e;
+                }
             }
             else {
                 // No database lock but business lock is already set
@@ -971,5 +988,36 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     @Override
     public List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device) {
         return this.dataModel.mapper(ComTaskExecution.class).find(ComTaskExecutionFields.DEVICE.fieldName(), device, ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName(), true);
+    }
+
+    @Override
+    public List<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort) {
+        List<OutboundComPortPool> comPortPools = this.engineModelService.findContainingComPortPoolsForComPort((OutboundComPort) comPort);
+        if(!comPortPools.isEmpty()){
+            Date now = this.clock.now();
+            Condition condition = Where.where("connectionTask.paused").isEqualTo(false)
+                    .and(where("connectionTask.comServer").isNull())
+                    .and(where("connectionTask.obsoleteDate").isNull())
+                    .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                    .and(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now))
+                    .and(where("connectionTask.nextExecutionTimestamp").isLessThanOrEqual(now))
+                    .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNull())
+                    .and(ListOperator.IN.contains("connectionTask.comPortPool", comPortPools));
+            return this.dataModel.query(ComTaskExecution.class, ConnectionTask.class).select(condition,
+                    Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
+                    Order.ascending(ComTaskExecutionFields.PRIORITY.fieldName()),
+                    Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds) {
+        Date now = this.clock.now();
+        Condition condition = Where.where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)
+                .and(ListOperator.IN.contains("id", new ArrayList<>(comTaskExecutionIds)))
+                .and(where("connectionTask.comServer").isNull());
+        return this.dataModel.query(ComTaskExecution.class, ConnectionTask.class).select(condition).size() > 0;
     }
 }

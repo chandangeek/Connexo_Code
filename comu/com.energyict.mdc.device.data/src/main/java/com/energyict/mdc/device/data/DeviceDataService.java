@@ -22,6 +22,8 @@ import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
+
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -217,6 +219,8 @@ public interface DeviceDataService {
      */
     public void releaseTimedOutConnectionTasks(ComServer outboundCapableComServer);
 
+    public void releaseInterruptedComTasks(ComServer comServer);
+
     /**
      * Creates a new Device based on the given name and DeviceConfiguration
      *
@@ -397,6 +401,8 @@ public interface DeviceDataService {
     List<ComTaskExecution> findComTaskExecutionsByComSchedule(ComSchedule comSchedule);
     List<ComTaskExecution> findComTaskExecutionsByComScheduleWithinRange(ComSchedule comSchedule, long minId, long maxId);
 
+    List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device);
+
     /**
      * Find all ComTasks that can be added to the ComSchedule, i.e. all ComTasks that have a ComTaskEnablement for all
      * devices linked to the ComSchedule.
@@ -408,5 +414,7 @@ public interface DeviceDataService {
      */
     public boolean isLinkedToDevices(ComSchedule comSchedule);
 
-    List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device);
+    List<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort);
+
+    boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds);
 }

@@ -156,8 +156,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new MasterDataModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
-                new DeviceDataModule(),
-                new SchedulingModule());
+                new SchedulingModule(),
+                new DeviceDataModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         Environment environment = injector.getInstance(Environment.class);
         environment.put(InMemoryPersistenceWithMockedDeviceProtocol.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
@@ -260,6 +260,10 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
     public EventService getEventService() {
         return eventService;
+    }
+
+    public SchedulingService getSchedulingService() {
+        return schedulingService;
     }
 
     public static String query(String sql) {

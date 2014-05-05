@@ -4,6 +4,8 @@ import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
+import java.util.Date;
+
 /**
  * Represents the counterpart of {@link TaskStatus} for {@link ComTaskExecution}s
  * and adds behavior that is reserved for server components.
@@ -24,7 +26,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo (ServerComTaskExecution task) {
+        public boolean appliesTo(ServerComTaskExecution task, Date now) {
             return task.isOnHold();
         }
 
@@ -44,18 +46,17 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo (ServerComTaskExecution task) {
+        public boolean appliesTo(ServerComTaskExecution task, Date now) {
             return task.isExecuting() && !task.isOnHold();
         }
 
         @Override
         public void completeFindBySqlBuilder (SqlBuilder sqlBuilder, long now) {
-            //TODO JP-1125
-//            super.completeFindBySqlBuilder(sqlBuilder, now);
-//            sqlBuilder.append("and ((comport is not null) or " +
-//                    "((exists (select * from mdcconnectiontask where mdcconnectiontask.comserver is not null and mdcconnectiontask.id = mdccomtaskexec.connectiontask))" +
-//                    " and mdccomtaskexec.nextExecutionTimestamp is not null and mdccomtaskexec.nextexecutiontimestamp <= ?))");
-//            sqlBuilder.bindLong(Utils.asSeconds(Clocks.getAppServerClock().now()));
+            super.completeFindBySqlBuilder(sqlBuilder, now);
+            sqlBuilder.append("and ((comport is not null) or " +
+                    "((exists (select * from mdcconnectiontask where mdcconnectiontask.comserver is not null and mdcconnectiontask.id = mdccomtaskexec.connectiontask))" +
+                    " and mdccomtaskexec.nextExecutionTimestamp is not null and mdccomtaskexec.nextexecutiontimestamp <= ?))");
+            sqlBuilder.bindLong(now);
         }
     },
 
@@ -69,24 +70,19 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo (ServerComTaskExecution task) {
-            //TODO JP-1125
-            return false;
-
-//            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
-//            return !task.isExecuting()
-//                && nextExecutionTimestamp != null
-//                && Clocks.getAppServerClock().now().after(nextExecutionTimestamp);
+        public boolean appliesTo(ServerComTaskExecution task, Date now) {
+            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
+            return !task.isExecuting()
+                    && nextExecutionTimestamp != null
+                    && now.compareTo(nextExecutionTimestamp) >= 0;
         }
 
         @Override
         public void completeFindBySqlBuilder (SqlBuilder sqlBuilder, long now) {
-            //TODO JP-1125
-
-//            super.completeFindBySqlBuilder(sqlBuilder, now);
-//            sqlBuilder.append("and comport is null and not exists (select * from mdcconnectiontask where mdcconnectiontask.comserver is not null and mdcconnectiontask.id = mdccomtaskexec.connectiontask)");
-//            sqlBuilder.append("and nextexecutiontimestamp <= ?");
-//            sqlBuilder.bindLong(Utils.asSeconds(Clocks.getAppServerClock().now()));
+            super.completeFindBySqlBuilder(sqlBuilder, now);
+            sqlBuilder.append("and comport is null and not exists (select * from mdcconnectiontask where mdcconnectiontask.comserver is not null and mdcconnectiontask.id = mdccomtaskexec.connectiontask)");
+            sqlBuilder.append("and nextexecutiontimestamp <= ?");
+            sqlBuilder.bindLong(now);
         }
     },
 
@@ -100,15 +96,13 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo (ServerComTaskExecution task) {
-            //TODO JP-1125
-            return false;
-//            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
-//            return task.getLastSuccessfulCompletionTimestamp() == null
-//                    && task.getExecutingComPort() == null
-//                    && task.getCurrentTryCount() == 0
-//                    && nextExecutionTimestamp != null
-//                    && nextExecutionTimestamp.after(Clocks.getAppServerClock().now());
+        public boolean appliesTo(ServerComTaskExecution task, Date now) {
+            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
+            return task.getLastSuccessfulCompletionTimestamp() == null
+                    && task.getExecutingComPort() == null
+                    && task.getCurrentTryCount() == 0
+                    && nextExecutionTimestamp != null
+                    && nextExecutionTimestamp.after(now);
         }
 
         @Override
@@ -133,7 +127,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo (ServerComTaskExecution task) {
+        public boolean appliesTo(ServerComTaskExecution task, Date now) {
             int retryCount = task.getCurrentTryCount() - 1;
             return task.getNextExecutionTimestamp() != null
                 && !task.isExecuting()
@@ -142,12 +136,11 @@ public enum ServerComTaskStatus {
 
         @Override
         public void completeFindBySqlBuilder (SqlBuilder sqlBuilder, long now) {
-            //TODO JP-1125
-//            super.completeFindBySqlBuilder(sqlBuilder, now);
-//            sqlBuilder.append("and nextexecutiontimestamp > ? ");
-//            sqlBuilder.bindLong(Utils.asSeconds(Clocks.getAppServerClock().now()));
-//            sqlBuilder.append("and comport is null ");
-//            sqlBuilder.append("and currentretrycount > 0");  // currentRetryCount is only incremented when task fails. It is reset to 0 when the maxTries is reached
+            super.completeFindBySqlBuilder(sqlBuilder, now);
+            sqlBuilder.append("and nextexecutiontimestamp > ? ");
+            sqlBuilder.bindLong(now);
+            sqlBuilder.append("and comport is null ");
+            sqlBuilder.append("and currentretrycount > 0");  // currentRetryCount is only incremented when task fails. It is reset to 0 when the maxTries is reached
         }
     },
 
@@ -161,16 +154,14 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo (ServerComTaskExecution task) {
-            //TODO JP-1125
-            return false;
-//            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
-//            int retryCount = task.getCurrentTryCount() - 1;
-//            return nextExecutionTimestamp != null
-//                && nextExecutionTimestamp.after(Clocks.getAppServerClock().now())
-//                && task.getLastSuccessfulCompletionTimestamp() != null
-//                && task.lastExecutionFailed()
-//                && retryCount == 0;
+        public boolean appliesTo(ServerComTaskExecution task, Date now) {
+            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
+            int retryCount = task.getCurrentTryCount() - 1;
+            return nextExecutionTimestamp != null
+                && nextExecutionTimestamp.after(now)
+                && task.getLastSuccessfulCompletionTimestamp() != null
+                && task.lastExecutionFailed()
+                && retryCount == 0;
         }
 
         @Override
@@ -195,27 +186,23 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo (ServerComTaskExecution task) {
-            //TODO JP-1125
-return false;
-//            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
-//            return !task.isExecuting()
-//                    && task.getLastSuccessfulCompletionTimestamp() != null
-//                    && nextExecutionTimestamp != null
-//                    && nextExecutionTimestamp.after(Clocks.getAppServerClock().now())
-//                    && !task.lastExecutionFailed();
+        public boolean appliesTo(ServerComTaskExecution task, Date now) {
+            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
+            return !task.isExecuting()
+                    && task.getLastSuccessfulCompletionTimestamp() != null
+                    && nextExecutionTimestamp != null
+                    && nextExecutionTimestamp.after(now)
+                    && !task.lastExecutionFailed();
         }
 
         @Override
         public void completeFindBySqlBuilder (SqlBuilder sqlBuilder, long now) {
-            //TODO JP-1125
-
-//            super.completeFindBySqlBuilder(sqlBuilder, now);
-//            sqlBuilder.append("and comport is null ");
-//            sqlBuilder.append("and lastSuccessfulCompletion is not null ");
-//            sqlBuilder.append("and nextexecutiontimestamp > ?");
-//            sqlBuilder.bindLong(Utils.asSeconds(Clocks.getAppServerClock().now()));
-//            sqlBuilder.append("and lastExecutionFailed = 0");
+            super.completeFindBySqlBuilder(sqlBuilder, now);
+            sqlBuilder.append("and comport is null ");
+            sqlBuilder.append("and lastSuccessfulCompletion is not null ");
+            sqlBuilder.append("and nextexecutiontimestamp > ?");
+            sqlBuilder.bindLong(now);
+            sqlBuilder.append("and lastExecutionFailed = 0");
         }
     };
 
@@ -232,9 +219,10 @@ return false;
      *
      *
      * @param task The ComTaskExecution
+     * @param now
      * @return <code>true</code> iff this ServerTaskStatus applies to the ComTaskExecution
      */
-    public abstract boolean appliesTo (ServerComTaskExecution task);
+    public abstract boolean appliesTo(ServerComTaskExecution task, Date now);
 
     public void completeFindBySqlBuilder (SqlBuilder sqlBuilder, long now) {
         sqlBuilder.append("obsolete_date is null ");
@@ -244,14 +232,15 @@ return false;
      * Gets the {@link TaskStatus} that applies to the specified {@link ComTaskExecution}.
      *
      * @param task The ComTaskExecution
+     * @param now
      * @return The applicable TaskStatus
      */
-    public static TaskStatus getApplicableStatusFor (ServerComTaskExecution task) {
+    public static TaskStatus getApplicableStatusFor(ServerComTaskExecution task, Date now) {
         /* Implementation note:
          * Changing the order of the enum values
          * will/can have an effect on the outcome. */
         for (ServerComTaskStatus serverComTaskStatus : values()) {
-            if (serverComTaskStatus.appliesTo(task)) {
+            if (serverComTaskStatus.appliesTo(task, now)) {
                 return serverComTaskStatus.getPublicStatus();
             }
         }

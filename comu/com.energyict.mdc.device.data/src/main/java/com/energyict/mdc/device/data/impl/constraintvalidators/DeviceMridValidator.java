@@ -34,7 +34,7 @@ public class DeviceMridValidator implements ConstraintValidator<UniqueMrid, Devi
         Device other = this.deviceDataService.findByUniqueMrid(device.getmRID());
         if (other != null && other.getId() != device.getId()) {
             constraintValidatorContext.disableDefaultConstraintViolation();
-            constraintValidatorContext.buildConstraintViolationWithTemplate(message).addPropertyNode(DeviceFields.MRID.fieldName()).addConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate(constraintValidatorContext.getDefaultConstraintMessageTemplate()).addPropertyNode(DeviceFields.MRID.fieldName()).addConstraintViolation();
             return false;
         }
         return true;

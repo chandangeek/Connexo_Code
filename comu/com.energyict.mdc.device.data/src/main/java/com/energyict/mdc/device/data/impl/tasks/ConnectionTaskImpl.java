@@ -320,7 +320,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     // Keep as reference for ConnectionTaskExecutionAspects implementation in the mdc.engine bundle
-    public void executionStarted(final ComServer comServer) throws SQLException, BusinessException {
+    public void executionStarted(final ComServer comServer) {
         this.doExecutionStarted(comServer);
         this.post();
     }
