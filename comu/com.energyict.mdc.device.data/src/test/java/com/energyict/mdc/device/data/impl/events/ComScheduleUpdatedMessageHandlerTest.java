@@ -44,7 +44,7 @@ public class ComScheduleUpdatedMessageHandlerTest {
     Map<String,Object> map = new HashMap<>();
 
     @Test
-    public void testRecalculate() throws Exception {
+    public void testRecalculateBigSet() throws Exception {
         when(dataModel.getConnection(anyBoolean())).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.getResultSet()).thenReturn(resultSet);
@@ -68,5 +68,43 @@ public class ComScheduleUpdatedMessageHandlerTest {
         assertThat(idRangeArgumentCaptor.getAllValues().get(8).minId).isEqualTo(8100L);
         assertThat(idRangeArgumentCaptor.getAllValues().get(8).maxId).isEqualTo(9000L);
 
+    }
+
+    @Test
+    public void testRecalculateSingleSet() throws Exception {
+        when(dataModel.getConnection(anyBoolean())).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.getResultSet()).thenReturn(resultSet);
+        when(resultSet.getLong(0)).thenReturn(100L);
+        when(resultSet.getLong(1)).thenReturn(200L);
+        when(jsonService.deserialize((byte[]) anyObject(), (Class<?>) anyObject())).thenReturn(map);
+        map.put("id", 7);
+        map.put("event.topics", "com/energyict/mdc/scheduling/comschedules/UPDATED");
+        ComScheduleUpdatedMessageHandler messageHandler = new ComScheduleUpdatedMessageHandler(jsonService, eventService, dataModel);
+        messageHandler.process(message);
+
+        ArgumentCaptor<ComScheduleUpdatedMessageHandler.IdRange> idRangeArgumentCaptor = ArgumentCaptor.forClass(ComScheduleUpdatedMessageHandler.IdRange.class);
+        verify(eventService, times(1)).postEvent(anyString(), idRangeArgumentCaptor.capture());
+        assertThat(idRangeArgumentCaptor.getAllValues().get(0).minId).isEqualTo(100L);
+        assertThat(idRangeArgumentCaptor.getAllValues().get(0).maxId).isEqualTo(200L);
+    }
+
+    @Test
+    public void testRecalculateFullSet() throws Exception {
+        when(dataModel.getConnection(anyBoolean())).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.getResultSet()).thenReturn(resultSet);
+        when(resultSet.getLong(0)).thenReturn(1L);
+        when(resultSet.getLong(1)).thenReturn(1000L);
+        when(jsonService.deserialize((byte[]) anyObject(), (Class<?>) anyObject())).thenReturn(map);
+        map.put("id", 7);
+        map.put("event.topics", "com/energyict/mdc/scheduling/comschedules/UPDATED");
+        ComScheduleUpdatedMessageHandler messageHandler = new ComScheduleUpdatedMessageHandler(jsonService, eventService, dataModel);
+        messageHandler.process(message);
+
+        ArgumentCaptor<ComScheduleUpdatedMessageHandler.IdRange> idRangeArgumentCaptor = ArgumentCaptor.forClass(ComScheduleUpdatedMessageHandler.IdRange.class);
+        verify(eventService, times(1)).postEvent(anyString(), idRangeArgumentCaptor.capture());
+        assertThat(idRangeArgumentCaptor.getAllValues().get(0).minId).isEqualTo(1L);
+        assertThat(idRangeArgumentCaptor.getAllValues().get(0).maxId).isEqualTo(1000L);
     }
 }
