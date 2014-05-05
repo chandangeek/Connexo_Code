@@ -86,7 +86,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
     }
 
     private void install(boolean executeDdl) {
-        new Installer(this.dataModel, this.thesaurus).install(executeDdl, false, true);
+        new Installer(this.dataModel, this.thesaurus).install(executeDdl, true);
     }
 
     @Deactivate
