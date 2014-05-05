@@ -676,6 +676,14 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
                         .and(Where.where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()));
     }
 
+    @Override
+    public List<ComTaskExecution> findComTaskExecutionsByComScheduleWithinRange(ComSchedule comSchedule, long minId, long maxId) {
+        return this.dataModel.query(ComTaskExecution.class)
+                .select(Where.where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule)
+                    .and(Where.where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                    .and(Where.where(ComTaskExecutionFields.ID.fieldName()).between(minId).and(maxId)));
+    }
+
 
     @Override
     public boolean isLinkedToDevices(ComSchedule comSchedule) {

@@ -395,6 +395,7 @@ public interface DeviceDataService {
      * @return all the ComTaskExecutions (which are not obsolete) for the given ConnectionTask
      */
     List<ComTaskExecution> findComTaskExecutionsByComSchedule(ComSchedule comSchedule);
+    List<ComTaskExecution> findComTaskExecutionsByComScheduleWithinRange(ComSchedule comSchedule, long minId, long maxId);
 
     /**
      * Find all ComTasks that can be added to the ComSchedule, i.e. all ComTasks that have a ComTaskEnablement for all
