@@ -86,7 +86,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     public void install() {
         createTranslations();
         if(!dataModel.isInstalled()){
-            dataModel.install(true, true);
+            dataModel.install(true, false);
         }
     }
 
