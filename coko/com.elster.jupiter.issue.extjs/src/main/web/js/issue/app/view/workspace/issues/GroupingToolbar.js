@@ -6,7 +6,8 @@ Ext.define('Isu.view.workspace.issues.GroupingToolbar', {
     showClearButton: false,
     content: {
         xtype: 'combobox',
-        name: 'groupnames',
+        name: 'groupingcombo',
+        store: 'Isu.store.IssueGrouping',
         editable: false,
         emptyText: 'None',
         queryMode: 'local',
