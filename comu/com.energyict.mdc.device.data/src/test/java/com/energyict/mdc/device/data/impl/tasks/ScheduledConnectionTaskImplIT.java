@@ -809,7 +809,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void updateToMinimizeDefaultTestNextExecutionTimeStamp() throws SQLException, BusinessException {
         Date comTaskNextExecutionTimeStamp = freezeClock(2013, Calendar.FEBRUARY, 13);
 
-        freezeClock(2013, Calendar.FEBRUARY, 13, 10, 53, 20, 0);    // anything, as long as it's different from comTaskNextExecutionTimeStamp
+        freezeClock(2013, Calendar.FEBRUARY, 17, 10, 53, 20, 0);    // anything, as long as it's different from comTaskNextExecutionTimeStamp
 
         ScheduledConnectionTaskImpl notDefaultConnectionTask = this.createMinimizeWithNoPropertiesWithoutViolations("updateToDefaultTestNextExecutionTimeStamp", new TemporalExpression(EVERY_HOUR));
         notDefaultConnectionTask.save();
@@ -826,7 +826,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(reloaded.getNextExecutionTimestamp()).isEqualTo(nextExecutionTimestamp);
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.getNextExecutionTimestamp()).isEqualTo(nextExecutionTimestamp);
-        assertThat(reloadedComTaskExecution.getPlannedNextExecutionTimestamp()).isNull();
+        assertThat(reloadedComTaskExecution.getPlannedNextExecutionTimestamp()).isEqualTo(nextExecutionTimestamp);
     }
 
     @Test
