@@ -32,9 +32,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -44,6 +41,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -74,6 +73,7 @@ public class InMemoryPersistence {
     private Injector injector;
 
     private ApplicationContext applicationContext;
+    private Environment environment;
 
     public void initializeDatabase(String testName, boolean showSqlLogging, boolean createDefaults) {
         this.initializeMocks(testName);
@@ -106,6 +106,7 @@ public class InMemoryPersistence {
             environment = injector.getInstance(Environment.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.mdcReadingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
+            this.environment = injector.getInstance(Environment.class);
             this.dataModel = this.createNewMasterDataService(createDefaults);
             ctx.commit();
         }
@@ -114,7 +115,7 @@ public class InMemoryPersistence {
     }
 
     private DataModel createNewMasterDataService(boolean createDefaults) {
-        this.masterDataService = new MasterDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.mdcReadingTypeUtilService, createDefaults);
+        this.masterDataService = new MasterDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.mdcReadingTypeUtilService, createDefaults, environment);
         return this.masterDataService.getDataModel();
     }
 
