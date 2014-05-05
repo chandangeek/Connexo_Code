@@ -254,10 +254,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         return deviceService;
     }
 
-    public SchedulingService getSchedulingService() {
-        return schedulingService;
-    }
-
     public EventService getEventService() {
         return eventService;
     }
