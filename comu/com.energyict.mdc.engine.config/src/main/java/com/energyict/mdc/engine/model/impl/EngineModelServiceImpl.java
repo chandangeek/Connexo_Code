@@ -78,7 +78,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
         activate();
         createTranslations();
         if (!dataModel.isInstalled()) {
-            dataModel.install(true, false);
+            dataModel.install(true, true);
         }
     }
 
@@ -86,7 +86,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     public void install() {
         createTranslations();
         if(!dataModel.isInstalled()){
-            dataModel.install(true, false);
+            dataModel.install(true, true);
         }
     }
 
