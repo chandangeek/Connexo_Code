@@ -57,9 +57,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -69,6 +66,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;

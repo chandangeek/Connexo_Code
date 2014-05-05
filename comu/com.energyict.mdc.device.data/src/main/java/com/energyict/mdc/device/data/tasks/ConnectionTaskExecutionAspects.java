@@ -1,11 +1,7 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.protocol.api.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionException;
-
 import java.sql.SQLException;
 
 /**

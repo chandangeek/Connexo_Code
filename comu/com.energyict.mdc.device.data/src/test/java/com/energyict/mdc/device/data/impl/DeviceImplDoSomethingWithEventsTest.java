@@ -287,7 +287,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         }
 
         private DataModel createNewDeviceDataService() {
-            this.deviceService = new DeviceDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.clock, environment, relationService, protocolPluggableService, engineModelService, this.deviceConfigurationService, meteringService, this.schedulingService);
+            this.deviceService = new DeviceDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.clock, environment, relationService, protocolPluggableService, engineModelService, this.deviceConfigurationService, meteringService, schedulingService);
             return this.deviceService.getDataModel();
         }
 
