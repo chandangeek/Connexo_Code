@@ -45,7 +45,7 @@ public enum OutputConfigurationMessage implements DeviceMessageSpec {
         return id;
     }
 
-    private static final DeviceMessageCategory category = DeviceMessageCategories.DEVICE_ACTIONS;
+    private static final DeviceMessageCategory category = DeviceMessageCategories.OUTPUT_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
