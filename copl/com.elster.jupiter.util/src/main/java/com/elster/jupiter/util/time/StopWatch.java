@@ -10,30 +10,51 @@ public final class StopWatch {
 	
 	private static final ThreadMXBean THREAD_MX_BEAN = ManagementFactory.getThreadMXBean();
 	private final boolean measureCpu;
-    private State state = new Running();
-	private long cpu;
-	private long elapsed;
-	private long lap;
+    private State state = new Stopped();
+	private long cpu = 0;
+	private long elapsed = 0;
+	private long lap = 0;
+	private long cpuStart;
+	private long elapsedStart;
+	private long lapStart;
 
     private interface State {
         long getElapsed();
-
         long getCpu();
+        State stop();
+        State start();
     }
 
     private class Running implements State {
 
         @Override
         public long getCpu() {
-            return THREAD_MX_BEAN.getCurrentThreadCpuTime() - cpu;
+            return THREAD_MX_BEAN.getCurrentThreadCpuTime() - cpuStart + cpu;
         }
 
         @Override
         public long getElapsed() {
-            return System.nanoTime() - elapsed;
+            return System.nanoTime() - elapsedStart + elapsed;
+        }
+        
+        @Override
+        public State start() {
+        	return this;
+        }
+        
+        @Override
+        public State stop() {
+        	if (measureCpu) {
+    			cpu += THREAD_MX_BEAN.getCurrentThreadCpuTime() - cpuStart;
+    		}
+    		long now = System.nanoTime();
+    		elapsed += now - elapsedStart;
+    		lap += now - lapStart;
+        	return new Stopped();
         }
     }
 
+    
     private class Stopped implements State {
 
         @Override
@@ -44,6 +65,21 @@ public final class StopWatch {
         @Override
         public long getElapsed() {
             return elapsed;
+        }
+        
+        @Override
+        public State start() {
+        	elapsedStart = System.nanoTime();	
+    		lapStart = elapsedStart;
+    		if (measureCpu) {
+    			cpuStart = THREAD_MX_BEAN.getCurrentThreadCpuTime();
+    		}
+    		return new Running();
+        }
+        
+        @Override
+        public State stop() {
+        	return this;
         }
     }
 
@@ -59,27 +95,25 @@ public final class StopWatch {
      */
 	public StopWatch(boolean measureCpu) {
 		this.measureCpu = measureCpu;
-		this.elapsed = System.nanoTime();	
-		this.lap = elapsed;
-		if (measureCpu) {
-			this.cpu = THREAD_MX_BEAN.getCurrentThreadCpuTime();
-		}
+		start();
 	}
 
     /**
      * Marks the end of timing.
      */
 	public void stop() {
-		if (measureCpu) {
-			this.cpu = THREAD_MX_BEAN.getCurrentThreadCpuTime() - cpu;
-		}
-		this.elapsed = System.nanoTime() - elapsed;
-        state = new Stopped();
+		state = state.stop();
 	}
 	
-	@Override
+	/*
+	 * Restarts 
+	 */
+	public final void start() {
+		state = state.start();
+	}
+	
 	public String toString() {
-		return "Elapsed: " + elapsed + " ns - Cpu: " + cpu + " ns";
+		return "Elapsed: " + getElapsed() + " ns - Cpu: " + getCpu() + " ns";
 	}
 
 	public long getElapsed() {
@@ -91,9 +125,11 @@ public final class StopWatch {
 	}
 	
 	public long lap() {
-		long previousLap = lap;
-		this.lap = System.nanoTime();
-		return lap - previousLap;
+		long previousLap = lapStart;
+		this.lapStart = System.nanoTime();
+		long result = lapStart - previousLap + lap;
+		lap = 0;
+		return result;
 	}
 	
 }
