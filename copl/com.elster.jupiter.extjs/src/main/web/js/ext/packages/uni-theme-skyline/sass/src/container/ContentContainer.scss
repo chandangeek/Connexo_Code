@@ -1,7 +1,3 @@
-@include container(
-    'contentcontainer'
-);
-
 .#{$prefix}container-contentcontainer {
     background-color: $contentcontainer-default-background-color;
 
