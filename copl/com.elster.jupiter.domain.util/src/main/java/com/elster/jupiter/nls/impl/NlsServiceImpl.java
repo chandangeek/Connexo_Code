@@ -152,7 +152,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
 	
 	private String resolveParameter(String parameter) {
 		String base = removeCurlyBrace(parameter);
-		String[] parts = base.split("\\.");
+		String[] parts = base.split("\\.",2);
 		if (parts.length < 2) {
 			return parameter;
 		}

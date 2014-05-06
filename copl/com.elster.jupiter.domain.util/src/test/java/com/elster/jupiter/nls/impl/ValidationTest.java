@@ -97,7 +97,7 @@ public class ValidationTest {
     	List<Translation> result = new ArrayList<>();
     	SimpleNlsKey nlsKey = SimpleNlsKey.key("DUM", Layer.DOMAIN, "empty");
     	result.add(SimpleTranslation.translation(nlsKey,Locale.FRANCE,"vide ({javax.validation.constraints.NotNull.message})"));
-    	nlsKey = SimpleNlsKey.key("DUM", Layer.DOMAIN, "minSize");
+    	nlsKey = SimpleNlsKey.key("DUM", Layer.DOMAIN, "min.size");
     	result.add(SimpleTranslation.translation(nlsKey,Locale.FRANCE,"svp ne laissez pas {DUM.empty}, valeur minimal: {min}"));
     	return result;
     }
@@ -105,7 +105,7 @@ public class ValidationTest {
     public class Bean {
     	@NotNull(message="{DUM.empty}")    	
     	private String name;
-    	@Size(message="{DUM.minSize}", min=10 )
+    	@Size(message="{DUM.min.size}", min=10 )
     	private String description = "N/A";
     }
 
