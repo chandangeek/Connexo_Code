@@ -23300,50 +23300,6 @@ a.x-color-picker-item:hover {
   background-repeat: no-repeat;
 }
 
-/* line 1, ../../sass/src/Headings.scss */
-h1, h2, h3, h4, h5, h6 {
-  text-decoration: none;
-  font-weight: normal;
-  font-family: "Marvel", helvetica, arial, verdana, sans-serif;
-  color: #686868;
-  margin: 0;
-}
-
-/* line 9, ../../sass/src/Headings.scss */
-h1, h2 {
-  color: #1e7d9e;
-}
-
-/* line 13, ../../sass/src/Headings.scss */
-h1 {
-  font-size: 60px;
-}
-
-/* line 17, ../../sass/src/Headings.scss */
-h2 {
-  font-size: 30px;
-}
-
-/* line 21, ../../sass/src/Headings.scss */
-h3 {
-  font-size: 20px;
-}
-
-/* line 25, ../../sass/src/Headings.scss */
-h4 {
-  font-size: 18px;
-}
-
-/* line 29, ../../sass/src/Headings.scss */
-h5 {
-  font-size: 16px;
-}
-
-/* line 33, ../../sass/src/Headings.scss */
-h6 {
-  font-size: 14px;
-}
-
 /* line 5, ../../sass/src/container/BreadcrumbTrail.scss */
 .x-container-breadcrumbtrail {
   background-color: #71adc7;
@@ -23374,7 +23330,11 @@ h6 {
   border-bottom: #587b9b solid 1px;
 }
 /* line 41, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher, .x-container-navigationheader .nav-toggler, .x-container-navigationheader .notifications-anchor, .x-container-navigationheader .nav-help, .x-container-navigationheader .user-menu {
+.x-container-navigationheader .nav-appswitcher,
+.x-container-navigationheader .nav-toggler,
+.x-container-navigationheader .notifications-anchor,
+.x-container-navigationheader .nav-help,
+.x-container-navigationheader .user-menu {
   background: none;
   border: none;
   border-radius: 0;
@@ -23383,16 +23343,28 @@ h6 {
   padding: 0;
 }
 /* line 9, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-button, .x-container-navigationheader .nav-toggler .x-btn-button, .x-container-navigationheader .notifications-anchor .x-btn-button, .x-container-navigationheader .nav-help .x-btn-button, .x-container-navigationheader .user-menu .x-btn-button {
+.x-container-navigationheader .nav-appswitcher .x-btn-button,
+.x-container-navigationheader .nav-toggler .x-btn-button,
+.x-container-navigationheader .notifications-anchor .x-btn-button,
+.x-container-navigationheader .nav-help .x-btn-button,
+.x-container-navigationheader .user-menu .x-btn-button {
   padding-right: 10px;
   padding-left: 10px;
 }
 /* line 15, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-inner, .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-inner, .x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-inner, .x-container-navigationheader .nav-help .x-btn-button .x-btn-inner, .x-container-navigationheader .user-menu .x-btn-button .x-btn-inner {
+.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-inner,
+.x-container-navigationheader .nav-toggler .x-btn-button .x-btn-inner,
+.x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-inner,
+.x-container-navigationheader .nav-help .x-btn-button .x-btn-inner,
+.x-container-navigationheader .user-menu .x-btn-button .x-btn-inner {
   color: white;
 }
 /* line 19, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-glyph, .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph, .x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-glyph, .x-container-navigationheader .nav-help .x-btn-button .x-btn-glyph, .x-container-navigationheader .user-menu .x-btn-button .x-btn-glyph {
+.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-glyph,
+.x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph,
+.x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-glyph,
+.x-container-navigationheader .nav-help .x-btn-button .x-btn-glyph,
+.x-container-navigationheader .user-menu .x-btn-button .x-btn-glyph {
   opacity: 1;
   height: auto;
   line-height: 36px;
@@ -23400,7 +23372,11 @@ h6 {
   margin-left: 10px;
 }
 /* line 44, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher:hover, .x-container-navigationheader .nav-toggler:hover, .x-container-navigationheader .notifications-anchor:hover, .x-container-navigationheader .nav-help:hover, .x-container-navigationheader .user-menu:hover {
+.x-container-navigationheader .nav-appswitcher:hover,
+.x-container-navigationheader .nav-toggler:hover,
+.x-container-navigationheader .notifications-anchor:hover,
+.x-container-navigationheader .nav-help:hover,
+.x-container-navigationheader .user-menu:hover {
   background-color: #00ccff;
 }
 /* line 49, ../../sass/src/container/NavigationHeader.scss */
@@ -23556,6 +23532,11 @@ h6 {
 /* line 53, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationwrapper {
   padding-right: 55px;
+}
+
+/* line 10, ../../sass/src/container/Container.scss */
+.west {
+  padding: 32px 40px 16px 16px;
 }
 
 /* line 1, ../../sass/src/button/Button.scss */
@@ -24018,4 +23999,90 @@ h6 {
 .x-btn-delete-small-pressed:after {
   display: none;
   content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-delete-small-pressed-corners.gif), sides:url(images/btn/btn-delete-small-pressed-sides.gif), frame-bg:url(images/btn/btn-delete-small-pressed-fbg.gif), bg:url(images/btn/btn-delete-small-pressed-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-delete-small-disabled:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-delete-small-disabled-corners.gif), sides:url(images/btn/btn-delete-small-disabled-sides.gif), frame-bg:url(images/btn/btn-delete-small-disabled-fbg.gif), bg:url(images/btn/btn-delete-small-disabled-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-delete-medium {
+  border-color: #6194ab;
+}
+
+/* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  padding: 5px 5px 5px 5px;
+  border-width: 0;
+  border-style: solid;
+  background-color: #eb5642;
+}
+
+/* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-mc {
+  background-color: #eb5642;
+}
+
+/* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-nbr .x-btn-delete-medium {
+  padding: 0 !important;
+  border-width: 0 !important;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -ms-border-radius: 0px;
+  -o-border-radius: 0px;
+  border-radius: 0px;
+  background-color: transparent;
+}
+
+/* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-frameInfo {
+  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+}
+
+/* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-tl {
+  background-position: 0 -10px;
+}
+
+/* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-tr {
+  background-position: right -15px;
+}
+
+/* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-bl {
+  background-position: 0 -20px;
+}
+
+/* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-br {
+  background-position: right -25px;
+}
+
+/* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-ml {
+  background-position: 0 top;
+}
+
+/* line 335, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-mr {
+  background-position: right top;
+}
+
+/* line 339, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-delete-medium-tc {
+  background-position: 0 0;
 }
