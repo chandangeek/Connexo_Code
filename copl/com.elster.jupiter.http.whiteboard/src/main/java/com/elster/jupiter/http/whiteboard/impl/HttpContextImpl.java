@@ -67,6 +67,7 @@ public class HttpContextImpl implements HttpContext {
             if(request.getSession(true).getAttribute("user") == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             }
+            response.setHeader("Cache-Control", "max-age=86400");
             return true;
         }
         Optional<User> user = Optional.absent();
@@ -75,14 +76,15 @@ public class HttpContextImpl implements HttpContext {
             user = userService.authenticateBase64(authentication.split(" ")[1]);
             context.commit();
         }
-        return user.isPresent() ? allow(request, user.get()) : deny(response);
+        return user.isPresent() ? allow(request, response, user.get()) : deny(response);
     }
 
-    private boolean allow(HttpServletRequest request, User user) {
+    private boolean allow(HttpServletRequest request, HttpServletResponse response, User user) {
         request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
         request.setAttribute(USERPRINCIPAL, user);
         request.setAttribute(HttpContext.REMOTE_USER, user.getName());
         request.getSession(true).setAttribute("user", user);
+        response.setHeader("Cache-Control", "max-age=86400");
         return true;
     }
 
