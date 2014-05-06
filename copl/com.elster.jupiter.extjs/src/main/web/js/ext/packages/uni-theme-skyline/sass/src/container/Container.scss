@@ -1,4 +1,8 @@
+@mixin container($ui){}
+@include container('default');
+
 @import "BreadcrumbTrailContainer";
 @import "BreadcrumbTrail";
 @import "NavigationHeader";
 @import "NavigationMenu";
+@import "ContentContainer";

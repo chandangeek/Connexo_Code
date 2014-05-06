@@ -75,6 +75,7 @@ Ext.define('Skyline.panel.StepPanel', {
     getStepPanelLayout: function () {
         var me = this;
         return {
+            name: 'basepanel',
             layout: {
                 type: 'hbox',
                 align: 'middle'
@@ -83,6 +84,7 @@ Ext.define('Skyline.panel.StepPanel', {
                 {
                     name: 'steppanelbutton',
                     xtype: 'step-button',
+                    ui: 'step-active',
                     text: me.indexText,
                     handler: me.handler
                 },
@@ -101,15 +103,16 @@ Ext.define('Skyline.panel.StepPanel', {
         me.items = items
     },
 
-    afterRender: function () {
-        this.stepButton = Ext.ComponentQuery.query('button[name=steppanelbutton]')[0];
-        this.stepLabel = Ext.ComponentQuery.query('button[name=steppanellabel]')[0];
-        this.setState(this.state);
-        this.callParent(arguments)
+    afterRender: function (panel) {
+        panel.stepButton = this.down('panel[name=basepanel]');
+        panel.stepLabel = this.down();
+        console.log( this.stepButton, this.stepLabel);
+     //   this.setState(this.state);
     },
 
     setState: function (state) {
         !state && (this.state = state);
+        console.log(this, this.stepButton, this.stepLabel);
         this.stepButton.setUI(this.states[this.state][0]);
         this.stepLabel.setUI(this.states[this.state][1]);
     },
