@@ -45,7 +45,6 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     private transient boolean fromDB = true;
     private final Thesaurus thesaurus;
 
-    @SuppressWarnings("unused")
     @Inject
     QueueTableSpecImpl(DataModel dataModel, AQFacade aqFacade, Thesaurus thesaurus) {
         this.dataModel = dataModel;
