@@ -18,6 +18,11 @@ public class TimeDurationInfo {
         this.timeUnit=TimeDuration.getTimeUnitDescription(timeDuration.getTimeUnitCode());
     }
 
+    public TimeDurationInfo(int seconds) {
+        this.count=seconds;
+        this.timeUnit=TimeDuration.getTimeUnitDescription(13);
+    }
+
     public TimeDuration asTimeDuration() {
         return new TimeDuration(this.count+" "+this.timeUnit);
     }
