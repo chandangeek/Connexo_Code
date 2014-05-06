@@ -20771,10 +20771,10 @@ h6 {
     .x-container-navigationheader .notifications-anchor:hover,
     .x-container-navigationheader .nav-help:hover,
     .x-container-navigationheader .user-menu:hover {
-      background-color: #00ccff; }
+      background-color: #71adc7; }
   /* line 49, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .x-menu-active {
-    background-color: #00ccff; }
+    background-color: #71adc7; }
   /* line 8, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .nav-toggler .x-btn-arrow {
     background-image: none; }
@@ -20851,7 +20851,7 @@ h6 {
         margin-left: 10px; }
     /* line 113, ../../sass/src/container/NavigationHeader.scss */
     .x-container-navigationheader .search-button:hover {
-      background-color: #00ccff; }
+      background-color: #71adc7; }
 
 /* line 4, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu {
@@ -33226,7 +33226,7 @@ h6 {
     font-weight: normal; }
   /* line 19, ../../sass/src/button/NavigationLogoButton.scss */
   *[class*='x-btn-navigationlogo-']:hover {
-    background-color: #00ccff; }
+    background-color: #71adc7; }
 
 /* line 11, ../../sass/src/button/StepButton.scss */
 .x-btn-step-active-small {

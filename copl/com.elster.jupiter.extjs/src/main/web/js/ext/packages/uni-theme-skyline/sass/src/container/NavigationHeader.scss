@@ -1,7 +1,7 @@
 @import "../button/TransparentButton";
 
 @mixin highlight-header-background {
-    background-color: #00ccff;
+    background-color: $color-blue-2;
 }
 
 @mixin hidden-arrow-button {
