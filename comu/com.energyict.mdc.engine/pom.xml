@@ -20,6 +20,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>util</artifactId>
+      <version>${jupiter.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.tasks</artifactId>
       <version>${project.version}</version>
@@ -38,7 +43,7 @@
           <groupId>com.energyict</groupId>
           <artifactId>mdc-engine-config</artifactId>
           <version>${project.version}</version>
-      </dependency>      
+      </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
