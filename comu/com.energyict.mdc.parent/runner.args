@@ -111,6 +111,7 @@ mvn:com.energyict/mdc.device.config.rest/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc-all/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc-common/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc-engine-config/1.0.0-SNAPSHOT
+mvn:com.energyict/mdc.engine/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc-issues/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc-protocols-api/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc-protocols/1.0.0-SNAPSHOT
