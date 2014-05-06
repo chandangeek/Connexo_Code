@@ -1,8 +1,10 @@
 package com.energyict.mdc.engine.impl.protocol.inbound.aspects.statistics;
 
-import com.energyict.comserver.time.StopWatch;
-import com.energyict.comserver.tools.Counter;
-import com.energyict.comserver.tools.Strings;
+import com.energyict.mdc.engine.impl.tools.Strings;
+
+import com.elster.jupiter.util.Counter;
+import com.elster.jupiter.util.Counters;
+import com.elster.jupiter.util.time.StopWatch;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
@@ -25,11 +27,13 @@ public class StatisticsMonitoringHttpServletResponse implements HttpServletRespo
     private static final int NUMBER_OF_BYTES_IN_LONG = 8;
     private static final int NUMBER_OF_BYTES_IN_INT = 4;
     private HttpServletResponse response;
-    private StopWatch talking = new StopWatch(false);
-    private Counter bytesSent = new Counter();
+    private StopWatch talking;
+    private Counter bytesSent = Counters.newStrictCounter();
 
     public StatisticsMonitoringHttpServletResponse (HttpServletResponse response) {
         super();
+        this.talking = new StopWatch(false);    // No need to measure cpu
+        this.talking.stop();
         this.response = response;
     }
 
@@ -40,7 +44,7 @@ public class StatisticsMonitoringHttpServletResponse implements HttpServletRespo
      * @return The total number of milli seconds
      */
     public long getTalkTime () {
-        return this.talking.getTotalElapsedTime();
+        return this.talking.getElapsed();
     }
 
     /**

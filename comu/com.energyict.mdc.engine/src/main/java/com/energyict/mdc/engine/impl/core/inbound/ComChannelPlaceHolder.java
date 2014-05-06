@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.protocol;
+package com.energyict.mdc.engine.impl.core.inbound;
 
 /**
  * Acts as a place holder for a {@link ComPortRelatedComChannel} that

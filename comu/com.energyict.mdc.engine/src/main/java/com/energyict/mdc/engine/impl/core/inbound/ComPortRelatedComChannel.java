@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.protocol;
+package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
