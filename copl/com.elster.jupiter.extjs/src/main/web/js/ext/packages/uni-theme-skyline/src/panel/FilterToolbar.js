@@ -60,21 +60,21 @@ Ext.define('Skyline.panel.FilterToolbar', {
         this.getClearButton().setDisabled(!count);
     },
 
-    constructor: function (config) {
+    initComponent: function ()
+    {
         var me = this;
 
-        Ext.apply(config, me);
-
         this.dockedItems[0].title = me.title;
-
         this.items[0].items =  me.content;
         this.items[1].text = me.emptyText;
         this.items[2].items = me.tools;
 
-        this.callSuper(arguments);
+        this.callParent(arguments);
+
         if (!this.showClearButton) {
             this.getClearButton().hide();
         }
+
         this.getContainer().on('afterlayout', 'updateContainer', this);
     },
 
