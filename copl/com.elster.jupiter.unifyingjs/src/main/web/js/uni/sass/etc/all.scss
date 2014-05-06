@@ -156,42 +156,6 @@
     }
 }
 
-// Breadcrumbs
-
-.breadcrumbs {
-    background-color: $ocean-blue-50;
-    margin-bottom: 6px;
-
-    ul {
-        list-style-type: none;
-        padding: 10px {
-            top: 12px;
-            left: 18px;
-        }
-        margin: 0;
-
-        $li-size: 14;
-
-        li {
-            margin-right: 6px;
-            font-size: $li-size + px;
-            display: inline;
-        }
-
-        .delimiter,
-        .delimiter:before {
-            font-family: icomoon;
-            content: "\e015";
-            line-height: $li-size + px;
-            font-size: $li-size - 4 + px;
-        }
-    }
-
-    a {
-        text-decoration: none;
-    }
-}
-
 // Content
 
 .uni-content-padded {
