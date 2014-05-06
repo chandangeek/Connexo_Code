@@ -10,7 +10,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
-
 import java.util.List;
 
 /**
@@ -154,10 +153,6 @@ public interface DeviceConfigurationService {
     public List<DeviceType> findDeviceTypesWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
     public Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType);
-
-    public NextExecutionSpecs newNextExecutionSpecs (TemporalExpression temporalExpression);
-
-    public NextExecutionSpecs findNextExecutionSpecs (long id);
 
     public DeviceCommunicationConfiguration findDeviceCommunicationConfiguration(long id);
 

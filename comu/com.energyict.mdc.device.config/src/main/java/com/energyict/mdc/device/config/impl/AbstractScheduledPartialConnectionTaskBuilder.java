@@ -4,11 +4,12 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.NextExecutionSpecBuilder;
-import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
-import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.TemporalExpression;
 
 /**
  * Copyrights EnergyICT
@@ -17,11 +18,13 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
  */
 public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends PartialOutboundConnectionTask> extends AbstractPartialConnectionTaskBuilder<S, OutboundComPortPool, U> implements PartialOutboundConnectionTaskBuilder<S, U> {
 
+    private final SchedulingService schedulingService;
     private NextExecutionSpecs nextExecutionSpecs;
     private TimeDuration retryDelay;
 
-    AbstractScheduledPartialConnectionTaskBuilder(Class<?> selfType, DataModel dataModel, DeviceCommunicationConfigurationImpl configuration) {
-        super(dataModel.getInstance(EventService.class), selfType, dataModel, configuration);
+    AbstractScheduledPartialConnectionTaskBuilder(Class<?> selfType, DataModel dataModel, DeviceCommunicationConfigurationImpl configuration, SchedulingService schedulingService, EventService eventService) {
+        super(eventService, selfType, dataModel, configuration);
+        this.schedulingService = schedulingService;
     }
 
     @Override
@@ -53,7 +56,7 @@ public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends
 
         @Override
         public S set() {
-            nextExecutionSpecs = dataModel.getInstance(NextExecutionSpecsImpl.class).initialize(temporalExpression);
+            nextExecutionSpecs = schedulingService.newNextExecutionSpecs(temporalExpression);
             return AbstractScheduledPartialConnectionTaskBuilder.this.myself;
         }
     }

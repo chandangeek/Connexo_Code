@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
 

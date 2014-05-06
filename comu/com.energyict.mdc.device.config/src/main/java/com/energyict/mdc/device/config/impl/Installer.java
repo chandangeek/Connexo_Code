@@ -11,7 +11,6 @@ import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -40,9 +39,9 @@ public class Installer {
         this.userService = userService;
     }
 
-    public void install(boolean executeDdl, boolean updateOrm) {
+    public void install(boolean executeDdl) {
         try {
-            this.dataModel.install(executeDdl, updateOrm);
+            this.dataModel.install(executeDdl, false);
         } catch (Exception e) {
             logger.severe(e.getMessage());
         }

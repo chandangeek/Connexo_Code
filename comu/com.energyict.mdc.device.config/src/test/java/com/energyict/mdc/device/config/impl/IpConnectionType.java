@@ -10,7 +10,6 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
-
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;

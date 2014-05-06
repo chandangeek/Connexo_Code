@@ -41,6 +41,7 @@ import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
@@ -49,9 +50,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provider;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -64,6 +62,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -84,8 +84,6 @@ public class InMemoryPersistence {
     private Principal principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
-    private OrmService ormService;
-    private EventService eventService;
     private Publisher publisher;
     private NlsService nlsService;
     private MasterDataService masterDataService;
@@ -108,6 +106,8 @@ public class InMemoryPersistence {
     private RegisterMappingUpdateEventHandler registerMappingUpdateEventHandler;
     private RegisterMappingDeletionEventHandler registerMappingDeletionEventHandler;
     private RegisterMappingDeleteFromLoadProfileTypeEventHandler registerMappingDeleteFromLoadProfileTypeEventHandler;
+    private OrmService ormService;
+    private EventService eventService;
 
     public void initializeDatabaseWithMockedProtocolPluggableService(String testName, boolean showSqlLogging) {
         this.initializeDatabase(testName, showSqlLogging, true);
@@ -170,7 +170,8 @@ public class InMemoryPersistence {
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
-                new PluggableModule()));
+                new PluggableModule(),
+                new SchedulingModule()));
         if (!mockedProtocolPluggableService) {
             modules.add(new IssuesModule());
             modules.add(new MdcDynamicModule());
@@ -181,7 +182,7 @@ public class InMemoryPersistence {
     }
 
     private DataModel createNewDeviceConfigurationService() {
-        this.deviceConfigurationService = new DeviceConfigurationServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.readingTypeUtilService, userService, this.protocolPluggableService, engineModelService, masterDataService);
+        this.deviceConfigurationService = injector.getInstance(DeviceConfigurationServiceImpl.class);
         return this.deviceConfigurationService.getDataModel();
     }
 
