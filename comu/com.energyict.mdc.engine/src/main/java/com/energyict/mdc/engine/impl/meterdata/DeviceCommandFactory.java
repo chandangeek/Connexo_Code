@@ -1,14 +1,14 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.comserver.commands.CompositeDeviceCommand;
-import com.energyict.comserver.commands.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
 
 import java.util.List;
 
 /**
- * Provides factory services for {@link DeviceCommand}s
+ * Provides factory services for DeviceCommands
  * that are created from {@link com.energyict.mdc.protocol.api.device.data.CollectedData}.
  *
  * @author Rudi Vankeirsbilck (rudi)

@@ -1,10 +1,9 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.meterdata.DeviceIpAddress;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 

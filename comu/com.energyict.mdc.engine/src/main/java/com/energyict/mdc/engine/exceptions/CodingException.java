@@ -71,26 +71,7 @@ public final class CodingException extends ComServerRuntimeException {
      * @return The CodingException
      */
     public static CodingException reflectionError (BusinessException reflectionErrorWrapper, PluggableClass pluggableClass) {
-        return new CodingException(reflectionErrorWrapper.getCause(), reflectionErrorExceptionCode(), pluggableClass.getPluggableType().getLocalizedName(), pluggableClass.getJavaClassName());
-    }
-
-    /**
-     * Constructs a new CodingException to represent an error produced
-     * by the java reflection layer (wrapped by a {@link BusinessException})
-     * when an attempt was made to create a new instance of some {@link PluggableClass}.
-     *
-     * @param reflectionErrorWrapper The BusinessException that wraps the java reflection layer exception
-     *                               which could (or should) be one of
-     *                               ClassNotFoundException,
-     *                               InstantiationException,
-     *                               IllegalAccessException,
-     *                               NoClassDefFoundError
-     *                               or even ClassCastException when the created object was not even a Pluggable.
-     * @param pluggableClass The Pluggable class
-     * @return The CodingException
-     */
-    public static CodingException reflectionError (BusinessException reflectionErrorWrapper, com.energyict.mdc.pluggable.PluggableClass pluggableClass) {
-        return new CodingException(reflectionErrorWrapper.getCause(), reflectionErrorExceptionCode(), "Device protocol pluggable class", pluggableClass.getJavaClassName());
+        return new CodingException(reflectionErrorWrapper.getCause(), reflectionErrorExceptionCode(), pluggableClass.getPluggableClassType().name(), pluggableClass.getJavaClassName());
     }
 
     /**
@@ -359,19 +340,6 @@ public final class CodingException extends ComServerRuntimeException {
         return new ExceptionCode(new CommonReferenceScope(), ExceptionType.CODING, CommonExceptionReferences.UNKNOWN_DEVICE_MESSAGE_CATEGORY_CLASS);
     }
 
-    /**
-     * Constructs a CodingException to represent the scenario where the
-     * {@link com.energyict.mdc.shadow.tasks.PartialConnectionTaskShadow} subclass
-     * is not recognized. This is an indication that a subclass was added
-     * but not all business code was modified accordingly.
-     *
-     * @param unknownClass The unknown PartialConnectionTaskShadow class
-     * @return the newly created CodingException
-     */
-    public static <T extends PartialConnectionTaskShadow> CodingException unknownPartialConnectionTaskShadowClass (Class<T> unknownClass) {
-        return new CodingException(unknownPartialConnectionTaskShadowClassExceptionCode(), unknownClass.getName());
-    }
-
     private static ExceptionCode unknownPartialConnectionTaskShadowClassExceptionCode () {
         return new ExceptionCode(new CommonReferenceScope(), ExceptionType.CODING, CommonExceptionReferences.UNKNOWN_PARTIAL_CONNECTION_TASK_SHADOW);
     }
@@ -480,7 +448,7 @@ public final class CodingException extends ComServerRuntimeException {
     }
 
     /**
-     * Constructs a new CodingException indicating there is no {@link com.energyict.mdc.shadow.journal.ComTaskExecutionSessionShadow}
+     * Constructs a new CodingException indicating there is no ComTaskExecutionSessionShadow
      * available while one is expected because the related ComTask has effectively executed.
      *
      * @param comTaskExecution The ComTaskExecution

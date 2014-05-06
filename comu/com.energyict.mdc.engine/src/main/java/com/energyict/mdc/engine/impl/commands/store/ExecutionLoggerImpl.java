@@ -1,16 +1,11 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.comserver.time.Clocks;
 import com.energyict.mdc.device.data.journal.CompletionCode;
+import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.journal.StackTracePrinter;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.shadow.journal.ComCommandJournalEntryShadow;
-import com.energyict.mdc.shadow.journal.ComSessionJournalEntryShadow;
-import com.energyict.mdc.shadow.journal.ComSessionShadow;
-import com.energyict.mdc.shadow.journal.ComTaskExecutionSessionShadow;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.StackTracePrinter;
 
 /**
  * Provides an implementation for the {@link DeviceCommand.ExecutionLogger} interface.

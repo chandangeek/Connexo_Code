@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -60,7 +61,7 @@ public class BasicCheckCommandImpl extends CompositeComCommandImpl implements Ba
     }
 
     /**
-     * @return the {@link com.energyict.mdc.commands.ComCommandTypes ComCommandType} of this command
+     * @return the ComCommandType of this command
      */
     @Override
     public ComCommandTypes getCommandType() {

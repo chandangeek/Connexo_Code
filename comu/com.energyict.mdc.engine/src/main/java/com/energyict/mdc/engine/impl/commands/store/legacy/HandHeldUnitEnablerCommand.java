@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
+import com.energyict.mdc.engine.exceptions.ComCommandException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;

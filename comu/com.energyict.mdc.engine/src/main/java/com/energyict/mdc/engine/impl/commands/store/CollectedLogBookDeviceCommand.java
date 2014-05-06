@@ -2,15 +2,12 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
-import com.energyict.comserver.core.ComServerDAO;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.mdc.MeterDataFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.meterdata.DeviceLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;
 import com.energyict.util.Pair;

@@ -1,16 +1,14 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.impl.meterdata.NoLogBooksForDevice;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.meterdata.NoLogBooksForDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdw.core.NoLogBooksForDeviceEvent;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
- * that will create an {@link com.energyict.mdw.core.NoLogBooksForDeviceEvent}.
+ * that will create an NoLogBooksForDeviceEvent.
  *
  * @author sva
  * @since 14/12/12 - 9:15

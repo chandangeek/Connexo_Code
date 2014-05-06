@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.issues.Issue;

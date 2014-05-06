@@ -7,7 +7,6 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContextImpl;
 
 import java.util.logging.Logger;
 

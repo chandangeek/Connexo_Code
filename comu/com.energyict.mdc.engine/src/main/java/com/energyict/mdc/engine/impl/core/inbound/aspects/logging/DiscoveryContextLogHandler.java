@@ -1,10 +1,5 @@
 package com.energyict.mdc.engine.impl.core.inbound.aspects.logging;
 
-import com.energyict.comserver.time.Clocks;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContextImpl;
-import com.energyict.mdc.shadow.journal.ComSessionJournalEntryShadow;
-import com.energyict.mdc.shadow.journal.ComSessionShadow;
-
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;

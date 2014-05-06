@@ -1,9 +1,5 @@
 package com.energyict.mdc.engine.impl.core.inbound.aspects.events;
 
-import com.energyict.comserver.events.ComServerEvent;
-import com.energyict.comserver.eventsimpl.EventPublishingLogHandler;
-import com.energyict.comserver.eventsimpl.logging.CommunicationLoggingEvent;
-import com.energyict.comserver.logging.LogLevel;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -14,7 +10,7 @@ import java.util.Date;
  * Provides an implementation for the log Handler interface
  * that creates simple log messages that relate
  * to the {@link com.energyict.mdc.engine.model.ComPort}
- * and the {@link com.energyict.mdc.tasks.ConnectionTask}
+ * and the ConnectionTask
  * of inbound communication discovery.
  *
  * @author Rudi Vankeirsbilck (rudi)

@@ -1,10 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
 import com.energyict.mdc.engine.impl.commands.collect.RegisterCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
+import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -61,6 +63,7 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
         }
         ReadRegistersCommand readRegistersCommand = getCommandRoot().getReadRegistersCommand(this, comTaskExecution);
         readRegistersCommand.addRegisters(registers);
+        // TODO make sure this is not the DeviceIdentifierById from protocols-api!
         deviceRegisterList = new DeviceRegisterList(new DeviceIdentifierById(device.getId()));
     }
 

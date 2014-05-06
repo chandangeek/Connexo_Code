@@ -2,11 +2,13 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadLogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
+import com.energyict.mdc.engine.impl.meterdata.identifiers.LogBookIdentifierByIdImpl;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;

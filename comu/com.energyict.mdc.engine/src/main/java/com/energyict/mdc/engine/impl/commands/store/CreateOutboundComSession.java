@@ -1,12 +1,10 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.comserver.logging.LoggerFactory;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.shadow.journal.ComSessionShadow;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface

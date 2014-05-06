@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
@@ -12,6 +13,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ReadLegacyLoadProfileLogBo
 import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
+import com.energyict.mdc.engine.impl.meterdata.identifiers.LogBookIdentifierByIdImpl;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
@@ -264,7 +266,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
      * @param logBook the logBook to add
      */
     protected void addLogBookToReaderList(final OfflineLogBook logBook) {
-        LogBookIdentifierByIdImpl logBookIdentifier = new LogBookIdentifierByIdImpl((int) logBook.getLogBookId());
+        LogBookIdentifierByIdImpl logBookIdentifier = new LogBookIdentifierByIdImpl(logBook.getLogBookId());
         LogBookReader logBookReader = new LogBookReader(logBook.getObisCode(),
                 logBook.getLastLogBook(), logBookIdentifier, logBook.getMasterSerialNumber());
         this.logBookReaders.add(logBookReader);

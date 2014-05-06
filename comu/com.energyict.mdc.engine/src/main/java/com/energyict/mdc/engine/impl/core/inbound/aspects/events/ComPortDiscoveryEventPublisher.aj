@@ -1,10 +1,8 @@
 package com.energyict.mdc.engine.impl.core.inbound.aspects.events;
 
-import com.energyict.comserver.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.aspects.logging.AbstractComPortDiscoveryLogging;
 import com.energyict.mdc.engine.impl.core.inbound.aspects.logging.ComPortDiscoveryLogger;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContextImpl;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

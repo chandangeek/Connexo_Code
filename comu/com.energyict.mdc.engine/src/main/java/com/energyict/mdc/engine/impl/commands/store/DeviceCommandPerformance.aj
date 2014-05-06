@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.comserver.logging.PerformanceLogger;
 import com.energyict.comserver.time.LoggingStopWatch;
 

@@ -3,8 +3,6 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
 import com.energyict.mdc.common.exceptions.ExceptionCode;
 import com.energyict.mdc.common.exceptions.ExceptionType;
-import com.energyict.mdc.exceptions.ComServerModelExceptionReferences;
-import com.energyict.mdc.exceptions.ComServerModelReferenceScope;
 
 /**
  * Models the exceptional situation that occurs when client code

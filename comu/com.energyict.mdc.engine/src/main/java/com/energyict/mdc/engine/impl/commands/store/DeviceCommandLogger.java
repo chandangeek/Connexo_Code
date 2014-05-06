@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.logging.Configuration;
-import com.energyict.comserver.logging.LogLevel;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
@@ -14,9 +12,9 @@ import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 public interface DeviceCommandLogger {
 
     /**
-     * Logs that the creation of an outbound {@link com.energyict.mdc.journal.ComSession}
+     * Logs that the creation of an outbound ComSession
      * failed because of some business or database constraint reported by
-     * {@link com.energyict.comserver.core.ComServerDAO}.
+     * ComServerDAO.
      *
      * @param e The details of the business constraint that was violated
      * @param connectionTask The OutB
@@ -25,9 +23,9 @@ public interface DeviceCommandLogger {
     public void outboundComSessionCreationFailed (RuntimeException e, OutboundConnectionTask connectionTask);
 
     /**
-     * Logs that the creation of an inbound {@link com.energyict.mdc.journal.ComSession}
+     * Logs that the creation of an inbound ComSession
      * failed because of some business or database constraint reported by
-     * {@link com.energyict.comserver.core.ComServerDAO}.
+     * ComServerDAO.
      *
      * @param e The details of the business constraint that was violated
      * @param comPort The InboundComPort
@@ -36,9 +34,9 @@ public interface DeviceCommandLogger {
     public void inboundComSessionCreationFailed (RuntimeException e, InboundComPort comPort);
 
     /**
-     * Logs that the creation of an inbound {@link com.energyict.mdc.journal.ComSession}
+     * Logs that the creation of an inbound ComSession
      * failed because of some business or database constraint reported by
-     * {@link com.energyict.comserver.core.ComServerDAO}.
+     * ComServerDAO.
      *
      * @param e The details of the business constraint that was violated
      * @param comPort The InboundComPort

@@ -1,8 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.mdc.common.Transaction;
-import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.model.ComServer;
 

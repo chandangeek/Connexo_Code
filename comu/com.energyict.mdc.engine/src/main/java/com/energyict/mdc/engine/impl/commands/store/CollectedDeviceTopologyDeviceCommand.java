@@ -1,17 +1,14 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.impl.meterdata.DeviceTopology;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.device.data.journal.CompletionCode;
-import com.energyict.mdc.meterdata.DeviceTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdw.core.DeviceTopologyChangedEvent;
-import com.energyict.mdw.core.UnknownSlaveDeviceEvent;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 import java.util.ArrayList;
 import java.util.HashMap;

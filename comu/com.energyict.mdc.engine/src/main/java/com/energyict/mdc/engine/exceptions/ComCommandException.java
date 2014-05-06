@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.exceptions;
 
-import com.energyict.mdc.commands.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
 import com.energyict.mdc.common.exceptions.ExceptionCode;
@@ -25,8 +25,7 @@ public final class ComCommandException extends ComServerRuntimeException {
     }
 
     /**
-     * Creates an Exception indicating that the given argument already exists in the {@link com.energyict.mdc.commands.CommandRoot
-     * CommandRoot}
+     * Creates an Exception indicating that the given argument already exists in the CommandRoot
      *
      * @param comCommand the {@link ComCommand} violating the uniqueness
      * @return the newly created exception

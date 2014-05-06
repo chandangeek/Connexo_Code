@@ -43,7 +43,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
     private final boolean failIfConfigurationMisMatch;
 
     /**
-     * The list of {@link com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration configurations} which are read from the device(s)
+     * The list of configurations which are read from the device(s)
      */
     private List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>(0);
 
@@ -191,7 +191,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
     }
 
     /**
-     * Verify if the number of channels from the {@link LoadProfileReader} are equal to the number of channels from the {@link com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration}
+     * Verify if the number of channels from the {@link LoadProfileReader} are equal to the number of channels from the DeviceLoadProfileConfiguration
      *
      * @param loadProfileReader        the given reader
      * @param loadProfileConfiguration the given configuration
@@ -214,7 +214,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
 
     /**
      * Get the {@link LoadProfileReader} from the {@link LoadProfileCommandImpl LoadProfileCommand} which was created for the given
-     * {@link com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration}
+     * DeviceLoadProfileConfiguration
      *
      * @param loadProfileConfiguration the given DeviceLoadProfileConfiguration
      * @return the requested LoadProfileReader or null if the reader was not found

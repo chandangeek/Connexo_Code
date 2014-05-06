@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementation for a {@link com.energyict.mdc.commands.ReadLogBooksCommand}
+ * Implementation for a ReadLogBooksCommand
  *
  * @author sva
  * @since 07/12/12 - 16:30

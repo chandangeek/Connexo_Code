@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
-import com.energyict.mdc.shadow.journal.ComSessionShadow;
 
 /**
  * Models a {@link DeviceCommand} that will create a {@link com.energyict.mdc.journal.ComSession}

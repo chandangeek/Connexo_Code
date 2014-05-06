@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -53,7 +54,7 @@ public class ClockCommandImpl extends CompositeComCommandImpl implements ClockCo
     private ComCommand clockCommand;
 
     /**
-     * @param clockTask the {@link com.energyict.mdc.device.config.ProtocolTask } which models which actions must be performed
+     * @param clockTask the ProtocolTask which models which actions must be performed
      * @param comTaskExecution the ComTaskExecution that drives this ComCommand
      */
     public ClockCommandImpl(final ClockTask clockTask, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {

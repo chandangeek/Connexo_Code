@@ -1,13 +1,11 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.meterdata.UpdatedDeviceCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdw.shadow.DeviceCacheShadow;
 
 /**
  * Provides functionality to update the cache of a Device in the database

@@ -1,10 +1,9 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInformation;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.meterdata.DeviceUserFileConfigurationInformation;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import java.text.SimpleDateFormat;

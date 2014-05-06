@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
