@@ -29,6 +29,16 @@
       <artifactId>mdc.device.data</artifactId>
       <version>${project.version}</version>
     </dependency>
+      <dependency>
+          <groupId>com.energyict</groupId>
+          <artifactId>mdc-protocols-api</artifactId>
+          <version>${project.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>com.energyict</groupId>
+          <artifactId>mdc-engine-config</artifactId>
+          <version>${project.version}</version>
+      </dependency>      
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
