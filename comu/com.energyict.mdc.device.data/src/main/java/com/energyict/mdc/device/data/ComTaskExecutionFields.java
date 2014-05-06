@@ -9,6 +9,7 @@ import com.energyict.mdc.common.ImplField;
  */
 public enum ComTaskExecutionFields implements ImplField {
 
+    ID("id"),
     DEVICE("device"),
     COMTASK("comTask"),
     CONNECTIONTASK("connectionTask"),

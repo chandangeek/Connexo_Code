@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
@@ -17,6 +18,7 @@ import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
@@ -56,6 +58,7 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -70,8 +73,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -91,7 +96,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @since 2014-03-10 (16:27)
  */
 @Component(name="com.energyict.mdc.device.data", service = {DeviceDataService.class, InstallService.class}, property = "name=" + DeviceDataService.COMPONENTNAME)
-public class DeviceDataServiceImpl implements DeviceDataService, InstallService {
+public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallService {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -111,11 +116,11 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
 
     @Inject
-    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService) {
-        this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false);
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, SchedulingService schedulingService) {
+        this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false, schedulingService);
     }
 
-    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData) {
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData, SchedulingService schedulingService) {
         super();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -127,6 +132,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
         this.setEngineModelService(engineModelService);
         this.setDeviceConfigurationService(deviceConfigurationService);
         this.setMeteringService(meteringService);
+        this.setSchedulingService(schedulingService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install(true, createMasterData);
@@ -136,6 +142,13 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     @Override
     public void releaseInterruptedConnectionTasks(ComServer comServer) {
         SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.MDCCONNECTIONTASK.name() + " SET comserver = NULL WHERE comserver = ?");
+        sqlBuilder.bindLong(comServer.getId());
+        this.executeUpdate(sqlBuilder);
+    }
+
+    @Override
+    public void releaseInterruptedComTasks(ComServer comServer) {
+        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.MDCCOMTASKEXEC.name() + " SET comport = NULL, executionStart = null WHERE comport in (select id from mdccomport where COMSERVERID = ?)");
         sqlBuilder.bindLong(comServer.getId());
         this.executeUpdate(sqlBuilder);
     }
@@ -169,7 +182,7 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
     }
 
     private void executeUpdate(SqlBuilder sqlBuilder) {
-        try (Connection connection = this.dataModel.getConnection(false)) {
+        try (Connection connection = this.dataModel.getConnection(true)) {
             try (PreparedStatement statement = sqlBuilder.getStatement(connection)) {
                 statement.executeUpdate();
                 // Don't care about how many rows were updated and if that matches the expected number of updates
@@ -360,9 +373,14 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
         if (lockResult.isPresent()) {
             T lockedConnectionTask = (T) lockResult.get();
             if (lockedConnectionTask.getExecutingComServer() == null) {
-                ((ConnectionTaskImpl) lockedConnectionTask).setExecutingComServer(comServer);
-                ((ConnectionTaskImpl) lockedConnectionTask).save();
-                return lockedConnectionTask;
+                try {
+                    ((ConnectionTaskImpl) lockedConnectionTask).setExecutingComServer(comServer);
+                    lockedConnectionTask.save();
+                    return lockedConnectionTask;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw e;
+                }
             }
             else {
                 // No database lock but business lock is already set
@@ -382,6 +400,258 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
      private void unlockConnectionTask (ConnectionTaskImpl connectionTask) {
         connectionTask.setExecutingComServer(null);
         connectionTask.save();
+    }
+
+    @Override
+    public void removePreferredConnectionTask(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask partialConnectionTask) {
+        this.executeUpdate(this.removePreferredConnectionTaskSqlBuilder(comTask, deviceConfiguration, partialConnectionTask));
+    }
+
+    private SqlBuilder removePreferredConnectionTaskSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask previousPartialConnectionTask) {
+        SqlBuilder sqlBuilder = new SqlBuilder("update ");
+        sqlBuilder.append(TableSpecs.MDCCOMTASKEXEC.name());
+        sqlBuilder.append(" set ");
+        sqlBuilder.append(ComTaskExecutionFields.CONNECTIONTASK.fieldName());
+        sqlBuilder.append(" = null");
+        sqlBuilder.append(" where ");
+        sqlBuilder.append("comtask = ?");  // Match the ComTask
+        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.append("   and ");
+        sqlBuilder.append(ComTaskExecutionFields.CONNECTIONTASK.fieldName());
+        sqlBuilder.append(" = (select id from mdcconnectiontask");
+        sqlBuilder.append("     where rtu = mdccomtaskexec.rtu");
+        sqlBuilder.append("       and partialconnectiontask = ?");   // Match the connection task
+        sqlBuilder.append("       and obsolete_date is null)");
+        sqlBuilder.bindLong(previousPartialConnectionTask.getId());
+        sqlBuilder.append("   and rtu in (select id from eisrtu where deviceConfigId = ?)");  // Match device of the specified DeviceConfiguration
+        sqlBuilder.bindLong(deviceConfiguration.getId());
+        return sqlBuilder;
+    }
+
+    @Override
+    public void switchFromDefaultConnectionTaskToPreferredConnectionTask(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask partialConnectionTask) {
+        this.executeUpdate(this.switchFromDefaultConnectionTaskToPreferredConnectionTaskSqlBuilder(comTask, deviceConfiguration, partialConnectionTask));
+    }
+
+    private SqlBuilder switchFromDefaultConnectionTaskToPreferredConnectionTaskSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask partialConnectionTask) {
+        SqlBuilder sqlBuilder = new SqlBuilder("update ");
+        sqlBuilder.append(TableSpecs.MDCCOMTASKEXEC.name());
+        sqlBuilder.append(" set ");
+        sqlBuilder.append(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName());
+        sqlBuilder.append(" = 0, ");
+        sqlBuilder.append(ComTaskExecutionFields.CONNECTIONTASK.fieldName());
+        sqlBuilder.append(" = (select id from mdcconnectiontask");
+        sqlBuilder.append("     where rtu = mdccomtaskexec.rtu");
+        sqlBuilder.append("       and partialconnectiontask = ?");  //Match the connection task against the same device
+        sqlBuilder.append("       and obsolete_date is null)");
+        sqlBuilder.bindLong(partialConnectionTask.getId());
+        sqlBuilder.append(" where comtask = ?");  // Match the ComTask
+        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.append("   and rtu in (select id from eisrtu where deviceConfigId = ?)");  // Match device of the specified DeviceConfiguration
+        sqlBuilder.bindLong(deviceConfiguration.getId());
+        return sqlBuilder;
+    }
+
+    @Override
+    public void switchOnDefault(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        this.executeUpdate(this.switchOnDefaultSqlBuilder(comTask, deviceConfiguration));
+    }
+
+    private SqlBuilder switchOnDefaultSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        SqlBuilder sqlBuilder = new SqlBuilder("update ");
+        sqlBuilder.append(TableSpecs.MDCCOMTASKEXEC.name());
+        sqlBuilder.append(" set ");
+        sqlBuilder.append(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName());
+        sqlBuilder.append(" = 1, ");
+        sqlBuilder.append(ComTaskExecutionFields.CONNECTIONTASK.fieldName());
+        sqlBuilder.append(" = (select id from mdcconnectiontask");
+        sqlBuilder.append("     where rtu = mdccomtaskexec.rtu");
+        sqlBuilder.append("       and isdefault = 1");  // Match the default connection task against the same device
+        sqlBuilder.append("       and obsolete_date is null)");
+        sqlBuilder.append(" where ");
+        sqlBuilder.append("comtask = ?");  // Match the ComTask
+        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.append("   and rtu in (select id from eisrtu where deviceConfigId = ?)");  // Match device of the specified DeviceConfiguration
+        sqlBuilder.bindLong(deviceConfiguration.getId());
+        return sqlBuilder;
+    }
+
+    @Override
+    public void switchOffDefault(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        this.executeUpdate(this.switchOffDefaultSqlBuilder(comTask, deviceConfiguration));
+    }
+
+    private SqlBuilder switchOffDefaultSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        SqlBuilder sqlBuilder = new SqlBuilder("update ");
+        sqlBuilder.append(TableSpecs.MDCCOMTASKEXEC.name());
+        sqlBuilder.append(" set ");
+        sqlBuilder.append(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName());
+        sqlBuilder.append(" = 0");
+        sqlBuilder.append(" where ");
+        sqlBuilder.append("comtask = ?");  // Match the ComTask
+        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.append("   and rtu in (select id from eisrtu where deviceConfigId = ?)");  // Match device of the specified DeviceConfiguration
+        sqlBuilder.bindLong(deviceConfiguration.getId());
+        return sqlBuilder;
+    }
+
+    @Override
+    public void switchFromPreferredConnectionTaskToDefault(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask previousPartialConnectionTask) {
+        this.executeUpdate(this.switchFromPreferredConnectionTaskToDefaultSqlBuilder(comTask, deviceConfiguration, previousPartialConnectionTask));
+    }
+
+    private SqlBuilder switchFromPreferredConnectionTaskToDefaultSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask previousPartialConnectionTask) {
+        SqlBuilder sqlBuilder = new SqlBuilder("update ");
+        sqlBuilder.append(TableSpecs.MDCCOMTASKEXEC.name());
+        sqlBuilder.append(" set ");
+        sqlBuilder.append(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName());
+        sqlBuilder.append(" = 1, ");
+        sqlBuilder.append(ComTaskExecutionFields.CONNECTIONTASK.fieldName());
+        sqlBuilder.append(" = (select id from mdcconnectiontask");
+        sqlBuilder.append("     where rtu = mdccomtaskexec.rtu");
+        sqlBuilder.append("       and isdefault = 1");  // Match the default connection task against the same device
+        sqlBuilder.append("       and obsolete_date is null)");
+        sqlBuilder.append(" where ");
+        sqlBuilder.append("comtask = ?");  // Match the ComTask
+        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.append("   and ");
+        sqlBuilder.append(ComTaskExecutionFields.CONNECTIONTASK.fieldName());
+        sqlBuilder.append(" = (select id from mdcconnectiontask");
+        sqlBuilder.append("     where rtu = mdccomtaskexec.rtu");
+        sqlBuilder.append("       and partialconnectiontask = ?");   // Match the connection task
+        sqlBuilder.append("       and obsolete_date is null)");
+        sqlBuilder.bindLong(previousPartialConnectionTask.getId());
+        sqlBuilder.append("   and rtu in (select id from eisrtu where deviceConfigId = ?)");  // Match device of the specified DeviceConfiguration
+        sqlBuilder.bindLong(deviceConfiguration.getId());
+        return sqlBuilder;
+    }
+
+    @Override
+    public void preferredConnectionTaskChanged(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask previousPartialConnectionTask, PartialConnectionTask newPartialConnectionTask) {
+        this.executeUpdate(this.preferredConnectionTaskChangedSqlBuilder(comTask, deviceConfiguration, previousPartialConnectionTask, newPartialConnectionTask));
+    }
+
+    private SqlBuilder preferredConnectionTaskChangedSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask previousPartialConnectionTask, PartialConnectionTask newPartialConnectionTask) {
+        SqlBuilder sqlBuilder = new SqlBuilder("update ");
+        sqlBuilder.append(TableSpecs.MDCCOMTASKEXEC.name());
+        sqlBuilder.append(" set ");
+        sqlBuilder.append(ComTaskExecutionFields.CONNECTIONTASK.fieldName());
+        sqlBuilder.append(" = (select id from mdcconnectiontask");
+        sqlBuilder.append("     where rtu = mdccomtaskexec.rtu");
+        sqlBuilder.append("       and partialconnectiontask = ?");  //Match the connection task against the same device
+        sqlBuilder.append("       and obsolete_date is null)");
+        sqlBuilder.bindLong(newPartialConnectionTask.getId());
+        // Avoid comTaskExecutions that use the default connection
+        sqlBuilder.append(" where ");
+        sqlBuilder.append(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName());
+        sqlBuilder.append(" = 0");
+        sqlBuilder.append("   and comtask = ?");  // Match the ComTask
+        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.append("   and ");
+        sqlBuilder.append(ComTaskExecutionFields.CONNECTIONTASK.fieldName());
+        sqlBuilder.append("   = (select id from mdcconnectiontask");
+        sqlBuilder.append("       where rtu = mdccomtaskexec.rtu");
+        sqlBuilder.append("         and partialconnectiontask = ?");   // Match the previous connection task
+        sqlBuilder.append("         and obsolete_date is null)");
+        sqlBuilder.bindLong(previousPartialConnectionTask.getId());
+        sqlBuilder.append("   and rtu in (select id from eisrtu where deviceConfigId = ?)");  // Match device of the specified DeviceConfiguration
+        sqlBuilder.bindLong(deviceConfiguration.getId());
+        return sqlBuilder;
+    }
+
+    @Override
+    public boolean hasComTaskExecutions(ComTaskEnablement comTaskEnablement) {
+        SqlBuilder sqlBuilder = new SqlBuilder();
+        sqlBuilder.append("select count(*) from ");
+        sqlBuilder.append(TableSpecs.MDCCOMTASKEXEC.name());
+        sqlBuilder.append(" cte");
+        sqlBuilder.append(" inner join eisrtu rtu on cte.rtu = rtu.id");
+        sqlBuilder.append(" inner join eisdeviceconfig dcf on rtu.deviceconfigid = dcf.id");
+        sqlBuilder.append(" inner join mdcdevicecommconfig dcc on dcf.id = dcc.deviceconfiguration");
+        sqlBuilder.append(" inner join mdccomtaskenablement ctn on dcc.id = ctn.devicecomconfig and cte.comtask = ctn.comtask");
+        sqlBuilder.append(" where ctn.id = ?  and cte.obsolete_date is null");
+        sqlBuilder.bindLong(comTaskEnablement.getId());
+        try (PreparedStatement statement = sqlBuilder.getStatement(this.dataModel.getConnection(true))) {
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int count = resultSet.getInt(1);
+                return count != 0;
+            }
+        }
+        catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+        return false;
+    }
+
+    @Override
+    public void preferredPriorityChanged(ComTask comTask, DeviceConfiguration deviceConfiguration, int previousPreferredPriority, int newPreferredPriority) {
+        this.executeUpdate(this.preferredPriorityChangedSqlBuilder(comTask, deviceConfiguration, previousPreferredPriority, newPreferredPriority));
+    }
+
+    private SqlBuilder preferredPriorityChangedSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, int previousPreferredPriority, int newPreferredPriority) {
+        SqlBuilder sqlBuilder = new SqlBuilder("update ");
+        sqlBuilder.append(TableSpecs.MDCCOMTASKEXEC.name());
+        sqlBuilder.append(" set ");
+        sqlBuilder.append(ComTaskExecutionFields.PRIORITY.fieldName());
+        sqlBuilder.append(" = ?");
+        sqlBuilder.bindInt(newPreferredPriority);
+        sqlBuilder.appendWhereOrAnd();
+        sqlBuilder.append(ComTaskExecutionFields.CONNECTIONTASK.fieldName());
+        sqlBuilder.append(" = ?");  // Match the previous priority
+        sqlBuilder.bindInt(previousPreferredPriority);
+        sqlBuilder.append("   and comtask = ?");  // Match the ComTask
+        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.append("   and rtu in (select id from eisrtu where deviceConfigId = ?)");  // Match device of the specified DeviceConfiguration
+        sqlBuilder.bindLong(deviceConfiguration.getId());
+        return sqlBuilder;
+    }
+
+    @Override
+    public void suspendAll(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        this.executeUpdate(this.suspendAllSqlBuilder(comTask, deviceConfiguration));
+    }
+
+    private SqlBuilder suspendAllSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        SqlBuilder sqlBuilder = new SqlBuilder("update ");
+        sqlBuilder.append(TableSpecs.MDCCOMTASKEXEC.name());
+        sqlBuilder.append(" set ");
+        sqlBuilder.append(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName());
+        sqlBuilder.append(" = null");
+        sqlBuilder.append(" where rtu in (select id from eisrtu where deviceConfigId = ?)");    // against devices of the specified configuration
+        sqlBuilder.bindLong(deviceConfiguration.getId());
+        sqlBuilder.append("   and comtask = ?");
+        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.append("   and comport is null");    // exclude tasks that are currently executing
+        sqlBuilder.append("   and ");
+        sqlBuilder.append(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
+        sqlBuilder.append(" is not null");  // Exclude tasks that have been put on hold manually
+        return sqlBuilder;
+    }
+
+    @Override
+    public void resumeAll(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        this.executeUpdate(this.resumeAllSqlBuilder(comTask, deviceConfiguration));
+    }
+
+    private SqlBuilder resumeAllSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        SqlBuilder sqlBuilder = new SqlBuilder("update ");
+        sqlBuilder.append(TableSpecs.MDCCOMTASKEXEC.name());
+        sqlBuilder.append(" set ");
+        sqlBuilder.append(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName());
+        sqlBuilder.append(" = ");
+        sqlBuilder.append(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
+        sqlBuilder.append(" where rtu in (select id from eisrtu where deviceConfigId = ?)");    // against devices of the specified configuration
+        sqlBuilder.bindLong(deviceConfiguration.getId());
+        sqlBuilder.append("   and comtask = ?");
+        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.append("   and ");
+        sqlBuilder.append(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName());
+        sqlBuilder.append(" is null");      // Only tasks that were suspended
+        sqlBuilder.append("   and ");
+        sqlBuilder.append(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
+        sqlBuilder.append(" is not null");  // Only tasks that were suspended
+        return sqlBuilder;
     }
 
     @Reference
@@ -685,6 +955,14 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
                         .and(Where.where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()));
     }
 
+    @Override
+    public List<ComTaskExecution> findComTaskExecutionsByComScheduleWithinRange(ComSchedule comSchedule, long minId, long maxId) {
+        return this.dataModel.query(ComTaskExecution.class)
+                .select(Where.where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule)
+                    .and(Where.where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                    .and(Where.where(ComTaskExecutionFields.ID.fieldName()).between(minId).and(maxId)));
+    }
+
 
     @Override
     public boolean isLinkedToDevices(ComSchedule comSchedule) {
@@ -708,5 +986,36 @@ public class DeviceDataServiceImpl implements DeviceDataService, InstallService 
             return null;
         }
         return comTaskExecutions.get(0).getPlannedNextExecutionTimestamp();
+    }
+
+    @Override
+    public List<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort) {
+        List<OutboundComPortPool> comPortPools = this.engineModelService.findContainingComPortPoolsForComPort((OutboundComPort) comPort);
+        if(!comPortPools.isEmpty()){
+            Date now = this.clock.now();
+            Condition condition = Where.where("connectionTask.paused").isEqualTo(false)
+                    .and(where("connectionTask.comServer").isNull())
+                    .and(where("connectionTask.obsoleteDate").isNull())
+                    .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                    .and(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now))
+                    .and(where("connectionTask.nextExecutionTimestamp").isLessThanOrEqual(now))
+                    .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNull())
+                    .and(ListOperator.IN.contains("connectionTask.comPortPool", comPortPools));
+            return this.dataModel.query(ComTaskExecution.class, ConnectionTask.class).select(condition,
+                    Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
+                    Order.ascending(ComTaskExecutionFields.PRIORITY.fieldName()),
+                    Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds) {
+        Date now = this.clock.now();
+        Condition condition = Where.where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)
+                .and(ListOperator.IN.contains("id", new ArrayList<>(comTaskExecutionIds)))
+                .and(where("connectionTask.comServer").isNull());
+        return this.dataModel.query(ComTaskExecution.class, ConnectionTask.class).select(condition).size() > 0;
     }
 }

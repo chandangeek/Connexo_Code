@@ -11,11 +11,11 @@ import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
-import com.energyict.mdc.device.data.ComTaskEnablement;
 import com.energyict.mdc.device.data.ComTaskExecutionDependant;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -50,10 +50,6 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
-import org.hibernate.validator.constraints.Range;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -184,8 +180,8 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
         this.executionPriority = comTaskEnablement.getPriority();
         this.priority = comTaskEnablement.getPriority();
-        setUseDefaultConnectionTask(comTaskEnablement.useDefaultConnectionTask());
-        this.protocolDialectConfigurationProperties.set(comTaskEnablement.getProtocolDialectConfigurationProperties());
+        setUseDefaultConnectionTask(comTaskEnablement.usesDefaultConnectionTask());
+        this.protocolDialectConfigurationProperties.set(comTaskEnablement.getProtocolDialectConfigurationProperties().orNull());
         return this;
     }
 
@@ -244,8 +240,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public TaskStatus getStatus() {
-        //TODO JP-1125
-        return ServerComTaskStatus.getApplicableStatusFor(this);
+        return ServerComTaskStatus.getApplicableStatusFor(this, this.now());
     }
 
     @Override
@@ -459,7 +454,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             nextExecutionTimestamp = defineNextExecutionTimeStamp(nextExecutionTimestamp);
         }
         this.setPlannedNextExecutionTimestamp(plannedNextExecutionTimestamp);
-        this.setNextExecutionTimestamp(nextExecutionTimestamp);
+        this.nextExecutionTimestamp = nextExecutionTimestamp;
 
         /* ConnectionTask can be null when the default is used but
          * no default has been set or created yet. */
@@ -482,7 +477,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     private void setNextExecutionTimestamp(Date nextExecutionTimestamp) {
-        this.nextExecutionTimestamp = nextExecutionTimestamp;
+        this.doReschedule(nextExecutionTimestamp);
     }
 
     /**
@@ -557,6 +552,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     public void executionCompleted() {
         this.markSuccessfullyCompleted();
         this.doReschedule(calculateNextExecutionTimestamp(this.clock.now()));
+        post();
     }
 
     /**
@@ -579,7 +575,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         } else {
             this.doExecutionFailed();
         }
-        // don't do a post, the reschedules will handle that
+        post();
     }
 
     protected void doExecutionAttemptFailed() {
@@ -661,12 +657,12 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     protected void doExecutionStarted(ComPort comPort) {
-        this.setExecutingComPort(comPort);
         Date now = this.clock.now();
         this.setExecutionStartedTimestamp(now);
         this.lastExecutionTimestamp = this.clock.now();
         this.lastExecutionFailed = false;
         this.setNextExecutionTimestamp(this.calculateNextExecutionTimestamp(this.getExecutionStartedTimestamp()));
+        this.setExecutingComPort(comPort);
     }
 
     /**

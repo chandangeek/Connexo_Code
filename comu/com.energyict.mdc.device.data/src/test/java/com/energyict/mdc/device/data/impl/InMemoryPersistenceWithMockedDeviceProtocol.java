@@ -59,6 +59,8 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
@@ -113,6 +115,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private MdcReadingTypeUtilService readingTypeUtilService;
     private DeviceDataServiceImpl deviceService;
     private TaskService taskService;
+    private SchedulingService schedulingService;
 
 
     public InMemoryPersistenceWithMockedDeviceProtocol() {
@@ -153,6 +156,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new MasterDataModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
+                new SchedulingModule(),
                 new DeviceDataModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         Environment environment = injector.getInstance(Environment.class);
@@ -168,6 +172,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             this.masterDataService = injector.getInstance(MasterDataService.class);
             this.taskService = injector.getInstance(TaskService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
+            this.schedulingService = injector.getInstance(SchedulingService.class);
             this.dataModel = this.createNewDeviceDataService(injector);
             ctx.commit();
         }
@@ -251,6 +256,10 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
     public EventService getEventService() {
         return eventService;
+    }
+
+    public SchedulingService getSchedulingService() {
+        return schedulingService;
     }
 
     public static String query(String sql) {

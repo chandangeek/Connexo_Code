@@ -92,6 +92,7 @@ public class InMemoryIntegrationPersistence {
     private EventService eventService;
     private NlsService nlsService;
     private Clock clock;
+    private JsonService jsonService;
     private Environment environment;
     private RelationService relationService;
     private EngineModelService engineModelService;
@@ -153,6 +154,7 @@ public class InMemoryIntegrationPersistence {
         this.environment.put(InMemoryIntegrationPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
         this.environment.setApplicationContext(this.applicationContext);
         try (TransactionContext ctx = this.transactionService.getContext()) {
+            this.jsonService = injector.getInstance(JsonService.class);
             this.ormService = injector.getInstance(OrmService.class);
             this.transactionService = injector.getInstance(TransactionService.class);
             this.eventService = injector.getInstance(EventService.class);
@@ -182,7 +184,7 @@ public class InMemoryIntegrationPersistence {
     private DataModel createNewDeviceDataService() {
         this.deviceDataService = new DeviceDataServiceImpl(
                 this.ormService, this.eventService, this.nlsService, this.clock,
-                this.environment, this.relationService, this.protocolPluggableService, this.engineModelService, this.deviceConfigurationService, this.meteringService);
+                this.environment, this.relationService, this.protocolPluggableService, this.engineModelService, this.deviceConfigurationService, this.meteringService, this.schedulingService);
         return this.deviceDataService.getDataModel();
     }
 
@@ -241,6 +243,10 @@ public class InMemoryIntegrationPersistence {
             InMemoryBootstrapModule inMemoryBootstrapModule = (InMemoryBootstrapModule) bootstrapModule;
             inMemoryBootstrapModule.deactivate();
         }
+    }
+
+    public JsonService getJsonService() {
+        return jsonService;
     }
 
     public EngineModelService getEngineModelService() {

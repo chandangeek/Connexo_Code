@@ -35,7 +35,12 @@ public enum EventType {
     COMTASKEXECUTION_CREATED("comtaskexecution/CREATED"),
     COMTASKEXECUTION_UPDATED("comtaskexecution/UPDATED"),
     COMTASKEXECUTION_DELETED("comtaskexecution/DELETED"),
-    ;
+    COMSCHEDULE_UPDATED("comschedule/UPDATED") {
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.withProperty("minId", ValueType.LONG, "minId")
+                    .withProperty("maxId", ValueType.LONG, "maxId").withProperty("comScheduleId", ValueType.LONG, "comScheduleId");
+        }
+    };
 
     private static final String NAMESPACE = "com/energyict/mdc/device/data/";
     private final String topic;
@@ -55,13 +60,12 @@ public enum EventType {
                 .component(DeviceDataService.COMPONENTNAME)
                 .category("Crud")
                 .scope("System")
-                .shouldPublish()
-                .withProperty("id", ValueType.LONG, "id");
+                .shouldPublish();
         this.addCustomProperties(builder).create().save();
     }
 
-    private EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
-        return eventTypeBuilder;
+    protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+        return eventTypeBuilder.withProperty("id", ValueType.LONG, "id");
     }
 
 }

@@ -1,11 +1,7 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.protocol.api.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionException;
-
 import java.sql.SQLException;
 
 /**
@@ -32,7 +28,7 @@ public interface ConnectionTaskExecutionAspects {
      * @param comServer The ComServer that is started the execution
      * @throws SQLException
      */
-    public void executionStarted (ComServer comServer) throws SQLException, BusinessException;
+    public void executionStarted (ComServer comServer);
 
     /**
      * Notifies this ConnectionTask that the execution has completed without errors.

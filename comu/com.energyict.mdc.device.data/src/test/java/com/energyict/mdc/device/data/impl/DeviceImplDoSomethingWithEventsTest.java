@@ -4,8 +4,9 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.*;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
+import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.MessageService;
@@ -57,6 +58,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
@@ -66,6 +69,10 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
+import java.security.Principal;
+import java.sql.SQLException;
+import java.util.List;
+import javax.inject.Inject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -79,14 +86,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import javax.inject.Inject;
-import java.security.Principal;
-import java.sql.SQLException;
-import java.util.List;
-
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -222,6 +229,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private EngineModelService engineModelService;
         private Environment environment;
         private TaskService taskService;
+        private SchedulingService schedulingService;
 
         public void initializeDatabase(String testName, boolean showSqlLogging) {
             this.initializeMocks(testName);
@@ -251,6 +259,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new DeviceConfigurationModule(),
                     new MdcCommonModule(),
                     new TasksModule(),
+                    new SchedulingModule(),
                     new DeviceDataModule());
             BusinessEventManager eventManager = mock(BusinessEventManager.class);
             when(this.applicationContext.createEventManager()).thenReturn(eventManager);
@@ -271,13 +280,14 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.engineModelService = injector.getInstance(EngineModelService.class);
                 this.relationService = injector.getInstance(RelationService.class);
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+                this.schedulingService = injector.getInstance(SchedulingService.class);
                 this.dataModel = this.createNewDeviceDataService();
                 ctx.commit();
             }
         }
 
         private DataModel createNewDeviceDataService() {
-            this.deviceService = new DeviceDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.clock, environment, relationService, protocolPluggableService, engineModelService, this.deviceConfigurationService, meteringService);
+            this.deviceService = new DeviceDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.clock, environment, relationService, protocolPluggableService, engineModelService, this.deviceConfigurationService, meteringService, schedulingService);
             return this.deviceService.getDataModel();
         }
 

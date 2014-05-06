@@ -2,16 +2,12 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-import org.joda.time.DateTimeConstants;
-
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import org.joda.time.DateTimeConstants;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -68,13 +64,11 @@ public enum ServerConnectionTaskStatus {
                 return true;
             }
             else {
-//                List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-//                List<ComTaskExecutionFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionFactory.class);
-//                for (ComTaskExecutionFactory factory : factories) {
-//                    comTaskExecutions.addAll(factory.findCurrentlyExecutingByConnectionTask(task));
-//                }
-//                return !comTaskExecutions.isEmpty();
-                //TODO ask the deviceDataService!!!
+                for (ComTaskExecution comTaskExecution : task.getDevice().getComTaskExecutions()) {
+                    if(comTaskExecution.isExecuting()){
+                        return true;
+                    }
+                }
                 return false;
             }
         }
