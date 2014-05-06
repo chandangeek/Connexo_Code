@@ -9730,7 +9730,7 @@ a.x-tab {
   color: #007dc3;
   font-size: 13px;
   font-weight: bold;
-  font-family: arial, helvetica, verdana, sans-serif;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
   line-height: 15px;
   padding: 1px 0 0;
   text-transform: none; }
@@ -10000,7 +10000,7 @@ a.x-tab {
   color: #007dc3;
   font-size: 13px;
   font-weight: bold;
-  font-family: arial, helvetica, verdana, sans-serif;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
   line-height: 15px;
   padding: 1px 0 0;
   text-transform: none; }
@@ -12441,7 +12441,7 @@ a.x-tab {
   color: #007dc3;
   font-weight: bold;
   line-height: 15px;
-  font-family: arial, helvetica, verdana, sans-serif;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
   font-size: 13px;
   padding: 1px 0 0;
   text-transform: none; }
@@ -13615,7 +13615,7 @@ div.x-lbl-top-err-icon {
 /* line 26, ../../../ext-theme-neutral/sass/src/form/Labelable.scss */
 .x-form-item-label {
   color: #686868;
-  font: normal 13px/15px "Lato";
+  font: normal 13px/15px "Lato", helvetica, arial, verdana, sans-serif;
   margin-top: 5px; }
 
 /* line 45, ../../../ext-theme-neutral/sass/src/form/Labelable.scss */
@@ -13639,7 +13639,7 @@ div.x-lbl-top-err-icon {
 /* line 6, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-item,
 .x-form-field {
-  font: normal 13px Lato; }
+  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif; }
 
 /* line 21, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-type-text textarea.x-form-invalid-field, .x-form-type-text input.x-form-invalid-field,
@@ -13708,7 +13708,7 @@ textarea.x-form-empty-field {
 
 /* line 11, ../../../ext-theme-neutral/sass/src/form/field/Display.scss */
 .x-form-display-field {
-  font: normal 13px/17px Lato;
+  font: normal 13px/17px "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
   margin-top: 4px; }
 
@@ -13772,7 +13772,7 @@ textarea.x-form-empty-field {
 /* line 40, ../../../ext-theme-neutral/sass/src/form/field/Checkbox.scss */
 .x-form-cb-label {
   margin-top: 5px;
-  font: normal 13px/15px "Lato"; }
+  font: normal 13px/15px "Lato", helvetica, arial, verdana, sans-serif; }
 
 /* line 53, ../../../ext-theme-neutral/sass/src/form/field/Checkbox.scss */
 .x-form-cb-label-before {
@@ -14509,7 +14509,7 @@ a.x-color-picker-item:hover {
 
 /* line 100, ../../../ext-theme-neutral/sass/src/form/field/HtmlEditor.scss */
 .x-html-editor-wrap textarea {
-  font: normal 13px Lato;
+  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
   background-color: white;
   resize: none; }
 
@@ -36898,7 +36898,7 @@ h6 {
   color: #007dc3;
   font-size: 13px;
   font-weight: bold;
-  font-family: arial, helvetica, verdana, sans-serif;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
   line-height: 15px;
   padding: 1px 0 0;
   text-transform: none; }
@@ -38274,7 +38274,7 @@ h6 {
   color: #007dc3;
   font-size: 13px;
   font-weight: bold;
-  font-family: arial, helvetica, verdana, sans-serif;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
   line-height: 15px;
   padding: 1px 0 0;
   text-transform: none; }
@@ -38568,7 +38568,7 @@ div.x-form-spinner-down {
 /* line 6, ../../sass/src/form/Label.scss */
 .x-form-item-label {
   font-size: 13px;
-  font-family: Lato;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
   font-weight: normal; }
 
 /* line 1, ../../sass/src/toolbar/Paging.scss */
