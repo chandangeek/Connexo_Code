@@ -18,10 +18,11 @@ public enum TableSpecs {
             Table<NextExecutionSpecs> table = dataModel.addTable(name(), NextExecutionSpecs.class);
             table.map(NextExecutionSpecsImpl.class);
             Column id = table.addAutoIdColumn();
-            table.column("FREQUENCYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.every.count").add();
-            table.column("FREQUENCYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.every.timeUnitCode").add();
-            table.column("OFFSETVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.offset.count").add();
-            table.column("OFFSETUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("temporalExpression.offset.timeUnitCode").add();
+            table.column("FREQUENCYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(NextExecutionSpecsImpl.Fields.TEMPORAL_EXPRESSION.fieldName()+".every.count").add();
+            table.column("FREQUENCYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(NextExecutionSpecsImpl.Fields.TEMPORAL_EXPRESSION.fieldName()+".every.timeUnitCode").add();
+            table.column("OFFSETVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(NextExecutionSpecsImpl.Fields.TEMPORAL_EXPRESSION.fieldName()+".offset.count").add();
+            table.column("OFFSETUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(NextExecutionSpecsImpl.Fields.TEMPORAL_EXPRESSION.fieldName()+".offset.timeUnitCode").add();
+            table.column("LASTDAY").bool().conversion(ColumnConversion.NUMBER2BOOLEAN).map(NextExecutionSpecsImpl.Fields.TEMPORAL_EXPRESSION.fieldName()+".lastDay").add();
             table.primaryKey("PK_MDCNEXTEXEC_SPEC").on(id).add();
         }
     },

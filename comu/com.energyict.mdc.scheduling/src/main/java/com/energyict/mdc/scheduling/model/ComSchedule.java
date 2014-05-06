@@ -32,7 +32,7 @@ public interface ComSchedule {
 
     public void delete();
 
-    void setStartDate(UtcInstant startDate);
+    public UtcInstant getStartDate();
 
-    UtcInstant getStartDate();
+    public void setStartDate(UtcInstant startDate);
 }
