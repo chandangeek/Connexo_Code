@@ -25,7 +25,7 @@ Ext.define('Isu.controller.CommunicationTasksView', {
         },
         {
             ref: 'itemPanel',
-            selector: 'issues-item'
+            selector: 'communication-tasks-item'
         }
     ],
 
@@ -35,7 +35,7 @@ Ext.define('Isu.controller.CommunicationTasksView', {
                 afterrender: this.setBreadcrumb
             },
             'communication-tasks-view communication-tasks-list gridview': {
-                itemclick: this.loadGridItemDetail,
+                itemclick: this.showTaskDetails,
                 refresh: this.onCommunicationTasksGridRefresh
             },
             'communication-tasks-view communication-tasks-list actioncolumn': {
@@ -101,5 +101,29 @@ Ext.define('Isu.controller.CommunicationTasksView', {
         if (!store.getCount()) {
             this.selectFirstGridRow(grid);
         }
+    },
+
+    showTaskDetails: function (grid, record) {
+        var itemPanel = this.getItemPanel(),
+            form = itemPanel.down('communication-tasks-form'),
+            preloader = Ext.create('Ext.LoadMask', {
+                msg: "Loading...",
+                target: itemPanel
+            });
+
+        if (this.displayedItemId != record.id) {
+            grid.clearHighlight();
+            preloader.show();
+        }
+        this.displayedItemId = record.id;
+        this.gridItemModel.load(record.data.id, {
+            success: function (record) {
+                form.loadRecord(record);
+                itemPanel.setTitle(record.get('title'))
+            },
+            callback: function() {
+                preloader.destroy();
+            }
+        });
     }
 });
