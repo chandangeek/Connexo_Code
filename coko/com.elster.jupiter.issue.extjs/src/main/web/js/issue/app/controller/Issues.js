@@ -126,32 +126,31 @@ Ext.define('Isu.controller.Issues', {
     showOverview: function () {
         var self = this,
             issuesStore = this.getStore('Isu.store.Issues'),
-            groupStore = this.getStore('Isu.store.IssuesGroups'),
-            extraParamsModel = new Isu.model.ExtraParams(),
-            extraParams = issuesStore.proxy.extraParams;
+            groupStore = this.getStore('Isu.store.IssuesGroups');
 
-        self.extraParamsModel = extraParamsModel;
+        self.extraParamsModel = new Isu.model.ExtraParams();
 
 //        issuesStore.on('load', function () {
 //            issuesStore.proxy.extraParams = {};
 //        }, self, {single: true});
 
-        extraParamsModel.setValuesFromQueryString(function (extraParamsModel, data) {
+        self.getApplication().fireEvent('changecontentevent', Ext.widget('issues-overview'));
+
+        var filter = self.getFilteringToolbar(),
+            sort =  self.getSortingToolbar();
+
+        self.extraParamsModel.setValuesFromQueryString(function (extraParamsModel, data) {
             issuesStore.proxy.extraParams = data || {};
-            self.setParamsForIssueGroups(extraParamsModel.get('filter'), extraParamsModel.get('group').get('value'));
+//            self.setParamsForIssueGroups(extraParamsModel.get('filter'), extraParamsModel.get('group').get('value'));
 
             groupStore.on('load', function () {
                 self.setGrouping();
             }, self, {single: true});
 
-//            self.getApplication().fireEvent('changecontentevent', Ext.widget('issues-overview'));
-
-            self.getFilteringToolbar().addFilterButtons(extraParamsModel.get('filter'));
-            self.getSortingToolbar().addSortButtons(extraParamsModel.get('sort'));
+            filter.addFilterButtons(extraParamsModel.get('filter'));
+            sort.addSortButtons(extraParamsModel.get('sort'));
             self.setFilterForm();
         });
-
-        self.getApplication().fireEvent('changecontentevent', Ext.widget('issues-overview'));
     },
 
     setBreadcrumb: function (breadcrumbs) {
@@ -252,6 +251,7 @@ Ext.define('Isu.controller.Issues', {
 
     refresh: function() {
         window.location.replace(this.extraParamsModel.getQueryStringFromValues());
+        this.showOverview();
 //        window.location.reload();
     },
 
