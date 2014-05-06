@@ -10,9 +10,7 @@ Ext.define('Isu.view.workspace.issues.List', {
     ],
     alias: 'widget.issues-list',
     store: 'Isu.store.Issues',
-    enableColumnHide: false,
     emptyText: '<h3>No issue found</h3><p>No data collection issues have been created yet.</p>',
-    height: 395,
     columns: {
         defaults: {
             sortable: false,
