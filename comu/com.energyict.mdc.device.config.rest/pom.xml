@@ -32,6 +32,11 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.scheduling</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.masterdata.rest</artifactId>
             <version>${project.version}</version>
         </dependency>

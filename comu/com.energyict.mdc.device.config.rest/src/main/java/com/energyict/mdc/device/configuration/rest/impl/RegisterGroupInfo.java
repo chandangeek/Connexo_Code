@@ -21,6 +21,11 @@ public class RegisterGroupInfo {
     public RegisterGroupInfo() {
     }
 
+    public RegisterGroupInfo(long id, String name){
+        this.id = id;
+        this.name = name;
+    }
+
     public RegisterGroupInfo(RegisterGroup registerGroup){
         this.id = registerGroup.getId();
         this.name = registerGroup.getName();
