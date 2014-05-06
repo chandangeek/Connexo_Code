@@ -14,7 +14,7 @@ import java.util.Date;
  * Provides an implementation for the log Handler interface
  * that creates simple log messages that relate
  * to the {@link com.energyict.mdc.engine.model.ComPort}
- * and the {@link com.energyict.mdc.tasks.ConnectionTask}
+ * and the {@link com.energyict.mdc.device.data.tasks.ConnectionTask}
  * of inbound communication discovery.
  *
  * @author Rudi Vankeirsbilck (rudi)

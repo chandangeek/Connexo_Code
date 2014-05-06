@@ -39,6 +39,14 @@
       <artifactId>org.osgi.compendium</artifactId>
       <scope>provided</scope>
     </dependency>
+
+    <!-- Testing -->
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>devtools</artifactId>
+      <version>${jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>
