@@ -10,7 +10,7 @@ Ext.Loader.addClassPathMappings({
   "ExtThemeNeptune": "../../../ext-theme-neptune/overrides",
   "Skyline": "../../overrides",
   "Skyline.button": "../../src/button",
-  "Skyline.pa.StepButton": "../../src/panel/WizardMenu.js",
+  "Skyline.menu": "../../src/menu",
   "Skyline.panel": "../../src/panel",
   "Skyline.panel.Header": "../../overrides/panel/Header.js",
   "Skyline.panel.Panel": "../../overrides/panel/Panel.js"
@@ -40,7 +40,8 @@ Ext.ClassManager.addNameAlternateMappings({
   "Skyline.form.field.Base": [],
   "Skyline.form.field.Text": [],
   "Skyline.grid.Panel": [],
-  "Skyline.pa.StepButton": [],
+  "Skyline.menu.NavigationItem": [],
+  "Skyline.menu.NavigationMenu": [],
   "Skyline.panel.FilterToolbar": [],
   "Skyline.panel.Header": [],
   "Skyline.panel.Panel": [],
@@ -78,8 +79,11 @@ Ext.ClassManager.addNameAliasMappings({
   "Skyline.form.field.Base": [],
   "Skyline.form.field.Text": [],
   "Skyline.grid.Panel": [],
-  "Skyline.pa.StepButton": [
-    "widget.step-button"
+  "Skyline.menu.NavigationItem": [
+    "widget.navigation-item"
+  ],
+  "Skyline.menu.NavigationMenu": [
+    "widget.navigation-menu"
   ],
   "Skyline.panel.FilterToolbar": [
     "widget.filter-toolbar"
