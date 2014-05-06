@@ -99,6 +99,15 @@ public class ComScheduleImpl implements ComSchedule {
     }
 
     @Override
+    public Date getPlannedDate() {
+        Calendar calendar = Calendar.getInstance();
+        if (this.startDate!=null) {
+            calendar.setTime(this.startDate.toDate());
+        }
+        return SchedulingStatus.PAUSED.equals(this.schedulingStatus)?null:this.getNextTimestamp(calendar);
+    }
+
+    @Override
     public void setTemporalExpression(TemporalExpression temporalExpression) {
         if (!this.nextExecutionSpecs.isPresent()) {
             NextExecutionSpecs nextExecutionSpecs = schedulingService.newNextExecutionSpecs(temporalExpression);

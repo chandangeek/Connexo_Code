@@ -35,4 +35,6 @@ public interface ComSchedule {
     public UtcInstant getStartDate();
 
     public void setStartDate(UtcInstant startDate);
+
+    Date getPlannedDate();
 }
