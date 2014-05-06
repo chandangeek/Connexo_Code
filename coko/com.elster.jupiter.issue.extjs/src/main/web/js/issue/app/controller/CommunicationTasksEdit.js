@@ -29,16 +29,22 @@ Ext.define('Isu.controller.CommunicationTasksEdit', {
     },
 
     showOverview: function (id) {
-        var widget = Ext.widget('communication-tasks-edit');
+        var self = this,
+            widget = Ext.widget('communication-tasks-edit');
 
         if (id) {
             this.operationType = 'Edit';
+            this.getModel('Isu.model.CommunicationTasks').load(id, function (record) {
+                self.taskModel = record;
+                self.getApplication().fireEvent('changecontentevent', widget);
+                self.getTaskEdit().getCenterContainer().down().setTitle(this.operationType + ' communication task');
+            });
         } else {
             this.operationType = 'Create';
+            this.taskModel = new Isu.model.CommunicationTasks();
+            this.getApplication().fireEvent('changecontentevent', widget);
+            this.getTaskEdit().getCenterContainer().down().setTitle(this.operationType + ' communication task');
         }
-
-        this.getApplication().fireEvent('changecontentevent', widget);
-        this.getTaskEdit().getCenterContainer().down().setTitle(this.operationType + ' communication task');
     },
 
     setBreadcrumb: function (breadcrumbs) {
