@@ -42,8 +42,10 @@ Ext.define('Mdc.widget.TimeInfoField', {
             Ext.apply({
                 xtype: 'numberfield',
                 itemId: 'valueField',
-                hideTrigger: true,
-                submitValue: false
+                hideTrigger: false,
+                submitValue: false,
+                width: 200,
+                margin: '0 5 5 0'
             }, me.valueCfg),
             Ext.apply({
                 xtype: 'combobox',
@@ -52,7 +54,8 @@ Ext.define('Mdc.widget.TimeInfoField', {
                 queryMode: 'local',
                 displayField: 'timeUnit',
                 valueField: 'timeUnit',
-                submitValue: false
+                submitValue: false,
+                width: 185
             }, me.unitCfg)]
     },
 

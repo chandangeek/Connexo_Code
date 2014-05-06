@@ -19,6 +19,23 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
         var me = this;
         this.columns = [
             {
+                header: Uni.I18n.translate('connectionmethod.default', 'MDC', 'Default'),
+                dataIndex: 'isDefault',
+                sortable: false,
+                hideable: false,
+                renderer: function(value,metadata){
+                    if(value===true){
+                        metadata.style = "padding: 6px 16px 6px 16px;";
+                        return '<img src=../mdc/resources/images/1rightarrow.png/>';
+                    } else {
+                        return '';
+                    }
+                },
+                align: 'center',
+                fixed: true,
+                flex: 0.1
+            },
+            {
                 header: Uni.I18n.translate('connectionmethod.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 sortable: false,
@@ -27,7 +44,23 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
 //                    return '<a href="#/setup/devicetypes/' + record.get('id') + '">' + value + '</a>';;
 //                },
                 fixed: true,
-                flex: 0.4
+                flex: 0.3
+            },
+            {
+                header: Uni.I18n.translate('connectionmethod.direction', 'MDC', 'Direction'),
+                dataIndex: 'direction',
+                sortable: false,
+                hideable: false,
+                fixed: true,
+                flex: 0.3
+            },
+            {
+                header: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type'),
+                dataIndex: 'connectionType',
+                sortable: false,
+                hideable: false,
+                fixed: true,
+                flex: 0.3
             },
             {
                 xtype: 'actioncolumn',
@@ -70,6 +103,23 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                                                 element: 'el',
                                                 fn: function () {
                                                     this.fireEvent('deleteItem', record);
+                                                },
+                                                scope: this
+                                            }
+
+                                        }
+                                    },
+                                    {
+                                        xtype: 'menuseparator'
+                                    },
+                                    {
+                                        xtype: 'menuitem',
+                                        text: record.get('isDefault') === true ? Uni.I18n.translate('connectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'),
+                                        listeners: {
+                                            click: {
+                                                element: 'el',
+                                                fn: function () {
+                                                    this.fireEvent('toggleDefault', record);
                                                 },
                                                 scope: this
                                             }
