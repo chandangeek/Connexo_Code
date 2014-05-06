@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Transaction;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.model.ComServer;
 
 import java.sql.SQLException;
@@ -11,7 +12,7 @@ import java.util.List;
 /**
  * Provides an implementation for the {@link CompositeDeviceCommand} interface
  * that will contains all the {@link DeviceCommand}s that are part of the same
- * {@link com.energyict.mdc.journal.ComSession}.
+ * ComSession.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-09-17 (11:52)

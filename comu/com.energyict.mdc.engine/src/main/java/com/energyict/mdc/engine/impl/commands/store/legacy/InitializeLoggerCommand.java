@@ -4,6 +4,8 @@ import com.energyict.mdc.engine.exceptions.ComCommandException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
+import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 
@@ -38,7 +40,7 @@ public class InitializeLoggerCommand extends SimpleComCommand {
     /**
      * Creates a logger that will log all entries produced
      * by the protocol, except INFO and CONFIG in the
-     * {@link JobExecution.ExecutionContext}'s {@link com.energyict.mdc.journal.ComSession}.
+     * {@link JobExecution.ExecutionContext}'s ComSession.
      *
      * @return The Logger
      */
