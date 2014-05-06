@@ -7,6 +7,8 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.SetClockCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
+import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;

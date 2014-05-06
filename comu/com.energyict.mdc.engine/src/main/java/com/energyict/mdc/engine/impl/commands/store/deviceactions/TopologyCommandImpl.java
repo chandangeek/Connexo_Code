@@ -6,6 +6,8 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.TopologyCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
+import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -16,8 +18,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.energyict.mdc.protocol.api.tasks.TopologyAction.*;
 
 /**
  * Implementation of a {@link TopologyCommand}

@@ -13,6 +13,7 @@ import com.energyict.mdc.engine.impl.commands.collect.RegularLoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.issues.Issue;

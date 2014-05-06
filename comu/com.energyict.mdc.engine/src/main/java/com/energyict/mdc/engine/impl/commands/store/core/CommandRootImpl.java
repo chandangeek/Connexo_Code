@@ -48,6 +48,8 @@ import com.energyict.mdc.engine.impl.commands.store.deviceactions.TopologyComman
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyLoadProfilesCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifySerialNumberCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyTimeDifferenceCommandImpl;
+import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.device.data.journal.CompletionCode;

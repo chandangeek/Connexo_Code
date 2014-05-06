@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.comserver.logging.LogLevel;
 import com.energyict.mdc.device.data.journal.CompletionCode;
+import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
@@ -100,7 +100,7 @@ public interface ComCommand {
      * As an example when LogLevel {@link com.energyict.mdc.engine.model.ComServer.LogLevel#INFO} is returned
      * then the ComServer's log level must be at least INFO or higher
      * before this ComCommand will actually be logged as a
-     * {@link com.energyict.mdc.shadow.journal.ComCommandJournalEntryShadow}.
+     * ComCommandJournalEntryShadow.
      *
      * @return The minimum ComServer.LogLevel
      */
@@ -109,7 +109,7 @@ public interface ComCommand {
     /**
      * Converts this ComCommand to a String that will be used
      * as the human readable description for the
-     * {@link com.energyict.mdc.shadow.journal.ComCommandJournalEntryShadow}.
+     * ComCommandJournalEntryShadow.
      *
      * @return The human readable description of this ComCommand
      * @param serverLogLevel The LogLevel set on the ComServer

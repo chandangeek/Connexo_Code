@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.logging.PerformanceLogger;
-import com.energyict.comserver.time.LoggingStopWatch;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.logging.PerformanceLogger;
 
 /**
  * Defines pointcuts and advice to monitor the performance of the {@link DeviceCommand}s.

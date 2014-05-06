@@ -5,6 +5,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
+import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
@@ -19,10 +20,9 @@ import java.util.Map;
 /**
  * A CompositeComCommand can contain several {@link ComCommand ComCommands} which are executed in the order the
  * {@link ComCommand} itself desires. We are responsible for creating/fetching our own {@link ComCommand ComCommands}.
- * We are also responsible for making sure that all {@link ComCommand ComCommands} in the {@link com.energyict.mdc.commands.CommandRoot root}
- * are unique by {@link com.energyict.mdc.commands.ComCommandTypes ComCommandType}, if not a
- * {@link com.energyict.comserver.exceptions.ComCommandException#uniqueCommandViolation(com.energyict.mdc.commands.ComCommand)
- * uniqueCommandViolation} must be thrown.<br/>
+ * We are also responsible for making sure that all {@link ComCommand ComCommands} in the CommandRoot
+ * are unique by ComCommandType, if not a
+ * ComCommandException#uniqueCommandViolation must be thrown.<br/>
  * The {@link SimpleComCommand#doExecute(DeviceProtocol, JobExecution.ExecutionContext)} will call the {@link ComCommand#execute(DeviceProtocol, JobExecution.ExecutionContext)} of all the
  * {@link ComCommand commands} in the {@link #comCommands commandList} <b>in chronological order.</b>
  *

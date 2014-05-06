@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
+import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
@@ -159,7 +160,7 @@ public interface CommandRoot extends CompositeComCommand {
      *
      * @param loadProfileCommand the LoadProfileCommand that will own this VerifyLoadProfileCommand
      * @param comTaskExecution  the ComTaskExecution that drives this ComCommand
-     * @return the {@link com.energyict.comserver.commands.deviceactions.VerifyLoadProfilesCommandImpl} in this {@link CommandRoot}
+     * @return the VerifyLoadProfilesCommandImpl in this {@link CommandRoot}
      */
     public VerifyLoadProfilesCommand getVerifyLoadProfileCommand(final LoadProfileCommand loadProfileCommand, ComTaskExecution comTaskExecution);
 
@@ -167,7 +168,7 @@ public interface CommandRoot extends CompositeComCommand {
      *
      * @param loadProfileCommand the LoadProfileCommand that will own this ReadLoadProfileDataCommand
      * @param comTaskExecution  the ComTaskExecution that drives this ComCommand
-     * @return the {@link com.energyict.comserver.commands.deviceactions.ReadLoadProfileDataCommandImpl} in this {@link CommandRoot}
+     * @return the ReadLoadProfileDataCommandImpl in this {@link CommandRoot}
      */
     public ReadLoadProfileDataCommand getReadLoadProfileDataCommand(final LoadProfileCommand loadProfileCommand, ComTaskExecution comTaskExecution);
 
@@ -183,7 +184,7 @@ public interface CommandRoot extends CompositeComCommand {
      *
      * @param loadProfileCommand the LoadProfileCommand that will own this MarkIntervalsAsBadTimeCommand
      * @param comTaskExecution  the ComTaskExecution that drives this ComCommand
-     * @return the {@link com.energyict.comserver.commands.deviceactions.MarkIntervalsAsBadTimeCommandImpl} in this {@link CommandRoot}
+     * @return the MarkIntervalsAsBadTimeCommandImpl in this {@link CommandRoot}
      */
     public MarkIntervalsAsBadTimeCommand getMarkIntervalsAsBadTimeCommand(final LoadProfileCommand loadProfileCommand, ComTaskExecution comTaskExecution);
 

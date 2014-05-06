@@ -11,6 +11,7 @@ import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.collect.VerifySerialNumberCommand;
 import com.energyict.mdc.engine.impl.commands.collect.VerifyTimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.tasks.BasicCheckTask;
 
 /**

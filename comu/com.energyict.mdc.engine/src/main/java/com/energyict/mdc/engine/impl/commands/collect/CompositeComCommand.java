@@ -17,7 +17,7 @@ public interface CompositeComCommand extends Iterable<ComCommand>, ComCommand {
 
     /**
      * Add the given ComCommand to the command list.<br/>
-     * <b>Note:</b> a {@link com.energyict.comserver.exceptions.ComCommandException#uniqueCommandViolation(ComCommand)} will be thrown
+     * <b>Note:</b> a ComCommandException#uniqueCommandViolation(ComCommand) will be thrown
      * if the given {@link ComCommand#getCommandType()} already exists in the {@link CommandRoot}.
      *
      * @param command the command to add
