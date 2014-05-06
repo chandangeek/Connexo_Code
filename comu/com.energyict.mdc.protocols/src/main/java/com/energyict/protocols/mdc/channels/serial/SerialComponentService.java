@@ -18,10 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-12-03 (17:56)
  */
-public interface SerialComponentFactory {
-
-    // Todo: @ bundle activation time this needs to be set to a DefaultSerialComponentFactory
-    public static final AtomicReference<SerialComponentFactory> instance = new AtomicReference<>();
+public interface SerialComponentService {
 
     public SioSerialPort newSioSerialPort (SerialPortConfiguration configuration);
 

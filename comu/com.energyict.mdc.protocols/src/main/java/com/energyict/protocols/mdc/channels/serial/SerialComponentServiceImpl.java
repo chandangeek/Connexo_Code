@@ -9,14 +9,16 @@ import com.energyict.protocols.mdc.channels.serial.modem.AtModemComponent;
 import com.energyict.protocols.mdc.channels.serial.modem.CaseModemComponent;
 import com.energyict.protocols.mdc.channels.serial.modem.PEMPModemComponent;
 import com.energyict.protocols.mdc.channels.serial.modem.PaknetModemComponent;
+import org.osgi.service.component.annotations.Component;
 
 /**
- * Provides a default implementation for the {@link SerialComponentFactory} interface.
+ * Provides a default implementation for the {@link SerialComponentService} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-12-03 (17:58)
  */
-public class DefaultSerialComponentFactory implements SerialComponentFactory {
+@Component(name = "com.energyict.protocols.mdc.services.serialcomponentservice", service = SerialComponentService.class)
+public class SerialComponentServiceImpl implements SerialComponentService {
 
     @Override
     public SioSerialPort newSioSerialPort (SerialPortConfiguration configuration) {
@@ -52,4 +54,5 @@ public class DefaultSerialComponentFactory implements SerialComponentFactory {
     public CaseModemComponent newCaseModemComponent(AbstractCaseModemProperties properties) {
         return new CaseModemComponent(properties);
     }
+
 }
