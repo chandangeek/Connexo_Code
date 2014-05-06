@@ -12,8 +12,15 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
             name: 'empty-text',
             border: false,
             hidden: true,
-            html: '<h3>No rules found</h3>' +
-                '<p>There are no rules have been created yet</p>'
+            items: [
+                {
+                    html: '<h3>No rules found</h3>'
+                },
+                {
+                    xtype: 'label',
+                    text: 'There are no rules have been created yet'
+                }
+            ]
         },
         {
             xtype: 'grid',
