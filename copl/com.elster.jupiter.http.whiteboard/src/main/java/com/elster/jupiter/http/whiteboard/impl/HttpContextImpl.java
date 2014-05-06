@@ -2,7 +2,6 @@ package com.elster.jupiter.http.whiteboard.impl;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,16 +44,21 @@ public class HttpContextImpl implements HttpContext {
 
     @Override
     public URL getResource(String name) {
-    	EventAdmin eventAdmin = eventAdminHolder.get();
-    	if (eventAdmin != null) {
-    		Event event = new Event("com/elster/jupiter/http/GET",ImmutableMap.of("resource",name));
-    		eventAdmin.postEvent(event);
-    	}
         return resolver.getResource(name);
     }
 
     @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+       	EventAdmin eventAdmin = eventAdminHolder.get();
+    	if (eventAdmin != null) {
+    		StringBuffer requestUrl = request.getRequestURL();
+        	String queryString = request.getQueryString();
+        	if (queryString != null) {
+        		requestUrl.append("?").append(queryString);
+        	}
+    		Event event = new Event("com/elster/jupiter/http/GET",ImmutableMap.of("resource",requestUrl.toString()));
+    		eventAdmin.postEvent(event);
+    	}
         if (isClearSessionRequested(request)){
             return true;
         }
