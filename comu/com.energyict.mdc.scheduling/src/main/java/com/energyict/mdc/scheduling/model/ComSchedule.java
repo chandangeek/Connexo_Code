@@ -1,5 +1,6 @@
 package com.energyict.mdc.scheduling.model;
 
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
 import java.util.Calendar;
@@ -31,4 +32,7 @@ public interface ComSchedule {
 
     public void delete();
 
+    void setStartDate(UtcInstant startDate);
+
+    UtcInstant getStartDate();
 }

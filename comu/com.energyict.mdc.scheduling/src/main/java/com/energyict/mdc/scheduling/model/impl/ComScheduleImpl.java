@@ -5,6 +5,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
@@ -28,9 +29,9 @@ public class ComScheduleImpl implements ComSchedule {
 
     enum Fields {
         NAME("name"),
-        MOD_DATE("mod_date"),
         NEXT_EXECUTION_SPEC("nextExecutionSpecs"),
         STATUS("schedulingStatus"),
+        START_DATE("startDate"),
         COM_TASK_IN_COM_SCHEDULE("comTaskUsages");
         private final String javaFieldName;
 
@@ -55,7 +56,7 @@ public class ComScheduleImpl implements ComSchedule {
     private List<ComTaskInComSchedule> comTaskUsages = new ArrayList<>();
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
     private SchedulingStatus schedulingStatus;
-    private Date mod_date;
+    private UtcInstant startDate;
 
     @Override
     public long getId() {
@@ -85,6 +86,16 @@ public class ComScheduleImpl implements ComSchedule {
     @Override
     public Date getNextTimestamp(Calendar calendar) {
         return this.nextExecutionSpecs.get().getNextTimestamp(calendar);
+    }
+
+    @Override
+    public UtcInstant getStartDate() {
+        return startDate;
+    }
+
+    @Override
+    public void setStartDate(UtcInstant startDate) {
+        this.startDate = startDate;
     }
 
     @Override

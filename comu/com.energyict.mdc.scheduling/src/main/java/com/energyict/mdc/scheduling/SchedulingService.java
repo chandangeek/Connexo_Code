@@ -1,5 +1,6 @@
 package com.energyict.mdc.scheduling;
 
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import java.util.Calendar;
@@ -15,5 +16,5 @@ public interface SchedulingService {
     public List<ComSchedule> findAllSchedules();
     public ComSchedule findSchedule(long id);
 
-    public ComSchedule newComSchedule(String name, TemporalExpression temporalExpression);
+    public ComSchedule newComSchedule(String name, TemporalExpression temporalExpression, UtcInstant startDate);
 }

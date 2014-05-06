@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -143,11 +144,12 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
     }
 
     @Override
-    public ComSchedule newComSchedule(String name, TemporalExpression temporalExpression) {
+    public ComSchedule newComSchedule(String name, TemporalExpression temporalExpression, UtcInstant startDate) {
         ComScheduleImpl instance = dataModel.getInstance(ComScheduleImpl.class);
         instance.setName(name);
         instance.setTemporalExpression(temporalExpression);
         instance.setSchedulingStatus(SchedulingStatus.ACTIVE);
+        instance.setStartDate(startDate);
         instance.save();
         return instance;
     }

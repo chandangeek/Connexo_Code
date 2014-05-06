@@ -9,6 +9,7 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.TaskService;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2UTCINSTANT;
 
 public enum TableSpecs {
     MDCNEXTEXECUTIONSPEC {
@@ -31,8 +32,8 @@ public enum TableSpecs {
             table.map(ComScheduleImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").type("varchar2(256)").map(ComScheduleImpl.Fields.NAME.fieldName()).add();
-            table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map(ComScheduleImpl.Fields.MOD_DATE.fieldName()).insert("sysdate").update("sysdate").add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(ComScheduleImpl.Fields.STATUS.fieldName()).add();
+            table.column("STARTDATE").number().conversion(NUMBER2UTCINSTANT).map(ComScheduleImpl.Fields.START_DATE.fieldName()).add();
             Column nextExecutionSpec = table.column("NEXTEXECUTIONSPEC").number().conversion(NUMBER2LONG).add(); // DO NOT MAP
 
             table.foreignKey("FK_NEXTEXECUTIONSPEC").on(nextExecutionSpec).references(MDCNEXTEXECUTIONSPEC.name()).map(ComScheduleImpl.Fields.NEXT_EXECUTION_SPEC.fieldName()).add();
