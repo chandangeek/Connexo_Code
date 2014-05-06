@@ -1,9 +1,9 @@
 @mixin label {
-  font-size: 13px;
-  font-family: Lato;
+    font-size: 13px;
+    font-family: $font-family;
 }
 
 .#{$prefix}form-item-label {
-  @include label;
-  font-weight: normal;
+    @include label;
+    font-weight: normal;
 }

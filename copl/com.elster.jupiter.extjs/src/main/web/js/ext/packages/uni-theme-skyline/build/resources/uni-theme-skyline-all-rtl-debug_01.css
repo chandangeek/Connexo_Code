@@ -10968,7 +10968,7 @@ a.x-tab {
   color: #007dc3;
   font-size: 13px;
   font-weight: bold;
-  font-family: arial, helvetica, verdana, sans-serif;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
   line-height: 15px;
   padding: 1px 0 0;
   text-transform: none;
@@ -11360,7 +11360,7 @@ a.x-tab {
   color: #007dc3;
   font-size: 13px;
   font-weight: bold;
-  font-family: arial, helvetica, verdana, sans-serif;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
   line-height: 15px;
   padding: 1px 0 0;
   text-transform: none;
@@ -14313,7 +14313,7 @@ a.x-tab {
   color: #007dc3;
   font-weight: bold;
   line-height: 15px;
-  font-family: arial, helvetica, verdana, sans-serif;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
   font-size: 13px;
   padding: 1px 0 0;
   text-transform: none;
@@ -15739,7 +15739,7 @@ div.x-lbl-top-err-icon {
 /* line 26, ../../../ext-theme-neutral/sass/src/form/Labelable.scss */
 .x-form-item-label {
   color: #686868;
-  font: normal 13px/15px "Lato";
+  font: normal 13px/15px "Lato", helvetica, arial, verdana, sans-serif;
   margin-top: 5px;
 }
 
@@ -15930,7 +15930,7 @@ textarea.x-form-empty-field {
 /* line 40, ../../../ext-theme-neutral/sass/src/form/field/Checkbox.scss */
 .x-form-cb-label {
   margin-top: 5px;
-  font: normal 13px/15px "Lato";
+  font: normal 13px/15px "Lato", helvetica, arial, verdana, sans-serif;
 }
 
 /* line 53, ../../../ext-theme-neutral/sass/src/form/field/Checkbox.scss */
