@@ -15724,7 +15724,7 @@ a.x-tab {
 
 /* line 14, ../../../ext-theme-neutral/sass/src/form/Labelable.scss */
 div.x-lbl-top-err-icon {
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 /* line 18, ../../../ext-theme-neutral/sass/src/form/Labelable.scss */
@@ -15740,7 +15740,7 @@ div.x-lbl-top-err-icon {
 .x-form-item-label {
   color: #686868;
   font: normal 13px/15px "Lato";
-  margin-top: 5px;
+  margin-top: 7px;
 }
 
 /* line 45, ../../../ext-theme-neutral/sass/src/form/Labelable.scss */
@@ -15805,12 +15805,12 @@ div.x-lbl-top-err-icon {
   border-width: 1px;
   border-style: solid;
   border-color: #a0a0a0;
-  height: 24px;
-  line-height: 15px;
+  height: 28px;
+  line-height: 19px;
 }
 /* line 21, ../../../ext-theme-neutral/sass/src/form/field/Text.scss */
 .x-content-box .x-form-text {
-  height: 15px;
+  height: 19px;
 }
 
 /* line 34, ../../../ext-theme-neutral/sass/src/form/field/Text.scss */
@@ -15843,14 +15843,14 @@ textarea.x-form-empty-field {
 
 /* line 1, ../../../ext-theme-neutral/sass/src/form/field/Display.scss */
 .x-form-display-field-body {
-  height: 24px;
+  height: 28px;
 }
 
 /* line 11, ../../../ext-theme-neutral/sass/src/form/field/Display.scss */
 .x-form-display-field {
   font: normal 13px/17px Lato;
   color: #686868;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 /* line 1, ../../../ext-theme-neutral/sass/src/window/MessageBox.scss */
@@ -15895,12 +15895,12 @@ textarea.x-form-empty-field {
 
 /* line 1, ../../../ext-theme-neutral/sass/src/form/field/Checkbox.scss */
 .x-form-cb-wrap {
-  height: 24px;
+  height: 28px;
 }
 
 /* line 10, ../../../ext-theme-neutral/sass/src/form/field/Checkbox.scss */
 .x-form-cb {
-  margin-top: 5px;
+  margin-top: 7px;
 }
 
 /* line 19, ../../../ext-theme-neutral/sass/src/form/field/Checkbox.scss */
@@ -15929,7 +15929,7 @@ textarea.x-form-empty-field {
 /* boxLabel */
 /* line 40, ../../../ext-theme-neutral/sass/src/form/field/Checkbox.scss */
 .x-form-cb-label {
-  margin-top: 5px;
+  margin-top: 7px;
   font: normal 13px/15px "Lato";
 }
 
@@ -16246,11 +16246,11 @@ textarea.x-form-empty-field {
 
 /* line 73, ../../../ext-theme-neutral/sass/src/form/field/Trigger.scss */
 .x-quirks .prefixie6 .x-form-trigger-input-cell {
-  height: 24px;
+  height: 28px;
 }
 /* line 77, ../../../ext-theme-neutral/sass/src/form/field/Trigger.scss */
 .x-quirks .prefixie6 .x-field-toolbar .x-form-trigger-input-cell {
-  height: 24px;
+  height: 28px;
 }
 
 /* line 3, ../../../ext-theme-neutral/sass/src/form/field/Spinner.scss */
@@ -16259,7 +16259,7 @@ div.x-form-spinner-down {
   background-image: url(images/form/spinner.png);
   background-color: white;
   width: 22px;
-  height: 11px;
+  height: 13px;
 }
 
 /* line 13, ../../../ext-theme-neutral/sass/src/form/field/Spinner.scss */
@@ -16270,27 +16270,27 @@ div.x-form-spinner-down {
 
 /* line 19, ../../../ext-theme-neutral/sass/src/form/field/Spinner.scss */
 .x-form-spinner-down {
-  background-position: 0 -11px;
+  background-position: 0 -13px;
 }
 
 /* line 23, ../../../ext-theme-neutral/sass/src/form/field/Spinner.scss */
 .x-form-trigger-wrap-focus .x-form-spinner-down {
-  background-position: -66px -11px;
+  background-position: -66px -13px;
 }
 
 /* line 26, ../../../ext-theme-neutral/sass/src/form/field/Spinner.scss */
 .x-form-trigger-wrap .x-form-spinner-down-over {
-  background-position: -22px -11px;
+  background-position: -22px -13px;
 }
 
 /* line 29, ../../../ext-theme-neutral/sass/src/form/field/Spinner.scss */
 .x-form-trigger-wrap-focus .x-form-spinner-down-over {
-  background-position: -88px -11px;
+  background-position: -88px -13px;
 }
 
 /* line 32, ../../../ext-theme-neutral/sass/src/form/field/Spinner.scss */
 .x-form-trigger-wrap .x-form-spinner-down-click {
-  background-position: -44px -11px;
+  background-position: -44px -13px;
 }
 
 /* line 1, ../../../ext-theme-neutral/sass/src/toolbar/Paging.scss */
@@ -17452,7 +17452,7 @@ a.x-color-picker-item:hover {
 
 /* line 4, ../../../ext-theme-neutral/sass/src/grid/plugin/Editing.scss */
 .x-grid-editor .x-form-text {
-  font: normal 13px/15px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px/19px "Lato", helvetica, arial, verdana, sans-serif;
   padding: 4px 15px 3px 15px;
 }
 /* line 22, ../../../ext-theme-neutral/sass/src/grid/plugin/Editing.scss */
@@ -17462,11 +17462,11 @@ a.x-color-picker-item:hover {
 }
 /* line 60, ../../../ext-theme-neutral/sass/src/grid/plugin/Editing.scss */
 .x-grid-editor .x-form-display-field-body {
-  height: 24px;
+  height: 28px;
 }
 /* line 64, ../../../ext-theme-neutral/sass/src/grid/plugin/Editing.scss */
 .x-grid-editor .x-form-display-field {
-  font: normal 13px/15px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px/19px "Lato", helvetica, arial, verdana, sans-serif;
   padding: 5px 16px 4px 16px;
   text-overflow: ellipsis;
 }
@@ -17496,7 +17496,7 @@ a.x-color-picker-item:hover {
 }
 /* line 16, ../../../ext-theme-neutral/sass/src/grid/plugin/RowEditing.scss */
 .x-grid-row-editor .x-form-action-col-field {
-  padding: 4px 1px 3px 2px;
+  padding: 6px 1px 5px 2px;
 }
 /* line 27, ../../../ext-theme-neutral/sass/src/grid/plugin/RowEditing.scss */
 .x-grid-row-editor .x-form-text {
@@ -18721,7 +18721,7 @@ a.x-color-picker-item:hover {
 .x-ie6 .x-form-item .x-slider-horz,
 .x-ie7 .x-form-item .x-slider-horz,
 .x-quirks .x-ie .x-form-item .x-slider-horz {
-  margin-top: 5px;
+  margin-top: 7px;
 }
 
 /* line 26, ../../../ext-theme-neutral/sass/src/slider/Multi.scss */

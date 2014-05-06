@@ -1,12 +1,24 @@
 .#{$prefix}form-field,
 .#{$prefix}form-trigger-wrap {
   border-radius: $form-field-border-radius;
+  height: $form-field-height;
 }
 
 .#{$prefix}trigger-cell,
 div.#{$prefix}form-spinner-up,
 div.#{$prefix}form-spinner-down {
   background-color: $form-field-trigger-background;
+  width: $form-field-height !important;
+}
+
+div.#{$prefix}form-spinner-up,
+div.#{$prefix}form-spinner-down {
+ height: 10px;
+}
+
+.x-form-trigger {
+  height: $form-field-trigger-height;
+  margin: $form-field-trigger-margin;
 }
 
 .#{$prefix}form-invalid-under {

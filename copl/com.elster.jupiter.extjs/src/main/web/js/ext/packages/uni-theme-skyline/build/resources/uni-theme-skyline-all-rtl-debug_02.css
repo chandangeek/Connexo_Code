@@ -628,7 +628,7 @@
 
 /* line 1, ../../../ext-theme-neptune/sass/src/form/field/Trigger.scss */
 .x-form-trigger {
-  height: 22px;
+  height: 26px;
 }
 
 /* line 9, ../../../ext-theme-neptune/sass/src/form/field/Trigger.scss */
@@ -639,11 +639,11 @@
 /* line 12, ../../../ext-theme-neptune/sass/src/form/field/Trigger.scss */
 .x-form-trigger-wrap .x-form-text {
   border-width: 0;
-  height: 22px;
+  height: 26px;
 }
 /* line 16, ../../../ext-theme-neptune/sass/src/form/field/Trigger.scss */
 .x-content-box .x-form-trigger-wrap .x-form-text {
-  height: 15px;
+  height: 19px;
 }
 /* line 22, ../../../ext-theme-neptune/sass/src/form/field/Trigger.scss */
 .x-form-trigger-wrap-focus .x-form-trigger-wrap {
@@ -663,11 +663,11 @@
 .x-form-file-wrap .x-form-trigger-wrap .x-form-text {
   border: 1px solid;
   border-color: #a0a0a0;
-  height: 24px;
+  height: 28px;
 }
 /* line 13, ../../../ext-theme-neptune/sass/src/form/field/File.scss */
 .x-content-box .x-form-file-wrap .x-form-trigger-wrap .x-form-text {
-  height: 15px;
+  height: 19px;
 }
 
 /* line 1, ../../../ext-theme-neptune/sass/src/form/field/HtmlEditor.scss */

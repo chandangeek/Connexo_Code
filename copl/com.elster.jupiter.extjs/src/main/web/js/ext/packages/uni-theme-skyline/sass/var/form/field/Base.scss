@@ -5,6 +5,10 @@ $form-field-font-family: Lato !default;
 $form-field-invalid-border-color: #eb5642 !default;
 $form-field-trigger-background: rgba(0, 0, 0, 0) !default;
 $form-field-border-radius: 3px !default;
+$form-field-height: 28px;
+
+$form-field-trigger-height: 22px;
+$form-field-trigger-margin: 2px;
 
 // Error msg style
 $form-error-msg-color: #eb5642 !default;
@@ -17,6 +21,8 @@ $form-error-under-font: 13px/16px "Lato",helvetica,arial,verdana,sans-serif !def
 $form-label-font-color: $form-field-color !default;
 $form-label-font-family: $form-field-font-family !default;
 $form-label-font-size: 13px !default;
+
+
 
 
 
