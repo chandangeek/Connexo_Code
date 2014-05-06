@@ -17,6 +17,7 @@ public class ComScheduleInfo {
     @XmlJavaTypeAdapter(SchedulingStatusAdapter.class)
     public SchedulingStatus schedulingStatus;
     public List<ComTaskInfo> comTaskUsages;
+    public Date startDate;
 
     public ComScheduleInfo() {
     }
@@ -28,6 +29,7 @@ public class ComScheduleInfo {
         comScheduleInfo.temporalExpression = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
         comScheduleInfo.plannedDate = SchedulingStatus.PAUSED.equals(comSchedule.getSchedulingStatus())?null:comSchedule.getNextTimestamp(Calendar.getInstance());
         comScheduleInfo.schedulingStatus = comSchedule.getSchedulingStatus();
+        comScheduleInfo.startDate = comSchedule.getStartDate()==null?null:comSchedule.getStartDate().toDate();
         comScheduleInfo.isInUse = inUse;
         comScheduleInfo.comTaskUsages = ComTaskInfo.from(comSchedule.getComTasks());
         return comScheduleInfo;

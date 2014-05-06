@@ -1,6 +1,7 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
 import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -71,7 +72,8 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createSchedule(ComScheduleInfo comScheduleInfo) {
-        ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression());
+        ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression(),
+                comScheduleInfo.startDate==null?null:new UtcInstant(comScheduleInfo.startDate));
         comSchedule.save();
         return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, isInUse(comSchedule))).build();
     }
@@ -93,6 +95,7 @@ public class SchedulingResource {
         comSchedule.setName(comScheduleInfo.name);
         comSchedule.setTemporalExpression(comScheduleInfo.temporalExpression.asTemporalExpression());
         comSchedule.setSchedulingStatus(comScheduleInfo.schedulingStatus);
+        comSchedule.setStartDate(comScheduleInfo.startDate==null?null:new UtcInstant(comScheduleInfo.startDate));
         comSchedule.save();
         return ComScheduleInfo.from(findComScheduleOrThrowException(id), isInUse(comSchedule));
     }
