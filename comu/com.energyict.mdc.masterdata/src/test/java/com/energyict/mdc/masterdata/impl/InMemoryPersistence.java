@@ -95,18 +95,16 @@ public class InMemoryPersistence {
                 new OrmModule(),
                 new MeteringModule(),
                 new MdcReadingTypeUtilServiceModule(),
-                new MasterDataModule(),
-                new MdcCommonModule());
+                new MdcCommonModule(),
+                new MasterDataModule());
         this.transactionService = injector.getInstance(TransactionService.class);
-        Environment environment;
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.ormService = injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
-            environment = injector.getInstance(Environment.class);
+            this.environment = injector.getInstance(Environment.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.mdcReadingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
-            this.environment = injector.getInstance(Environment.class);
             this.dataModel = this.createNewMasterDataService(createDefaults);
             ctx.commit();
         }
