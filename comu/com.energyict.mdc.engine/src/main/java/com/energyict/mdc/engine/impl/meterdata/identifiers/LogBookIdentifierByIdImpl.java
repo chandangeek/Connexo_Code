@@ -14,7 +14,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
  * @since 10/12/12 - 16:01
  */
 
-public class LogBookIdentifierByIdImpl implements LogBookIdentifier {
+public final class LogBookIdentifierByIdImpl implements LogBookIdentifier {
 
     private final long logBookId;
     private final DeviceDataService deviceDataService;

@@ -20,6 +20,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>util</artifactId>
+      <version>${jupiter.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.tasks</artifactId>
       <version>${project.version}</version>
@@ -71,6 +76,14 @@
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.compendium</artifactId>
       <scope>provided</scope>
+    </dependency>
+
+    <!-- Testing -->
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>devtools</artifactId>
+      <version>${jupiter.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
