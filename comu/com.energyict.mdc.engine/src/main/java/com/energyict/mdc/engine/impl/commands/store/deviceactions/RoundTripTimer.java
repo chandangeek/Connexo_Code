@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdw.core.MeteringWarehouse;
-
 /**
  * A RoundTrip calculator. Start the timer before you do a read ({@link #start()}), stop it after you do a read ({@link #stop()}.
  * The total roundTrip time will be presented by {@link #getRoundTrip()}.

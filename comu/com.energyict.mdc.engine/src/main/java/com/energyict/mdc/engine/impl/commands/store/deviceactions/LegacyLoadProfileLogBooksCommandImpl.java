@@ -1,21 +1,19 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.comserver.commands.core.CompositeComCommandImpl;
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.CreateMeterEventsFromStatusFlagsCommand;
-import com.energyict.mdc.commands.LegacyLoadProfileLogBooksCommand;
-import com.energyict.mdc.commands.MarkIntervalsAsBadTimeCommand;
-import com.energyict.mdc.commands.ReadLegacyLoadProfileLogBooksDataCommand;
-import com.energyict.mdc.commands.TimeDifferenceCommand;
-import com.energyict.mdc.commands.VerifyLoadProfilesCommand;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
+import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ReadLegacyLoadProfileLogBooksDataCommand;
+import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByIdImpl;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
@@ -49,7 +47,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
     private final LogBooksTask logBooksTask;
 
     /**
-     * The used {@link OfflineDevice} which contains relevant information for this {@link com.energyict.mdc.commands.ComCommand}
+     * The used {@link OfflineDevice} which contains relevant information for this ComCommand
      */
     private final OfflineDevice device;
 
@@ -172,7 +170,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
     }
 
     /**
-     * @return the {@link com.energyict.mdc.commands.ComCommandTypes ComCommandType} of this command
+     * @return the ComCommandTypes of this command
      */
     @Override
     public ComCommandTypes getCommandType() {
@@ -237,7 +235,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
     }
 
     /**
-     * Create {@link LogBookReader}q for this {@link com.energyict.mdc.commands.LogBooksCommand}, based on the {@link LogBookType}s specified in the {@link #logBooksTask}.
+     * Create {@link LogBookReader}q for this LogBooksCommand, based on the {@link LogBookType}s specified in the {@link #logBooksTask}.
      * If no types are specified, then a {@link LogBookReader} for all
      * of the {@link com.energyict.mdc.protocol.api.device.BaseLogBook}s of the device will be created.
      *

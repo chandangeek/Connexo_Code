@@ -1,17 +1,15 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.comserver.commands.core.CompositeComCommandImpl;
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.mdc.commands.BasicCheckCommand;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.TimeDifferenceCommand;
-import com.energyict.mdc.commands.VerifySerialNumberCommand;
-import com.energyict.mdc.commands.VerifyTimeDifferenceCommand;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.collect.VerifySerialNumberCommand;
+import com.energyict.mdc.engine.impl.commands.collect.VerifyTimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.tasks.BasicCheckTask;
 
 /**
@@ -108,7 +106,7 @@ public class BasicCheckCommandImpl extends CompositeComCommandImpl implements Ba
 
     /**
      * Get the TimeDifference of the BasicCheckCommand. If the timeDifference is not read,
-     * then {@link com.energyict.mdc.commands.TimeDifferenceCommand#DID_NOT_READ_TIME_DIFFERENCE} will be returned.
+     * then TimeDifferenceCommand#DID_NOT_READ_TIME_DIFFERENCE will be returned.
      *
      * @return the timeDifference
      */

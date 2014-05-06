@@ -1,15 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store.common;
 
-import com.energyict.comserver.commands.core.SimpleComCommand;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.meterdata.UpdatedDeviceCache;
+
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;
 
 /**
  * Updates and 'holds' the {@link DeviceProtocolCache} of a {@link DeviceProtocol}.

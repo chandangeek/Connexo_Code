@@ -1,10 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
-import com.energyict.comserver.commands.core.ComTaskExecutionComCommand;
-import com.energyict.comserver.core.JobExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.tasks.ServerMessagesTask;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;

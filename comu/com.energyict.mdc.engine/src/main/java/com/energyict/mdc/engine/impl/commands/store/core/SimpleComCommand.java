@@ -1,26 +1,26 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.mdc.commands.ComCommand;
-import com.energyict.mdc.commands.CommandRoot;
 import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
-import com.energyict.mdc.journal.StackTracePrinter;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.StackTracePrinter;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.energyict.mdc.device.data.journal.CompletionCode.*;
 
 /**
  * Provides an implementation for a {@link ComCommand}
@@ -32,7 +32,7 @@ import java.util.List;
 public abstract class SimpleComCommand implements ComCommand, CanProvideDescriptionTitle {
 
     private final CommandRoot commandRoot;
-    private CompletionCode completionCode = CompletionCode.Ok;
+    private CompletionCode completionCode = Ok;
 
     /**
      * A List containing all the issue which occurred during the execution of this {@link ComCommand}
@@ -68,7 +68,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     private ExecutionState executionState = ExecutionState.NOT_EXECUTED;
 
     /**
-     * Perform the actions represented by this {@link com.energyict.mdc.commands.ComCommand}.<br/>
+     * Perform the actions represented by this ComCommand.<br/>
      * <b>Note:</b> this action will only perform once.
      *
      * @param deviceProtocol the {@link DeviceProtocol} which will perform the actions
@@ -99,7 +99,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     private CompletionCode getHighestCompletionCode() {
         CompletionCode completionCode = this.completionCode;
         for (CollectedData collectedData : getCollectedData()) {
-            CompletionCode collectedDataCompletionCode = CompletionCode.forResultType(collectedData.getResultType());
+            CompletionCode collectedDataCompletionCode = forResultType(collectedData.getResultType());
             if (collectedDataCompletionCode.hasPriorityOver(completionCode)) {
                 completionCode = collectedDataCompletionCode;
             }
@@ -182,20 +182,20 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     public void execute(final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
         this.validateArguments(deviceProtocol, executionContext);
         if (!hasExecuted()) {
-            this.setCompletionCode(CompletionCode.Ok);  // First optimistic
+            this.setCompletionCode(Ok);  // First optimistic
             boolean success = false;    // then pessimistic, does that make me manic
             try {
                 doExecute(deviceProtocol, executionContext);
                 success = true;
             } catch (CommunicationException e) {
-                setCompletionCode(CompletionCode.ConnectionError);
+                setCompletionCode(ConnectionError);
                 throw e;
             } catch (LegacyProtocolException e) {
                 if (isExceptionCausedByALegacyTimeout(e)) {
-                    setCompletionCode(CompletionCode.ConnectionError);
+                    setCompletionCode(ConnectionError);
                     throw new CommunicationException((IOException) e.getCause());
                 } else {
-                    addIssue(getIssueService().newProblem(deviceProtocol, "deviceprotocol.legacy.issue", StackTracePrinter.print(e)), CompletionCode.UnexpectedError);
+                    addIssue(getIssueService().newProblem(deviceProtocol, "deviceprotocol.legacy.issue", StackTracePrinter.print(e)), UnexpectedError);
                 }
             } finally {
                 if (success) {
@@ -239,23 +239,23 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     @Override
     public LogLevel getJournalingLogLevel () {
         switch (this.getCompletionCode()) {
-            case CompletionCode.Ok: {
+            case Ok: {
                 return this.defaultJournalingLogLevel();
             }
-            case CompletionCode.ConfigurationWarning: {
+            case ConfigurationWarning: {
                 return LogLevel.WARN;
             }
-            case CompletionCode.ProtocolError:
+            case ProtocolError:
                 // Intentional fall-through
-            case CompletionCode.TimeError:
+            case TimeError:
                 // Intentional fall-through
-            case CompletionCode.ConfigurationError:
+            case ConfigurationError:
                 // Intentional fall-through
-            case CompletionCode.IOError:
+            case IOError:
                 // Intentional fall-through
-            case CompletionCode.UnexpectedError:
+            case UnexpectedError:
                 // Intentional fall-through
-            case CompletionCode.ConnectionError:
+            case ConnectionError:
                 return LogLevel.ERROR;
             default: {
                 throw CodingException.unrecognizedEnumValue(LogLevel.class, this.completionCode.ordinal());

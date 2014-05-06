@@ -1,13 +1,9 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.comserver.core.ComTaskExecutionConnectionSteps;
-import com.energyict.comserver.core.CommandCreator;
-import com.energyict.comserver.core.CommandFactory;
-import com.energyict.mdc.commands.CommandRoot;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.ComChannelPlaceHolder;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;

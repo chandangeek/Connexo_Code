@@ -1,9 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound;
 
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.ReadLoadProfileDataCommandImpl;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.LoadProfileCommand;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 

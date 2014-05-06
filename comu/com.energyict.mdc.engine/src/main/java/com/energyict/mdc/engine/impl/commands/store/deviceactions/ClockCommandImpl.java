@@ -1,18 +1,15 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.comserver.commands.core.CompositeComCommandImpl;
-import com.energyict.comserver.commands.core.SimpleComCommand;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.mdc.commands.ClockCommand;
-import com.energyict.mdc.commands.ComCommand;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.TimeDifferenceCommand;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -21,6 +18,8 @@ import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 
 import java.util.List;
+
+import static com.energyict.mdc.tasks.ClockTaskType.*;
 
 /**
  * Implementation of a {@link ClockCommand}.<br>
@@ -75,11 +74,11 @@ public class ClockCommandImpl extends CompositeComCommandImpl implements ClockCo
         super.toJournalMessageDescription(builder, serverLogLevel);
         builder.addProperty("clockTaskType").append(this.getClockTask().getClockTaskType().name());
         if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
-            if (ClockTaskType.SETCLOCK.equals(this.getClockTask().getClockTaskType())) {
+            if (SETCLOCK.equals(this.getClockTask().getClockTaskType())) {
                 builder.addProperty("minimumDifference").append(this.getClockTask().getMinimumClockDifference());
                 builder.addProperty("maximumDifference").append(this.getClockTask().getMaximumClockDifference());
             }
-            else if (ClockTaskType.SYNCHRONIZECLOCK.equals(this.getClockTask().getClockTaskType())) {
+            else if (SYNCHRONIZECLOCK.equals(this.getClockTask().getClockTaskType())) {
                 builder.addProperty("maximumClockShift").append(this.getClockTask().getMaximumClockShift());
             }
             if (this.getTimeDifferenceCommand() != null) {
@@ -94,15 +93,15 @@ public class ClockCommandImpl extends CompositeComCommandImpl implements ClockCo
      */
     private void updateCommand() {
         switch (clockTask.getClockTaskType()) {
-            case ClockTaskType.SETCLOCK: {
+            case SETCLOCK: {
                 setClockCommand(getCommandRoot().getSetClockCommand(this, this.comTaskExecution));
             }
             break;
-            case ClockTaskType.FORCECLOCK: {
+            case FORCECLOCK: {
                 setClockCommand(getCommandRoot().getForceClockCommand(this, this.comTaskExecution));
             }
             break;
-            case ClockTaskType.SYNCHRONIZECLOCK: {
+            case SYNCHRONIZECLOCK: {
                 setClockCommand(getCommandRoot().getSynchronizeClockCommand(this, this.comTaskExecution));
             }
             break;

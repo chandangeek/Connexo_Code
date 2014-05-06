@@ -1,11 +1,10 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.comserver.commands.core.SimpleComCommand;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.VerifySerialNumberCommand;
 import com.energyict.mdc.device.data.journal.CompletionCode;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.VerifySerialNumberCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
@@ -27,7 +26,7 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
     }
 
     /**
-     * Perform the actions which are owned by this {@link com.energyict.mdc.commands.ComCommand}.<br/>
+     * Perform the actions which are owned by this ComCommand.<br/>
      * <b>Note:</b> this action will only perform once
      * <p>
      * The serialNumber will be read from the device and verified with the serialNumber from the HeadEnd.
@@ -51,7 +50,7 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
     }
 
     /**
-     * @return the {@link com.energyict.mdc.commands.ComCommandTypes ComCommandType} of this command
+     * @return the ComCommandType of this command
      */
     @Override
     public ComCommandTypes getCommandType() {

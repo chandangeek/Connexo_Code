@@ -1,12 +1,9 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.mdc.commands.ComCommand;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.meterdata.ComTaskExecutionCollectedData;
-import com.energyict.mdc.meterdata.ServerCollectedData;
+
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -14,7 +11,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Provides an implementation for the {@link ComTaskExecutionComCommand} interface.

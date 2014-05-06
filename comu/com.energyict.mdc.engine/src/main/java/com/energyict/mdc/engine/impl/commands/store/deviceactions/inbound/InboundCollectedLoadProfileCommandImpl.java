@@ -1,15 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound;
 
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.LoadProfileCommandImpl;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 import com.energyict.mdc.tasks.LoadProfilesTask;
-import java.util.List;
 
 /**
  * Copyrights EnergyICT

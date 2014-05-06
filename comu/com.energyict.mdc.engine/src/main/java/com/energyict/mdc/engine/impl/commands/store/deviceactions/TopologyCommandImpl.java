@@ -1,13 +1,11 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.comserver.commands.core.SimpleComCommand;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.TopologyCommand;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.TopologyCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -18,6 +16,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.energyict.mdc.protocol.api.tasks.TopologyAction.*;
 
 /**
  * Implementation of a {@link TopologyCommand}
@@ -81,11 +81,11 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
     private void appendTopology (DescriptionBuilder builder) {
         StringBuilder topologyActionResultBuilder = builder.addProperty("topologyActionResult");
         switch (this.deviceTopology.getTopologyAction()) {
-            case TopologyAction.UPDATE: {
+            case UPDATE: {
                 topologyActionResultBuilder = builder.addProperty("updatedTopologyMaster");
                 break;
             }
-            case TopologyAction.VERIFY: {
+            case VERIFY: {
                 topologyActionResultBuilder = builder.addProperty("verifiedTopologyMaster");
                 break;
             }

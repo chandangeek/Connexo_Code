@@ -1,16 +1,13 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.cbo.TimeConstants;
-import com.energyict.comserver.commands.core.SimpleComCommand;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.mdc.commands.ClockCommand;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.SetClockCommand;
 import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.SetClockCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
@@ -32,14 +29,14 @@ public class SetClockCommandImpl extends SimpleComCommand implements SetClockCom
     }
 
     @Override
-    protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
+    protected void toJournalMessageDescription (DescriptionBuilder builder, ComServer.LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         builder.addProperty("minimumDifference").append(this.getMinDiff()).append("s");
         builder.addProperty("maximumDifference").append(this.getMaxDiff()).append("s");
     }
 
     /**
-     * Perform the actions which are owned by this {@link com.energyict.mdc.commands.ComCommand}
+     * Perform the actions which are owned by this ComCommand
      */
     public void doExecute (final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
         long timeDifference = this.clockCommand.getTimeDifference().getMilliSeconds();

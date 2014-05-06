@@ -1,62 +1,16 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.comserver.commands.deviceactions.BasicCheckCommandImpl;
-import com.energyict.comserver.commands.deviceactions.ClockCommandImpl;
-import com.energyict.comserver.commands.deviceactions.CreateMeterEventsFromStatusFlagsCommandImpl;
-import com.energyict.comserver.commands.deviceactions.ForceClockCommandImpl;
-import com.energyict.comserver.commands.deviceactions.LegacyLoadProfileLogBooksCommandImpl;
-import com.energyict.comserver.commands.deviceactions.LoadProfileCommandImpl;
-import com.energyict.comserver.commands.deviceactions.LogBooksCommandImpl;
-import com.energyict.comserver.commands.deviceactions.MarkIntervalsAsBadTimeCommandImpl;
-import com.energyict.comserver.commands.deviceactions.MessagesCommandImpl;
-import com.energyict.comserver.commands.deviceactions.ReadLegacyLoadProfileLogBooksDataCommandImpl;
-import com.energyict.comserver.commands.deviceactions.ReadLoadProfileDataCommandImpl;
-import com.energyict.comserver.commands.deviceactions.ReadLogBooksCommandImpl;
-import com.energyict.comserver.commands.deviceactions.ReadRegistersCommandImpl;
-import com.energyict.comserver.commands.deviceactions.RegisterCommandImpl;
-import com.energyict.comserver.commands.deviceactions.SetClockCommandImpl;
-import com.energyict.comserver.commands.deviceactions.StatusInformationCommandImpl;
-import com.energyict.comserver.commands.deviceactions.SynchronizeClockCommandImpl;
-import com.energyict.comserver.commands.deviceactions.TimeDifferenceCommandImpl;
-import com.energyict.comserver.commands.deviceactions.TopologyCommandImpl;
-import com.energyict.comserver.commands.deviceactions.VerifyLoadProfilesCommandImpl;
-import com.energyict.comserver.commands.deviceactions.VerifySerialNumberCommandImpl;
-import com.energyict.comserver.commands.deviceactions.VerifyTimeDifferenceCommandImpl;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.mdc.commands.BasicCheckCommand;
-import com.energyict.mdc.commands.ClockCommand;
-import com.energyict.mdc.commands.ComCommand;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.CompositeComCommand;
-import com.energyict.mdc.commands.CreateMeterEventsFromStatusFlagsCommand;
-import com.energyict.mdc.commands.ForceClockCommand;
-import com.energyict.mdc.commands.LegacyLoadProfileLogBooksCommand;
-import com.energyict.mdc.commands.LoadProfileCommand;
-import com.energyict.mdc.commands.LogBooksCommand;
-import com.energyict.mdc.commands.MarkIntervalsAsBadTimeCommand;
-import com.energyict.mdc.commands.MessagesCommand;
-import com.energyict.mdc.commands.ReadLegacyLoadProfileLogBooksDataCommand;
-import com.energyict.mdc.commands.ReadLoadProfileDataCommand;
-import com.energyict.mdc.commands.ReadLogBooksCommand;
-import com.energyict.mdc.commands.ReadRegistersCommand;
-import com.energyict.mdc.commands.RegisterCommand;
-import com.energyict.mdc.commands.SetClockCommand;
-import com.energyict.mdc.commands.StatusInformationCommand;
-import com.energyict.mdc.commands.SynchronizeClockCommand;
-import com.energyict.mdc.commands.TimeDifferenceCommand;
-import com.energyict.mdc.commands.TopologyCommand;
-import com.energyict.mdc.commands.VerifyLoadProfilesCommand;
-import com.energyict.mdc.commands.VerifySerialNumberCommand;
-import com.energyict.mdc.commands.VerifyTimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.tasks.ServerMessagesTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
@@ -71,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Implementation for a {@link com.energyict.mdc.commands.CommandRoot}
+ * Implementation for a CommandRoot
  *
  * @author gna
  * @since 10/05/12 - 14:29
@@ -79,7 +33,7 @@ import java.util.Map;
 public class CommandRootImpl extends CompositeComCommandImpl implements CommandRoot {
 
     /**
-     * The {@link OfflineDevice} which owns this {@link com.energyict.mdc.commands.CommandRoot}
+     * The {@link OfflineDevice} which owns this CommandRoot
      */
     private final OfflineDevice offlineDevice;
     private final IssueService issueService;

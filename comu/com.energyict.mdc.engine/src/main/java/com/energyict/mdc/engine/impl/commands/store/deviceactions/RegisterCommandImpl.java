@@ -1,19 +1,16 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.comserver.commands.core.CompositeComCommandImpl;
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.ReadRegistersCommand;
-import com.energyict.mdc.commands.RegisterCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
+import com.energyict.mdc.engine.impl.commands.collect.RegisterCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.meterdata.DeviceRegisterList;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 import com.energyict.mdc.tasks.RegistersTask;
@@ -107,7 +104,7 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
     /**
      * The RegistersTask which is used for modeling this command
      *
-     * @return the {@link com.energyict.mdc.protocol.tasks.RegistersTask}
+     * @return the RegistersTask
      */
     @Override
     public RegistersTask getRegistersTask() {
@@ -115,7 +112,7 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
     }
 
     /**
-     * @return the {@link com.energyict.mdc.commands.ComCommandTypes ComCommandType} of this command
+     * @return the ComCommandTypes  of this command
      */
     @Override
     public ComCommandTypes getCommandType() {

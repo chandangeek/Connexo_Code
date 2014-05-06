@@ -1,11 +1,10 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.comserver.commands.core.CompositeComCommandImpl;
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.ReadRegistersCommand;
-import com.energyict.mdc.commands.StatusInformationCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
+import com.energyict.mdc.engine.impl.commands.collect.StatusInformationCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -41,7 +40,7 @@ public class StatusInformationCommandImpl extends CompositeComCommandImpl implem
     }
 
     /**
-     * @return the {@link com.energyict.mdc.commands.ComCommandTypes ComCommandType} of this command
+     * @return the ComCommandTypes of this command
      */
     @Override
     public ComCommandTypes getCommandType() {

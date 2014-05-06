@@ -1,16 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.cbo.TimeConstants;
-import com.energyict.comserver.commands.core.SimpleComCommand;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.mdc.commands.ClockCommand;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.SynchronizeClockCommand;
 import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.SynchronizeClockCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
@@ -35,7 +31,7 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
     }
 
     /**
-     * @return the {@link com.energyict.mdc.commands.ComCommandTypes ComCommandType} of this command
+     * @return the ComCommandType of this command
      */
     @Override
     public ComCommandTypes getCommandType() {
@@ -52,7 +48,7 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
     }
 
     /**
-     * Perform the actions which are owned by this {@link com.energyict.mdc.commands.ComCommand}
+     * Perform the actions which are owned by this ComCommand
      */
     public void doExecute(final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
         long timeDifference = clockCommand.getTimeDifference().getMilliSeconds();
