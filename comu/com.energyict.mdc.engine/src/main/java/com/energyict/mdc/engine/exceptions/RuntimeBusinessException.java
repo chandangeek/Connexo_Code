@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.commands.store.exceptions;
+package com.energyict.mdc.engine.exceptions;
 
 import com.energyict.mdc.common.BusinessException;
 
