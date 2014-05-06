@@ -1,0 +1,37 @@
+package com.energyict.mdc.engine.impl.commands.store;
+
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.meterdata.DeviceCommandFactory;
+import com.energyict.mdc.meterdata.ServerCollectedData;
+import com.energyict.mdc.engine.model.ComServer;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Provides an implementation for the {@link DeviceCommandFactory} interface.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2012-08-22 (16:51)
+ */
+public class DeviceCommandFactoryImpl implements DeviceCommandFactory {
+
+    @Override
+    public CompositeDeviceCommand newCompositeForAll(List<ServerCollectedData> collectedData, ComServer.LogLevel communicationLogLevel, IssueService issueService) {
+        CompositeDeviceCommand composite = new ComSessionRootDeviceCommand(communicationLogLevel);
+        for (DeviceCommand command : this.newForAll(collectedData, issueService)) {
+            composite.add(command);
+        }
+        return composite;
+    }
+
+    @Override
+    public List<DeviceCommand> newForAll(List<ServerCollectedData> collectedData, IssueService issueService) {
+        List<DeviceCommand> deviceCommands = new ArrayList<>(collectedData.size());
+        for (ServerCollectedData serverCollectedData : collectedData) {
+            deviceCommands.add(serverCollectedData.toDeviceCommand(issueService));
+        }
+        return deviceCommands;
+    }
+
+}
