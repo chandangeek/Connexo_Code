@@ -2,6 +2,8 @@ package com.elster.jupiter.http.whiteboard.impl;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,7 +14,10 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
 
 import com.elster.jupiter.http.whiteboard.Resolver;
@@ -24,11 +29,13 @@ public class HttpContextImpl implements HttpContext {
 	private final Resolver resolver;
     private final UserService userService;
     private final TransactionService transactionService;
+    private final AtomicReference<EventAdmin> eventAdminHolder;
 
-    HttpContextImpl(Resolver resolver, UserService userService, TransactionService transactionService) {
+    HttpContextImpl(Resolver resolver, UserService userService, TransactionService transactionService, AtomicReference<EventAdmin> eventAdminHolder) {
         this.resolver = resolver;
         this.userService = userService;
         this.transactionService = transactionService;
+        this.eventAdminHolder = eventAdminHolder;
     }
 
     @Override
@@ -38,6 +45,11 @@ public class HttpContextImpl implements HttpContext {
 
     @Override
     public URL getResource(String name) {
+    	EventAdmin eventAdmin = eventAdminHolder.get();
+    	if (eventAdmin != null) {
+    		Event event = new Event("com/elster/jupiter/http/GET",ImmutableMap.of("resource",name));
+    		eventAdmin.postEvent(event);
+    	}
         return resolver.getResource(name);
     }
 
