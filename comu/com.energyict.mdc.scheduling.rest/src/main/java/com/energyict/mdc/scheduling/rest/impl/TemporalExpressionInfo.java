@@ -14,7 +14,7 @@ public class TemporalExpressionInfo {
     public static TemporalExpressionInfo from(TemporalExpression temporalExpression) {
         TemporalExpressionInfo info = new TemporalExpressionInfo();
         info.every=new TimeDurationInfo(temporalExpression.getEvery());
-        info.offset=new TimeDurationInfo(temporalExpression.getOffset());
+        info.offset=new TimeDurationInfo(temporalExpression.getOffset().getSeconds());
         info.lastDay=temporalExpression.isLastDay();
         return info;
     }
