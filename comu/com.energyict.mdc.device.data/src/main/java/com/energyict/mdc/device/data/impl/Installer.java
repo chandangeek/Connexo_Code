@@ -1,6 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
@@ -23,16 +26,20 @@ import java.util.logging.Logger;
 public class Installer {
 
     private final Logger logger = Logger.getLogger(Installer.class.getName());
+    public static final String MESSAGING_NAME = "COM_SCHEDULE_RECALCULATOR";
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
     private final EventService eventService;
     private final Thesaurus thesaurus;
+    private final MessageService messageService;
 
-    public Installer(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    public Installer(DataModel dataModel, EventService eventService, Thesaurus thesaurus, MessageService messageService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
+        this.messageService = messageService;
     }
 
     public void install(boolean executeDdl, boolean createMasterData) {
@@ -44,9 +51,17 @@ public class Installer {
         }
         this.createEventTypes();
         this.createTranslations();
+        this.createMessageHandler();
         if (createMasterData) {
             this.createMasterData();
         }
+    }
+
+    private void createMessageHandler() {
+        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(MESSAGING_NAME, DEFAULT_RETRY_DELAY_IN_SECONDS);
+        destinationSpec.activate();
+        destinationSpec.subscribe(MESSAGING_NAME);
     }
 
     private void createTranslations() {

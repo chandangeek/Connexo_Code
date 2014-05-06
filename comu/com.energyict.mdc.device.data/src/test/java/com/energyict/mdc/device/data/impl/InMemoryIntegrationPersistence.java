@@ -167,7 +167,8 @@ public class InMemoryIntegrationPersistence {
             this.relationService = injector.getInstance(RelationService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.schedulingService = injector.getInstance(SchedulingService.class);
-            this.dataModel = this.createNewDeviceDataService();
+            this.deviceDataService = injector.getInstance(DeviceDataServiceImpl.class);
+            this.dataModel = this.deviceDataService.getDataModel();
             ctx.commit();
         }
         createOracleAliases();
@@ -178,13 +179,6 @@ public class InMemoryIntegrationPersistence {
         this.license = mock(License.class);
         when(this.license.hasAllProtocols()).thenReturn(true);
         LicenseServer.licenseHolder.set(this.license);
-    }
-
-    private DataModel createNewDeviceDataService() {
-        this.deviceDataService = new DeviceDataServiceImpl(
-                this.ormService, this.eventService, this.nlsService, this.clock,
-                this.environment, this.relationService, this.protocolPluggableService, this.engineModelService, this.deviceConfigurationService, this.meteringService, this.schedulingService);
-        return this.deviceDataService.getDataModel();
     }
 
     public void run(DataModelInitializer... dataModelInitializers) {
