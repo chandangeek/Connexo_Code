@@ -8,14 +8,20 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Clock;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.SchedulingStatus;
+import com.energyict.mdc.tasks.ComTask;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.Application;
@@ -92,7 +98,7 @@ public class SchedulingResourceTest extends JerseyTest {
     }
 
     @Test
-    public void testGetEmptyDeviceTypeList() throws Exception {
+    public void testGetEmptyScheduleList() throws Exception {
         List<ComSchedule> comSchedules = new ArrayList<>();
         ListPager<ComSchedule> comSchedulePage = ListPager.of(comSchedules);
         when(schedulingService.findAllSchedules(any(Calendar.class))).thenReturn(comSchedulePage);
@@ -101,6 +107,30 @@ public class SchedulingResourceTest extends JerseyTest {
         Map<String, Object> map = target("/schedules/").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(0);
         assertThat((List<?>)map.get("schedules")).isEmpty();
+    }
+
+    @Test
+    public void testGetSingleScheduleList() throws Exception {
+        ComSchedule mockedSchedule = mock(ComSchedule.class);
+        when(mockedSchedule.getId()).thenReturn(1L);
+        when(mockedSchedule.getName()).thenReturn("name");
+        when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
+        when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
+        when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
+        ComTask comTask1 = mock(ComTask.class);
+        when(comTask1.getId()).thenReturn(11L);
+        when(comTask1.getName()).thenReturn("Com task 1");
+        ComTask comTask2 = mock(ComTask.class);
+        when(comTask2.getId()).thenReturn(12L);
+        when(comTask2.getName()).thenReturn("Com task 2");
+        when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
+        ListPager<ComSchedule> comSchedulePage = ListPager.of(Arrays.asList(mockedSchedule));
+        when(schedulingService.findAllSchedules(any(Calendar.class))).thenReturn(comSchedulePage);
+        when(clock.getTimeZone()).thenReturn(Calendar.getInstance().getTimeZone());
+
+        Map<String, Object> map = target("/schedules/").request().get(Map.class);
+        assertThat(map.get("total")).isEqualTo(1);
+        assertThat((List<?>)map.get("schedules")).hasSize(1);
     }
 
     private <T> Finder<T> mockFinder(List<T> list) {
