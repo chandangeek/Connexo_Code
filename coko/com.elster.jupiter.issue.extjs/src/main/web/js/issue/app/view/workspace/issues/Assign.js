@@ -3,7 +3,8 @@ Ext.define('Isu.view.workspace.issues.Assign', {
     requires: [
         'Ext.form.Panel',
         'Ext.form.RadioGroup',
-        'Ext.form.field.Hidden'
+        'Ext.form.field.Hidden',
+        'Isu.view.workspace.issues.AssignForm'
     ],
     alias: 'widget.issues-assign',
 
