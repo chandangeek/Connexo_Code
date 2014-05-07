@@ -171,7 +171,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
      * @param loadProfileId   the ID to look for
      * @return the requested ProfileData or the {@link #INVALID_PROFILE_DATA} when the loadProfileId is not found
      */
-    protected ProfileData getProfileDataWithLoadProfileId(final List<ProfileData> profileDataList, int loadProfileId) {
+    protected ProfileData getProfileDataWithLoadProfileId(final List<ProfileData> profileDataList, long loadProfileId) {
         if (profileDataList != null) {
             for (ProfileData profileData : profileDataList) {
                 if (profileData.getLoadProfileId() == loadProfileId) {
