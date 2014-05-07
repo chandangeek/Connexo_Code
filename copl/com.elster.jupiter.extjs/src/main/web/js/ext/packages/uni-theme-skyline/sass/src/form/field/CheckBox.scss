@@ -2,3 +2,8 @@
   color: $form-label-font-color;
   font-family: $form-label-font-family;
 }
+
+.#{$prefix}form-checkbox {
+  height: 15px !important;
+  width: 15px !important;
+}

@@ -3,3 +3,26 @@
   background-color: taransparent !important;
 }
 
+.#{$prefix}toolbar .#{$prefix}btn {
+  margin: 0 5px !important;
+}
+
+.x-toolbar-separator {
+  margin: 0 5px !important;
+}
+
+.#{$prefix}tbar-page-first {
+  margin: 4px 0 0 0;
+}
+
+.#{$prefix}tbar-page-prev {
+  margin: 4px 0 0 3px;
+}
+
+.#{$prefix}tbar-page-next {
+  margin: 4px 0 0 6px;
+}
+
+.#{$prefix}tbar-page-last {
+  margin: 4px 0 0 0;
+}
