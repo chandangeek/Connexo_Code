@@ -1,8 +1,9 @@
 Ext.define('Isu.view.administration.communicationtasks.CategoryCombo', {
     extend: 'Ext.form.field.ComboBox',
-    alias: 'widget.communication-tasks-category-combo',
+    alias: 'widget.communication-tasks-categorycombo',
     name: 'category',
     fieldLabel: 'Category',
+    labelWidth: 200,
     labelSeparator: ' *',
     store: 'Isu.store.CommunicationTasksCategories',
     queryMode: 'local',
@@ -10,5 +11,7 @@ Ext.define('Isu.view.administration.communicationtasks.CategoryCombo', {
     valueField: 'id',
     allowBlank: false,
     editable: false,
-    emptyText: 'Choose a category'
+    emptyText: 'Choose a category',
+    validateOnBlur: false,
+    validateOnChange: false
 });
