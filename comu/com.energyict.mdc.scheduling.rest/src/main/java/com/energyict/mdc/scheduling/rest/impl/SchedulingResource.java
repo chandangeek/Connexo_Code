@@ -5,12 +5,18 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -31,12 +37,16 @@ public class SchedulingResource {
     private final SchedulingService schedulingService;
     private final DeviceDataService deviceDataService;
     private final Clock clock;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final TaskService taskService;
 
     @Inject
-    public SchedulingResource(SchedulingService schedulingService, DeviceDataService deviceDataService, Clock clock) {
+    public SchedulingResource(SchedulingService schedulingService, DeviceDataService deviceDataService, Clock clock, DeviceConfigurationService deviceConfigurationService, TaskService taskService) {
         this.schedulingService = schedulingService;
         this.deviceDataService = deviceDataService;
         this.clock = clock;
+        this.deviceConfigurationService = deviceConfigurationService;
+        this.taskService = taskService;
     }
 
     @GET
@@ -75,6 +85,7 @@ public class SchedulingResource {
         ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression(),
                 comScheduleInfo.startDate==null?null:new UtcInstant(comScheduleInfo.startDate));
         comSchedule.save();
+        updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
         return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, isInUse(comSchedule))).build();
     }
 
@@ -97,9 +108,44 @@ public class SchedulingResource {
         comSchedule.setSchedulingStatus(comScheduleInfo.schedulingStatus);
         comSchedule.setStartDate(comScheduleInfo.startDate==null?null:new UtcInstant(comScheduleInfo.startDate));
         comSchedule.save();
+        updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
         return ComScheduleInfo.from(findComScheduleOrThrowException(id), isInUse(comSchedule));
     }
 
+    private void updateTasks(ComSchedule comSchedule, List<ComTaskInfo> comTaskUsages) {
+        Map<Long, ComTaskInfo> newComTaskIdMap = asIdz(comTaskUsages);
+        for (ComTask comTask : comSchedule.getComTasks()) {
+            if (newComTaskIdMap.containsKey(comTask.getId())) {
+                // Updating ComTasks not allowed here
+                newComTaskIdMap.remove(comTask.getId());
+            } else {
+                comSchedule.removeComTask(comTask);
+            }
+        }
+
+        for (ComTaskInfo comTaskInfo : newComTaskIdMap.values()) {
+            ComTask comTask = taskService.findComTask(comTaskInfo.id);
+            if (comTask == null) {
+                throw new WebApplicationException("No ComTask with id "+comTaskInfo.id, Response.Status.NOT_FOUND);
+            }
+            comSchedule.addComTask(comTask);
+        }
+    }
+
+    private Map<Long, ComTaskInfo> asIdz(Collection<ComTaskInfo> comTaskInfos) {
+        Map<Long, ComTaskInfo> comTaskIdMap = new HashMap<>();
+        for (ComTaskInfo comTaskInfo : comTaskInfos) {
+            comTaskIdMap.put(comTaskInfo.id, comTaskInfo);
+        }
+        return comTaskIdMap;
+    }
+
+    @GET
+    @Path("/{id}/comTasks")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<ComTaskInfo> getComTasks(@PathParam("id") long id) {
+        return ComTaskInfo.from(deviceConfigurationService.findAvailableComTasks(findComScheduleOrThrowException(id)));
+    }
 
     private boolean isInUse(ComSchedule comSchedule) {
         return this.deviceDataService.isLinkedToDevices(comSchedule);
