@@ -136,9 +136,10 @@ public class SchedulingResourceTest extends JerseyTest {
 
         Map<String, Object> map = target("/schedules/").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(1);
-        Map<String, Object> schedules = (Map<String, Object>) map.get("schedules");
+        List<Map<String, Object>> schedules = (List<Map<String, Object>>) map.get("schedules");
         assertThat(schedules).hasSize(1);
-        assertThat(schedules).containsKey("id");
+        Map<String, Object> actual = schedules.get(0);
+        assertThat(actual).containsKey("id");
 
     }
 
