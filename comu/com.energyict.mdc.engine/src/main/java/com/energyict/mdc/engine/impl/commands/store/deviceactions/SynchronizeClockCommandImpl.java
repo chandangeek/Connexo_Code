@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
@@ -11,6 +12,7 @@ import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import org.joda.time.DateTimeConstants;
 
 import java.text.MessageFormat;
 import java.util.Date;
@@ -24,11 +26,13 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
      * The used {@link ClockCommand}
      */
     private ClockCommand clockCommand;
+    private final Clock clock;
     private Date timeSet;
 
-    public SynchronizeClockCommandImpl(final ClockCommand clockCommand, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
+    public SynchronizeClockCommandImpl(final ClockCommand clockCommand, final CommandRoot commandRoot, ComTaskExecution comTaskExecution, Clock clock) {
         super(commandRoot);
         this.clockCommand = clockCommand;
+        this.clock = clock;
         this.clockCommand.setTimeDifferenceCommand(getCommandRoot().getTimeDifferenceCommand(clockCommand, comTaskExecution));
     }
 
@@ -57,7 +61,7 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
         if (Math.abs(timeDifference) <= clockCommand.getClockTask().getMaximumClockDifference().getMilliSeconds()){
             long timeShift = getTimeShift(timeDifference);
             if (timeShift != 0) {
-                long currentDeviceTime = Clocks.getAppServerClock().now().getTime() - timeDifference;
+                long currentDeviceTime = this.clock.now().getTime() - timeDifference;
                 Date now = new Date(currentDeviceTime + timeShift);
                 deviceProtocol.setTime(now);
                 this.timeSet = now;
@@ -77,9 +81,9 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
      * @return the calculated clockShift in MilliSeconds
      */
     private long getTimeShift(final long timeDifference) {
-        if (clockCommand.getClockTask().getMaximumClockShift().getSeconds() * TimeConstants.MILLISECONDS_IN_SECOND <= Math.abs(timeDifference)) {
-            return (long) ((clockCommand.getClockTask().getMaximumClockShift().getSeconds() * TimeConstants.MILLISECONDS_IN_SECOND) * Math.signum(timeDifference));
-        } else if (clockCommand.getClockTask().getMinimumClockDifference().getSeconds() * TimeConstants.MILLISECONDS_IN_SECOND <= Math.abs(timeDifference)) {
+        if (clockCommand.getClockTask().getMaximumClockShift().getSeconds() * DateTimeConstants.MILLIS_PER_SECOND <= Math.abs(timeDifference)) {
+            return (long) ((clockCommand.getClockTask().getMaximumClockShift().getSeconds() * DateTimeConstants.MILLIS_PER_SECOND) * Math.signum(timeDifference));
+        } else if (clockCommand.getClockTask().getMinimumClockDifference().getSeconds() * DateTimeConstants.MILLIS_PER_SECOND <= Math.abs(timeDifference)) {
             return timeDifference;
         } else {
             return 0L;

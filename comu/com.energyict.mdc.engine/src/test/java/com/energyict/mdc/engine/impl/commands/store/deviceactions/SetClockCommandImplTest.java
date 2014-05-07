@@ -28,7 +28,7 @@ public class SetClockCommandImplTest {
         when(clockTask.getMaximumClockDifference()).thenReturn(new TimeDuration(100));
         when(clockCommand.getClockTask()).thenReturn(clockTask);
 
-        SetClockCommandImpl setClockCommand = new SetClockCommandImpl(clockCommand, commandRoot, null);
+        SetClockCommandImpl setClockCommand = new SetClockCommandImpl(clockCommand, commandRoot, null, clock);
         assertEquals("SetClockCommandImpl {minimumDifference: 10s; maximumDifference: 100s}", setClockCommand.toJournalMessageDescription(LogLevel.ERROR));
     }
 

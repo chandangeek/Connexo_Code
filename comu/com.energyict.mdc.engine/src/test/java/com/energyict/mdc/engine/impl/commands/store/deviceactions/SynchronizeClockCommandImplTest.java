@@ -49,7 +49,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
     public void getCorrectCommandTypeTest() {
         ClockCommand clockCommand = mock(ClockCommand.class);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-        SynchronizeClockCommandImpl synchronizeClockCommand = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), comTaskExecution);
+        SynchronizeClockCommandImpl synchronizeClockCommand = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), comTaskExecution, clock);
         Assert.assertEquals(ComCommandTypes.SYNCHRONIZE_CLOCK_COMMAND, synchronizeClockCommand.getCommandType());
     }
 
@@ -61,7 +61,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockCommand.getClockTask()).thenReturn(clockTask);
         CommandRoot commandRoot = mock(CommandRoot.class);
         when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null, clock);
         assertEquals("SynchronizeClockCommandImpl {maximumClockShift: 111 seconds}", command.toJournalMessageDescription(LogLevel.ERROR));
     }
 
@@ -77,7 +77,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockCommand.getTimeDifference()).thenReturn(clockDiff);
         CommandRoot commandRoot = mock(CommandRoot.class);
         when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null, clock);
 
         // business method
         command.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
@@ -108,7 +108,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockCommand.getTimeDifference()).thenReturn(clockDiff);
         CommandRoot commandRoot = mock(CommandRoot.class);
         when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null, clock);
 
         // business method
         command.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
@@ -139,7 +139,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockCommand.getTimeDifference()).thenReturn(clockDiff);
         CommandRoot commandRoot = mock(CommandRoot.class);
         when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null, clock);
 
         // business method
         command.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
@@ -170,7 +170,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockCommand.getTimeDifference()).thenReturn(clockDiff);
         CommandRoot commandRoot = mock(CommandRoot.class);
         when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null, clock);
 
         // business method
         command.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
@@ -200,7 +200,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockCommand.getTimeDifference()).thenReturn(clockDiff);
         CommandRoot commandRoot = mock(CommandRoot.class);
         when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null, clock);
 
         // business method
         command.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
@@ -228,7 +228,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockCommand.getTimeDifference()).thenReturn(clockDiff);
         CommandRoot commandRoot = mock(CommandRoot.class);
         when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null, clock);
 
         // business method
         command.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());

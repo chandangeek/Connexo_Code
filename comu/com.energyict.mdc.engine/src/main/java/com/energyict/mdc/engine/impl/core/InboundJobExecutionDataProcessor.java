@@ -59,7 +59,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     @Override
     protected List<PreparedComTaskExecution> prepareAll(List<? extends ComTaskExecution> comTaskExecutions) {
         List<PreparedComTaskExecution> allPreparedComTaskExecutions = new ArrayList<>();
-        CommandRoot root = new CommandRootImpl(this.offlineDevice, getExecutionContext(), issueService);
+        CommandRoot root = new CommandRootImpl(this.offlineDevice, getExecutionContext(), issueService, clock, deviceDataService);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             List<ServerCollectedData> data = receivedCollectedDataFor(comTaskExecution);
             if (!data.isEmpty()) {

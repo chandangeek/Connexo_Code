@@ -1,7 +1,8 @@
 package com.energyict.mdc.engine.impl.core.inbound.aspects.logging;
 
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.comserver.logging.LogLevelMapper;
+import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;

@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -33,10 +34,13 @@ public class LogBooksCommandImpl extends CompositeComCommandImpl implements LogB
      */
     private final LogBooksTask logBooksTask;
 
+    private final DeviceDataService deviceDataService;
+
     private List<LogBookReader> logBookReaders = new ArrayList<>();
 
-    public LogBooksCommandImpl(final LogBooksTask logBooksTask, final OfflineDevice device, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
+    public LogBooksCommandImpl(final LogBooksTask logBooksTask, final OfflineDevice device, final CommandRoot commandRoot, ComTaskExecution comTaskExecution, DeviceDataService deviceDataService) {
         super(commandRoot);
+        this.deviceDataService = deviceDataService;
         if (logBooksTask == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "logbookstask");
         }
@@ -92,7 +96,7 @@ public class LogBooksCommandImpl extends CompositeComCommandImpl implements LogB
      * @param logBook the logBook to add
      */
     protected void addLogBookToReaderList(final OfflineLogBook logBook) {
-        LogBookIdentifierByIdImpl logBookIdentifier = new LogBookIdentifierByIdImpl((int) logBook.getLogBookId());
+        LogBookIdentifierByIdImpl logBookIdentifier = new LogBookIdentifierByIdImpl(logBook.getLogBookId(), this.deviceDataService);
         LogBookReader logBookReader =
                 new LogBookReader(
                         logBook.getObisCode(),

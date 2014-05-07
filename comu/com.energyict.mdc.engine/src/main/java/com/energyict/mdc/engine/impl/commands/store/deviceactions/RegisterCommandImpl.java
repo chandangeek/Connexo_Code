@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -7,6 +8,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
 import com.energyict.mdc.engine.impl.commands.collect.RegisterCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
+import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -31,6 +33,7 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
      * The task used for modeling this command
      */
     private final RegistersTask registersTask;
+    private final DeviceDataService deviceDataService;
 
     /**
      * A List containing all the {@link CollectedRegister} which is collected during the execution of this {@link RegisterCommand}
@@ -42,8 +45,9 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
      */
     private List<CollectedData> collectedDataList = new ArrayList<>();
 
-    public RegisterCommandImpl(final RegistersTask registersTask, final OfflineDevice device, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
+    public RegisterCommandImpl(final RegistersTask registersTask, final OfflineDevice device, final CommandRoot commandRoot, ComTaskExecution comTaskExecution, DeviceDataService deviceDataService) {
         super(commandRoot);
+        this.deviceDataService = deviceDataService;
         if (registersTask == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "registersTask");
         }
@@ -64,7 +68,7 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
         ReadRegistersCommand readRegistersCommand = getCommandRoot().getReadRegistersCommand(this, comTaskExecution);
         readRegistersCommand.addRegisters(registers);
         // TODO make sure this is not the DeviceIdentifierById from protocols-api!
-        deviceRegisterList = new DeviceRegisterList(new DeviceIdentifierById(device.getId()));
+        deviceRegisterList = new DeviceRegisterList(new DeviceIdentifierById(device.getId(), this.deviceDataService));
     }
 
     private List<Integer> getRegisterGroupIds () {

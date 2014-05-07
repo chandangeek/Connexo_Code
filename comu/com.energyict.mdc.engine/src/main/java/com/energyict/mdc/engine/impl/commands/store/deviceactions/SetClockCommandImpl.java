@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
@@ -9,9 +10,9 @@ import com.energyict.mdc.engine.impl.commands.collect.SetClockCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import org.joda.time.DateTimeConstants;
 
 /**
  * Command to set the device time on the current system time <b>if and only if</b> the timeDifference is between
@@ -23,15 +24,17 @@ public class SetClockCommandImpl extends SimpleComCommand implements SetClockCom
      * The used {@link ClockCommand}, owner of this SetClockCommand
      */
     private ClockCommand clockCommand;
+    private final Clock clock;
 
-    public SetClockCommandImpl(final ClockCommand clockCommand, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
+    public SetClockCommandImpl(final ClockCommand clockCommand, final CommandRoot commandRoot, ComTaskExecution comTaskExecution, Clock clock) {
         super(commandRoot);
         this.clockCommand = clockCommand;
+        this.clock = clock;
         this.clockCommand.setTimeDifferenceCommand(getCommandRoot().getTimeDifferenceCommand(clockCommand, comTaskExecution));
     }
 
     @Override
-    protected void toJournalMessageDescription (DescriptionBuilder builder, ComServer.LogLevel serverLogLevel) {
+    protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         builder.addProperty("minimumDifference").append(this.getMinDiff()).append("s");
         builder.addProperty("maximumDifference").append(this.getMaxDiff()).append("s");
@@ -45,12 +48,12 @@ public class SetClockCommandImpl extends SimpleComCommand implements SetClockCom
         if (aboveMaximum(timeDifference)) {
             addIssue(getIssueService().newWarning(timeDifference, "timediffXlargerthanmaxdefined", timeDifference), CompletionCode.ConfigurationWarning);
         } else if (!belowMinimum(timeDifference)) {
-            deviceProtocol.setTime(Clocks.getAppServerClock().now());
+            deviceProtocol.setTime(this.clock.now());
         }
     }
 
     private boolean aboveMaximum(final long timeDifference) {
-        return getMaxDiff() * TimeConstants.MILLISECONDS_IN_SECOND < Math.abs(timeDifference);
+        return getMaxDiff() * DateTimeConstants.MILLIS_PER_SECOND < Math.abs(timeDifference);
     }
 
     private int getMaxDiff() {
@@ -58,7 +61,7 @@ public class SetClockCommandImpl extends SimpleComCommand implements SetClockCom
     }
 
     private boolean belowMinimum(final long timeDifference) {
-        return getMinDiff() * TimeConstants.MILLISECONDS_IN_SECOND > Math.abs(timeDifference);
+        return getMinDiff() * DateTimeConstants.MILLIS_PER_SECOND > Math.abs(timeDifference);
     }
 
     private int getMinDiff() {

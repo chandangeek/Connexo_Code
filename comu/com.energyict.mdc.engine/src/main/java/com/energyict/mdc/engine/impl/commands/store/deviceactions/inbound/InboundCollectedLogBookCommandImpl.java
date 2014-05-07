@@ -22,7 +22,7 @@ public class InboundCollectedLogBookCommandImpl extends LogBooksCommandImpl {
     private final List<ServerCollectedData> collectedData;
 
     public InboundCollectedLogBookCommandImpl(LogBooksTask logBooksTask, OfflineDevice device, CommandRoot commandRoot, ComTaskExecution comTaskExecution, List<ServerCollectedData> collectedData) {
-        super(logBooksTask, device, commandRoot, comTaskExecution);
+        super(logBooksTask, device, commandRoot, comTaskExecution, deviceDataService);
         this.collectedData = collectedData;
     }
 
