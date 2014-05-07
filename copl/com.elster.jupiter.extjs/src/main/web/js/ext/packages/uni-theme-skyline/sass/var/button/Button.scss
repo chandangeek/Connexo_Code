@@ -13,12 +13,12 @@ $button-small-border-radius: 5px !default;
 $button-medium-border-radius: $button-small-border-radius !default;
 $button-large-border-radius: $button-small-border-radius !default;
 
-//default border width
+// Default border width
 $button-small-border-width: 0 !default;
 $button-medium-border-width: $button-small-border-width !default;
 $button-large-border-width: $button-small-border-width !default;
 
-// deafult background gradient
+// Default background gradient
 $button-default-background-gradient: 'none' !default;
 $button-default-background-gradient-disabled: $button-default-background-gradient !default;
 $button-default-background-gradient-over: $button-default-background-gradient !default;
@@ -29,7 +29,7 @@ $button-default-background-color-disabled: #D2D2D2 !default;
 $button-default-color-disabled: #FFFFFF !default;
 $button-opacity-disabled: 1 !default;
 
-//Default button font
+// Default button font
 $button-small-font-family: 'Lato', helvetica, arial, verdana, sans-serif !default;
 $button-medium-font-family: $button-small-font-family !default;
 $button-large-font-family: $button-small-font-family !default;
@@ -39,7 +39,6 @@ $button-medium-font-weight: $button-small-font-weight;
 $button-large-font-weight: $button-small-font-weight;
 
 $button-small-font-size: 13px;
-
 
 // Action Icon
 $button-small-icon-size: 17px !default;
@@ -58,10 +57,10 @@ $button-action-icon: url("images/button/ico_actions.png") !default;
 // Action Button
 @import "ActionButton";
 
-//MenuItem Button
+// MenuItem Button
 @import "MenuItemButton";
 
-//Tag Button
+// Tag Button
 @import "TagButton";
 
 // Sort Item Button
