@@ -308,9 +308,10 @@ public class PartialOutboundConnectiontaskCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(60), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+            outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(60), ConnectionStrategy.MINIMIZE_CONNECTIONS)
                     .comPortPool(outboundComPortPool)
                     .comWindow(COM_WINDOW)
+                    .nextExecutionSpec().temporalExpression(new TimeDuration(10, TimeDuration.HOURS),new TimeDuration(1, TimeDuration.HOURS)).set()
                     .asDefault(true).build();
             deviceConfiguration.save();
 
@@ -324,6 +325,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             task.setDefault(false);
             task.setComportPool(outboundComPortPool1);
             task.setConnectionTypePluggableClass(connectionTypePluggableClass2);
+            task.setTemporalExpression(new TemporalExpression(new TimeDuration(12, TimeDuration.HOURS), new TimeDuration(2, TimeDuration.HOURS)));
             task.setComWindow(newComWindow);
             task.setName("Changed");
             task.save();
@@ -345,6 +347,8 @@ public class PartialOutboundConnectiontaskCrudIT {
         assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
         assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
         assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(newComWindow);
+        assertThat(partialOutboundConnectionTask.getTemporalExpression().getEvery().getCount()).isEqualTo(12);
+        assertThat(partialOutboundConnectionTask.getTemporalExpression().getEvery().getTimeUnitCode()).isEqualTo(TimeDuration.HOURS);
         assertThat(partialOutboundConnectionTask.getName()).isEqualTo("Changed");
 
         verify(eventService.getSpy()).postEvent(EventType.PARTIAL_OUTBOUND_CONNECTION_TASK_UPDATED.topic(), task);
