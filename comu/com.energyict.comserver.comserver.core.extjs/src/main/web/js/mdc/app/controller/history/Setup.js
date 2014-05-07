@@ -148,6 +148,11 @@ Ext.define('Mdc.controller.history.Setup', {
             me.getApplication().getController('Mdc.controller.setup.Devices').showDeviceDetailsView(id);
         });
 
+        //search devices
+        crossroads.addRoute('setup/searchitems',function(){
+            me.getApplication().getController('Mdc.controller.setup.SearchItems').showSearchItems();
+        });
+
         this.callParent(arguments);
     },
 
