@@ -1,5 +1,9 @@
 package com.energyict.mdc.engine.impl.core.inbound.aspects.events;
 
+import com.energyict.mdc.engine.events.ComServerEvent;
+import com.energyict.mdc.engine.impl.events.EventPublishingLogHandler;
+import com.energyict.mdc.engine.impl.events.logging.CommunicationLoggingEvent;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;

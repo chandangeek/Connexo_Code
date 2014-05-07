@@ -1,15 +1,16 @@
 package com.energyict.mdc.engine.impl.core.inbound.aspects.events;
 
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
+import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.impl.core.inbound.aspects.logging.AbstractComPortDiscoveryLogging;
 import com.energyict.mdc.engine.impl.core.inbound.aspects.logging.ComPortDiscoveryLogger;
+import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Defines pointcuts and advice that will create
- * {@link com.energyict.comserver.events.LoggingEvent}s
+ * Defines pointcuts and advice that will create LoggingEvents
  * inbound communication sessions.
  *
  * @author Rudi Vankeirsbilck (rudi)

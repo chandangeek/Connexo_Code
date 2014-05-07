@@ -125,7 +125,7 @@ public class LogBooksCommandImplTest {
     public void logBooksTaskNullTest() {
         OfflineDevice device = mock(OfflineDevice.class);
         CommandRoot commandRoot = mock(CommandRoot.class);
-        new LogBooksCommandImpl(null, device, commandRoot, comTaskExecution);
+        new LogBooksCommandImpl(null, device, commandRoot, comTaskExecution, deviceDataService);
         // should have gotten a CodingException
     }
 
@@ -133,7 +133,7 @@ public class LogBooksCommandImplTest {
     public void DeviceNullTest() {
         LogBooksTask logBooksTask = mock(LogBooksTask.class);
         CommandRoot commandRoot = mock(CommandRoot.class);
-        new LogBooksCommandImpl(logBooksTask, null, commandRoot, comTaskExecution);
+        new LogBooksCommandImpl(logBooksTask, null, commandRoot, comTaskExecution, deviceDataService);
         // should have gotten a CodingException
     }
 
@@ -141,7 +141,7 @@ public class LogBooksCommandImplTest {
     public void commandRootNullTest() {
         LogBooksTask logBooksTask = mock(LogBooksTask.class);
         OfflineDevice device = mock(OfflineDevice.class);
-        new LogBooksCommandImpl(logBooksTask, device, null, comTaskExecution);
+        new LogBooksCommandImpl(logBooksTask, device, null, comTaskExecution, deviceDataService);
         // should have gotten a CodingException
     }
 
@@ -154,7 +154,7 @@ public class LogBooksCommandImplTest {
         ReadLogBooksCommand readLogBooksCommand = mock(ReadLogBooksCommand.class);
         when(commandRoot.getReadLogBooksCommand(any(LogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(readLogBooksCommand);
 
-        LogBooksCommand logBooksCommand = new LogBooksCommandImpl(logBooksTask, device, commandRoot, comTaskExecution);
+        LogBooksCommand logBooksCommand = new LogBooksCommandImpl(logBooksTask, device, commandRoot, comTaskExecution, deviceDataService);
 
         // asserts
         Assert.assertEquals(ComCommandTypes.LOGBOOKS_COMMAND, logBooksCommand.getCommandType());
@@ -175,7 +175,7 @@ public class LogBooksCommandImplTest {
         ReadLogBooksCommand readLogBooksCommand = mock(ReadLogBooksCommand.class);
         when(commandRoot.getReadLogBooksCommand(any(LogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(readLogBooksCommand);
 
-        LogBooksCommandImpl logBooksCommand = new LogBooksCommandImpl(logBooksTask, device, commandRoot, comTaskExecution);
+        LogBooksCommandImpl logBooksCommand = new LogBooksCommandImpl(logBooksTask, device, commandRoot, comTaskExecution, deviceDataService);
         List<LogBookReader> logBookReaders = logBooksCommand.getLogBookReaders();
 
         LogBookReader expectedLogBookReader_1 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_1, LAST_LOGBOOK_1, new LogBookIdentifierByIdImpl(LOGBOOK_ID_1), SERIAL_NUMBER);
@@ -208,7 +208,7 @@ public class LogBooksCommandImplTest {
         ReadLogBooksCommand readLogBooksCommand = mock(ReadLogBooksCommand.class);
         when(commandRoot.getReadLogBooksCommand(any(LogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(readLogBooksCommand);
 
-        LogBooksCommand logBooksCommand = new LogBooksCommandImpl(logBooksTask, device, commandRoot, comTaskExecution);
+        LogBooksCommand logBooksCommand = new LogBooksCommandImpl(logBooksTask, device, commandRoot, comTaskExecution, deviceDataService);
         List<LogBookReader> logBookReaders = ((LogBooksCommandImpl) logBooksCommand).getLogBookReaders();
 
         LogBookReader expectedLogBookReader_1 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_1, LAST_LOGBOOK_1, new LogBookIdentifierByIdImpl(LOGBOOK_ID_1), SERIAL_NUMBER);

@@ -21,7 +21,7 @@ public class InboundCollectedRegisterCommandImpl extends RegisterCommandImpl {
     private final List<ServerCollectedData> collectedData;
 
     public InboundCollectedRegisterCommandImpl(RegistersTask registersTask, OfflineDevice device, CommandRoot commandRoot, ComTaskExecution comTaskExecution, List<ServerCollectedData> collectedData) {
-        super(registersTask, device, commandRoot, comTaskExecution);
+        super(registersTask, device, commandRoot, comTaskExecution, deviceDataService);
         this.collectedData = collectedData;
     }
 

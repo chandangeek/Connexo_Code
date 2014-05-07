@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -20,18 +21,20 @@ import java.util.Date;
  */
 public class TimeDifferenceCommandImpl extends SimpleComCommand implements TimeDifferenceCommand {
 
+    private final Clock clock;
     /**
      * The difference in time between the Collection Software and the Meter
      */
     private TimeDuration timeDifference;
 
-    public TimeDifferenceCommandImpl(final CommandRoot commandRoot) {
+    public TimeDifferenceCommandImpl(final CommandRoot commandRoot, Clock clock) {
         super(commandRoot);
+        this.clock = clock;
     }
 
     @Override
     public void doExecute (final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
-        RoundTripTimer roundTripTimer = new RoundTripTimer();
+        RoundTripTimer roundTripTimer = new RoundTripTimer(clock);
         roundTripTimer.start();
         Date meterTime = deviceProtocol.getTime();
         roundTripTimer.stop();
@@ -39,7 +42,7 @@ public class TimeDifferenceCommandImpl extends SimpleComCommand implements TimeD
         if (halfRoundTrip != 0) {
             halfRoundTrip = halfRoundTrip / 2;
         }
-        long differenceInMillis = Clocks.getAppServerClock().now().getTime() - (meterTime.getTime() - halfRoundTrip);
+        long differenceInMillis = this.clock.now().getTime() - (meterTime.getTime() - halfRoundTrip);
         this.timeDifference = new TimeDuration((int) differenceInMillis, TimeDuration.MILLISECONDS);
     }
 
