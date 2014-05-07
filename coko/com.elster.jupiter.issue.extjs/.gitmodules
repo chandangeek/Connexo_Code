@@ -1,6 +1,3 @@
-[submodule "src/main/web/js/issue/vendor/ext"]
-	path = src/main/web/js/issue/vendor/ext
-	url = ssh://git@source.eict.vpdc/com/elster/jupiter/extjs
 [submodule "src/main/web/js/issue/vendor/uni"]
 	path = src/main/web/js/issue/vendor/uni
 	url = ssh://git@source.eict.vpdc/com/elster/jupiter/unifyingjs

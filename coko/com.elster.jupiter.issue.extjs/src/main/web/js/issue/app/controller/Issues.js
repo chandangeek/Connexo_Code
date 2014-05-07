@@ -87,20 +87,19 @@ Ext.define('Isu.controller.Issues', {
             'issues-overview issues-item': {
                 afterChange: this.setFilterIconsActions
             },
-
-            'issues-overview sorting-toolbar [name=actions-toolbar] button': {
+            'issues-overview sorting-toolbar container sort-item-btn': {
                 click: this.changeSortDirection,
-                arrowclick: this.removeSortItem
+                closeclick: this.removeSortItem
             },
             'issues-overview sorting-toolbar issue-sort-menu': {
                 click: this.addSortParam
             },
-            'issues-overview sorting-toolbar button[action=clearSort]': {
+            'issues-overview sorting-toolbar button[action=clear]': {
                 click: this.clearSortParams
             },
 
             'issues-overview filtering-toolbar tag-button': {
-                arrowclick: this.removeFilterItem
+                closeclick: this.removeFilterItem
             },
             'button[name=clearsortbtn]': {
                 click: this.clearSort
@@ -126,32 +125,30 @@ Ext.define('Isu.controller.Issues', {
 
     showOverview: function () {
         var self = this,
-            widget,
             issuesStore = this.getStore('Isu.store.Issues'),
-            groupStore = this.getStore('Isu.store.IssuesGroups'),
-            extraParamsModel = new Isu.model.ExtraParams(),
-            extraParams = issuesStore.proxy.extraParams;
+            groupStore = this.getStore('Isu.store.IssuesGroups');
 
-        issuesStore.on('load', function () {
-            issuesStore.proxy.extraParams = {};
-        }, self, {single: true});
+        self.extraParamsModel = new Isu.model.ExtraParams();
 
-        extraParamsModel.setValuesFromQueryString(function (extraParamsModel, data) {
-            extraParams = data || {};
-            issuesStore.proxy.extraParams = extraParams;
-            self.setParamsForIssueGroups(extraParamsModel.get('filter'), extraParamsModel.get('group').get('value'));
+//        issuesStore.on('load', function () {
+//            issuesStore.proxy.extraParams = {};
+//        }, self, {single: true});
+
+        self.getApplication().fireEvent('changecontentevent', Ext.widget('issues-overview'));
+
+        var filter = self.getFilteringToolbar(),
+            sort =  self.getSortingToolbar();
+
+        self.extraParamsModel.setValuesFromQueryString(function (extraParamsModel, data) {
+            issuesStore.proxy.extraParams = data || {};
+//            self.setParamsForIssueGroups(extraParamsModel.get('filter'), extraParamsModel.get('group').get('value'));
 
             groupStore.on('load', function () {
                 self.setGrouping();
             }, self, {single: true});
 
-            widget = Ext.widget('issues-overview');
-            self.getApplication().fireEvent('changecontentevent', widget);
-
-            self.extraParamsModel = extraParamsModel;
-
-            self.getFilteringToolbar().addFilterButtons(extraParamsModel.get('filter'));
-            self.getSortingToolbar().addSortButtons(extraParamsModel.get('sort'));
+            filter.addFilterButtons(extraParamsModel.get('filter'));
+            sort.addSortButtons(extraParamsModel.get('sort'));
             self.setFilterForm();
         });
     },
@@ -203,7 +200,7 @@ Ext.define('Isu.controller.Issues', {
 
     removeFilterItem: function (button) {
         this.extraParamsModel.get('filter').removeFilterParam(button.target, button.targetId);
-        window.location.href = this.extraParamsModel.getQueryStringFromValues();
+        this.refresh();
     },
 
     applyFilter: function () {
@@ -212,14 +209,14 @@ Ext.define('Isu.controller.Issues', {
 
         form.updateRecord(filter);
         this.extraParamsModel.set('filter', filter);
-        window.location.href = this.extraParamsModel.getQueryStringFromValues();
+        this.refresh();
     },
 
     resetFilter: function () {
         var filter = new Isu.model.IssueFilter();
 
         this.extraParamsModel.set('filter', filter);
-        window.location.href = this.extraParamsModel.getQueryStringFromValues();
+        this.refresh();
     },
 
     addSortParam: function (menu, item) {
@@ -227,7 +224,7 @@ Ext.define('Isu.controller.Issues', {
 
         if (!sorting.data[item.action]) {
             sorting.addSortParam(item.action);
-            window.location.href = this.extraParamsModel.getQueryStringFromValues();
+            this.refresh();
         }
     },
 
@@ -235,21 +232,27 @@ Ext.define('Isu.controller.Issues', {
         var sorting = this.extraParamsModel.get('sort');
 
         sorting.toggleSortParam(button.sortName);
-        window.location.href = this.extraParamsModel.getQueryStringFromValues();
+        this.refresh();
     },
 
     removeSortItem: function (button) {
         var sorting = this.extraParamsModel.get('sort');
 
         sorting.removeSortParam(button.sortName);
-        window.location.href = this.extraParamsModel.getQueryStringFromValues();
+        this.refresh();
     },
 
     clearSortParams: function () {
         var sorting = this.extraParamsModel.get('sort');
 
         sorting.data = {};
-        window.location.href = this.extraParamsModel.getQueryStringFromValues();
+        this.refresh();
+    },
+
+    refresh: function() {
+        window.location.replace(this.extraParamsModel.getQueryStringFromValues());
+        this.showOverview();
+//        window.location.reload();
     },
 
     setGrouping: function () {
@@ -292,7 +295,7 @@ Ext.define('Isu.controller.Issues', {
         var grouping = this.extraParamsModel.get('group').get('value');
 
         this.extraParamsModel.set('groupValue', record.getId());
-        window.location.href = this.extraParamsModel.getQueryStringFromValues();
+        this.refresh();
     },
 
     changeGrouping: function (combo, newValue) {
@@ -300,7 +303,7 @@ Ext.define('Isu.controller.Issues', {
 
         this.extraParamsModel.set('groupValue', null);
         this.extraParamsModel.set('group', store.getById(newValue));
-        window.location.href = this.extraParamsModel.getQueryStringFromValues();
+        this.refresh();
     },
 
     setParamsForIssueGroups: function (filterModel, field) {
@@ -359,16 +362,6 @@ Ext.define('Isu.controller.Issues', {
                 window.location.href = '#/workspace/datacollection/issues/' + menu.issueId + '/addcomment';
                 break;
         }
-    },
-
-    changeSortDirection: function (btn) {
-        this.store.getProxySort().toggleSortParam(btn.sortValue);
-        this.store.updateProxySort();
-    },
-
-    removeSortItem: function (btn) {
-        this.store.getProxySort().removeSortParam(btn.sortValue);
-        this.store.updateProxySort();
     },
 
     addSortItem: function (menu, item) {

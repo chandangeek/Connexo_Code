@@ -10,9 +10,7 @@ Ext.define('Isu.view.workspace.issues.List', {
     ],
     alias: 'widget.issues-list',
     store: 'Isu.store.Issues',
-    enableColumnHide: false,
     emptyText: '<h3>No issue found</h3><p>No data collection issues have been created yet.</p>',
-    height: 395,
     columns: {
         defaults: {
             sortable: false,
@@ -58,20 +56,13 @@ Ext.define('Isu.view.workspace.issues.List', {
             dock: 'top',
             items: [
                 {
-                    xtype: 'container',
-                    flex: 1,
-                    items: [
-                        {
-                            xtype: 'pagingtoolbartop',
-                            store: 'Isu.store.Issues',
-                            displayMsg: '{0} - {1} of {2} issues',
-                            displayMoreMsg: '{0} - {1} of more than {2} issues',
-                            emptyMsg: '0 issues',
-                            dock: 'top',
-                            border: false
-                        }
-                    ]
+                    xtype: 'pagingtoolbartop',
+                    store: 'Isu.store.Issues',
+                    displayMsg: '{0} - {1} of {2} issues',
+                    displayMoreMsg: '{0} - {1} of more than {2} issues',
+                    emptyMsg: '0 issues'
                 },
+                '->',
                 {
                     xtype: 'button',
                     text: 'Bulk action',
