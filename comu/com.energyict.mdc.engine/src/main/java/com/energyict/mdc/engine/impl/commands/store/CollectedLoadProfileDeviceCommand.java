@@ -6,8 +6,10 @@ import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
@@ -15,7 +17,6 @@ import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.util.Pair;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,11 +30,13 @@ import java.util.List;
  */
 public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
 
+    private final DeviceDataService deviceDataService;
     private final CollectedLoadProfile collectedLoadProfile;
 
-    public CollectedLoadProfileDeviceCommand(CollectedLoadProfile collectedLoadProfile, IssueService issueService, Clock clock) {
+    public CollectedLoadProfileDeviceCommand(CollectedLoadProfile collectedLoadProfile, IssueService issueService, DeviceDataService deviceDataService, Clock clock) {
         super(issueService, clock);
         this.collectedLoadProfile = collectedLoadProfile;
+        this.deviceDataService = deviceDataService;
     }
 
     @Override
@@ -47,7 +50,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
     private void storeReadingsAndUpdateLastReading(ComServerDAO comServerDAO, LoadProfile loadProfile, LocalLoadProfile localLoadProfile) {
         MeterReadingImpl meterReading = new MeterReadingImpl();
         meterReading.addAllIntervalBlocks(localLoadProfile.intervalBlocks);
-        comServerDAO.storeMeterReadings(new DeviceIdentifierById((int) loadProfile.getDevice().getId()), meterReading);
+        comServerDAO.storeMeterReadings(new DeviceIdentifierById(loadProfile.getDevice().getId(), this.deviceDataService), meterReading);
         LoadProfile.LoadProfileUpdater loadProfileUpdater = ((Device) loadProfile.getDevice()).getLoadProfileUpdaterFor(loadProfile);
         loadProfileUpdater.setLastReadingIfLater(localLoadProfile.lastReading);
         loadProfileUpdater.update();
@@ -89,13 +92,13 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
         }
     }
 
-    private class LocalLoadProfile extends Pair<List<IntervalBlock>, Date> {
+    private class LocalLoadProfile {
 
         private final List<IntervalBlock> intervalBlocks;
         private final Date lastReading;
 
         private LocalLoadProfile(List<IntervalBlock> intervalBlocks, Date lastReading) {
-            super(intervalBlocks, lastReading);
+            super();
             this.intervalBlocks = intervalBlocks;
             this.lastReading = lastReading;
         }
