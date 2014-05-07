@@ -67,7 +67,7 @@ Ext.define('Isu.controller.Main', {
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: 'Administration',
             href: me.getController('Isu.controller.history.Administration').tokenizeShowOverview(),
-            glyph: 'setting'
+            glyph: 'settings'
         });
 
         Uni.store.MenuItems.add(menuItem);
