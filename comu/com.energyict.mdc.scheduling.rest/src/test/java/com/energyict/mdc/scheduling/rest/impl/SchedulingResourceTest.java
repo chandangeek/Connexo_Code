@@ -12,12 +12,14 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -50,11 +52,15 @@ public class SchedulingResourceTest extends JerseyTest {
     private static Clock clock;
     private static SchedulingService schedulingService;
     private static DeviceDataService deviceDataService;
+    private static DeviceConfigurationService deviceConfigurationService;
+    private static TaskService taskService;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         schedulingService = mock(SchedulingService.class);
         deviceDataService = mock(DeviceDataService.class);
+        deviceConfigurationService = mock(DeviceConfigurationService.class);
+        taskService = mock(TaskService.class);
         clock = mock(Clock.class);
         nlsService = mock(NlsService.class);
         thesaurus = mock(Thesaurus.class);
@@ -81,6 +87,8 @@ public class SchedulingResourceTest extends JerseyTest {
             protected void configure() {
                 bind(schedulingService).to(SchedulingService.class);
                 bind(deviceDataService).to(DeviceDataService.class);
+                bind(deviceConfigurationService).to(DeviceConfigurationService.class);
+                bind(taskService).to(TaskService.class);
                 bind(nlsService).to(NlsService.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(thesaurus).to(Thesaurus.class);
