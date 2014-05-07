@@ -43,7 +43,7 @@ public class CollectedLoadProfileDeviceCommandTest {
     @Test
     public void testToJournalMessageDescriptionWithoutCollectedData () {
         DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new LoadProfileDataIdentifier(ObisCode.fromString(OBIS_CODE), new DeviceIdentifierById(DEVICE_ID)));
-        CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, issueService, clock);
+        CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, issueService, deviceDataService, clock);
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
@@ -61,7 +61,7 @@ public class CollectedLoadProfileDeviceCommandTest {
         List<IntervalData> intervalData = Arrays.asList(new IntervalData(Clocks.getAppServerClock().now()));
         List<ChannelInfo> channelInfo = Arrays.asList(new ChannelInfo(CHANNEL_INFO_ID, CHANNEL1_ID, "testToStringWithOneInterval", Unit.get("kWh")));
         deviceLoadProfile.setCollectedData(intervalData, channelInfo);
-        CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, issueService, clock);
+        CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, issueService, deviceDataService, clock);
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
@@ -96,7 +96,7 @@ public class CollectedLoadProfileDeviceCommandTest {
                                 "testToStringWithMultipleIntervalsFromOneChannel",
                                 Unit.get("kWh")));
         deviceLoadProfile.setCollectedData(intervalData, channelInfo);
-        CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, issueService, clock);
+        CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, issueService, deviceDataService, clock);
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
@@ -132,7 +132,7 @@ public class CollectedLoadProfileDeviceCommandTest {
                                 "Channel-2",
                                 Unit.get("kWh")));
         deviceLoadProfile.setCollectedData(intervalData, channelInfo);
-        CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, issueService, clock);
+        CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, issueService, deviceDataService, clock);
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);

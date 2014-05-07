@@ -71,7 +71,7 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         int deviceId = 99875;
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfileWithDeltaData(deviceId, createMockedLoadProfile());
 
-        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, issueService, clock);
+        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, issueService, deviceDataService, clock);
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
 
@@ -108,7 +108,7 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         int deviceId = 651;
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(deviceId, createMockedLoadProfile());
 
-        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, issueService, clock);
+        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, issueService, deviceDataService, clock);
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
 
@@ -152,7 +152,7 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         int deviceId = 9854651;
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(deviceId, createMockedLoadProfile());
 
-        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, issueService, clock);
+        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, issueService, deviceDataService, clock);
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
         executeInTransaction(new VoidTransaction() {
@@ -201,7 +201,7 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         int deviceId = 4451;
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(deviceId, createMockedLoadProfile());
 
-        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, issueService, clock);
+        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, issueService, deviceDataService, clock);
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
         executeInTransaction(new VoidTransaction() {
@@ -262,7 +262,7 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         BaseLoadProfile mockedLoadProfile = createMockedLoadProfile();
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(deviceId, mockedLoadProfile);
 
-        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, issueService, clock);
+        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, issueService, deviceDataService, clock);
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
 
@@ -287,7 +287,7 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         doThrow(myCustomSqlException).when(mockedLoadProfile).updateLastReadingIfLater(any(Date.class));
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(deviceId, mockedLoadProfile);
 
-        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, issueService, clock);
+        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, issueService, deviceDataService, clock);
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
         try {
@@ -314,7 +314,7 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         Mockito.doThrow(myCustomBusinessException).when(mockedLoadProfile).updateLastReadingIfLater(any(Date.class));
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(deviceId, mockedLoadProfile);
 
-        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, issueService, clock);
+        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, issueService, deviceDataService, clock);
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
         try {
