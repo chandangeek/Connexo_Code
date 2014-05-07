@@ -24,7 +24,7 @@ Ext.define('Dcs.controller.Main', {
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: 'Scheduling',
             href: me.getApplication().getController('Dcs.controller.history.Schedule').tokenizeShowOverview(),
-            glyph: 'xe01e@icomoon'
+            glyph: 'workspace'
         });
 
         Uni.store.MenuItems.add(menuItem);
