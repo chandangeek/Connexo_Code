@@ -44,7 +44,7 @@ public class LoadProfileReader {
      * Represents the database ID of the LoadProfile to read.
      * We will need this to set in the ProfileData object.
      */
-    private final int loadProfileId;
+    private final long loadProfileId;
 
     /**
      * Contains a <CODE>List</CODE> of <b>necessary</b> channels to read from the meter.
@@ -61,7 +61,7 @@ public class LoadProfileReader {
      * @param meterSerialNumber the serialNumber of the meter for which this <CODE>ObisCode</CODE> and <CODE>LoadProfile</CODE> is mapped
      * @param channelInfos      the <CODE>List</CODE> of <CODE>ChannelInfo</CODE> representing the channels to read from the profile in the meter
      */
-    public LoadProfileReader(ObisCode profileObisCode, Date startReadingTime, Date endReadingTime, int loadProfileId, String meterSerialNumber, List<ChannelInfo> channelInfos) {
+    public LoadProfileReader(ObisCode profileObisCode, Date startReadingTime, Date endReadingTime, long loadProfileId, String meterSerialNumber, List<ChannelInfo> channelInfos) {
         this.profileObisCode = profileObisCode;
         if (endReadingTime == null) {
             this.endReadingTime = new Date();
@@ -119,7 +119,7 @@ public class LoadProfileReader {
      *
      * @return the {@link #loadProfileId}
      */
-    public int getLoadProfileId() {
+    public long getLoadProfileId() {
         return loadProfileId;
     }
 

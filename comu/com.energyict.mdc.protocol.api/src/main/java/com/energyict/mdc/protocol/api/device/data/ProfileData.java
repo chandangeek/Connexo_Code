@@ -10,10 +10,8 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * <p>
- * This class represents the profile data read from a device. It
- * supports both interval data and event data
- * </p>
+ * This class represents the profile data read from a device.
+ * It supports both interval data and event data.
  *
  * @author Karel, Koenraad
  *         </p>
@@ -25,7 +23,7 @@ public class ProfileData implements java.io.Serializable {
     /**
      * The id of the LoadProfile.
      */
-    private int loadProfileId;
+    private long loadProfileId;
 
     /**
      * List of events we received from the meter
@@ -59,15 +57,15 @@ public class ProfileData implements java.io.Serializable {
      *
      * @param loadProfileId the id of the LoadProfile of this ProfileData.
      */
-    public ProfileData(int loadProfileId) {
+    public ProfileData(long loadProfileId) {
         this.loadProfileId = loadProfileId;
     }
 
-    public int getLoadProfileId() {
+    public long getLoadProfileId() {
         return loadProfileId;
     }
 
-    public void setLoadProfileId(int loadProfileId) {
+    public void setLoadProfileId(long loadProfileId) {
         this.loadProfileId = loadProfileId;
     }
 
