@@ -1,5 +1,5 @@
-$menu-width-expanded: 200px;
-$menu-width-collapsed: 55px;
+$menu-width-expanded: 245px;
+$menu-width-collapsed: 48px;
 
 .#{$prefix}container-navigationmenu {
     background: -webkit-linear-gradient(top, $navigationmenu-default-bg-gradient-start-color, $navigationmenu-default-bg-gradient-end-color); /* For Safari 5.1 to 6.0 */
@@ -7,14 +7,14 @@ $menu-width-collapsed: 55px;
     background: -moz-linear-gradient(bottom, $navigationmenu-default-bg-gradient-start-color, $navigationmenu-default-bg-gradient-end-color); /* For Firefox 3.6 to 15 */
     background: linear-gradient(to bottom, $navigationmenu-default-bg-gradient-start-color, $navigationmenu-default-bg-gradient-end-color); /* Standard syntax */
 
-    padding-top: 12px;
+    border-top: $navigationmenu-default-border-color solid 1px;
     $item-height: 50px;
-
     position: absolute;
     top: 0;
     bottom: 0;
     width: $menu-width-collapsed !important;
-    z-index: 100;
+    z-index: 1000;
+    padding-right: 1px;
 
     // Animation
     $transition-length: 400ms;

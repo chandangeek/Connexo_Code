@@ -1,10 +1,6 @@
 .#{$prefix}container-contentcontainer {
     background-color: $contentcontainer-default-background-color;
 
-    .north {
-      padding: 6px;
-    }
-
     .west {
       background-color: $contentcontainer-default-background-color;
 
@@ -16,10 +12,6 @@
         color: $contentcontainer-default-header-text-container-default-background-color;
         font-size: 16px;
       }
-      //
-      //        .x-panel-body {
-      //            padding: 5px;
-      //        }
 
       .x-toolbar {
         padding: 6px;
