@@ -101,9 +101,6 @@ Ext.define('Isu.controller.Issues', {
             'issues-overview filtering-toolbar tag-button': {
                 closeclick: this.removeFilterItem
             },
-            'button[name=clearsortbtn]': {
-                click: this.clearSort
-            },
             'issues-side-filter button[action="reset"]': {
                 click: this.resetFilter
             },
@@ -350,42 +347,19 @@ Ext.define('Isu.controller.Issues', {
 
     chooseIssuesAction: function (menu, item) {
         var action = item.action;
+        var issueId = this.getItemPanel().down('form').getRecord().getId();
 
         switch (action) {
             case 'assign':
-                window.location.href = '#/workspace/datacollection/issues/' + menu.issueId + '/assign';
+                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/assign';
                 break;
             case 'close':
-                window.location.href = '#/workspace/datacollection/issues/' + menu.issueId + '/close';
+                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/close';
                 break;
             case 'addcomment':
-                window.location.href = '#/workspace/datacollection/issues/' + menu.issueId + '/addcomment';
+                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/addcomment';
                 break;
         }
-    },
-
-    addSortItem: function (menu, item) {
-        this.store.getProxySort().addSortParam(item.value);
-        this.store.updateProxySort();
-    },
-
-    setAddSortMenu: function (btn) {
-        if (btn.menu.items.getCount() < 1) {
-            this.store.getProxySort().fields.each(function (item) {
-                if (item.displayValue) {
-                    btn.menu.add({
-                        text: item.displayValue,
-                        value: item.name
-                    });
-                }
-            });
-            btn.showMenu();
-        }
-    },
-
-    clearSort: function () {
-        this.store.setProxySort(new Isu.model.IssueSort());
-
     },
 
     setGroupFields: function (view) {
