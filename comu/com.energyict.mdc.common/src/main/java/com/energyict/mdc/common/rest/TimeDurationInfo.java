@@ -20,7 +20,7 @@ public class TimeDurationInfo {
 
     public TimeDurationInfo(int seconds) {
         this.count=seconds;
-        this.timeUnit=TimeDuration.getTimeUnitDescription(13);
+        this.timeUnit=TimeDuration.getTimeUnitDescription(TimeDuration.SECONDS);
     }
 
     public TimeDuration asTimeDuration() {
