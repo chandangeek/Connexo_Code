@@ -55,7 +55,7 @@ Ext.define('Mdc.controller.Main', {
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: 'Setup',
             href: me.getApplication().getController('Mdc.controller.history.Setup').tokenizeShowOverview(),
-            glyph: 'xe01d@icomoon'
+            glyph: 'settings'
         });
         Uni.store.MenuItems.add(menuItem);
         this.initNavigation();
