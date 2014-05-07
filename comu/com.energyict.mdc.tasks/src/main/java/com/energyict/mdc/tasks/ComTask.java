@@ -1,5 +1,6 @@
 package com.energyict.mdc.tasks;
 
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
  * @author gna
  * @since 19/04/12 - 13:52
  */
-public interface ComTask {
+public interface ComTask extends HasId {
 
     public long getId();
 

@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -44,7 +45,7 @@ import javax.validation.constraints.Size;
  * @since 2/05/12 - 16:10
  */
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.DUPLICATE_COMTASK_NAME +"}")
-public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
+public class ComTaskImpl implements ComTask, DataCollectionConfiguration, HasId {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
