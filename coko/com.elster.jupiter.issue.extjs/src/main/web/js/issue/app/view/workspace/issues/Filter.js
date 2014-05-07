@@ -1,16 +1,17 @@
 Ext.define('Isu.view.workspace.issues.Filter', {
     extend: 'Ext.panel.Panel',
     requires: [
-        'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom',
-        'Ext.form.Label',
+//        'Uni.view.toolbar.PagingTop',
+//        'Uni.view.toolbar.PagingBottom',
+//        'Ext.form.Label',
+
+        'Ext.menu.Separator',
         'Isu.view.workspace.issues.FilteringToolbar',
         'Isu.view.workspace.issues.SortingToolbar',
-        'Isu.view.workspace.issues.GroupingToolbar',
-        'Isu.view.workspace.issues.GroupGrid'
+        'Isu.view.workspace.issues.GroupingToolbar'
+//        'Isu.view.workspace.issues.GroupGrid'
     ],
     alias: "widget.issues-filter",
-    store: 'Isu.store.Issues',
     layout: {
         type: 'vbox',
         align: 'stretch'

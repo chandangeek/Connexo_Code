@@ -8,15 +8,19 @@ Ext.define('Isu.view.workspace.issues.bulk.Browse', {
         'Isu.view.workspace.issues.bulk.Navigation'
     ],
 
-    side: [
-//        {
-//            xtype: 'navigationSubMenu',
-//            itemId: 'sideMenu'
-//        },
-        {
-            xtype: 'bulk-navigation'
-        }
-    ],
+    side: {
+        xtype: 'panel',
+        ui: 'medium',
+        layout: {
+            type: 'vbox',
+            align: 'stretch'
+        },
+        items: [
+            {
+                xtype: 'bulk-navigation'
+            }
+        ]
+    },
 
     content: [
         {

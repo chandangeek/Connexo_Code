@@ -6,7 +6,6 @@ Ext.define('Isu.view.workspace.issues.Item', {
         'Isu.view.workspace.issues.Form'
     ],
     alias: 'widget.issues-item',
-    height: 310,
     title: 'Details',
     frame: true,
     tools: [
