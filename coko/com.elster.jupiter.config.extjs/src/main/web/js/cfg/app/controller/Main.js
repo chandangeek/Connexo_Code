@@ -25,7 +25,7 @@ Ext.define('Cfg.controller.Main', {
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: 'Validation',
             href: me.getApplication().getController('Cfg.controller.history.Validation').tokenizeShowOverview(),
-            glyph: 'xe01e@icomoon'
+            glyph: 'settings'
         });
 
         Uni.store.MenuItems.add(menuItem);
