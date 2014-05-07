@@ -62,10 +62,6 @@ public final class ProtocolTools {
         // Hide constructor for Util class with static methods
     }
 
-    /**
-     * @param hexString
-     * @return
-     */
     public static byte[] getBytesFromHexString(final String hexString) {
         ByteArrayOutputStream bb = new ByteArrayOutputStream();
         for (int i = 0; i < hexString.length(); i += PREFIX_AND_HEX_LENGTH) {
@@ -173,10 +169,6 @@ public final class ProtocolTools {
         return ProtocolUtils.getResponseData(bytes).replace("$", prefix);
     }
 
-    /**
-     * @param buffer
-     * @return
-     */
     public static byte[] getDataBetweenBrackets(final byte[] buffer) {
         byte[] data = new byte[0];
         int openIndex = indexOff(buffer, (byte) '(');
@@ -187,21 +179,10 @@ public final class ProtocolTools {
         return data;
     }
 
-    /**
-     * @param data
-     * @return
-     */
     public static String getDataBetweenBrackets(final String data) {
         return new String(getDataBetweenBrackets(data.getBytes()));
     }
 
-    /**
-     * @param stringToPad
-     * @param character
-     * @param length
-     * @param addToEnd
-     * @return
-     */
     public static String addPadding(final String stringToPad, final char character, final int length, final boolean addToEnd) {
         String paddedString = null;
         if (stringToPad != null) {
@@ -221,13 +202,6 @@ public final class ProtocolTools {
         return paddedString;
     }
 
-    /**
-     * @param stringToPad
-     * @param character
-     * @param length
-     * @param addToEnd
-     * @return
-     */
     public static String addPaddingAndClip(final String stringToPad, final char character, final int length, final boolean addToEnd) {
         String padded = addPadding(stringToPad, character, length, addToEnd);
         if (addToEnd) {
@@ -238,17 +212,13 @@ public final class ProtocolTools {
     }
 
 
-    /**
-     * @param array
-     * @param index
-     * @return
-     */
     public static boolean isArrayIndexInRange(final byte[] array, final int index) {
         return (array != null) && (index >= 0) && (array.length > index);
     }
 
     /**
-     * retrieve the subArray [from, to[  out of the given array
+     * Retrieve the subArray [from, to[  out of the given array.
+     *
      * @param bytes
      * @param from  Inclusive from
      * @param to    Exclusive to
@@ -267,31 +237,21 @@ public final class ProtocolTools {
         return subBytes;
     }
 
-    /**
-     * @param bytes
-     * @param from
-     * @return
-     */
     public static byte[] getSubArray(final byte[] bytes, final int from) {
         int to = (bytes != null) ? (bytes.length) : -1;
         return getSubArray(bytes, from, to);
     }
 
-    /**
-     * @param firstArray
-     * @param secondArray
-     * @return
-     */
     public static byte[] concatByteArrays(final byte[] firstArray, final byte[] secondArray) {
         if (firstArray == null) {
             if (secondArray == null) {
                 return new byte[0];
             } else {
-                return (byte[]) secondArray.clone();
+                return secondArray.clone();
             }
         } else {
             if (secondArray == null) {
-                return (byte[]) firstArray.clone();
+                return firstArray.clone();
             }
         }
 
@@ -353,21 +313,10 @@ public final class ProtocolTools {
         return concatenatedArray;
     }
 
-    /**
-     * @param buffer
-     * @param value
-     * @return
-     */
     public static int indexOff(final byte[] buffer, final byte value) {
         return indexOff(buffer, value, 0);
     }
 
-    /**
-     * @param buffer
-     * @param value
-     * @param from
-     * @return
-     */
     public static int indexOff(final byte[] buffer, final byte value, final int from) {
         if (isArrayIndexInRange(buffer, from)) {
             for (int i = from; i < buffer.length; i++) {
@@ -379,11 +328,6 @@ public final class ProtocolTools {
         return -1;
     }
 
-    /**
-     * @param hexString
-     * @param prefix
-     * @return
-     */
     public static byte[] getBytesFromHexString(final String hexString, final String prefix) {
         int prefixLength = (prefix == null) ? 0 : prefix.length();
         int charsPerByte = prefixLength + 2;
@@ -394,29 +338,14 @@ public final class ProtocolTools {
         return bb.toByteArray();
     }
 
-    /**
-     * @param fileName
-     * @param bytes
-     * @param append
-     */
     public static void writeBytesToFile(final String fileName, final byte[] bytes, final boolean append) {
         writeBytesToFile(new File(fileName), bytes, append);
     }
 
-    /**
-     * @param fileName
-     * @param text
-     * @param append
-     */
     public static void writeStringToFile(final String fileName, final String text, final boolean append) {
         writeBytesToFile(new File(fileName), text.getBytes(), append);
     }
 
-    /**
-     * @param file
-     * @param bytes
-     * @param append
-     */
     public static void writeBytesToFile(final File file, final byte[] bytes, final boolean append) {
         OutputStream os = null;
         try {
@@ -435,10 +364,6 @@ public final class ProtocolTools {
         }
     }
 
-    /**
-     * @param file
-     * @return
-     */
     public static byte[] readBytesFromFile(final File file) {
         byte[] buffer = new byte[file == null ? 0 : (int) file.length()];
         InputStream is = null;
@@ -462,17 +387,11 @@ public final class ProtocolTools {
         }
         return buffer;
     }
-    /**
-     * @param fileName
-     * @return
-     */
+
     public static byte[] readBytesFromFile(final String fileName) {
         return readBytesFromFile(new File(fileName));
     }
 
-    /**
-     * @param millis
-     */
     public static void delay(long millis) {
         try {
             Thread.sleep(millis);
@@ -481,11 +400,6 @@ public final class ProtocolTools {
         }
     }
 
-    /**
-     * @param timeStamp
-     * @param intervalInMinutes
-     * @return
-     */
     public static Date roundUpToNearestInterval(Date timeStamp, int intervalInMinutes) {
         int intervalMillis = intervalInMinutes * MILLIS * SECONDS;
 
@@ -574,11 +488,6 @@ public final class ProtocolTools {
     }
 
 
-    /**
-     * @param timeStamp
-     * @param intervalInMinutes
-     * @return
-     */
     public static Date roundDownToNearestInterval(Date timeStamp, int intervalInMinutes) {
         return roundUpToNearestInterval(timeStamp, intervalInMinutes * (-1));
     }
@@ -604,12 +513,8 @@ public final class ProtocolTools {
     }
 
 
-    /**
-     * @param profileData
-     * @return
-     */
     public static String getProfileInfo(ProfileData profileData) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder profileInfoBuilder = new StringBuilder();
 
         Date oldest = null;
         Date newest = null;
@@ -630,44 +535,40 @@ public final class ProtocolTools {
             }
         }
 
-        sb.append("Channels:   ").append(profileData.getNumberOfChannels()).append(CRLF);
-        sb.append("Intervals:  ").append(profileData.getNumberOfIntervals()).append(CRLF);
-        sb.append("Events:     ").append(profileData.getNumberOfEvents()).append(CRLF);
-        sb.append("First data: ").append(oldest).append(CRLF);
-        sb.append("Lates data: ").append(newest).append(CRLF);
+        profileInfoBuilder.append("Channels:   ").append(profileData.getNumberOfChannels()).append(CRLF);
+        profileInfoBuilder.append("Intervals:  ").append(profileData.getNumberOfIntervals()).append(CRLF);
+        profileInfoBuilder.append("Events:     ").append(profileData.getNumberOfEvents()).append(CRLF);
+        profileInfoBuilder.append("First data: ").append(oldest).append(CRLF);
+        profileInfoBuilder.append("Lates data: ").append(newest).append(CRLF);
 
         for (Object channelObject : profileData.getChannelInfos()) {
             ChannelInfo channelInfo = (ChannelInfo) channelObject;
-            sb.append("[").append(channelInfo.getId()).append("]");
-            sb.append("[").append(channelInfo.getChannelId()).append("] ");
-            sb.append(channelInfo.getName()).append(", ");
-            sb.append(channelInfo.getUnit()).append(", ");
-            sb.append(channelInfo.getMultiplier()).append(", ");
-            sb.append(channelInfo.getCumulativeWrapValue()).append(CRLF);
+            profileInfoBuilder.append("[").append(channelInfo.getId()).append("]");
+            profileInfoBuilder.append("[").append(channelInfo.getChannelId()).append("] ");
+            profileInfoBuilder.append(channelInfo.getName()).append(", ");
+            profileInfoBuilder.append(channelInfo.getUnit()).append(", ");
+            profileInfoBuilder.append(channelInfo.getMultiplier()).append(", ");
+            profileInfoBuilder.append(channelInfo.getCumulativeWrapValue()).append(CRLF);
         }
 
-        sb.append(CRLF);
+        profileInfoBuilder.append(CRLF);
 
-        return sb.toString();
+        return profileInfoBuilder.toString();
     }
 
-    /**
-     * @param intervals
-     * @return
-     */
     public static List<IntervalData> mergeDuplicateIntervals(List<IntervalData> intervals) {
-        List<IntervalData> mergedIntervals = new ArrayList<IntervalData>();
+        List<IntervalData> mergedIntervals = new ArrayList<>();
         for (IntervalData id2compare : intervals) {
-            boolean allreadyProcessed = false;
+            boolean notProcessedYet = true;
             for (IntervalData merged : mergedIntervals) {
                 if (merged.getEndTime().compareTo(id2compare.getEndTime()) == 0) {
-                    allreadyProcessed = true;
+                    notProcessedYet = false;
                     break;
                 }
             }
 
-            if (!allreadyProcessed) {
-                List<IntervalData> toAdd = new ArrayList<IntervalData>();
+            if (notProcessedYet) {
+                List<IntervalData> toAdd = new ArrayList<>();
                 for (IntervalData id : intervals) {
                     if (id.getEndTime().compareTo(id2compare.getEndTime()) == 0) {
                         toAdd.add(id);
@@ -744,11 +645,6 @@ public final class ProtocolTools {
         return ObisCode.fromByteArray(ln);
     }
 
-    /**
-     * @param registerValue
-     * @param obisCode
-     * @return
-     */
     public static RegisterValue setRegisterValueObisCode(RegisterValue registerValue, ObisCode obisCode) {
         return new RegisterValue(
                 obisCode,
@@ -798,18 +694,6 @@ public final class ProtocolTools {
         return createCalendar(year, month, dayOfMonth, 0, 0, 0, 0);
     }
 
-    /**
-     *
-     * @param year
-     * @param month
-     * @param dayOfMonth
-     * @param hourOfDay
-     * @param minutes
-     * @param seconds
-     * @param millis
-     * @param timeZone
-     * @return
-     */
     public static Calendar createCalendar(int year, int month, int dayOfMonth, int hourOfDay, int minutes, int seconds, int millis, TimeZone timeZone) {
         Calendar returnValue = Calendar.getInstance(timeZone);
         returnValue.set(Calendar.YEAR, year);
@@ -822,12 +706,6 @@ public final class ProtocolTools {
         return returnValue;
     }
 
-    /**
-     * @param from
-     * @param to
-     * @param profileData
-     * @return
-     */
     public static ProfileData clipProfileData(Date from, Date to, ProfileData profileData) {
         ProfileData clippedProfileData = new ProfileData();
         clippedProfileData.setLoadProfileId(profileData.getLoadProfileId());
@@ -837,14 +715,8 @@ public final class ProtocolTools {
         return clippedProfileData;
     }
 
-    /**
-     * @param from
-     * @param to
-     * @param meterEvents
-     * @return
-     */
     public static List<MeterEvent> clipMeterEvents(Date from, Date to, List<MeterEvent> meterEvents) {
-        List<MeterEvent> clippedMeterEvents = new ArrayList<MeterEvent>();
+        List<MeterEvent> clippedMeterEvents = new ArrayList<>();
         if (meterEvents != null) {
             for (int i = 0; i < meterEvents.size(); i++) {
                 MeterEvent meterEvent = meterEvents.get(i);
@@ -856,14 +728,8 @@ public final class ProtocolTools {
         return clippedMeterEvents;
     }
 
-    /**
-     * @param from
-     * @param to
-     * @param intervalDatas
-     * @return
-     */
     public static List<IntervalData> clipIntervalDatas(Date from, Date to, List<IntervalData> intervalDatas) {
-        List<IntervalData> clippedIntervalDatas = new ArrayList<IntervalData>();
+        List<IntervalData> clippedIntervalDatas = new ArrayList<>();
         if (intervalDatas != null) {
             for (int i = 0; i < intervalDatas.size(); i++) {
                 IntervalData intervalData = intervalDatas.get(i);
@@ -1263,9 +1129,8 @@ public final class ProtocolTools {
      * @param base64 The BASE64 encoded string, containing the object to deserialize
      * @param <T>    The expected class (should implement Serializable interface)
      * @return The new deserialized object
-     * @throws IOException If there went something wrong while deserializing the base64 string
      */
-    public static final <T extends Serializable> T deserializeFromBase64(final String base64) {
+    public static <T extends Serializable> T deserializeFromBase64(final String base64) {
 
         ByteArrayInputStream byteStream = null;
         ObjectInputStream objectStream = null;
@@ -1292,9 +1157,8 @@ public final class ProtocolTools {
      * @param object The object that should be serialized
      * @param <T>    The type of class that should be serialized (should implement Serializable interface)
      * @return The base64 encoded serialized object as string
-     * @throws IOException If there went something wrong while serializing the object
      */
-    public static final <T extends Serializable> String serializeToBase64(final T object) {
+    public static <T extends Serializable> String serializeToBase64(final T object) {
         if (object == null) {
             throw new IllegalArgumentException("Unable to serialize 'null' to base64!");
         }

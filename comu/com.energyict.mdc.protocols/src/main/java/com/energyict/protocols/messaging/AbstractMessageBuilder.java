@@ -19,8 +19,6 @@ import java.util.Date;
 
 /**
  * Message builder class responsible of generating and parsing messages.
- *
- * @return The {@link MessageBuilder} capable of generating and parsing messages.
  */
 public abstract class AbstractMessageBuilder implements MessageBuilder {
 
