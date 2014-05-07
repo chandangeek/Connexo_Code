@@ -1,4 +1,4 @@
-package com.energyict.mdc.scheduling.rest.impl;
+package com.energyict.mdc.scheduling.rest;
 
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.scheduling.TemporalExpression;

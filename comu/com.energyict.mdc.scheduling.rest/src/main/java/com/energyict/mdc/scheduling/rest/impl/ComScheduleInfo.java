@@ -2,6 +2,7 @@ package com.energyict.mdc.scheduling.rest.impl;
 
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
+import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;

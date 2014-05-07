@@ -1,12 +1,10 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -138,7 +136,10 @@ public class SchedulingResourceTest extends JerseyTest {
 
         Map<String, Object> map = target("/schedules/").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(1);
-        assertThat((List<?>)map.get("schedules")).hasSize(1);
+        Map<String, Object> schedules = (Map<String, Object>) map.get("schedules");
+        assertThat(schedules).hasSize(1);
+        assertThat(schedules).containsKey("id");
+
     }
 
     private <T> Finder<T> mockFinder(List<T> list) {
@@ -150,14 +151,6 @@ public class SchedulingResourceTest extends JerseyTest {
         when(finder.defaultSortColumn(anyString())).thenReturn(finder);
         when(finder.find()).thenReturn(list);
         return finder;
-    }
-
-
-    class SomeLocalizedException extends LocalizedException {
-
-        protected SomeLocalizedException(Thesaurus thesaurus, MessageSeed messageSeed) {
-            super(thesaurus, messageSeed);
-        }
     }
 
 }
